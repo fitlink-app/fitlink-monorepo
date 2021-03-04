@@ -1,0 +1,22 @@
+{
+  "name": "default",
+  "type": "postgres",
+  "host": "localhost",
+  "database": "fitlink",
+  "password": "fitlink",
+  "username": "fitlink",
+  "synchronize": false,
+  "logging": false,
+  "entities": [
+    "apps/api/src/leaderboard-entries/entities/**/*.ts"
+  ],
+  "migrations": [
+    "apps/api/database/migrations/**/*.ts"
+  ],
+  "subscribers": [],
+  "cli": {
+    "entitiesDir": "apps/api/src/entities",
+    "migrationsDir": "apps/api/database/migrations",
+    "subscribersDir": "apps/api/src/src/subscriber"
+  }
+}

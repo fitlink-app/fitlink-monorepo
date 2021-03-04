@@ -1,0 +1,9 @@
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true
+    },
+    "exclude": ["node_modules", "tmp"]
+  }
+  

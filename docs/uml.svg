@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="160px" preserveAspectRatio="none" style="width:312px;height:160px;" version="1.1" viewBox="0 0 312 160" width="312px" zoomAndPan="magnify"><defs/><g><!--MD5=[a84710f5f8687b6a6f2130bf530933ec]
+class leaderboard_entry--><rect codeLine="25" fill="#FFFFFF" height="146.0469" id="leaderboard_entry" rx="2.5" ry="2.5" style="stroke:#2E8B57;stroke-width:1.5;" width="298.3333" x="7" y="7"/><text fill="#000000" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="133" x="89.6667" y="23.1387">LeaderboardEntry</text><text fill="#808080" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="108" x="102.1667" y="35.251">(leaderboard_entry)</text><line style="stroke:#2E8B57;stroke-width:1.5;" x1="8" x2="304.3333" y1="42.6094" y2="42.6094"/><path d="M16.75,49.3307 C15.2283,49.3307 14,50.5591 14,52.0807 C14,53.6024 15.2283,54.8307 16.75,54.8307 C18.2717,54.8307 19.5,53.6024 19.5,52.0807 C19.5,50.5591 18.2717,49.3307 16.75,49.3307 " fill="#EFEFEF" style="stroke:;stroke-width:0.0;stroke-dasharray:;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="270" x="26.3333" y="56.8198">created_at: TIMESTAMP WITHOUT TIME ZONE(6)</text><path d="M16.75,62.1354 C15.2283,62.1354 14,63.3638 14,64.8854 C14,66.4071 15.2283,67.6354 16.75,67.6354 C18.2717,67.6354 19.5,66.4071 19.5,64.8854 C19.5,63.3638 18.2717,62.1354 16.75,62.1354 " fill="#EFEFEF" style="stroke:;stroke-width:0.0;stroke-dasharray:;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="273" x="26.3333" y="69.6245">updated_at: TIMESTAMP WITHOUT TIME ZONE(6)</text><path d="M19.0417,74.9401 C17.7767,74.9401 16.75,75.9668 16.75,77.2318 C16.75,77.3784 16.75,77.5251 16.7775,77.6626 L14,80.4401 L14,82.2734 L16.75,82.2734 L16.75,80.4401 L18.5833,80.4401 L18.5833,79.5234 L18.6108,79.4959 C18.7483,79.5234 18.895,79.5234 19.0417,79.5234 C20.3067,79.5234 21.3333,78.4968 21.3333,77.2318 C21.3333,75.9668 20.3067,74.9401 19.0417,74.9401 M19.5,75.8568 C20.0042,75.8568 20.4167,76.2693 20.4167,76.7734 C20.4167,77.2776 20.0042,77.6901 19.5,77.6901 C18.9958,77.6901 18.5833,77.2776 18.5833,76.7734 C18.5833,76.2693 18.9958,75.8568 19.5,75.8568 " fill="#B8860B" style="stroke:;stroke-width:0.0;stroke-dasharray:;"/><text fill="#000000" font-family="sans-serif" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="141" x="26.3333" y="82.4292">leaderboard_entry_id</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="35" x="167.3333" y="82.4292">: UUID</text><path d="M16.75,87.7448 C15.2283,87.7448 14,88.9731 14,90.4948 C14,92.0165 15.2283,93.2448 16.75,93.2448 C18.2717,93.2448 19.5,92.0165 19.5,90.4948 C19.5,88.9731 18.2717,87.7448 16.75,87.7448 " fill="#EFEFEF" style="stroke:;stroke-width:0.0;stroke-dasharray:;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="214" x="26.3333" y="95.2339">leaderboard_id: CHARACTER VARYING</text><path d="M16.75,100.5495 C15.2283,100.5495 14,101.7778 14,103.2995 C14,104.8211 15.2283,106.0495 16.75,106.0495 C18.2717,106.0495 19.5,104.8211 19.5,103.2995 C19.5,101.7778 18.2717,100.5495 16.75,100.5495 " fill="#EFEFEF" style="stroke:;stroke-width:0.0;stroke-dasharray:;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="185" x="26.3333" y="108.0386">league_id: CHARACTER VARYING</text><path d="M16.75,113.3542 C15.2283,113.3542 14,114.5825 14,116.1042 C14,117.6258 15.2283,118.8542 16.75,118.8542 C18.2717,118.8542 19.5,117.6258 19.5,116.1042 C19.5,114.5825 18.2717,113.3542 16.75,113.3542 " fill="#EFEFEF" style="stroke:;stroke-width:0.0;stroke-dasharray:;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="170" x="26.3333" y="120.8433">user_id: CHARACTER VARYING</text><path d="M16.75,126.1589 C15.2283,126.1589 14,127.3872 14,128.9089 C14,130.4305 15.2283,131.6589 16.75,131.6589 C18.2717,131.6589 19.5,130.4305 19.5,128.9089 C19.5,127.3872 18.2717,126.1589 16.75,126.1589 " fill="#EFEFEF" style="stroke:;stroke-width:0.0;stroke-dasharray:;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="89" x="26.3333" y="133.6479">points: INTEGER</text><path d="M16.75,138.9635 C15.2283,138.9635 14,140.1919 14,141.7135 C14,143.2352 15.2283,144.4635 16.75,144.4635 C18.2717,144.4635 19.5,143.2352 19.5,141.7135 C19.5,140.1919 18.2717,138.9635 16.75,138.9635 " fill="#EFEFEF" style="stroke:;stroke-width:0.0;stroke-dasharray:;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="80" x="26.3333" y="146.4526">wins: INTEGER</text><!--MD5=[023f48873da8e86ca58bad31a407b327]
+@startuml
+!define table(ename, dbname) entity "<b>ename</b>\n<font size=10 color=gray>(dbname)</font>"
+
+!define pkey(x) {field} <b><color:DarkGoldenRod><&key></color> x</b>
+!define fkey(x) {field} <color:#AAAAAA><&key></color> x
+!define column(x) {field} <color:#EFEFEF><&media-record></color> x
+
+hide stereotypes
+hide methods
+hide circle
+
+top to bottom direction
+
+skinparam roundcorner 5
+skinparam linetype ortho
+skinparam shadowing false
+skinparam handwritten false
+
+skinparam class {
+    BackgroundColor white
+    ArrowColor seagreen
+    BorderColor seagreen
+}
+
+
+table( LeaderboardEntry, leaderboard_entry ) as leaderboard_entry {
+  column( created_at ): TIMESTAMP WITHOUT TIME ZONE(6) 
+  column( updated_at ): TIMESTAMP WITHOUT TIME ZONE(6) 
+  pkey( leaderboard_entry_id ): UUID 
+  column( leaderboard_id ): CHARACTER VARYING 
+  column( league_id ): CHARACTER VARYING 
+  column( user_id ): CHARACTER VARYING 
+  column( points ): INTEGER 
+  column( wins ): INTEGER 
+}
+@enduml
+
+@startuml
+
+
+hide stereotypes
+hide methods
+hide circle
+
+top to bottom direction
+
+skinparam roundcorner 5
+skinparam linetype ortho
+skinparam shadowing false
+skinparam handwritten false
+
+skinparam class {
+    BackgroundColor white
+    ArrowColor seagreen
+    BorderColor seagreen
+}
+
+
+entity "<b>LeaderboardEntry</b>\n<font size=10 color=gray>(leaderboard_entry)</font>" as leaderboard_entry {
+  {field} <color:#EFEFEF><&media-record></color> created_at: TIMESTAMP WITHOUT TIME ZONE(6) 
+  {field} <color:#EFEFEF><&media-record></color> updated_at: TIMESTAMP WITHOUT TIME ZONE(6) 
+  {field} <b><color:DarkGoldenRod><&key></color> leaderboard_entry_id</b>: UUID 
+  {field} <color:#EFEFEF><&media-record></color> leaderboard_id: CHARACTER VARYING 
+  {field} <color:#EFEFEF><&media-record></color> league_id: CHARACTER VARYING 
+  {field} <color:#EFEFEF><&media-record></color> user_id: CHARACTER VARYING 
+  {field} <color:#EFEFEF><&media-record></color> points: INTEGER 
+  {field} <color:#EFEFEF><&media-record></color> wins: INTEGER 
+}
+@enduml
+
+PlantUML version 1.2021.2beta9(Unknown compile time)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>
