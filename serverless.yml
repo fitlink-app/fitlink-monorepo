@@ -1,0 +1,60 @@
+service:
+  name: nest
+
+org: fitlink
+app: fitlink
+
+plugins:
+  - serverless-layers
+  - serverless-offline
+  - serverless-dotenv-plugin
+  - serverless-deployment-bucket
+
+package:
+  exclude:
+    - ./**
+  include:
+    - dist/apps/api/serverless.js
+    - ./package.json
+
+custom:
+  serverless-layers:
+    functions:
+      - main
+      - migrate
+    dependenciesPath: ./package.json
+    packageManager: yarn
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: eu-west-2
+  deploymentBucket:
+    name: fitlink-nest-serverless-deployment-dev-bucket
+    serverSideEncryption: AES256
+
+functions:
+  main:
+    handler: dist/apps/api/serverless.handler
+    events:
+      - http:
+          method: any
+          path: /{any+}
+    vpc:
+      securityGroupIds:
+        - sg-4e482523
+      subnetIds:
+        - subnet-0ca95540
+        - subnet-3b79d741
+        - subnet-449bf92d
+  migrate:
+    handler: dist/apps/api/serverless.migrate
+    vpc:
+      securityGroupIds:
+        - sg-4e482523
+      subnetIds:
+        - subnet-0ca95540
+        - subnet-3b79d741
+        - subnet-449bf92d
+
+

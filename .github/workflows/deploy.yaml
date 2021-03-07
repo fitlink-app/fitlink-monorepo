@@ -11,13 +11,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-18.04
+    env:
+      SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+      DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
+      DB_USERNAME: ${{ secrets.DEV_DB_USERNAME }}
+      DB_DATABASE_NAME: ${{ secrets.DEV_DB_DATABASE_NAME }}
+      DB_HOST: ${{ secrets.DEV_DB_HOST }}
+      DB_PORT: ${{ secrets.DEV_DB_PORT }}
+      API_PREFIX: ${{ secrets.DEV_API_PREFIX }}
 
     steps:
       - uses: actions/checkout@v2
 
       - uses: actions/setup-node@v1
         with:
-          node-version: '12'
+          node-version: '14'
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -34,8 +42,18 @@ jobs:
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build Nest
-        run: yarn run build
-
       - name: Test e2e
         run: yarn run test:e2e
+
+      - name: Build nest for Serverless
+        run: yarn run build
+
+      - name: Install serverless globally
+        run: yarn add global serverless
+
+      - name: Serverless - Run deploy
+        run: sls deploy
+
+      - name: Serverless - Run migrations
+        run: sls invoke -f migrate
+

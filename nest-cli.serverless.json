@@ -7,11 +7,12 @@
     "webpack": true,
     "tsConfigPath": "apps/api/tsconfig.app.json"
   },
+  "entryFile": "serverless",
   "projects": {
     "api": {
       "type": "application",
       "root": "apps/api",
-      "entryFile": "main",
+      "entryFile": "serverless",
       "sourceRoot": "apps/api/src",
       "compilerOptions": {
         "tsConfigPath": "apps/api/tsconfig.app.json"

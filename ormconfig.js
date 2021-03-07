@@ -1,10 +1,10 @@
-{
+module.exports = {
   "name": "default",
   "type": "postgres",
-  "host": "localhost",
-  "database": "fitlink",
-  "password": "fitlink",
-  "username": "fitlink",
+  "host": process.env.DB_HOST || "localhost",
+  "database": process.env.DB_NAME || "fitlink",
+  "password": process.env.DB_PASSWORD || "fitlink",
+  "username": process.env.DB_USERNAME || "fitlink",
   "synchronize": false,
   "logging": false,
   "entities": [
