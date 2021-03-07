@@ -23,8 +23,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
           entities: [LeaderboardEntry],
           synchronize: false,
           logging: false,
-          retryAttempts: 1,
-          migrationsRun: configService.get('MIGRATIONS_RUN')
+          retryAttempts: 1
         }
       }
     }),

@@ -23,8 +23,8 @@ custom:
       - main
       - migrate
     dependenciesPath: ./package.json
-    # packageManager: yarn
-    # customInstallationCommand: yarn install --production --frozen-lockfile
+    packageManager: yarn
+    customInstallationCommand: yarn install --production --frozen-lockfile
 
 provider:
   name: aws

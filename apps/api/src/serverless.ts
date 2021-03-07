@@ -13,6 +13,7 @@ import {
 } from 'aws-lambda'
 import { Logger } from '@nestjs/common'
 import { createConnection } from 'typeorm'
+import migrations from '../database/migrations'
 
 interface NestApp {
   app: NestFastifyApplication
@@ -55,11 +56,12 @@ export async function migrate() {
     port: (process.env.DB_PORT as unknown) as number,
     synchronize: false,
     logging: true,
-    dropSchema: false
+    dropSchema: false,
+    migrations: migrations
   })
-  const migrations = await connection.runMigrations({
+  const result = await connection.runMigrations({
     transaction: 'none'
   })
   await connection.close()
-  return migrations
+  return result
 }
