@@ -52,8 +52,8 @@ jobs:
         run: yarn add global serverless
 
       - name: Serverless - Run deploy
-        run: PATH="$PATH:$(yarn global bin)" sls deploy
+        run: yarn run sls:deploy
 
       - name: Serverless - Run migrations
-        run: PATH="$PATH:$(yarn global bin)" sls invoke -f migrate
+        run: yarn run sls:migrate
 

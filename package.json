@@ -25,7 +25,9 @@
     "db:migration:run": "yarn run typeorm migration:run -f ./ormconfig.json",
     "db:migration:initialize": "yarn run typeorm migration:generate -n InitializeSchema -f ./ormconfig.json -d apps/api/database/migrations",
     "docs:generate": "@compodoc/compodoc -p tsconfig.json -s",
-    "sls:offline:start": "cross-env API_PREFIX=\"api/v1\" && sls offline start"
+    "sls:offline:start": "cross-env API_PREFIX=\"api/v1\" && sls offline start",
+    "sls:deploy": "serverless deploy",
+    "sls:migrate": "serverless invoke -f migrate"
   },
   "dependencies": {
     "@nestjs/common": "^7.6.13",

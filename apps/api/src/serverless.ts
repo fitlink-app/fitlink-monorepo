@@ -54,7 +54,7 @@ export async function migrate() {
     host: process.env.DB_HOST,
     port: (process.env.DB_PORT as unknown) as number,
     synchronize: false,
-    logging: false,
+    logging: true,
     dropSchema: false
   })
   const migrations = await connection.runMigrations({
