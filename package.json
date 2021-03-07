@@ -27,6 +27,7 @@
     "docs:generate": "@compodoc/compodoc -p tsconfig.json -s",
     "sls:offline:start": "cross-env API_PREFIX=\"api/v1\" && sls offline start",
     "sls:deploy": "serverless deploy",
+    "sls:package": "serverless package",
     "sls:migrate": "serverless invoke -f migrate"
   },
   "dependencies": {

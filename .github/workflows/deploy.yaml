@@ -19,6 +19,7 @@ jobs:
       DB_HOST: ${{ secrets.DEV_DB_HOST }}
       DB_PORT: ${{ secrets.DEV_DB_PORT }}
       API_PREFIX: ${{ secrets.DEV_API_PREFIX }}
+      NODE_ENV: production
 
     steps:
       - uses: actions/checkout@v2
@@ -40,7 +41,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --production=true
 
       - name: Test e2e
         run: yarn run test:e2e
