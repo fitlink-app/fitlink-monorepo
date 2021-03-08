@@ -22,7 +22,7 @@
     "db:sync": "yarn run typeorm migration:generate -n CreateDatabase",
     "db:diagram": "ts-node --project apps/api/tsconfig.uml.json ./node_modules/typeorm-uml/bin/run ./ormconfig.json --download=docs/uml.svg --format=svg --with-enum-values",
     "db:migration:show": "yarn run typeorm migration:show -f ./ormconfig.json",
-    "db:migration:run": "yarn run typeorm migration:run -f ./ormconfig.json",
+    "db:migration:run": "yarn run typeorm migration:run -f ./ormconfig.js",
     "db:migration:initialize": "yarn run typeorm migration:generate -n InitializeSchema -f ./ormconfig.json -d apps/api/database/migrations",
     "docs:generate": "@compodoc/compodoc -p tsconfig.json -s",
     "sls:offline:start": "cross-env API_PREFIX=\"api/v1\" && sls offline start",

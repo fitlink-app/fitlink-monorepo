@@ -29,6 +29,10 @@ A docker-compose file is available to run redis + postgres.
 
 The api will be available at http://localhost:3000/api/v1/leaderboard-entries
 
+In order for the app to work correctly, migrations should be run (postgres service must be available from Docker)
+
+```yarn run db:migration:run```
+
 ### E2E tests
 
 Run the e2e tests:

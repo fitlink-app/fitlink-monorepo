@@ -13,7 +13,7 @@ import {
 } from 'aws-lambda'
 import { Logger } from '@nestjs/common'
 import { createConnection } from 'typeorm'
-import migrations from '../database/migrations'
+import migrations from './migrations'
 
 interface NestApp {
   app: NestFastifyApplication
