@@ -19,6 +19,8 @@ jobs:
       DB_HOST: ${{ secrets.DEV_DB_HOST }}
       DB_PORT: ${{ secrets.DEV_DB_PORT }}
       API_PREFIX: ${{ secrets.DEV_API_PREFIX }}
+      API_DOMAIN_NAME: ${{ secrets.DEV_API_DOMAIN_NAME }}
+      API_DOMAIN_NAME_HOSTED_ZONE_ID: ${{ secrets.DEV_API_DOMAIN_NAME_HOSTED_ZONE_ID }}
 
     steps:
       - uses: actions/checkout@v2

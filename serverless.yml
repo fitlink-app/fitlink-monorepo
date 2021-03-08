@@ -9,6 +9,7 @@ plugins:
   - serverless-offline
   - serverless-dotenv-plugin
   - serverless-deployment-bucket
+  - serverless-domain-manager
 
 package:
   exclude:
@@ -25,6 +26,13 @@ custom:
     dependenciesPath: ./package.json
     packageManager: yarn
     customInstallationCommand: yarn install --production --frozen-lockfile
+  customDomain:
+    domainName: ${env:API_DOMAIN_NAME}
+    hostedZoneId: ${env:API_DOMAIN_NAME_HOSTED_ZONE_ID}
+    endpointType: regional
+    basePath: ''
+    stage: ${self:provider.stage}
+    createRoute53Record: true
 
 provider:
   name: aws
