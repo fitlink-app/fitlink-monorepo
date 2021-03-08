@@ -1,11 +1,6 @@
 version: '3.7'
 
 services:
-  redis:
-    container_name: redis
-    image: redis:5
-    networks:
-      - webnet
   postgres:
     container_name: postgres
     image: postgres:12
