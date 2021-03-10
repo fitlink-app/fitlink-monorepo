@@ -1,8 +1,45 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { LeaderboardEntriesModule } from './leaderboard-entries/leaderboard-entries.module'
-import { LeaderboardEntry } from './leaderboard-entries/entities/leaderboard-entry.entity'
 import { ConfigModule, ConfigService } from '@nestjs/config'
+
+// Entities
+import { Activity } from './modules/activities/entities/activity.entity'
+import { Following } from './modules/followings/entities/following.entity'
+import { Image } from './modules/images/entities/image.entity'
+import { Leaderboard } from './modules/leaderboards/entities/leaderboard.entity'
+import { LeaderboardEntry } from './modules/leaderboard-entries/entities/leaderboard-entry.entity'
+import { LeaguesInvitation } from './modules/leagues-invitations/entities/leagues-invitation.entity'
+import { League } from './modules/leagues/entities/league.entity'
+import { Organisation } from './modules/organisations/entities/organisation.entity'
+import { Provider } from './modules/providers/entities/provider.entity'
+import { Reward } from './modules/rewards/entities/reward.entity'
+import { Sport } from './modules/sports/entities/sport.entity'
+import { Team } from './modules/teams/entities/team.entity'
+import { TeamsInvitation } from './modules/teams-invitations/entities/teams-invitation.entity'
+import { User } from './modules/users/entities/user.entity'
+import { UsersSetting } from './modules/users-settings/entities/users-setting.entity'
+
+// Modules
+import { ActivitiesModule } from './modules/activities/activities.module'
+import { FollowingsModule } from './modules/followings/followings.module'
+import { ImagesModule } from './modules/images/images.module'
+import { LeaderboardsModule } from './modules/leaderboards/leaderboards.module'
+import { LeaderboardEntriesModule } from './modules/leaderboard-entries/leaderboard-entries.module'
+import { LeaguesInvitationsModule } from './modules/leagues-invitations/leagues-invitations.module'
+import { LeaguesModule } from './modules/leagues/leagues.module'
+import { OrganisationsModule } from './modules/organisations/organisations.module'
+import { ProvidersModule } from './modules/providers/providers.module'
+import { RewardsModule } from './modules/rewards/rewards.module'
+import { RewardsRedemption } from './modules/rewards-redemptions/entities/rewards-redemption.entity'
+import { RewardsRedemptionsModule } from './modules/rewards-redemptions/rewards-redemptions.module'
+import { SportsModule } from './modules/sports/sports.module'
+import { TeamsInvitationsModule } from './modules/teams-invitations/teams-invitations.module'
+import { TeamsModule } from './modules/teams/teams.module'
+import { UsersModule } from './modules/users/users.module'
+import { UsersSettingsModule } from './modules/users-settings/users-settings.module'
+import { GoalsEntriesModule } from './modules/goals-entries/goals-entries.module'
+import { HealthActivitiesModule } from './modules/health-activities/health-activities.module'
+import { FeedItemsModule } from './modules/feed-items/feed-items.module'
 
 @Module({
   imports: [
@@ -20,14 +57,49 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
           host: configService.get('DB_HOST'),
           port: configService.get('DB_PORT'),
           dropSchema: false,
-          entities: [LeaderboardEntry],
+          entities: [
+            Activity,
+            Following,
+            Image,
+            Leaderboard,
+            LeaderboardEntry,
+            League,
+            LeaguesInvitation,
+            Organisation,
+            Provider,
+            Reward,
+            RewardsRedemption,
+            Sport,
+            Team,
+            TeamsInvitation,
+            User,
+            UsersSetting
+          ],
           synchronize: false,
           logging: false,
           retryAttempts: 1
         }
       }
     }),
-    LeaderboardEntriesModule
+    ActivitiesModule,
+    FollowingsModule,
+    ImagesModule,
+    LeaderboardsModule,
+    LeaderboardEntriesModule,
+    LeaguesModule,
+    LeaguesInvitationsModule,
+    OrganisationsModule,
+    ProvidersModule,
+    RewardsModule,
+    RewardsRedemptionsModule,
+    SportsModule,
+    TeamsModule,
+    TeamsInvitationsModule,
+    UsersModule,
+    UsersSettingsModule,
+    GoalsEntriesModule,
+    HealthActivitiesModule,
+    FeedItemsModule
   ]
 })
 export class ApiModule {}

@@ -44,6 +44,12 @@ Run the e2e tests:
 
 Simple bearer authentication is in place.
 
+## Nest-cli
+
+Scaffold new CRUD routes using nest cli, under the modules folder
+
+```nest g resource modules/fishes```
+
 ## Swagger
 
 Swagger documentation is provided at http://localhost:3000/api/v1

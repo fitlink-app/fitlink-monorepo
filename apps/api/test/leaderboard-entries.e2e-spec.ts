@@ -1,8 +1,8 @@
 import { Test } from '@nestjs/testing'
 import { ValidationPipe } from '@nestjs/common'
-import { LeaderboardEntriesController } from '../src/leaderboard-entries/leaderboard-entries.controller'
-import { LeaderboardEntriesService } from '../src/leaderboard-entries/leaderboard-entries.service'
-import { LeaderboardEntry } from '../src/leaderboard-entries/entities/leaderboard-entry.entity'
+import { LeaderboardEntriesController } from '../src/modules/leaderboard-entries/leaderboard-entries.controller'
+import { LeaderboardEntriesService } from '../src/modules/leaderboard-entries/leaderboard-entries.service'
+import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
 import { Repository } from 'typeorm'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import {
@@ -10,9 +10,7 @@ import {
   NestFastifyApplication
 } from '@nestjs/platform-fastify'
 
-export type MockType<T> = {
-  [P in keyof T]?: jest.Mock<any>
-}
+import { MockType } from './helpers/types'
 
 describe('LeaderboardEntries', () => {
   let app: NestFastifyApplication
