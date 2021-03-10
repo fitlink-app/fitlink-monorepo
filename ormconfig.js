@@ -8,7 +8,7 @@ module.exports = {
   "synchronize": false,
   "logging": false,
   "entities": [
-    "apps/api/src/leaderboard-entries/entities/**/*.ts"
+    "apps/api/src/modules/*/entities/*.ts"
   ],
   "migrations": [
     "apps/api/database/migrations/**/*.ts"

@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common'
 import { LeaderboardEntriesService } from './leaderboard-entries.service'
 import { CreateLeaderboardEntryDto } from './dto/create-leaderboard-entry.dto'
-import { NotFoundInterceptor } from '../interceptors/notfound.interceptor'
-import { AuthGuard } from '../guards/auth.guard'
+import { NotFoundInterceptor } from '../../interceptors/notfound.interceptor'
+import { AuthGuard } from '../../guards/auth.guard'
 
 @Controller('leaderboard-entries')
 @UseGuards(AuthGuard)

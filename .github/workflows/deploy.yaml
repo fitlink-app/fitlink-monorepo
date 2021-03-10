@@ -55,8 +55,21 @@ jobs:
         run: yarn add global serverless
 
       - name: Serverless - Run deploy
+        if: github.ref == 'refs/heads/develop'
         run: yarn run sls:deploy
 
       - name: Serverless - Run migrations
+        if: github.ref == 'refs/heads/develop'
         run: yarn run sls:migrate
+
+      - name: Regenerate UML if entities change
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          if(( $(git diff HEAD~1..HEAD apps/api/src/**/*entity.ts | LC_ALL=C.UTF-8 wc -m) != 0)); then
+            yarn run db:diagram
+            git add docs/uml.svg
+            git commit -m "Update UML diagram - skip ci"
+            git push origin develop
+          fi
+
 

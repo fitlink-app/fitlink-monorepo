@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { CreateLeaderboardEntryDto } from './dto/create-leaderboard-entry.dto'
 import { LeaderboardEntry } from './entities/leaderboard-entry.entity'
-import { Pagination, PaginationOptionsInterface } from '../paginate'
+import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 
 @Injectable()
 export class LeaderboardEntriesService {
