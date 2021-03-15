@@ -22,10 +22,16 @@ export class League extends CreatableByUserEntity {
   @JoinColumn()
   sport: Sport
 
-  @OneToMany(() => Leaderboard, (leaderboard) => leaderboard.league)
+  @OneToMany(() => Leaderboard, (leaderboard) => leaderboard.league, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   leaderboards: Leaderboard[]
 
-  @OneToOne(() => Leaderboard)
+  @OneToOne(() => Leaderboard, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   @JoinColumn()
   active_leaderboard: Leaderboard
 
@@ -35,7 +41,10 @@ export class League extends CreatableByUserEntity {
   @Column()
   description: string
 
-  @ManyToMany(() => User, (user) => user.leagues)
+  @ManyToMany(() => User, (user) => user.leagues, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   @JoinTable()
   users: User[]
 }

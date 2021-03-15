@@ -4,7 +4,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 
 // Entities
 import { Activity } from './modules/activities/entities/activity.entity'
+import { FeedItem } from './modules/feed-items/entities/feed-item.entity'
 import { Following } from './modules/followings/entities/following.entity'
+import { GoalsEntry } from './modules/goals-entries/entities/goals-entry.entity'
+import { HealthActivity } from './modules/health-activities/entities/health-activity.entity'
 import { Image } from './modules/images/entities/image.entity'
 import { Leaderboard } from './modules/leaderboards/entities/leaderboard.entity'
 import { LeaderboardEntry } from './modules/leaderboard-entries/entities/leaderboard-entry.entity'
@@ -12,7 +15,9 @@ import { LeaguesInvitation } from './modules/leagues-invitations/entities/league
 import { League } from './modules/leagues/entities/league.entity'
 import { Organisation } from './modules/organisations/entities/organisation.entity'
 import { Provider } from './modules/providers/entities/provider.entity'
+import { RefreshToken } from './modules/auth/entities/auth.entity'
 import { Reward } from './modules/rewards/entities/reward.entity'
+import { RewardsRedemption } from './modules/rewards-redemptions/entities/rewards-redemption.entity'
 import { Sport } from './modules/sports/entities/sport.entity'
 import { Team } from './modules/teams/entities/team.entity'
 import { TeamsInvitation } from './modules/teams-invitations/entities/teams-invitation.entity'
@@ -20,6 +25,7 @@ import { User } from './modules/users/entities/user.entity'
 import { UsersSetting } from './modules/users-settings/entities/users-setting.entity'
 
 // Modules
+import { AuthModule } from './modules/auth/auth.module'
 import { ActivitiesModule } from './modules/activities/activities.module'
 import { FollowingsModule } from './modules/followings/followings.module'
 import { ImagesModule } from './modules/images/images.module'
@@ -30,7 +36,6 @@ import { LeaguesModule } from './modules/leagues/leagues.module'
 import { OrganisationsModule } from './modules/organisations/organisations.module'
 import { ProvidersModule } from './modules/providers/providers.module'
 import { RewardsModule } from './modules/rewards/rewards.module'
-import { RewardsRedemption } from './modules/rewards-redemptions/entities/rewards-redemption.entity'
 import { RewardsRedemptionsModule } from './modules/rewards-redemptions/rewards-redemptions.module'
 import { SportsModule } from './modules/sports/sports.module'
 import { TeamsInvitationsModule } from './modules/teams-invitations/teams-invitations.module'
@@ -60,6 +65,9 @@ import { FeedItemsModule } from './modules/feed-items/feed-items.module'
           entities: [
             Activity,
             Following,
+            FeedItem,
+            HealthActivity,
+            GoalsEntry,
             Image,
             Leaderboard,
             LeaderboardEntry,
@@ -67,6 +75,7 @@ import { FeedItemsModule } from './modules/feed-items/feed-items.module'
             LeaguesInvitation,
             Organisation,
             Provider,
+            RefreshToken,
             Reward,
             RewardsRedemption,
             Sport,
@@ -81,7 +90,9 @@ import { FeedItemsModule } from './modules/feed-items/feed-items.module'
         }
       }
     }),
+    AuthModule,
     ActivitiesModule,
+    FeedItemsModule,
     FollowingsModule,
     ImagesModule,
     LeaderboardsModule,
@@ -98,8 +109,7 @@ import { FeedItemsModule } from './modules/feed-items/feed-items.module'
     UsersModule,
     UsersSettingsModule,
     GoalsEntriesModule,
-    HealthActivitiesModule,
-    FeedItemsModule
+    HealthActivitiesModule
   ]
 })
 export class ApiModule {}

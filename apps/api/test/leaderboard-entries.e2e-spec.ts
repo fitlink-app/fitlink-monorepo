@@ -1,62 +1,15 @@
-import { Test } from '@nestjs/testing'
-import { ValidationPipe } from '@nestjs/common'
-import { LeaderboardEntriesController } from '../src/modules/leaderboard-entries/leaderboard-entries.controller'
-import { LeaderboardEntriesService } from '../src/modules/leaderboard-entries/leaderboard-entries.service'
-import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
-import { Repository } from 'typeorm'
-import { getRepositoryToken } from '@nestjs/typeorm'
-import {
-  FastifyAdapter,
-  NestFastifyApplication
-} from '@nestjs/platform-fastify'
-
-import { MockType } from './helpers/types'
+import { mockApp } from './helpers/app'
+import { LeaderboardEntriesModule } from '../src/modules/leaderboard-entries/leaderboard-entries.module'
 
 describe('LeaderboardEntries', () => {
-  let app: NestFastifyApplication
-  let repositoryMock: MockType<Repository<LeaderboardEntry>>
+  let app
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [
-        /**
-         * Important: Do not import the leaderboard entries module.
-         * This module includes TypeORM.forFeature, which
-         * will tightly couple tests to the postgres database.
-         * Postgres can't be mocked in memory, and will introduce
-         * the requirement to have pg and a test database available
-         * in CI/CD.
-         */
-      ],
-
-      controllers: [LeaderboardEntriesController],
-
-      providers: [
-        LeaderboardEntriesService,
-
-        // Provide your mock instead of the actual repository
-        {
-          provide: getRepositoryToken(LeaderboardEntry),
-          useValue: {
-            findAndCount: jest.fn(),
-            findOne: jest.fn(),
-            create: jest.fn(),
-            update: jest.fn(),
-            softDelete: jest.fn(),
-            save: jest.fn()
-          }
-        }
-      ]
-    }).compile()
-
-    app = moduleRef.createNestApplication<NestFastifyApplication>(
-      new FastifyAdapter()
-    )
-    app.useGlobalPipes(new ValidationPipe())
-
-    repositoryMock = moduleRef.get(getRepositoryToken(LeaderboardEntry))
-    await app.init()
-    await app.getHttpAdapter().getInstance().ready()
+    app = await mockApp({
+      imports: [LeaderboardEntriesModule],
+      providers: [],
+      controllers: []
+    })
   })
 
   const headers = {
@@ -72,8 +25,6 @@ describe('LeaderboardEntries', () => {
         points: 0
       }
     ]
-
-    repositoryMock.findAndCount.mockReturnValue([data, 1])
 
     return app
       .inject({
@@ -95,8 +46,6 @@ describe('LeaderboardEntries', () => {
         points: 0
       }
     ]
-
-    repositoryMock.findAndCount.mockReturnValue([data, 1])
 
     return app
       .inject({
@@ -122,8 +71,6 @@ describe('LeaderboardEntries', () => {
       points: 0
     }
 
-    repositoryMock.findOne.mockReturnValue(data)
-
     return app
       .inject({
         method: 'GET',
@@ -137,8 +84,6 @@ describe('LeaderboardEntries', () => {
   })
 
   it(`/GET  (404) leaderboard-entries/:leaderboardId/:userId `, () => {
-    repositoryMock.findOne.mockReturnValue(undefined)
-
     return app
       .inject({
         method: 'GET',
@@ -160,8 +105,6 @@ describe('LeaderboardEntries', () => {
       user_id: '1234',
       points: 0
     }
-
-    repositoryMock.save.mockReturnValue(payload)
 
     return app
       .inject({
@@ -186,8 +129,6 @@ describe('LeaderboardEntries', () => {
       points: 0
     }
 
-    repositoryMock.save.mockReturnValue(payload)
-
     return app
       .inject({
         method: 'POST',
@@ -209,8 +150,6 @@ describe('LeaderboardEntries', () => {
       league_id: '1234',
       points: 0
     }
-
-    repositoryMock.update.mockReturnValue(payload)
 
     return app
       .inject({
