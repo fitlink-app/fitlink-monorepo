@@ -58,12 +58,6 @@ If other tests are failing, just run your own tests
 
 The api will be available at http://localhost:3000/api/v1/*
 
-### E2E tests
-
-Run the e2e tests:
-
-```yarn run test:e2e```
-
 
 ### Bearer authentication
 
