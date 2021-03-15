@@ -7,7 +7,6 @@ import { Leaderboard } from '../../src/modules/leaderboards/entities/leaderboard
 import { LeaderboardEntry } from '../../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
 import { flatten } from 'lodash'
 import * as faker from 'faker'
-import { Sport } from '../../src/modules/sports/entities/sport.entity'
 
 const COUNT_ORGANISATIONS = 2
 const COUNT_TEAMS = 2
