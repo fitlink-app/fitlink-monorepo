@@ -13,7 +13,11 @@ export class Leaderboard extends CreatableEntity {
 
   @OneToMany(
     () => LeaderboardEntry,
-    (leaderboardEntry) => leaderboardEntry.leaderboard
+    (leaderboardEntry) => leaderboardEntry.leaderboard,
+    {
+      cascade: ['remove'],
+      onDelete: 'CASCADE'
+    }
   )
   entries: LeaderboardEntry[]
 }

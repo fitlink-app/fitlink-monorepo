@@ -8,7 +8,8 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  ManyToMany
+  ManyToMany,
+  JoinTable
 } from 'typeorm'
 
 import { Activity } from '../../activities/entities/activity.entity'
@@ -34,16 +35,30 @@ export class Team {
   @ManyToOne(() => Organisation, (organisation) => organisation.teams)
   organisation: Organisation
 
-  @OneToMany(() => Activity, (activity) => activity.team)
+  @OneToMany(() => Activity, (activity) => activity.team, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   activities: Activity[]
 
-  @OneToMany(() => Reward, (reward) => reward.team)
+  @OneToMany(() => Reward, (reward) => reward.team, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   rewards: Reward[]
 
-  @OneToOne(() => Image, { nullable: true })
+  @OneToOne(() => Image, {
+    nullable: true,
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   @JoinColumn()
   avatar: Image
 
-  @ManyToMany(() => User, (user) => user.teams)
+  @ManyToMany(() => User, (user) => user.teams, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
+  @JoinTable()
   users: User[]
 }

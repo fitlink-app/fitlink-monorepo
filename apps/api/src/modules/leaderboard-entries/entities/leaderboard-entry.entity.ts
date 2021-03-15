@@ -1,28 +1,18 @@
 import {
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
   Entity,
   Index,
-  UpdateDateColumn,
   ManyToOne,
-  OneToOne,
   JoinColumn
 } from 'typeorm'
 import { IsInt, Min } from 'class-validator'
 import { Leaderboard } from '../../leaderboards/entities/leaderboard.entity'
 import { User } from '../../users/entities/user.entity'
-import { League } from '../../leagues/entities/league.entity'
+import { CreatableEntity } from '../../../classes/entity/creatable'
 
 @Entity()
-@Index(['leaderboard_id', 'user_id'], { unique: true })
-export class LeaderboardEntry {
-  @CreateDateColumn()
-  created_at: Date
-
-  @UpdateDateColumn()
-  updated_at: Date
-
+export class LeaderboardEntry extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
@@ -41,13 +31,9 @@ export class LeaderboardEntry {
   @ManyToOne(() => Leaderboard, (leaderboard) => leaderboard.entries)
   leaderboard: Leaderboard
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User)
   @JoinColumn()
   user: User
-
-  @OneToOne(() => League)
-  @JoinColumn()
-  league: League
 
   @Index()
   @IsInt()

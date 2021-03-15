@@ -31,37 +31,53 @@ export class Organisation {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @OneToMany(() => Team, (team) => team.organisation)
+  @OneToMany(() => Team, (team) => team.organisation, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   teams: Team[]
 
   @Column()
   name: string
 
-  @Column()
-  billing_address_1: string
+  @Column({
+    nullable: true
+  })
+  billing_address_1?: string
+
+  @Column({
+    nullable: true
+  })
+  billing_address_2?: string
+
+  @Column({
+    nullable: true
+  })
+  billing_country?: string
+
+  @Column({
+    nullable: true
+  })
+  billing_country_code?: string
+
+  @Column({
+    nullable: true
+  })
+  billing_state?: string
 
   @Column()
-  billing_address_2: string
-
-  @Column()
-  billing_country: string
-
-  @Column()
-  billing_country_code: string
-
-  @Column()
-  billing_state: string
-
-  @Column()
-  billing_city: string
+  billing_city?: string
 
   @Column({
     type: 'enum',
-    enum: OrganisationType
+    enum: OrganisationType,
+    default: OrganisationType.Company
   })
   type: string
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   type_other?: string
 
   @Column({
@@ -74,11 +90,16 @@ export class Organisation {
   })
   user_count: number
 
-  @OneToOne(() => Image)
+  @OneToOne(() => Image, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   @JoinColumn()
   avatar: Image //128x128
 
-  @OneToOne(() => Image)
+  @OneToOne(() => Image, {
+    cascade: ['remove']
+  })
   @JoinColumn()
   avatar_large: Image //512x512
 }

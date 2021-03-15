@@ -46,21 +46,21 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Test e2e
-        run: yarn run test:e2e
+        run: yarn run test
 
       - name: Build nest for Serverless
         run: yarn run build
 
-      - name: Install serverless globally
-        run: yarn add global serverless
+      # - name: Install serverless globally
+      #   run: yarn add global serverless
 
-      - name: Serverless - Run deploy
-        if: github.ref == 'refs/heads/develop'
-        run: yarn run sls:deploy
+      # - name: Serverless - Run deploy
+      #   if: github.ref == 'refs/heads/develop'
+      #   run: yarn run sls:deploy
 
-      - name: Serverless - Run migrations
-        if: github.ref == 'refs/heads/develop'
-        run: yarn run sls:migrate
+      # - name: Serverless - Run migrations
+      #   if: github.ref == 'refs/heads/develop'
+      #   run: yarn run sls:migrate
 
       - name: Regenerate UML if entities change
         if: github.ref == 'refs/heads/develop'

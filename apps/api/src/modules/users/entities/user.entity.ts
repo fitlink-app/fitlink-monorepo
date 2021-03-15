@@ -18,6 +18,7 @@ import { Following } from '../../followings/entities/following.entity'
 import { GoalsEntry } from '../../goals-entries/entities/goals-entry.entity'
 import { HealthActivity } from '../../health-activities/entities/health-activity.entity'
 import { FeedItem } from '../../feed-items/entities/feed-item.entity'
+import { RefreshToken } from '../../auth/entities/auth.entity'
 
 export enum UnitSystem {
   Metric = 'metric',
@@ -33,22 +34,41 @@ export class User extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
+  /** Don't allow this column to be read automatically in future */
+  @Column()
+  password: string
+
+  // JoinTable / Cascade is on League entity
   @ManyToMany(() => League, (league) => league.users)
   leagues: League[]
 
-  @OneToMany(() => Provider, (provider) => provider.user)
+  @OneToMany(() => Provider, (provider) => provider.user, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   providers: Provider[]
+
+  @OneToMany(() => RefreshToken, (token) => token.user, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
+  refresh_tokens: RefreshToken[]
 
   @Column({
     type: 'enum',
-    enum: UnitSystem
+    enum: UnitSystem,
+    default: UnitSystem.Metric
   })
   unit_system: UnitSystem
 
-  @Column()
+  @Column({
+    default: false
+  })
   onboarded: boolean
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   last_onboarded_at: Date
 
   @Column({
@@ -56,74 +76,127 @@ export class User extends CreatableEntity {
   })
   timezone: string
 
+  // JoinTable/Cascade is on Team entity
   @ManyToMany(() => Team, (team) => team.users)
   teams: Team[]
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   last_login_at: Date
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   last_app_opened_at: Date
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   last_health_activity_at: Date
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   last_lifestyle_activity_at: Date
 
-  @OneToOne(() => Image)
+  @OneToOne(() => Image, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   @JoinColumn()
   avatar: Image
 
-  @OneToOne(() => UsersSetting, (setting) => setting.user)
+  @OneToOne(() => UsersSetting, (setting) => setting.user, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   @JoinColumn()
   settings: UsersSetting
 
-  @OneToMany(() => RewardsRedemption, (redemption) => redemption.user)
+  @OneToMany(() => RewardsRedemption, (redemption) => redemption.user, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   rewards_redemptions: RewardsRedemption[]
 
-  @OneToMany(() => Following, (following) => following.follower)
+  @OneToMany(() => Following, (following) => following.follower, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   followers: Following[]
 
-  @OneToMany(() => Following, (following) => following.following)
+  @OneToMany(() => Following, (following) => following.following, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   following: Following[]
 
-  @OneToMany(() => GoalsEntry, (goalsEntry) => goalsEntry.user)
+  @OneToMany(() => GoalsEntry, (goalsEntry) => goalsEntry.user, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   goals_entries: GoalsEntry[]
 
-  @OneToMany(() => HealthActivity, (HealthActivity) => HealthActivity.user)
+  @OneToMany(() => HealthActivity, (HealthActivity) => HealthActivity.user, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   health_activities: HealthActivity[]
 
-  @OneToMany(() => FeedItem, (feedItem) => feedItem.user)
+  @OneToMany(() => FeedItem, (feedItem) => feedItem.user, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   feed_items: FeedItem[]
+
+  @Column()
+  name: string
+
+  @Column({
+    unique: true
+  })
+  email: string
 
   @Column({
     default: UserRank.Newbie
   })
   rank: UserRank
 
-  @Column()
+  @Column({
+    default: 0
+  })
   points_total: number
 
-  @Column()
+  @Column({
+    default: 0
+  })
   points_week: number
 
-  @Column()
+  @Column({
+    default: 0
+  })
   goal_calories: number
 
-  @Column()
+  @Column({
+    default: 0
+  })
   goal_steps: number
 
-  @Column()
+  @Column({
+    default: 0
+  })
   goal_floors_climbed: number
 
   @Column({
-    type: 'float'
+    type: 'float',
+    default: 0
   })
   goal_water_litres: number
 
   @Column({
-    type: 'float'
+    type: 'float',
+    default: 0
   })
   goal_sleep_hours: number
 }

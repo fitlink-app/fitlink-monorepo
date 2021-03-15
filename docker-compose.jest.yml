@@ -2,20 +2,18 @@ version: '3.7'
 
 services:
   postgres:
-    container_name: postgres
+    container_name: jest
     image: postgis/postgis
     networks:
       - webnet
     environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_DB: ${DB_DATABASE_NAME}
+      POSTGRES_USER: jest
+      POSTGRES_PASSWORD: jest
+      POSTGRES_DB: jest
       PG_DATA: /var/lib/postgresql/data
     ports:
       - 5432:5432
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./docker/uuid.sql:/docker-entrypoint-initdb.d/uuid.sql
 networks:
   webnet:
-volumes:
-  pgdata:

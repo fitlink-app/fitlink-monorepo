@@ -18,20 +18,45 @@ Make sure to setup the git hooks for the project. The hook is currently used for
 
 ```yarn install```
 
-### Run docker
-A docker-compose file is available to run redis + postgres. 
+### Run jest docker
+A docker-compose file is available to run postgres for jest. 
 
-```docker-compose up -d```
+```docker-compose -f docker-compose.jest.yml up -d```
 
-### Run the app 
+> To stop run `docker-compose -f docker-compose.jest.yml down --volumes`
+> --volumes deletes data and can be omitted
 
-```yarn run start:dev```
+### Migrate and seed database
+```
+  yarn run migration:run -c jest
+  yarn run migration:seed -c jest
+```
 
-The api will be available at http://localhost:3000/api/v1/leaderboard-entries
+### Run jest tests
+> Run migration and seeding first
 
-In order for the app to work correctly, migrations should be run (postgres service must be available from Docker)
+```
+  yarn run test
+  // OR
+  yarn run test:watch
+```
 
-```yarn run db:migration:run```
+If other tests are failing, just run your own tests
+```
+  yarn run test -t "auth"
+  yarn run test:watch -t "auth"
+```
+
+### Run develoment docker
+
+```
+  docker-compose up -d
+  yarn run migration:run
+  yarn run migration:seed
+  yarn run start
+```
+
+The api will be available at http://localhost:3000/api/v1/*
 
 ### E2E tests
 
