@@ -49,7 +49,7 @@ jobs:
         run: docker-compose up -d postgres-jest s3rver
 
       - name: Migrate and seed test database
-        run: yarn migration:run && yarn migration:seed
+        run: yarn migration:run -c jest && yarn migration:seed -c jest
 
       - name: Test e2e
         run: yarn run test
