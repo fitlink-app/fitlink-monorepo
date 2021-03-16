@@ -48,6 +48,9 @@ jobs:
       - name: Setup docker
         run: docker-compose up -d postgres-jest s3rver
 
+      - name: Migrate and seed test database
+        run: yarn migration:run && yarn migration:seed
+
       - name: Test e2e
         run: yarn run test
 
