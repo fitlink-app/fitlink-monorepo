@@ -105,13 +105,6 @@ For running the app against the development database, run:
 
 The api will be available at http://localhost:3000/api/v1/*
 
-### E2E tests
-
-Run the e2e tests:
-
-```yarn test:e2e```
-
-
 ### Bearer authentication
 
 Simple bearer authentication is in place.
@@ -133,3 +126,6 @@ You can generate a database UML diagram from Typeorm entities using the command
 ```yarn db:diagram```
 
 <img src="./docs/uml.svg" />
+
+## S3rver
+S3rver is a local AWS s3 emulator.
