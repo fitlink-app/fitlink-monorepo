@@ -11,7 +11,7 @@ import * as faker from 'faker'
 const COUNT_ORGANISATIONS = 2
 const COUNT_TEAMS = 2
 const COUNT_LEAGUES = 2
-const COUNT_USERS = 2
+const COUNT_USERS = 21
 const COUNT_LEADERBOARDS = 2
 const COUNT_LEADERBOARD_ENTRIES = 2
 

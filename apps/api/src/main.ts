@@ -27,7 +27,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/v1', app, document)
 
   app.useGlobalPipes(new ValidationPipe())
-  await app.listen(3000)
+  await app.listen(process.env.PORT || 3000)
 
   if (module.hot) {
     module.hot.accept()

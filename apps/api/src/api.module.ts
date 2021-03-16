@@ -56,7 +56,7 @@ import { FeedItemsModule } from './modules/feed-items/feed-items.module'
       useFactory: (configService: ConfigService) => {
         return {
           type: 'postgres',
-          database: configService.get('DB_NAME'),
+          database: configService.get('DB_DATABASE_NAME'),
           password: configService.get('DB_PASSWORD'),
           username: configService.get('DB_USERNAME'),
           host: configService.get('DB_HOST'),

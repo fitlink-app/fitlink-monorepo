@@ -5,6 +5,7 @@ module.exports = [{
   "database": process.env.DB_NAME || "fitlink",
   "password": process.env.DB_PASSWORD || "fitlink",
   "username": process.env.DB_USERNAME || "fitlink",
+  "port": process.env.DB_PORT || "5432",
   "synchronize": false,
   "logging": false,
   "entities": [
@@ -32,6 +33,7 @@ module.exports = [{
   "database": "jest",
   "password": "jest",
   "username": "jest",
+  "port": "5433",
   "synchronize": false,
   "logging": false,
   "entities": [

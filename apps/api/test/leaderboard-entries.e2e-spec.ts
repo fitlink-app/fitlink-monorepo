@@ -1,8 +1,15 @@
 import { mockApp } from './helpers/app'
 import { LeaderboardEntriesModule } from '../src/modules/leaderboard-entries/leaderboard-entries.module'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
+import { Connection, getConnection, Repository } from 'typeorm'
 
 describe('LeaderboardEntries', () => {
-  let app
+  let app: NestFastifyApplication
+  let seed: LeaderboardEntry[]
+  let connection: Connection
+  let leaderboardEntryRepository: Repository<LeaderboardEntry>
+  let data: LeaderboardEntry
 
   beforeAll(async () => {
     app = await mockApp({
@@ -10,180 +17,124 @@ describe('LeaderboardEntries', () => {
       providers: [],
       controllers: []
     })
+
+    /** Load seeded data */
+    connection = getConnection()
+    leaderboardEntryRepository = connection.getRepository(LeaderboardEntry)
+    seed = await leaderboardEntryRepository.find()
+    data = seed.map((each) => {
+      return {
+        leaderboard_id: each.leaderboard_id,
+        user_id: each.user_id,
+        league_id: each.league_id,
+        points: 0
+      } as LeaderboardEntry
+    })[0]
   })
 
   const headers = {
     authorization: 'Bearer fitlinkLeaderboardEntryToken'
   }
 
-  // Without a token, API returns 403
-  it(`/GET  (403) leaderboard-entries/:leaderboardId`, () => {
-    const data = [
-      {
-        leaderboard_id: 'ABCD',
-        user_id: '1234',
-        points: 0
-      }
-    ]
-
-    return app
-      .inject({
-        method: 'GET',
-        url: '/leaderboard-entries/ABCD'
-      })
-      .then((result) => {
-        expect(result.statusCode).toEqual(403)
-        expect(result.statusMessage).toContain('Forbidden')
-      })
+  it(`/GET  (403) leaderboard-entries/:leaderboardId`, async () => {
+    const result = await app.inject({
+      method: 'GET',
+      url: `/leaderboard-entries/${data.leaderboard_id}`
+    })
+    expect(result.statusCode).toEqual(403)
+    expect(result.statusMessage).toContain('Forbidden')
   })
 
-  // Accessing leaderboards by ID returns array of results with pagination structure
-  it(`/GET  (200) leaderboard-entries/:leaderboardId`, () => {
-    const data = [
-      {
-        leaderboard_id: 'ABCD',
-        user_id: '1234',
-        points: 0
-      }
-    ]
-
-    return app
-      .inject({
-        method: 'GET',
-        url: '/leaderboard-entries/ABCD',
-        headers
-      })
-      .then((result) => {
-        expect(result.statusCode).toEqual(200)
-        expect(result.json()).toEqual({
-          results: data,
-          page_total: 1,
-          total: 1
-        })
-      })
+  it(`/GET  (200) leaderboard-entries/:leaderboardId`, async () => {
+    const result = await app.inject({
+      method: 'GET',
+      url: `/leaderboard-entries/${data.leaderboard_id}`,
+      headers
+    })
+    const json = result.json()
+    expect(result.statusCode).toEqual(200)
+    expect(Object.keys(json.results[0])).toEqual(Object.keys(seed[0]))
+    expect(json.page_total).toBeGreaterThanOrEqual(1)
+    expect(json.total).toEqual(
+      seed.filter((value) => value.leaderboard_id === data.leaderboard_id)
+        .length
+    )
   })
 
-  // Trying to access a single leaderboard by ID should return
-  it(`/GET  (200) leaderboard-entries/:leaderboardId/:userId`, () => {
-    const data = {
-      leaderboard_id: 'ABCD',
-      user_id: '1234',
-      points: 0
-    }
-
-    return app
-      .inject({
-        method: 'GET',
-        url: `/leaderboard-entries/${data.leaderboard_id}/${data.user_id}`,
-        headers
-      })
-      .then((result) => {
-        expect(result.statusCode).toEqual(200)
-        expect(result.json()).toEqual(data)
-      })
+  it(`/GET  (200) leaderboard-entries/:leaderboardId/:userId`, async () => {
+    const result = await app.inject({
+      method: 'GET',
+      url: `/leaderboard-entries/${data.leaderboard_id}/${data.user_id}`,
+      headers
+    })
+    expect(result.statusCode).toEqual(200)
+    expect(Object.keys(result.json())).toEqual(Object.keys(seed[0]))
   })
 
-  it(`/GET  (404) leaderboard-entries/:leaderboardId/:userId `, () => {
-    return app
-      .inject({
-        method: 'GET',
-        url: `/leaderboard-entries/abc/xyz`,
-        headers
-      })
-      .then((result) => {
-        expect(result.statusCode).toEqual(404)
-        expect(result.json().message).toEqual(
-          'No leaderboard entry found for the given userId'
-        )
-      })
+  it(`/GET  (404) leaderboard-entries/:leaderboardId/:userId `, async () => {
+    const result = await app.inject({
+      method: 'GET',
+      url: `/leaderboard-entries/unknown/unknown`,
+      headers
+    })
+    expect(result.statusCode).toEqual(404)
+    expect(result.json().message).toEqual(
+      'No leaderboard entry found for the given userId'
+    )
   })
 
   // Trying to create an entry without complete data should result in a 400 error
-  it(`/POST (400) leaderboard-entries/:leaderboardId/:userId`, () => {
-    const payload = {
-      leaderboard_id: 'ABCD',
-      user_id: '1234',
-      points: 0
+  it(`/POST (400) leaderboard-entries/:leaderboardId/:userId`, async () => {
+    const payload: LeaderboardEntry = {
+      ...data,
+      league_id: null
     }
-
-    return app
-      .inject({
-        method: 'POST',
-        url: `/leaderboard-entries`,
-        headers,
-        payload
-      })
-      .then((result) => {
-        expect(result.statusCode).toEqual(400)
-        expect(result.statusMessage).toEqual('Bad Request')
-        expect(result.json().message).toContain('league_id must be a string')
-      })
+    const result = await app.inject({
+      method: 'POST',
+      url: `/leaderboard-entries`,
+      headers,
+      payload
+    })
+    expect(result.statusCode).toEqual(400)
+    expect(result.statusMessage).toEqual('Bad Request')
+    expect(result.json().message).toContain('league_id must be a string')
   })
 
   // Trying to create an entry with complete data should result in 201 created
-  it(`/POST (201) leaderboard-entries/:leaderboardId/:userId`, () => {
-    const payload = {
-      leaderboard_id: 'ABCD',
-      user_id: '1234',
-      league_id: '1234',
-      points: 0
-    }
-
-    return app
-      .inject({
-        method: 'POST',
-        url: `/leaderboard-entries`,
-        headers,
-        payload
-      })
-      .then((result) => {
-        expect(result.statusCode).toEqual(201)
-        expect(result.statusMessage).toEqual('Created')
-      })
+  it(`/POST (201) leaderboard-entries/:leaderboardId/:userId`, async () => {
+    const result = await app.inject({
+      method: 'POST',
+      url: `/leaderboard-entries`,
+      headers,
+      payload: data
+    })
+    expect(result.statusCode).toEqual(201)
+    expect(result.statusMessage).toEqual('Created')
   })
 
   // Trying to update an entry should result in 200
-  it(`/PUT  (200) leaderboard-entries/:leaderboardId/:userId`, () => {
-    const payload = {
-      leaderboard_id: 'ABCD',
-      user_id: '1234',
-      league_id: '1234',
-      points: 0
-    }
-
-    return app
-      .inject({
-        method: 'PUT',
-        url: `/leaderboard-entries/${payload.leaderboard_id}/${payload.user_id}`,
-        headers,
-        payload
-      })
-      .then((result) => {
-        expect(result.statusCode).toEqual(200)
-        expect(result.statusMessage).toEqual('OK')
-        expect(result.json()).toEqual(payload)
-      })
+  it(`/PUT  (200) leaderboard-entries/:leaderboardId/:userId`, async () => {
+    const result = await app.inject({
+      method: 'PUT',
+      url: `/leaderboard-entries/${data.leaderboard_id}/${data.user_id}`,
+      headers,
+      payload: data
+    })
+    const json = result.json()
+    expect(result.statusCode).toEqual(200)
+    expect(result.statusMessage).toEqual('OK')
+    expect(Object.keys(json)).toEqual(Object.keys(seed[0]))
   })
 
   // Trying to delete an entry should result in 200
-  it(`/DEL  (200) leaderboard-entries/:leaderboardId/:userId`, () => {
-    const payload = {
-      leaderboard_id: 'ABCD',
-      user_id: '1234',
-      league_id: '1234',
-      points: 0
-    }
-
-    return app
-      .inject({
-        method: 'DELETE',
-        url: `/leaderboard-entries/${payload.leaderboard_id}/${payload.user_id}`,
-        headers
-      })
-      .then((result) => {
-        expect(result.statusCode).toEqual(200)
-        expect(result.statusMessage).toEqual('OK')
-      })
+  it(`/DEL  (200) leaderboard-entries/:leaderboardId/:userId`, async () => {
+    const result = await app.inject({
+      method: 'DELETE',
+      url: `/leaderboard-entries/${data.leaderboard_id}/${data.user_id}`,
+      headers
+    })
+    expect(result.statusCode).toEqual(200)
+    expect(result.statusMessage).toEqual('OK')
   })
 
   afterAll(async () => {

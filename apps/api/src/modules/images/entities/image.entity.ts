@@ -1,3 +1,5 @@
+import { FitEnum } from 'sharp'
+import { CreatableEntity } from '../../../classes/entity/creatable'
 import {
   PrimaryGeneratedColumn,
   Column,
@@ -10,11 +12,40 @@ import { Activity } from '../../activities/entities/activity.entity'
 
 export enum ImageType {
   Avatar = 'avatar',
-  Cover = 'cover'
+  Cover = 'cover',
+  Standard = 'standard',
+  Tile = 'tile'
 }
 
+export const uploadVariants = [
+  {
+    type: ImageType.Avatar,
+    size: [128, 128],
+    fit: 'contain',
+    column: 'url_128x128'
+  },
+  {
+    type: ImageType.Cover,
+    size: [640, 360],
+    fit: 'cover',
+    column: 'url_640x360'
+  },
+  {
+    type: ImageType.Standard,
+    size: [1920, 1080],
+    fit: 'contain',
+    column: 'url'
+  },
+  {
+    type: ImageType.Tile,
+    size: [512, 512],
+    fit: 'cover',
+    column: 'url_512x512'
+  }
+] as const
+
 @Entity()
-export class Image {
+export class Image extends CreatableEntity {
   @CreateDateColumn()
   created_at: Date
 
@@ -24,23 +55,12 @@ export class Image {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column()
-  raw_url: string
-
   @ManyToOne(() => Activity, null, { nullable: true })
   activity: Activity
 
   /** Standard rescaled image (any ratio) */
   @Column()
   url: string
-
-  /** Cropped image for avatars (1:1) */
-  @Column()
-  url_128x128: string
-
-  /** Cropped image for hi-res avatars/tiles (1:1) */
-  @Column()
-  url_512x512: string
 
   /** Standard rescaled image width */
   @Column()
@@ -50,12 +70,18 @@ export class Image {
   @Column()
   height: number
 
+  /** Cropped image for avatars (1:1) */
   @Column()
-  original_width: number
+  url_128x128: string
+
+  /** Cropped image for hi-res avatars/tiles (1:1) */
+  @Column()
+  url_512x512: string
 
   @Column()
-  original_height: number
+  url_640x360: string
 
+  /** The type which the image is actually optimised for */
   @Column({
     type: 'enum',
     enum: ImageType

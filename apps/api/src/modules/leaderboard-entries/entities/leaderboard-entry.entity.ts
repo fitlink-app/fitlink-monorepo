@@ -4,7 +4,8 @@ import {
   Entity,
   Index,
   ManyToOne,
-  JoinColumn
+  JoinColumn,
+  DeleteDateColumn
 } from 'typeorm'
 import { IsInt, Min } from 'class-validator'
 import { Leaderboard } from '../../leaderboards/entities/leaderboard.entity'
@@ -13,6 +14,9 @@ import { CreatableEntity } from '../../../classes/entity/creatable'
 
 @Entity()
 export class LeaderboardEntry extends CreatableEntity {
+  @DeleteDateColumn()
+  deleted_at: Date
+
   @PrimaryGeneratedColumn('uuid')
   id: string
 
@@ -38,9 +42,13 @@ export class LeaderboardEntry extends CreatableEntity {
   @Index()
   @IsInt()
   @Min(0)
-  @Column()
+  @Column({
+    default: 0
+  })
   points: number
 
-  @Column()
+  @Column({
+    default: 0
+  })
   wins: number
 }

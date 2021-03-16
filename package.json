@@ -10,6 +10,7 @@
     "build": "nest build -c nest-cli.serverless.json --webpack --webpackPath webpack-serverless.config.js",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start --watch",
+    "start:jest": "cross-env DB_PASSWORD=jest DB_USERNAME=jest DB_DATABASE_NAME=jest DB_PORT=5433 PORT=3001 nest start --watch",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/api/main",
@@ -21,6 +22,7 @@
     "migration:run": "yarn run typeorm migration:run -f ./ormconfig.js",
     "migration:revert": "yarn run typeorm migration:revert -f ./ormconfig.js",
     "migration:initialize": "yarn run typeorm migration:generate -n InitializeSchema -f ./ormconfig.js -d apps/api/database/migrations",
+    "migration:generate": "yarn run typeorm migration:generate -f ./ormconfig.js -d apps/api/database/migrations",
     "migration:seed": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed",
     "docs:generate": "@compodoc/compodoc -p tsconfig.json -s",
     "sls:offline:start": "cross-env API_PREFIX=\"api/v1\" && sls offline start",
@@ -29,6 +31,7 @@
     "sls:migrate": "serverless invoke -f migrate"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.8.1",
     "@nestjs/common": "^7.6.13",
     "@nestjs/config": "^0.6.3",
     "@nestjs/core": "^7.6.13",
@@ -43,6 +46,7 @@
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "date-fns": "^2.19.0",
+    "fastify-multipart": "^4.0.2",
     "geojson": "^0.5.0",
     "lodash": "^4.17.21",
     "passport": "^0.4.1",
@@ -53,8 +57,10 @@
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.6",
     "serverless-dotenv-plugin": "^3.8.1",
+    "sharp": "^0.27.2",
     "typeorm": "^0.2.31",
-    "typeorm-seeding": "^1.6.1"
+    "typeorm-seeding": "^1.6.1",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@compodoc/compodoc": "^1.1.11",
@@ -70,7 +76,9 @@
     "@types/node": "^14.14.31",
     "@types/passport-jwt": "^3.0.5",
     "@types/passport-local": "^1.0.33",
+    "@types/sharp": "^0.27.1",
     "@types/supertest": "^2.0.10",
+    "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
     "cross-env": "^7.0.3",

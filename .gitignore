@@ -38,3 +38,5 @@ lerna-debug.log*
 .env*
 terraform
 .serverless
+/s3
+/docker/s3rver/tmp
