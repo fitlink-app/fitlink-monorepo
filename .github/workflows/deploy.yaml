@@ -54,6 +54,9 @@ jobs:
       - name: Test e2e
         run: yarn run test
 
+      - name: Stop docker
+        run: docker-compose down
+
       - name: Build nest for Serverless
         run: yarn run build
 
