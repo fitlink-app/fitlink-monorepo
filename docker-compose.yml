@@ -12,9 +12,35 @@ services:
       POSTGRES_DB: ${DB_DATABASE_NAME}
       PG_DATA: /var/lib/postgresql/data
     ports:
+      # Use the standard port for dev
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./docker/uuid.sql:/docker-entrypoint-initdb.d/uuid.sql
+  postgres-jest:
+    container_name: postgres-jest
+    image: postgis/postgis
+    networks:
+      - webnet
+    environment:
+      POSTGRES_USER: jest
+      POSTGRES_PASSWORD: jest
+      POSTGRES_DB: jest
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      # Use a different port for jest
+      - 5433:5432
+    volumes:
+      - ./docker/uuid.sql:/docker-entrypoint-initdb.d/uuid.sql
+  s3rver:
+    container_name: s3rver
+    build:
+      dockerfile: Dockerfile
+      context: ./docker/s3rver
+    ports:
+      - 9191:9191
+    volumes:
+      - ./s3:/tmp/s3rver
 networks:
   webnet:
 volumes:

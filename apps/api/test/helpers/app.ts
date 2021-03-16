@@ -6,6 +6,7 @@ import {
   NestFastifyApplication
 } from '@nestjs/platform-fastify'
 import { ValidationPipe } from '@nestjs/common'
+import fastifyMultipart from 'fastify-multipart'
 
 import { Activity } from '../../src/modules/activities/entities/activity.entity'
 import { HealthActivity } from '../../src/modules/health-activities/entities/health-activity.entity'
@@ -66,7 +67,7 @@ export async function mockApp(
         password: 'jest',
         database: 'jest',
         host: 'localhost',
-        port: 5432,
+        port: 5433,
         entities,
         dropSchema: false,
         synchronize: false,
@@ -80,8 +81,11 @@ export async function mockApp(
     .useValue(mockConfigService())
     .compile()
 
+  const fastifyAdapter = new FastifyAdapter()
+  fastifyAdapter.register(fastifyMultipart)
+
   const app = moduleRef.createNestApplication<NestFastifyApplication>(
-    new FastifyAdapter()
+    fastifyAdapter
   )
 
   app.useGlobalPipes(new ValidationPipe())

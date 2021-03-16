@@ -45,6 +45,9 @@ jobs:
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Setup docker
+        run: docker-compose up -d
+
       - name: Test e2e
         run: yarn run test
 

@@ -1,6 +1,15 @@
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { ConfigService } from '@nestjs/config'
 
+const env = {
+  AUTH_JWT_SECRET: 'fitlink_jwt_secret',
+  S3_ACCESS_KEY_ID: 'S3RVER',
+  S3_SECRET_ACCESS_KEY: 'S3RVER',
+  S3_ENDPOINT: 'http://localhost:9191',
+  S3_BUCKET: 'test',
+  S3_REGION: 'eu-west-2'
+}
+
 export const mockRepositoryProvider = (entity) => {
   return {
     provide: getRepositoryToken(entity),
@@ -20,25 +29,11 @@ export const mockRepository = () => ({
 
 export const mockConfigServiceProvider = () => ({
   provide: ConfigService,
-  useValue: {
-    get(key: string) {
-      switch (key) {
-        case 'AUTH_JWT_SECRET':
-          return 'fitlink_jwt_secret'
-        default:
-          return 'fitlink'
-      }
-    }
-  }
+  useValue: mockConfigService()
 })
 
 export const mockConfigService = () => ({
   get(key: string) {
-    switch (key) {
-      case 'AUTH_JWT_SECRET':
-        return 'fitlink_jest_test_jwt_secret'
-      default:
-        return 'fitlink'
-    }
+    return env[key] || 'fitlink'
   }
 })
