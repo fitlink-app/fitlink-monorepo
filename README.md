@@ -29,6 +29,8 @@ Make sure to setup the git hooks for the project. The hook is currently used for
   // Optionally start a nest server against jest db:
   // yarn start:jest 
 ```
+> Note that the test database runs on port 5433, and the test nest server runs on port 3001
+
 #### Development
 ```
   docker-compose up -d
@@ -36,6 +38,7 @@ Make sure to setup the git hooks for the project. The hook is currently used for
   yarn migration:seed
   yarn start
 ```
+> Note that the dev database runs on (default) port 5432, and the test nest server runs on (default) port 3000
 
 ### Run docker
 A docker-compose file is available to run postgres and s3rver (s3 emulator) for development and jest testing. 
