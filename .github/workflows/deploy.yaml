@@ -46,7 +46,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Setup docker
-        run: docker-compose up -d
+        run: docker-compose up -d postgres-jest s3rver
 
       - name: Test e2e
         run: yarn run test
