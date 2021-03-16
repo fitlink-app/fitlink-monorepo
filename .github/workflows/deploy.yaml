@@ -48,6 +48,11 @@ jobs:
       - name: Setup docker
         run: docker-compose up -d postgres-jest s3rver
 
+      - name: Allow docker postgres 10 seconds to startups
+        uses: jakejarvis/wait-action@v0.1.0
+        with:
+          time: '10s'
+
       - name: Migrate and seed test database
         run: yarn migration:run -c jest && yarn migration:seed -c jest
 
