@@ -86,8 +86,8 @@ To run migrations and seed on the development database (prior to running applica
 
 If other tests are failing, you can run only your own tests
 ```
-  yarn test -t apps/api/test/my.e2e-spec.ts
-  yarn test:watch -t apps/api/test/my.e2e-spec.ts
+  yarn test apps/api/test/my.e2e-spec.ts
+  yarn test:watch apps/api/test/my.e2e-spec.ts
 ```
 
 ### Run nest server
