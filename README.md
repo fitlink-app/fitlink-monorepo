@@ -45,11 +45,11 @@ A docker-compose file is available to run postgres and s3rver (s3 emulator) for 
 
 For testing (ephemeral database):
 
-```docker-compose up -d postgres-jest s3rver`
+```docker-compose up -d postgres-jest s3rver```
 > Starts only the jest database service (port 5433) and s3rver (port 9191)
 
 For development (persistent database):
-```docker-compose up -d postgres s3rver`
+```docker-compose up -d postgres s3rver```
 > Starts only the development database service (5432) and s3rver (port 9191)
 
 For running both databases:
