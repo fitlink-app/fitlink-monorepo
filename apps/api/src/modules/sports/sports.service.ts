@@ -18,17 +18,22 @@ export class SportsService {
   ) {}
 
   async create(createSportDto: CreateSportDto): Promise<Sport> {
-    const { name, name_key, plural, singular } = createSportDto
-
-    const newSport = {
-      name,
-      name_key,
-      plural,
-      singular,
-      created_at: new Date(),
-      updated_at: new Date()
-    } as Sport
     try {
+      const { name, plural, singular } = createSportDto
+
+      const name_key = name
+        .toLowerCase()
+        // Replaces spaces with underscores
+        .replace(/ /g, '_')
+        // Removes all the non-alphanumerics
+        .replace(/\W/g, '')
+
+      const newSport = {
+        name,
+        plural,
+        singular,
+        name_key
+      } as Sport
       return await this.sportsRepository.save(newSport)
     } catch (e) {
       throw new BadRequestException()

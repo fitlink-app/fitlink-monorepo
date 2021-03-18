@@ -65,11 +65,8 @@ describe('Sports', () => {
   it('/POST (201) /sports', async () => {
     const payload = {
       name: faker.name.title(),
-      name_key: faker.name.title().toLowerCase(),
       plural: faker.name.title().toLowerCase() + 's',
-      singular: faker.name.title(),
-      created_at: new Date(),
-      updated_at: new Date()
+      singular: faker.name.title()
     }
 
     const result = await app.inject({
