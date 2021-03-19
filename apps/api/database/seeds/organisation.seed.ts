@@ -5,6 +5,7 @@ import { User } from '../../src/modules/users/entities/user.entity'
 import { League } from '../../src/modules/leagues/entities/league.entity'
 import { Leaderboard } from '../../src/modules/leaderboards/entities/leaderboard.entity'
 import { LeaderboardEntry } from '../../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
+import { Following } from '../../src/modules/followings/entities/following.entity'
 import { flatten } from 'lodash'
 import * as faker from 'faker'
 import {
@@ -21,6 +22,7 @@ const COUNT_LEAGUES = 2
 const COUNT_USERS = 21
 const COUNT_LEADERBOARDS = 2
 const COUNT_LEADERBOARD_ENTRIES = 2
+const COUNT_FOLLOWINGS = 1
 
 export default class CreateOrganisations implements Seeder {
   connection: Connection
@@ -144,6 +146,24 @@ export default class CreateOrganisations implements Seeder {
                 )
             )
           )
+        )
+      )
+    )
+
+    /**
+     * Create followings for users
+     */
+    const followings = flatten(
+      await Promise.all(
+        users.map(
+          async (user, idx) => {
+            const nextUser = users[idx + 1]
+            if (nextUser) {
+              await factory(Following)({ followerUser: user, followingUser: nextUser }).createMany(
+                COUNT_FOLLOWINGS
+              )
+            }
+          }
         )
       )
     )
