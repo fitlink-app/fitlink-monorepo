@@ -46,7 +46,9 @@ export class ActivitiesService {
   }
 
   /**
-   * Find all entries by geometry
+   * Find all entries by geometry, or alternatively
+   * by date created
+   *
    * @param geo lat, lon, radius in km (comma separated)
    * @param options { page, limit }
    */
@@ -54,10 +56,14 @@ export class ActivitiesService {
     geoRadial: string,
     options: PaginationOptionsInterface
   ): Promise<Pagination<Activity>> {
-    const geo = geoRadial.split(',')
-    const [results, total] = await this.activityRepository
+    let query = this.activityRepository
       .createQueryBuilder('activity')
-      .where(
+      .take(options.limit)
+      .skip(options.page * options.limit)
+
+    if (geoRadial) {
+      const geo = geoRadial.split(',')
+      query = query.where(
         'ST_DistanceSphere(activity.meeting_point, ST_MakePoint(:lon,:lat)) <= :rad * 1000',
         {
           lat: geo[0],
@@ -65,9 +71,11 @@ export class ActivitiesService {
           rad: 5 // 1km
         }
       )
-      .take(options.limit)
-      .skip(options.page * options.limit)
-      .getManyAndCount()
+    } else {
+      query = query.orderBy('created_at', 'DESC')
+    }
+
+    const [results, total] = await query.getManyAndCount()
 
     return new Pagination<Activity>({
       results,
@@ -83,7 +91,18 @@ export class ActivitiesService {
     return this.activityRepository.update({ id }, updateActivityDto)
   }
 
-  remove(id: string) {
+  /**
+   * Deletes activity images first
+   * and then deletes activity
+   * @param id
+   * @returns
+   */
+  async remove(id: string) {
+    await this.imageRepository
+      .createQueryBuilder()
+      .where('activityId = :id', { id })
+      .delete()
+      .execute()
     return this.activityRepository.delete({ id })
   }
 }

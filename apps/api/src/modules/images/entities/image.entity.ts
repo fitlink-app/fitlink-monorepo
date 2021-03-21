@@ -1,11 +1,5 @@
 import { CreatableEntity } from '../../../classes/entity/creatable'
-import {
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  Entity,
-  DeleteDateColumn
-} from 'typeorm'
+import { PrimaryGeneratedColumn, Column, ManyToOne, Entity } from 'typeorm'
 import { Activity } from '../../activities/entities/activity.entity'
 
 export enum ImageType {
@@ -46,9 +40,6 @@ export const uploadVariants = [
 export class Image extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
-
-  @DeleteDateColumn()
-  deleted_at: Date
 
   @ManyToOne(() => Activity, null, { nullable: true })
   activity?: Activity

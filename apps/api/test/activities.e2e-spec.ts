@@ -1,6 +1,6 @@
 import { mockApp } from './helpers/app'
 import { MockType } from './helpers/types'
-import { getAuthHeaders } from './helpers/auth'
+// import { getAuthHeaders } from './helpers/auth'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { ActivitiesModule } from '../src/modules/activities/activities.module'
 import { ActivitiesIminService } from '../src/modules/activities/activities.imin.service'
@@ -10,13 +10,33 @@ import { CreateActivityDto } from '../src/modules/activities/dto/create-activity
 import { readFile } from 'fs/promises'
 import FormData = require('form-data')
 
+const activityColumns = [
+  'id',
+  'name',
+  'meeting_point',
+  'meeting_point_text',
+  'description',
+  'date',
+  'cost',
+  'created_at',
+  'updated_at',
+  'organizer_name',
+  'organizer_url'
+]
+
 describe('Activities', () => {
   let app: NestFastifyApplication
   let activitiesIminService: MockType<ActivitiesIminService>
   let activitiesService: MockType<ActivitiesService>
 
   // Set auth headers
-  const headers = getAuthHeaders()
+  // const headers = getAuthHeaders()
+  // At the moment, activities service is exposed via bearer token
+  // This will change when the app is fully migrated away from Firebase
+  // stack and a JWT will be used instead.
+  const headers = {
+    authorization: 'Bearer fitlinkLeaderboardEntryToken'
+  }
 
   beforeAll(async () => {
     app = await mockApp({
@@ -28,6 +48,10 @@ describe('Activities', () => {
     activitiesIminService = app.get(ActivitiesIminService)
     activitiesIminService.findAll = jest.fn()
     activitiesService = app.get(ActivitiesService)
+  })
+
+  afterAll(async () => {
+    await app.close()
   })
 
   it(`GET /activities 200 Allows the fetching of merged paginated activities from local & imin service`, async () => {
@@ -102,30 +126,54 @@ describe('Activities', () => {
       headers
     })
 
-    const expected = [
-      'id',
-      'name',
-      'meeting_point',
-      'meeting_point_text',
-      'description',
-      'date',
-      'cost',
-      'created_at',
-      'updated_at',
-      'organizer_name',
-      'organizer_url'
-    ]
-
     const result = Object.keys(data.json().results[0])
 
-    expect(intersection(result, expected).length).toEqual(expected.length)
+    expect(intersection(result, activityColumns).length).toEqual(
+      activityColumns.length
+    )
   })
 
-  afterAll(async () => {
-    await app.close()
+  it(`GET /activities 200 Fetches real activities from the database ordered by created date and excludes imin`, async () => {
+    const data = await app.inject({
+      method: 'GET',
+      url: '/activities',
+      query: {
+        page: '0',
+        limit: '20'
+      },
+      headers
+    })
+
+    const result = Object.keys(data.json().results[0])
+    expect(intersection(result, activityColumns).length).toEqual(
+      activityColumns.length
+    )
   })
 
   it(`POST /activities 201 Creates a new activity with images`, async () => {
+    const data = await createActivityWithImages()
+    expect(data.statusCode).toEqual(201)
+    expect(data.json().name).toBeDefined()
+    expect(data.json().images[0].url).toBeDefined()
+    expect(data.json().images[1].url).toBeDefined()
+  })
+
+  it(`DELETE /activities 200 A created activity can be deleted`, async () => {
+    const activityData = await createActivityWithImages()
+    const id = activityData.json().id
+
+    const data = await app.inject({
+      method: 'DELETE',
+      url: `/activities/${id}`,
+      headers: {
+        ...headers
+      }
+    })
+
+    expect(data.statusCode).toEqual(200)
+  })
+
+  async function createActivityWithImages() {
     const payload: CreateActivityDto = {
       name: 'My new activity',
       description: 'Long text...',
@@ -156,9 +204,7 @@ describe('Activities', () => {
         ...headers
       }
     })
-    expect(data.statusCode).toEqual(201)
-    expect(data.json().name).toBeDefined()
-    expect(data.json().images[0].url).toBeDefined()
-    expect(data.json().images[1].url).toBeDefined()
-  })
+
+    return data
+  }
 })
