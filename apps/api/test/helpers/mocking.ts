@@ -7,7 +7,9 @@ const env = {
   S3_SECRET_ACCESS_KEY: 'S3RVER',
   S3_ENDPOINT: 'http://localhost:9191',
   S3_BUCKET: 'test',
-  S3_REGION: 'eu-west-2'
+  S3_REGION: 'eu-west-2',
+  IMIN_API_BASE_URL: 'https://search.imin.co',
+  IMIN_API_KEY: 'jAyxqV1IVTlcPeQV2aujF05X0483cOKu'
 }
 
 export const mockRepositoryProvider = (entity) => {
