@@ -1,8 +1,6 @@
-import { Repository } from 'typeorm'
+import { FindOneOptions, Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Injectable } from '@nestjs/common'
-// import { CreateImageDto } from './dto/create-image.dto'
-import { UpdateImageDto } from './dto/update-image.dto'
 import { Image, ImageType, uploadVariants } from './entities/image.entity'
 import {
   S3Client,
@@ -12,6 +10,7 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { resizeFromBuffer } from './helpers/resize'
 import { v4 as uuidv4 } from 'uuid'
+import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 
 @Injectable()
 export class ImagesService {
@@ -25,6 +24,19 @@ export class ImagesService {
     const fileName = uuidv4()
     const image = await this.generateVariants(file, fileName, imageType)
     return await this.imageRepository.save(this.imageRepository.create([image]))
+  }
+
+  async createMany(
+    files: Storage.MultipartFile[],
+    imageType = ImageType.Standard
+  ) {
+    return await Promise.all(
+      files.map(async (each) => {
+        const file = await each.toBuffer()
+        const result = await this.create(file, imageType)
+        return result[0]
+      })
+    )
   }
 
   async upload(file: Buffer, filePath: string) {
@@ -95,19 +107,41 @@ export class ImagesService {
     }, {})
   }
 
-  findAll() {
-    return `This action returns all images`
+  /**
+   * Find all entries by leaderboard, with paginated options
+   * @param leaderboardId
+   * @param options
+   */
+  async findAll(
+    where: FindOneOptions<Image>['where'],
+    options: PaginationOptionsInterface
+  ): Promise<Pagination<Image>> {
+    const [results, total] = await this.imageRepository.findAndCount({
+      where,
+      take: options.limit,
+      skip: options.page
+    })
+
+    return new Pagination<Image>({
+      results,
+      total
+    })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} image`
+  /**
+   * Find a single image
+   * @param id
+   */
+  findOne(id: string) {
+    return this.imageRepository.findOne(id)
   }
 
-  update(id: number, updateImageDto: UpdateImageDto) {
-    return `This action updates a #${id} image`
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} image`
+  /**
+   * Deletes an image (with soft delete)
+   * @param id
+   * @returns
+   */
+  remove(id: string) {
+    return this.imageRepository.softDelete(id)
   }
 }

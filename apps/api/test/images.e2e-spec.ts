@@ -1,10 +1,9 @@
 import { ImagesModule } from '../src/modules/images/images.module'
 import { mockApp } from './helpers/app'
+import { getAuthHeaders } from './helpers/auth'
 import { readFile } from 'fs/promises'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import FormData = require('form-data')
-
-const form = new FormData()
 
 /**
  * Images are tested using s3rver running inside docker
@@ -13,26 +12,60 @@ const form = new FormData()
 
 describe('Image', () => {
   let app: NestFastifyApplication
-  let file: Buffer
+  let file1: Buffer
+  let file2: Buffer
+
+  // Set auth headers
+  const headers = getAuthHeaders()
 
   beforeAll(async () => {
     app = await mockApp({
       imports: [ImagesModule]
     })
 
-    file = await readFile(__dirname + '/assets/1200x1200.png')
-    form.append('image', file)
+    file1 = await readFile(__dirname + '/assets/1200x1200.png')
+    file2 = await readFile(__dirname + '/assets/1416x721.png')
   })
 
-  it(`POST /images 201 Allows the uploading of images`, async () => {
+  it(`POST /images 201 Allows the uploading of multiple images and only interprets specific fields`, async () => {
+    const form = new FormData()
+
+    form.append('images[]', file1)
+    form.append('images[]', file2)
+
     const result = await app.inject({
       method: 'POST',
       url: '/images',
       payload: form,
-      headers: form.getHeaders()
+      headers: {
+        ...form.getHeaders(),
+        ...headers
+      }
     })
     expect(result.statusCode).toEqual(201)
     expect(result.statusMessage).toContain('Created')
+    expect(result.json()[0]).toBeDefined()
+    expect(result.json()[1]).toBeDefined()
+    expect(result.json()[2]).toBeUndefined()
+  })
+
+  it(`POST /images 400 Fails when trying to upload an image with a field name that is unexpected`, async () => {
+    const form = new FormData()
+
+    form.append('images[]', file1)
+    form.append('other[]', file2)
+
+    const result = await app.inject({
+      method: 'POST',
+      url: '/images',
+      payload: form,
+      headers: {
+        ...form.getHeaders(),
+        ...headers
+      }
+    })
+    expect(result.statusCode).toEqual(400)
+    expect(result.json().message).toContain('Unexpected file')
   })
 
   afterAll(async () => {
