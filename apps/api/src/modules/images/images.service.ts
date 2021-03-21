@@ -142,6 +142,6 @@ export class ImagesService {
    * @returns
    */
   remove(id: string) {
-    return this.imageRepository.softDelete(id)
+    return this.imageRepository.delete(id)
   }
 }

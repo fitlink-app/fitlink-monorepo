@@ -6,7 +6,8 @@ import {
   Put,
   Param,
   Delete,
-  Query
+  Query,
+  UseGuards
 } from '@nestjs/common'
 import { ActivitiesIminService } from './activities.imin.service'
 import { ActivitiesService } from './activities.service'
@@ -19,7 +20,10 @@ import { Files } from '../../decorators/files.decorator'
 import { ImagesService } from '../images/images.service'
 import { Uploads, UploadOptions } from '../../decorators/uploads.decorator'
 import { Public } from '../../decorators/public.decorator'
+import { AuthGuard } from '../../guards/auth.guard'
 
+@Public()
+@UseGuards(AuthGuard)
 @Controller('activities')
 export class ActivitiesController {
   constructor(
@@ -41,9 +45,17 @@ export class ActivitiesController {
     })
   }
 
-  @Public()
+  /**
+   * Finds activities based on coordinates
+   * or alternatively returns activities by created date
+   *
+   * @param queryParams
+   * @returns
+   */
   @Get()
-  async findAll(@Query() { geo_radial, page, limit }: FindActivitiesDto) {
+  async findAll(
+    @Query() { geo_radial, with_imin = true, page, limit }: FindActivitiesDto
+  ) {
     const intPage = parseInt(page)
     const intLimit = parseInt(limit)
 
@@ -53,18 +65,22 @@ export class ActivitiesController {
       limit: intLimit
     })
 
-    // Get Imin activities
-    const imin = await this.activitiesIminService.findAll({
-      'geo[radial]': geo_radial,
-      mode: 'discovery-geo',
-      page: intPage,
-      limit: intLimit
-    })
+    if (with_imin) {
+      // Get Imin activities
+      const imin = await this.activitiesIminService.findAll({
+        'geo[radial]': geo_radial,
+        mode: 'discovery-geo',
+        page: intPage,
+        limit: intLimit
+      })
 
-    return ActivitiesController.mergeAndPaginate(all, imin, {
-      page: intPage,
-      limit: intLimit
-    })
+      return ActivitiesController.mergeAndPaginate(all, imin, {
+        page: intPage,
+        limit: intLimit
+      })
+    } else {
+      return all
+    }
   }
 
   @Get(':id')
