@@ -1,3 +1,4 @@
+import { Reflector } from '@nestjs/core'
 import { Test } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigService } from '@nestjs/config'
@@ -29,6 +30,8 @@ import { TeamsInvitation } from '../../src/modules/teams-invitations/entities/te
 import { User } from '../../src/modules/users/entities/user.entity'
 import { UsersSetting } from '../../src/modules/users-settings/entities/users-setting.entity'
 import { mockConfigService, mockConfigServiceProvider } from './mocking'
+import { UploadGuard } from '../../src/guards/upload.guard'
+import { JwtAuthGuard } from '../../src/modules/auth/guards/jwt-auth.guard'
 
 export const entities = [
   Activity,
@@ -53,15 +56,16 @@ export const entities = [
   UsersSetting
 ]
 
-export async function mockApp(
-  { imports = [], providers = [], controllers = [] },
-  name = 'default'
-) {
-  const moduleRef = await Test.createTestingModule({
+export async function mockApp({
+  imports = [],
+  providers = [],
+  controllers = []
+}) {
+  const moduleRef = Test.createTestingModule({
     imports: [
       ...imports,
       TypeOrmModule.forRoot({
-        name,
+        name: 'default',
         type: 'postgres',
         username: 'jest',
         password: 'jest',
@@ -77,18 +81,25 @@ export async function mockApp(
     providers: [...providers, mockConfigServiceProvider()],
     controllers
   })
+
+  const overrideRef = moduleRef
     .overrideProvider(ConfigService)
     .useValue(mockConfigService())
-    .compile()
+
+  const result = await overrideRef.compile()
 
   const fastifyAdapter = new FastifyAdapter()
   fastifyAdapter.register(fastifyMultipart)
 
-  const app = moduleRef.createNestApplication<NestFastifyApplication>(
+  const app = result.createNestApplication<NestFastifyApplication>(
     fastifyAdapter
   )
 
   app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalGuards(
+    new UploadGuard(app.get(Reflector)),
+    new JwtAuthGuard(app.get(Reflector))
+  )
   await app.init()
   await app.getHttpAdapter().getInstance().ready()
 

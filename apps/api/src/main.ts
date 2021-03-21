@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core'
+import { NestFactory, Reflector } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
 import {
   FastifyAdapter,
@@ -6,6 +6,8 @@ import {
 } from '@nestjs/platform-fastify'
 import { ApiModule } from './api.module'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
+import { UploadGuard } from './guards/upload.guard'
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard'
 
 declare const module: any
 
@@ -27,6 +29,8 @@ async function bootstrap() {
   SwaggerModule.setup('api/v1', app, document)
 
   app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalGuards(new UploadGuard(app.get(Reflector)))
+  app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)))
   await app.listen(process.env.PORT || 3000)
 
   if (module.hot) {

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { APP_GUARD } from '@nestjs/core'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 
@@ -45,6 +46,7 @@ import { UsersSettingsModule } from './modules/users-settings/users-settings.mod
 import { GoalsEntriesModule } from './modules/goals-entries/goals-entries.module'
 import { HealthActivitiesModule } from './modules/health-activities/health-activities.module'
 import { FeedItemsModule } from './modules/feed-items/feed-items.module'
+import { UploadGuard } from './guards/upload.guard'
 
 @Module({
   imports: [
@@ -110,6 +112,12 @@ import { FeedItemsModule } from './modules/feed-items/feed-items.module'
     UsersSettingsModule,
     GoalsEntriesModule,
     HealthActivitiesModule
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: UploadGuard
+    }
   ]
 })
 export class ApiModule {}

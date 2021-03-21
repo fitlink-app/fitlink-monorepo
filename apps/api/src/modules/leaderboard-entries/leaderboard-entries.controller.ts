@@ -14,7 +14,9 @@ import { LeaderboardEntriesService } from './leaderboard-entries.service'
 import { CreateLeaderboardEntryDto } from './dto/create-leaderboard-entry.dto'
 import { NotFoundInterceptor } from '../../interceptors/notfound.interceptor'
 import { AuthGuard } from '../../guards/auth.guard'
+import { Public } from '../../decorators/public.decorator'
 
+@Public()
 @Controller('leaderboard-entries')
 @UseGuards(AuthGuard)
 export class LeaderboardEntriesController {

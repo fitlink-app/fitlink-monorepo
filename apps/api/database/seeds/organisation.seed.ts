@@ -72,7 +72,7 @@ export default class CreateOrganisations implements Seeder {
     /**
      * Create leaderboard entries within leaderboards
      */
-    const leaderboardEntries = flatten(
+    flatten(
       await Promise.all(
         leaderboards.map(async (leaderboard) =>
           flatten(
