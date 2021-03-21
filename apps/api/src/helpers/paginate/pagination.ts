@@ -4,6 +4,7 @@ export class Pagination<PaginationEntity> {
   public results: PaginationEntity[]
   public page_total: number
   public total: number
+  public remaining?: number
 
   constructor(paginationResults: PaginationResultInterface<PaginationEntity>) {
     this.results = paginationResults.results
