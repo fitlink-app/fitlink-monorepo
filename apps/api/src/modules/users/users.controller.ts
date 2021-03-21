@@ -32,7 +32,6 @@ export class UsersController {
     return this.usersService.findAll()
   }
 
-  @UseInterceptors(new AccessInterceptor(Access.UserRead))
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
