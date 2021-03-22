@@ -68,10 +68,4 @@ export class Organisation extends CreatableEntity {
   })
   @JoinColumn()
   avatar: Image //128x128
-
-  @OneToOne(() => Image, {
-    cascade: ['remove']
-  })
-  @JoinColumn()
-  avatar_large: Image //512x512
 }

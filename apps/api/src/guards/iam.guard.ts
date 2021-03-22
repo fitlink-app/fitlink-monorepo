@@ -69,21 +69,22 @@ export class IamGuard implements CanActivate {
    * @returns
    */
   static checkRole(parameter: string, role: Roles, request): boolean {
+    const user = request.user as AuthenticatedUser
+
+    if (role === Roles.SuperAdmin) {
+      return user.roles.super_admin === true
+    }
+
     if (!request.params[parameter]) {
       throw new InternalServerErrorException(
         `${role} role cannot be assigned without explicitly adding ${parameter} to the controller`
       )
     }
-    const user = request.user as AuthenticatedUser
 
     // Users can edit entities they own
     if (role === Roles.Self && user.id === request.params.userId) {
       return true
-    }
-
-    if (role === Roles.SuperAdmin && user.roles.super_admin === true) {
-      return true
-    } else if (role !== Roles.SuperAdmin) {
+    } else {
       return user.roles[role].includes(request.params[parameter])
     }
   }

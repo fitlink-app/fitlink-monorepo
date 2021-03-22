@@ -26,6 +26,12 @@ export class ImagesService {
     return await this.imageRepository.save(this.imageRepository.create([image]))
   }
 
+  async createOne(file: Storage.MultipartFile, imageType = ImageType.Standard) {
+    const buffer = await file.toBuffer()
+    const result = await this.create(buffer, imageType)
+    return result[0]
+  }
+
   async createMany(
     files: Storage.MultipartFile[],
     imageType = ImageType.Standard
