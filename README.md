@@ -45,11 +45,11 @@ A docker-compose file is available to run postgres and s3rver (s3 emulator) for 
 
 For testing (ephemeral database):
 
-```docker-compose up -d postgres-jest s3rver`
+```docker-compose up -d postgres-jest s3rver```
 > Starts only the jest database service (port 5433) and s3rver (port 9191)
 
 For development (persistent database):
-```docker-compose up -d postgres s3rver`
+```docker-compose up -d postgres s3rver```
 > Starts only the development database service (5432) and s3rver (port 9191)
 
 For running both databases:
@@ -86,8 +86,8 @@ To run migrations and seed on the development database (prior to running applica
 
 If other tests are failing, you can run only your own tests
 ```
-  yarn test -t apps/api/test/my.e2e-spec.ts
-  yarn test:watch -t apps/api/test/my.e2e-spec.ts
+  yarn test apps/api/test/my.e2e-spec.ts
+  yarn test:watch apps/api/test/my.e2e-spec.ts
 ```
 
 ### Run nest server

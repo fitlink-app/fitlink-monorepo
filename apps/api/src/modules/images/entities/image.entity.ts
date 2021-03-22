@@ -1,13 +1,5 @@
-import { FitEnum } from 'sharp'
 import { CreatableEntity } from '../../../classes/entity/creatable'
-import {
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  Entity
-} from 'typeorm'
+import { PrimaryGeneratedColumn, Column, ManyToOne, Entity } from 'typeorm'
 import { Activity } from '../../activities/entities/activity.entity'
 
 export enum ImageType {
@@ -46,17 +38,17 @@ export const uploadVariants = [
 
 @Entity()
 export class Image extends CreatableEntity {
-  @CreateDateColumn()
-  created_at: Date
-
-  @UpdateDateColumn()
-  updated_at: Date
-
   @PrimaryGeneratedColumn('uuid')
   id: string
 
   @ManyToOne(() => Activity, null, { nullable: true })
-  activity: Activity
+  activity?: Activity
+
+  /** Alt text for accessibility */
+  @Column({
+    nullable: true
+  })
+  alt: string
 
   /** Standard rescaled image (any ratio) */
   @Column()

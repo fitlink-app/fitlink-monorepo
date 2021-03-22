@@ -2,7 +2,9 @@ import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common'
 import { LeaderboardsService } from './leaderboards.service'
 import { CreateLeaderboardDto } from './dto/create-leaderboard.dto'
 import { UpdateLeaderboardDto } from './dto/update-leaderboard.dto'
+import { Public } from '../../decorators/public.decorator'
 
+@Public()
 @Controller('leaderboards')
 export class LeaderboardsController {
   constructor(private readonly leaderboardsService: LeaderboardsService) {}

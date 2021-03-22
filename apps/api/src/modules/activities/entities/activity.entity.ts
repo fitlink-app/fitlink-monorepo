@@ -20,37 +20,35 @@ export class Activity extends CreatableEntity {
   id: string
 
   @Column()
-  url: string
-
-  @OneToOne(() => League, { nullable: true })
-  @JoinColumn()
-  league: League
-
-  @Column()
-  date: string
-
-  @Column({
-    type: 'json'
-  })
-  keywords: string[]
+  name: string
 
   @Column()
   description: string
 
-  @Column({
-    type: 'geometry',
-    spatialFeatureType: 'Point'
-  })
-  meeting_point: Geometry
+  @Column()
+  date: string
+
+  @Column({ nullable: true })
+  cost: string
+
+  @Column({ nullable: true })
+  organizer_name: string
+
+  @Column({ nullable: true })
+  organizer_url: string
 
   @Column()
   meeting_point_text: string
 
-  @Column()
-  archived: boolean
+  @Column({ type: 'geometry', spatialFeatureType: 'Point' })
+  meeting_point: Geometry
 
   @ManyToOne(() => Team, (team) => team.activities, { nullable: true })
-  team: Team
+  team?: Team
+
+  @OneToOne(() => League, { nullable: true })
+  @JoinColumn()
+  league?: League
 
   @OneToMany(() => Image, null, { nullable: true })
   images: Image[]

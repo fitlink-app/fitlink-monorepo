@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { APP_GUARD } from '@nestjs/core'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 
@@ -19,9 +20,11 @@ import { RefreshToken } from './modules/auth/entities/auth.entity'
 import { Reward } from './modules/rewards/entities/reward.entity'
 import { RewardsRedemption } from './modules/rewards-redemptions/entities/rewards-redemption.entity'
 import { Sport } from './modules/sports/entities/sport.entity'
+import { Subscription } from './modules/subscriptions/entities/subscription.entity'
 import { Team } from './modules/teams/entities/team.entity'
 import { TeamsInvitation } from './modules/teams-invitations/entities/teams-invitation.entity'
 import { User } from './modules/users/entities/user.entity'
+import { UserRole } from './modules/user-roles/entities/user-role.entity'
 import { UsersSetting } from './modules/users-settings/entities/users-setting.entity'
 
 // Modules
@@ -45,6 +48,9 @@ import { UsersSettingsModule } from './modules/users-settings/users-settings.mod
 import { GoalsEntriesModule } from './modules/goals-entries/goals-entries.module'
 import { HealthActivitiesModule } from './modules/health-activities/health-activities.module'
 import { FeedItemsModule } from './modules/feed-items/feed-items.module'
+import { UploadGuard } from './guards/upload.guard'
+import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module'
+import { UserRolesModule } from './modules/user-roles/user-roles.module'
 
 @Module({
   imports: [
@@ -79,9 +85,11 @@ import { FeedItemsModule } from './modules/feed-items/feed-items.module'
             Reward,
             RewardsRedemption,
             Sport,
+            Subscription,
             Team,
             TeamsInvitation,
             User,
+            UserRole,
             UsersSetting
           ],
           synchronize: false,
@@ -109,7 +117,15 @@ import { FeedItemsModule } from './modules/feed-items/feed-items.module'
     UsersModule,
     UsersSettingsModule,
     GoalsEntriesModule,
-    HealthActivitiesModule
+    HealthActivitiesModule,
+    UserRolesModule,
+    SubscriptionsModule
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: UploadGuard
+    }
   ]
 })
 export class ApiModule {}
