@@ -106,6 +106,7 @@ export async function mockApp({
     new JwtAuthGuard(app.get(Reflector)),
     new IamGuard(app.get(Reflector))
   )
+
   await app.init()
   await app.getHttpAdapter().getInstance().ready()
 

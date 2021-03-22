@@ -32,12 +32,8 @@ export class LeaderboardEntriesController {
   @Get(':leaderboardId')
   findAll(@Param('leaderboardId') leaderboardId: string, @Request() request) {
     return this.leaderboardEntriesService.findAll(leaderboardId, {
-      limit: Object.prototype.hasOwnProperty.call(request.query, 'limit')
-        ? request.query.limit
-        : 10,
-      page: Object.prototype.hasOwnProperty.call(request.query, 'page')
-        ? request.query.page
-        : 0
+      limit: request.query.limit || 10,
+      page: request.query.page || 0
     })
   }
 

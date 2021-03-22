@@ -2,9 +2,9 @@ import { SetMetadata } from '@nestjs/common'
 
 export const Uploads = (...args: string[]) => {
   let required = true
-  if (args[args.length] === UploadOptions.Nullable) {
+  if (args[args.length - 1] === UploadOptions.Nullable) {
     required = false
-    args.shift()
+    args.pop()
   }
   return SetMetadata('uploads', {
     required,

@@ -31,12 +31,16 @@ export function createTokenFor(userId: string, roles?: JWTRoles) {
   return jwtService.sign(payload)
 }
 
-export function getAuthHeaders(roles = null, userId = 'jest') {
+export function getAuthHeaders(
+  roles: Partial<JWTRoles> = null,
+  userId = 'jest'
+) {
   const token = createTokenFor(userId, {
     ...{
       o_a: [],
       t_a: [],
-      s_a: false
+      s_a: [],
+      spr: false
     },
     ...roles
   })

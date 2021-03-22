@@ -3,7 +3,7 @@ import { FastifyRequest } from 'fastify'
 export const Files = createParamDecorator(
   (_data: unknown, ctx: ExecutionContext) => {
     const req = ctx.switchToHttp().getRequest() as FastifyRequest
-    const files = req.incomingFiles
+    const files = req.incomingFiles || []
     return files
   }
 )
