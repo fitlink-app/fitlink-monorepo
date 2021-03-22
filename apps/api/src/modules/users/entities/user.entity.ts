@@ -4,6 +4,7 @@ import {
   Entity,
   JoinColumn,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn
@@ -19,6 +20,8 @@ import { GoalsEntry } from '../../goals-entries/entities/goals-entry.entity'
 import { HealthActivity } from '../../health-activities/entities/health-activity.entity'
 import { FeedItem } from '../../feed-items/entities/feed-item.entity'
 import { RefreshToken } from '../../auth/entities/auth.entity'
+import { Subscription } from '../../subscriptions/entities/subscription.entity'
+import { UserRole } from '../../user-roles/entities/user-role.entity'
 
 export enum UnitSystem {
   Metric = 'metric',
@@ -149,6 +152,12 @@ export class User extends CreatableEntity {
     onDelete: 'CASCADE'
   })
   feed_items: FeedItem[]
+
+  @ManyToOne(() => Subscription, (subscription) => subscription.users)
+  subscription: Subscription
+
+  @OneToMany(() => UserRole, (role) => role.user)
+  roles: UserRole[]
 
   @Column()
   name: string

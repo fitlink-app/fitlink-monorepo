@@ -15,14 +15,17 @@ export class UsersService {
 
   getRolesForToken(user: User): JWTRoles {
     return {
-      /** Org admin */
+      /** Org admin: OrganisationId[] */
       o_a: ['39872387239857240'],
 
-      /** Team admin */
+      /** Team admin TeamId[] */
       t_a: ['39872387239857239'],
 
+      /** Subscriptions admin SubscriptionId[] */
+      s_a: ['39872387239857240'],
+
       /** Super admin */
-      s_a: true
+      spr: true
     }
   }
 

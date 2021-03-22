@@ -12,6 +12,5 @@ define(User, (faker: typeof Faker, context: Context) => {
   user.name = faker.name.findName()
   user.email = faker.internet.userName() + '-example@fitlinkapp.com'
   user.password = '$2a$10$SxsiyEPj2gjEgufzMiWTWuej0Cld6IzPT/59.0.Y6xSEosQ856u6m'
-  user.teams = [context.team]
   return user
 })
