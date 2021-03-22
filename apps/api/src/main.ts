@@ -8,6 +8,7 @@ import { ApiModule } from './api.module'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { UploadGuard } from './guards/upload.guard'
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard'
+import { IamGuard } from './guards/iam.guard'
 
 declare const module: any
 
@@ -31,6 +32,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe())
   app.useGlobalGuards(new UploadGuard(app.get(Reflector)))
   app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)))
+  app.useGlobalGuards(new IamGuard(app.get(Reflector)))
   await app.listen(process.env.PORT || 3000)
 
   if (module.hot) {
