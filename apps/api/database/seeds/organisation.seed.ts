@@ -7,20 +7,42 @@ import { Leaderboard } from '../../src/modules/leaderboards/entities/leaderboard
 import { LeaderboardEntry } from '../../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
 import { flatten } from 'lodash'
 import * as faker from 'faker'
+import {
+  Roles,
+  UserRole
+} from '../../src/modules/user-roles/entities/user-role.entity'
+import { Connection } from 'typeorm'
+import { Subscription } from '../../src/modules/subscriptions/entities/subscription.entity'
 
 const COUNT_ORGANISATIONS = 2
 const COUNT_TEAMS = 2
+const COUNT_SUBSCRIPTIONS = 2
 const COUNT_LEAGUES = 2
 const COUNT_USERS = 21
 const COUNT_LEADERBOARDS = 2
 const COUNT_LEADERBOARD_ENTRIES = 2
 
 export default class CreateOrganisations implements Seeder {
-  public async run(factory: Factory): Promise<any> {
+  connection: Connection
+
+  public async run(factory: Factory, connection: Connection): Promise<any> {
+    this.connection = connection
     /**
      * Create organisations
      */
     const orgs = await factory(Organisation)().createMany(COUNT_ORGANISATIONS)
+
+    /**
+     * Create subscriptions for organisations
+     */
+    await Promise.all(
+      orgs.map(
+        async (organisation) =>
+          await factory(Subscription)({ organisation }).createMany(
+            COUNT_SUBSCRIPTIONS
+          )
+      )
+    )
 
     /**
      * Create teams for organisations
@@ -37,11 +59,45 @@ export default class CreateOrganisations implements Seeder {
      */
     const users = flatten(
       await Promise.all(
-        teams.map(
-          async (team) => await factory(User)({ team }).createMany(COUNT_USERS)
-        )
+        teams.map(async (team) => {
+          const users = await factory(User)().createMany(COUNT_USERS)
+          await this.connection
+            .getRepository(Team)
+            .createQueryBuilder()
+            .relation(Team, 'users')
+            .of(team)
+            .add(users)
+          return users
+        })
       )
     )
+
+    /**
+     * Create team admins
+     */
+    const teamAdmin = users[faker.random.number(users.length - 1)]
+    const orgAdmin = users[faker.random.number(users.length - 1)]
+    const subAdmin = users[faker.random.number(users.length - 1)]
+
+    await Promise.all([
+      await factory(UserRole)({
+        user: teamAdmin,
+        team: this.getTeamForUser(teamAdmin),
+        role: Roles.TeamAdmin
+      }).create(),
+
+      await factory(UserRole)({
+        user: orgAdmin,
+        organisation: this.getOrganisationForUser(orgAdmin),
+        role: Roles.OrganisationAdmin
+      }).create(),
+
+      await factory(UserRole)({
+        user: subAdmin,
+        subscription: this.getSubscriptionForUser(subAdmin),
+        role: Roles.SubscriptionAdmin
+      }).create()
+    ])
 
     /**
      * Create leagues within teams
@@ -91,5 +147,43 @@ export default class CreateOrganisations implements Seeder {
         )
       )
     )
+  }
+
+  async getTeamForUser(user: User) {
+    const result = await this.connection.getRepository(User).findOne(
+      {
+        id: user.id
+      },
+      {
+        relations: ['teams']
+      }
+    )
+    return result.teams[0]
+  }
+
+  async getOrganisationForUser(user: User) {
+    const team = await this.getTeamForUser(user)
+    const result = await this.connection.getRepository(Team).findOne(
+      {
+        id: team.id
+      },
+      {
+        relations: ['organisation']
+      }
+    )
+    return result.organisation
+  }
+
+  async getSubscriptionForUser(user: User) {
+    const org = await this.getOrganisationForUser(user)
+    const result = await this.connection.getRepository(Organisation).findOne(
+      {
+        id: org.id
+      },
+      {
+        relations: ['subscriptions']
+      }
+    )
+    return result.subscriptions[0]
   }
 }

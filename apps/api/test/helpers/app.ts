@@ -29,9 +29,12 @@ import { Team } from '../../src/modules/teams/entities/team.entity'
 import { TeamsInvitation } from '../../src/modules/teams-invitations/entities/teams-invitation.entity'
 import { User } from '../../src/modules/users/entities/user.entity'
 import { UsersSetting } from '../../src/modules/users-settings/entities/users-setting.entity'
+import { Subscription } from '../../src/modules/subscriptions/entities/subscription.entity'
+import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity'
 import { mockConfigService, mockConfigServiceProvider } from './mocking'
 import { UploadGuard } from '../../src/guards/upload.guard'
 import { JwtAuthGuard } from '../../src/modules/auth/guards/jwt-auth.guard'
+import { IamGuard } from '../../src/guards/iam.guard'
 
 export const entities = [
   Activity,
@@ -50,9 +53,11 @@ export const entities = [
   Reward,
   RewardsRedemption,
   Sport,
+  Subscription,
   Team,
   TeamsInvitation,
   User,
+  UserRole,
   UsersSetting
 ]
 
@@ -98,7 +103,8 @@ export async function mockApp({
   app.useGlobalPipes(new ValidationPipe())
   app.useGlobalGuards(
     new UploadGuard(app.get(Reflector)),
-    new JwtAuthGuard(app.get(Reflector))
+    new JwtAuthGuard(app.get(Reflector)),
+    new IamGuard(app.get(Reflector))
   )
   await app.init()
   await app.getHttpAdapter().getInstance().ready()

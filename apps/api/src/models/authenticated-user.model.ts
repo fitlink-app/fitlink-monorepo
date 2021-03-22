@@ -1,10 +1,13 @@
-export type AuthenticatedUser = {
-  id: string
-  roles: Roles
+import { Roles } from '../modules/user-roles/entities/user-role.entity'
+
+export type AuthenticatedUserRoles = {
+  [Roles.OrganisationAdmin]: string[]
+  [Roles.TeamAdmin]: string[]
+  [Roles.SubscriptionAdmin]: string[]
+  [Roles.SuperAdmin]: boolean
 }
 
-export type Roles = {
-  team_admin: string[]
-  org_admin: string[]
-  super_admin: boolean
+export type AuthenticatedUser = {
+  id: string
+  roles: AuthenticatedUserRoles
 }
