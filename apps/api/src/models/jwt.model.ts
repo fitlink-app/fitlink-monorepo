@@ -25,6 +25,9 @@ export type JWTRoles = {
   /** Org admin */
   o_a: string[]
 
+  /** Subscription admin */
+  s_a: string[]
+
   /** Super admin */
-  s_a: boolean
+  spr: boolean
 }
