@@ -1,7 +1,5 @@
 import {
   PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
   Entity,
   OneToMany,
   Column,
@@ -9,8 +7,10 @@ import {
   JoinColumn
 } from 'typeorm'
 
+import { CreatableEntity } from '../../../classes/entity/creatable'
 import { Team } from '../../teams/entities/team.entity'
 import { Image } from '../../images/entities/image.entity'
+import { Subscription } from '../../subscriptions/entities/subscription.entity'
 
 export enum OrganisationType {
   Company = 'company',
@@ -21,13 +21,7 @@ export enum OrganisationType {
 }
 
 @Entity()
-export class Organisation {
-  @CreateDateColumn()
-  created_at: Date
-
-  @UpdateDateColumn()
-  updated_at: Date
-
+export class Organisation extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
@@ -37,36 +31,14 @@ export class Organisation {
   })
   teams: Team[]
 
+  @OneToMany(() => Subscription, (subscription) => subscription.organisation, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
+  subscriptions: Subscription[]
+
   @Column()
   name: string
-
-  @Column({
-    nullable: true
-  })
-  billing_address_1?: string
-
-  @Column({
-    nullable: true
-  })
-  billing_address_2?: string
-
-  @Column({
-    nullable: true
-  })
-  billing_country?: string
-
-  @Column({
-    nullable: true
-  })
-  billing_country_code?: string
-
-  @Column({
-    nullable: true
-  })
-  billing_state?: string
-
-  @Column()
-  billing_city?: string
 
   @Column({
     type: 'enum',
