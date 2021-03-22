@@ -12,7 +12,7 @@ const jwtService = new JwtService({
  * Creates a token with valid payload on a particular
  * user id
  *
- * Roles can also be assigned: { o_a: [], t_a: [], s_a: true }
+ * Roles can also be assigned: { o_a: [], t_a: [], s_a: [], spr: true }
  *
  * @param user
  * @param roles
