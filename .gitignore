@@ -39,4 +39,7 @@ lerna-debug.log*
 terraform
 .serverless
 /s3
+/.s3
 /docker/s3rver/tmp
+/scripts/config.jwt.json
+/email-debug.log

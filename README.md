@@ -90,6 +90,17 @@ If other tests are failing, you can run only your own tests
   yarn test:watch apps/api/test/my.e2e-spec.ts
 ```
 
+### Testing emails
+In Jest, emails are written to email-debug.log in the root. This allows you to perform tests on the output during a test run. 
+
+```
+  import { emailHasContent } from './helpers/mocking'
+  // later... //
+  expect(await emailHasContent(payload.email)).toEqual(true)
+```
+
+In the local development environment, this is also enabled by default in .env, but could be override in .env.local
+
 ### Run nest server
 
 You may want to run a nest server while writing jest tests. In this scenario, you can run nest against the ephemeral jest database:

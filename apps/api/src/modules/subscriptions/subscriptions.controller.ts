@@ -7,6 +7,7 @@ import { UpdateSubscriptionDto } from './dto/update-subscription.dto'
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
+  /*
   @Post()
   create(@Body() createSubscriptionDto: CreateSubscriptionDto) {
     return this.subscriptionsService.create(createSubscriptionDto)
@@ -34,4 +35,5 @@ export class SubscriptionsController {
   remove(@Param('id') id: string) {
     return this.subscriptionsService.remove(+id)
   }
+  */
 }

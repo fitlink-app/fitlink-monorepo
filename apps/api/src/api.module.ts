@@ -15,6 +15,7 @@ import { LeaderboardEntry } from './modules/leaderboard-entries/entities/leaderb
 import { LeaguesInvitation } from './modules/leagues-invitations/entities/leagues-invitation.entity'
 import { League } from './modules/leagues/entities/league.entity'
 import { Organisation } from './modules/organisations/entities/organisation.entity'
+import { OrganisationsInvitation } from './modules/organisations-invitations/entities/organisations-invitation.entity'
 import { Provider } from './modules/providers/entities/provider.entity'
 import { RefreshToken } from './modules/auth/entities/auth.entity'
 import { Reward } from './modules/rewards/entities/reward.entity'
@@ -51,10 +52,14 @@ import { FeedItemsModule } from './modules/feed-items/feed-items.module'
 import { UploadGuard } from './guards/upload.guard'
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module'
 import { UserRolesModule } from './modules/user-roles/user-roles.module'
+import { CommonModule } from './modules/common/common.module'
+import { OrganisationsInvitationsModule } from './modules/organisations-invitations/organisations-invitations.module'
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: ['.env.local', '.env']
+    }),
 
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -80,6 +85,7 @@ import { UserRolesModule } from './modules/user-roles/user-roles.module'
             League,
             LeaguesInvitation,
             Organisation,
+            OrganisationsInvitation,
             Provider,
             RefreshToken,
             Reward,
@@ -100,6 +106,7 @@ import { UserRolesModule } from './modules/user-roles/user-roles.module'
     }),
     AuthModule,
     ActivitiesModule,
+    CommonModule,
     FeedItemsModule,
     FollowingsModule,
     ImagesModule,
@@ -108,6 +115,7 @@ import { UserRolesModule } from './modules/user-roles/user-roles.module'
     LeaguesModule,
     LeaguesInvitationsModule,
     OrganisationsModule,
+    OrganisationsInvitationsModule,
     ProvidersModule,
     RewardsModule,
     RewardsRedemptionsModule,
