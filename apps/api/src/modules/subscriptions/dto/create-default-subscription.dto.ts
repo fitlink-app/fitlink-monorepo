@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Organisation } from '../../organisations/entities/organisation.entity'
 
-export class CreateSubscriptionDto {
+export class CreateDefaultSubscriptionDto {
   @ApiProperty()
   organisation: Organisation
 

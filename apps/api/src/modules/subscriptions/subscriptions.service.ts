@@ -1,11 +1,26 @@
 import { Injectable } from '@nestjs/common'
-import { CreateSubscriptionDto } from './dto/create-subscription.dto'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
+import { CreateDefaultSubscriptionDto } from './dto/create-default-subscription.dto'
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto'
+import { Subscription } from './entities/subscription.entity'
 
 @Injectable()
 export class SubscriptionsService {
-  create(createSubscriptionDto: CreateSubscriptionDto) {
-    return 'This action adds a new subscription'
+  constructor(
+    @InjectRepository(Subscription)
+    private readonly subscriptionsRepository: Repository<Subscription>
+  ) {}
+
+  createDefault(createDefaultDto: CreateDefaultSubscriptionDto) {
+    const { organisation, billing_entity } = createDefaultDto
+    return this.subscriptionsRepository.save(
+      this.subscriptionsRepository.create({
+        billing_entity,
+        organisation,
+        default: true
+      })
+    )
   }
 
   findAll() {
@@ -20,7 +35,16 @@ export class SubscriptionsService {
     return `This action updates a #${id} subscription`
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} subscription`
+  remove(id: string) {
+    return this.subscriptionsRepository.delete(id)
+  }
+
+  removeMany(subscriptions: Subscription[]) {
+    const ids = subscriptions.map((entity) => entity.id)
+    return this.subscriptionsRepository
+      .createQueryBuilder()
+      .whereInIds(ids)
+      .delete()
+      .execute()
   }
 }

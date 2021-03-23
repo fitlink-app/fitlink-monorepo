@@ -54,7 +54,9 @@ export class Subscription extends CreatableEntity {
   })
   billing_state?: string
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   billing_city?: string
 
   @Column({
