@@ -6,7 +6,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-18.04
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
       DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
