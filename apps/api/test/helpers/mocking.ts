@@ -1,7 +1,7 @@
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { ConfigService } from '@nestjs/config'
 import { appendFile, readFile } from 'fs/promises'
-import { TemplatesType } from 'apps/api/src/modules/common/email.service'
+import { TemplatesType } from '../../src/modules/common/email.service'
 
 const env = {
   AUTH_JWT_SECRET: 'fitlink_jwt_secret',
