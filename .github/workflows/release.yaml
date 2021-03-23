@@ -1,0 +1,72 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    env:
+      SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+      DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
+      DB_USERNAME: ${{ secrets.DEV_DB_USERNAME }}
+      DB_DATABASE_NAME: ${{ secrets.DEV_DB_DATABASE_NAME }}
+      DB_HOST: ${{ secrets.DEV_DB_HOST }}
+      DB_PORT: ${{ secrets.DEV_DB_PORT }}
+      API_PREFIX: ${{ secrets.DEV_API_PREFIX }}
+      API_DOMAIN_NAME: ${{ secrets.DEV_API_DOMAIN_NAME }}
+      API_DOMAIN_NAME_HOSTED_ZONE_ID: ${{ secrets.DEV_API_DOMAIN_NAME_HOSTED_ZONE_ID }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Setup docker
+        run: docker-compose up -d postgres-jest s3rver
+
+      - name: Allow docker postgres 10 seconds to startups
+        uses: jakejarvis/wait-action@v0.1.0
+        with:
+          time: '10s'
+
+      - name: Migrate and seed test database
+        run: yarn migration:run -c jest && yarn migration:seed -c jest
+
+      - name: Test e2e
+        run: yarn run test
+
+      - name: Stop docker
+        run: docker-compose down
+
+      - name: Build nest for Serverless
+        run: yarn run build
+
+      - name: Install serverless globally
+        run: yarn add global serverless
+
+      - name: Serverless - Run deploy
+        if: github.ref == 'refs/heads/develop'
+        run: yarn run sls:deploy
+
+      - name: Serverless - Run migrations
+        if: github.ref == 'refs/heads/develop'
+        run: yarn run sls:migrate
