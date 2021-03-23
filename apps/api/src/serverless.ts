@@ -67,9 +67,15 @@ export async function migrate() {
     dropSchema: false,
     migrations: migrations
   })
-  const result = await connection.runMigrations({
-    transaction: 'none'
-  })
+
+  let result
+  try {
+    result = await connection.runMigrations({
+      transaction: 'none'
+    })
+  } catch (e) {
+    console.error(e)
+  }
   await connection.close()
   return result
 }
