@@ -2,6 +2,15 @@
 
 This is the Fitlink monorepo initialized using Nest's monorepo project structure. In future this repo will also contain the React Native app.
 
+## Quick links
+1. [Git Hook](#git-hook-prettier)
+2. [Testing](#testing)
+3. [Development](#development)
+4. [Docker](#run-docker)
+5. [Migration and seeding](#migrate-and-seed-database)
+6. [Jest](#run-jest-tests)
+7. [Testing emails](#testing-emails)
+
 ## Leaderboard Entries
 
 At this time, only leaderboard entries are available, in order to make querying the leaderboard in real time performant. 
@@ -121,13 +130,13 @@ The api will be available at http://localhost:3000/api/v1/*
 
 ### Bearer authentication
 
-Simple bearer authentication is in place.
+Simple bearer authentication is in place for the temporary API (leaderboard, activities) to connect to Firebase. 
 
 ## Nest-cli
 
-Scaffold new CRUD routes using nest cli, under the modules folder
+Scaffold new CRUD routes using nest cli, under the modules folder (omits tests because we're using e2e tests only). 
 
-```nest g resource modules/fishes```
+```nest g resource modules/fishes --no-spec```
 
 ## Swagger
 
