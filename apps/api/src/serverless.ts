@@ -74,7 +74,8 @@ export async function migrate() {
       transaction: 'none'
     })
   } catch (e) {
-    console.error(e)
+    await connection.close()
+    throw e
   }
   await connection.close()
   return result
