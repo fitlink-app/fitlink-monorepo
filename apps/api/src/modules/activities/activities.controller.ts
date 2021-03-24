@@ -54,7 +54,7 @@ export class ActivitiesController {
    */
   @Get()
   async findAll(
-    @Query() { geo_radial, with_imin = true, page, limit }: FindActivitiesDto
+    @Query() { geo_radial, with_imin = '1', page, limit }: FindActivitiesDto
   ) {
     const intPage = parseInt(page)
     const intLimit = parseInt(limit)
@@ -65,7 +65,7 @@ export class ActivitiesController {
       limit: intLimit
     })
 
-    if (with_imin) {
+    if (with_imin === '1' && geo_radial) {
       // Get Imin activities
       const imin = await this.activitiesIminService.findAll({
         'geo[radial]': geo_radial,

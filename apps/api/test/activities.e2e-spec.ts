@@ -103,9 +103,28 @@ describe('Activities', () => {
       })
 
       activitiesService.findAll = cacheFindAll
-
       return data.json().remaining
     }
+  })
+
+  it(`GET /activities 200 Performs validation if geo_radial property is incorrectly formatted`, async () => {
+    const data = await app.inject({
+      method: 'GET',
+      url: '/activities',
+      query: {
+        geo_radial: '51.7520131,5',
+        page: '0',
+        limit: '20',
+        with_imin: '1'
+      },
+      headers
+    })
+
+    const result = data.json()
+    expect(data.statusCode).toEqual(400)
+    expect(result.message).toEqual([
+      "geo_radial must be formatted correctly as 'lat,lng,radius'"
+    ])
   })
 
   it(`GET /activities 200 Fetches real activities from the database, even when none are available from iMin`, async () => {
