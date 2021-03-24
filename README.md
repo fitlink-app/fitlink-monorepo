@@ -84,6 +84,12 @@ To run migrations and seed on the development database (prior to running applica
   yarn migration:seed
 ```
 
+To generate a new migration based on entity changes (with custom name to describe changes):
+```
+  yarn migration:generate -c jest -n UpdateUsers
+```
+> Note that this will attempt to check if migrations are not up to date. You should not create a new migration on an unmigrated database or there will be conflicts as a result. 
+
 ### Run jest tests
 > Run migration and seeding first before running jest
 
