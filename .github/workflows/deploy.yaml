@@ -22,7 +22,10 @@ jobs:
       API_PREFIX: ${{ secrets.DEV_API_PREFIX }}
       API_DOMAIN_NAME: ${{ secrets.DEV_API_DOMAIN_NAME }}
       API_DOMAIN_NAME_HOSTED_ZONE_ID: ${{ secrets.DEV_API_DOMAIN_NAME_HOSTED_ZONE_ID }}
-      IMIN_API_BASE_URL: https://vpce-0c9e476b0cc53b143-p49hd66l.execute-api.eu-west-2.vpce.amazonaws.com
+
+      # This is the AWS API Gateway hosted proxy for imin, allowing the lambda function to reach it inside the VPC
+      # https://eu-west-2.console.aws.amazon.com/apigateway/home?region=eu-west-2#/apis/a1udqh1r23/settings
+      IMIN_API_BASE_URL: https://a1udqh1r23.execute-api.eu-west-2.amazonaws.com/imin-proxy/
 
     steps:
       - uses: actions/checkout@v2
