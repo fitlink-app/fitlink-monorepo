@@ -9,6 +9,8 @@ import { UploadGuard } from './guards/upload.guard'
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard'
 import { IamGuard } from './guards/iam.guard'
 import { FastifyServerOptions, FastifyInstance, fastify } from 'fastify'
+import { ConfigService } from '@nestjs/config'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import * as awsLambdaFastify from 'aws-lambda-fastify'
 import {
   Context,
@@ -35,6 +37,21 @@ async function bootstrapServer(): Promise<NestApp> {
     { logger: !process.env.AWS_EXECUTION_ENV ? new Logger() : console }
   )
   app.setGlobalPrefix(process.env.API_PREFIX)
+
+  const configService = app.get(ConfigService)
+
+  if (configService.get('ENABLE_SWAGGER') === '1') {
+    const config = new DocumentBuilder()
+      .setTitle('Fitlink API')
+      .setDescription('The Fitlink API on Nest')
+      .setVersion('1.0')
+      .addTag('fitlink')
+      .build()
+
+    const document = SwaggerModule.createDocument(app, config)
+    SwaggerModule.setup('api/v1', app, document)
+  }
+
   app.useGlobalPipes(new ValidationPipe())
   app.useGlobalGuards(new UploadGuard(app.get(Reflector)))
   app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)))

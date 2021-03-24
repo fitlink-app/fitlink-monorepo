@@ -20,6 +20,8 @@ jobs:
       # This is the AWS API Gateway hosted proxy for imin, allowing the lambda function to reach it inside the VPC
       # https://eu-west-2.console.aws.amazon.com/apigateway/home?region=eu-west-2#/apis/a1udqh1r23/settings
       IMIN_API_BASE_URL: https://a1udqh1r23.execute-api.eu-west-2.amazonaws.com/imin-proxy/
+      EMAIL_DEBUG: 0
+      ENABLE_SWAGGER: 1
 
     steps:
       - uses: actions/checkout@v2

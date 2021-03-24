@@ -15,8 +15,10 @@ import { CreateLeaderboardEntryDto } from './dto/create-leaderboard-entry.dto'
 import { NotFoundInterceptor } from '../../interceptors/notfound.interceptor'
 import { AuthGuard } from '../../guards/auth.guard'
 import { Public } from '../../decorators/public.decorator'
+import { ApiBearerAuth } from '@nestjs/swagger'
 
 @Public()
+@ApiBearerAuth()
 @Controller('leaderboard-entries')
 @UseGuards(AuthGuard)
 export class LeaderboardEntriesController {
