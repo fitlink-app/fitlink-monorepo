@@ -1,26 +1,52 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { CreateOrganisationDto } from './dto/create-organisation.dto'
 import { UpdateOrganisationDto } from './dto/update-organisation.dto'
 import { Organisation } from './entities/organisation.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
-import { InjectRepository } from '@nestjs/typeorm'
 import { SubscriptionsService } from '../subscriptions/subscriptions.service'
+import { OrganisationsInvitationsService } from '../organisations-invitations/organisations-invitations.service'
+import { OrganisationsInvitation } from '../organisations-invitations/entities/organisations-invitation.entity'
+import { Subscription } from '../subscriptions/entities/subscription.entity'
+import { getManager } from 'typeorm'
+import { InjectRepository } from '@nestjs/typeorm'
 
 @Injectable()
 export class OrganisationsService {
   constructor(
     @InjectRepository(Organisation)
     private readonly organisationRepository: Repository<Organisation>,
-    @Inject(SubscriptionsService)
-    private readonly subscriptionService: SubscriptionsService
+    private readonly subscriptionService: SubscriptionsService,
+    private readonly invitationsService: OrganisationsInvitationsService
   ) {}
 
   async create(createOrganisationDto: CreateOrganisationDto) {
+    const { email, invitee, ...rest } = createOrganisationDto
     const organisation = await this.organisationRepository.save(
-      this.organisationRepository.create(createOrganisationDto)
+      this.organisationRepository.create(rest)
     )
-    return organisation
+
+    // Optionally invite a user by email
+    let invitation: OrganisationsInvitation
+    if (email) {
+      invitation = await this.invitationsService.create({
+        email,
+        organisation,
+        invitee
+      })
+    }
+
+    // Create a default subscription
+    const subscription = await this.subscriptionService.createDefault({
+      organisation,
+      billing_entity: organisation.name
+    })
+
+    return {
+      organisation,
+      invitation,
+      subscription
+    }
   }
 
   async findAll(
@@ -46,7 +72,24 @@ export class OrganisationsService {
     return this.organisationRepository.update(id, updateOrganisationDto)
   }
 
-  remove(id: string) {
-    return this.organisationRepository.delete(id)
+  async remove(id: string) {
+    const organisation = await this.organisationRepository.findOne(id, {
+      relations: ['subscriptions', 'invitations']
+    })
+
+    const result = await getManager().transaction(async (entityManager) => {
+      // Delete subscriptions
+      await entityManager.delete(
+        Subscription,
+        organisation.subscriptions.map((entity) => entity.id)
+      )
+      await entityManager.delete(
+        OrganisationsInvitation,
+        organisation.invitations.map((entity) => entity.id)
+      )
+      return await entityManager.delete(Organisation, organisation.id)
+    })
+
+    return result
   }
 }

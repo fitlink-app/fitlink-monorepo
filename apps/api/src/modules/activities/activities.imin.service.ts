@@ -62,7 +62,8 @@ export class ActivitiesIminService {
         headers: {
           'X-API-KEY': this.configService.get('IMIN_API_KEY'),
           accept: 'application/json'
-        }
+        },
+        timeout: 3000
       })
       .pipe(map((response) => response.data))
   }

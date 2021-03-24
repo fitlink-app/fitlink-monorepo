@@ -6,7 +6,8 @@ import { OrganisationsController } from './organisations.controller'
 import { Organisation } from './entities/organisation.entity'
 import { ImagesModule } from '../images/images.module'
 import { AuthModule } from '../auth/auth.module'
-import { SubscriptionsService } from '../subscriptions/subscriptions.service'
+import { SubscriptionsModule } from '../subscriptions/subscriptions.module'
+import { OrganisationsInvitationsModule } from '../organisations-invitations/organisations-invitations.module'
 
 @Module({
   imports: [
@@ -14,9 +15,12 @@ import { SubscriptionsService } from '../subscriptions/subscriptions.service'
     AuthModule,
     ConfigModule,
     HttpModule,
-    ImagesModule
+    ImagesModule,
+    OrganisationsInvitationsModule,
+    SubscriptionsModule
   ],
   controllers: [OrganisationsController],
-  providers: [OrganisationsService, SubscriptionsService]
+  providers: [OrganisationsService],
+  exports: [TypeOrmModule.forFeature([Organisation]), OrganisationsService]
 })
 export class OrganisationsModule {}
