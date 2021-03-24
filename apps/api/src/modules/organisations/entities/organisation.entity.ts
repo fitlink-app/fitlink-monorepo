@@ -11,6 +11,7 @@ import { CreatableEntity } from '../../../classes/entity/creatable'
 import { Team } from '../../teams/entities/team.entity'
 import { Image } from '../../images/entities/image.entity'
 import { Subscription } from '../../subscriptions/entities/subscription.entity'
+import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
 
 export enum OrganisationType {
   Company = 'company',
@@ -36,6 +37,16 @@ export class Organisation extends CreatableEntity {
     onDelete: 'CASCADE'
   })
   subscriptions: Subscription[]
+
+  @OneToMany(
+    () => OrganisationsInvitation,
+    (invitation) => invitation.organisation,
+    {
+      cascade: ['remove'],
+      onDelete: 'CASCADE'
+    }
+  )
+  invitations: OrganisationsInvitation[]
 
   @Column()
   name: string

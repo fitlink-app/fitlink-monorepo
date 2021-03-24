@@ -1,8 +1,10 @@
-import { mockApp } from './helpers/app'
-import { getAuthHeaders } from './helpers/auth'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { readFile } from 'fs/promises'
-import FormData = require('form-data')
+import { v4 as uuid } from 'uuid'
+import * as FormData from 'form-data'
+import { mockApp } from './helpers/app'
+import { emailHasContent } from './helpers/mocking'
+import { getAuthHeaders } from './helpers/auth'
 import { OrganisationsModule } from '../src/modules/organisations/organisations.module'
 import { CreateOrganisationDto } from '../src/modules/organisations/dto/create-organisation.dto'
 
@@ -18,9 +20,7 @@ describe('Activities', () => {
     })
 
     // Superadmin
-    superadminHeaders = getAuthHeaders({
-      spr: true
-    })
+    superadminHeaders = getAuthHeaders({ spr: true })
 
     // Normal user
     authHeaders = getAuthHeaders()
@@ -30,14 +30,20 @@ describe('Activities', () => {
     await app.close()
   })
 
-  it(`POST /organisations 201 Allows a superadmin to create a new organisation`, async () => {
+  it(`POST /organisations 201 Allows a superadmin to create a new organisation and email an invitation`, async () => {
     const { data, payload } = await createOrganisation(superadminHeaders)
-
     expect(data.statusCode).toEqual(201)
 
     const result = data.json()
-    expect(result.id).toBeDefined()
-    expect(result.name).toEqual(payload.name)
+    expect(result.organisation.id).toBeDefined()
+    expect(result.organisation.name).toEqual(payload.name)
+    expect(result.subscription.id).toBeDefined()
+    expect(result.subscription.billing_entity).toEqual(payload.name)
+    expect(result.invitation.id).toBeDefined()
+
+    // Check email content
+    // All emails are mocked to email-debug.log in jest tests
+    expect(await emailHasContent(payload.email)).toEqual(true)
   })
 
   it(`POST /organisations 201 Allows a superadmin to create a new organisation with an image`, async () => {
@@ -68,14 +74,12 @@ describe('Activities', () => {
 
     const result = data.json()
     expect(data.statusCode).toEqual(201)
-    expect(result.id).toBeDefined()
-    expect(result.name).toEqual(payload.name)
-    expect(result.avatar.url_128x128).toBeDefined()
+    expect(result.organisation.avatar.url_128x128).toBeDefined()
   })
 
   it(`POST /organisations 201 Allows a superadmin to delete an organisation`, async () => {
     let { data } = await createOrganisation(superadminHeaders)
-    const organisationId = data.json().id
+    const organisationId = data.json().organisation.id
 
     data = await app.inject({
       method: 'DELETE',
@@ -127,7 +131,9 @@ describe('Activities', () => {
     const payload = {
       name: 'My Test Organisation',
       type: 'company',
-      timezone: 'Etc/GMT+2'
+      timezone: 'Etc/GMT+2',
+      invitee: 'Test User',
+      email: `test-${uuid()}@example.com`
     } as CreateOrganisationDto
 
     const data = await app.inject({

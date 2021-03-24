@@ -31,10 +31,16 @@ import { User } from '../../src/modules/users/entities/user.entity'
 import { UsersSetting } from '../../src/modules/users-settings/entities/users-setting.entity'
 import { Subscription } from '../../src/modules/subscriptions/entities/subscription.entity'
 import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity'
-import { mockConfigService, mockConfigServiceProvider } from './mocking'
+import {
+  mockConfigService,
+  mockConfigServiceProvider,
+  mockEmailService
+} from './mocking'
 import { UploadGuard } from '../../src/guards/upload.guard'
 import { JwtAuthGuard } from '../../src/modules/auth/guards/jwt-auth.guard'
 import { IamGuard } from '../../src/guards/iam.guard'
+import { EmailService } from '../../src/modules/common/email.service'
+import { OrganisationsInvitation } from '../../src/modules/organisations-invitations/entities/organisations-invitation.entity'
 
 export const entities = [
   Activity,
@@ -48,6 +54,7 @@ export const entities = [
   League,
   LeaguesInvitation,
   Organisation,
+  OrganisationsInvitation,
   Provider,
   RefreshToken,
   Reward,
@@ -90,6 +97,8 @@ export async function mockApp({
   const overrideRef = moduleRef
     .overrideProvider(ConfigService)
     .useValue(mockConfigService())
+    .overrideProvider(EmailService)
+    .useValue(mockEmailService())
 
   const result = await overrideRef.compile()
 

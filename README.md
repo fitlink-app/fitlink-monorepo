@@ -2,6 +2,15 @@
 
 This is the Fitlink monorepo initialized using Nest's monorepo project structure. In future this repo will also contain the React Native app.
 
+## Quick links
+1. [Git Hook](#git-hook-prettier)
+2. [Testing](#testing)
+3. [Development](#development)
+4. [Docker](#run-docker)
+5. [Migration and seeding](#migrate-and-seed-database)
+6. [Jest](#run-jest-tests)
+7. [Testing emails](#testing-emails)
+
 ## Leaderboard Entries
 
 At this time, only leaderboard entries are available, in order to make querying the leaderboard in real time performant. 
@@ -90,6 +99,17 @@ If other tests are failing, you can run only your own tests
   yarn test:watch apps/api/test/my.e2e-spec.ts
 ```
 
+### Testing emails
+In Jest, emails are written to email-debug.log in the root. This allows you to perform tests on the output during a test run. 
+
+```
+  import { emailHasContent } from './helpers/mocking'
+  // later... //
+  expect(await emailHasContent(payload.email)).toEqual(true)
+```
+
+In the local development environment, this is also enabled by default in .env, but could be override in .env.local
+
 ### Run nest server
 
 You may want to run a nest server while writing jest tests. In this scenario, you can run nest against the ephemeral jest database:
@@ -110,13 +130,13 @@ The api will be available at http://localhost:3000/api/v1/*
 
 ### Bearer authentication
 
-Simple bearer authentication is in place.
+Simple bearer authentication is in place for the temporary API (leaderboard, activities) to connect to Firebase. 
 
 ## Nest-cli
 
-Scaffold new CRUD routes using nest cli, under the modules folder
+Scaffold new CRUD routes using nest cli, under the modules folder (omits tests because we're using e2e tests only). 
 
-```nest g resource modules/fishes```
+```nest g resource modules/fishes --no-spec```
 
 ## Swagger
 

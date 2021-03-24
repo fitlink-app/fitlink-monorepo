@@ -8,6 +8,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build -c nest-cli.serverless.json --webpack --webpackPath webpack-serverless.config.js",
+    "build-nest": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start --watch",
     "start:jest": "cross-env DB_PASSWORD=jest DB_USERNAME=jest DB_DATABASE_NAME=jest DB_PORT=5433 PORT=3001 nest start --watch",
@@ -27,12 +28,13 @@
     "migration:seed": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed",
     "docs:generate": "@compodoc/compodoc -p tsconfig.json -s",
     "sls:offline:start": "cross-env API_PREFIX=\"api/v1\" && sls offline start",
-    "sls:deploy": "serverless deploy",
+    "sls:deploy": "cross-env NODE_ENV=production && serverless deploy",
     "sls:package": "serverless package",
     "sls:migrate": "serverless invoke -f migrate"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.8.1",
+    "@aws-sdk/client-ses": "^3.9.0",
     "@nestjs/common": "^7.6.13",
     "@nestjs/config": "^0.6.3",
     "@nestjs/core": "^7.6.13",
@@ -43,7 +45,7 @@
     "@nestjs/typeorm": "^7.1.5",
     "aws-lambda": "^1.0.6",
     "aws-lambda-fastify": "^1.4.4",
-    "bcrypt": "^5.0.1",
+    "bcrypt": "^5.0.0",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "date-fns": "^2.19.0",
@@ -61,7 +63,8 @@
     "sharp": "^0.27.2",
     "typeorm": "^0.2.31",
     "typeorm-seeding": "^1.6.1",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "cross-env": "^7.0.3"
   },
   "devDependencies": {
     "@compodoc/compodoc": "^1.1.11",
@@ -82,7 +85,7 @@
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
-    "cross-env": "^7.0.3",
+    "chalk": "^4.1.0",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.3.1",

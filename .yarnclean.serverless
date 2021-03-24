@@ -1,0 +1,9 @@
+*.ts
+*.js.map
+*.md
+LICENSE
+Changelog
+Changelog
+*.markdown
+*.yml
+**/test/**/*.js

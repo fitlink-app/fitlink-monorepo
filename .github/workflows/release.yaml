@@ -1,17 +1,11 @@
-name: Deploy
+name: Release to UAT
 
 on:
-  push:
-    branches:
-    - develop
-  pull_request:
-    branches:
-    - develop
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-18.04
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
       DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
@@ -66,25 +60,13 @@ jobs:
       - name: Build nest for Serverless
         run: yarn run build
 
-      # - name: Install serverless globally
-      #   run: yarn add global serverless
+      - name: Install serverless globally
+        run: yarn add global serverless
 
-      # - name: Serverless - Run deploy
-      #   if: github.ref == 'refs/heads/develop'
-      #   run: yarn run sls:deploy
-
-      # - name: Serverless - Run migrations
-      #   if: github.ref == 'refs/heads/develop'
-      #   run: yarn run sls:migrate
-
-      - name: Regenerate UML if entities change
+      - name: Serverless - Run deploy
         if: github.ref == 'refs/heads/develop'
-        run: |
-          if(( $(git diff HEAD~1..HEAD apps/api/src/**/*entity.ts | LC_ALL=C.UTF-8 wc -m) != 0)); then
-            yarn run db:diagram
-            git add docs/uml.svg
-            git commit -m "Update UML diagram - skip ci"
-            git push origin develop
-          fi
+        run: yarn run sls:deploy
 
-
+      - name: Serverless - Run migrations
+        if: github.ref == 'refs/heads/develop'
+        run: yarn run sls:migrate

@@ -1,9 +1,13 @@
-import { NestFactory } from '@nestjs/core'
+import { NestFactory, Reflector } from '@nestjs/core'
+import { ValidationPipe } from '@nestjs/common'
 import {
   FastifyAdapter,
   NestFastifyApplication
 } from '@nestjs/platform-fastify'
 import { ApiModule } from './api.module'
+import { UploadGuard } from './guards/upload.guard'
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard'
+import { IamGuard } from './guards/iam.guard'
 import { FastifyServerOptions, FastifyInstance, fastify } from 'fastify'
 import * as awsLambdaFastify from 'aws-lambda-fastify'
 import {
@@ -31,6 +35,10 @@ async function bootstrapServer(): Promise<NestApp> {
     { logger: !process.env.AWS_EXECUTION_ENV ? new Logger() : console }
   )
   app.setGlobalPrefix(process.env.API_PREFIX)
+  app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalGuards(new UploadGuard(app.get(Reflector)))
+  app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)))
+  app.useGlobalGuards(new IamGuard(app.get(Reflector)))
   await app.init()
   return { app, instance }
 }
@@ -59,9 +67,16 @@ export async function migrate() {
     dropSchema: false,
     migrations: migrations
   })
-  const result = await connection.runMigrations({
-    transaction: 'none'
-  })
+
+  let result
+  try {
+    result = await connection.runMigrations({
+      transaction: 'none'
+    })
+  } catch (e) {
+    await connection.close()
+    throw e
+  }
   await connection.close()
   return result
 }
