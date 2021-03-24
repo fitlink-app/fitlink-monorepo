@@ -40,7 +40,7 @@ export class Activity extends CreatableEntity {
   @Column()
   meeting_point_text: string
 
-  @Column({ type: 'geometry', spatialFeatureType: 'Point' })
+  @Column({ type: 'geometry', spatialFeatureType: 'Point', srid: 4326 })
   meeting_point: Geometry
 
   @ManyToOne(() => Team, (team) => team.activities, { nullable: true })
