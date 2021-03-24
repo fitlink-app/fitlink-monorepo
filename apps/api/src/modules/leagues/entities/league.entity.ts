@@ -6,7 +6,8 @@ import {
   OneToOne,
   JoinColumn,
   Column,
-  JoinTable
+  JoinTable,
+  ManyToOne
 } from 'typeorm'
 import { CreatableByUserEntity } from '../../../classes/entity/creatable'
 import { Leaderboard } from '../../leaderboards/entities/leaderboard.entity'
@@ -18,7 +19,7 @@ export class League extends CreatableByUserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @OneToOne(() => Sport)
+  @ManyToOne(() => Sport)
   @JoinColumn()
   sport: Sport
 
