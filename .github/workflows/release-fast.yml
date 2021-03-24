@@ -1,0 +1,55 @@
+name: Release to UAT (no tests)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    env:
+      SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+      DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
+      DB_USERNAME: ${{ secrets.DEV_DB_USERNAME }}
+      DB_DATABASE_NAME: ${{ secrets.DEV_DB_DATABASE_NAME }}
+      DB_HOST: ${{ secrets.DEV_DB_HOST }}
+      DB_PORT: ${{ secrets.DEV_DB_PORT }}
+      API_PREFIX: ${{ secrets.DEV_API_PREFIX }}
+      API_DOMAIN_NAME: ${{ secrets.DEV_API_DOMAIN_NAME }}
+      API_DOMAIN_NAME_HOSTED_ZONE_ID: ${{ secrets.DEV_API_DOMAIN_NAME_HOSTED_ZONE_ID }}
+      IMIN_API_BASE_URL: https://vpce-0c9e476b0cc53b143-p49hd66l.execute-api.eu-west-2.vpce.amazonaws.com
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build nest for Serverless
+        run: yarn run build
+
+      - name: Install serverless globally
+        run: yarn add global serverless
+
+      - name: Serverless - Run deploy
+        if: github.ref == 'refs/heads/develop'
+        run: yarn run sls:deploy
+
+      - name: Serverless - Run migrations
+        if: github.ref == 'refs/heads/develop'
+        run: yarn run sls:migrate
