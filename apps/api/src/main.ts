@@ -28,6 +28,7 @@ async function bootstrap() {
     .setDescription('The Fitlink API on Nest')
     .setVersion('1.0')
     .addTag('fitlink')
+    .addBearerAuth()
     .build()
 
   const document = SwaggerModule.createDocument(app, config)

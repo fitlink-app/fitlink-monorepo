@@ -56,18 +56,16 @@ describe('Activities', () => {
 
   it(`GET /activities 200 Allows the fetching of merged paginated activities from local & imin service`, async () => {
     const page0 = await getPage('0', 20, 43, 20, 87) // 130 - 40   = 90 remaining
-    const page1 = await getPage('1', 20, 43, 20, 87) // 130 - 80   = 50 remaining
-    const page2 = await getPage('2', 3, 43, 20, 87) // 130 - 103  = 27 remaining
-    const page3 = await getPage('3', 0, 43, 20, 87) // 130 - 123  = 7 remaining
-    const page4 = await getPage('4', 0, 43, 7, 87) // 130 - 130  = 0 remaining
-    const page5 = await getPage('5', 0, 43, 0, 87) // 130 - ?    = 0 remaining
+    const page1 = await getPage('1', 20, 43, 20, 87) // 90 - 40   = 50 remaining
+    const page2 = await getPage('2', 3, 43, 20, 87) // 50 - 23  = 27 remaining
+    const page3 = await getPage('3', 0, 43, 20, 87) // 27 - 40  = 0 remaining
+    const page4 = await getPage('4', 0, 43, 7, 87) // ? - 0  = 0 remaining
 
     expect(page0).toEqual(90)
     expect(page1).toEqual(50)
     expect(page2).toEqual(27)
-    expect(page3).toEqual(7)
+    expect(page3).toEqual(0)
     expect(page4).toEqual(0)
-    expect(page5).toEqual(0)
 
     async function getPage(
       page: string,

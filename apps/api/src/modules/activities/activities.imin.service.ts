@@ -56,6 +56,10 @@ export class ActivitiesIminService {
    * @returns an observable containing the response data
    */
   async makeRequest(endpoint: string, params: IminServiceParams) {
+    console.log(
+      this.configService.get('IMIN_API_BASE_URL') + '/' + endpoint,
+      params
+    )
     return this.httpService
       .get(this.configService.get('IMIN_API_BASE_URL') + '/' + endpoint, {
         params,

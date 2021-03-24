@@ -21,9 +21,11 @@ import { ImagesService } from '../images/images.service'
 import { Uploads, UploadOptions } from '../../decorators/uploads.decorator'
 import { Public } from '../../decorators/public.decorator'
 import { AuthGuard } from '../../guards/auth.guard'
+import { ApiBearerAuth } from '@nestjs/swagger'
 
 @Public()
 @UseGuards(AuthGuard)
+@ApiBearerAuth()
 @Controller('activities')
 export class ActivitiesController {
   constructor(
@@ -70,7 +72,7 @@ export class ActivitiesController {
       const imin = await this.activitiesIminService.findAll({
         'geo[radial]': geo_radial,
         mode: 'discovery-geo',
-        page: intPage,
+        page: intPage + 1,
         limit: intLimit
       })
 
@@ -112,7 +114,7 @@ export class ActivitiesController {
     let remaining = total
 
     if (all.page_total === 0) {
-      remaining = imin.total - page * limit - imin.page_total
+      remaining = imin.total - page * limit * 2 - imin.page_total
       if (remaining < 0) {
         remaining = 0
       }
