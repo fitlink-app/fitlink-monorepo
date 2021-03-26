@@ -35,7 +35,7 @@ describe('Followings', () => {
   // Getting following entities with all user's followings, returns array of results with pagination structure
   it(`/GET  (200) `, async () => {
     const userData = data.pop()
-    const userAuthHeaders = getAuthHeaders({ spr: true }, userData.user.id)
+    const userAuthHeaders = getAuthHeaders({}, userData.user.id)
     const result = await app.inject({
       method: 'GET',
       url: `/followings`,
@@ -56,7 +56,7 @@ describe('Followings', () => {
   // Getting following entities with all user's followers, returns array of results with pagination structure
   it(`/GET  (200) followers`, async () => {
     const userData = data.pop()
-    const userAuthHeaders = getAuthHeaders({ spr: true }, userData.user.id)
+    const userAuthHeaders = getAuthHeaders({}, userData.user.id)
     const result = await app.inject({
       method: 'GET',
       url: `/followings/followers`,
@@ -78,7 +78,7 @@ describe('Followings', () => {
   // Trying to create a following entry with complete data should result in 201 created
   it(`/POST (201) `, async () => {
     const userData = data.pop()
-    const userAuthHeaders = getAuthHeaders({ spr: true }, userData.user.id)
+    const userAuthHeaders = getAuthHeaders({}, userData.user.id)
     const  payload = {
       targetId: userData.target.id
     } as CreateFollowingDto
@@ -95,7 +95,7 @@ describe('Followings', () => {
     // Trying to create a following entry without complete data should result in a 400 error
     it(`/POST (400) `, async () => {
       const userData = data.pop()
-      const userAuthHeaders = getAuthHeaders({ spr: true }, userData.user.id)
+      const userAuthHeaders = getAuthHeaders({}, userData.user.id)
       const  payload = {
         targetId: null
       } as CreateFollowingDto
@@ -113,7 +113,7 @@ describe('Followings', () => {
   // Delete following entities. Unsubscribe from user
   it(`/DEL  (200) :targetId`, async () => {
     const userData = data.pop()
-    const userAuthHeaders = getAuthHeaders({ spr: true }, userData.user.id)
+    const userAuthHeaders = getAuthHeaders({}, userData.user.id)
     const payload = {
       targetId: userData.user.id,
     } as UpdateFollowingDto

@@ -9,13 +9,10 @@ import {
 } from '@nestjs/common'
 import { FollowingsService } from './followings.service'
 import { CreateFollowingDto } from './dto/create-following.dto'
-import { Iam } from '../../decorators/iam.decorator'
-import { Roles } from '../user-roles/entities/user-role.entity'
 @Controller('followings')
 export class FollowingsController {
   constructor(private readonly followingsService: FollowingsService) {}
 
-  @Iam(Roles.SuperAdmin)
   @Post()
   create(@Request() request, @Body() targetId: CreateFollowingDto) {
     return this.followingsService.create(request.user.id, targetId)
@@ -24,7 +21,6 @@ export class FollowingsController {
   /**
    * Get following entities with all user's followings by Id
    */
-  @Iam(Roles.SuperAdmin)
   @Get()
   findAllFollowing(@Request() request) {
     return this.followingsService.findAllFollowing(request.user.id, {
@@ -40,7 +36,6 @@ export class FollowingsController {
   /**
    * Get following entities with all user's followers by Id
    */
-  @Iam(Roles.SuperAdmin)
   @Get('followers')
   findAllFollowers(@Request() request) {
     return this.followingsService.findAllFollowers(request.user.id, {
@@ -53,7 +48,6 @@ export class FollowingsController {
     })
   }
 
-  @Iam(Roles.SuperAdmin)
   @Delete(':targetId')
   removeFollower(
     @Request() request,
