@@ -1,4 +1,8 @@
-import { PartialType } from '@nestjs/mapped-types'
-import { CreateFollowingDto } from './create-following.dto'
+import { IsString } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
 
-export class UpdateFollowingDto extends PartialType(CreateFollowingDto) {}
+export class UpdateFollowingDto {
+  @ApiProperty()
+  @IsString()
+  targetId: string
+}

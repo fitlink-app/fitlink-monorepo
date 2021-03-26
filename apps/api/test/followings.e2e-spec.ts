@@ -3,19 +3,21 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Following } from '../src/modules/followings/entities/following.entity'
 import { Connection, getConnection, Repository } from 'typeorm'
 import { FollowingsModule } from '../src/modules/followings/followings.module'
+import { getAuthHeaders } from './helpers/auth'
+import { UpdateFollowingDto } from '../src/modules/followings/dto/update-following.dto'
+import { CreateFollowingDto } from '../src/modules/followings/dto/create-following.dto'
 
 describe('Followings', () => {
   let app: NestFastifyApplication
   let seed: Following[]
   let connection: Connection
   let followingRepository: Repository<Following>
-  let data: Following
+  let data
 
   beforeAll(async () => {
     app = await mockApp({
       imports: [FollowingsModule],
       providers: [],
-      controllers: []
     })
 
     /** Load seeded data */
@@ -24,165 +26,103 @@ describe('Followings', () => {
     seed = await followingRepository.find()
     data = seed.map((each) => {
       return ({
-        follower: each.follower,
-        following: each.following,
-        } as unknown) as Following
-    })[0]
+        user: each.follower,
+        target: each.following
+      })
+    })
   })
 
-  const headers = {
-    authorization: 'Bearer fitlinkLeaderboardEntryToken'
-  }
-
   // Getting following entities with all user's followings, returns array of results with pagination structure
-  it(`/GET  (200) follower/:followerId`, async () => {
+  it(`/GET  (200) `, async () => {
+    const userData = data.pop()
+    const userAuthHeaders = getAuthHeaders({ spr: true }, userData.user.id)
     const result = await app.inject({
       method: 'GET',
-      url: `/followings/follower/${data.follower.id}`,
-      headers
+      url: `/followings`,
+      headers: userAuthHeaders
     })
     const json = result.json()
     expect(result.statusCode).toEqual(200)
     expect(Object.keys(json.results[0])).toEqual(Object.keys(seed[0]))
     expect(json.page_total).toBeGreaterThanOrEqual(1)
     expect(json.total).toEqual(
-      seed.filter((value) => value.follower === data.follower)
-        .length
+      seed.filter((value) => {
+        return value.follower.id === userData.user.id
+       })
+       .length
     )
   })
 
   // Getting following entities with all user's followers, returns array of results with pagination structure
-  it(`/GET  (200) following/:followingId`, async () => {
+  it(`/GET  (200) followers`, async () => {
+    const userData = data.pop()
+    const userAuthHeaders = getAuthHeaders({ spr: true }, userData.user.id)
     const result = await app.inject({
       method: 'GET',
-      url: `/followings/follower/${data.following.id}`,
-      headers
+      url: `/followings/followers`,
+      headers: userAuthHeaders,
     })
     const json = result.json()
     expect(result.statusCode).toEqual(200)
     expect(Object.keys(json.results[0])).toEqual(Object.keys(seed[0]))
     expect(json.page_total).toBeGreaterThanOrEqual(1)
     expect(json.total).toEqual(
-      seed.filter((value) => value.following === data.following)
+      seed.filter((value) => {
+         return value.following.id === userData.user.id
+        })
         .length
     )
   })
 
-  // Without a token, API returns 403
-  it(`/GET  (403) followings/follower/:followerId/following/:followingId`, async () => {
-    const result = await app.inject({
-      method: 'GET',
-      url: `/followings/follower/${data.follower.id}/following/${data.following.id}`
-    })
-    expect(result.statusCode).toEqual(403)
-    expect(result.statusMessage).toContain('Forbidden')
-  })
-
-  // Get single following entity for follower and following
-  it(`/GET  (200) followings/follower/:followerId/following/:followingId`, async () => {
-    const result = await app.inject({
-        method: 'GET',
-        url: `/followings/follower/${data.follower.id}/following/${data.following.id}`,
-        headers
-      })
-      expect(result.statusCode).toEqual(200)
-      expect(Object.keys(result.json())).toEqual(Object.keys(seed[0]))
-  })
-
-  // Get single following entity for following and follower
-  it(`/GET  (200) followings/following/:followingId/follower/:followerId`, async () => {
-    const result = await app.inject({
-      method: 'GET',
-      url: `/followings/following/${data.following.id}/follower/${data.follower.id}`,
-      headers
-    })
-    expect(result.statusCode).toEqual(200)
-    expect(Object.keys(result.json())).toEqual(Object.keys(seed[0]))
-  })
-
-  // Trying to access a nonexistent following entity by followingId and followerId
-  it(`/GET  (404) following/:followingId/follower/:followerId`, async () => {
-      const result = await app.inject({
-        method: 'GET',
-        url: `/followings/following/unknown/unknown/`,
-        headers
-      })
-      expect(result.statusCode).toEqual(404)
-
-  })
 
   // Trying to create a following entry with complete data should result in 201 created
-  it(`/POST (201) follower/:followerId/following/:followingId`, async () => {
+  it(`/POST (201) `, async () => {
+    const userData = data.pop()
+    const userAuthHeaders = getAuthHeaders({ spr: true }, userData.user.id)
+    const  payload = {
+      targetId: userData.target.id
+    } as CreateFollowingDto
     const result = await app.inject({
       method: 'POST',
       url: `/followings`,
-      headers,
-      payload: {
-        followerId: data.follower.id,
-        followingId: data.following.id
-      }
+      headers: userAuthHeaders,
+      payload
     })
     expect(result.statusCode).toEqual(201)
     expect(result.statusMessage).toEqual('Created')
   })
 
     // Trying to create a following entry without complete data should result in a 400 error
-    it(`/POST (400) follower/:followerId/following/:followingId`, async () => {
+    it(`/POST (400) `, async () => {
+      const userData = data.pop()
+      const userAuthHeaders = getAuthHeaders({ spr: true }, userData.user.id)
+      const  payload = {
+        targetId: null
+      } as CreateFollowingDto
       const result = await app.inject({
         method: 'POST',
         url: `/followings`,
-        headers,
-        payload: {
-          followerId: data.follower.id,
-          followingId: null
-        }
+        headers: userAuthHeaders,
+        payload
       })
       expect(result.statusCode).toEqual(400)
       expect(result.statusMessage).toEqual('Bad Request')
     })
 
-  // Trying to update a following entry should result in 200
-  it(`/PUT  (200) follower/:followerId/following/:followingId`, async() => {
-    const result = await app.inject({
-      method: 'PUT',
-      url: `/followings/follower/${data.follower.id}/following/${data.following.id}`,
-      headers,
-      payload: {
-        followerId: data.follower.id,
-        followingId: data.following.id
-      }
-    })
-    const json = result.json()
-    expect(result.statusCode).toEqual(200)
-    expect(result.statusMessage).toEqual('OK')
-    expect(Object.keys(json)).toEqual(Object.keys(seed[0]))
-  })
 
-  it(`/PUT  (200) following/:followingId/follower/:followerId`, async () => {
-    const result = await app.inject({
-      method: 'PUT',
-      url: `/followings/following/${data.following.id}/follower/${data.follower.id}`,
-      headers,
-      payload: {
-        followerId: data.follower.id,
-        followingId: data.following.id
-      }
-    })
-    const json = result.json()
-    expect(result.statusCode).toEqual(200)
-    expect(result.statusMessage).toEqual('OK')
-    expect(Object.keys(json)).toEqual(Object.keys(seed[0]))
-  })
+  // Delete following entities. Unsubscribe from user
+  it(`/DEL  (200) :targetId`, async () => {
+    const userData = data.pop()
+    const userAuthHeaders = getAuthHeaders({ spr: true }, userData.user.id)
+    const payload = {
+      targetId: userData.user.id,
+    } as UpdateFollowingDto
 
-  it(`/DEL  (200) following/:followingId/follower/:followerId`, async () => {
     const result = await app.inject({
       method: 'DELETE',
-      url: `/followings`,
-      headers,
-      payload: {
-        followerId: data.follower.id,
-        followingId: data.following.id
-      }
+      url: `/followings/${userData.target.id}`,
+      headers: userAuthHeaders,
+      payload
     })
     expect(result.statusCode).toEqual(200)
     expect(result.statusMessage).toEqual('OK')

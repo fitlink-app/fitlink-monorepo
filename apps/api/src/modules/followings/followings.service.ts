@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Following } from './entities/following.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
+import { User } from '../users/entities/user.entity'
 
 @Injectable()
 export class FollowingsService {
@@ -14,24 +15,30 @@ export class FollowingsService {
   ) {}
 
   /**
-   * Creates following if it doesn't exist yet,
-   * or alternatively updates it.
+   * Creates following entity
+   * @param userId
    * @param createFollowingDto
    */
-    async create(createFollowingDto: CreateFollowingDto
+    async create(
+        userId: string,
+        CreateFollowingDto: CreateFollowingDto
       ): Promise<Following> {
-      const { followerId, followingId } = createFollowingDto
 
-      const result = await this.followingRepository.findOne({
-        where: {
-          followerId,
-          followingId
-        }
-      })
+      const userToFollow = new User()
+      userToFollow.id = CreateFollowingDto.targetId
+
+      const me = new User()
+      me.id = userId
+
+      const following = new Following()
+      following.following = userToFollow
+      following.follower = me
+
+      const result = await this.followingRepository.findOne(following)
 
       return await this.followingRepository.save({
         ...result,
-        ...createFollowingDto,
+        ...following,
         created_at: new Date(),
         updated_at: new Date()
       })
@@ -39,16 +46,21 @@ export class FollowingsService {
 
   /**
    * Find all followings by user (followerId), with pagination options
-   * @param followerId
+   * @param userId
    * @param options
    */
     async findAllFollowing(
-      followerId: string,
+      userId: string,
       options: PaginationOptionsInterface
-      ): Promise<Pagination<Following>> {
+    ): Promise<Pagination<Following>> {
+
+      const me = new User()
+      me.id = userId
+
       const [results, total] = await this.followingRepository.findAndCount(
         {
-          where: { followerId: followerId },
+          where: {follower: {id: userId}},
+          relations: ['following'],
           take: options.limit,
           skip: options.page
         }
@@ -62,16 +74,21 @@ export class FollowingsService {
 
   /**
    * Find all followers by user (followingId), with pagination options
-   * @param followingId
+   * @param userId
    * @param options
    */
      async findAllFollowers(
-      followingId: string,
+      userId: string,
       options: PaginationOptionsInterface
     ): Promise<Pagination<Following>> {
+
+      const me = new User()
+      me.id = userId
+
       const [results, total] = await this.followingRepository.findAndCount(
         {
-          where: { followingId: followingId },
+          where: {following: {id: userId}},
+          relations: ['following'],
           take: options.limit,
           skip: options.page
         }
@@ -85,33 +102,31 @@ export class FollowingsService {
 
   /**
    * Find a specific following entry
-   * @param followerId
-   * @param followingId
    */
-    async findOne(followerId: string, followingId: string) {
-      return await this.followingRepository.findOne({
-        where: {
-          followerId: followerId,
-          followingId: followingId
-        }
-      })
+    async findOne(following) {
+      return await this.followingRepository.findOne(following)
     }
 
 
   /**
-   * Soft deletes the following
-   * @param followerId
-   * @param followingId
+   * Deletes the following
+   * @param userId
+   * @param targetId
    */
-     async remove(followerId: string, followingId: string) {
-      return await this.followingRepository
-      .createQueryBuilder()
-      .delete()
-      .where({
-        followerId: followerId,
-        followingId: followingId
-      })
-      .execute()
-    }
+    async remove(
+      userId: string,
+      targetId: string
+    ) {
+      const userToFollow = new User()
+      userToFollow.id = targetId
 
+      const me = new User()
+      me.id = userId
+
+      const following = new Following()
+      following.following = userToFollow
+      following.follower = me
+
+      return await this.followingRepository.delete(following)
+    }
 }

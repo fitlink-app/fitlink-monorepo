@@ -3,36 +3,31 @@ import {
   Get,
   Post,
   Body,
-  Put,
   Param,
   Delete,
   Request,
-  UseInterceptors,
-  UseGuards
 } from '@nestjs/common'
 import { FollowingsService } from './followings.service'
 import { CreateFollowingDto } from './dto/create-following.dto'
-import { AuthGuard } from '../../guards/auth.guard'
-import { NotFoundInterceptor } from '../../interceptors/notfound.interceptor'
-import { Public } from '../../decorators/public.decorator'
-
-@Public()
+import { Iam } from '../../decorators/iam.decorator'
+import { Roles } from '../user-roles/entities/user-role.entity'
 @Controller('followings')
-@UseGuards(AuthGuard)
 export class FollowingsController {
   constructor(private readonly followingsService: FollowingsService) {}
 
+  @Iam(Roles.SuperAdmin)
   @Post()
-  create(@Body() createFollowingDto: CreateFollowingDto) {
-    return this.followingsService.create(createFollowingDto)
+  create(@Request() request, @Body() targetId: CreateFollowingDto) {
+    return this.followingsService.create(request.user.id, targetId)
   }
 
   /**
    * Get following entities with all user's followings by Id
    */
-  @Get('follower/:followerId')
-  findAllFollowing(@Param('followerId') followerId: string, @Request() request) {
-    return this.followingsService.findAllFollowing(followerId, {
+  @Iam(Roles.SuperAdmin)
+  @Get()
+  findAllFollowing(@Request() request) {
+    return this.followingsService.findAllFollowing(request.user.id, {
       limit: Object.prototype.hasOwnProperty.call(request.query, 'limit')
         ? request.query.limit
         : 10,
@@ -45,9 +40,10 @@ export class FollowingsController {
   /**
    * Get following entities with all user's followers by Id
    */
-  @Get('following/:followingId')
-  findAllFollowers(@Param('followingId') followingId: string, @Request() request) {
-    return this.followingsService.findAllFollowers(followingId, {
+  @Iam(Roles.SuperAdmin)
+  @Get('followers')
+  findAllFollowers(@Request() request) {
+    return this.followingsService.findAllFollowers(request.user.id, {
       limit: Object.prototype.hasOwnProperty.call(request.query, 'limit')
         ? request.query.limit
         : 10,
@@ -57,63 +53,13 @@ export class FollowingsController {
     })
   }
 
-  /**
-   * Get following entity for two users
-   */
-  @Get('follower/:followerId/following/:followingId')
-  @UseInterceptors(
-    new NotFoundInterceptor('No following entry found for given follower and following')
-  )
-  isFollowing(
-    @Param('followerId') followerId: string,
-    @Param('followingId') followingId: string,
-  ) {
-    return this.followingsService.findOne(followerId, followingId)
-  }
-
-  @Get('following/:followingId/follower/:followerId')
-  @UseInterceptors(
-    new NotFoundInterceptor('No following entry found for given follower and following')
-  )
-  isFollower(
-    @Param('followerId') followerId: string,
-    @Param('followingId') followingId: string,
-  ) {
-    return this.followingsService.findOne(followerId, followingId)
-  }
-
-
-  @Put('follower/:followerId/following/:followingId')
-  updateFollowing(
-    @Param('followerId') followerId: string,
-    @Param('followingId') followingId: string,
-    @Body() updateFollowingDto: CreateFollowingDto
-  ) {
-    return this.followingsService.create({
-      ...updateFollowingDto,
-      followerId: followerId,
-      followingId: followingId
-    })
-  }
-
-  @Put('following/:followingId/follower/:followerId')
-  updateFollower(
-    @Param('followerId') followerId: string,
-    @Param('followingId') followingId: string,
-    @Body() updateFollowingDto: CreateFollowingDto
-  ) {
-    return this.followingsService.create({
-      ...updateFollowingDto,
-      followerId: followerId,
-      followingId: followingId
-    })
-  }
-
-  @Delete()
+  @Iam(Roles.SuperAdmin)
+  @Delete(':targetId')
   removeFollower(
-    @Param('followerId') followerId: string,
-    @Param('followingId') followingId: string,
+    @Request() request,
+    @Param('targetId') targetId: string
   ) {
-    return this.followingsService.remove(followerId, followingId)
+    return this.followingsService.remove(request.user.id, targetId)
   }
 }
+

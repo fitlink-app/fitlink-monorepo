@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, ManyToOne, Entity, JoinColumn, Column } from 'typeorm'
+import { PrimaryGeneratedColumn, ManyToOne, Entity, JoinColumn } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { User } from '../../users/entities/user.entity'
 
@@ -13,15 +13,10 @@ export class Following extends CreatableEntity {
   @JoinColumn()
   follower: User
 
-  @Column()
-  followerId: string | null
-
   @ManyToOne(() => User, (user) => user.following, {
     eager: true
   })
   @JoinColumn()
   following: User
 
-  @Column()
-  followingId: string | null
 }
