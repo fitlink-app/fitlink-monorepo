@@ -28,12 +28,16 @@ export class OrganisationsService {
 
     // Optionally invite a user by email
     let invitation: OrganisationsInvitation
+    let inviteLink: string
+
     if (email) {
-      invitation = await this.invitationsService.create({
+      const result = await this.invitationsService.create({
         email,
         organisation,
         invitee
       })
+      invitation = result.invitation
+      inviteLink = result.inviteLink
     }
 
     // Create a default subscription
@@ -45,7 +49,8 @@ export class OrganisationsService {
     return {
       organisation,
       invitation,
-      subscription
+      subscription,
+      inviteLink
     }
   }
 
