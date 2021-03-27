@@ -6,7 +6,6 @@ export default class CreateActivities implements Seeder {
     /**
      * Create activities
      */
-    console.log('here')
     await factory(Activity)().createMany(43)
   }
 }

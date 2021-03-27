@@ -27,14 +27,14 @@ const message = "You have pending migrations. Please run these first before gene
     } else {
       console.log(chalk.green("No pending migrations, continuing to create new migration..."))
       try {
-        const { stdout, stderr } = await exec([
+        const command = [
           "yarn run typeorm migration:generate",
           "-f ./ormconfig.js",
           "-d apps/api/database/migrations",
           "-c", connection,
           "-n", migrationName
-         ].join(" "))
-
+         ].join(" ")
+        const { stdout, stderr } = await exec(command)
         console.log( stdout, stderr )
       } catch( e ){
         console.log( e.stdout, e.stderr );
@@ -43,6 +43,8 @@ const message = "You have pending migrations. Please run these first before gene
   } catch( e ){
     if(check( e.stdout )){
       process.exit(1)
+    } else {
+      throw e
     }
   }
 })()
