@@ -14,6 +14,12 @@ import { Image } from '../../images/entities/image.entity'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { League } from '../../leagues/entities/league.entity'
 
+export enum ActivityType {
+  Class = 'class',
+  Group = 'group',
+  Route = 'route'
+}
+
 @Entity()
 export class Activity extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -42,6 +48,13 @@ export class Activity extends CreatableEntity {
 
   @Column({ type: 'geometry', spatialFeatureType: 'Point', srid: 4326 })
   meeting_point: Geometry
+
+  @Column({
+    type: 'enum',
+    enum: ActivityType,
+    default: ActivityType.Class
+  })
+  type: string
 
   @ManyToOne(() => Team, (team) => team.activities, { nullable: true })
   team?: Team

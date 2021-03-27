@@ -9,8 +9,8 @@ import {
   IminConvertedImage
 } from './types/imin'
 import { addDays, getISODay, setHours, setMinutes } from 'date-fns'
-import { Activity } from './entities/activity.entity'
-import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
+import { Activity, ActivityType } from './entities/activity.entity'
+import { Pagination } from '../../helpers/paginate'
 import { Image } from '../images/entities/image.entity'
 
 @Injectable()
@@ -90,6 +90,9 @@ export class ActivitiesIminService {
       images: ActivitiesIminService.getImages(each),
       activity: ActivitiesIminService.getActivity(each),
       ...ActivitiesIminService.getLocationData(each),
+
+      // Imin activities are presumed to be classes
+      type: ActivityType.Class,
 
       // These dates should be mocked to match the Activity entity
       created_at: new Date(),
