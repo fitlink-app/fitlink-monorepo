@@ -83,10 +83,14 @@ export class OrganisationsService {
         Subscription,
         organisation.subscriptions.map((entity) => entity.id)
       )
+
+      // Delete invitations
       await entityManager.delete(
         OrganisationsInvitation,
         organisation.invitations.map((entity) => entity.id)
       )
+
+      // Finally, delete the organisation
       return await entityManager.delete(Organisation, organisation.id)
     })
 
