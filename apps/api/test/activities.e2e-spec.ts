@@ -5,7 +5,6 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { ActivitiesModule } from '../src/modules/activities/activities.module'
 import { ActivitiesIminService } from '../src/modules/activities/activities.imin.service'
 import { ActivitiesService } from '../src/modules/activities/activities.service'
-import { intersection } from 'lodash'
 import { CreateActivityDto } from '../src/modules/activities/dto/create-activity.dto'
 import { readFile } from 'fs/promises'
 import FormData = require('form-data')
@@ -145,9 +144,7 @@ describe('Activities', () => {
 
     const result = Object.keys(data.json().results[0])
 
-    expect(intersection(result, activityColumns).length).toEqual(
-      activityColumns.length
-    )
+    expect(result).toEqual(expect.arrayContaining(activityColumns))
   })
 
   it(`GET /activities 200 Fetches real activities from the database ordered by created date and excludes imin`, async () => {
@@ -162,9 +159,7 @@ describe('Activities', () => {
     })
 
     const result = Object.keys(data.json().results[0])
-    expect(intersection(result, activityColumns).length).toEqual(
-      activityColumns.length
-    )
+    expect(result).toEqual(expect.arrayContaining(activityColumns))
   })
 
   it(`POST /activities 201 Creates a new activity with images`, async () => {

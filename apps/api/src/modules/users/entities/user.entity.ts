@@ -22,6 +22,7 @@ import { FeedItem } from '../../feed-items/entities/feed-item.entity'
 import { RefreshToken } from '../../auth/entities/auth.entity'
 import { Subscription } from '../../subscriptions/entities/subscription.entity'
 import { UserRole } from '../../user-roles/entities/user-role.entity'
+import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
 
 export enum UnitSystem {
   Metric = 'metric',
@@ -158,6 +159,12 @@ export class User extends CreatableEntity {
 
   @OneToMany(() => UserRole, (role) => role.user)
   roles: UserRole[]
+
+  @OneToMany(
+    () => OrganisationsInvitation,
+    (invitation) => invitation.resolved_user
+  )
+  organisations_invitations: OrganisationsInvitation[]
 
   @Column()
   name: string
