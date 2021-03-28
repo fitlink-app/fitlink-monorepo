@@ -33,7 +33,7 @@ export function createTokenFor(userId: string, roles?: JWTRoles) {
 
 export function getAuthHeaders(
   roles: Partial<JWTRoles> = null,
-  userId = 'jest'
+  userId = 'get_auth_headers_user_id'
 ) {
   const token = createTokenFor(userId, {
     ...{
