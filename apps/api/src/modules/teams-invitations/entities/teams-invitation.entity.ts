@@ -1,7 +1,7 @@
 import {
   PrimaryGeneratedColumn,
   Entity,
-  OneToOne,
+  ManyToOne,
   JoinColumn,
   Column
 } from 'typeorm'
@@ -14,15 +14,23 @@ export class TeamsInvitation extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
+  @Column()
+  email: string
+
+  @Column({
+    nullable: true
+  })
+  name: string
+
   /**
    * After a user completes the invitation
    * it resolves here for reporting purposes
    */
-  @OneToOne(() => User, { nullable: true })
+  @ManyToOne(() => User, (user) => user.teams_invitations)
   @JoinColumn()
   resolved_user: User
 
-  @OneToOne(() => Team)
+  @ManyToOne(() => Team, (team) => team.invitations)
   @JoinColumn()
   team: Team
 

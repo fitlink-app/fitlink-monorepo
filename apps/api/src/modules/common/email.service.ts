@@ -48,3 +48,4 @@ export type TemplatesType =
   | 'user-removed-from-team'
   | 'welcome'
   | 'organisation-invitation'
+  | 'team-invitation'
