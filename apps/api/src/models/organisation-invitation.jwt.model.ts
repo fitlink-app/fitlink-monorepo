@@ -1,6 +1,6 @@
 export type OrganisationInvitationJWT = {
-  aud: string
-  iss: string
+  aud: 'fitlinkapp.com'
+  iss: 'fitlinkapp.com'
   sub: string
   iat: number
   type: 'organisation-invitation'

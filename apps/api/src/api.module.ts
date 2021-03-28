@@ -54,6 +54,7 @@ import { SubscriptionsModule } from './modules/subscriptions/subscriptions.modul
 import { UserRolesModule } from './modules/user-roles/user-roles.module'
 import { CommonModule } from './modules/common/common.module'
 import { OrganisationsInvitationsModule } from './modules/organisations-invitations/organisations-invitations.module'
+import { UsersInvitationsModule } from './modules/users-invitations/users-invitations.module'
 
 @Module({
   imports: [
@@ -127,7 +128,8 @@ import { OrganisationsInvitationsModule } from './modules/organisations-invitati
     GoalsEntriesModule,
     HealthActivitiesModule,
     UserRolesModule,
-    SubscriptionsModule
+    SubscriptionsModule,
+    UsersInvitationsModule
   ],
   providers: [
     {
