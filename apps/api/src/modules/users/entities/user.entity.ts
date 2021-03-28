@@ -23,6 +23,7 @@ import { RefreshToken } from '../../auth/entities/auth.entity'
 import { Subscription } from '../../subscriptions/entities/subscription.entity'
 import { UserRole } from '../../user-roles/entities/user-role.entity'
 import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
+import { TeamsInvitation } from '../../teams-invitations/entities/teams-invitation.entity'
 
 export enum UnitSystem {
   Metric = 'metric',
@@ -165,6 +166,9 @@ export class User extends CreatableEntity {
     (invitation) => invitation.resolved_user
   )
   organisations_invitations: OrganisationsInvitation[]
+
+  @OneToMany(() => TeamsInvitation, (invitation) => invitation.resolved_user)
+  teams_invitations: TeamsInvitation[]
 
   @Column()
   name: string
