@@ -1,3 +1,4 @@
+import { Reflector } from '@nestjs/core'
 import { Test } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigService } from '@nestjs/config'
@@ -28,7 +29,18 @@ import { Team } from '../../src/modules/teams/entities/team.entity'
 import { TeamsInvitation } from '../../src/modules/teams-invitations/entities/teams-invitation.entity'
 import { User } from '../../src/modules/users/entities/user.entity'
 import { UsersSetting } from '../../src/modules/users-settings/entities/users-setting.entity'
-import { mockConfigService, mockConfigServiceProvider } from './mocking'
+import { Subscription } from '../../src/modules/subscriptions/entities/subscription.entity'
+import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity'
+import {
+  mockConfigService,
+  mockConfigServiceProvider,
+  mockEmailService
+} from './mocking'
+import { UploadGuard } from '../../src/guards/upload.guard'
+import { JwtAuthGuard } from '../../src/modules/auth/guards/jwt-auth.guard'
+import { IamGuard } from '../../src/guards/iam.guard'
+import { EmailService } from '../../src/modules/common/email.service'
+import { OrganisationsInvitation } from '../../src/modules/organisations-invitations/entities/organisations-invitation.entity'
 
 export const entities = [
   Activity,
@@ -42,26 +54,30 @@ export const entities = [
   League,
   LeaguesInvitation,
   Organisation,
+  OrganisationsInvitation,
   Provider,
   RefreshToken,
   Reward,
   RewardsRedemption,
   Sport,
+  Subscription,
   Team,
   TeamsInvitation,
   User,
+  UserRole,
   UsersSetting
 ]
 
-export async function mockApp(
-  { imports = [], providers = [], controllers = [] },
-  name = 'default'
-) {
-  const moduleRef = await Test.createTestingModule({
+export async function mockApp({
+  imports = [],
+  providers = [],
+  controllers = []
+}) {
+  const moduleRef = Test.createTestingModule({
     imports: [
       ...imports,
       TypeOrmModule.forRoot({
-        name,
+        name: 'default',
         type: 'postgres',
         username: 'jest',
         password: 'jest',
@@ -77,18 +93,29 @@ export async function mockApp(
     providers: [...providers, mockConfigServiceProvider()],
     controllers
   })
+
+  const overrideRef = moduleRef
     .overrideProvider(ConfigService)
     .useValue(mockConfigService())
-    .compile()
+    .overrideProvider(EmailService)
+    .useValue(mockEmailService())
+
+  const result = await overrideRef.compile()
 
   const fastifyAdapter = new FastifyAdapter()
   fastifyAdapter.register(fastifyMultipart)
 
-  const app = moduleRef.createNestApplication<NestFastifyApplication>(
+  const app = result.createNestApplication<NestFastifyApplication>(
     fastifyAdapter
   )
 
   app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalGuards(
+    new UploadGuard(app.get(Reflector)),
+    new JwtAuthGuard(app.get(Reflector)),
+    new IamGuard(app.get(Reflector))
+  )
+
   await app.init()
   await app.getHttpAdapter().getInstance().ready()
 

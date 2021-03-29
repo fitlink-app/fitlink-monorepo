@@ -4,6 +4,7 @@ import {
   Entity,
   JoinColumn,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn
@@ -19,6 +20,10 @@ import { GoalsEntry } from '../../goals-entries/entities/goals-entry.entity'
 import { HealthActivity } from '../../health-activities/entities/health-activity.entity'
 import { FeedItem } from '../../feed-items/entities/feed-item.entity'
 import { RefreshToken } from '../../auth/entities/auth.entity'
+import { Subscription } from '../../subscriptions/entities/subscription.entity'
+import { UserRole } from '../../user-roles/entities/user-role.entity'
+import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
+import { TeamsInvitation } from '../../teams-invitations/entities/teams-invitation.entity'
 
 export enum UnitSystem {
   Metric = 'metric',
@@ -149,6 +154,21 @@ export class User extends CreatableEntity {
     onDelete: 'CASCADE'
   })
   feed_items: FeedItem[]
+
+  @ManyToOne(() => Subscription, (subscription) => subscription.users)
+  subscription: Subscription
+
+  @OneToMany(() => UserRole, (role) => role.user)
+  roles: UserRole[]
+
+  @OneToMany(
+    () => OrganisationsInvitation,
+    (invitation) => invitation.resolved_user
+  )
+  organisations_invitations: OrganisationsInvitation[]
+
+  @OneToMany(() => TeamsInvitation, (invitation) => invitation.resolved_user)
+  teams_invitations: TeamsInvitation[]
 
   @Column()
   name: string

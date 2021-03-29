@@ -1,10 +1,16 @@
-import { NestFactory } from '@nestjs/core'
+import { NestFactory, Reflector } from '@nestjs/core'
+import { ValidationPipe } from '@nestjs/common'
 import {
   FastifyAdapter,
   NestFastifyApplication
 } from '@nestjs/platform-fastify'
 import { ApiModule } from './api.module'
+import { UploadGuard } from './guards/upload.guard'
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard'
+import { IamGuard } from './guards/iam.guard'
 import { FastifyServerOptions, FastifyInstance, fastify } from 'fastify'
+import { ConfigService } from '@nestjs/config'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import * as awsLambdaFastify from 'aws-lambda-fastify'
 import {
   Context,
@@ -31,6 +37,26 @@ async function bootstrapServer(): Promise<NestApp> {
     { logger: !process.env.AWS_EXECUTION_ENV ? new Logger() : console }
   )
   app.setGlobalPrefix(process.env.API_PREFIX)
+
+  const configService = app.get(ConfigService)
+
+  if (configService.get('ENABLE_SWAGGER') === '1') {
+    const config = new DocumentBuilder()
+      .setTitle('Fitlink API')
+      .setDescription('The Fitlink API on Nest')
+      .setVersion('1.0')
+      .addTag('fitlink')
+      .addBearerAuth()
+      .build()
+
+    const document = SwaggerModule.createDocument(app, config)
+    SwaggerModule.setup('api/v1', app, document)
+  }
+
+  app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalGuards(new UploadGuard(app.get(Reflector)))
+  app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)))
+  app.useGlobalGuards(new IamGuard(app.get(Reflector)))
   await app.init()
   return { app, instance }
 }
@@ -59,9 +85,16 @@ export async function migrate() {
     dropSchema: false,
     migrations: migrations
   })
-  const result = await connection.runMigrations({
-    transaction: 'none'
-  })
+
+  let result
+  try {
+    result = await connection.runMigrations({
+      transaction: 'none'
+    })
+  } catch (e) {
+    await connection.close()
+    throw e
+  }
   await connection.close()
   return result
 }

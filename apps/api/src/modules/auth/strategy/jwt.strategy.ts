@@ -2,7 +2,7 @@ import { ExtractJwt, Strategy, StrategyOptions } from 'passport-jwt'
 import { PassportStrategy } from '@nestjs/passport'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { JWTAccessToken, AuthenticatedUser } from '../../models'
+import { JWTAccessToken, AuthenticatedUser } from '../../../models'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -21,9 +21,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return {
       id: payload.sub,
       roles: {
-        org_admin: payload.roles.o_a,
+        organisation_admin: payload.roles.o_a,
+        subscription_admin: payload.roles.s_a,
         team_admin: payload.roles.t_a,
-        super_admin: payload.roles.s_a
+        super_admin: payload.roles.spr
       }
     } as AuthenticatedUser
   }

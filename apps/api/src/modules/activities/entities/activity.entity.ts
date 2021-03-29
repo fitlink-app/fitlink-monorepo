@@ -14,43 +14,54 @@ import { Image } from '../../images/entities/image.entity'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { League } from '../../leagues/entities/league.entity'
 
+export enum ActivityType {
+  Class = 'class',
+  Group = 'group',
+  Route = 'route'
+}
+
 @Entity()
 export class Activity extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
   @Column()
-  url: string
-
-  @OneToOne(() => League, { nullable: true })
-  @JoinColumn()
-  league: League
-
-  @Column()
-  date: string
-
-  @Column({
-    type: 'json'
-  })
-  keywords: string[]
+  name: string
 
   @Column()
   description: string
 
-  @Column({
-    type: 'geometry',
-    spatialFeatureType: 'Point'
-  })
-  meeting_point: Geometry
+  @Column()
+  date: string
+
+  @Column({ nullable: true })
+  cost: string
+
+  @Column({ nullable: true })
+  organizer_name: string
+
+  @Column({ nullable: true })
+  organizer_url: string
 
   @Column()
   meeting_point_text: string
 
-  @Column()
-  archived: boolean
+  @Column({ type: 'geometry', spatialFeatureType: 'Point', srid: 4326 })
+  meeting_point: Geometry
+
+  @Column({
+    type: 'enum',
+    enum: ActivityType,
+    default: ActivityType.Class
+  })
+  type: string
 
   @ManyToOne(() => Team, (team) => team.activities, { nullable: true })
-  team: Team
+  team?: Team
+
+  @OneToOne(() => League, { nullable: true })
+  @JoinColumn()
+  league?: League
 
   @OneToMany(() => Image, null, { nullable: true })
   images: Image[]

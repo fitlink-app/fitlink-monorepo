@@ -14,7 +14,11 @@ import { LeaderboardEntriesService } from './leaderboard-entries.service'
 import { CreateLeaderboardEntryDto } from './dto/create-leaderboard-entry.dto'
 import { NotFoundInterceptor } from '../../interceptors/notfound.interceptor'
 import { AuthGuard } from '../../guards/auth.guard'
+import { Public } from '../../decorators/public.decorator'
+import { ApiBearerAuth } from '@nestjs/swagger'
 
+@Public()
+@ApiBearerAuth()
 @Controller('leaderboard-entries')
 @UseGuards(AuthGuard)
 export class LeaderboardEntriesController {
@@ -30,12 +34,8 @@ export class LeaderboardEntriesController {
   @Get(':leaderboardId')
   findAll(@Param('leaderboardId') leaderboardId: string, @Request() request) {
     return this.leaderboardEntriesService.findAll(leaderboardId, {
-      limit: Object.prototype.hasOwnProperty.call(request.query, 'limit')
-        ? request.query.limit
-        : 10,
-      page: Object.prototype.hasOwnProperty.call(request.query, 'page')
-        ? request.query.page
-        : 0
+      limit: request.query.limit || 10,
+      page: request.query.page || 0
     })
   }
 

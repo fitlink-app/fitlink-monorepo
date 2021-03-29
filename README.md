@@ -2,6 +2,15 @@
 
 This is the Fitlink monorepo initialized using Nest's monorepo project structure. In future this repo will also contain the React Native app.
 
+## Quick links
+1. [Git Hook](#git-hook-prettier)
+2. [Testing](#testing)
+3. [Development](#development)
+4. [Docker](#run-docker)
+5. [Migration and seeding](#migrate-and-seed-database)
+6. [Jest](#run-jest-tests)
+7. [Testing emails](#testing-emails)
+
 ## Leaderboard Entries
 
 At this time, only leaderboard entries are available, in order to make querying the leaderboard in real time performant. 
@@ -45,11 +54,11 @@ A docker-compose file is available to run postgres and s3rver (s3 emulator) for 
 
 For testing (ephemeral database):
 
-```docker-compose up -d postgres-jest s3rver`
+```docker-compose up -d postgres-jest s3rver```
 > Starts only the jest database service (port 5433) and s3rver (port 9191)
 
 For development (persistent database):
-```docker-compose up -d postgres s3rver`
+```docker-compose up -d postgres s3rver```
 > Starts only the development database service (5432) and s3rver (port 9191)
 
 For running both databases:
@@ -75,6 +84,12 @@ To run migrations and seed on the development database (prior to running applica
   yarn migration:seed
 ```
 
+To generate a new migration based on entity changes (with custom name to describe changes):
+```
+  yarn migration:generate -c jest -n UpdateUsers
+```
+> Note that this will attempt to check if migrations are not up to date. You should not create a new migration on an unmigrated database or there will be conflicts as a result. 
+
 ### Run jest tests
 > Run migration and seeding first before running jest
 
@@ -86,9 +101,20 @@ To run migrations and seed on the development database (prior to running applica
 
 If other tests are failing, you can run only your own tests
 ```
-  yarn test -t apps/api/test/my.e2e-spec.ts
-  yarn test:watch -t apps/api/test/my.e2e-spec.ts
+  yarn test apps/api/test/my.e2e-spec.ts
+  yarn test:watch apps/api/test/my.e2e-spec.ts
 ```
+
+### Testing emails
+In Jest, emails are written to email-debug.log in the root. This allows you to perform tests on the output during a test run. 
+
+```
+  import { emailHasContent } from './helpers/mocking'
+  // later... //
+  expect(await emailHasContent(payload.email)).toEqual(true)
+```
+
+In the local development environment, this is also enabled by default in .env, but could be override in .env.local
 
 ### Run nest server
 
@@ -110,13 +136,13 @@ The api will be available at http://localhost:3000/api/v1/*
 
 ### Bearer authentication
 
-Simple bearer authentication is in place.
+Simple bearer authentication is in place for the temporary API (leaderboard, activities) to connect to Firebase. 
 
 ## Nest-cli
 
-Scaffold new CRUD routes using nest cli, under the modules folder
+Scaffold new CRUD routes using nest cli, under the modules folder (omits tests because we're using e2e tests only). 
 
-```nest g resource modules/fishes```
+```nest g resource modules/fishes --no-spec```
 
 ## Swagger
 

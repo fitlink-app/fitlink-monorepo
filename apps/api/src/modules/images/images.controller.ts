@@ -1,50 +1,26 @@
-import {
-  UseGuards,
-  Controller,
-  Get,
-  Post,
-  Body,
-  Put,
-  Param,
-  Delete
-} from '@nestjs/common'
+import { Controller, Get, Post, Param, Delete } from '@nestjs/common'
 import { ImagesService } from './images.service'
-import { CreateImageDto } from './dto/create-image.dto'
-import { UpdateImageDto } from './dto/update-image.dto'
-import { File } from '../../decorators/file.decorator'
-import { UploadGuard } from '../../guards/upload.guard'
+import { Files } from '../../decorators/files.decorator'
+import { Uploads, UploadOptions } from '../../decorators/uploads.decorator'
+import { Image } from '../images/entities/image.entity'
 
 @Controller('images')
 export class ImagesController {
   constructor(private readonly imagesService: ImagesService) {}
 
   @Post()
-  @UseGuards(UploadGuard)
-  async create(
-    @File() image: Storage.MultipartFile,
-    @Body() createImageDto: CreateImageDto
-  ) {
-    const file = await image.toBuffer()
-    return this.imagesService.create(file)
-  }
-
-  @Get()
-  findAll() {
-    return this.imagesService.findAll()
+  @Uploads('images', UploadOptions.Required)
+  create(@Files() files: Storage.MultipartFile[]): Promise<Image[]> {
+    return this.imagesService.createMany(files)
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.imagesService.findOne(+id)
-  }
-
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateImageDto: UpdateImageDto) {
-    return this.imagesService.update(+id, updateImageDto)
+    return this.imagesService.findOne(id)
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.imagesService.remove(+id)
+    return this.imagesService.remove(id)
   }
 }

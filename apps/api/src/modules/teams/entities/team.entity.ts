@@ -16,6 +16,7 @@ import { Activity } from '../../activities/entities/activity.entity'
 import { Image } from '../../images/entities/image.entity'
 import { Organisation } from '../../organisations/entities/organisation.entity'
 import { Reward } from '../../rewards/entities/reward.entity'
+import { TeamsInvitation } from '../../teams-invitations/entities/teams-invitation.entity'
 import { User } from '../../users/entities/user.entity'
 
 @Entity()
@@ -40,6 +41,12 @@ export class Team {
     onDelete: 'CASCADE'
   })
   activities: Activity[]
+
+  @OneToMany(() => TeamsInvitation, (invitation) => invitation.team, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
+  invitations: TeamsInvitation[]
 
   @OneToMany(() => Reward, (reward) => reward.team, {
     cascade: ['remove'],
