@@ -6,12 +6,14 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { runSeeder, useSeeding } from 'typeorm-seeding'
 import TestingSportsSeed, { DeleteSports } from './seeds/sport.seed'
 import * as faker from 'faker'
+import { getAuthHeaders } from './helpers/auth'
 
 describe('Sports', () => {
   let app: NestFastifyApplication
   let connection: Connection
   let sportsRepository: Repository<Sport>
   let sportID: string
+  let superadminHeaders
 
   beforeAll(async () => {
     app = await mockApp({
@@ -21,6 +23,7 @@ describe('Sports', () => {
     })
     connection = getConnection()
     sportsRepository = connection.getRepository(Sport)
+    superadminHeaders = getAuthHeaders({ spr: true })
 
     // Seed Sport Data
     await useSeeding()
@@ -36,7 +39,8 @@ describe('Sports', () => {
   it('/GET (200) /sports', async () => {
     const result = await app.inject({
       method: 'GET',
-      url: '/sports'
+      url: '/sports',
+      headers: superadminHeaders
     })
 
     expect(result.statusCode).toEqual(200)
@@ -46,7 +50,8 @@ describe('Sports', () => {
   it('/GET (200) /sports/:id', async () => {
     const result = await app.inject({
       method: `GET`,
-      url: `/sports/${sportID}`
+      url: `/sports/${sportID}`,
+      headers: superadminHeaders
     })
     expect(result.statusCode).toBe(200)
     expect(result.statusMessage).toContain('OK')
@@ -55,7 +60,8 @@ describe('Sports', () => {
   it('/GET (404) /sports/:id ', async () => {
     const result = await app.inject({
       method: 'GET',
-      url: `/sports/rando`
+      url: `/sports/rando`,
+      headers: superadminHeaders
     })
 
     expect(result.statusCode).toBe(404)
@@ -72,7 +78,8 @@ describe('Sports', () => {
     const result = await app.inject({
       method: 'POST',
       url: '/sports',
-      payload: payload
+      payload: payload,
+      headers: superadminHeaders
     })
 
     expect(result.statusCode).toBe(201)
@@ -88,6 +95,7 @@ describe('Sports', () => {
     const result = await app.inject({
       method: 'POST',
       url: '/sports',
+      headers: superadminHeaders,
       payload
     })
 
@@ -102,6 +110,7 @@ describe('Sports', () => {
     const result = await app.inject({
       method: 'PUT',
       url: `/sports/${sportID}`,
+      headers: superadminHeaders,
       payload
     })
 
@@ -112,6 +121,7 @@ describe('Sports', () => {
   it('/DELETE (200) /sports/:id', async () => {
     const result = await app.inject({
       method: `DELETE`,
+      headers: superadminHeaders,
       url: `/sports/${sportID}`
     })
     expect(result.statusCode).toBe(200)
