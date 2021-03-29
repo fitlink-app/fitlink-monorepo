@@ -42,6 +42,7 @@ describe('Leagues', () => {
     sportsRepository = connection.getRepository(Sport)
     teamRepository = connection.getRepository(Team)
 
+    console.log('h')
     const sport = await sportsRepository.findOne({
       where: { name: 'Running' }
     })
@@ -59,13 +60,16 @@ describe('Leagues', () => {
 
     // // Get the team name to use it's credentials for testing
 
-    seeded_team = await teamRepository.find()[0]
+    const teams = await teamRepository.find()
+    seeded_team = teams[0]
 
     // // Get the League that is already assigned to our team aka teams[0]
     team_assigned_league = await leaguesRepository.findOne({
       where: { name: 'Team Assigned Dying League' }
     })
-    teamAdminHeaders = getAuthHeaders({ t_a: [seeded_team[0].id] })
+    if (teams[0]) {
+      teamAdminHeaders = getAuthHeaders({ t_a: [teams[0].id] })
+    }
   })
 
   it('GET /leagues', async () => {
