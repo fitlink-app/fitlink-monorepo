@@ -92,6 +92,23 @@ describe('Followings', () => {
     expect(result.statusMessage).toEqual('Created')
   })
 
+    // Trying to create a following entry with user id = target id should result in a 400 error
+    it(`/POST (400) `, async () => {
+      const userData = data.pop()
+      const userAuthHeaders = getAuthHeaders({}, userData.user.id)
+      const  payload = {
+        targetId: userData.user.id
+      } as CreateFollowingDto
+      const result = await app.inject({
+        method: 'POST',
+        url: `/followings`,
+        headers: userAuthHeaders,
+        payload
+      })
+      expect(result.statusCode).toEqual(400)
+      expect(result.statusMessage).toEqual('Bad Request')
+    })
+
     // Trying to create a following entry without complete data should result in a 400 error
     it(`/POST (400) `, async () => {
       const userData = data.pop()

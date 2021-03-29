@@ -1,5 +1,5 @@
 
-import { Injectable } from '@nestjs/common'
+import { Injectable, BadRequestException } from '@nestjs/common'
 import { CreateFollowingDto } from './dto/create-following.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
@@ -23,6 +23,10 @@ export class FollowingsService {
         userId: string,
         CreateFollowingDto: CreateFollowingDto
       ): Promise<Following> {
+
+      if (CreateFollowingDto.targetId === userId) {
+        throw new BadRequestException('user and target id should be different')
+      }
 
       const userToFollow = new User()
       userToFollow.id = CreateFollowingDto.targetId
