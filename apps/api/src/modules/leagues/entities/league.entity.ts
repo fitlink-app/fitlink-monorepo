@@ -12,6 +12,7 @@ import {
 import { CreatableByUserEntity } from '../../../classes/entity/creatable'
 import { Leaderboard } from '../../leaderboards/entities/leaderboard.entity'
 import { Sport } from '../../sports/entities/sport.entity'
+import { Team } from '../../teams/entities/team.entity'
 import { User } from '../../users/entities/user.entity'
 
 @Entity()
@@ -48,4 +49,7 @@ export class League extends CreatableByUserEntity {
   })
   @JoinTable()
   users: User[]
+
+  @ManyToOne(() => Team, (team) => team.leagues, { nullable: true })
+  team?: Team
 }

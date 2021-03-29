@@ -4,6 +4,7 @@ import { getManager, Repository } from 'typeorm'
 import { PaginationOptionsInterface, Pagination } from '../../helpers/paginate'
 import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
 import { Sport } from '../sports/entities/sport.entity'
+import { Team } from '../teams/entities/team.entity'
 import { CreateLeagueDto } from './dto/create-league.dto'
 import { UpdateLeagueDto } from './dto/update-league.dto'
 import { League } from './entities/league.entity'
@@ -13,15 +14,21 @@ export class LeaguesService {
   constructor(
     @InjectRepository(League)
     private leaguesRepository: Repository<League>,
+
     @InjectRepository(Leaderboard)
-    private leaderboardRepository: Repository<Leaderboard>
+    private leaderboardRepository: Repository<Leaderboard>,
+
+    @InjectRepository(Team)
+    private teamRepository: Repository<Team>
   ) {}
-  async create(createLeagueDto: CreateLeagueDto) {
+
+  async create(createLeagueDto: CreateLeagueDto, teamId?: string) {
     // Get a sport ID;
     const { sportId, name, description } = createLeagueDto
     const league: {
       name: string
       description: string
+      team?: Team
       sport?: { id: string }
       active_leaderboard?: any
     } = { name, description }
@@ -29,6 +36,13 @@ export class LeaguesService {
     league.sport = new Sport()
     league.sport.id = sportId
     league.active_leaderboard = new Leaderboard()
+
+    if (teamId) {
+      const team = await this.teamRepository.findOne({ id: teamId })
+      if (!team)
+        throw new NotFoundException(`The Team with ID ${teamId} does not exist`)
+      league.team = team
+    }
 
     const createdLeague = await this.leaguesRepository.save(
       this.leaguesRepository.create(league)
@@ -47,14 +61,33 @@ export class LeaguesService {
       .set(newLeaderboard)
   }
 
-  async findAll(
-    options: PaginationOptionsInterface
-  ): Promise<Pagination<League>> {
+  async findAll() {
     const [results, total] = await this.leaguesRepository.findAndCount()
     return new Pagination<League>({
       results,
       total
     })
+  }
+
+  async getAllLeaguesForTeam(teamId?: string): Promise<Pagination<League>> {
+    const [results, total] = await this.leaguesRepository.findAndCount({
+      where: {
+        team: teamId
+      }
+    })
+
+    return new Pagination<League>({
+      results,
+      total
+    })
+  }
+
+  async getTeamLeagueWithId(id: string, team: string) {
+    const result = await this.leaguesRepository.findOne({ where: { team, id } })
+    if (!result) {
+      throw new NotFoundException()
+    }
+    return result
   }
 
   async findOne(id: string) {
@@ -65,20 +98,36 @@ export class LeaguesService {
     return result
   }
 
-  async update(id: string, updateLeagueDto: UpdateLeagueDto) {
-    const result = await this.leaguesRepository.update(id, updateLeagueDto)
-    if (result.affected === 0) {
-      throw new NotFoundException(`League With ID: ${id} not found`)
+  async update(id: string, updateLeagueDto: UpdateLeagueDto, teamId?: string) {
+    if (teamId) {
+      return await this.leaguesRepository
+        .createQueryBuilder()
+        .update(League)
+        .set(updateLeagueDto)
+        .where('id = :id', { id })
+        .andWhere('team.id = :teamId', { teamId })
+        .execute()
+    } else {
+      return await this.leaguesRepository.update(id, updateLeagueDto)
     }
   }
 
-  async remove(id: string) {
-    const league = await this.leaguesRepository.findOne(id, {
-      relations: ['leaderboards']
-    })
+  async remove(id: string, team?: string) {
+    let league: League
+    if (team) {
+      league = await this.leaguesRepository.findOne({
+        relations: ['leaderboards'],
+        where: {
+          team,
+          id
+        }
+      })
+    } else {
+      league = await this.leaguesRepository.findOne(id, {
+        relations: ['leaderboards']
+      })
+    }
     const result = await getManager().transaction(async (entityManager) => {
-      // Delete all the leaderboards with this legaue id;
-
       if (league.leaderboards.length) {
         await entityManager.delete(
           Leaderboard,
