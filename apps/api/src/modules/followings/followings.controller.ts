@@ -14,8 +14,8 @@ export class FollowingsController {
   constructor(private readonly followingsService: FollowingsService) {}
 
   @Post()
-  create(@Request() request, @Body() targetId: CreateFollowingDto) {
-    return this.followingsService.create(request.user.id, targetId)
+  create(@Request() request, @Body() body: CreateFollowingDto) {
+    return this.followingsService.create(request.user.id, body)
   }
 
   /**

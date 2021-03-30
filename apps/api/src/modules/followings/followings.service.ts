@@ -21,15 +21,15 @@ export class FollowingsService {
    */
     async create(
         userId: string,
-        CreateFollowingDto: CreateFollowingDto
+        createFollowingDto: CreateFollowingDto
       ): Promise<Following> {
 
-      if (CreateFollowingDto.targetId === userId) {
+      if (createFollowingDto.targetId === userId) {
         throw new BadRequestException('user and target id should be different')
       }
 
       const userToFollow = new User()
-      userToFollow.id = CreateFollowingDto.targetId
+      userToFollow.id = createFollowingDto.targetId
 
       const me = new User()
       me.id = userId
@@ -42,9 +42,7 @@ export class FollowingsService {
 
       return await this.followingRepository.save({
         ...result,
-        ...following,
-        created_at: new Date(),
-        updated_at: new Date()
+        ...following
       })
     }
 
