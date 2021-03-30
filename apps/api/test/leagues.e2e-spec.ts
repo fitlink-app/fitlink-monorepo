@@ -42,7 +42,6 @@ describe('Leagues', () => {
     sportsRepository = connection.getRepository(Sport)
     teamRepository = connection.getRepository(Team)
 
-    console.log('h')
     const sport = await sportsRepository.findOne({
       where: { name: 'Running' }
     })
@@ -81,6 +80,7 @@ describe('Leagues', () => {
 
     expect(data.statusCode).toEqual(200)
     expect(data.statusMessage).toContain('OK')
+    expect(JSON.parse(data.payload).results.length).toBeGreaterThan(0)
   })
 
   it('GET /teams/:teamId/leagues', async () => {
@@ -92,6 +92,7 @@ describe('Leagues', () => {
 
     expect(data.statusCode).toEqual(200)
     expect(data.statusMessage).toContain('OK')
+    expect(JSON.parse(data.payload).results.length).toBeGreaterThan(0)
   })
 
   it(`GET /leagues/:id`, async () => {
@@ -101,8 +102,11 @@ describe('Leagues', () => {
       headers: superadminHeaders
     })
 
+    const payload = JSON.parse(data.payload)
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
+    expect(payload.id).toBeDefined()
+    expect(payload.name).toBeDefined()
   })
 
   it(`GET /teams/teamId/leagues/:id`, async () => {
@@ -112,8 +116,11 @@ describe('Leagues', () => {
       headers: teamAdminHeaders
     })
 
+    const payload = JSON.parse(data.payload)
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
+    expect(payload.id).toBeDefined()
+    expect(payload.name).toBeDefined()
   })
 
   it('POST /leagues', async () => {
@@ -128,8 +135,12 @@ describe('Leagues', () => {
       headers: superadminHeaders,
       payload: payload
     })
+    const parsed = JSON.parse(data.payload)
     expect(data.statusCode).toBe(201)
     expect(data.statusMessage).toBe('Created')
+    expect(parsed.league.id).toBeDefined()
+    expect(parsed.league.name).toBeDefined()
+    expect(parsed.league.description).toBeDefined()
   })
 
   it('POST /teams/:teamId/leagues', async () => {
@@ -144,8 +155,12 @@ describe('Leagues', () => {
       headers: teamAdminHeaders,
       payload: payload
     })
+    const parsed = JSON.parse(data.payload)
     expect(data.statusCode).toBe(201)
     expect(data.statusMessage).toBe('Created')
+    expect(parsed.league.id).toBeDefined()
+    expect(parsed.league.name).toBeDefined()
+    expect(parsed.league.description).toBeDefined()
   })
 
   it('PUT /leagues/:id', async () => {
@@ -159,8 +174,13 @@ describe('Leagues', () => {
       headers: superadminHeaders,
       payload
     })
+    const parsed = JSON.parse(data.payload).raw[0]
+
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
+    expect(parsed.id).toBeDefined()
+    expect(parsed.name).toBeDefined()
+    expect(parsed.description).toBeDefined()
   })
 
   it('PUT teams/:teamId/leagues/:id', async () => {
@@ -174,8 +194,13 @@ describe('Leagues', () => {
       headers: teamAdminHeaders,
       payload
     })
+    const parsed = JSON.parse(data.payload).raw[0]
+
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
+    expect(parsed.id).toBeDefined()
+    expect(parsed.name).toBeDefined()
+    expect(parsed.description).toBeDefined()
   })
 
   it('DELETE /leagues/:id', async () => {

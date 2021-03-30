@@ -25,13 +25,7 @@ export class LeaguesService {
   async create(createLeagueDto: CreateLeagueDto, teamId?: string) {
     // Get a sport ID;
     const { sportId, name, description } = createLeagueDto
-    const league: {
-      name: string
-      description: string
-      team?: Team
-      sport?: { id: string }
-      active_leaderboard?: any
-    } = { name, description }
+    const league: Partial<League> = { name, description }
 
     league.sport = new Sport()
     league.sport.id = sportId
@@ -54,11 +48,13 @@ export class LeaguesService {
       this.leaderboardRepository.create(leaderboard)
     )
 
-    return await this.leaguesRepository
+    await this.leaguesRepository
       .createQueryBuilder()
       .relation(League, 'active_leaderboard')
       .of(createdLeague)
       .set(newLeaderboard)
+
+    return newLeaderboard
   }
 
   async findAll() {
@@ -106,9 +102,16 @@ export class LeaguesService {
         .set(updateLeagueDto)
         .where('id = :id', { id })
         .andWhere('team.id = :teamId', { teamId })
+        .returning(['id', 'name', 'description'])
         .execute()
     } else {
-      return await this.leaguesRepository.update(id, updateLeagueDto)
+      return await this.leaguesRepository
+        .createQueryBuilder()
+        .update(League)
+        .set(updateLeagueDto)
+        .where('id = :id', { id })
+        .returning(['id', 'name', 'description'])
+        .execute()
     }
   }
 
