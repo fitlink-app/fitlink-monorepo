@@ -1,37 +1,59 @@
-import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Request,
+} from '@nestjs/common'
 import { FollowingsService } from './followings.service'
 import { CreateFollowingDto } from './dto/create-following.dto'
-import { UpdateFollowingDto } from './dto/update-following.dto'
-
 @Controller('followings')
 export class FollowingsController {
   constructor(private readonly followingsService: FollowingsService) {}
 
   @Post()
-  create(@Body() createFollowingDto: CreateFollowingDto) {
-    return this.followingsService.create(createFollowingDto)
+  create(@Request() request, @Body() body: CreateFollowingDto) {
+    return this.followingsService.create(request.user.id, body)
   }
 
+  /**
+   * Get following entities with all user's followings by Id
+   */
   @Get()
-  findAll() {
-    return this.followingsService.findAll()
+  findAllFollowing(@Request() request) {
+    return this.followingsService.findAllFollowing(request.user.id, {
+      limit: Object.prototype.hasOwnProperty.call(request.query, 'limit')
+        ? request.query.limit
+        : 10,
+      page: Object.prototype.hasOwnProperty.call(request.query, 'page')
+        ? request.query.page
+        : 0
+    })
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.followingsService.findOne(+id)
+  /**
+   * Get following entities with all user's followers by Id
+   */
+  @Get('followers')
+  findAllFollowers(@Request() request) {
+    return this.followingsService.findAllFollowers(request.user.id, {
+      limit: Object.prototype.hasOwnProperty.call(request.query, 'limit')
+        ? request.query.limit
+        : 10,
+      page: Object.prototype.hasOwnProperty.call(request.query, 'page')
+        ? request.query.page
+        : 0
+    })
   }
 
-  @Put(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateFollowingDto: UpdateFollowingDto
+  @Delete(':targetId')
+  removeFollower(
+    @Request() request,
+    @Param('targetId') targetId: string
   ) {
-    return this.followingsService.update(+id, updateFollowingDto)
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.followingsService.remove(+id)
+    return this.followingsService.remove(request.user.id, targetId)
   }
 }
+

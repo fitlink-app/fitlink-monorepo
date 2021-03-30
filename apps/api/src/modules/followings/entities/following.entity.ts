@@ -7,11 +7,16 @@ export class Following extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @ManyToOne(() => User, (user) => user.followers)
+  @ManyToOne(() => User, (user) => user.followers, {
+    eager: true
+  })
   @JoinColumn()
   follower: User
 
-  @ManyToOne(() => User, (user) => user.following)
+  @ManyToOne(() => User, (user) => user.following, {
+    eager: true
+  })
   @JoinColumn()
   following: User
+
 }

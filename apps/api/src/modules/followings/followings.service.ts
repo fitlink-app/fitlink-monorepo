@@ -1,26 +1,134 @@
-import { Injectable } from '@nestjs/common'
+
+import { Injectable, BadRequestException } from '@nestjs/common'
 import { CreateFollowingDto } from './dto/create-following.dto'
-import { UpdateFollowingDto } from './dto/update-following.dto'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
+import { Following } from './entities/following.entity'
+import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
+import { User } from '../users/entities/user.entity'
 
 @Injectable()
 export class FollowingsService {
-  create(createFollowingDto: CreateFollowingDto) {
-    return 'This action adds a new following'
-  }
+  constructor(
+    @InjectRepository(Following)
+    private followingRepository: Repository<Following>
+  ) {}
 
-  findAll() {
-    return `This action returns all followings`
-  }
+  /**
+   * Creates following entity
+   * @param userId
+   * @param createFollowingDto
+   */
+    async create(
+        userId: string,
+        createFollowingDto: CreateFollowingDto
+      ): Promise<Following> {
 
-  findOne(id: number) {
-    return `This action returns a #${id} following`
-  }
+      if (createFollowingDto.targetId === userId) {
+        throw new BadRequestException('user and target id should be different')
+      }
 
-  update(id: number, updateFollowingDto: UpdateFollowingDto) {
-    return `This action updates a #${id} following`
-  }
+      const userToFollow = new User()
+      userToFollow.id = createFollowingDto.targetId
 
-  remove(id: number) {
-    return `This action removes a #${id} following`
-  }
+      const me = new User()
+      me.id = userId
+
+      const following = new Following()
+      following.following = userToFollow
+      following.follower = me
+
+      const result = await this.followingRepository.findOne(following)
+
+      return await this.followingRepository.save({
+        ...result,
+        ...following
+      })
+    }
+
+  /**
+   * Find all followings by user (followerId), with pagination options
+   * @param userId
+   * @param options
+   */
+    async findAllFollowing(
+      userId: string,
+      options: PaginationOptionsInterface
+    ): Promise<Pagination<Following>> {
+
+      const me = new User()
+      me.id = userId
+
+      const [results, total] = await this.followingRepository.findAndCount(
+        {
+          where: {follower: {id: userId}},
+          relations: ['following'],
+          take: options.limit,
+          skip: options.page
+        }
+      )
+
+      return new Pagination<Following>({
+        results,
+        total
+      })
+    }
+
+  /**
+   * Find all followers by user (followingId), with pagination options
+   * @param userId
+   * @param options
+   */
+     async findAllFollowers(
+      userId: string,
+      options: PaginationOptionsInterface
+    ): Promise<Pagination<Following>> {
+
+      const me = new User()
+      me.id = userId
+
+      const [results, total] = await this.followingRepository.findAndCount(
+        {
+          where: {following: {id: userId}},
+          relations: ['following'],
+          take: options.limit,
+          skip: options.page
+        }
+      )
+
+      return new Pagination<Following>({
+        results,
+        total
+      })
+    }
+
+  /**
+   * Find a specific following entry
+   */
+    async findOne(following) {
+      return await this.followingRepository.findOne(following)
+    }
+
+
+  /**
+   * Deletes the following
+   * @param userId
+   * @param targetId
+   */
+    async remove(
+      userId: string,
+      targetId: string
+    ) {
+      const userToFollow = new User()
+      userToFollow.id = targetId
+
+      const me = new User()
+      me.id = userId
+
+      const following = new Following()
+      following.following = userToFollow
+      following.follower = me
+
+      return await this.followingRepository.delete(following)
+    }
 }
