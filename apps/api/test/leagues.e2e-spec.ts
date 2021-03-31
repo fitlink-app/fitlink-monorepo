@@ -80,7 +80,7 @@ describe('Leagues', () => {
 
     expect(data.statusCode).toEqual(200)
     expect(data.statusMessage).toContain('OK')
-    expect(JSON.parse(data.payload).results.length).toBeGreaterThan(0)
+    expect(data.json().results.length).toBeGreaterThan(0)
   })
 
   it('GET /teams/:teamId/leagues', async () => {
@@ -92,7 +92,7 @@ describe('Leagues', () => {
 
     expect(data.statusCode).toEqual(200)
     expect(data.statusMessage).toContain('OK')
-    expect(JSON.parse(data.payload).results.length).toBeGreaterThan(0)
+    expect(data.json().results.length).toBeGreaterThan(0)
   })
 
   it(`GET /leagues/:id`, async () => {
@@ -102,7 +102,7 @@ describe('Leagues', () => {
       headers: superadminHeaders
     })
 
-    const payload = JSON.parse(data.payload)
+    const payload = data.json()
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
     expect(payload.id).toBeDefined()
@@ -116,7 +116,7 @@ describe('Leagues', () => {
       headers: teamAdminHeaders
     })
 
-    const payload = JSON.parse(data.payload)
+    const payload = data.json()
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
     expect(payload.id).toBeDefined()
@@ -135,7 +135,7 @@ describe('Leagues', () => {
       headers: superadminHeaders,
       payload: payload
     })
-    const parsed = JSON.parse(data.payload)
+    const parsed = data.json()
     expect(data.statusCode).toBe(201)
     expect(data.statusMessage).toBe('Created')
     expect(parsed.league.id).toBeDefined()
@@ -155,7 +155,7 @@ describe('Leagues', () => {
       headers: teamAdminHeaders,
       payload: payload
     })
-    const parsed = JSON.parse(data.payload)
+    const parsed = data.json()
     expect(data.statusCode).toBe(201)
     expect(data.statusMessage).toBe('Created')
     expect(parsed.league.id).toBeDefined()
@@ -165,8 +165,8 @@ describe('Leagues', () => {
 
   it('PUT /leagues/:id', async () => {
     const payload = {
-      name: faker.lorem.text(2),
-      description: faker.lorem.text(5)
+      name: `Updated Name: ${faker.lorem.text(5)}`,
+      description: `Updated Description: ${faker.lorem.text(5)}`
     }
     const data = await app.inject({
       method: 'PUT',
@@ -174,7 +174,7 @@ describe('Leagues', () => {
       headers: superadminHeaders,
       payload
     })
-    const parsed = JSON.parse(data.payload).raw[0]
+    const parsed = data.json()
 
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
@@ -185,8 +185,8 @@ describe('Leagues', () => {
 
   it('PUT teams/:teamId/leagues/:id', async () => {
     const payload = {
-      name: faker.lorem.text(2),
-      description: faker.lorem.text(5)
+      name: `Updated Name: ${faker.lorem.text(5)}`,
+      description: `Updated Description: ${faker.lorem.text(5)}`
     }
     const data = await app.inject({
       method: 'PUT',
@@ -194,7 +194,7 @@ describe('Leagues', () => {
       headers: teamAdminHeaders,
       payload
     })
-    const parsed = JSON.parse(data.payload).raw[0]
+    const parsed = data.json()
 
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')

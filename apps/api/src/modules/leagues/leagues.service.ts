@@ -65,7 +65,7 @@ export class LeaguesService {
     })
   }
 
-  async getAllLeaguesForTeam(teamId?: string): Promise<Pagination<League>> {
+  async getAllLeaguesForTeam(teamId: string): Promise<Pagination<League>> {
     const [results, total] = await this.leaguesRepository.findAndCount({
       where: {
         team: teamId
@@ -96,22 +96,17 @@ export class LeaguesService {
 
   async update(id: string, updateLeagueDto: UpdateLeagueDto, teamId?: string) {
     if (teamId) {
-      return await this.leaguesRepository
-        .createQueryBuilder()
-        .update(League)
-        .set(updateLeagueDto)
-        .where('id = :id', { id })
-        .andWhere('team.id = :teamId', { teamId })
-        .returning(['id', 'name', 'description'])
-        .execute()
+      return await this.leaguesRepository.save({
+        id,
+        team: { id: teamId },
+        ...updateLeagueDto
+      })
     } else {
-      return await this.leaguesRepository
-        .createQueryBuilder()
-        .update(League)
-        .set(updateLeagueDto)
-        .where('id = :id', { id })
-        .returning(['id', 'name', 'description'])
-        .execute()
+      // This Method supports partial updating since all undefined properties are skipped
+      return await this.leaguesRepository.save({
+        id,
+        ...updateLeagueDto
+      })
     }
   }
 
