@@ -29,6 +29,10 @@ export class CreateActivityDto {
   images?: Image[]
 
   @ApiProperty()
+  @IsOptional()
+  organizer_image?: Image
+
+  @ApiProperty()
   cost?: string
 
   @ApiProperty()

@@ -19,6 +19,12 @@ export class FindActivitiesDto {
   with_imin?: string
 
   @ApiProperty({
+    required: false
+  })
+  @IsOptional()
+  type: string
+
+  @ApiProperty({
     required: false,
     default: '0'
   })

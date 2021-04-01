@@ -45,6 +45,9 @@ interface IminOrganizer {
   url: string
   name: string
   telephone: string
+  image?: {
+    url: string
+  }
 }
 
 interface IminAggregateOffer {

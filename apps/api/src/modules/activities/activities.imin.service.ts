@@ -85,6 +85,7 @@ export class ActivitiesIminService {
       description: each.description,
       organizer_name: each.organizer.name,
       organizer_url: each.organizer.url,
+      organizer_image: ActivitiesIminService.getOrganizerImageUrl(each),
       date: ActivitiesIminService.itemScheduleToDateString(each),
       cost: ActivitiesIminService.getCost(each),
       images: ActivitiesIminService.getImages(each),
@@ -111,7 +112,7 @@ export class ActivitiesIminService {
    * to signify the next available time.
    *
    * @param item
-   * @returns string "Monday at 15:00pm"
+   * @returns string ("Monday at 15:00pm")
    */
   static itemScheduleToDateString(item: IminItem): string {
     const now = new Date()
@@ -163,7 +164,7 @@ export class ActivitiesIminService {
   /**
    * Formats a HH:aa time string to include am/pm for better readability
    * @param time
-   * @returns string e.g. "12.30pm"
+   * @returns string (e.g. "12.30pm")
    */
   static formatTime(time: string): string {
     const timeInt = parseInt(time.replace(':', ''))
@@ -176,7 +177,7 @@ export class ActivitiesIminService {
   /**
    * Formats ISO 4217 with associated currency symbol
    * @param currency e.g. GBP
-   * @returns currency character e.g. £
+   * @returns string (currency character e.g. £)
    */
   static formatCurrency(currency: string): string {
     const symbol = ActivitiesIminService.currencyMap[currency]
@@ -188,7 +189,7 @@ export class ActivitiesIminService {
    * if it exists.
    *
    * @param item
-   * @returns string of price, e.g. £8.95
+   * @returns string (of price, e.g. £8.95)
    */
   static getCost(item: IminItem) {
     const offer = item['imin:aggregateOffer']
@@ -206,12 +207,30 @@ export class ActivitiesIminService {
    * Formats an array of activity to be a single line CSV
    *
    * @param item
-   * @returns string of activities, e.g. "Yoga, Pilates"
+   * @returns string (of activities, e.g. "Yoga, Pilates")
    */
   static getActivity(item: IminItem) {
     return (item.activity || []).reduce((prev, current, index: number) => {
       return (index > 0 ? prev + ', ' : '') + current.prefLabel
     }, '')
+  }
+
+  /**
+   * Get organizer image url if available
+   *
+   * @param item
+   * @returns string (url)
+   */
+  static getOrganizerImageUrl(item: IminItem) {
+    if (item.organizer && item.organizer.image) {
+      return ({
+        id: '0',
+        url: item.organizer.image.url,
+        alt: item.organizer.name
+      } as IminConvertedImage) as Image
+    } else {
+      return null
+    }
   }
 
   /**

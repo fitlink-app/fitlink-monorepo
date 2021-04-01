@@ -20,26 +20,42 @@ export class ImagesService {
     private configService: ConfigService
   ) {}
 
-  async create(file: Buffer, imageType = ImageType.Standard) {
+  async create(
+    file: Buffer,
+    imageType = ImageType.Standard,
+    imageProperties?: Partial<Image>
+  ) {
     const fileName = uuidv4()
     const image = await this.generateVariants(file, fileName, imageType)
-    return await this.imageRepository.save(this.imageRepository.create([image]))
+    return await this.imageRepository.save(
+      this.imageRepository.create([
+        {
+          ...image,
+          ...imageProperties
+        }
+      ])
+    )
   }
 
-  async createOne(file: Storage.MultipartFile, imageType = ImageType.Standard) {
+  async createOne(
+    file: Storage.MultipartFile,
+    imageType = ImageType.Standard,
+    imageProperties?: Partial<Image>
+  ) {
     const buffer = await file.toBuffer()
-    const result = await this.create(buffer, imageType)
+    const result = await this.create(buffer, imageType, imageProperties)
     return result[0]
   }
 
   async createMany(
     files: Storage.MultipartFile[],
-    imageType = ImageType.Standard
+    imageType = ImageType.Standard,
+    imageProperties?: Partial<Image>
   ) {
     return await Promise.all(
       files.map(async (each) => {
         const file = await each.toBuffer()
-        const result = await this.create(file, imageType)
+        const result = await this.create(file, imageType, imageProperties)
         return result[0]
       })
     )

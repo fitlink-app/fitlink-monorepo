@@ -1,10 +1,10 @@
-import { Repository } from 'typeorm'
-import { Injectable } from '@nestjs/common'
+import { Brackets, Repository } from 'typeorm'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { CreateActivityDto } from './dto/create-activity.dto'
 import { UpdateActivityDto } from './dto/update-activity.dto'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
-import { Activity } from './entities/activity.entity'
+import { Activity, ActivityType } from './entities/activity.entity'
 import { Image } from '../images/entities/image.entity'
 
 @Injectable()
@@ -54,10 +54,13 @@ export class ActivitiesService {
    */
   async findAll(
     geoRadial: string,
+    type: string,
     options: PaginationOptionsInterface
   ): Promise<Pagination<Activity>> {
     let query = this.activityRepository
       .createQueryBuilder('activity')
+      .leftJoinAndSelect('activity.organizer_image', 'organizer_image')
+      .leftJoinAndSelect('activity.images', 'image')
       .take(options.limit)
       .skip(options.page * options.limit)
 
@@ -72,7 +75,13 @@ export class ActivitiesService {
         }
       )
     } else {
-      query = query.orderBy('created_at', 'DESC')
+      query = query.orderBy('activity.created_at', 'DESC')
+    }
+
+    // Query by 1 or more types
+    if (type) {
+      const types = this.getTypesFromString(type)
+      query.where('activity.type IN (:...types)', { types })
     }
 
     const [results, total] = await query.getManyAndCount()
@@ -104,5 +113,14 @@ export class ActivitiesService {
       .delete()
       .execute()
     return this.activityRepository.delete({ id })
+  }
+
+  getTypesFromString(type: string) {
+    return type.split(',').map((each) => {
+      if (!Object.values(ActivityType).includes(each as ActivityType)) {
+        throw new BadRequestException(`Activity type ${each} does not exist`)
+      }
+      return each
+    })
   }
 }

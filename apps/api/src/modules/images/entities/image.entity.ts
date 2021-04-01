@@ -41,7 +41,7 @@ export class Image extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @ManyToOne(() => Activity, null, { nullable: true })
+  @ManyToOne(() => Activity, (activity) => activity.images)
   activity?: Activity
 
   /** Alt text for accessibility */

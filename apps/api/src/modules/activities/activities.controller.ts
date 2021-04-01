@@ -22,6 +22,7 @@ import { Uploads, UploadOptions } from '../../decorators/uploads.decorator'
 import { Public } from '../../decorators/public.decorator'
 import { AuthGuard } from '../../guards/auth.guard'
 import { ApiBearerAuth } from '@nestjs/swagger'
+import { Image, ImageType } from '../images/entities/image.entity'
 
 @Public()
 @UseGuards(AuthGuard)
@@ -35,15 +36,37 @@ export class ActivitiesController {
   ) {}
 
   @Post()
-  @Uploads('images', UploadOptions.Nullable)
+  @Uploads('images', 'organizer_image', UploadOptions.Nullable)
   async create(
-    @Files('images[]') files: Storage.MultipartFile[],
+    @Files('images[]') activityImages: Storage.MultipartFile[],
+    @Files('organizer_image') organizerImage: Storage.MultipartFile,
     @Body() createActivityDto: CreateActivityDto
   ) {
-    const images = await this.imagesService.createMany(files)
+    const alt = createActivityDto.organizer_name || createActivityDto.name
+    const images = await this.imagesService.createMany(
+      activityImages,
+      ImageType.Standard,
+      {
+        alt
+      }
+    )
+
+    let organizer_image: Image
+    if (organizerImage) {
+      organizer_image = await this.imagesService.createOne(
+        organizerImage,
+        ImageType.Standard,
+        {
+          alt
+        }
+      )
+    }
     return this.activitiesService.create({
       ...createActivityDto,
-      ...{ images }
+      ...{
+        images,
+        organizer_image
+      }
     })
   }
 
@@ -56,18 +79,19 @@ export class ActivitiesController {
    */
   @Get()
   async findAll(
-    @Query() { geo_radial, with_imin = '1', page, limit }: FindActivitiesDto
+    @Query()
+    { geo_radial, with_imin = '1', type = '', page, limit }: FindActivitiesDto
   ) {
     const intPage = parseInt(page)
     const intLimit = parseInt(limit)
 
     // Get local activities
-    const all = await this.activitiesService.findAll(geo_radial, {
+    const all = await this.activitiesService.findAll(geo_radial, type, {
       page: intPage,
       limit: intLimit
     })
 
-    if (with_imin === '1' && geo_radial) {
+    if (with_imin === '1' && geo_radial && (type === '' || type === 'class')) {
       // Get Imin activities
       const imin = await this.activitiesIminService.findAll({
         'geo[radial]': geo_radial,
