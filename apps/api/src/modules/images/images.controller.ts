@@ -9,8 +9,8 @@ export class ImagesController {
   constructor(private readonly imagesService: ImagesService) {}
 
   @Post()
-  @Uploads('images', UploadOptions.Required)
-  create(@Files() files: Storage.MultipartFile[]): Promise<Image[]> {
+  @Uploads('images[]', UploadOptions.Required)
+  create(@Files('images[]') files: Storage.MultipartFile[]): Promise<Image[]> {
     return this.imagesService.createMany(files)
   }
 

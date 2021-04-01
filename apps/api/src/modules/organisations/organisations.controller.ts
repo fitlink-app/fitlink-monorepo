@@ -28,12 +28,12 @@ export class OrganisationsController {
   @Uploads('avatar', UploadOptions.Nullable)
   @Post()
   async create(
-    @Files('avatar') files: Storage.MultipartFile[],
+    @Files('avatar') file: Storage.MultipartFile,
     @Body() createOrganisationDto: CreateOrganisationDto
   ) {
     let image = {}
-    if (files.length) {
-      const avatar = await this.imagesService.createOne(files[0])
+    if (file) {
+      const avatar = await this.imagesService.createOne(file)
       image = { avatar }
     }
     return this.organisationsService.create({

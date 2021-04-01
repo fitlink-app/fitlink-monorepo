@@ -153,7 +153,8 @@ describe('Activities', () => {
       url: '/activities',
       query: {
         page: '0',
-        limit: '20'
+        limit: '20',
+        with_imin: '0'
       },
       headers
     })
@@ -162,12 +163,57 @@ describe('Activities', () => {
     expect(result).toEqual(expect.arrayContaining(activityColumns))
   })
 
+  it(`GET /activities 200 Fetches real activities from the database with only two types`, async () => {
+    const data = await app.inject({
+      method: 'GET',
+      url: '/activities',
+      query: {
+        page: '0',
+        limit: '20',
+        with_imin: '0',
+        type: 'group,class'
+      },
+      headers
+    })
+
+    data.json().results.map((each) => {
+      expect(each.type == 'group' || each.type == 'class').toBe(true)
+    })
+  })
+
+  it(`GET /activities 400 Throws error when incorrect activity type is queried`, async () => {
+    const data = await app.inject({
+      method: 'GET',
+      url: '/activities',
+      query: {
+        page: '0',
+        limit: '20',
+        with_imin: '0',
+        type: 'group,yoga'
+      },
+      headers
+    })
+
+    expect(data.statusCode).toEqual(400)
+    expect(data.json().message).toContain('yoga does not exist')
+  })
+
   it(`POST /activities 201 Creates a new activity with images`, async () => {
     const data = await createActivityWithImages()
     expect(data.statusCode).toEqual(201)
     expect(data.json().name).toBeDefined()
     expect(data.json().images[0].url).toBeDefined()
     expect(data.json().images[1].url).toBeDefined()
+  })
+
+  it(`POST /activities 201 Creates a new activity with images including organizer image`, async () => {
+    const data = await createActivityWithImages(true)
+    //console.log( data.json() )
+    expect(data.statusCode).toEqual(201)
+    expect(data.json().name).toBeDefined()
+    expect(data.json().images[0].url).toBeDefined()
+    expect(data.json().images[1].url).toBeDefined()
+    expect(data.json().organizer_image.url).toBeDefined()
   })
 
   it(`DELETE /activities 200 A created activity can be deleted`, async () => {
@@ -185,7 +231,7 @@ describe('Activities', () => {
     expect(data.statusCode).toEqual(200)
   })
 
-  async function createActivityWithImages() {
+  async function createActivityWithImages(organizer = false) {
     const payload: CreateActivityDto = {
       name: 'My new activity',
       description: 'Long text...',
@@ -202,6 +248,11 @@ describe('Activities', () => {
 
     form.append('images[]', file1)
     form.append('images[]', file2)
+
+    if (organizer) {
+      const file3 = await readFile(__dirname + '/assets/900x611.png')
+      form.append('organizer_image', file3)
+    }
 
     Object.keys(payload).map((key: string) => {
       form.append(key, payload[key])

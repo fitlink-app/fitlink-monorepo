@@ -40,6 +40,10 @@ export class Activity extends CreatableEntity {
   @Column({ nullable: true })
   organizer_name: string
 
+  @OneToOne(() => Image, { nullable: true })
+  @JoinColumn()
+  organizer_image?: Image
+
   @Column({ nullable: true })
   organizer_url: string
 
@@ -59,10 +63,9 @@ export class Activity extends CreatableEntity {
   @ManyToOne(() => Team, (team) => team.activities, { nullable: true })
   team?: Team
 
-  @OneToOne(() => League, { nullable: true })
-  @JoinColumn()
+  @ManyToOne(() => League, { nullable: true })
   league?: League
 
-  @OneToMany(() => Image, null, { nullable: true })
+  @OneToMany(() => Image, (image) => image.activity)
   images: Image[]
 }
