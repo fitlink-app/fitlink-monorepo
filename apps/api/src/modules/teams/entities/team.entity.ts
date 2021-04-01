@@ -14,6 +14,7 @@ import {
 
 import { Activity } from '../../activities/entities/activity.entity'
 import { Image } from '../../images/entities/image.entity'
+import { League } from '../../leagues/entities/league.entity'
 import { Organisation } from '../../organisations/entities/organisation.entity'
 import { Reward } from '../../rewards/entities/reward.entity'
 import { TeamsInvitation } from '../../teams-invitations/entities/teams-invitation.entity'
@@ -68,4 +69,7 @@ export class Team {
   })
   @JoinTable()
   users: User[]
+
+  @OneToMany(() => League, (league) => league.team, { nullable: true })
+  leagues?: League[]
 }
