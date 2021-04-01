@@ -24,11 +24,11 @@ describe('Activities', () => {
       providers: []
     })
 
-    // Retrieve an organisation to test with
-    organisation = await getOrganisation()
-
     // Retrieve a team to test with
-    team = await getTeam(organisation)
+    team = await getTeam()
+
+    // Get the organisation to test with
+    organisation = team.organisation
 
     // Superadmin
     superadminHeaders = getAuthHeaders({ spr: true })
@@ -272,17 +272,12 @@ describe('Activities', () => {
     expect(result.message).toContain('invitation can no longer be used')
   })
 
-  async function getOrganisation() {
+  async function getTeam() {
     const connection = getConnection()
-    const repository = connection.getRepository(Organisation)
+    const repository = connection.getRepository(Team)
     return repository.findOne({
-      relations: ['teams']
+      relations: ['organisation']
     })
-  }
-
-  async function getTeam(organisation: Organisation) {
-    const team = organisation.teams[0]
-    return team
   }
 
   function createInvitation(
