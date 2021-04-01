@@ -81,7 +81,8 @@ export class ActivitiesService {
     // Query by 1 or more types
     if (type) {
       const types = this.getTypesFromString(type)
-      query.where('activity.type IN (:...types)', { types })
+      const where = geoRadial ? 'andWhere' : 'where'
+      query[where]('activity.type IN (:...types)', { types })
     }
 
     const [results, total] = await query.getManyAndCount()
