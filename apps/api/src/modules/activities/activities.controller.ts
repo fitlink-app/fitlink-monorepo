@@ -23,6 +23,7 @@ import { Public } from '../../decorators/public.decorator'
 import { AuthGuard } from '../../guards/auth.guard'
 import { ApiBearerAuth } from '@nestjs/swagger'
 import { Image, ImageType } from '../images/entities/image.entity'
+import { IminServiceParams } from './types/imin'
 
 @Public()
 @UseGuards(AuthGuard)
@@ -106,12 +107,18 @@ export class ActivitiesController {
 
     if (with_imin === '1' && geo_radial && (type === '' || type === 'class')) {
       // Get Imin activities
-      const imin = await this.activitiesIminService.findAll({
+      const params: IminServiceParams = {
         'geo[radial]': geo_radial,
         mode: 'discovery-geo',
         page: intPage + 1,
         limit: intLimit
-      })
+      }
+
+      if (keyword !== '') {
+        params['organizerName[textSearch]'] = keyword
+      }
+
+      const imin = await this.activitiesIminService.findAll(params)
 
       return ActivitiesController.mergeAndPaginate(all, imin, {
         page: intPage,
