@@ -89,7 +89,7 @@ export class ActivitiesService {
     // Query by keyword in tsvector
     if (keyword) {
       const where = geoRadial || type ? 'andWhere' : 'where'
-      query[where]('activity.tsv @@ to_tsquery(:keyword)', {
+      query[where]('activity.tsv @@ plainto_tsquery(:keyword)', {
         keyword: keyword.toLowerCase()
       })
     }

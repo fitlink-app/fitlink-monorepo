@@ -193,7 +193,7 @@ describe('Activities', () => {
         limit: '20',
         with_imin: '0',
         type: 'group,class',
-        keyword: 'extreme'
+        keyword: 'extreme extreme'
       },
       headers
     })
