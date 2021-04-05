@@ -16,6 +16,7 @@ import { OrganisationsInvitationsUpdate1616878363853 } from '../database/migrati
 import { TeamsInvitationsUpdates1616935109963 } from '../database/migrations/1616935109963-TeamsInvitationsUpdates'
 import { AddTeamsUpdateLeagueSport1617030200766 } from '../database/migrations/1617030200766-AddTeamsLeagues'
 import { ActivitiesUpdates1617277086715 } from '../database/migrations/1617277086715-ActivitiesUpdates'
+import { ActivityTsVector1617639276042 } from '../database/migrations/1617639276042-ActivityTsVector'
 
 export default [
   InitializeSchema1614887523112,
@@ -30,5 +31,6 @@ export default [
   OrganisationsInvitationsUpdate1616878363853,
   TeamsInvitationsUpdates1616935109963,
   AddTeamsUpdateLeagueSport1617030200766,
-  ActivitiesUpdates1617277086715
+  ActivitiesUpdates1617277086715,
+  ActivityTsVector1617639276042
 ]
