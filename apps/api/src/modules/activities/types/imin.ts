@@ -26,6 +26,7 @@ export interface IminServiceParams {
   'startDate[gte]'?: string //ISO-8601 2018-07-20T11:00:00Z
   'startDate[lte]'?: string //ISO-8601 2018-07-20T12:00:00Z
   'ageRange[includeRange]'?: string // min, max (or just min)
+  'organizerName[textSearch]'?: string
   page: number
   limit: number
   genderRestriction?: 'oa:NoRestriction' | 'oa:MaleOnly' | 'oa:FemaleOnly'

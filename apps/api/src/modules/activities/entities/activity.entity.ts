@@ -65,7 +65,7 @@ export class Activity extends CreatableEntity {
     type: 'tsvector'
   })
   @Index('activity_tsv_index', { synchronize: false })
-  tsv: string
+  tsv?: string
 
   @ManyToOne(() => Team, (team) => team.activities, { nullable: true })
   team?: Team
