@@ -25,6 +25,12 @@ export class FindActivitiesDto {
   type: string
 
   @ApiProperty({
+    required: false
+  })
+  @IsOptional()
+  keyword: string
+
+  @ApiProperty({
     required: false,
     default: '0'
   })

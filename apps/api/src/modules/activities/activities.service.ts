@@ -1,4 +1,4 @@
-import { Brackets, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { CreateActivityDto } from './dto/create-activity.dto'
@@ -55,6 +55,7 @@ export class ActivitiesService {
   async findAll(
     geoRadial: string,
     type: string,
+    keyword: string,
     options: PaginationOptionsInterface
   ): Promise<Pagination<Activity>> {
     let query = this.activityRepository
@@ -83,6 +84,14 @@ export class ActivitiesService {
       const types = this.getTypesFromString(type)
       const where = geoRadial ? 'andWhere' : 'where'
       query[where]('activity.type IN (:...types)', { types })
+    }
+
+    // Query by keyword in tsvector
+    if (keyword) {
+      const where = geoRadial || type ? 'andWhere' : 'where'
+      query[where]('activity.tsv @@ plainto_tsquery(:keyword)', {
+        keyword: keyword.toLowerCase()
+      })
     }
 
     const [results, total] = await query.getManyAndCount()
