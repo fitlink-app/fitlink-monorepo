@@ -5,7 +5,8 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  JoinColumn
+  JoinColumn,
+  Index
 } from 'typeorm'
 
 import { Geometry } from 'geojson'
@@ -59,6 +60,12 @@ export class Activity extends CreatableEntity {
     default: ActivityType.Class
   })
   type: string
+
+  @Column({
+    type: 'tsvector'
+  })
+  @Index('activity_tsv_index', { synchronize: false })
+  tsv: string
 
   @ManyToOne(() => Team, (team) => team.activities, { nullable: true })
   team?: Team

@@ -81,16 +81,28 @@ export class ActivitiesController {
   @Get()
   async findAll(
     @Query()
-    { geo_radial, with_imin = '1', type = '', page, limit }: FindActivitiesDto
+    {
+      geo_radial,
+      with_imin = '1',
+      type = '',
+      keyword = '',
+      page,
+      limit
+    }: FindActivitiesDto
   ) {
     const intPage = parseInt(page)
     const intLimit = parseInt(limit)
 
     // Get local activities
-    const all = await this.activitiesService.findAll(geo_radial, type, {
-      page: intPage,
-      limit: intLimit
-    })
+    const all = await this.activitiesService.findAll(
+      geo_radial,
+      type,
+      keyword,
+      {
+        page: intPage,
+        limit: intLimit
+      }
+    )
 
     if (with_imin === '1' && geo_radial && (type === '' || type === 'class')) {
       // Get Imin activities
