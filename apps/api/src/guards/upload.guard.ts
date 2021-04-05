@@ -51,7 +51,7 @@ export class UploadGuard implements CanActivate {
     )
 
     let body = (req.body as NodeJS.Dict<string>) || {}
-    req.incomingFiles = []
+    req.incomingFiles = req.incomingFiles || []
 
     // Async iteratorable of files
     for await (const file of files) {
@@ -98,6 +98,8 @@ async function consumeAndCheckFileSize(file) {
   if (buffer.byteLength > 1024 * 1024 * 10) {
     throw new BadRequestException('File too large')
   }
+
+  return buffer
 }
 
 /**

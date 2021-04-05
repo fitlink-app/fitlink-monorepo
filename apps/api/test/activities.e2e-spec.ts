@@ -208,7 +208,6 @@ describe('Activities', () => {
 
   it(`POST /activities 201 Creates a new activity with images including organizer image`, async () => {
     const data = await createActivityWithImages(true)
-    //console.log( data.json() )
     expect(data.statusCode).toEqual(201)
     expect(data.json().name).toBeDefined()
     expect(data.json().images[0].url).toBeDefined()

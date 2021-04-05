@@ -36,7 +36,7 @@ export class ActivitiesController {
   ) {}
 
   @Post()
-  @Uploads('images', 'organizer_image', UploadOptions.Nullable)
+  @Uploads('images[]', 'organizer_image', UploadOptions.Nullable)
   async create(
     @Files('images[]') activityImages: Storage.MultipartFile[],
     @Files('organizer_image') organizerImage: Storage.MultipartFile,
@@ -61,6 +61,7 @@ export class ActivitiesController {
         }
       )
     }
+
     return this.activitiesService.create({
       ...createActivityDto,
       ...{

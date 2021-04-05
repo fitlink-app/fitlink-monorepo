@@ -1,18 +1,28 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsUrl, IsLatLong, IsArray, IsOptional } from 'class-validator'
+import {
+  IsUrl,
+  IsLatLong,
+  IsArray,
+  IsOptional,
+  IsString
+} from 'class-validator'
 import { Image } from '../../images/entities/image.entity'
 
 export class CreateActivityDto {
   @ApiProperty()
+  @IsString()
   name: string
 
   @ApiProperty()
+  @IsString()
   description: string
 
   @ApiProperty()
+  @IsString()
   date: string
 
   @ApiProperty()
+  @IsString()
   meeting_point_text: string
 
   @ApiProperty()
