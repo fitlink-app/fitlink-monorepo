@@ -7,10 +7,11 @@ import { Team } from './entities/team.entity'
 import { AuthModule } from '../auth/auth.module'
 import { ConfigModule } from '@nestjs/config'
 import { ImagesModule } from '../images/images.module'
+import { Organisation } from '../organisations/entities/organisation.entity'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Team]),
+    TypeOrmModule.forFeature([Team, Organisation]),
     AuthModule,
     ConfigModule,
     HttpModule,
