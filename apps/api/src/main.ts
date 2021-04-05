@@ -4,6 +4,7 @@ import {
   FastifyAdapter,
   NestFastifyApplication
 } from '@nestjs/platform-fastify'
+import fastifyMultipart from 'fastify-multipart'
 import { ConfigService } from '@nestjs/config'
 import { ApiModule } from './api.module'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
@@ -17,9 +18,12 @@ import * as chalk from 'chalk'
 declare const module: any
 
 async function bootstrap() {
+  const fastifyAdapter = new FastifyAdapter()
+  fastifyAdapter.register(fastifyMultipart)
+
   const app = await NestFactory.create<NestFastifyApplication>(
     ApiModule,
-    new FastifyAdapter()
+    fastifyAdapter
   )
   app.setGlobalPrefix('api/v1')
 
