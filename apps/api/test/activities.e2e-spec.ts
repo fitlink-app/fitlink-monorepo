@@ -181,6 +181,26 @@ describe('Activities', () => {
     })
   })
 
+  it(`GET /activities 200 Fetches real activities from the database by keyword`, async () => {
+    await createActivityWithImages(false, {
+      name: 'EXTREME GYMING'
+    })
+    const data = await app.inject({
+      method: 'GET',
+      url: '/activities',
+      query: {
+        page: '0',
+        limit: '20',
+        with_imin: '0',
+        type: 'group,class',
+        keyword: 'extreme extreme'
+      },
+      headers
+    })
+
+    expect(data.json().results[0].name).toEqual('EXTREME GYMING')
+  })
+
   it(`GET /activities 400 Throws error when incorrect activity type is queried`, async () => {
     const data = await app.inject({
       method: 'GET',
@@ -208,7 +228,6 @@ describe('Activities', () => {
 
   it(`POST /activities 201 Creates a new activity with images including organizer image`, async () => {
     const data = await createActivityWithImages(true)
-    //console.log( data.json() )
     expect(data.statusCode).toEqual(201)
     expect(data.json().name).toBeDefined()
     expect(data.json().images[0].url).toBeDefined()
@@ -231,7 +250,10 @@ describe('Activities', () => {
     expect(data.statusCode).toEqual(200)
   })
 
-  async function createActivityWithImages(organizer = false) {
+  async function createActivityWithImages(
+    organizer = false,
+    override: NodeJS.Dict<string> = {}
+  ) {
     const payload: CreateActivityDto = {
       name: 'My new activity',
       description: 'Long text...',
@@ -239,7 +261,8 @@ describe('Activities', () => {
       meeting_point_text: 'The place text',
       date: 'Monday at 5pm',
       organizer_name: 'Fitlink',
-      organizer_url: 'https://fitlinkapp.com'
+      organizer_url: 'https://fitlinkapp.com',
+      ...override
     }
 
     const form = new FormData()

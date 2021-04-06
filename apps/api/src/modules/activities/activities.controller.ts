@@ -23,6 +23,7 @@ import { Public } from '../../decorators/public.decorator'
 import { AuthGuard } from '../../guards/auth.guard'
 import { ApiBearerAuth } from '@nestjs/swagger'
 import { Image, ImageType } from '../images/entities/image.entity'
+import { IminServiceParams } from './types/imin'
 
 @Public()
 @UseGuards(AuthGuard)
@@ -36,7 +37,7 @@ export class ActivitiesController {
   ) {}
 
   @Post()
-  @Uploads('images', 'organizer_image', UploadOptions.Nullable)
+  @Uploads('images[]', 'organizer_image', UploadOptions.Nullable)
   async create(
     @Files('images[]') activityImages: Storage.MultipartFile[],
     @Files('organizer_image') organizerImage: Storage.MultipartFile,
@@ -61,6 +62,7 @@ export class ActivitiesController {
         }
       )
     }
+
     return this.activitiesService.create({
       ...createActivityDto,
       ...{
@@ -80,25 +82,43 @@ export class ActivitiesController {
   @Get()
   async findAll(
     @Query()
-    { geo_radial, with_imin = '1', type = '', page, limit }: FindActivitiesDto
+    {
+      geo_radial,
+      with_imin = '1',
+      type = '',
+      keyword = '',
+      page,
+      limit
+    }: FindActivitiesDto
   ) {
     const intPage = parseInt(page)
     const intLimit = parseInt(limit)
 
     // Get local activities
-    const all = await this.activitiesService.findAll(geo_radial, type, {
-      page: intPage,
-      limit: intLimit
-    })
+    const all = await this.activitiesService.findAll(
+      geo_radial,
+      type,
+      keyword,
+      {
+        page: intPage,
+        limit: intLimit
+      }
+    )
 
     if (with_imin === '1' && geo_radial && (type === '' || type === 'class')) {
       // Get Imin activities
-      const imin = await this.activitiesIminService.findAll({
+      const params: IminServiceParams = {
         'geo[radial]': geo_radial,
         mode: 'discovery-geo',
         page: intPage + 1,
         limit: intLimit
-      })
+      }
+
+      if (keyword !== '') {
+        params['organizerName[textSearch]'] = keyword
+      }
+
+      const imin = await this.activitiesIminService.findAll(params)
 
       return ActivitiesController.mergeAndPaginate(all, imin, {
         page: intPage,

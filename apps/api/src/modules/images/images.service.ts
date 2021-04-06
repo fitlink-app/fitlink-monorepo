@@ -1,6 +1,6 @@
 import { FindOneOptions, Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Injectable } from '@nestjs/common'
+import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { Image, ImageType, uploadVariants } from './entities/image.entity'
 import {
   S3Client,
@@ -105,7 +105,15 @@ export class ImagesService {
           fit
         )
         const name = `${fileName}-${type}.jpg`
-        const url = await this.upload(buffer, name)
+        let url = ''
+        try {
+          url = await this.upload(buffer, name)
+        } catch (e) {
+          throw new InternalServerErrorException(
+            'Cannot upload images at this time.'
+          )
+        }
+
         const dimensions =
           column === 'url'
             ? {
