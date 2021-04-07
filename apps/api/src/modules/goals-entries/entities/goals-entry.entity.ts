@@ -1,6 +1,5 @@
 import { CreatableEntity } from '../../../classes/entity/creatable'
-import { PrimaryGeneratedColumn, Column, Entity, ManyToOne } from 'typeorm'
-
+import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, JoinColumn } from 'typeorm'
 import { User } from '../../users/entities/user.entity'
 
 @Entity()
@@ -54,6 +53,9 @@ export class GoalsEntry extends CreatableEntity {
   })
   target_sleep_hours: number
 
-  @ManyToOne(() => User, (user) => user.goals_entries)
+  @ManyToOne(() => User, (user) => user.goals_entries, {
+    eager: true
+  })
+  @JoinColumn()
   user: User
 }

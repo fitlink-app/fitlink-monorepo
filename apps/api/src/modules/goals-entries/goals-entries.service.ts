@@ -1,26 +1,59 @@
 import { Injectable } from '@nestjs/common'
-import { CreateGoalsEntryDto } from './dto/create-goals-entry.dto'
-import { UpdateGoalsEntryDto } from './dto/update-goals-entry.dto'
+import { RecreateGoalsEntryDto } from './dto/update-goals-entry.dto'
+import { GoalsEntry } from './entities/goals-entry.entity'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
+import { User } from '../users/entities/user.entity'
 
 @Injectable()
 export class GoalsEntriesService {
-  create(createGoalsEntryDto: CreateGoalsEntryDto) {
-    return 'This action adds a new goalsEntry'
-  }
+  constructor(
+    @InjectRepository(GoalsEntry)
+    private goalsEntryRepository: Repository<GoalsEntry>
+  ) {}
 
-  findAll() {
-    return `This action returns all goalsEntries`
-  }
+  /**
+   * Creates goals entry
+   * @param userId
+   * @param goalsEntryDto
+   */
+    async create(
+        userId: string,
+        goalsEntryDto: RecreateGoalsEntryDto
+      ): Promise<GoalsEntry> {
 
-  findOne(id: number) {
-    return `This action returns a #${id} goalsEntry`
-  }
+      const { target_calories, target_steps, target_floors_climbed, target_water_litres, target_sleep_hours, ...rest} = goalsEntryDto
 
-  update(id: number, updateGoalsEntryDto: UpdateGoalsEntryDto) {
-    return `This action updates a #${id} goalsEntry`
-  }
+      const linkedUser = new User()
+      linkedUser.id = userId
 
-  remove(id: number) {
-    return `This action removes a #${id} goalsEntry`
+      let goalsEntry = new GoalsEntry()
+      goalsEntry.user = linkedUser
+      goalsEntry = Object.assign(goalsEntry,
+        target_calories,
+        target_steps,
+        target_floors_climbed,
+        target_water_litres,
+        target_sleep_hours
+      )
+
+      const result = await this.goalsEntryRepository.findOne(goalsEntry)
+
+      if (rest) {
+        goalsEntry = Object.assign(goalsEntry, {...rest})
+      }
+
+      return await this.goalsEntryRepository.save({
+        ...result,
+        ...goalsEntry
+      })
+    }
+
+  /**
+   * Find a specific goals entry
+   */
+    async findOne(goalsEntry) {
+    return await this.goalsEntryRepository.findOne(goalsEntry)
+    }
+
   }
-}
