@@ -7,7 +7,8 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards
+  UseGuards,
+  Request
 } from '@nestjs/common'
 import { ActivitiesIminService } from './activities.imin.service'
 import { ActivitiesService } from './activities.service'
@@ -134,11 +135,39 @@ export class ActivitiesController {
     return this.activitiesService.findOne(id)
   }
 
+  @Uploads('images[]', 'organizer_image', UploadOptions.Nullable)
   @Put(':id')
-  update(
+  async update(
+    @Files('images[]') activityImages: Storage.MultipartFile[],
+    @Files('organizer_image') organizerImage: Storage.MultipartFile,
     @Param('id') id: string,
     @Body() updateActivityDto: UpdateActivityDto
   ) {
+    const alt = updateActivityDto.organizer_name || updateActivityDto.name
+    const images = await this.imagesService.createMany(
+      activityImages,
+      ImageType.Standard,
+      {
+        alt
+      }
+    )
+
+    let organizer_image: Image
+    if (organizerImage) {
+      organizer_image = await this.imagesService.createOne(
+        organizerImage,
+        ImageType.Standard,
+        {
+          alt
+        }
+      )
+      updateActivityDto.organizer_image = organizer_image
+    }
+
+    if (images.length) {
+      updateActivityDto.images = images
+    }
+
     return this.activitiesService.update(id, updateActivityDto)
   }
 
