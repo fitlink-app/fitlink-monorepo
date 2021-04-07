@@ -5,7 +5,8 @@ import { Image, ImageType, uploadVariants } from './entities/image.entity'
 import {
   S3Client,
   PutObjectCommand,
-  PutObjectCommandInput
+  PutObjectCommandInput,
+  S3ClientConfig
 } from '@aws-sdk/client-s3'
 import { ConfigService } from '@nestjs/config'
 import { resizeFromBuffer } from './helpers/resize'
@@ -62,15 +63,25 @@ export class ImagesService {
   }
 
   async upload(file: Buffer, filePath: string) {
-    const client = new S3Client({
-      credentials: {
-        accessKeyId: this.configService.get('S3_ACCESS_KEY_ID'),
-        secretAccessKey: this.configService.get('S3_SECRET_ACCESS_KEY')
-      },
-      region: this.configService.get('S3_REGION'),
-      endpoint: this.configService.get('S3_ENDPOINT'),
-      forcePathStyle: true
-    })
+    let config: S3ClientConfig
+    if (this.configService.get('S3_USE_ACCESS_POINT') === '1') {
+      config = {
+        region: this.configService.get('S3_REGION')
+      }
+    } else {
+      config = {
+        credentials: {
+          accessKeyId: this.configService.get('S3_ACCESS_KEY_ID'),
+          secretAccessKey: this.configService.get('S3_SECRET_ACCESS_KEY')
+        },
+        region: this.configService.get('S3_REGION'),
+        endpoint: this.configService.get('S3_ENDPOINT'),
+        forcePathStyle: true
+      }
+    }
+
+    const client = new S3Client(config)
+    console.log(config)
 
     const input: PutObjectCommandInput = {
       Bucket: this.configService.get('S3_BUCKET'),
@@ -84,11 +95,13 @@ export class ImagesService {
 
     await client.send(new PutObjectCommand(input))
 
-    return [
-      this.configService.get('S3_ENDPOINT'),
-      this.configService.get('S3_BUCKET'),
-      filePath
-    ].join('/')
+    const url = [this.configService.get('S3_PUBLIC_ENDPOINT'), filePath].join(
+      '/'
+    )
+
+    console.log(url)
+
+    return url
   }
 
   async generateVariants(
