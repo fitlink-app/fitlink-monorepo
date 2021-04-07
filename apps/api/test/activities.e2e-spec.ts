@@ -226,6 +226,66 @@ describe('Activities', () => {
     expect(data.json().images[1].url).toBeDefined()
   })
 
+  it(`PUT /activities/:id 201 Updates an new activity with images and removes a single image`, async () => {
+    const data = await createActivityWithImages()
+    const json = data.json()
+    const { form } = await getPayloadWithImages(true, {
+      __deleteImages: [json.images[0].id].join(',')
+    })
+
+    await app.inject({
+      method: 'PUT',
+      url: `/activities/${json.id}`,
+      headers: {
+        ...headers,
+        ...form.getHeaders()
+      },
+      payload: form
+    })
+
+    const get = await app.inject({
+      method: 'GET',
+      url: `/activities/${json.id}`,
+      headers: {
+        ...headers
+      }
+    })
+
+    expect(get.json().images[0].url).toBeDefined()
+    expect(get.json().images[1].url).toBeDefined()
+    expect(get.json().images[2].url).toBeDefined()
+    expect(get.json().images[3]).toBeUndefined()
+  })
+
+  it(`PUT /activities/:id 201 Updates an new activity with images and replaces existing images`, async () => {
+    const data = await createActivityWithImages()
+    const json = data.json()
+    const form = await getFormWithFile({
+      __replaceImages: '1'
+    })
+
+    await app.inject({
+      method: 'PUT',
+      url: `/activities/${json.id}`,
+      headers: {
+        ...headers,
+        ...form.getHeaders()
+      },
+      payload: form
+    })
+
+    const get = await app.inject({
+      method: 'GET',
+      url: `/activities/${json.id}`,
+      headers: {
+        ...headers
+      }
+    })
+
+    expect(get.json().images[0].url).toBeDefined()
+    expect(get.json().images[1]).toBeUndefined()
+  })
+
   it(`POST /activities 201 Creates a new activity with images including organizer image`, async () => {
     const data = await createActivityWithImages(true)
     expect(data.statusCode).toEqual(201)
@@ -254,6 +314,25 @@ describe('Activities', () => {
     organizer = false,
     override: NodeJS.Dict<string> = {}
   ) {
+    const { form } = await getPayloadWithImages(organizer, override)
+
+    const data = await app.inject({
+      method: 'POST',
+      url: '/activities',
+      payload: form,
+      headers: {
+        ...form.getHeaders(),
+        ...headers
+      }
+    })
+
+    return data
+  }
+
+  async function getPayloadWithImages(
+    organizer = false,
+    override: NodeJS.Dict<any> = {}
+  ) {
     const payload: CreateActivityDto = {
       name: 'My new activity',
       description: 'Long text...',
@@ -281,16 +360,19 @@ describe('Activities', () => {
       form.append(key, payload[key])
     })
 
-    const data = await app.inject({
-      method: 'POST',
-      url: '/activities',
-      payload: form,
-      headers: {
-        ...form.getHeaders(),
-        ...headers
-      }
-    })
+    return {
+      payload,
+      form
+    }
+  }
 
-    return data
+  async function getFormWithFile(payload: NodeJS.Dict<any> = {}) {
+    const form = new FormData()
+    const file = await readFile(__dirname + '/assets/1200x1200.png')
+    form.append('images[]', file)
+    Object.keys(payload).map((key: string) => {
+      form.append(key, payload[key])
+    })
+    return form
   }
 })

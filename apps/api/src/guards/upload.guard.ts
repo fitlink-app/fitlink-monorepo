@@ -79,7 +79,8 @@ export class UploadGuard implements CanActivate {
 function checkFileName(file, filenames) {
   if (
     !filenames.includes(file.fieldname) &&
-    !filenames.includes(`${file.fieldname}[]`)
+    !filenames.includes(`${file.fieldname}[]`) &&
+    !filenames.includes(`${file.fieldname}[0]`)
   ) {
     throw new BadRequestException('Unexpected file')
   }
@@ -117,7 +118,6 @@ function getBodyFromFile(file) {
     if (each[0] && each[0].file) {
       return true
     }
-
     if (!each.file) {
       body[key] = each.value
     }

@@ -103,11 +103,40 @@ export class ActivitiesService {
   }
 
   findOne(id: string) {
-    return this.activityRepository.findOne(id)
+    return this.activityRepository.findOne(id, {
+      relations: ['organizer_image', 'images']
+    })
   }
 
-  update(id: string, updateActivityDto: UpdateActivityDto) {
-    return this.activityRepository.update({ id }, updateActivityDto)
+  async update(id: string, updateActivityDto: UpdateActivityDto) {
+    const { meeting_point } = updateActivityDto
+    const updateData = updateActivityDto as any
+    if (meeting_point) {
+      updateData.meeting_point = {
+        type: 'Point',
+        coordinates: meeting_point.split(',')
+      }
+    }
+
+    // Merge existing images with new images
+    if (
+      updateData.images &&
+      updateData.images.length &&
+      !updateData.__replaceImages
+    ) {
+      const activity = await this.findOne(id)
+      const deleteImages = updateData.__deleteImages
+        ? updateData.__deleteImages.split(',')
+        : []
+      updateData.images = [
+        ...activity.images.filter((image) => {
+          return !deleteImages.includes(image.id)
+        }),
+        ...updateData.images
+      ]
+    }
+
+    return this.activityRepository.save({ id, ...updateData })
   }
 
   /**
