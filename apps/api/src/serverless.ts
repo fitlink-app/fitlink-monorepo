@@ -9,6 +9,7 @@ import { UploadGuard } from './guards/upload.guard'
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard'
 import { IamGuard } from './guards/iam.guard'
 import { FastifyServerOptions, FastifyInstance, fastify } from 'fastify'
+import fastifyMultipart from 'fastify-multipart'
 import { ConfigService } from '@nestjs/config'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import * as awsLambdaFastify from 'aws-lambda-fastify'
@@ -31,9 +32,13 @@ let cachedNestApp: NestApp
 async function bootstrapServer(): Promise<NestApp> {
   const serverOptions: FastifyServerOptions = { logger: true }
   const instance: FastifyInstance = fastify(serverOptions)
+
+  const fastifyAdapter = new FastifyAdapter(instance)
+  fastifyAdapter.register(fastifyMultipart)
+
   const app = await NestFactory.create<NestFastifyApplication>(
     ApiModule,
-    new FastifyAdapter(instance),
+    fastifyAdapter,
     { logger: !process.env.AWS_EXECUTION_ENV ? new Logger() : console }
   )
   app.setGlobalPrefix(process.env.API_PREFIX)
