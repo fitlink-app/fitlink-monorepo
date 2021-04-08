@@ -23,6 +23,12 @@ jobs:
       EMAIL_DEBUG: 0
       ENABLE_SWAGGER: 1
 
+      # S3 configuration uses ARN / access point for VPC
+      S3_BUCKET: arn:aws:s3:eu-west-2:036044316251:accesspoint/develop-nest-fitlinkapp-access-point
+      S3_USE_ACCESS_POINT: '1'
+      S3_REGION: eu-west-2
+      S3_PUBLIC_ENDPOINT: https://develop-nest-fitlinkapp.s3.eu-west-2.amazonaws.com
+
     steps:
       - uses: actions/checkout@v2
 
