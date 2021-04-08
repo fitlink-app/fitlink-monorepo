@@ -66,7 +66,8 @@ export class ImagesService {
     let config: S3ClientConfig
     if (this.configService.get('S3_USE_ACCESS_POINT') === '1') {
       config = {
-        region: this.configService.get('S3_REGION')
+        region: this.configService.get('S3_REGION'),
+        endpoint: this.configService.get('S3_ENDPOINT')
       }
     } else {
       config = {
