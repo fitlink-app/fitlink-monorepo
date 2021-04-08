@@ -5,7 +5,6 @@ import { Connection, getConnection, Repository } from 'typeorm'
 import { GoalsEntriesModule } from '../src/modules/goals-entries/goals-entries.module'
 import { getAuthHeaders } from './helpers/auth'
 import { RecreateGoalsEntryDto } from '../src/modules/goals-entries/dto/update-goals-entry.dto'
-import { CreateGoalsEntryDto } from '../src/modules/goals-entries/dto/create-goals-entry.dto'
 
 describe('GoalsEntries', () => {
   let app: NestFastifyApplication
@@ -28,12 +27,6 @@ describe('GoalsEntries', () => {
       return ({
         userId: each.user.id,
 
-        target_calories: each.user.goal_calories,
-        target_steps: each.user.goal_steps,
-        target_floors_climbed: each.user.goal_floors_climbed,
-        target_water_litres: each.user.goal_water_litres,
-        target_sleep_hours: each.user.goal_sleep_hours,
-
         current_calories: 500,
         current_steps: 10000,
         current_floors_climbed: 5,
@@ -43,38 +36,24 @@ describe('GoalsEntries', () => {
     })
   })
 
-  // Trying to create a new goals entry with complete "target_" data should result in 201 created
-  it(`/POST (201) `, async () => {
+  // Trying to create a new goals entry should result in 201 created
+  it(`/POST (201) Trying to create a new goals entry should result in 201 created`, async () => {
     const userData = data.pop()
     const userAuthHeaders = getAuthHeaders({}, userData.userId)
-    const  payload = {
-      target_calories: userData.target_calories,
-      target_steps: userData.target_steps,
-      target_floors_climbed: userData.target_floors_climbed,
-      target_water_litres: userData.target_water_litres,
-      target_sleep_hours: userData.target_sleep_hours,
-    } as CreateGoalsEntryDto
     const result = await app.inject({
       method: 'POST',
       url: `/goals`,
       headers: userAuthHeaders,
-      payload
     })
     expect(result.statusCode).toEqual(201)
     expect(result.statusMessage).toEqual('Created')
   })
 
-    // Trying to update goals entry with complete "target_" and "current_" data should result in 201 created (due to creating a new entry anyway)
-    it(`/POST (201) `, async () => {
+    // Trying to update goals entry with complete "current_" data should result in 201 created (due to creating a new entry anyway)
+    it(`/POST (201) Trying to update goals entry with complete "current_" data should result in 201 created (due to creating a new entry anyway)`, async () => {
       const userData = data.pop()
       const userAuthHeaders = getAuthHeaders({}, userData.userId)
       const  payload = {
-        target_calories: userData.target_calories,
-        target_steps: userData.target_steps,
-        target_floors_climbed: userData.target_floors_climbed,
-        target_water_litres: userData.target_water_litres,
-        target_sleep_hours: userData.target_sleep_hours,
-
         current_calories: userData.current_calories,
         current_steps: userData.current_steps,
         current_floors_climbed: userData.target_floors_climbed,
@@ -92,16 +71,10 @@ describe('GoalsEntries', () => {
     })
 
     // Trying to update goals entry with part "current_" data should result in 201 created (due to creating a new entry anyway)
-    it(`/POST (201) `, async () => {
+    it(`/POST (201) Trying to update goals entry with part "current_" data should result in 201 created (due to creating a new entry anyway)`, async () => {
       const userData = data.pop()
       const userAuthHeaders = getAuthHeaders({}, userData.userId)
       const  payload = {
-        target_calories: userData.target_calories,
-        target_steps: userData.target_steps,
-        target_floors_climbed: userData.target_floors_climbed,
-        target_water_litres: userData.target_water_litres,
-        target_sleep_hours: userData.target_sleep_hours,
-
         current_calories: userData.current_calories,
         current_steps: userData.current_steps,
         current_floors_climbed: userData.target_floors_climbed,

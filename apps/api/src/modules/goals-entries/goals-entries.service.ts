@@ -4,6 +4,7 @@ import { GoalsEntry } from './entities/goals-entry.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
+import { format } from "date-fns";
 
 @Injectable()
 export class GoalsEntriesService {
@@ -22,25 +23,18 @@ export class GoalsEntriesService {
         goalsEntryDto: RecreateGoalsEntryDto
       ): Promise<GoalsEntry> {
 
-      const { target_calories, target_steps, target_floors_climbed, target_water_litres, target_sleep_hours, ...rest} = goalsEntryDto
-
       const linkedUser = new User()
       linkedUser.id = userId
 
       let goalsEntry = new GoalsEntry()
       goalsEntry.user = linkedUser
-      goalsEntry = Object.assign(goalsEntry,
-        target_calories,
-        target_steps,
-        target_floors_climbed,
-        target_water_litres,
-        target_sleep_hours
-      )
+      goalsEntry.day = parseInt(format(new Date(), 'Y'))
+      goalsEntry.year = parseInt(format(new Date(), 'd'))
 
       const result = await this.goalsEntryRepository.findOne(goalsEntry)
 
-      if (rest) {
-        goalsEntry = Object.assign(goalsEntry, {...rest})
+      if (goalsEntryDto) {
+        goalsEntry = Object.assign(goalsEntry, {...goalsEntryDto})
       }
 
       return await this.goalsEntryRepository.save({
