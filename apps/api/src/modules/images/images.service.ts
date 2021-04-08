@@ -94,13 +94,16 @@ export class ImagesService {
       ACL: 'public-read'
     }
 
-    await client.send(new PutObjectCommand(input))
+    try {
+      await client.send(new PutObjectCommand(input))
+    } catch (e) {
+      console.error(e)
+      throw new InternalServerErrorException(`S3 put error: ${e.toString()}`)
+    }
 
     const url = [this.configService.get('S3_PUBLIC_ENDPOINT'), filePath].join(
       '/'
     )
-
-    console.log(url)
 
     return url
   }
