@@ -9,7 +9,6 @@ plugins:
   - serverless-offline
   - serverless-dotenv-plugin
   - serverless-deployment-bucket
-  - serverless-domain-manager
 
 package:
   exclude:
@@ -41,6 +40,17 @@ provider:
   deploymentBucket:
     name: fitlink-nest-serverless-deployment-dev-bucket
     serverSideEncryption: AES256
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+          - s3:PutObject
+          Resource: "**arn:aws:s3:::develop-nest-fitlinkapp**/*"
+        - Effect: "Deny"
+          Action:
+            - s3:DeleteObject
+          Resource: "arn:aws:s3:::**arn:aws:s3:::develop-nest-fitlinkapp**/*"
 
 functions:
   main:
@@ -56,6 +66,7 @@ functions:
         - subnet-0ca95540
         - subnet-3b79d741
         - subnet-449bf92d
+
   migrate:
     handler: dist/apps/api/serverless.migrate
     vpc:
