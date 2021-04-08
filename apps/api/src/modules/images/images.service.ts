@@ -63,22 +63,14 @@ export class ImagesService {
   }
 
   async upload(file: Buffer, filePath: string) {
-    let config: S3ClientConfig
-    if (this.configService.get('S3_USE_ACCESS_POINT') === '1') {
-      config = {
-        region: this.configService.get('S3_REGION'),
-        endpoint: this.configService.get('S3_ENDPOINT')
-      }
-    } else {
-      config = {
-        credentials: {
-          accessKeyId: this.configService.get('S3_ACCESS_KEY_ID'),
-          secretAccessKey: this.configService.get('S3_SECRET_ACCESS_KEY')
-        },
-        region: this.configService.get('S3_REGION'),
-        endpoint: this.configService.get('S3_ENDPOINT'),
-        forcePathStyle: true
-      }
+    const config: S3ClientConfig = {
+      credentials: {
+        accessKeyId: this.configService.get('S3_ACCESS_KEY_ID'),
+        secretAccessKey: this.configService.get('S3_SECRET_ACCESS_KEY')
+      },
+      region: this.configService.get('S3_REGION'),
+      endpoint: this.configService.get('S3_ENDPOINT'),
+      forcePathStyle: this.configService.get('S3_USE_ACCESS_POINT') !== '1'
     }
 
     const client = new S3Client(config)
