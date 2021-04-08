@@ -7,8 +7,7 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards,
-  Request
+  UseGuards
 } from '@nestjs/common'
 import { ActivitiesIminService } from './activities.imin.service'
 import { ActivitiesService } from './activities.service'
@@ -106,7 +105,11 @@ export class ActivitiesController {
       }
     )
 
-    if (with_imin === '1' && geo_radial && (type === '' || type === 'class')) {
+    if (
+      with_imin === '1' &&
+      geo_radial &&
+      (type === '' || type.indexOf('class') > -1)
+    ) {
       // Get Imin activities
       const params: IminServiceParams = {
         'geo[radial]': geo_radial,

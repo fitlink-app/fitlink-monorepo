@@ -74,7 +74,6 @@ export class ImagesService {
     }
 
     const client = new S3Client(config)
-    console.log(config)
 
     const input: PutObjectCommandInput = {
       Bucket: this.configService.get('S3_BUCKET'),
@@ -86,18 +85,9 @@ export class ImagesService {
       ACL: 'public-read'
     }
 
-    try {
-      await client.send(new PutObjectCommand(input))
-    } catch (e) {
-      console.error(e)
-      throw new InternalServerErrorException(`S3 put error: ${e.toString()}`)
-    }
+    await client.send(new PutObjectCommand(input))
 
-    const url = [this.configService.get('S3_PUBLIC_ENDPOINT'), filePath].join(
-      '/'
-    )
-
-    return url
+    return [this.configService.get('S3_PUBLIC_ENDPOINT'), filePath].join('/')
   }
 
   async generateVariants(
