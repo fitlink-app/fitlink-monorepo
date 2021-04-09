@@ -62,7 +62,8 @@ export class Activity extends CreatableEntity {
   type: string
 
   @Column({
-    type: 'tsvector'
+    type: 'tsvector',
+    nullable: true
   })
   @Index('activity_tsv_index', { synchronize: false })
   tsv?: string
