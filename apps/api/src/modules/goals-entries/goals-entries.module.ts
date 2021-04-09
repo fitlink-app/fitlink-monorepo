@@ -5,19 +5,18 @@ import { AuthModule } from '../auth/auth.module'
 import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { GoalsEntry } from './entities/goals-entry.entity'
+import { UsersModule } from '../users/users.module'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([GoalsEntry]),
+    UsersModule,
     AuthModule,
     ConfigModule,
-    HttpModule,
+    HttpModule
   ],
   controllers: [GoalsEntriesController],
   providers: [GoalsEntriesService],
-  exports: [
-    TypeOrmModule.forFeature([GoalsEntry]),
-    GoalsEntriesService
-  ]
+  exports: [TypeOrmModule.forFeature([GoalsEntry]), GoalsEntriesService]
 })
 export class GoalsEntriesModule {}

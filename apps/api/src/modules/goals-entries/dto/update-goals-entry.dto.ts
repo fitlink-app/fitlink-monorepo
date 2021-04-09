@@ -4,27 +4,26 @@ import { IsInt, IsOptional } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class RecreateGoalsEntryDto extends PartialType(CreateGoalsEntryDto) {
-
   @ApiProperty()
-  @IsOptional()
   @IsInt()
-  current_calories?: number
+  @IsOptional()
+  current_calories: number
 
   @ApiProperty()
-  @IsOptional()
   @IsInt()
-  current_steps?: number
+  @IsOptional()
+  current_steps: number
 
   @ApiProperty()
-  @IsOptional()
   @IsInt()
-  current_floors_climbed?: number
+  @IsOptional()
+  current_floors_climbed: number
 
   @ApiProperty()
   @IsOptional()
-  current_water_litres?: number
+  current_water_litres: number
 
   @ApiProperty()
   @IsOptional()
-  current_sleep_hours?: number
+  current_sleep_hours: number
 }

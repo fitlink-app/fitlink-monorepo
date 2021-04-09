@@ -1,5 +1,11 @@
 import { CreatableEntity } from '../../../classes/entity/creatable'
-import { PrimaryGeneratedColumn, Column, Entity, ManyToOne, JoinColumn } from 'typeorm'
+import {
+  PrimaryGeneratedColumn,
+  Column,
+  Entity,
+  ManyToOne,
+  JoinColumn
+} from 'typeorm'
 import { User } from '../../users/entities/user.entity'
 
 @Entity()
@@ -15,41 +21,57 @@ export class GoalsEntry extends CreatableEntity {
   @Column()
   day: number
 
-  @Column()
+  @Column({
+    default: 0
+  })
   current_calories: number
 
-  @Column()
+  @Column({
+    default: 0
+  })
   target_calories: number
 
-  @Column()
+  @Column({
+    default: 0
+  })
   current_steps: number
 
-  @Column()
+  @Column({
+    default: 0
+  })
   target_steps: number
 
-  @Column()
+  @Column({
+    default: 0
+  })
   current_floors_climbed: number
 
-  @Column()
+  @Column({
+    default: 0
+  })
   target_floors_climbed: number
 
   @Column({
-    type: 'float'
+    type: 'float',
+    default: 0
   })
   current_water_litres: number
 
   @Column({
-    type: 'float'
+    type: 'float',
+    default: 0
   })
   target_water_litres: number
 
   @Column({
-    type: 'float'
+    type: 'float',
+    default: 0
   })
   current_sleep_hours: number
 
   @Column({
-    type: 'float'
+    type: 'float',
+    default: 0
   })
   target_sleep_hours: number
 

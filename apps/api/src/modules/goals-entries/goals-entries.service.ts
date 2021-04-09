@@ -4,13 +4,16 @@ import { GoalsEntry } from './entities/goals-entry.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
-import { format } from "date-fns";
+import { format } from 'date-fns'
 
 @Injectable()
 export class GoalsEntriesService {
   constructor(
     @InjectRepository(GoalsEntry)
-    private goalsEntryRepository: Repository<GoalsEntry>
+    private goalsEntryRepository: Repository<GoalsEntry>,
+
+    @InjectRepository(User)
+    private userRepository: Repository<User>
   ) {}
 
   /**
@@ -18,36 +21,40 @@ export class GoalsEntriesService {
    * @param userId
    * @param goalsEntryDto
    */
-    async create(
-        userId: string,
-        goalsEntryDto: RecreateGoalsEntryDto
-      ): Promise<GoalsEntry> {
+  async create(
+    userId: string,
+    goalsEntryDto: RecreateGoalsEntryDto
+  ): Promise<GoalsEntry> {
+    const user = await this.userRepository.findOne(userId)
 
-      const linkedUser = new User()
-      linkedUser.id = userId
+    let goalsEntry = new GoalsEntry()
+    goalsEntry.user = user
+    goalsEntry.day = parseInt(format(new Date(), 'Y'))
+    goalsEntry.year = parseInt(format(new Date(), 'd'))
 
-      let goalsEntry = new GoalsEntry()
-      goalsEntry.user = linkedUser
-      goalsEntry.day = parseInt(format(new Date(), 'Y'))
-      goalsEntry.year = parseInt(format(new Date(), 'd'))
+    // Attach user's current goals to the goal entry
+    goalsEntry.target_calories = user.goal_calories
+    goalsEntry.target_floors_climbed = user.goal_floors_climbed
+    goalsEntry.target_sleep_hours = user.goal_sleep_hours
+    goalsEntry.target_steps = user.goal_steps
+    goalsEntry.target_water_litres = user.goal_water_litres
 
-      const result = await this.goalsEntryRepository.findOne(goalsEntry)
+    const result = await this.goalsEntryRepository.findOne(goalsEntry)
 
-      if (goalsEntryDto) {
-        goalsEntry = Object.assign(goalsEntry, {...goalsEntryDto})
-      }
-
-      return await this.goalsEntryRepository.save({
-        ...result,
-        ...goalsEntry
-      })
+    if (goalsEntryDto) {
+      goalsEntry = Object.assign(goalsEntry, { ...goalsEntryDto })
     }
+
+    return await this.goalsEntryRepository.save({
+      ...result,
+      ...goalsEntry
+    })
+  }
 
   /**
    * Find a specific goals entry
    */
-    async findOne(goalsEntry) {
+  async findOne(goalsEntry) {
     return await this.goalsEntryRepository.findOne(goalsEntry)
-    }
-
   }
+}
