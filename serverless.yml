@@ -45,12 +45,10 @@ provider:
       statements:
         - Effect: "Allow"
           Action:
-          - s3:PutObject
-          Resource: "**arn:aws:s3:::develop-nest-fitlinkapp**/*"
-        - Effect: "Deny"
-          Action:
+            - s3:PutObject
+            - s3:GetObject
             - s3:DeleteObject
-          Resource: "arn:aws:s3:::**arn:aws:s3:::develop-nest-fitlinkapp**/*"
+          Resource: "**arn:aws:s3:::develop-nest-fitlinkapp**/*"
 
 functions:
   main:

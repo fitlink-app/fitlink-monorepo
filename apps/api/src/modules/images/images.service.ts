@@ -63,25 +63,17 @@ export class ImagesService {
   }
 
   async upload(file: Buffer, filePath: string) {
-    let config: S3ClientConfig
-    if (this.configService.get('S3_USE_ACCESS_POINT') === '1') {
-      config = {
-        region: this.configService.get('S3_REGION')
-      }
-    } else {
-      config = {
-        credentials: {
-          accessKeyId: this.configService.get('S3_ACCESS_KEY_ID'),
-          secretAccessKey: this.configService.get('S3_SECRET_ACCESS_KEY')
-        },
-        region: this.configService.get('S3_REGION'),
-        endpoint: this.configService.get('S3_ENDPOINT'),
-        forcePathStyle: true
-      }
+    const config: S3ClientConfig = {
+      credentials: {
+        accessKeyId: this.configService.get('S3_ACCESS_KEY_ID'),
+        secretAccessKey: this.configService.get('S3_SECRET_ACCESS_KEY')
+      },
+      region: this.configService.get('S3_REGION'),
+      endpoint: this.configService.get('S3_ENDPOINT'),
+      forcePathStyle: this.configService.get('S3_USE_ACCESS_POINT') !== '1'
     }
 
     const client = new S3Client(config)
-    console.log(config)
 
     const input: PutObjectCommandInput = {
       Bucket: this.configService.get('S3_BUCKET'),
@@ -95,13 +87,7 @@ export class ImagesService {
 
     await client.send(new PutObjectCommand(input))
 
-    const url = [this.configService.get('S3_PUBLIC_ENDPOINT'), filePath].join(
-      '/'
-    )
-
-    console.log(url)
-
-    return url
+    return [this.configService.get('S3_PUBLIC_ENDPOINT'), filePath].join('/')
   }
 
   async generateVariants(
