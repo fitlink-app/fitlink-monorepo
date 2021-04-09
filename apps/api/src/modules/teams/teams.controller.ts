@@ -6,6 +6,8 @@ import { ImagesService } from '../images/images.service'
 import { UploadOptions, Uploads } from '../../decorators/uploads.decorator'
 import { Files } from '../../decorators/files.decorator'
 import { Image, ImageType } from '../images/entities/image.entity'
+import { Iam } from '../../decorators/iam.decorator'
+import { Roles } from '../user-roles/entities/user-role.entity'
 
 @Controller()
 export class TeamsController {
@@ -14,16 +16,17 @@ export class TeamsController {
     private readonly imagesService: ImagesService
   ) {}
 
+  @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
   @Post('/organisation/:organisationId/teams')
   @Uploads('avatar', UploadOptions.Nullable)
   async organisationCreate(
-    @Files('avatar') file: Storage.MultipartFile,
     @Body() createTeamDto: CreateTeamDto,
+    @Files('avatar') file: Storage.MultipartFile,
     @Param('organisationId') organisationId: string
   ) {
     const alt = createTeamDto.name
     let avatar: Image
-    if (avatar) {
+    if (file) {
       avatar = await this.imagesService.createOne(file, ImageType.Avatar, {
         alt
       })
@@ -37,53 +40,71 @@ export class TeamsController {
     )
   }
 
+  @Iam(Roles.OrganisationAdmin)
   @Get('/organisation/:organisationId/teams')
   organisationFindAll(@Param('organisationId') organisationId: string) {
     return this.teamsService.findAll(organisationId)
   }
 
+  @Iam(Roles.OrganisationAdmin)
   @Get('/organisation/:organisationId/teams/:id')
-  organisationFindOne(@Param('id') id: string) {
-    return this.teamsService.findOne(id)
+  organisationFindOne(
+    @Param('id') id: string,
+    @Param('organisationId') organisationId: string
+  ) {
+    return this.teamsService.findOne(id, organisationId)
   }
 
   @Put('/organisation/:organisationId/teams/:id')
-  organisationUpdate(
+  @Uploads('avatar', UploadOptions.Nullable)
+  async organisationUpdate(
     @Param('id') id: string,
+    @Param('organisationId') organisationId: string,
+    @Files('avatar') file: Storage.MultipartFile,
     @Body() updateTeamDto: UpdateTeamDto
   ) {
-    return this.teamsService.update(id, updateTeamDto)
+    const alt = updateTeamDto.name || ''
+    let avatar: Image
+
+    if (file) {
+      avatar = await this.imagesService.createOne(file, ImageType.Avatar, {
+        alt
+      })
+    }
+    if (file === null) {
+      return this.teamsService.removeAvatar(id)
+    }
+    return this.teamsService.update(
+      id,
+      {
+        ...updateTeamDto,
+        avatar
+      },
+      organisationId
+    )
   }
 
   @Delete('/organisation/:organisationId/teams/:id')
-  organisationRemove(@Param('id') id: string) {
-    return this.teamsService.remove(id)
+  organisationRemove(
+    @Param('id') id: string,
+    @Param('organisationId') organisationId: string
+  ) {
+    return this.teamsService.remove(id, organisationId)
   }
 
-  // ----- -------------
-  // ----- -------------
-  // ----- -------------
-
-  @Post('/teams')
-  create(@Body() createTeamDto: CreateTeamDto) {
-    return this.teamsService.create(createTeamDto)
-  }
-
+  @Iam(Roles.SuperAdmin)
   @Get('/teams')
   findAll() {
     return this.teamsService.findAll()
   }
 
+  @Iam(Roles.SuperAdmin)
   @Get('/teams/:id')
   findOne(@Param('id') id: string) {
     return this.teamsService.findOne(id)
   }
 
-  @Put('/teams/:id')
-  update(@Param('id') id: string, @Body() updateTeamDto: UpdateTeamDto) {
-    return this.teamsService.update(id, updateTeamDto)
-  }
-
+  @Iam(Roles.SuperAdmin)
   @Delete('/teams/:id')
   remove(@Param('id') id: string) {
     return this.teamsService.remove(id)
