@@ -6,6 +6,7 @@ import { League } from '../../src/modules/leagues/entities/league.entity'
 import { Leaderboard } from '../../src/modules/leaderboards/entities/leaderboard.entity'
 import { LeaderboardEntry } from '../../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
 import { Following } from '../../src/modules/followings/entities/following.entity'
+import { GoalsEntry } from '../../src/modules/goals-entries/entities/goals-entry.entity'
 import { flatten } from 'lodash'
 import * as faker from 'faker'
 import {
@@ -23,6 +24,7 @@ const COUNT_USERS = 21
 const COUNT_LEADERBOARDS = 2
 const COUNT_LEADERBOARD_ENTRIES = 2
 const COUNT_FOLLOWINGS = 1
+const COUNT_GOALSENTRY = 1
 
 export default class CreateOrganisations implements Seeder {
   connection: Connection
@@ -164,6 +166,23 @@ export default class CreateOrganisations implements Seeder {
               )
             }
           }
+        )
+      )
+    )
+
+    /**
+     * Create goals entries for users
+     */
+    const goalsEntries = flatten(
+      await Promise.all(
+        users.map(
+          async (user) =>
+            await factory(GoalsEntry)({
+              userId: user
+            }).createMany(
+              COUNT_GOALSENTRY
+            )
+          
         )
       )
     )
