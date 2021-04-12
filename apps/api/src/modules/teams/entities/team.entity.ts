@@ -37,36 +37,22 @@ export class Team {
   @ManyToOne(() => Organisation, (organisation) => organisation.teams)
   organisation: Organisation
 
-  @OneToMany(() => Activity, (activity) => activity.team, {
-    cascade: ['remove'],
-    onDelete: 'CASCADE'
-  })
+  @OneToMany(() => Activity, (activity) => activity.team)
   activities: Activity[]
 
-  @OneToMany(() => TeamsInvitation, (invitation) => invitation.team, {
-    cascade: ['remove'],
-    onDelete: 'CASCADE'
-  })
+  @OneToMany(() => TeamsInvitation, (invitation) => invitation.team)
   invitations: TeamsInvitation[]
 
-  @OneToMany(() => Reward, (reward) => reward.team, {
-    cascade: ['remove'],
-    onDelete: 'CASCADE'
-  })
+  @OneToMany(() => Reward, (reward) => reward.team)
   rewards: Reward[]
 
   @OneToOne(() => Image, {
-    nullable: true,
-    cascade: ['remove'],
-    onDelete: 'CASCADE'
+    nullable: true
   })
   @JoinColumn()
   avatar: Image
 
-  @ManyToMany(() => User, (user) => user.teams, {
-    cascade: ['remove'],
-    onDelete: 'CASCADE'
-  })
+  @ManyToMany(() => User, (user) => user.teams)
   @JoinTable()
   users: User[]
 
