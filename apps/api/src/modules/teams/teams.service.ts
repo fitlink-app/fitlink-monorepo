@@ -71,12 +71,7 @@ export class TeamsService {
     organisationId?: string
   ) {
     if (organisationId) {
-      const isOwner = !!(await this.teamRepository.findOne({
-        where: {
-          id: id,
-          organisation: { id: organisationId }
-        }
-      }))
+      const isOwner = !!this.findOne(id, organisationId)
       if (!isOwner) {
         throw new UnauthorizedException(
           "That team doesn't belong to this organisation"
