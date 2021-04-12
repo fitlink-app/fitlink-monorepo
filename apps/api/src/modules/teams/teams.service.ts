@@ -65,22 +65,18 @@ export class TeamsService {
     return await this.teamRepository.findOne(id)
   }
 
-  async checkOwnership(teamId: string, orgId: string) {
-    const team = await this.teamRepository.findOne({
-      where: {
-        id: teamId,
-        organisation: { id: orgId }
-      }
-    })
-    return !!team
-  }
   async update(
     id: string,
     updateTeamDto: UpdateTeamDto,
     organisationId?: string
   ) {
     if (organisationId) {
-      const isOwner = this.checkOwnership(id, organisationId)
+      const isOwner = !!(await this.teamRepository.findOne({
+        where: {
+          id: id,
+          organisation: { id: organisationId }
+        }
+      }))
       if (!isOwner) {
         throw new UnauthorizedException(
           "That team doesn't belong to this organisation"

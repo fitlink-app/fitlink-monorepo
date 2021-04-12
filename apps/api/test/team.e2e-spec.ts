@@ -12,7 +12,6 @@ import * as faker from 'faker'
 describe('Teams', () => {
   let app: NestFastifyApplication
   let connection: Connection
-  let teamRepository: Repository<Team>
   let organisationRepository: Repository<Organisation>
   let orgAdminHeaders
   let superadminHeaders
@@ -25,7 +24,6 @@ describe('Teams', () => {
       controllers: []
     })
     connection = getConnection()
-    teamRepository = connection.getRepository(Team)
     organisationRepository = connection.getRepository(Organisation)
     superadminHeaders = getAuthHeaders({ spr: true })
     // Get Seeded Organisations

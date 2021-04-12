@@ -19,7 +19,7 @@ export class TeamsController {
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
   @Post('/organisation/:organisationId/teams')
   @Uploads('avatar', UploadOptions.Nullable)
-  async organisationCreate(
+  async teamCreate(
     @Body() createTeamDto: CreateTeamDto,
     @Files('avatar') file: Storage.MultipartFile,
     @Param('organisationId') organisationId: string
@@ -42,22 +42,23 @@ export class TeamsController {
 
   @Iam(Roles.OrganisationAdmin)
   @Get('/organisation/:organisationId/teams')
-  organisationFindAll(@Param('organisationId') organisationId: string) {
+  teamFindAll(@Param('organisationId') organisationId: string) {
     return this.teamsService.findAll(organisationId)
   }
 
   @Iam(Roles.OrganisationAdmin)
   @Get('/organisation/:organisationId/teams/:id')
-  organisationFindOne(
+  teamFindOne(
     @Param('id') id: string,
     @Param('organisationId') organisationId: string
   ) {
     return this.teamsService.findOne(id, organisationId)
   }
 
+  @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
   @Put('/organisation/:organisationId/teams/:id')
   @Uploads('avatar', UploadOptions.Nullable)
-  async organisationUpdate(
+  async teamUpdate(
     @Param('id') id: string,
     @Param('organisationId') organisationId: string,
     @Files('avatar') file: Storage.MultipartFile,
@@ -84,8 +85,9 @@ export class TeamsController {
     )
   }
 
+  @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
   @Delete('/organisation/:organisationId/teams/:id')
-  organisationRemove(
+  teamRemove(
     @Param('id') id: string,
     @Param('organisationId') organisationId: string
   ) {
@@ -102,11 +104,5 @@ export class TeamsController {
   @Get('/teams/:id')
   findOne(@Param('id') id: string) {
     return this.teamsService.findOne(id)
-  }
-
-  @Iam(Roles.SuperAdmin)
-  @Delete('/teams/:id')
-  remove(@Param('id') id: string) {
-    return this.teamsService.remove(id)
   }
 }
