@@ -39,6 +39,11 @@ export class LeaderboardEntriesController {
     })
   }
 
+  @Get('rank/:userId')
+  findRankInLeaderboards(@Param('userId') userId: string) {
+    return this.leaderboardEntriesService.findRankInLeaderboards(userId)
+  }
+
   @Get(':leaderboardId/:userId')
   @UseInterceptors(
     new NotFoundInterceptor('No leaderboard entry found for the given userId')

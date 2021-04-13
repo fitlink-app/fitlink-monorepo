@@ -17,6 +17,8 @@ import { TeamsInvitationsUpdates1616935109963 } from '../database/migrations/161
 import { AddTeamsUpdateLeagueSport1617030200766 } from '../database/migrations/1617030200766-AddTeamsLeagues'
 import { ActivitiesUpdates1617277086715 } from '../database/migrations/1617277086715-ActivitiesUpdates'
 import { ActivityTsVector1617639276042 } from '../database/migrations/1617639276042-ActivityTsVector'
+import { RemoveCascadesInTeams1617803214748 } from '../database/migrations/1617803214748-RemoveCascadesInTeams'
+import { GoalsEntrySetDefaults1617974041018 } from '../database/migrations/1617974041018-GoalsEntrySetDefaults'
 
 export default [
   InitializeSchema1614887523112,
@@ -32,5 +34,7 @@ export default [
   TeamsInvitationsUpdates1616935109963,
   AddTeamsUpdateLeagueSport1617030200766,
   ActivitiesUpdates1617277086715,
-  ActivityTsVector1617639276042
+  ActivityTsVector1617639276042,
+  RemoveCascadesInTeams1617803214748,
+  GoalsEntrySetDefaults1617974041018
 ]

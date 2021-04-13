@@ -83,6 +83,17 @@ describe('LeaderboardEntries', () => {
     )
   })
 
+  // TODO: Need to formulate seeds to get consistent data to test with
+  it(`/GET  (200) leaderboard-entries/rank/:userId`, async () => {
+    const result = await app.inject({
+      method: 'GET',
+      url: `/leaderboard-entries/rank/${data.user_id}`,
+      headers
+    })
+
+    expect(result.statusCode).toEqual(200)
+  })
+
   // Trying to create an entry without complete data should result in a 400 error
   it(`/POST (400) leaderboard-entries/:leaderboardId/:userId`, async () => {
     const payload: LeaderboardEntry = {

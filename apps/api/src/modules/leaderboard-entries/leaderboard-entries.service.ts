@@ -39,6 +39,38 @@ export class LeaderboardEntriesService {
   }
 
   /**
+   * Find a single user's ranks in their latest leaderboards,
+   * ignoring previous leaderboards of a league
+   * @param leaderboardId
+   * @param options
+   */
+  async findRankInLeaderboards(userId: string): Promise<LeaderboardEntry[]> {
+    const query = this.leaderboardEntryRepository.manager
+      .createQueryBuilder()
+      .select('DISTINCT ON (leaderboard_id) rank.*')
+      .from((q) => {
+        return q
+          .select(
+            'RANK() OVER (PARTITION BY leaderboard_id ORDER BY points DESC) AS rank, entry.*'
+          )
+          .from(LeaderboardEntry, 'entry')
+          .where(
+            `leaderboard_id IN (
+            SELECT DISTINCT ON (league_id) entry.leaderboard_id FROM public.leaderboard_entry entry
+            WHERE user_id = :userId
+            ORDER BY league_id, updated_at DESC
+          )`,
+            { userId }
+          )
+      }, 'rank')
+      .where('rank.user_id = :userId', {
+        userId
+      })
+
+    return await query.getRawMany()
+  }
+
+  /**
    * Find all entries by leaderboard, with paginated options
    * @param leaderboardId
    * @param options
