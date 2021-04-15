@@ -170,7 +170,7 @@ export class TeamsInvitationsService {
       where,
       order: { created_at: 'DESC' },
       take: options.limit,
-      skip: options.page
+      skip: options.page * options.limit
     })
     return new Pagination<TeamsInvitation>({
       results,

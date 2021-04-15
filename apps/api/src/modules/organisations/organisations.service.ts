@@ -60,7 +60,7 @@ export class OrganisationsService {
     const [results, total] = await this.organisationRepository.findAndCount({
       order: { created_at: 'DESC' },
       take: options.limit,
-      skip: options.page
+      skip: options.page * options.limit
     })
 
     return new Pagination<Organisation>({

@@ -8,7 +8,8 @@ import {
   Delete,
   Request,
   UseInterceptors,
-  UseGuards
+  UseGuards,
+  Query
 } from '@nestjs/common'
 import { LeaderboardEntriesService } from './leaderboard-entries.service'
 import { CreateLeaderboardEntryDto } from './dto/create-leaderboard-entry.dto'
@@ -32,11 +33,24 @@ export class LeaderboardEntriesController {
   }
 
   @Get(':leaderboardId')
-  findAll(@Param('leaderboardId') leaderboardId: string, @Request() request) {
-    return this.leaderboardEntriesService.findAll(leaderboardId, {
-      limit: request.query.limit || 10,
-      page: request.query.page || 0
-    })
+  async findAll(@Param('leaderboardId') leaderboardId: string, @Query() query) {
+    const results = await this.leaderboardEntriesService.findAll(
+      leaderboardId,
+      {
+        limit: query.limit || 10,
+        page: query.page || 0
+      }
+    )
+
+    if (query.user) {
+      const rank = await this.leaderboardEntriesService.findRankAndFlanksInLeaderboard(
+        query.user,
+        leaderboardId
+      )
+      return { ...results, rank }
+    }
+
+    return results
   }
 
   @Get('rank/:userId')
