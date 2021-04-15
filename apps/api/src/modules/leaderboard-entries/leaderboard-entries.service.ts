@@ -79,9 +79,9 @@ export class LeaderboardEntriesService {
           next
         }
       }
+    } else {
+      return undefined
     }
-
-    return await query.getRawMany()
   }
 
   /**
