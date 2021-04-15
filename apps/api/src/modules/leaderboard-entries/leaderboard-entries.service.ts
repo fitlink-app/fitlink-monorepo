@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm'
 import { CreateLeaderboardEntryDto } from './dto/create-leaderboard-entry.dto'
 import { LeaderboardEntry } from './entities/leaderboard-entry.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
@@ -36,6 +36,104 @@ export class LeaderboardEntriesService {
       created_at: new Date(),
       updated_at: new Date()
     })
+  }
+
+  /**
+   * Find the
+   * @param userId
+   * @param leaderboardId
+   * @returns
+   */
+
+  /**
+   * Find a single user's rank and flanks in a leaderboard
+   * @param userId
+   * @returns
+   */
+  async findRankAndFlanksInLeaderboard(
+    userId: string,
+    leaderboardId: string
+  ): Promise<any> {
+    let query = this.queryLeaderboardRank(leaderboardId)
+    query = query.where('rank.user_id = :userId', { userId })
+
+    const userRank: any[] = await query.getRawMany()
+
+    if (userRank.length) {
+      const prev = await this.queryLeaderboardFlanks(
+        leaderboardId,
+        userId,
+        userRank[0].rank,
+        'prev'
+      )
+      const next = await this.queryLeaderboardFlanks(
+        leaderboardId,
+        userId,
+        userRank[0].rank,
+        'next'
+      )
+      return {
+        user: userRank[0],
+        flanks: {
+          prev,
+          next
+        }
+      }
+    }
+
+    return await query.getRawMany()
+  }
+
+  /**
+   * Gets the flanks of a particular user in ranks
+   *
+   * @param leaderboardId
+   * @param userId
+   * @param rank
+   * @param type
+   * @returns object
+   */
+  async queryLeaderboardFlanks(
+    leaderboardId: string,
+    userId: string,
+    rank: number,
+    type: 'next' | 'prev'
+  ) {
+    let query = this.queryLeaderboardRank(leaderboardId)
+      .orderBy('rank', type === 'next' ? 'ASC' : 'DESC')
+      .where('rank.user_id != :userId', { userId })
+      .limit(1)
+
+    if (type === 'next') {
+      query = query.andWhere('rank.rank >= :rank', { rank })
+    }
+
+    if (type === 'prev') {
+      query = query.andWhere('rank.rank <= :rank', { rank })
+    }
+
+    const results = await query.getRawMany()
+
+    return results[0]
+  }
+
+  /**
+   *
+   * @param userId
+   * @returns
+   */
+  queryLeaderboardRank(leaderboardId: string) {
+    return this.leaderboardEntryRepository.manager
+      .createQueryBuilder()
+      .select('rank.*')
+      .from((q) => {
+        return q
+          .select(
+            'RANK() OVER (ORDER BY points DESC, updated_at DESC) AS rank, entry.*'
+          )
+          .from(LeaderboardEntry, 'entry')
+          .where(`leaderboard_id = :leaderboardId`, { leaderboardId })
+      }, 'rank')
   }
 
   /**
