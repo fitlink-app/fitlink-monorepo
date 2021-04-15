@@ -182,7 +182,7 @@ export class LeaderboardEntriesService {
         where: { leaderboard_id: leaderboardId },
         order: { points: 'DESC' },
         take: options.limit,
-        skip: options.page
+        skip: options.page * options.limit
       }
     )
 

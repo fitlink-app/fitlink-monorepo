@@ -148,7 +148,7 @@ export class ImagesService {
     const [results, total] = await this.imageRepository.findAndCount({
       where,
       take: options.limit,
-      skip: options.page
+      skip: options.page * options.limit
     })
 
     return new Pagination<Image>({

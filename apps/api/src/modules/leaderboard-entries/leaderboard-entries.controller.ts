@@ -33,16 +33,12 @@ export class LeaderboardEntriesController {
   }
 
   @Get(':leaderboardId')
-  async findAll(
-    @Param('leaderboardId') leaderboardId: string,
-    @Request() request,
-    @Query() query
-  ) {
+  async findAll(@Param('leaderboardId') leaderboardId: string, @Query() query) {
     const results = await this.leaderboardEntriesService.findAll(
       leaderboardId,
       {
-        limit: request.query.limit || 10,
-        page: request.query.page || 0
+        limit: query.limit || 10,
+        page: query.page || 0
       }
     )
 

@@ -49,7 +49,11 @@ describe('LeaderboardEntries', () => {
     const result = await app.inject({
       method: 'GET',
       url: `/leaderboard-entries/${data.leaderboard_id}`,
-      headers
+      headers,
+      query: {
+        page: '0',
+        limit: '5'
+      }
     })
     const json = result.json()
     expect(result.statusCode).toEqual(200)
@@ -59,6 +63,29 @@ describe('LeaderboardEntries', () => {
       seed.filter((value) => value.leaderboard_id === data.leaderboard_id)
         .length
     )
+
+    const resultPage1 = await app.inject({
+      method: 'GET',
+      url: `/leaderboard-entries/${data.leaderboard_id}`,
+      headers,
+      query: {
+        page: '1',
+        limit: '5'
+      }
+    })
+
+    const resultPage1Json = resultPage1.json()
+
+    const ids = json.results.map((e) => e.id)
+    const ids2 = resultPage1Json.results.map((e) => e.id)
+
+    // Ensure that none of the data overlaps
+    ids2.forEach((id) => {
+      expect(ids.indexOf(id)).toEqual(-1)
+    })
+
+    // Ensure that the appropriate results were included
+    expect(ids.length).toEqual(ids2.length)
   })
 
   it(`/GET  (200) leaderboard-entries/:leaderboardId`, async () => {
