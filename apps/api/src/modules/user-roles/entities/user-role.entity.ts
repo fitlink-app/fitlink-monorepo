@@ -1,11 +1,4 @@
-import {
-  PrimaryGeneratedColumn,
-  Entity,
-  ManyToOne,
-  Column,
-  OneToOne,
-  JoinColumn
-} from 'typeorm'
+import { PrimaryGeneratedColumn, Entity, ManyToOne, Column } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { Organisation } from '../../organisations/entities/organisation.entity'
 import { Subscription } from '../../subscriptions/entities/subscription.entity'
@@ -22,7 +15,7 @@ export enum Roles {
 
 @Entity()
 export class UserRole extends CreatableEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string
 
   @ManyToOne(() => User, (user) => user.roles)
@@ -33,15 +26,12 @@ export class UserRole extends CreatableEntity {
   })
   role: string
 
-  @OneToOne(() => Organisation)
-  @JoinColumn()
+  @ManyToOne(() => Organisation)
   organisation: Organisation
 
-  @OneToOne(() => Team)
-  @JoinColumn()
+  @ManyToOne(() => Team)
   team: Team
 
-  @OneToOne(() => Subscription)
-  @JoinColumn()
+  @ManyToOne(() => Subscription)
   subscription: Subscription
 }
