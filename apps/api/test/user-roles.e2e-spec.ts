@@ -1,6 +1,6 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Connection, getConnection } from 'typeorm'
-import { UserRole } from '../src/modules/user-roles/entities/user-role.entity'
+import { UserRolesModule } from '../src/modules/user-roles/user-roles.module'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
 
@@ -11,7 +11,7 @@ describe('User Roles', () => {
 
   beforeAll(async () => {
     app = await mockApp({
-      imports: [UserRole],
+      imports: [UserRolesModule],
       providers: [],
       controllers: []
     })
