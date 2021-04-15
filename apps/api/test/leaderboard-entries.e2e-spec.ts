@@ -61,6 +61,17 @@ describe('LeaderboardEntries', () => {
     )
   })
 
+  it(`/GET  (200) leaderboard-entries/:leaderboardId`, async () => {
+    const result = await app.inject({
+      method: 'GET',
+      url: `/leaderboard-entries/${data.leaderboard_id}?user=${data.user_id}`,
+      headers
+    })
+    const json = result.json()
+    expect(json.rank.user).toBeDefined()
+    expect(json.rank.flanks).toBeDefined()
+  })
+
   it(`/GET  (200) leaderboard-entries/:leaderboardId/:userId`, async () => {
     const result = await app.inject({
       method: 'GET',
