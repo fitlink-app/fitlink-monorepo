@@ -9,13 +9,13 @@ import { Roles } from './entities/user-role.entity'
 export class UserRolesController {
   constructor(private readonly userRolesService: UserRolesService) {}
 
-  // @Iam(Roles.SuperAdmin)
+  @Iam(Roles.SuperAdmin)
   @Post('/roles/superadmin/:userId')
   createNewSuperAdmin(@Param('userId') userId: string) {
     return this.userRolesService.assignSuperAdminRole(userId)
   }
 
-  // @Iam(Roles.OrganisationAdmin,Roles.SuperAdmin)
+  @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
   @Post('/organisation/:organisationId/users/:userId/roles')
   create(
     @Body() createUserRoleDto: CreateUserRoleDto,
