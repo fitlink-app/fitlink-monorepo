@@ -1,26 +1,19 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { Organisation } from '../organisations/entities/organisation.entity'
 import { Team } from '../teams/entities/team.entity'
-import { User } from '../users/entities/user.entity'
 import { CreateUserRoleDto } from './dto/create-user-role.dto'
 import { UpdateUserRoleDto } from './dto/update-user-role.dto'
-import { Roles, UserRole } from './entities/user-role.entity'
+import { UserRole } from './entities/user-role.entity'
 
 @Injectable()
 export class UserRolesService {
   constructor(
     @InjectRepository(UserRole)
-    private userRoleRepository: Repository<UserRole> // @InjectRepository(Organisation)
-  ) // private organisationRepository: Repository<Organisation>,
-
-  // @InjectRepository(Team)
-  // private teamRepository: Repository<Team>,
-
-  // @InjectRepository(User)
-  // private userRepository: Repository<User>
-  {}
+    private userRoleRepository: Repository<UserRole>,
+    @InjectRepository(Team)
+    private teamRepository: Repository<Team>
+  ) {}
 
   async create(
     createUserRoleDto: CreateUserRoleDto,
@@ -32,6 +25,10 @@ export class UserRolesService {
      * e.g if there's a team Id we'll make them the admin of that team.
      */
 
+    if (organisationId) {
+      const isOwner = this.checkOwnerShip(organisationId, userId)
+      if (!isOwner) throw new BadRequestException(`User not found`)
+    }
     const entity = this.filterDto(createUserRoleDto)
     const result = await this.userRoleRepository.save(
       this.userRoleRepository.create({
@@ -61,8 +58,8 @@ export class UserRolesService {
     userId: string
   ) {
     if (organisationId) {
-      const isOwner = this.checkOwnerShip()
-      if (!isOwner) return
+      const isOwner = this.checkOwnerShip(organisationId, userId)
+      if (!isOwner) throw new BadRequestException(`User not found`)
     }
 
     const entity = this.filterDto(updateUserRoleDto as any)
@@ -78,8 +75,8 @@ export class UserRolesService {
 
   async remove(id: string, organisationId: string, userId: string) {
     if (organisationId) {
-      const isOwner = this.checkOwnerShip()
-      if (!isOwner) return
+      const isOwner = this.checkOwnerShip(organisationId, userId)
+      if (!isOwner) throw new BadRequestException(`User not found`)
     }
     return await this.userRoleRepository.delete({ id, user: { id: userId } })
   }
@@ -88,8 +85,20 @@ export class UserRolesService {
     return `Boom just assigned super admin to #${userId}`
   }
 
-  checkOwnerShip(): boolean {
-    return true
+  async checkOwnerShip(orgId: string, userId: string) {
+    let finalUser
+    const teams = await this.teamRepository.find({
+      where: {
+        // If invalid Id it'll throw a 500 beccause of "invalid uuid" error
+        organisation: { id: orgId }
+      },
+      relations: ['users']
+    })
+
+    teams.map((team: Team) => {
+      finalUser = team.users.find((user) => user.id === userId)
+    })
+    return !!finalUser
   }
 
   filterDto(dto: CreateUserRoleDto) {

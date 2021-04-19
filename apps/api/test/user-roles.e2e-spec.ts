@@ -218,7 +218,6 @@ describe('User Roles', () => {
         team: seeded_organisation.teams[0]
       })
     )
-
     const data = await app.inject({
       method: 'DELETE',
       url: `/user-roles/organisation/${seeded_organisation.id}/users/${seeded_user.id}/roles/${userRole.id}`,
