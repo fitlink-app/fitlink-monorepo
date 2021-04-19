@@ -58,8 +58,6 @@ describe('User Roles', () => {
       role: 'subscription_admin',
       subscription: seeded_organisation.subscriptions[0].id
     }
-
-    // TODO: Test This kind of flow: check itnever fails
   })
 
   /**
