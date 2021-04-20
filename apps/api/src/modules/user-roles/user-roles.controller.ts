@@ -5,7 +5,7 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto'
 import { Iam } from '../../decorators/iam.decorator'
 import { Roles } from './entities/user-role.entity'
 
-@Controller('/user-roles')
+@Controller()
 export class UserRolesController {
   constructor(private readonly userRolesService: UserRolesService) {}
 
@@ -16,7 +16,7 @@ export class UserRolesController {
   }
 
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
-  @Post('/organisation/:organisationId/users/:userId/roles')
+  @Post('/organisations/:organisationId/users/:userId/roles')
   create(
     @Body() createUserRoleDto: CreateUserRoleDto,
     @Param('organisationId') organisationId: string,
@@ -29,14 +29,14 @@ export class UserRolesController {
     )
   }
 
-  // @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin, Roles.Self)
-  @Get('/users/:id')
-  findOne(@Param('id') id: string) {
+  @Iam(Roles.Self)
+  @Get('/organisations/:organisationId/roles/users/:userId')
+  findOne(@Param('userId') id: string) {
     return this.userRolesService.getAllUserRoles(id)
   }
 
-  // @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
-  @Put('/organisation/:organisationId/users/:userId/roles/:id')
+  @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
+  @Put('/organisations/:organisationId/users/:userId/roles/:id')
   update(
     @Body() updateUserRoleDto: UpdateUserRoleDto,
     @Param('id') id: string,
@@ -51,8 +51,8 @@ export class UserRolesController {
     )
   }
 
-  // @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin, Roles.Self)
-  @Delete('/organisation/:organisationId/users/:userId/roles/:id')
+  @Iam(Roles.Self)
+  @Delete('/organisations/:organisationId/users/:userId/roles/:id')
   remove(
     @Param('id') id: string,
     @Param('organisationId') organisationId: string,

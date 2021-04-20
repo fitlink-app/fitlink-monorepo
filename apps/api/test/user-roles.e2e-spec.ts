@@ -27,7 +27,6 @@ describe('User Roles', () => {
       controllers: []
     })
 
-    authHeader = getAuthHeaders()
     connection = getConnection()
     organisationRepository = connection.getRepository(Organisation)
     userRoleRepository = connection.getRepository(UserRole)
@@ -45,6 +44,7 @@ describe('User Roles', () => {
     const userRole = await userRoleRepository.findOne({ relations: ['user'] })
     seeded_user_role = userRole
     seeded_user = userRole.user
+    authHeader = getAuthHeaders({}, userRole.user.id)
 
     orgAdminPayload = {
       role: 'organisation_admin',
@@ -73,10 +73,10 @@ describe('User Roles', () => {
     ['subscription admin', () => subAdminPayload]
   ])
 
-  it('GET /user-roles/users/:id', async () => {
+  it('GET /organisations/:organisationId/roles/users/:id/roles', async () => {
     const data = await app.inject({
       method: 'GET',
-      url: `/user-roles/users/${seeded_user.id}`,
+      url: `/organisations/${seeded_organisation.id}/roles/users/${seeded_user.id}`,
       headers: authHeader
     })
 
@@ -90,11 +90,11 @@ describe('User Roles', () => {
   })
 
   testRoles(
-    'POST /user-roles/organisation/:organisationId/users/:userId/roles',
+    'POST /organisations/:organisationId/users/:userId/roles',
     async (role, getRolePayload) => {
       const data = await app.inject({
         method: 'POST',
-        url: `/user-roles/organisation/${seeded_organisation.id}/users/${seeded_user.id}/roles`,
+        url: `/organisations/${seeded_organisation.id}/users/${seeded_user.id}/roles`,
         payload: getRolePayload(),
         headers: orgAdminHeaders
       })
@@ -119,11 +119,11 @@ describe('User Roles', () => {
   )
 
   testRoles(
-    'POST /user-roles/organisation/:organisationId/users/:userId/roles',
+    'POST organisations/:organisationId/users/:userId/roles',
     async (role, getRolePayload) => {
       const data = await app.inject({
         method: 'POST',
-        url: `/user-roles/organisation/${seeded_organisation.id}/users/${seeded_user.id}/roles`,
+        url: `/organisations/${seeded_organisation.id}/users/${seeded_user.id}/roles`,
         payload: getRolePayload(),
         headers: superadminHeaders
       })
@@ -148,11 +148,11 @@ describe('User Roles', () => {
   )
 
   testRoles(
-    'PUT /user-roles/organisation/:organisationId/users/:userId/roles/:roleId',
+    'PUT organisations/:organisationId/users/:userId/roles/:roleId',
     async (role, getRolePayload) => {
       const data = await app.inject({
         method: 'PUT',
-        url: `/user-roles/organisation/${seeded_organisation.id}/users/${seeded_user.id}/roles/${seeded_user_role.id}`,
+        url: `/organisations/${seeded_organisation.id}/users/${seeded_user.id}/roles/${seeded_user_role.id}`,
         payload: getRolePayload(),
         headers: orgAdminHeaders
       })
@@ -176,11 +176,11 @@ describe('User Roles', () => {
     }
   )
   testRoles(
-    'PUT /user-roles/organisation/:organisationId/users/:userId/roles/:roleId',
+    'PUT organisations/:organisationId/users/:userId/roles/:roleId',
     async (role, getRolePayload) => {
       const data = await app.inject({
         method: 'PUT',
-        url: `/user-roles/organisation/${seeded_organisation.id}/users/${seeded_user.id}/roles/${seeded_user_role.id}`,
+        url: `/organisations/${seeded_organisation.id}/users/${seeded_user.id}/roles/${seeded_user_role.id}`,
         payload: getRolePayload(),
         headers: superadminHeaders
       })
@@ -204,7 +204,7 @@ describe('User Roles', () => {
     }
   )
 
-  it('DELETE /user-roles/organisation/:organisationId/users/:userId/roles/:roleId', async () => {
+  it('DELETE organisations/:organisationId/users/:userId/roles/:roleId', async () => {
     /**
      * A Seeder is unneccessary
      * since it's only being used once
@@ -218,20 +218,20 @@ describe('User Roles', () => {
     )
     const data = await app.inject({
       method: 'DELETE',
-      url: `/user-roles/organisation/${seeded_organisation.id}/users/${seeded_user.id}/roles/${userRole.id}`,
+      url: `/organisations/${seeded_organisation.id}/users/${seeded_user.id}/roles/${userRole.id}`,
       headers: authHeader
     })
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
   })
 
-  it('POST /user-roles/roles/superadmin/:userId', async () => {
+  it('POST roles/superadmin/:userId', async () => {
     /**
      * This test will need refactoring once the jwts are working
      */
     const data = await app.inject({
       method: 'POST',
-      url: `/user-roles/roles/superadmin/${seeded_user}`,
+      url: `roles/superadmin/${seeded_user}`,
       headers: superadminHeaders
     })
 

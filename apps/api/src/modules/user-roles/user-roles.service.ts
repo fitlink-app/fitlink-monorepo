@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { Team } from '../teams/entities/team.entity'
+import { User } from '../users/entities/user.entity'
 import { CreateUserRoleDto } from './dto/create-user-role.dto'
 import { UpdateUserRoleDto } from './dto/update-user-role.dto'
 import { UserRole } from './entities/user-role.entity'
@@ -11,8 +11,9 @@ export class UserRolesService {
   constructor(
     @InjectRepository(UserRole)
     private userRoleRepository: Repository<UserRole>,
-    @InjectRepository(Team)
-    private teamRepository: Repository<Team>
+
+    @InjectRepository(User)
+    private userRepository: Repository<User>
   ) {}
 
   async create(
@@ -86,19 +87,15 @@ export class UserRolesService {
   }
 
   async checkOwnerShip(orgId: string, userId: string) {
-    let finalUser
-    const teams = await this.teamRepository.find({
-      where: {
-        // If invalid Id it'll throw a 500 beccause of "invalid uuid" error
-        organisation: { id: orgId }
-      },
-      relations: ['users']
-    })
+    const result = await this.userRepository
+      .createQueryBuilder('user')
+      .innerJoin('user.teams', 'teams')
+      .innerJoin('teams.organisation', 'organisation')
+      .where('teams.organisation.id = :orgId', { orgId })
+      .andWhere('user.id = :userId', { userId })
+      .getOne()
 
-    teams.map((team: Team) => {
-      finalUser = team.users.find((user) => user.id === userId)
-    })
-    return !!finalUser
+    return !!result
   }
 
   filterDto(dto: CreateUserRoleDto) {
