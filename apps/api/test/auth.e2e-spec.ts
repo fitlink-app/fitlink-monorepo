@@ -1,3 +1,8 @@
+const date = new Date()
+
+import mockdate from 'mockdate'
+mockdate.set(date)
+
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Connection, getConnection, Repository } from 'typeorm'
 import { AuthModule } from '../src/modules/auth/auth.module'
@@ -130,19 +135,17 @@ describe('Auth', () => {
     expect(result.statusMessage).toEqual('Unauthorized')
   })
 
-  describe('Auth - Access token expiration', () => {
-    it(`/user/:id 401 Does not allow a user to access a JWT guarded controller with an expired access token`, async () => {
-      const result = await app.inject({
-        method: 'GET',
-        url: `/users/${userId}`,
-        headers: {
-          authorization: `Bearer ${expiredToken}`
-        }
-      })
-
-      expect(result.statusCode).toEqual(401)
-      expect(result.statusMessage).toEqual('Unauthorized')
+  it(`/user/:id 401 Does not allow a user to access a JWT guarded controller with an expired access token`, async () => {
+    const result = await app.inject({
+      method: 'GET',
+      url: `/users/${userId}`,
+      headers: {
+        authorization: `Bearer ${expiredToken}`
+      }
     })
+
+    expect(result.statusCode).toEqual(401)
+    expect(result.statusMessage).toEqual('Unauthorized')
   })
 
   afterAll(async () => {

@@ -4,7 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, LessThan } from 'typeorm'
 import { EventEmitter2 } from 'eventemitter2'
 import { QueueablePayload } from '../../models/queueable.model'
-import { OnEvent } from '@nestjs/event-emitter'
+import { OnQueue } from '../../decorators/onqueue.decorator'
+import { Queueables } from '../../constants/queueables'
 
 @Injectable()
 export class QueueService {
@@ -22,7 +23,7 @@ export class QueueService {
    * @param string worker
    *
    */
-  async run(worker = 'default') {
+  async run(worker = this.worker) {
     this.worker = worker
     const queuables = await this.getPendingJobs()
 
@@ -36,7 +37,7 @@ export class QueueService {
     )
 
     // Cycle through queables
-    const result = await Promise.all(
+    const processed = await Promise.all(
       queuables.map(async (queueable) => {
         return this.eventEmitter.emitAsync(
           queueable.payload.action,
@@ -47,7 +48,7 @@ export class QueueService {
 
     return {
       total: queuables.length,
-      result
+      processed
     }
   }
 
@@ -61,7 +62,7 @@ export class QueueService {
   async queue(
     payload: QueueablePayload,
     process_after: Date = new Date(),
-    worker = 'default'
+    worker = this.worker
   ) {
     const queueable = new Queueable()
     queueable.payload = payload
@@ -100,11 +101,11 @@ export class QueueService {
   }
 
   /**
-   * Test listener
+   * Test OnQueue listener
    *
    */
-  @OnEvent('test', { async: true })
-  handleTestEvent(payload: QueueablePayload) {
-    return payload.action
+  @OnQueue(Queueables.Test)
+  handleQueueEvent(payload: QueueablePayload) {
+    return payload
   }
 }
