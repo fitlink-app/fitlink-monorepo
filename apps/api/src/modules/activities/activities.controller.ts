@@ -91,8 +91,8 @@ export class ActivitiesController {
       limit
     }: FindActivitiesDto
   ) {
-    const intPage = parseInt(page)
-    const intLimit = parseInt(limit)
+    const intPage = parseInt(page) || 0
+    const intLimit = parseInt(limit) || 10
 
     // Get local activities
     const all = await this.activitiesService.findAll(
