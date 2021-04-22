@@ -29,7 +29,7 @@ export class UserRolesController {
     )
   }
 
-  @Iam(Roles.Self)
+  @Iam(Roles.Self, Roles.OrganisationAdmin, Roles.SuperAdmin)
   @Get('/organisations/:organisationId/roles/users/:userId')
   findOne(@Param('userId') id: string) {
     return this.userRolesService.getAllUserRoles(id)
@@ -51,7 +51,7 @@ export class UserRolesController {
     )
   }
 
-  @Iam(Roles.Self)
+  @Iam(Roles.Self, Roles.OrganisationAdmin, Roles.SuperAdmin)
   @Delete('/organisations/:organisationId/users/:userId/roles/:id')
   remove(
     @Param('id') id: string,
