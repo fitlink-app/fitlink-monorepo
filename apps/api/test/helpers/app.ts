@@ -41,6 +41,8 @@ import { JwtAuthGuard } from '../../src/modules/auth/guards/jwt-auth.guard'
 import { IamGuard } from '../../src/guards/iam.guard'
 import { EmailService } from '../../src/modules/common/email.service'
 import { OrganisationsInvitation } from '../../src/modules/organisations-invitations/entities/organisations-invitation.entity'
+import { EventEmitterModule } from '@nestjs/event-emitter'
+import { Queueable } from '../../src/modules/queue/entities/queueable.entity'
 
 export const entities = [
   Activity,
@@ -56,6 +58,7 @@ export const entities = [
   Organisation,
   OrganisationsInvitation,
   Provider,
+  Queueable,
   RefreshToken,
   Reward,
   RewardsRedemption,
@@ -76,6 +79,7 @@ export async function mockApp({
   const moduleRef = Test.createTestingModule({
     imports: [
       ...imports,
+      EventEmitterModule.forRoot(),
       TypeOrmModule.forRoot({
         name: 'default',
         type: 'postgres',

@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
+import { OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import { getManager, Repository } from 'typeorm'
 import { Pagination } from '../../helpers/paginate'
+import { QueueableEventPayload } from '../../models/queueable.model'
 import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
 import { Sport } from '../sports/entities/sport.entity'
 import { Team } from '../teams/entities/team.entity'
@@ -135,5 +137,18 @@ export class LeaguesService {
       return await entityManager.delete(League, league.id)
     })
     return result
+  }
+
+  @OnEvent('queueable.league_started')
+  processLeagueStartedEvent({
+    payload,
+    resolve,
+    reject
+  }: QueueableEventPayload) {
+    if (payload.subject) {
+      resolve()
+    } else {
+      reject('An error has occurred')
+    }
   }
 }

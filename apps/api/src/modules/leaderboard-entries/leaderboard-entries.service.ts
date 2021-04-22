@@ -139,8 +139,8 @@ export class LeaderboardEntriesService {
   /**
    * Find a single user's ranks in their latest leaderboards,
    * ignoring previous leaderboards of a league
-   * @param leaderboardId
-   * @param options
+   * @param string userId
+   * @param array LeaderboardEntry[]
    */
   async findRankInLeaderboards(userId: string): Promise<LeaderboardEntry[]> {
     const query = this.leaderboardEntryRepository.manager
