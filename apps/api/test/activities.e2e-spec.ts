@@ -20,7 +20,9 @@ const activityColumns = [
   'created_at',
   'updated_at',
   'organizer_name',
-  'organizer_url'
+  'organizer_url',
+  'organizer_email',
+  'organizer_telephone'
 ]
 
 describe('Activities', () => {
@@ -341,6 +343,8 @@ describe('Activities', () => {
       date: 'Monday at 5pm',
       organizer_name: 'Fitlink',
       organizer_url: 'https://fitlinkapp.com',
+      organizer_email: 'info@fitlinkapp.com',
+      organizer_telephone: '+44 10000000000000',
       ...override
     }
 
