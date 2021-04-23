@@ -81,6 +81,8 @@ export class ActivitiesIminService {
       description: each.description,
       organizer_name: each.organizer.name,
       organizer_url: each.organizer.url,
+      organizer_telephone: each.organizer.telephone,
+      organizer_email: each.organizer.email,
       organizer_image: ActivitiesIminService.getOrganizerImageUrl(each),
       date: ActivitiesIminService.itemScheduleToDateString(each),
       cost: ActivitiesIminService.getCost(each),

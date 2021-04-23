@@ -19,6 +19,7 @@ import { ActivitiesUpdates1617277086715 } from '../database/migrations/161727708
 import { ActivityTsVector1617639276042 } from '../database/migrations/1617639276042-ActivityTsVector'
 import { RemoveCascadesInTeams1617803214748 } from '../database/migrations/1617803214748-RemoveCascadesInTeams'
 import { GoalsEntrySetDefaults1617974041018 } from '../database/migrations/1617974041018-GoalsEntrySetDefaults'
+import { ActivitiesTelEmail1619175623838 } from '../database/migrations/1619175623838-ActivitiesTelEmail'
 
 export default [
   InitializeSchema1614887523112,
@@ -36,5 +37,6 @@ export default [
   ActivitiesUpdates1617277086715,
   ActivityTsVector1617639276042,
   RemoveCascadesInTeams1617803214748,
-  GoalsEntrySetDefaults1617974041018
+  GoalsEntrySetDefaults1617974041018,
+  ActivitiesTelEmail1619175623838
 ]
