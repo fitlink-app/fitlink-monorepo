@@ -1,0 +1,108 @@
+name: Release to UAT
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    env:
+      SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+      DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
+      DB_USERNAME: ${{ secrets.DEV_DB_USERNAME }}
+      DB_DATABASE_NAME: ${{ secrets.DEV_DB_DATABASE_NAME }}
+      DB_HOST: ${{ secrets.DEV_DB_HOST }}
+      DB_PORT: ${{ secrets.DEV_DB_PORT }}
+      API_PREFIX: ${{ secrets.DEV_API_PREFIX }}
+      API_DOMAIN_NAME: ${{ secrets.DEV_API_DOMAIN_NAME }}
+      API_DOMAIN_NAME_HOSTED_ZONE_ID: ${{ secrets.DEV_API_DOMAIN_NAME_HOSTED_ZONE_ID }}
+
+      # This is the AWS API Gateway hosted proxy for imin, allowing the lambda function to reach it inside the VPC
+      # https://eu-west-2.console.aws.amazon.com/apigateway/home?region=eu-west-2#/apis/a1udqh1r23/settings
+      # DEV: https://a1udqh1r23.execute-api.eu-west-2.amazonaws.com/imin-proxy/
+      IMIN_API_BASE_URL: ${{ secrets.DEV_IMIN_API_BASE_URL }}
+      EMAIL_DEBUG: 0
+      ENABLE_SWAGGER: 1
+
+      # S3 configuration uses a VPC endpoint (interface)
+      S3_ACCESS_KEY_ID: ${{ secrets.DEV_S3_ACCESS_KEY_ID }}
+      S3_SECRET_ACCESS_KEY: ${{ secrets.DEV_S3_SECRET_ACCESS_KEY }}
+
+      # DEV: develop-nest-fitlinkapp
+      S3_BUCKET: ${{ secrets.DEV_S3_BUCKET }}
+
+      # DEV: https://bucket.vpce-00806631016162256-9moxfok7.s3.eu-west-2.vpce.amazonaws.com
+      S3_BUCKET_ENDPOINT: ${{ secrets.DEV_S3_BUCKET_ENDPOINT }}
+      S3_USE_ACCESS_POINT: '1'
+      S3_REGION: eu-west-2
+
+      # DEV: https://develop-nest-fitlinkapp.s3.eu-west-2.amazonaws.com
+      S3_BUCKET_PUBLIC_ENDPOINT: ${{ secrets.DEV_S3_BUCKET_PUBLIC_ENDPOINT }}
+
+      # Security groups
+      # See terraform tfstate for values
+      VPC_SECURITY_GROUP_ID: ${{ secrets.DEV_VPC_SECURITY_GROUP_ID }}
+      VPC_SUBNET_ID_1: ${{ secrets.DEV_VPC_SUBNET_ID_1 }}
+      VPC_SUBNET_ID_2: ${{ secrets.DEV_VPC_SUBNET_ID_2 }}
+      VPC_SUBNET_ID_3: ${{ secrets.DEV_VPC_SUBNET_ID_3 }}
+
+      # Serverless
+      SERVERLESS_DEPLOYMENT_BUCKET: ${{ secrets.DEV_SERVERLESS_DEPLOYMENT_BUCKET }}
+      SERVERLESS_IAM_RESOURCE_ARN: ${{ secrets.DEV_SERVERLESS_IAM_RESOURCE_ARN }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Setup docker
+        run: docker-compose up -d postgres-jest s3rver
+
+      - name: Allow docker postgres 10 seconds to startups
+        uses: jakejarvis/wait-action@v0.1.0
+        with:
+          time: '10s'
+
+      - name: Migrate and seed test database
+        run: yarn migration:run -c jest && yarn migration:seed -c jest
+
+      - name: Test e2e
+        run: yarn run test
+
+      - name: Stop docker
+        run: docker-compose down
+
+      - name: Build nest for Serverless
+        run: yarn run build
+
+      - name: Install serverless globally
+        run: yarn add global serverless@2.28.7
+
+      - name: Serverless - Run deploy (development)
+        if: github.ref == 'refs/heads/develop'
+        run: yarn run sls:deploy
+
+      - name: Serverless - Run migrations (PRODUCTION!)
+        if: github.ref == 'refs/heads/main'
+        run: yarn run sls:migrate
+
+      - name: Serverless - Run deploy (PRODUCTION!)
+        if: github.ref == 'refs/heads/main'
+        run: yarn run sls:deploy --stage production
