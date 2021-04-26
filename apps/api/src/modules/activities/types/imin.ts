@@ -46,6 +46,7 @@ interface IminOrganizer {
   url: string
   name: string
   telephone: string
+  email: string
   image?: {
     url: string
   }

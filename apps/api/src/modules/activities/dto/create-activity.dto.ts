@@ -4,7 +4,8 @@ import {
   IsLatLong,
   IsArray,
   IsOptional,
-  IsString
+  IsString,
+  IsEmail
 } from 'class-validator'
 import { Image } from '../../images/entities/image.entity'
 
@@ -28,6 +29,15 @@ export class CreateActivityDto {
   @ApiProperty()
   @IsUrl()
   organizer_url: string
+
+  @ApiProperty()
+  @IsEmail()
+  @IsOptional()
+  organizer_email?: string
+
+  @ApiProperty()
+  @IsOptional()
+  organizer_telephone?: string
 
   @ApiProperty()
   @IsLatLong()

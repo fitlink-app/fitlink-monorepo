@@ -48,6 +48,12 @@ export class Activity extends CreatableEntity {
   @Column({ nullable: true })
   organizer_url: string
 
+  @Column({ nullable: true })
+  organizer_telephone: string
+
+  @Column({ nullable: true })
+  organizer_email: string
+
   @Column()
   meeting_point_text: string
 
