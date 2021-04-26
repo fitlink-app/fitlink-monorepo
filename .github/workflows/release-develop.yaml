@@ -94,3 +94,7 @@ jobs:
       - name: Serverless - Run deploy (development)
         if: github.ref == 'refs/heads/develop'
         run: yarn run sls:deploy
+
+      - name: Serverless - Run migrations (development)
+        if: github.ref == 'refs/heads/develop'
+        run: yarn run sls:migrate

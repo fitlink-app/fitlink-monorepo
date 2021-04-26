@@ -91,10 +91,10 @@ jobs:
       - name: Install serverless globally
         run: yarn add global serverless@2.28.7
 
-      - name: Serverless - Run migrations (PRODUCTION!)
-        if: github.ref == 'refs/heads/main'
-        run: yarn run sls:migrate:production
-
       - name: Serverless - Run deploy (PRODUCTION!)
         if: github.ref == 'refs/heads/main'
         run: yarn run sls:deploy:production
+
+      - name: Serverless - Run migrations (PRODUCTION!)
+        if: github.ref == 'refs/heads/main'
+        run: yarn run sls:migrate:production
