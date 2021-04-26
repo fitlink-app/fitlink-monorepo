@@ -38,7 +38,7 @@ provider:
   runtime: nodejs12.x
   region: eu-west-2
   deploymentBucket:
-    name: fitlink-nest-serverless-deployment-dev-bucket
+    name: ${env:SERVERLESS_DEPLOYMENT_BUCKET}
     serverSideEncryption: AES256
   iam:
     role:
@@ -48,7 +48,7 @@ provider:
             - s3:PutObject
             - s3:GetObject
             - s3:DeleteObject
-          Resource: "**arn:aws:s3:::develop-nest-fitlinkapp**/*"
+          Resource: "${env:SERVERLESS_IAM_RESOURCE_ARN}"
 
 functions:
   main:
@@ -59,20 +59,20 @@ functions:
           path: /{any+}
     vpc:
       securityGroupIds:
-        - sg-4e482523
+        - ${env:VPC_SECURITY_GROUP_ID}
       subnetIds:
-        - subnet-0ca95540
-        - subnet-3b79d741
-        - subnet-449bf92d
+        - ${env:VPC_SUBNET_ID_1}
+        - ${env:VPC_SUBNET_ID_2}
+        - ${env:VPC_SUBNET_ID_3}
 
   migrate:
     handler: dist/apps/api/serverless.migrate
     vpc:
       securityGroupIds:
-        - sg-4e482523
+        - ${env:VPC_SECURITY_GROUP_ID}
       subnetIds:
-        - subnet-0ca95540
-        - subnet-3b79d741
-        - subnet-449bf92d
+        - ${env:VPC_SUBNET_ID_1}
+        - ${env:VPC_SUBNET_ID_2}
+        - ${env:VPC_SUBNET_ID_3}
 
 

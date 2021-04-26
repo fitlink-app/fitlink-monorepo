@@ -87,7 +87,9 @@ export class ImagesService {
 
     await client.send(new PutObjectCommand(input))
 
-    return [this.configService.get('S3_PUBLIC_ENDPOINT'), filePath].join('/')
+    return [this.configService.get('S3_BUCKET_PUBLIC_ENDPOINT'), filePath].join(
+      '/'
+    )
   }
 
   async generateVariants(

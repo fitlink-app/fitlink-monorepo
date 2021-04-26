@@ -19,18 +19,36 @@ jobs:
 
       # This is the AWS API Gateway hosted proxy for imin, allowing the lambda function to reach it inside the VPC
       # https://eu-west-2.console.aws.amazon.com/apigateway/home?region=eu-west-2#/apis/a1udqh1r23/settings
-      IMIN_API_BASE_URL: https://a1udqh1r23.execute-api.eu-west-2.amazonaws.com/imin-proxy/
+      # DEV: https://a1udqh1r23.execute-api.eu-west-2.amazonaws.com/imin-proxy/
+      IMIN_API_BASE_URL: ${{ secrets.DEV_IMIN_API_BASE_URL }}
       EMAIL_DEBUG: 0
       ENABLE_SWAGGER: 1
 
       # S3 configuration uses a VPC endpoint (interface)
       S3_ACCESS_KEY_ID: ${{ secrets.DEV_S3_ACCESS_KEY_ID }}
       S3_SECRET_ACCESS_KEY: ${{ secrets.DEV_S3_SECRET_ACCESS_KEY }}
-      S3_BUCKET: develop-nest-fitlinkapp
-      S3_ENDPOINT: https://bucket.vpce-00806631016162256-9moxfok7.s3.eu-west-2.vpce.amazonaws.com
+
+      # DEV: develop-nest-fitlinkapp
+      S3_BUCKET: ${{ secrets.DEV_S3_BUCKET }}
+
+      # DEV: https://bucket.vpce-00806631016162256-9moxfok7.s3.eu-west-2.vpce.amazonaws.com
+      S3_BUCKET_ENDPOINT: ${{ secrets.DEV_S3_BUCKET_ENDPOINT }}
       S3_USE_ACCESS_POINT: '1'
       S3_REGION: eu-west-2
-      S3_PUBLIC_ENDPOINT: https://develop-nest-fitlinkapp.s3.eu-west-2.amazonaws.com
+
+      # DEV: https://develop-nest-fitlinkapp.s3.eu-west-2.amazonaws.com
+      S3_BUCKET_PUBLIC_ENDPOINT: ${{ secrets.DEV_S3_BUCKET_PUBLIC_ENDPOINT }}
+
+      # Security groups
+      # See terraform tfstate for values
+      VPC_SECURITY_GROUP_ID: ${{ secrets.DEV_VPC_SECURITY_GROUP_ID }}
+      VPC_SUBNET_ID_1: ${{ secrets.DEV_VPC_SUBNET_ID_1 }}
+      VPC_SUBNET_ID_2: ${{ secrets.DEV_VPC_SUBNET_ID_2 }}
+      VPC_SUBNET_ID_3: ${{ secrets.DEV_VPC_SUBNET_ID_3 }}
+
+      # Serverless
+      SERVERLESS_DEPLOYMENT_BUCKET: ${{ secrets.DEV_SERVERLESS_DEPLOYMENT_BUCKET }}
+      SERVERLESS_IAM_RESOURCE_ARN: ${{ secrets.DEV_SERVERLESS_IAM_RESOURCE_ARN }}
 
     steps:
       - uses: actions/checkout@v2
