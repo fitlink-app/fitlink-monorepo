@@ -29,8 +29,10 @@
     "docs:generate": "@compodoc/compodoc -p tsconfig.json -s",
     "sls:offline:start": "cross-env API_PREFIX=\"api/v1\" && sls offline start",
     "sls:deploy": "cross-env NODE_ENV=production && serverless deploy",
+    "sls:deploy:production": "cross-env NODE_ENV=production && serverless deploy --stage production",
     "sls:package": "serverless package",
-    "sls:migrate": "serverless invoke -f migrate"
+    "sls:migrate": "serverless invoke -f migrate",
+    "sls:migrate:production": "serverless invoke -f migrate --stage production"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.8.1",

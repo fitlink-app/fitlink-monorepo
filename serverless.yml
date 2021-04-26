@@ -40,15 +40,6 @@ provider:
   deploymentBucket:
     name: ${env:SERVERLESS_DEPLOYMENT_BUCKET}
     serverSideEncryption: AES256
-  iam:
-    role:
-      statements:
-        - Effect: "Allow"
-          Action:
-            - s3:PutObject
-            - s3:GetObject
-            - s3:DeleteObject
-          Resource: "${env:SERVERLESS_IAM_RESOURCE_ARN}"
 
 functions:
   main:

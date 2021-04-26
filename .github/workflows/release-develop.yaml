@@ -30,9 +30,6 @@ jobs:
 
       # DEV: develop-nest-fitlinkapp
       S3_BUCKET: ${{ secrets.DEV_S3_BUCKET }}
-
-      # DEV: https://bucket.vpce-00806631016162256-9moxfok7.s3.eu-west-2.vpce.amazonaws.com
-      S3_BUCKET_ENDPOINT: ${{ secrets.DEV_S3_BUCKET_ENDPOINT }}
       S3_USE_ACCESS_POINT: '1'
       S3_REGION: eu-west-2
 
@@ -48,7 +45,6 @@ jobs:
 
       # Serverless
       SERVERLESS_DEPLOYMENT_BUCKET: ${{ secrets.DEV_SERVERLESS_DEPLOYMENT_BUCKET }}
-      SERVERLESS_IAM_RESOURCE_ARN: ${{ secrets.DEV_SERVERLESS_IAM_RESOURCE_ARN }}
 
     steps:
       - uses: actions/checkout@v2
@@ -98,11 +94,3 @@ jobs:
       - name: Serverless - Run deploy (development)
         if: github.ref == 'refs/heads/develop'
         run: yarn run sls:deploy
-
-      - name: Serverless - Run migrations (PRODUCTION!)
-        if: github.ref == 'refs/heads/main'
-        run: yarn run sls:migrate
-
-      - name: Serverless - Run deploy (PRODUCTION!)
-        if: github.ref == 'refs/heads/main'
-        run: yarn run sls:deploy --stage production
