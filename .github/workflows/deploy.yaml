@@ -40,6 +40,8 @@ jobs:
       S3_BUCKET: ${{ secrets.DEV_S3_BUCKET }}
       S3_USE_ACCESS_POINT: '1'
       S3_REGION: eu-west-2
+      # VPC endpoint: https://bucket.vpce-00806631016162256-9moxfok7.s3.eu-west-2.vpce.amazonaws.com
+      S3_ENDPOINT: ${{ secrets.DEV_S3_ENDPOINT }}
 
       # DEV: https://develop-nest-fitlinkapp.s3.eu-west-2.amazonaws.com
       # PRD: https://d3642p7out83uo.cloudfront.net
