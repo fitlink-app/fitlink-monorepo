@@ -1,32 +1,53 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
+import { JWTRoles } from '../../models'
+import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { User } from './entities/user.entity'
-import { JWTRoles } from '../../models'
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private userRepository: Repository<User>,
+    private userRolesService: UserRolesService
   ) {}
 
-  getRolesForToken(user: User): JWTRoles {
-    return {
-      /** Org admin: OrganisationId[] */
-      o_a: ['39872387239857240'],
+  async getRolesForToken(user: User): Promise<JWTRoles> {
+    const roles = await this.userRolesService.getAllUserRoles(user.id)
+    const userRoles = {
+      o_a: [],
 
       /** Team admin TeamId[] */
-      t_a: ['39872387239857239'],
+      t_a: [],
 
       /** Subscriptions admin SubscriptionId[] */
-      s_a: ['39872387239857240'],
+      s_a: [],
 
       /** Super admin */
-      spr: true
+      spr: false
     }
+
+    for (const value of roles) {
+      if (value.role === 'team_admin') {
+        userRoles.t_a.push(value.id)
+      }
+
+      if (value.role === 'organisation_admin') {
+        userRoles.o_a.push(value.id)
+      }
+
+      if (value.role === 'subscription_admin') {
+        userRoles.s_a.push(value.id)
+      }
+
+      if (value.role === 'superadmin') {
+        userRoles.spr = true
+      }
+    }
+    return userRoles
   }
 
   create(createUserDto: CreateUserDto) {

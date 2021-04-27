@@ -1,8 +1,10 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Connection, getConnection, Repository } from 'typeorm'
+import { AuthModule } from '../src/modules/auth/auth.module'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { UserRole } from '../src/modules/user-roles/entities/user-role.entity'
 import { UserRolesModule } from '../src/modules/user-roles/user-roles.module'
+import { UsersModule } from '../src/modules/users/users.module'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
 
@@ -20,9 +22,10 @@ describe('User Roles', () => {
   let orgAdminPayload
   let teamAdminPayload
   let subAdminPayload
+
   beforeAll(async () => {
     app = await mockApp({
-      imports: [UserRolesModule],
+      imports: [UserRolesModule, UsersModule, AuthModule],
       providers: [],
       controllers: []
     })
@@ -32,9 +35,14 @@ describe('User Roles', () => {
     userRoleRepository = connection.getRepository(UserRole)
     superadminHeaders = getAuthHeaders({ spr: true })
 
-    const organisation = await organisationRepository.findOne({
-      relations: ['teams', 'subscriptions']
-    })
+    const organisation = await organisationRepository
+      .createQueryBuilder('organisation')
+      .innerJoinAndSelect('organisation.teams', 'teams')
+      .innerJoinAndSelect('organisation.subscriptions', 'subscriptions')
+      .where('teams.organisation.id = organisation.id')
+      .andWhere('subscriptions.organisation.id = organisation.id')
+      .getOne()
+
     seeded_organisation = organisation
 
     if (organisation) {
@@ -175,6 +183,7 @@ describe('User Roles', () => {
       }
     }
   )
+
   testRoles(
     'PUT organisations/:organisationId/users/:userId/roles/:roleId',
     async (role, getRolePayload) => {
@@ -227,7 +236,7 @@ describe('User Roles', () => {
 
   it('POST roles/superadmin/:userId', async () => {
     /**
-     * This test will need refactoring once the jwts are working
+     * This test will need refactoring once the jwts.
      */
     const data = await app.inject({
       method: 'POST',

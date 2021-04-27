@@ -47,4 +47,9 @@ export class UsersController {
   remove(@Param('userId') id: string) {
     return this.usersService.remove(id)
   }
+
+  @Get('/getRolesForToken/:userId')
+  getRolesForToken(@Param('userId') userId: string) {
+    return this.usersService.getRolesForToken({ id: userId } as any)
+  }
 }
