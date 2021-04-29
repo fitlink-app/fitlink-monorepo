@@ -49,7 +49,9 @@ describe('User Roles', () => {
       orgAdminHeaders = getAuthHeaders({ o_a: [organisation.id] })
     }
 
-    const userRole = await userRoleRepository.findOne({ relations: ['user'] })
+    const userRole = await userRoleRepository.findOne({
+      relations: ['user', 'organisation', 'team', 'subscription']
+    })
     seeded_user_role = userRole
     seeded_user = userRole.user
     authHeader = getAuthHeaders({}, userRole.user.id)
