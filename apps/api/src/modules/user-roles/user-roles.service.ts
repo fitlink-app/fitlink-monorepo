@@ -7,7 +7,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
-import { UsersService } from '../users/users.service'
 import { CreateUserRoleDto } from './dto/create-user-role.dto'
 import { UpdateUserRoleDto } from './dto/update-user-role.dto'
 import { UserRole } from './entities/user-role.entity'
@@ -54,7 +53,8 @@ export class UserRolesService {
         user: {
           id
         }
-      }
+      },
+      relations: ['organisation', 'team', 'subscription']
     })
   }
 

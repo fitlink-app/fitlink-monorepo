@@ -1,9 +1,9 @@
+import { genSalt, hash } from 'bcrypt'
 import { Connection, getManager, Repository } from 'typeorm'
 import { Factory, Seeder } from 'typeorm-seeding'
 import { Organisation } from '../../src/modules/organisations/entities/organisation.entity'
 import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity'
 import { User } from '../../src/modules/users/entities/user.entity'
-
 const username = 'TestUser4'
 
 export default class UserWithRolesSeed implements Seeder {
@@ -16,11 +16,14 @@ export default class UserWithRolesSeed implements Seeder {
       Organisation
     )
 
+    const plainPassword = 'passwordIsATerriblePassword'
+    const salt = await genSalt()
+    const password = await hash(plainPassword, salt)
     const user = await userRepository.save(
       userRepository.create({
         name: username,
         email: `${username.toLowerCase()}@gmail.com`,
-        password: 'passwordIsATerriblePassword'
+        password
       })
     )
 
