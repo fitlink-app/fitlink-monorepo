@@ -21,6 +21,7 @@ jobs:
       # https://eu-west-2.console.aws.amazon.com/apigateway/home?region=eu-west-2#/apis/a1udqh1r23/settings
       # DEV: https://a1udqh1r23.execute-api.eu-west-2.amazonaws.com/imin-proxy/
       IMIN_API_BASE_URL: ${{ secrets.DEV_IMIN_API_BASE_URL }}
+      IMIN_API_KEY: ${{ secrets.PROD_IMIN_API_KEY }}
       EMAIL_DEBUG: 0
       ENABLE_SWAGGER: 1
 
