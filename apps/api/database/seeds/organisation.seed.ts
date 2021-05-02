@@ -18,7 +18,7 @@ import { Subscription } from '../../src/modules/subscriptions/entities/subscript
 
 const COUNT_ORGANISATIONS = 2
 const COUNT_TEAMS = 2
-const COUNT_SUBSCRIPTIONS = 2
+const COUNT_SUBSCRIPTIONS = 6
 const COUNT_LEAGUES = 2
 const COUNT_USERS = 21
 const COUNT_LEADERBOARDS = 2
@@ -35,18 +35,6 @@ export default class CreateOrganisations implements Seeder {
      * Create organisations
      */
     const orgs = await factory(Organisation)().createMany(COUNT_ORGANISATIONS)
-
-    /**
-     * Create subscriptions for organisations
-     */
-    await Promise.all(
-      orgs.map(
-        async (organisation) =>
-          await factory(Subscription)({ organisation }).createMany(
-            COUNT_SUBSCRIPTIONS
-          )
-      )
-    )
 
     /**
      * Create teams for organisations
@@ -73,6 +61,21 @@ export default class CreateOrganisations implements Seeder {
             .add(users)
           return users
         })
+      )
+    )
+
+    const userArray = Object.assign([], users)
+    const halfUserArray = userArray.splice(0, users.length / 2)
+    console.log(orgs)
+    const subscriptions = flatten(
+      await Promise.all(
+        userArray.map(
+          async (user) => {
+            await factory(Subscription)({ organisation: orgs[Math.ceil(Math.random() * (COUNT_ORGANISATIONS - 1))], users: [user, halfUserArray.pop()] }).createMany(
+              COUNT_SUBSCRIPTIONS
+            )
+          }
+        )
       )
     )
 
@@ -182,7 +185,7 @@ export default class CreateOrganisations implements Seeder {
             }).createMany(
               COUNT_GOALSENTRY
             )
-          
+
         )
       )
     )

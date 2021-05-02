@@ -3,7 +3,8 @@ import {
   Entity,
   ManyToOne,
   Column,
-  OneToMany
+  OneToMany,
+  JoinColumn
 } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { Organisation } from '../../organisations/entities/organisation.entity'
@@ -20,27 +21,36 @@ export class Subscription extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @OneToMany(() => User, (user) => user.subscription)
-  users: User[]
+  @OneToMany(() => User, (user) => user.subscription, {
+    nullable: true
+  })
+  users: User[];
 
-  @ManyToOne(() => Organisation, (organisation) => organisation.subscriptions)
+
+  @ManyToOne(() => Organisation, (organisation) => organisation.subscriptions, {
+    nullable: true
+  })
+  @JoinColumn()
   organisation: Organisation
 
   @Column()
   billing_entity: string
 
   @Column({
-    nullable: true
+    nullable: true,
+    default: ''
   })
   billing_address_1?: string
 
   @Column({
-    nullable: true
+    nullable: true,
+    default: ''
   })
   billing_address_2?: string
 
   @Column({
-    nullable: true
+    nullable: true,
+    default: ''
   })
   billing_country?: string
 
@@ -50,17 +60,20 @@ export class Subscription extends CreatableEntity {
   billing_country_code?: string
 
   @Column({
-    nullable: true
+    nullable: true,
+    default: ''
   })
   billing_state?: string
 
   @Column({
-    nullable: true
+    nullable: true,
+    default: ''
   })
   billing_city?: string
 
   @Column({
-    nullable: true
+    nullable: true,
+    default: ''
   })
   billing_postcode?: string
 
