@@ -14,7 +14,7 @@ import { UserRole } from '../src/modules/user-roles/entities/user-role.entity'
 import { User } from '../src/modules/users/entities/user.entity'
 import { UsersModule } from '../src/modules/users/users.module'
 import { mockApp } from './helpers/app'
-import { formatRoles } from './helpers/formatRoles'
+import { formatRoles } from '../src/helpers/formatRoles'
 import UserWithRolesSeed, { DeleteUserWithRolesSeed } from './seeds/user.seed'
 
 describe('Users', () => {

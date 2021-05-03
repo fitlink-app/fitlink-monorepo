@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { formatRoles } from '../../../test/helpers/formatRoles'
+import { formatRoles } from '../../helpers/formatRoles'
 import { Repository } from 'typeorm'
 import { JWTRoles } from '../../models'
 import { UserRolesService } from '../user-roles/user-roles.service'
@@ -16,7 +16,7 @@ export class UsersService {
     private userRolesService: UserRolesService
   ) {}
 
-  async getRolesForToken(user: User) {
+  async getRolesForToken(user: User):Promise<JWTRoles> {
     const roles = await this.userRolesService.getAllUserRoles(user.id)
     return formatRoles(roles)
   }
