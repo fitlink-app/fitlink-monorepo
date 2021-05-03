@@ -15,10 +15,10 @@ async function getSubscriptions() {
     relations: ['organisation']
   })
 }
-async function getSubscription() {
+async function getSubscriptionUsers() {
   const connection = getConnection()
   const repository = connection.getRepository(Subscription)
-  return repository.findOne({
+  return repository.find({
     relations: ['organisation', 'users']
   })
 }
@@ -289,6 +289,7 @@ describe('Assigning users to the subscriptions', () => {
   let authHeaders
   let subscription: Subscription
   let team: Team
+  let seed
 
   beforeAll(async () => {
     app = await mockApp({
@@ -297,7 +298,11 @@ describe('Assigning users to the subscriptions', () => {
     })
 
     // Retrieve an subscription to test with
-    subscription = await getSubscription()
+    seed = await getSubscriptionUsers()
+    subscription = seed[Math.ceil(Math.random() * (seed.length - 1))]
+    while(subscription.users.length < 1) {
+      subscription = seed[Math.ceil(Math.random() * (seed.length - 1))]
+    }
     // Retrieve an team to test with
     team = await getTeam()
 
@@ -434,7 +439,7 @@ describe('Assigning users to the subscriptions', () => {
       const { organisation, id, users, ...rest } = subscription
       const result = await app.inject({
         method: 'DELETE',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/users/${users[0].id}`,
+        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/users/${users[1].id}`,
         headers: getHeaders()
       })
 
@@ -444,7 +449,7 @@ describe('Assigning users to the subscriptions', () => {
       }
 
       expect(result.statusCode).toEqual(200)
-      expect(result.json()['users'].findIndex((user) => user.id == users[0].id)).toEqual(-1)
+      expect(result.json()['users'].findIndex((user) => user.id == users[1].id)).toEqual(-1)
     }
   )
 

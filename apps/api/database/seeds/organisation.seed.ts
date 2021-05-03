@@ -66,7 +66,6 @@ export default class CreateOrganisations implements Seeder {
 
     const userArray = Object.assign([], users)
     const halfUserArray = userArray.splice(0, users.length / 2)
-    console.log(orgs)
     const subscriptions = flatten(
       await Promise.all(
         userArray.map(
