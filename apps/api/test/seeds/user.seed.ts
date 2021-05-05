@@ -4,6 +4,8 @@ import { Factory, Seeder } from 'typeorm-seeding'
 import { Organisation } from '../../src/modules/organisations/entities/organisation.entity'
 import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity'
 import { User } from '../../src/modules/users/entities/user.entity'
+import { TeamsInvitation } from '../../src/modules/teams-invitations/entities/teams-invitation.entity'
+import { Team } from '../../src/modules/teams/entities/team.entity'
 const username = 'TestUser4'
 
 export default class UserWithRolesSeed implements Seeder {
@@ -109,6 +111,16 @@ export class DeleteUserSeeder implements Seeder {
     const user = await userRepository.find({
       where: { name: 'Seeded User' },
       relations: ['teams_invitations']
+    })
+    user.forEach(async (user) => {
+      await userRepository.manager
+        .getRepository(TeamsInvitation)
+        .delete({ resolved_user: user })
+      await userRepository
+        .createQueryBuilder('users')
+        .relation(User, 'teams')
+        .of(user.id)
+        .remove(user)
     })
     // console.log(user)
     await userRepository.remove(user)
