@@ -122,7 +122,6 @@ export class DeleteUserSeeder implements Seeder {
         .of(user.id)
         .remove(user)
     })
-    // console.log(user)
     await userRepository.remove(user)
   }
 }

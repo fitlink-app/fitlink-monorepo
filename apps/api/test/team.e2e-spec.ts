@@ -49,26 +49,23 @@ describe('Teams', () => {
     }
 
     await useSeeding()
-    await runSeeder(DeleteUserSeeder)
+    await runSeeder(UserSeeder)
 
-    const users = await userRepository.find({
+    const user = await userRepository.findOne({
       where: { name: `Seeded User` },
       relations: ['teams']
     })
 
-    // const filteredUsers = users.filter((user) => user.teams !== [])
-    // let user = filteredUsers[Math.floor(Math.random() * filteredUsers.length)]
-
-    // const data = await app.inject({
-    //   method: 'POST',
-    //   url: `/organisations/${organisation.id}/teams/${organisation.teams[0].id}/invitations`,
-    //   headers: superadminHeaders,
-    //   payload: {
-    //     email: user.email,
-    //     invitee: user.name
-    //   }
-    // })
-    // invitationToken = data.json().token
+    const data = await app.inject({
+      method: 'POST',
+      url: `/organisations/${organisation.id}/teams/${organisation.teams[0].id}/invitations`,
+      headers: superadminHeaders,
+      payload: {
+        email: user.email,
+        invitee: user.name
+      }
+    })
+    invitationToken = data.json().token
   })
 
   const testOrgAndSuperAdmin = test.each([
@@ -82,23 +79,20 @@ describe('Teams', () => {
     ['a team admin', () => teamAdminHeaders]
   ])
 
-  /**
-   * You can't send more than one invitation token so the test is only for superadmins.
-   */
-  // it(`POST /organisations/:organisationId/teams/:teamId/join`, async () => {
-  //   const data = await app.inject({
-  //     method: 'POST',
-  //     url: `/organisations/${seeded_organisation.id}/teams/${seeded_organisation.teams[0].id}/join`,
-  //     headers: superadminHeaders,
-  //     payload: { token: invitationToken }
-  //   })
+  it(`POST /organisations/:organisationId/teams/:teamId/join`, async () => {
+    const data = await app.inject({
+      method: 'POST',
+      url: `/organisations/${seeded_organisation.id}/teams/${seeded_organisation.teams[0].id}/join`,
+      headers: superadminHeaders,
+      payload: { token: invitationToken }
+    })
 
-  //   expect(data.statusMessage).toBe('Created')
-  //   expect(data.statusCode).toBe(201)
-  //   expect(data.json().resolved_user).toBeDefined()
-  //   expect(data.json().team).toBeDefined()
-  //   expect(data.json().name).toBeDefined()
-  // })
+    expect(data.statusMessage).toBe('Created')
+    expect(data.statusCode).toBe(201)
+    expect(data.json().resolved_user).toBeDefined()
+    expect(data.json().team).toBeDefined()
+    expect(data.json().name).toBeDefined()
+  })
 
   testAll(
     `GET /organisations/orgId/teams/teamId/users`,
@@ -242,6 +236,8 @@ describe('Teams', () => {
   }
 
   afterAll(async () => {
+    await useSeeding()
+    await runSeeder(DeleteUserSeeder)
     await app.close()
   })
 })
