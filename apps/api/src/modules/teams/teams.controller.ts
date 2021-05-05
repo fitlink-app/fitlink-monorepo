@@ -1,13 +1,13 @@
-import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common'
-import { TeamsService } from './teams.service'
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
+import { Files } from '../../decorators/files.decorator'
+import { Iam } from '../../decorators/iam.decorator'
+import { UploadOptions, Uploads } from '../../decorators/uploads.decorator'
+import { Image, ImageType } from '../images/entities/image.entity'
+import { ImagesService } from '../images/images.service'
+import { Roles } from '../user-roles/entities/user-role.entity'
 import { CreateTeamDto } from './dto/create-team.dto'
 import { UpdateTeamDto } from './dto/update-team.dto'
-import { ImagesService } from '../images/images.service'
-import { UploadOptions, Uploads } from '../../decorators/uploads.decorator'
-import { Files } from '../../decorators/files.decorator'
-import { Image, ImageType } from '../images/entities/image.entity'
-import { Iam } from '../../decorators/iam.decorator'
-import { Roles } from '../user-roles/entities/user-role.entity'
+import { TeamsService } from './teams.service'
 
 @Controller()
 export class TeamsController {
@@ -17,7 +17,7 @@ export class TeamsController {
   ) {}
 
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
-  @Post('/organisation/:organisationId/teams')
+  @Post('/organisations/:organisationId/teams')
   @Uploads('avatar', UploadOptions.Nullable)
   async teamCreate(
     @Body() createTeamDto: CreateTeamDto,
@@ -41,13 +41,13 @@ export class TeamsController {
   }
 
   @Iam(Roles.OrganisationAdmin)
-  @Get('/organisation/:organisationId/teams')
+  @Get('/organisations/:organisationId/teams')
   teamFindAll(@Param('organisationId') organisationId: string) {
     return this.teamsService.findAll(organisationId)
   }
 
   @Iam(Roles.OrganisationAdmin)
-  @Get('/organisation/:organisationId/teams/:id')
+  @Get('/organisations/:organisationId/teams/:id')
   teamFindOne(
     @Param('id') id: string,
     @Param('organisationId') organisationId: string
@@ -56,7 +56,7 @@ export class TeamsController {
   }
 
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
-  @Put('/organisation/:organisationId/teams/:id')
+  @Put('/organisations/:organisationId/teams/:id')
   @Uploads('avatar', UploadOptions.Nullable)
   async teamUpdate(
     @Param('id') id: string,
@@ -86,12 +86,34 @@ export class TeamsController {
   }
 
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
-  @Delete('/organisation/:organisationId/teams/:id')
+  @Delete('/organisations/:organisationId/teams/:id')
   teamRemove(
     @Param('id') id: string,
     @Param('organisationId') organisationId: string
   ) {
     return this.teamsService.remove(id, organisationId)
+  }
+
+  @Get('/organisations/:organisationId/teams/:teamId/users')
+  findAllUsersFromTeam(
+    @Param('organisationId') organisationId: string,
+    @Param('teamId') teamId: string
+  ) {
+    return this.teamsService.getAllUsersFromTeam(organisationId, teamId)
+  }
+
+  @Delete('/organisations/:organisationId/teams/:teamId/users/:userId')
+  deleteUserFromTeam(
+    @Param('organisationId') organisationId: string,
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string
+  ) {
+    return this.teamsService.deleteUserFromTeam(organisationId, teamId, userId)
+  }
+
+  @Post('/teams/join')
+  userJoinTeam(@Body('token') token: string) {
+    return this.teamsService.joinTeam(token)
   }
 
   @Iam(Roles.SuperAdmin)

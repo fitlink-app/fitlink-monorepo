@@ -1,13 +1,12 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import * as faker from 'faker'
 import { readFile } from 'fs/promises'
 import { Connection, getConnection, Repository } from 'typeorm'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
-import { Team } from '../src/modules/teams/entities/team.entity'
 import { TeamsModule } from '../src/modules/teams/teams.module'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
 import FormData = require('form-data')
-import * as faker from 'faker'
 
 describe('Teams', () => {
   let app: NestFastifyApplication
@@ -43,24 +42,24 @@ describe('Teams', () => {
     ['a organisation admin', () => orgAdminHeaders]
   ])
 
-  testAll(`POST /organisation/orgId/teams`, async (_, getHeaders) => {
+  testAll(`POST /organisations/orgId/teams`, async (_, getHeaders) => {
     const data = await createTeamWithImage(true, getHeaders())
     expect(data.statusCode).toEqual(201)
     expect(data.json().name).toBeDefined()
     expect(data.json().avatar.url).toBeDefined()
   })
 
-  testAll(`PUT /organisation/orgId/teams/teamId`, async (_, getHeaders) => {
+  testAll(`PUT /organisations/orgId/teams/teamId`, async (_, getHeaders) => {
     const data = await updateTeamWithImage(true, getHeaders())
     expect(data.statusCode).toEqual(200)
     expect(data.json().name).toBeDefined()
     expect(data.json().avatar.url).toBeDefined()
   })
 
-  it('GET /organisation/:organisationId/teams', async () => {
+  it('GET /organisations/:organisationId/teams', async () => {
     const data = await app.inject({
       method: 'GET',
-      url: `/organisation/${seeded_organisation.id}/teams`,
+      url: `/organisations/${seeded_organisation.id}/teams`,
       headers: orgAdminHeaders
     })
     expect(data.statusCode).toBe(200)
@@ -80,10 +79,10 @@ describe('Teams', () => {
     expect(data.json().length).toBeTruthy()
   })
 
-  it(`GET /organisation/:organisationId/teams/:teamId`, async () => {
+  it(`GET /organisations/:organisationId/teams/:teamId`, async () => {
     const data = await app.inject({
       method: 'GET',
-      url: `/organisation/${seeded_organisation.id}/teams/${seeded_organisation.teams[0].id}`,
+      url: `/organisations/${seeded_organisation.id}/teams/${seeded_organisation.teams[0].id}`,
       headers: orgAdminHeaders
     })
     expect(data.statusCode).toBe(200)
@@ -114,7 +113,7 @@ describe('Teams', () => {
 
     const data = await app.inject({
       method: 'PUT',
-      url: `/organisation/${seeded_organisation.id}/teams/${seeded_organisation.teams[0].id}`,
+      url: `/organisations/${seeded_organisation.id}/teams/${seeded_organisation.teams[0].id}`,
       payload: form,
       headers: {
         ...form.getHeaders(),
@@ -135,7 +134,7 @@ describe('Teams', () => {
     }
     const data = await app.inject({
       method: 'POST',
-      url: `/organisation/${seeded_organisation.id}/teams`,
+      url: `/organisations/${seeded_organisation.id}/teams`,
       payload: form,
       headers: {
         ...form.getHeaders(),
