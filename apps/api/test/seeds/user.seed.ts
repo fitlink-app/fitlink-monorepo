@@ -94,3 +94,23 @@ export class DeleteUserWithRolesSeed implements Seeder {
     })
   }
 }
+
+export class UserSeeder implements Seeder {
+  public async run(factory: Factory): Promise<any> {
+    await factory(User)().createMany(1, {
+      name: `Seeded User`
+    })
+  }
+}
+
+export class DeleteUserSeeder implements Seeder {
+  public async run(_: Factory, connection: Connection): Promise<any> {
+    const userRepository: Repository<User> = connection.getRepository(User)
+    const user = await userRepository.find({
+      where: { name: 'Seeded User' },
+      relations: ['teams_invitations']
+    })
+    // console.log(user)
+    await userRepository.remove(user)
+  }
+}

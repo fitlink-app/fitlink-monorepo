@@ -94,6 +94,7 @@ export class TeamsController {
     return this.teamsService.remove(id, organisationId)
   }
 
+  @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin, Roles.TeamAdmin)
   @Get('/organisations/:organisationId/teams/:teamId/users')
   findAllUsersFromTeam(
     @Param('organisationId') organisationId: string,
@@ -102,6 +103,7 @@ export class TeamsController {
     return this.teamsService.getAllUsersFromTeam(organisationId, teamId)
   }
 
+  @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin, Roles.TeamAdmin)
   @Delete('/organisations/:organisationId/teams/:teamId/users/:userId')
   deleteUserFromTeam(
     @Param('organisationId') organisationId: string,
@@ -111,7 +113,8 @@ export class TeamsController {
     return this.teamsService.deleteUserFromTeam(organisationId, teamId, userId)
   }
 
-  @Post('/teams/join')
+  @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin, Roles.TeamAdmin)
+  @Post('/organisations/:organisationId/teams/:teamId/join')
   userJoinTeam(@Body('token') token: string) {
     return this.teamsService.joinTeam(token)
   }
