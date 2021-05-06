@@ -21,6 +21,7 @@ describe('Teams', () => {
   let seeded_organisation: Organisation
   let teamAdminHeaders
   let invitationToken: string
+  let authHeaders
 
   beforeAll(async () => {
     app = await mockApp({
@@ -56,6 +57,7 @@ describe('Teams', () => {
       relations: ['teams']
     })
 
+    authHeaders = getAuthHeaders(null, user.id)
     const data = await app.inject({
       method: 'POST',
       url: `/organisations/${organisation.id}/teams/${organisation.teams[0].id}/invitations`,
@@ -79,11 +81,11 @@ describe('Teams', () => {
     ['a team admin', () => teamAdminHeaders]
   ])
 
-  it(`POST /organisations/:organisationId/teams/:teamId/join`, async () => {
+  it(`POST /teams/join`, async () => {
     const data = await app.inject({
       method: 'POST',
-      url: `/organisations/${seeded_organisation.id}/teams/${seeded_organisation.teams[0].id}/join`,
-      headers: superadminHeaders,
+      url: `/teams/join`,
+      headers: authHeaders,
       payload: { token: invitationToken }
     })
 

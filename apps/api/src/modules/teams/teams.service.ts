@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
+import { AuthenticatedUser } from '../../models'
 import { Organisation } from '../organisations/entities/organisation.entity'
 import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.entity'
 import { TeamsInvitationsService } from '../teams-invitations/teams-invitations.service'
@@ -142,14 +143,12 @@ export class TeamsService {
       .remove(teamId)
   }
 
-  async joinTeam(token: string) {
+  async joinTeam(token: string, authenticated_user: AuthenticatedUser) {
     const invitation = (await this.teamInvitationService.verifyToken(
       token
     )) as TeamsInvitation
 
-    const user = await this.userRepository.findOne({
-      where: { email: invitation.email }
-    })
+    const user = await this.userRepository.findOne(authenticated_user.id)
 
     await this.teamRepository
       .createQueryBuilder('team')

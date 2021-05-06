@@ -1,7 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
+import { User } from '../../decorators/authenticated-user.decorator'
 import { Files } from '../../decorators/files.decorator'
 import { Iam } from '../../decorators/iam.decorator'
 import { UploadOptions, Uploads } from '../../decorators/uploads.decorator'
+import { AuthenticatedUser } from '../../models'
 import { Image, ImageType } from '../images/entities/image.entity'
 import { ImagesService } from '../images/images.service'
 import { Roles } from '../user-roles/entities/user-role.entity'
@@ -113,10 +115,9 @@ export class TeamsController {
     return this.teamsService.deleteUserFromTeam(organisationId, teamId, userId)
   }
 
-  @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin, Roles.TeamAdmin)
-  @Post('/organisations/:organisationId/teams/:teamId/join')
-  userJoinTeam(@Body('token') token: string) {
-    return this.teamsService.joinTeam(token)
+  @Post('/teams/join')
+  userJoinTeam(@Body('token') token: string, @User() user: AuthenticatedUser) {
+    return this.teamsService.joinTeam(token, user)
   }
 
   @Iam(Roles.SuperAdmin)
