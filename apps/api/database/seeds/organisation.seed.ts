@@ -18,7 +18,7 @@ import { Subscription } from '../../src/modules/subscriptions/entities/subscript
 
 const COUNT_ORGANISATIONS = 2
 const COUNT_TEAMS = 2
-const COUNT_SUBSCRIPTIONS = 6
+const COUNT_SUBSCRIPTIONS = 8
 const COUNT_LEAGUES = 2
 const COUNT_USERS = 21
 const COUNT_LEADERBOARDS = 2

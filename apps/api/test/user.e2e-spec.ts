@@ -116,7 +116,7 @@ describe('Users', () => {
   it('Check That SUBSCRIPTION Admin JWT works for Route: GET /subscriptions/:subId', async () => {
     const data = await app.inject({
       method: 'GET',
-      url: `/subscriptions/${seeded_subscription.id}`,
+      url: `/subscriptions/organisations/${seeded_organisation.id}/subscriptions/${seeded_subscription.id}`,
       headers
     })
 
