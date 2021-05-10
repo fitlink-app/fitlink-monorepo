@@ -112,6 +112,8 @@ export class LeaderboardEntriesService {
       query = query.andWhere('rank.rank <= :rank', { rank })
     }
 
+    // console.log( query.getSql() )
+
     const results = await query.getRawMany()
 
     return results[0]
@@ -164,6 +166,8 @@ export class LeaderboardEntriesService {
       .where('rank.user_id = :userId', {
         userId
       })
+
+    // console.log( query.getSql() )
 
     return await query.getRawMany()
   }
