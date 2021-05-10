@@ -1,13 +1,13 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
-import { Connection } from 'typeorm'
-import { InjectRepository } from '@nestjs/typeorm'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { Repository } from 'typeorm'
-import { UsersService } from '../users/users.service'
-import { User } from '../users/entities/user.entity'
+import { InjectRepository } from '@nestjs/typeorm'
 import * as bcrypt from 'bcrypt'
-import { RefreshToken } from './entities/auth.entity'
+import { Connection, Repository } from 'typeorm'
 import { AuthenticatedUser } from '../../models'
+import { CreateUserDto } from '../users/dto/create-user.dto'
+import { User } from '../users/entities/user.entity'
+import { UsersService } from '../users/users.service'
+import { RefreshToken } from './entities/auth.entity'
 
 @Injectable()
 export class AuthService {
@@ -58,8 +58,8 @@ export class AuthService {
     const refreshToken = await this.createRefreshToken(userEntity)
 
     return {
-      access_token: this.createAccessToken(userEntity),
-      id_token: this.createIdToken(userEntity),
+      access_token: await this.createAccessToken(userEntity),
+      id_token: await this.createIdToken(userEntity),
       refresh_token: refreshToken
     }
   }
@@ -71,14 +71,16 @@ export class AuthService {
    * @param user
    * @returns object containing 3 tokens
    */
-  async signup(email: string, password: string) {
+  async signup(createUserDto: CreateUserDto) {
+    const { email, name, password } = createUserDto
     const user = await this.usersService.create({
+      name,
       email,
-      password: this.hashPassword(password)
+      password: await this.hashPassword(password)
     })
 
     return {
-      auth: this.login(user),
+      auth: await this.login(user),
       user: user
     }
   }
@@ -90,13 +92,13 @@ export class AuthService {
    * @param user
    * @returns accessToken
    */
-  createAccessToken(user: User) {
+  async createAccessToken(user: User) {
     const payload = {
       aud: 'fitlink.com',
       iss: 'fitlink.com',
       sub: user.id,
       iat: new Date().getTime(),
-      roles: this.usersService.getRolesForToken(user)
+      roles: await this.usersService.getRolesForToken(user)
     }
 
     return this.jwtService.sign(payload)
@@ -111,13 +113,13 @@ export class AuthService {
    * @param user
    * @returns idToken
    */
-  createIdToken(user: User) {
+  async createIdToken(user: User) {
     const payload = {
       aud: 'fitlink.com',
       iss: 'fitlink.com',
       sub: user.id,
       iat: new Date().getTime(),
-      roles: this.usersService.getRolesForToken(user),
+      roles: await this.usersService.getRolesForToken(user),
       email: user.email,
       settings: user.settings
     }
@@ -175,7 +177,7 @@ export class AuthService {
     const userId = decoded.sub
     await this.validateRefreshToken(refreshToken, decoded)
     const user = await this.usersService.findOne(userId)
-    return this.createAccessToken(user)
+    return await this.createAccessToken(user)
   }
 
   /**

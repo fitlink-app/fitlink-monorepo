@@ -1,32 +1,24 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
+import { formatRoles } from '../../helpers/formatRoles'
 import { Repository } from 'typeorm'
+import { JWTRoles } from '../../models'
+import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { User } from './entities/user.entity'
-import { JWTRoles } from '../../models'
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private userRepository: Repository<User>,
+    private userRolesService: UserRolesService
   ) {}
 
-  getRolesForToken(user: User): JWTRoles {
-    return {
-      /** Org admin: OrganisationId[] */
-      o_a: ['39872387239857240'],
-
-      /** Team admin TeamId[] */
-      t_a: ['39872387239857239'],
-
-      /** Subscriptions admin SubscriptionId[] */
-      s_a: ['39872387239857240'],
-
-      /** Super admin */
-      spr: true
-    }
+  async getRolesForToken(user: User):Promise<JWTRoles> {
+    const roles = await this.userRolesService.getAllUserRoles(user.id)
+    return formatRoles(roles)
   }
 
   create(createUserDto: CreateUserDto) {

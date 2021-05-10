@@ -13,6 +13,7 @@ const env = {
   IMIN_API_BASE_URL: 'https://search.imin.co',
   IMIN_API_KEY: 'jAyxqV1IVTlcPeQV2aujF05X0483cOKu',
   INVITE_ORGANISATION_URL: 'http://localhost:3001/signup?invite={token}',
+  INVITE_TEAM_URL: 'https://fitlinkapp.com/signup?invite={token}&team=1',
   FIREBASE_BEARER_TOKEN: 'fitlinkLeaderboardEntryToken'
 }
 

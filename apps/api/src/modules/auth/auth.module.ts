@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common'
+import { forwardRef, Global, Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthService } from './auth.service'
 import { LocalStrategy } from './strategy/local.strategy'
@@ -10,6 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { UsersService } from '../users/users.service'
 import { AuthController } from './auth.controller'
 import { RefreshToken } from './entities/auth.entity'
+import { UserRolesModule } from '../user-roles/user-roles.module'
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RefreshToken } from './entities/auth.entity'
     ConfigModule,
     UsersModule,
     PassportModule,
+    forwardRef(() => UserRolesModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

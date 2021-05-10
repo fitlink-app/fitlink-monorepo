@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt'
 import { UsersService } from '../users/users.service'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from '../../modules/users/entities/user.entity'
+import { UserRolesModule } from '../user-roles/user-roles.module'
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { User } from '../../modules/users/entities/user.entity'
           signOptions: { expiresIn: '365d' }
         }
       }
-    })
+    }),
+    UserRolesModule
   ],
   controllers: [UsersInvitationsController],
   providers: [
