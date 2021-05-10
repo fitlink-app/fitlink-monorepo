@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
@@ -48,7 +53,8 @@ export class UserRolesService {
         user: {
           id
         }
-      }
+      },
+      relations: ['organisation', 'team', 'subscription']
     })
   }
 
@@ -117,9 +123,4 @@ export class UserRolesService {
 
     return entity
   }
-
-  // JWT Related Functions
-  async assignOrganisationAdminRole(userId: string, organisationId: string) {}
-  async assignTeamAdminRole(userId: string, teamId: string) {}
-  async assignSubscriptionAdminRole(userId: string, subscriptionId: string) {}
 }
