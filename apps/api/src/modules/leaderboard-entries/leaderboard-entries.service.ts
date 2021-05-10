@@ -181,14 +181,19 @@ export class LeaderboardEntriesService {
     leaderboardId: string,
     options: PaginationOptionsInterface
   ): Promise<Pagination<LeaderboardEntry>> {
-    const [results, total] = await this.leaderboardEntryRepository.findAndCount(
-      {
-        where: { leaderboard_id: leaderboardId },
-        order: { points: 'DESC', updated_at: 'DESC' },
-        take: options.limit,
-        skip: options.page * options.limit
-      }
-    )
+    const query = this.leaderboardEntryRepository
+      .createQueryBuilder()
+      .where('leaderboard_id = :leaderboardId', {
+        leaderboardId
+      })
+      .orderBy('points', 'DESC')
+      .addOrderBy('updated_at', 'DESC')
+      .take(options.limit)
+      .skip(options.page * options.limit)
+
+    // console.log(query.getSql())
+
+    const [results, total] = await query.getManyAndCount()
 
     return new Pagination<LeaderboardEntry>({
       results,
