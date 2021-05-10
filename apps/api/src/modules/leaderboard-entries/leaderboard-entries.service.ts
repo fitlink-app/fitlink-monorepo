@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 import { CreateLeaderboardEntryDto } from './dto/create-leaderboard-entry.dto'
 import { LeaderboardEntry } from './entities/leaderboard-entry.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
@@ -180,7 +180,7 @@ export class LeaderboardEntriesService {
     const [results, total] = await this.leaderboardEntryRepository.findAndCount(
       {
         where: { leaderboard_id: leaderboardId },
-        order: { points: 'DESC' },
+        order: { points: 'DESC', updated_at: 'DESC' },
         take: options.limit,
         skip: options.page * options.limit
       }
