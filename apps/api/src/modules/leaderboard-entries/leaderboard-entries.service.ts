@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 import { CreateLeaderboardEntryDto } from './dto/create-leaderboard-entry.dto'
 import { LeaderboardEntry } from './entities/leaderboard-entry.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
@@ -112,6 +112,8 @@ export class LeaderboardEntriesService {
       query = query.andWhere('rank.rank <= :rank', { rank })
     }
 
+    // console.log( query.getSql() )
+
     const results = await query.getRawMany()
 
     return results[0]
@@ -165,6 +167,8 @@ export class LeaderboardEntriesService {
         userId
       })
 
+    // console.log( query.getSql() )
+
     return await query.getRawMany()
   }
 
@@ -180,7 +184,7 @@ export class LeaderboardEntriesService {
     const [results, total] = await this.leaderboardEntryRepository.findAndCount(
       {
         where: { leaderboard_id: leaderboardId },
-        order: { points: 'DESC' },
+        order: { points: 'DESC', updated_at: 'DESC' },
         take: options.limit,
         skip: options.page * options.limit
       }
