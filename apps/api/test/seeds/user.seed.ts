@@ -2,10 +2,13 @@ import { genSalt, hash } from 'bcrypt'
 import { Connection, getManager, Repository } from 'typeorm'
 import { Factory, Seeder } from 'typeorm-seeding'
 import { Organisation } from '../../src/modules/organisations/entities/organisation.entity'
-import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity'
-import { User } from '../../src/modules/users/entities/user.entity'
 import { TeamsInvitation } from '../../src/modules/teams-invitations/entities/teams-invitation.entity'
-import { Team } from '../../src/modules/teams/entities/team.entity'
+import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity'
+import {
+  PrivacySetting,
+  UsersSetting
+} from '../../src/modules/users-settings/entities/users-setting.entity'
+import { User } from '../../src/modules/users/entities/user.entity'
 const username = 'TestUser4'
 
 export default class UserWithRolesSeed implements Seeder {
@@ -122,6 +125,56 @@ export class DeleteUserSeeder implements Seeder {
         .of(user.id)
         .remove(user)
     })
+    await userRepository.remove(user)
+  }
+}
+
+export class UserWithSettingsSeeder implements Seeder {
+  public async run(_, connection: Connection): Promise<any> {
+    const userRepository: Repository<User> = connection.getRepository(User)
+    const userSettingsRepository: Repository<UsersSetting> = connection.getRepository(
+      UsersSetting
+    )
+    const plainPassword = 'passwordIsATerriblePassword'
+    const salt = await genSalt()
+    const password = await hash(plainPassword, salt)
+
+    const settings = {
+      privacy_activities: PrivacySetting.Public,
+      privacy_daily_statistics: PrivacySetting.Private
+    }
+
+    const user = await userRepository.save(
+      userRepository.create({
+        name: 'User Settings',
+        email: `randomEmail@gmail.com`,
+        password
+      })
+    )
+
+    const userSettings = await userSettingsRepository.save(
+      userSettingsRepository.create({
+        ...settings,
+        user
+      })
+    )
+  }
+}
+
+export class DeleteUserWithSettingsSeeder implements Seeder {
+  public async run(_, connection: Connection): Promise<any> {
+    const userRepository: Repository<User> = connection.getRepository(User)
+    const user = await userRepository.findOne({
+      where: { name: 'User Settings' },
+      relations: ['settings']
+    })
+
+    await userRepository
+      .createQueryBuilder('users')
+      .relation(User, 'settings')
+      .of(user.id)
+      .set(null)
+
     await userRepository.remove(user)
   }
 }
