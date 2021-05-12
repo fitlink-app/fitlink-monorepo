@@ -1,0 +1,43 @@
+button, .button {
+  display: inline-block;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.2142857142857142em;
+  background-image: linear-gradient(134deg, #00E9D7 0%, #00CEBE 50%, #00CEBE 100%);
+  background-size: 200% 100%;
+  box-shadow: 2px 2px 8px 0 rgba(0,233,215,0.16);
+  border-radius: 22px;
+  color: $white;
+  letter-spacing: 0;
+  text-align: center;
+  text-decoration: none;
+  padding: 0.8125rem 1.5rem 0.875rem;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  border: 0;
+
+  &:hover {
+    background-position: 100% 0;
+    transition: all 0.35s;
+  }
+
+  &.alt, &--alt {
+    border: 1px solid $primary;
+    background: $white;
+    color: $primary;
+    padding: 0.75rem 1.4375rem 0.8125rem;
+
+    &:hover {
+      color: $white;
+      background: #00CEBE;
+      border-color: #00CEBE;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    
+  }
+}
