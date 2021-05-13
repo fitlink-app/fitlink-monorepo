@@ -7,6 +7,8 @@ import { getAuthHeaders } from './helpers/auth'
 import { UpdateSubscriptionDto } from '../src/modules/subscriptions/dto/update-subscription.dto'
 import { CreateDefaultSubscriptionDto } from '../src/modules/subscriptions/dto/create-default-subscription.dto'
 import { Team } from '../src/modules/teams/entities/team.entity'
+import { User } from '../src/modules/users/entities/user.entity'
+import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 
 async function getSubscriptions() {
   const connection = getConnection()
@@ -15,6 +17,7 @@ async function getSubscriptions() {
     relations: ['organisation']
   })
 }
+
 async function getSubscriptionUsers() {
   const connection = getConnection()
   const repository = connection.getRepository(Subscription)
@@ -23,13 +26,38 @@ async function getSubscriptionUsers() {
   })
 }
 
-async function getTeam() {
+async function getTeam(teamId?: string) {
   const connection = getConnection()
   const repository = connection.getRepository(Team)
-  return repository.findOne({
-    relations: ['users']
+  if (!teamId) {
+    return repository.findOne({
+      relations: ['users']
+    })
+  } else {
+    return repository.findOne({
+      where: { id: teamId },
+      relations: ['users']
+    })
+  }
+}
+
+async function getUsers() {
+  const connection = getConnection()
+  const repository = connection.getRepository(User)
+  return repository.find({
+    take: 3,
   })
 }
+
+async function getOrganisationById( orgId: string ) {
+  const connection = getConnection()
+  const repository = connection.getRepository(Organisation)
+  return await repository.findOne({
+    where: { id: orgId },
+    relations: ['teams']
+  })
+}
+
 
 
 describe('Subscriptions', () => {
@@ -331,6 +359,13 @@ describe('Assigning users to the subscriptions', () => {
     `POST /organisations/:organisationId/subscriptions/:subscriptionId/users assigning users to the subscriptions by organisationId should result in 201 created`,
     async (type, getHeaders) => {
       const { organisation, id, ...rest } = subscription
+      const org = await getOrganisationById(organisation.id)
+      const usersforCheck = []
+      org.teams.forEach(async (team) => {
+        const result = await getTeam(team.id)
+        usersforCheck.push(...result.users)
+      })
+      await getTeam()
       const payload = {...rest} as UpdateSubscriptionDto
       const result = await app.inject({
         method: 'POST',
@@ -343,11 +378,10 @@ describe('Assigning users to the subscriptions', () => {
         expect(result.statusCode).toEqual(403)
         return
       }
-
       expect(result.statusCode).toEqual(201)
       expect(result.statusMessage).toEqual('Created')
-      const jsonResult = Object.keys(result.json())
-      expect(jsonResult).toEqual(expect.arrayContaining([
+      const jsonResult = result.json()
+      expect(Object.keys(jsonResult)).toEqual(expect.arrayContaining([
         'created_at',
         'updated_at',
         'id',
@@ -364,6 +398,14 @@ describe('Assigning users to the subscriptions', () => {
         'organisation',
         'users'
       ]))
+      expect(
+        usersforCheck.every((user) => {
+          const index = jsonResult.users.findIndex((userResult)=> {
+            userResult.id == user.id
+          })
+          return index > -1
+        })
+      ).toBeTruthy
     }
   )
 
@@ -386,8 +428,8 @@ describe('Assigning users to the subscriptions', () => {
 
       expect(result.statusCode).toEqual(201)
       expect(result.statusMessage).toEqual('Created')
-      const jsonResult = Object.keys(result.json())
-      expect(jsonResult).toEqual(expect.arrayContaining([
+      const jsonResult = result.json()
+      expect(Object.keys(jsonResult)).toEqual(expect.arrayContaining([
         'created_at',
         'updated_at',
         'id',
@@ -404,6 +446,65 @@ describe('Assigning users to the subscriptions', () => {
         'organisation',
         'users'
       ]))
+      expect(
+        team.users.every((userTeam) => {
+          const index = jsonResult.users.findIndex((userResult)=> {
+            userResult.id == userTeam.id
+          })
+          return index > -1
+        })
+      ).toBeTruthy
+    }
+  )
+
+  testAll(
+    `POST /organisations/:organisationId/subscriptions/:subscriptionId/usersIds assigning users to the subscriptions with usersIds array (in payload) should result in 201 created`,
+    async (type, getHeaders) => {
+      const { organisation, id, ...rest } = subscription
+      const usersList = await getUsers()
+      const usersIdsList = usersList.map((user)=> {
+        return user.id
+      })
+      const payload = {...rest, usersIdsList} as UpdateSubscriptionDto
+      const result = await app.inject({
+        method: 'POST',
+        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/usersIds`,
+        headers: getHeaders(),
+        payload
+      })
+
+      if (type === 'an authenticated user') {
+        expect(result.statusCode).toEqual(403)
+        return
+      }
+      expect(result.statusCode).toEqual(201)
+      expect(result.statusMessage).toEqual('Created')
+      const jsonResult = result.json()
+      expect(Object.keys(jsonResult)).toEqual(expect.arrayContaining([
+        'created_at',
+        'updated_at',
+        'id',
+        'billing_entity',
+        'billing_address_1',
+        'billing_address_2',
+        'billing_country',
+        'billing_country_code',
+        'billing_state',
+        'billing_city',
+        'billing_postcode',
+        'type',
+        'default',
+        'organisation',
+        'users'
+      ]))
+      expect(
+        usersIdsList.every((id) => {
+          const index = jsonResult.users.findIndex((userResult)=> {
+            userResult.id == id
+          })
+          return index > -1
+        })
+      ).toBeTruthy
     }
   )
 

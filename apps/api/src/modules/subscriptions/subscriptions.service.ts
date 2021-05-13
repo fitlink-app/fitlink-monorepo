@@ -139,7 +139,13 @@ export class SubscriptionsService {
     }
 
     let subscriptionUsers = new Subscription()
-    subscriptionUsers = Object.assign(subscriptionUsers, {...subscription}, updateSubscriptionDto)
+    if (!updateSubscriptionDto.usersIdsList) {
+      subscriptionUsers = Object.assign(subscriptionUsers, {...subscription}, updateSubscriptionDto)
+    } else {
+      const { usersIdsList, ...rest } = updateSubscriptionDto
+      subscriptionUsers = Object.assign(subscriptionUsers, {...subscription}, {...rest})
+    }
+
 
     let users = []
     if (teamId) {
@@ -147,6 +153,10 @@ export class SubscriptionsService {
         relations: ['users']
       })
       users = team.users
+    } else if (updateSubscriptionDto.usersIdsList) {
+      for (const userId of updateSubscriptionDto.usersIdsList) {
+        users.push(await this.userRepository.findOne(userId))
+      }
     } else {
       const org = await this.organisationRepository.findOne(orgId, {
         relations: ['teams']
@@ -162,6 +172,7 @@ export class SubscriptionsService {
         users = teamWithUsers.users
       })
     }
+
     subscriptionUsers.users = users
 
     return await this.subscriptionsRepository.save({

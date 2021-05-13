@@ -57,6 +57,16 @@ export class SubscriptionsController {
   }
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
+  @Post('/organisations/:organisationId/subscriptions/:subscriptionId/usersIds')
+  assignUsersByUsersIds(
+    @Body() updateSubscriptionDto: UpdateSubscriptionDto,
+    @Param('organisationId') orgId: string,
+    @Param('subscriptionId') subId: string,
+  ) {
+    return this.subscriptionsService.assignUsers(updateSubscriptionDto, orgId, subId)
+  }
+
+  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
   @Post('/organisations/:organisationId/subscriptions/:subscriptionId/:teamId/users')
   assignUsersByTeamId(
     @Body() updateSubscriptionDto: UpdateSubscriptionDto,
