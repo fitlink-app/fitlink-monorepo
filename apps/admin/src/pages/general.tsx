@@ -2,29 +2,69 @@ import Dashboard from '../components/layouts/Dashboard'
 
 export default function components() {
 
-  const escapeHtml = (text:string) => {
-    const map = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;'
-    }
-    return text.replace(/[&<>"']/g, function(m) { return map[m] })
-  }
+  const grid = [
+    [1],
+    [1, 2],
+    [1, 2, 3],
+    [1, 2, 3, 4],
+    [1, 2, 3, 4, 5, 6],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  ]
 
   return (
     <Dashboard
       title="General"
       >
       <p className="h6 color-light-grey">Typography</p>
-      <h1>&lt;h1&gt; / .h1</h1>
-      <h2>&lt;h2&gt; / .h2</h2>
-      <h3>&lt;h3&gt; / .h3</h3>
-      <h4>&lt;h4&gt; / .h4</h4>
-      <h5>&lt;h5&gt; / .h5</h5>
-      <h6>&lt;h6&gt; / .h6</h6>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      <div className="row ai-c">
+        <div className="col-2">
+          <h1>&lt;h1&gt; / .h1</h1>
+        </div>
+        <div className="col">
+          <h1 className="light">.light</h1>
+        </div>
+      </div>
+      <div className="row ai-c">
+        <div className="col-2">
+          <h2>&lt;h2&gt; / .h2</h2>
+        </div>
+        <div className="col">
+          <h2 className="light">.light</h2>
+        </div>
+      </div>
+      <div className="row ai-c">
+        <div className="col-2">
+          <h3>&lt;h3&gt; / .h3</h3>
+        </div>
+        <div className="col">
+          <h3 className="light">.light</h3>
+        </div>
+      </div>
+      <div className="row ai-c">
+        <div className="col-2">
+          <h4>&lt;h4&gt; / .h4</h4>
+        </div>
+        <div className="col">
+          <h4 className="light">.light</h4>
+        </div>
+      </div>
+      <div className="row ai-c">
+        <div className="col-2">
+          <h5>&lt;h5&gt; / .h5</h5>
+        </div>
+        <div className="col">
+          <h5 className="light">.light</h5>
+        </div>
+      </div>
+      <div className="row ai-c">
+        <div className="col-2">
+          <h6>&lt;h6&gt; / .h6</h6>
+        </div>
+        <div className="col">
+          <h6 className="light">.light</h6>
+        </div>
+      </div>
+      <p>&lt;p&gt; Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor <strong>incididunt ut labore et dolore magna aliqua</strong>. <em>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat</em>. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
       <ul>
         <li>List Item</li>
         <li>List Item</li>
@@ -586,68 +626,75 @@ export default function components() {
         </div>
       </div>
 
-      <div className="row bg-grey-200 py-2 my-2">
-        <div className="col">
-          <div className="bg-white p-2">
-            .col
-          </div>
+      <p className="mt-2">Column sizing</p>
+      <div className="row ai-c">
+        <div className="col-2">
+          <pre>
+            .al
+          </pre>
         </div>
-        <div className="col">
-          <div className="bg-white p-2">
-            .col
-          </div>
+        <div className="col-10">
+          <pre>
+            <code className="block">
+              margin-left: 0;<br/>
+              margin-right: auto;
+            </code>
+          </pre>
         </div>
-        <div className="col">
-          <div className="bg-white p-2">
-            .col
-          </div>
+        <div className="col-2">
+          <pre>
+            .ar
+          </pre>
         </div>
-        <div className="col">
-          <div className="bg-white p-2">
-            .col
-          </div>
+        <div className="col-10">
+          <pre>
+            <code className="block">
+              margin-left: auto;<br/>
+              margin-right: 0;
+            </code>
+          </pre>
+        </div>
+        <div className="col-2">
+          <pre>
+            .auto
+          </pre>
+        </div>
+        <div className="col-10">
+          <pre>
+            <code className="block">
+              margin: auto;
+            </code>
+          </pre>
         </div>
       </div>
 
-      <pre>
-        <code>
-          {/* &lt;div className="row bg-grey-200 py-2 my-2"&gt;
-            &lt;div className="col"&gt;
-              &lt;div className="bg-white p-2"&gt;
-                .col
-              &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;div className="col"&gt;
-              &lt;div className="bg-white p-2"&gt;
-                .col
-              &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;div className="col"&gt;
-              &lt;div className="bg-white p-2"&gt;
-                .col
-              &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;div className="col"&gt;
-              &lt;div className="bg-white p-2"&gt;
-                .col
-              &lt;/div&gt;
-            &lt;/div&gt;
-          &lt;/div&gt; */}
-        </code>
-      </pre>
+      <p className="mt-2">Autosizing Sizing</p>
 
-      <div className="row bg-grey-200 py-2 my-2">
-        <div className="col-12 col-sm-6 col-md-4">
-          <div className="bg-white p-2">
-            .col .col-12 .col-sm-6 .col-md-4
-          </div>
+      { grid.map((r, i) => (
+        <div className="row" key={`arow-${i}`}>
+          { r.map(c => (
+            <div className="col my-1" key={`acol-${c}`}>
+              <div className="bg-grey-200 p-2">
+                <pre>.col</pre>
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="col">
-          <div className="bg-white p-2">
-            .col
-          </div>
+      ))}
+
+      <p className="mt-2">Responsive Sizing</p>
+      <p>Using &nbsp;<code>.col-<em>[1-12]</em></code> and breaking with &nbsp;<code>.col-<em>[sm/md/lg/xl]</em>-<em>[1-12]</em></code></p>
+
+      { grid.map((r, i) => (
+        <div className="row" key={`brow-${i}`}>
+          { r.map(c => (
+            <div className={`col-12 my-1 col-lg-${12/r.length}`} key={`bcol-${c}`}>
+              <div className="bg-grey-200 py-4">
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
+      ))}
     </Dashboard>
   )
 }
