@@ -1,0 +1,89 @@
+body {
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  font-size: 0.875rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: $darkGrey;
+  
+  @media screen and (min-width: $medium) {
+    font-size: 1rem;
+  }
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, strong {
+  font-weight: 700;
+  line-height: 1.2em;
+}
+
+h3, h4, h5, h6, p, .h3, .h4, .h5, .h6 {
+  margin: 0 0 0.5em 0;
+}
+
+h1, h2, .h1, .h2 {
+  margin: 0 0 0.35em 0;
+}
+
+h1, .h1 {
+  font-size: 2.5rem;
+}
+h2, .h2 {
+  font-size: 2rem;
+}
+h3, .h3 {
+  font-size: 1.75rem;
+}
+h4, .h4 {
+  font-size: 1.5rem;
+}
+h5, .h5 {
+  font-size: 1.25rem;
+}
+h6, .h6 {
+  font-size: 1rem;
+}
+
+p {
+  line-height: 1.4em;
+  margin: 0 0 0.5em 0;
+}
+
+ul, ol {
+  margin: 1rem 0;
+  padding-left: 2rem;
+
+  li {
+    line-height: 1.2em;
+    margin: 0.5em 0;
+  }
+
+  ul, ol {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+  }
+}
+
+small {
+  font-size: 0.75em;
+}
+
+.light {
+  font-weight: 300;
+}
+
+pre {
+  margin: 0.5rem 0;
+  line-height: 1.2em;
+  font-size: 0.875rem;
+}
+
+code {
+  font-size: 0.875rem;
+  background: $grey-100;
+  border-radius: 0.25rem;
+  border: 1px solid $grey-200;
+  padding: 0.5rem 0.85rem;
+  color: $darkGrey;
+  display: inline-block;
+  vertical-align: middle;
+}

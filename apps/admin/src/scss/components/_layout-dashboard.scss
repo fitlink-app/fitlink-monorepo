@@ -1,0 +1,11 @@
+.layout-dashboard {
+  display: flex;
+  
+  .content {
+    height: 100vh;
+    display: block;
+    padding: 4rem 3rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}

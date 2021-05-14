@@ -43,3 +43,4 @@ terraform
 /docker/s3rver/tmp
 /scripts/config.jwt.json
 /email-debug.log
+.next
