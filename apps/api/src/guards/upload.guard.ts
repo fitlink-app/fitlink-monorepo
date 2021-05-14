@@ -58,10 +58,7 @@ export class UploadGuard implements CanActivate {
       checkFileName(file, filenames)
       await consumeAndCheckFileSize(file)
       req.incomingFiles.push(file)
-      body = {
-        ...body,
-        ...getBodyFromFile(file)
-      }
+      body = getBodyFromFile(file, body)
     }
 
     req.body = body
@@ -110,15 +107,19 @@ async function consumeAndCheckFileSize(file) {
  * @param file
  * @returns
  */
-function getBodyFromFile(file) {
-  const body = {}
+function getBodyFromFile(file, body: NodeJS.Dict<string>) {
   // Restore request body of remaining (text) fields
   Object.keys(file.fields).map((key) => {
     const each = file.fields[key] as any
     if (each[0] && each[0].file) {
       return true
     }
-    if (!each.file) {
+
+    if (each[0] && !each[0].file) {
+      body[key] = each[0].value
+    }
+
+    if (!each.file && each.value !== undefined) {
       body[key] = each.value
     }
   })
