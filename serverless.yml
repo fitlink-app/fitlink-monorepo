@@ -15,14 +15,14 @@ package:
     - ./**
   include:
     - dist/apps/api/serverless.js
-    - ./package.json
+    - ./package.serverless.json
 
 custom:
   serverless-layers:
     functions:
       - main
       - migrate
-    dependenciesPath: ./package.json
+    dependenciesPath: ./package.serverless.json
     packageManager: yarn
     customInstallationCommand: node -e "fs.copyFileSync('../../../.yarnclean.serverless', '.yarnclean')" && yarn install --production --frozen-lockfile
   customDomain:
