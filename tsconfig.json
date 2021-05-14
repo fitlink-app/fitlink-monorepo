@@ -12,7 +12,6 @@
     "sourceMap": true,
     "outDir": "./dist/apps/api",
     "baseUrl": "./",
-    "incremental": true,
-    "paths": {}
+    "incremental": true
   }
 }

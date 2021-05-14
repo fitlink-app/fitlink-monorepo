@@ -20,7 +20,7 @@ export class AuthController {
     return this.authService.login(request.user)
   }
 
-  @Get('auth/me')
+  @Get('me')
   async me(@User() user: AuthenticatedUser) {
     return this.usersService.findOne(user.id)
   }

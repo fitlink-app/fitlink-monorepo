@@ -7,6 +7,7 @@ import { AuthenticatedUser } from '../../models'
 import { CreateUserDto } from '../users/dto/create-user.dto'
 import { User } from '../users/entities/user.entity'
 import { UsersService } from '../users/users.service'
+import { AuthResultDto } from './dto/auth-result'
 import { RefreshToken } from './entities/auth.entity'
 
 @Injectable()
@@ -53,7 +54,7 @@ export class AuthService {
    * @param user
    * @returns object containing 3 tokens
    */
-  async login(user: AuthenticatedUser | User) {
+  async login(user: AuthenticatedUser | User): Promise<AuthResultDto> {
     const userEntity = await this.usersService.findOne(user.id)
     const refreshToken = await this.createRefreshToken(userEntity)
 

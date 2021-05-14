@@ -86,11 +86,11 @@ describe('Auth', () => {
     })
   })
 
-  it(`/auth/me 200 Allows a user to access a JWT guarded controller with a valid access token`, async () => {
+  it(`/me 200 Allows a user to access a JWT guarded controller with a valid access token`, async () => {
     const { access_token } = await getLoginTokens(app, email, password)
     const result = await app.inject({
       method: 'GET',
-      url: '/auth/me',
+      url: '/me',
       headers: {
         authorization: `Bearer ${access_token}`
       },

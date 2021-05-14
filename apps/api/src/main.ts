@@ -5,6 +5,7 @@ import {
   NestFastifyApplication
 } from '@nestjs/platform-fastify'
 import fastifyMultipart from 'fastify-multipart'
+import fastifyCors from 'fastify-cors'
 import { ConfigService } from '@nestjs/config'
 import { ApiModule } from './api.module'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
@@ -20,6 +21,7 @@ declare const module: any
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter()
   fastifyAdapter.register(fastifyMultipart)
+  fastifyAdapter.register(fastifyCors)
 
   const app = await NestFactory.create<NestFastifyApplication>(
     ApiModule,
