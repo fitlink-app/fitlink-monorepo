@@ -1,11 +1,11 @@
 import { Subscription } from '../../src/modules/subscriptions/entities/subscription.entity'
 import { define } from 'typeorm-seeding'
 import Faker from 'faker'
-
+import { User } from '../../src/modules/users/entities/user.entity'
 import { Organisation } from '../../src/modules/organisations/entities/organisation.entity'
-
 interface Context {
   organisation: Organisation
+  users: User[]
 }
 
 define(Subscription, (faker: typeof Faker, context: Context) => {
@@ -20,5 +20,6 @@ define(Subscription, (faker: typeof Faker, context: Context) => {
   subscription.billing_country_code = 'GB'
   subscription.billing_postcode = 'SW1A 1AA'
   subscription.default = true
+  subscription.users = context.users
   return subscription
 })
