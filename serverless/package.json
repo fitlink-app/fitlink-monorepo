@@ -27,6 +27,7 @@
     "fastify-multipart": "^4.0.2",
     "geojson": "^0.5.0",
     "global": "^4.4.0",
+    "import": "0.0.6",
     "lodash": "^4.17.21",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
@@ -40,7 +41,8 @@
     "sharp": "^0.27.2",
     "typeorm": "^0.2.31",
     "typeorm-seeding": "^1.6.1",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "yarn": "^1.22.10"
   },
   "devDependencies": {
     "@compodoc/compodoc": "^1.1.11",
