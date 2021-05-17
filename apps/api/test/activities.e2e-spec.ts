@@ -297,6 +297,22 @@ describe('Activities', () => {
     expect(data.json().organizer_image.url).toBeDefined()
   })
 
+  it(`POST /activities 400 Cannot create a new activity with incomplete fields`, async () => {
+    const { form } = await getIncompletePayload()
+
+    const data = await app.inject({
+      method: 'POST',
+      url: '/activities',
+      payload: form,
+      headers: {
+        ...form.getHeaders(),
+        ...headers
+      }
+    })
+
+    expect(data.statusCode).toEqual(400)
+  })
+
   it(`DELETE /activities 200 A created activity can be deleted`, async () => {
     const activityData = await createActivityWithImages()
     const id = activityData.json().id
@@ -364,6 +380,29 @@ describe('Activities', () => {
       form.append(key, payload[key])
     })
 
+    return {
+      payload,
+      form
+    }
+  }
+
+  async function getIncompletePayload() {
+    const { payload } = await getPayloadWithImages()
+    const form = new FormData()
+    Object.keys(payload).map((key: string) => {
+      if (
+        key in
+        {
+          organizer_url: '',
+          organizer_email: '',
+          organizer_telephone: ''
+        }
+      ) {
+        form.append(key, '')
+      } else {
+        form.append(key, payload[key])
+      }
+    })
     return {
       payload,
       form

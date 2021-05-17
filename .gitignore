@@ -44,3 +44,4 @@ terraform
 /scripts/config.jwt.json
 /email-debug.log
 .next
+/serverless/node_*
