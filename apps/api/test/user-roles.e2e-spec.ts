@@ -1,5 +1,6 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Connection, getConnection, Repository } from 'typeorm'
+import { runSeeder, useSeeding } from 'typeorm-seeding'
 import { AuthModule } from '../src/modules/auth/auth.module'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { UserRole } from '../src/modules/user-roles/entities/user-role.entity'
@@ -7,6 +8,7 @@ import { UserRolesModule } from '../src/modules/user-roles/user-roles.module'
 import { UsersModule } from '../src/modules/users/users.module'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
+import UserRolesSeeder from './seeds/user-roles.seed'
 
 describe('User Roles', () => {
   let app: NestFastifyApplication
@@ -46,12 +48,11 @@ describe('User Roles', () => {
       orgAdminHeaders = getAuthHeaders({ o_a: [organisation.id] })
     }
 
-    const userRole = await userRoleRepository.findOne({
-      relations: ['user', 'organisation', 'team', 'subscription']
-    })
-    seeded_user_role = userRole
-    seeded_user = userRole.user
-    authHeader = getAuthHeaders({}, userRole.user.id)
+    await useSeeding()
+    const seededUserRole = await runSeeder(UserRolesSeeder)
+    seeded_user_role = seededUserRole
+    seeded_user = seededUserRole.user
+    authHeader = getAuthHeaders({}, seededUserRole.user.id)
 
     orgAdminPayload = {
       role: 'organisation_admin',
@@ -87,11 +88,9 @@ describe('User Roles', () => {
       headers: authHeader
     })
 
-    const role = { ...seeded_user_role }
-    delete role.user
-
     const result = data.json()[0]
-    expect(Object.keys(result)).toEqual(Object.keys(role))
+    expect(result.id).toBeDefined()
+    expect(result.role).toBeDefined()
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
   })
