@@ -4,11 +4,14 @@ import { CreateTeamDto } from 'apps/api/src/modules/teams/dto/create-team.dto'
 import { Activity } from '../../api/src/modules/activities/entities/activity.entity'
 import { Organisation } from '../../api/src/modules/organisations/entities/organisation.entity'
 import { Team } from '../../api/src/modules/teams/entities/team.entity'
+import { AuthLoginDto } from '../../api/src/modules/auth/dto/auth-login'
+import { AuthResultDto } from '../../api/src/modules/auth/dto/auth-result'
+import { User } from '../../api/src/modules/users/entities/user.entity'
 
-type Params = {
+export type ListParams = {
   limit?: number
-  offset?: number
-  params?: NodeJS.Dict<string>
+  page?: number
+  params?: NodeJS.Dict<any>
 }
 
 type ListOrganisations = '/organisations'
@@ -18,9 +21,14 @@ type ListUsers = '/users'
 type SingleOrganisation = '/organisations/:organisationId'
 type SingleOrganisationActivity = '/organisations/:organisationId/activities/:activityId'
 type SingleOrganisationTeam = '/organisations/:organisationId/teams/:teamId'
+type AuthLogin = '/auth/login'
+type AuthLogout = '/auth/logout'
 
-type ListOrganisationsParams = Params
-type ListActivitiesParams = Params & {
+type Me = '/me'
+type MyLeagues = '/me/leagues'
+
+type ListOrganisationsParams = ListParams
+type ListActivitiesParams = ListParams & {
   params: {
     organisationId: string
   }
@@ -35,16 +43,18 @@ type SingleOrganisationActivityParams = SingleOrganisationParams & {
 }
 
 export type ListResource = ListOrganisations | ListActivities | ListUsers
+export type AuthResource = AuthLogin | AuthLogout
 
 export type SingleResource =
   | SingleOrganisation
   | SingleOrganisationActivity
   | SingleOrganisationTeam
+  | Me
 
 export type CreateResource = CreateOrganisationDto | CreateActivityDto
 
 type ListResponse = {
-  pageTotal: number
+  page_total: number
   total: number
 }
 
@@ -68,6 +78,8 @@ export type SingleResourceParams<T> = T extends SingleOrganisation
   ? SingleOrganisationActivityParams
   : T extends SingleOrganisationTeam
   ? SingleOrganisationTeamParams
+  : T extends Me
+  ? never
   : never
 
 export type CreateResourceParams<T> = T extends ListOrganisations
@@ -76,6 +88,12 @@ export type CreateResourceParams<T> = T extends ListOrganisations
   ? CreateActivityDto
   : T extends ListTeams
   ? CreateTeamDto
+  : T extends AuthLogin
+  ? AuthLoginDto
+  : never
+
+export type UpdateResourceParams<T> = T extends SingleOrganisation
+  ? SingleOrganisationParams
   : never
 
 export type ApiResponse<T> = T extends ListActivities
@@ -88,6 +106,8 @@ export type ApiResponse<T> = T extends ListActivities
   ? Activity
   : T extends SingleOrganisationTeam
   ? Team
+  : T extends Me
+  ? User
   : never
 
 export type ApiCreateResponse<T> = T extends ListActivities
@@ -96,10 +116,10 @@ export type ApiCreateResponse<T> = T extends ListActivities
   ? Organisation
   : T extends ListTeams
   ? Team
+  : T extends AuthLogin
+  ? AuthResultDto
   : never
 
-export type ListParams = {
-  limit?: number
-  offset?: number
-  params?: NodeJS.Dict<string>
-}
+export type ApiUpdateResponse<T> = T extends SingleOrganisation
+  ? Partial<Organisation>
+  : never

@@ -37,8 +37,6 @@ describe('Activities', () => {
     const result = data.json()
     expect(result.organisation.id).toBeDefined()
     expect(result.organisation.name).toEqual(payload.name)
-    expect(result.subscription.id).toBeDefined()
-    expect(result.subscription.billing_entity).toEqual(payload.name)
     expect(result.invitation.id).toBeDefined()
 
     // Check email content

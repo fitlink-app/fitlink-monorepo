@@ -1,31 +1,45 @@
-import axios, { AxiosInstance } from 'axios'
+import { AxiosInstance } from 'axios'
 import {
   ApiResponse,
   ApiCreateResponse,
+  ApiUpdateResponse,
   ListResource,
   ListResourceParams,
   SingleResource,
   SingleResourceParams,
-  CreateResourceParams
+  CreateResourceParams,
+  UpdateResourceParams,
+  AuthResource
 } from './types'
 
 export class Api {
-  axios: AxiosInstance
+  private axios: AxiosInstance = null
+  private token: string = null
 
   constructor(axios: AxiosInstance) {
     this.axios = axios
+    this.useToken()
   }
 
   getAxiosInstance() {
     return this.axios
   }
 
+  useToken() {
+    this.axios.interceptors.request.use(async (config) => {
+      if (this.token) {
+        config.headers.Authorization = `Bearer ${this.token}`
+      }
+      return config
+    })
+  }
+
   async list<T extends ListResource>(url: T, options?: ListResourceParams<T>) {
-    const { limit = 10, offset = 0, params } = options
+    const { limit = 10, page = 0, params } = options
     const response = await this.axios.get(this.applyParams(url, params), {
-      data: {
+      params: {
         limit,
-        offset
+        page
       }
     })
 
@@ -40,7 +54,10 @@ export class Api {
     return response.data as ApiResponse<T>
   }
 
-  async post<T extends ListResource>(url: T, params: CreateResourceParams<T>) {
+  async post<T extends ListResource | AuthResource>(
+    url: T,
+    params: CreateResourceParams<T>
+  ) {
     const response = await this.axios.post(
       this.applyParams(url, params),
       params
@@ -48,11 +65,16 @@ export class Api {
     return response.data as ApiCreateResponse<T>
   }
 
-  delete(url: Singular, params: NodeJS.Dict<string>) {
+  async put<T extends SingleResource>(url: T, params: UpdateResourceParams<T>) {
+    const response = await this.axios.put(this.applyParams(url, params), params)
+    return response.data as ApiUpdateResponse<T>
+  }
+
+  delete(url: SingleResource, params: NodeJS.Dict<string>) {
     return this.axios.delete(this.applyParams(url, params))
   }
 
-  applyParams(url: string, params: NodeJS.Dict<string>) {
+  applyParams(url: string, params: NodeJS.Dict<any>) {
     for (const param in params) {
       url = url.replace(`:${param}`, params[param])
     }
@@ -61,26 +83,16 @@ export class Api {
     }
     return url
   }
+
+  setToken(token: string) {
+    this.token = token
+  }
+
+  getToken() {
+    return this.token
+  }
 }
 
-const axiosApi = axios.create({
-  baseURL: 'http://localhost:3000',
-  headers: {
-    'x-api-key': 'test'
-  }
-})
-
-export async function makeApi(axiosInstance = axiosApi) {
-  const api = new Api(axiosInstance)
-  const result1 = await api.list('/organisations')
-  const result = await api.list('/organisations/:organisationId/activities')
-  const result2 = await api.get('/organisations/:organisationId', {
-    organisationId: 'test'
-  })
-  const result3 = await api.post(
-    '/organisations/:organisationId/activities',
-    {}
-  )
-
-  return api
+export function makeApi(axios: AxiosInstance) {
+  return new Api(axios)
 }

@@ -1,8 +1,13 @@
-import type { AppProps } from 'next/app'
+import { AppProps } from 'next/app'
+import { AuthProvider } from '../context/Auth.context'
 import '../scss/Main.scss'
 
 function Fitlink({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+  return (
+    <AuthProvider>
+      <Component {...pageProps} />
+    </AuthProvider>
+  )
 }
 
 export default Fitlink

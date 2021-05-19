@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import clsx from 'clsx'
 
-type ButtonProps = {
+export type ButtonProps = {
   to: string
   label: string
   alt?: boolean
@@ -21,9 +21,7 @@ export default function Button({
   })
   return (
     <Link href={to}>
-      <a className={classes}>
-        {label}
-      </a>
+      <a className={classes}>{label}</a>
     </Link>
   )
 }

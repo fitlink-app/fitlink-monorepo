@@ -35,14 +35,11 @@ describe('User Roles', () => {
     userRoleRepository = connection.getRepository(UserRole)
     superadminHeaders = getAuthHeaders({ spr: true })
 
-    const organisation = await organisationRepository
-      .createQueryBuilder('organisation')
-      .innerJoinAndSelect('organisation.teams', 'teams')
-      .innerJoinAndSelect('organisation.subscriptions', 'subscriptions')
-      .where('teams.organisation.id = organisation.id')
-      .andWhere('subscriptions.organisation.id = organisation.id')
-      .getOne()
+    const seed = await organisationRepository.find({
+      relations: ['teams', 'subscriptions']
+    })
 
+    const organisation = seed[0]
     seeded_organisation = organisation
 
     if (organisation) {

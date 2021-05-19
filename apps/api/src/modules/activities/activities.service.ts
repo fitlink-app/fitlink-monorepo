@@ -68,11 +68,11 @@ export class ActivitiesService {
     if (geoRadial) {
       const geo = geoRadial.split(',')
       query = query.where(
-        'ST_DistanceSphere(activity.meeting_point, ST_MakePoint(:lon,:lat)) <= :rad * 1000',
+        'ST_DistanceSphere(activity.meeting_point, ST_MakePoint(:lat,:lng)) <= :rad * 1000',
         {
           lat: geo[0],
-          lon: geo[1],
-          rad: 5 // 1km
+          lng: geo[1],
+          rad: parseInt(geo[2]) || 5
         }
       )
     } else {

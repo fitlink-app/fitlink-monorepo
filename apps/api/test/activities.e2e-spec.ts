@@ -310,11 +310,7 @@ describe('Activities', () => {
       }
     })
 
-    expect(data.statusCode).toEqual(201)
-    // expect(data.json().name).toBeDefined()
-    // expect(data.json().images[0].url).toBeDefined()
-    // expect(data.json().images[1].url).toBeDefined()
-    // expect(data.json().organizer_image.url).toBeDefined()
+    expect(data.statusCode).toEqual(400)
   })
 
   it(`DELETE /activities 200 A created activity can be deleted`, async () => {
@@ -391,7 +387,8 @@ describe('Activities', () => {
   }
 
   async function getIncompletePayload() {
-    const { payload, form } = await getPayloadWithImages()
+    const { payload } = await getPayloadWithImages()
+    const form = new FormData()
     Object.keys(payload).map((key: string) => {
       if (
         key in
@@ -407,9 +404,7 @@ describe('Activities', () => {
       }
     })
     return {
-      payload: {
-        ...payload
-      },
+      payload,
       form
     }
   }

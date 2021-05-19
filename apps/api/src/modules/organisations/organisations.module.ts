@@ -6,7 +6,6 @@ import { OrganisationsController } from './organisations.controller'
 import { Organisation } from './entities/organisation.entity'
 import { ImagesModule } from '../images/images.module'
 import { AuthModule } from '../auth/auth.module'
-import { SubscriptionsModule } from '../subscriptions/subscriptions.module'
 import { OrganisationsInvitationsModule } from '../organisations-invitations/organisations-invitations.module'
 
 @Module({
@@ -17,7 +16,6 @@ import { OrganisationsInvitationsModule } from '../organisations-invitations/org
     HttpModule,
     ImagesModule,
     OrganisationsInvitationsModule,
-    SubscriptionsModule
   ],
   controllers: [OrganisationsController],
   providers: [OrganisationsService],

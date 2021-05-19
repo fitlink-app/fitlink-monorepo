@@ -113,6 +113,11 @@ export async function mockApp({
     fastifyAdapter
   )
 
+  // TODO: Lock to specific origins
+  app.enableCors({
+    origin: '*'
+  })
+
   app.useGlobalPipes(new ValidationPipe())
   app.useGlobalGuards(
     new UploadGuard(app.get(Reflector)),
