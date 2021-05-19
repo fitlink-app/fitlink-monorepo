@@ -94,8 +94,6 @@ export class ActivitiesService {
       })
     }
 
-    console.log(query.getSql())
-
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<Activity>({
