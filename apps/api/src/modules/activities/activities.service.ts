@@ -71,8 +71,8 @@ export class ActivitiesService {
         'ST_DistanceSphere(activity.meeting_point, ST_MakePoint(:lat,:lng)) <= :rad * 1000',
         {
           lat: geo[0],
-          lon: geo[1],
-          rad: geo[2] || 5
+          lng: geo[1],
+          rad: parseInt(geo[2]) || 5
         }
       )
     } else {
