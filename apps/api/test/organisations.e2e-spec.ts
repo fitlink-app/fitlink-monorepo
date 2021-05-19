@@ -7,6 +7,11 @@ import { emailHasContent } from './helpers/mocking'
 import { getAuthHeaders } from './helpers/auth'
 import { OrganisationsModule } from '../src/modules/organisations/organisations.module'
 import { CreateOrganisationDto } from '../src/modules/organisations/dto/create-organisation.dto'
+import { runSeeder, useSeeding } from 'typeorm-seeding'
+import {
+  OrganisationsSetup,
+  OrganisationsTeardown
+} from './seeds/organisations.seed'
 
 describe('Activities', () => {
   let app: NestFastifyApplication
@@ -24,9 +29,14 @@ describe('Activities', () => {
 
     // Normal user
     authHeaders = getAuthHeaders()
+
+    // Run seed
+    await useSeeding()
+    await runSeeder(OrganisationsSetup)
   })
 
   afterAll(async () => {
+    await runSeeder(OrganisationsTeardown)
     await app.close()
   })
 
@@ -46,7 +56,7 @@ describe('Activities', () => {
 
   it(`POST /organisations 201 Allows a superadmin to create a new organisation with an image`, async () => {
     const payload = {
-      name: 'My Test Organisation',
+      name: 'Test Organisation',
       type: 'company',
       timezone: 'Etc/GMT+2'
     } as CreateOrganisationDto
@@ -91,7 +101,7 @@ describe('Activities', () => {
 
   it(`POST /organisations 400 Fails with validation errors if payload is not complete`, async () => {
     const payload = {
-      name: 'My Test Organisation',
+      name: 'Test Organisation',
       timezone: 'Etc/GMT+2'
     } as CreateOrganisationDto
 
@@ -127,7 +137,7 @@ describe('Activities', () => {
 
   async function createOrganisation(headers) {
     const payload = {
-      name: 'My Test Organisation',
+      name: 'Test Organisation',
       type: 'company',
       timezone: 'Etc/GMT+2',
       invitee: 'Test User',

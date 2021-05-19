@@ -3,6 +3,15 @@ import { LeaderboardEntriesModule } from '../src/modules/leaderboard-entries/lea
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
 import { Connection, getConnection, Repository } from 'typeorm'
+import { useSeeding, runSeeder } from 'typeorm-seeding'
+import {
+  LeaderboardsSetup,
+  LeaderboardsTeardown
+} from './seeds/leaderboards.seed'
+import {
+  LeaderboardEntriesSetup,
+  LeaderboardEntriesTeardown
+} from './seeds/leaderboard-entries.seed'
 
 describe('LeaderboardEntries', () => {
   let app: NestFastifyApplication
@@ -18,6 +27,10 @@ describe('LeaderboardEntries', () => {
       controllers: []
     })
 
+    // await useSeeding()
+    // await runSeeder(LeaderboardsSetup)
+    // await runSeeder(LeaderboardEntriesSetup)
+
     /** Load seeded data */
     connection = getConnection()
     leaderboardEntryRepository = connection.getRepository(LeaderboardEntry)
@@ -30,6 +43,12 @@ describe('LeaderboardEntries', () => {
         points: 0
       } as LeaderboardEntry
     })[0]
+  })
+
+  afterAll(async () => {
+    // await runSeeder(LeaderboardEntriesTeardown)
+    // await runSeeder(LeaderboardsTeardown)
+    await app.close()
   })
 
   const headers = {
@@ -184,9 +203,5 @@ describe('LeaderboardEntries', () => {
     })
     expect(result.statusCode).toEqual(200)
     expect(result.statusMessage).toEqual('OK')
-  })
-
-  afterAll(async () => {
-    await app.close()
   })
 })

@@ -7,7 +7,9 @@ import { ActivitiesIminService } from '../src/modules/activities/activities.imin
 import { ActivitiesService } from '../src/modules/activities/activities.service'
 import { CreateActivityDto } from '../src/modules/activities/dto/create-activity.dto'
 import { readFile } from 'fs/promises'
+import { runSeeder, useSeeding } from 'typeorm-seeding'
 import FormData = require('form-data')
+import { ActivitiesSetup, ActivitiesTeardown } from './seeds/activities.seed'
 
 const activityColumns = [
   'id',
@@ -49,9 +51,14 @@ describe('Activities', () => {
     activitiesIminService = app.get(ActivitiesIminService)
     activitiesIminService.findAll = jest.fn()
     activitiesService = app.get(ActivitiesService)
+
+    // Run seed
+    await useSeeding()
+    await runSeeder(ActivitiesSetup)
   })
 
   afterAll(async () => {
+    await runSeeder(ActivitiesTeardown)
     await app.close()
   })
 
