@@ -8,6 +8,12 @@ import { CreateTeamsInvitationDto } from '../src/modules/teams-invitations/dto/c
 import { Team } from '../src/modules/teams/entities/team.entity'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { JwtService } from '@nestjs/jwt'
+import { useSeeding, runSeeder } from 'typeorm-seeding'
+import {
+  OrganisationsSetup,
+  OrganisationsTeardown
+} from './seeds/organisations.seed'
+import { TeamsSetup, TeamsTeardown } from './seeds/teams.seed'
 
 describe('Activities', () => {
   let app: NestFastifyApplication
@@ -23,6 +29,10 @@ describe('Activities', () => {
       imports: [TeamsModule],
       providers: []
     })
+
+    // Run seed
+    await useSeeding()
+    await runSeeder(TeamsSetup)
 
     // Retrieve a team to test with
     team = await getTeam()
@@ -41,6 +51,7 @@ describe('Activities', () => {
   })
 
   afterAll(async () => {
+    await runSeeder(TeamsTeardown)
     await app.close()
   })
 
