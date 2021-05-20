@@ -178,3 +178,11 @@ export class DeleteUserWithSettingsSeeder implements Seeder {
     await userRepository.remove(user)
   }
 }
+
+export class UsersSeeder implements Seeder {
+  public async run(factory: Factory): Promise<any> {
+    await factory(User)().createMany(10, {
+      name: `Seeded User`
+    })
+  }
+}

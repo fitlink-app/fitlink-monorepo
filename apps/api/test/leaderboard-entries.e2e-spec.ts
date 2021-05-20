@@ -12,6 +12,8 @@ import {
   LeaderboardEntriesSetup,
   LeaderboardEntriesTeardown
 } from './seeds/leaderboard-entries.seed'
+import TestingLeagueSeed, { DeleteLeagueSeed } from './seeds/leagues.seed'
+import { UsersSeeder, DeleteUserSeeder } from './seeds/user.seed'
 
 describe('LeaderboardEntries', () => {
   let app: NestFastifyApplication
@@ -27,9 +29,11 @@ describe('LeaderboardEntries', () => {
       controllers: []
     })
 
-    // await useSeeding()
-    // await runSeeder(LeaderboardsSetup)
-    // await runSeeder(LeaderboardEntriesSetup)
+    await useSeeding()
+    await runSeeder(UsersSeeder)
+    await runSeeder(TestingLeagueSeed)
+    await runSeeder(LeaderboardsSetup)
+    await runSeeder(LeaderboardEntriesSetup)
 
     /** Load seeded data */
     connection = getConnection()
@@ -46,8 +50,10 @@ describe('LeaderboardEntries', () => {
   })
 
   afterAll(async () => {
-    // await runSeeder(LeaderboardEntriesTeardown)
-    // await runSeeder(LeaderboardsTeardown)
+    await runSeeder(LeaderboardEntriesTeardown)
+    await runSeeder(LeaderboardsTeardown)
+    await runSeeder(DeleteLeagueSeed)
+    await runSeeder(DeleteUserSeeder)
     await app.close()
   })
 
