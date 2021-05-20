@@ -104,4 +104,22 @@ export class SubscriptionsController {
     return this.subscriptionsService.removeUser(orgId, subId, userId)
   }
 
+  @Iam(Roles.SubscriptionAdmin)
+  @Post('/organisations/:organisationId/subscriptions/:subscriptionId/chargebee/billing')
+  setupBilling(
+    @Param('organisationId') orgId: string,
+    @Param('subscriptionId') subId: string
+  ) {
+    return this.subscriptionsService.setupBilling(orgId, subId)
+  }
+
+  @Iam(Roles.SubscriptionAdmin)
+  @Post('/organisations/:organisationId/subscriptions/:subscriptionId/chargebee/billing/chargebee')
+  createChargebeePlan(
+    @Param('organisationId') orgId: string,
+    @Param('subscriptionId') subId: string
+  ) {
+    return this.subscriptionsService.setupBilling(orgId, subId, true)
+  }
+
 }
