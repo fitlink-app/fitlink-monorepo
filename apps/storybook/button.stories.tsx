@@ -4,12 +4,12 @@ import { Story } from '@storybook/react'
 const Template: Story<ButtonProps> = (args) => <Button {...args} />
 
 export const Default = Template.bind({})
-Default.args = { alt: false, to: '/', label: 'Default' } as ButtonProps
+Default.args = { alt: false, to: '/', label: 'Default', external: false } as ButtonProps
 
 export const Alternative = Template.bind({})
-Alternative.args = { alt: true, to: '/', label: 'Alternative' } as ButtonProps
+Alternative.args = { alt: true, to: '/', label: 'Alternative', external: false } as ButtonProps
 
 export default {
-  title: 'Button',
+  title: 'Common/Button',
   component: Button
 }

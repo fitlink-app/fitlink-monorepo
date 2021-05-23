@@ -6,6 +6,6 @@ const Template: Story = (args) => <Sidebar />
 export const Default = Template.bind({})
 
 export default {
-  title: 'Sidebar',
+  title: 'Layout/Sidebar',
   component: Sidebar
 }
