@@ -1,32 +1,32 @@
-import { Activity } from '../../src/modules/activities/entities/activity.entity'
 import { Seeder, Factory, runSeeder } from 'typeorm-seeding'
 import { Connection } from 'typeorm'
+import { User } from '../../src/modules/users/entities/user.entity'
 
-export async function ActivitiesSetup(
+const USERS_COUNT = 10
+
+export async function UsersSetup(
   name: string,
-  count = 43
-): Promise<Activity[]> {
+  count = USERS_COUNT
+): Promise<User[]> {
   class Setup implements Seeder {
     public async run(factory: Factory): Promise<any> {
-      /**
-       * Create activities
-       */
-      return factory(Activity)().createMany(count, {
-        name
-      })
+      return factory(User)().createMany(count, { name })
     }
   }
 
   return runSeeder(Setup)
 }
 
-export async function ActivitiesTeardown(name: string): Promise<void> {
+export async function UsersTeardown(name: string): Promise<void> {
   class Teardown implements Seeder {
+    connection: Connection
+
     public async run(factory: Factory, connection: Connection): Promise<any> {
-      await connection.getRepository(Activity).delete({
+      await connection.getRepository(User).delete({
         name
       })
     }
   }
+
   return runSeeder(Teardown)
 }

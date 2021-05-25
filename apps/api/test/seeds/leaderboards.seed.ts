@@ -1,37 +1,51 @@
-import { Seeder, Factory } from 'typeorm-seeding'
+import { Seeder, Factory, runSeeder } from 'typeorm-seeding'
 import { Connection } from 'typeorm'
 import { Leaderboard } from '../../src/modules/leaderboards/entities/leaderboard.entity'
-import { League } from '../../src/modules/leagues/entities/league.entity'
-import * as chalk from 'chalk'
+import { LeaguesSetup, LeaguesTeardown } from './leagues.seed'
 
 const COUNT_LEADERBOARDS = 2
 
 const date = new Date()
 
-export class LeaderboardsSetup implements Seeder {
-  connection: Connection
+export async function LeaderboardsSetup(
+  name: string,
+  count = COUNT_LEADERBOARDS
+): Promise<Leaderboard[]> {
+  class Setup implements Seeder {
+    connection: Connection
 
-  public async run(factory: Factory, connection: Connection): Promise<any> {
-    const league = await connection.getRepository(League).findOne()
+    public async run(factory: Factory, connection: Connection): Promise<any> {
+      const league = await this.setupDependencies()
 
-    if (!league) {
-      console.log(
-        chalk.bgRed('League seed must be run before leaderboard seed')
-      )
+      return factory(Leaderboard)({ league }).createMany(COUNT_LEADERBOARDS, {
+        created_at: date
+      })
     }
 
-    await factory(Leaderboard)({ league }).createMany(COUNT_LEADERBOARDS, {
-      created_at: date
-    })
+    async setupDependencies() {
+      const leagues = await LeaguesSetup(name, 1)
+      return leagues[0]
+    }
   }
+
+  return runSeeder(Setup)
 }
 
-export class LeaderboardsTeardown implements Seeder {
-  connection: Connection
+export async function LeaderboardsTeardown(name: string): Promise<void> {
+  class Teardown implements Seeder {
+    connection: Connection
 
-  public async run(factory: Factory, connection: Connection): Promise<any> {
-    await connection.getRepository(Leaderboard).delete({
-      created_at: date
-    })
+    public async run(factory: Factory, connection: Connection): Promise<any> {
+      await connection.getRepository(Leaderboard).delete({
+        league: { name }
+      })
+      await this.teardownDependencies()
+    }
+
+    async teardownDependencies() {
+      await LeaguesTeardown(name)
+    }
   }
+
+  return runSeeder(Teardown)
 }

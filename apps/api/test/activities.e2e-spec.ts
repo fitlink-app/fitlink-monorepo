@@ -7,7 +7,8 @@ import { ActivitiesIminService } from '../src/modules/activities/activities.imin
 import { ActivitiesService } from '../src/modules/activities/activities.service'
 import { CreateActivityDto } from '../src/modules/activities/dto/create-activity.dto'
 import { readFile } from 'fs/promises'
-import { runSeeder, useSeeding } from 'typeorm-seeding'
+import { Connection } from 'typeorm'
+import { useSeeding } from 'typeorm-seeding'
 import FormData = require('form-data')
 import { ActivitiesSetup, ActivitiesTeardown } from './seeds/activities.seed'
 
@@ -54,11 +55,12 @@ describe('Activities', () => {
 
     // Run seed
     await useSeeding()
-    await runSeeder(ActivitiesSetup)
+    await ActivitiesSetup('Test activity')
   })
 
   afterAll(async () => {
-    await runSeeder(ActivitiesTeardown)
+    await ActivitiesTeardown('Test activity')
+    await app.get(Connection).close()
     await app.close()
   })
 

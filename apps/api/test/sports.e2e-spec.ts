@@ -1,39 +1,42 @@
 import { mockApp } from './helpers/app'
 import { SportsModule } from '../src/modules/sports/sports.module'
-import { Connection, getConnection, Repository } from 'typeorm'
+import { Connection } from 'typeorm'
 import { Sport } from '../src/modules/sports/entities/sport.entity'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { runSeeder, useSeeding } from 'typeorm-seeding'
-import TestingSportsSeed, { DeleteSports } from './seeds/sport.seed'
+import { useSeeding } from 'typeorm-seeding'
+import { SportSetup, SportsTeardown } from './seeds/sport.seed'
 import * as faker from 'faker'
 import { getAuthHeaders } from './helpers/auth'
 
 describe('Sports', () => {
   let app: NestFastifyApplication
-  let connection: Connection
-  let sportsRepository: Repository<Sport>
   let sportID: string
   let superadminHeaders
 
   beforeAll(async () => {
     app = await mockApp({
       imports: [SportsModule],
-      providers: [],
-      controllers: []
+      providers: []
     })
-    connection = getConnection()
-    sportsRepository = connection.getRepository(Sport)
+
     superadminHeaders = getAuthHeaders({ spr: true })
 
     // Seed Sport Data
     await useSeeding()
-    await runSeeder(TestingSportsSeed)
-
-    // Getting our seeded data by it's name cause the ID keeps changing.
-    const seededData = await sportsRepository.findOne({
-      where: { name: 'Swimming' }
+    const sport = await SportSetup({
+      name: 'Sport Test',
+      name_key: 'sport_test',
+      plural: 'sports',
+      singular: 'sport'
     })
-    sportID = seededData.id
+
+    sportID = sport.id
+  })
+
+  afterAll(async () => {
+    await SportsTeardown('Sport Test')
+    await app.get(Connection).close()
+    await app.close()
   })
 
   it('/GET (200) /sports', async () => {
@@ -126,13 +129,5 @@ describe('Sports', () => {
     })
     expect(result.statusCode).toBe(200)
     expect(result.statusMessage).toContain('OK')
-
-    // Run the Seeder again for future tests.
-    await runSeeder(TestingSportsSeed)
-  })
-
-  afterAll(async () => {
-    await runSeeder(DeleteSports)
-    await app.close()
   })
 })

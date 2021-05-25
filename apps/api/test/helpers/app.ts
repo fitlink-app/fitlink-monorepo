@@ -87,6 +87,7 @@ export async function mockApp({
         password: 'jest',
         database: 'jest',
         host: 'localhost',
+        keepConnectionAlive: true,
         port: 5433,
         entities,
         dropSchema: false,

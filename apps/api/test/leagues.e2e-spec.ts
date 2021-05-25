@@ -9,24 +9,23 @@ import { Sport } from '../src/modules/sports/entities/sport.entity'
 import { Team } from '../src/modules/teams/entities/team.entity'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
-import TestingLeagueSeed, {
-  DeleteLeagueSeed,
-  DeleteTeamAssignedLeague,
-  TeamAssignedLeague
+import {
+  LeaguesSetup,
+  LeaguesTeardown,
+  TeamAssignedLeagueSetup,
+  TeamAssignedLeagueTeardown
 } from './seeds/leagues.seed'
+import { SportSetup, SportsTeardown } from './seeds/sport.seed'
 
 describe('Leagues', () => {
   let app: NestFastifyApplication
-  let connection: Connection
-  let leaguesRepository: Repository<League>
-  let teamRepository: Repository<Team>
   let superadminHeaders
   let teamAdminHeaders
-  let sportsRepository: Repository<Sport>
   let seeded_league: League
   let seeded_team: Team
   let team_assigned_league: League
   let sportID: string
+  let sportName: string
 
   beforeAll(async () => {
     app = await mockApp({
@@ -34,40 +33,34 @@ describe('Leagues', () => {
       providers: [],
       controllers: []
     })
-    connection = getConnection()
 
     superadminHeaders = getAuthHeaders({ spr: true })
 
-    leaguesRepository = connection.getRepository(League)
-    sportsRepository = connection.getRepository(Sport)
-    teamRepository = connection.getRepository(Team)
-
-    const sport = await sportsRepository.findOne({
-      where: { name: 'Running' }
-    })
-    sportID = sport.id
-
     // Use Seeder.
     await useSeeding()
-    await runSeeder(TestingLeagueSeed)
-    await runSeeder(TeamAssignedLeague)
+    const rand = Math.random()
+    sportName = 'Running League Test ' + rand
+    const sport = await SportSetup({
+      name: sportName,
+      name_key: 'running_league_test_' + rand,
+      plural: 'runs',
+      singular: 'run'
+    })
+
+    const leagues = await LeaguesSetup('Test League')
+    team_assigned_league = await TeamAssignedLeagueSetup('Test Team League')
+
+    sportID = sport.id
 
     // Get Currently Seeded Data.
-    seeded_league = await leaguesRepository.findOne({
-      where: { name: 'Dying League' }
-    })
+    seeded_league = leagues[0]
 
     // // Get the team name to use it's credentials for testing
-
-    const teams = await teamRepository.find()
-    seeded_team = teams[0]
+    seeded_team = team_assigned_league.team
 
     // // Get the League that is already assigned to our team aka teams[0]
-    team_assigned_league = await leaguesRepository.findOne({
-      where: { name: 'Team Assigned Dying League' }
-    })
-    if (teams[0]) {
-      teamAdminHeaders = getAuthHeaders({ t_a: [teams[0].id] })
+    if (seeded_team) {
+      teamAdminHeaders = getAuthHeaders({ t_a: [seeded_team.id] })
     }
   })
 
@@ -213,7 +206,7 @@ describe('Leagues', () => {
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
     // After we're done deleting the seeded data we need to re run it.
-    await runSeeder(TestingLeagueSeed)
+    // await runSeeder(TestingLeagueSeed)
   })
 
   it('DELETE teams/teamId/leagues/:id', async () => {
@@ -226,12 +219,13 @@ describe('Leagues', () => {
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
     // After we're done deleting the seeded data we need to re run it.
-    await runSeeder(TeamAssignedLeague)
+    // await runSeeder(TeamAssignedLeagueSetup)
   })
 
   afterAll(async () => {
-    await runSeeder(DeleteLeagueSeed)
-    await runSeeder(DeleteTeamAssignedLeague)
+    await LeaguesTeardown('Test League')
+    await TeamAssignedLeagueTeardown('Test Team League')
+    await SportsTeardown(sportName)
     await app.close()
   })
 })

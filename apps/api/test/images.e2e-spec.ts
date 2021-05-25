@@ -4,6 +4,7 @@ import { getAuthHeaders } from './helpers/auth'
 import { readFile } from 'fs/promises'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import FormData = require('form-data')
+import { Connection } from 'typeorm'
 
 /**
  * Images are tested using s3rver running inside docker
@@ -25,6 +26,11 @@ describe('Image', () => {
 
     file1 = await readFile(__dirname + '/assets/1200x1200.png')
     file2 = await readFile(__dirname + '/assets/1416x721.png')
+  })
+
+  afterAll(async () => {
+    await app.get(Connection).close()
+    await app.close()
   })
 
   it(`POST /images 201 Allows the uploading of multiple images and only interprets specific fields`, async () => {
@@ -66,9 +72,5 @@ describe('Image', () => {
     })
     expect(result.statusCode).toEqual(400)
     expect(result.json().message).toContain('Unexpected file')
-  })
-
-  afterAll(async () => {
-    await app.close()
   })
 })

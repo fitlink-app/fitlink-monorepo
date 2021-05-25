@@ -7,7 +7,7 @@ import { emailHasContent } from './helpers/mocking'
 import { getAuthHeaders } from './helpers/auth'
 import { OrganisationsModule } from '../src/modules/organisations/organisations.module'
 import { CreateOrganisationDto } from '../src/modules/organisations/dto/create-organisation.dto'
-import { runSeeder, useSeeding } from 'typeorm-seeding'
+import { useSeeding } from 'typeorm-seeding'
 import {
   OrganisationsSetup,
   OrganisationsTeardown
@@ -32,11 +32,11 @@ describe('Activities', () => {
 
     // Run seed
     await useSeeding()
-    await runSeeder(OrganisationsSetup)
+    await OrganisationsSetup('Test organisations')
   })
 
   afterAll(async () => {
-    await runSeeder(OrganisationsTeardown)
+    await OrganisationsTeardown('Test organisations')
     await app.close()
   })
 

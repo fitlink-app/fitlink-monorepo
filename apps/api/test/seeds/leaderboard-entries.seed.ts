@@ -1,50 +1,62 @@
-import { Seeder, Factory } from 'typeorm-seeding'
-import { Connection } from 'typeorm'
-import { Leaderboard } from '../../src/modules/leaderboards/entities/leaderboard.entity'
+import { Seeder, Factory, runSeeder } from 'typeorm-seeding'
+import { Connection, In } from 'typeorm'
 import { LeaderboardEntry } from '../../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
+import { UsersSetup, UsersTeardown } from './users.seed'
+import { LeaderboardsSetup, LeaderboardsTeardown } from './leaderboards.seed'
 import { User } from '../../src/modules/users/entities/user.entity'
-import * as chalk from 'chalk'
 
 const COUNT_LEADERBOARD_ENTRIES = 10
 
-const date = new Date()
+export async function LeaderboardEntriesSetup(
+  name: string,
+  count = COUNT_LEADERBOARD_ENTRIES
+): Promise<LeaderboardEntry[]> {
+  class Setup implements Seeder {
+    connection: Connection
 
-export class LeaderboardEntriesSetup implements Seeder {
-  connection: Connection
+    public async run(factory: Factory): Promise<any> {
+      const { users, leaderboard } = await this.setupDependencies()
 
-  public async run(factory: Factory, connection: Connection): Promise<any> {
-    const leaderboard = await connection.getRepository(Leaderboard).findOne({
-      relations: ['league']
-    })
-    const users = await connection.getRepository(User).find({
-      take: COUNT_LEADERBOARD_ENTRIES
-    })
-
-    if (!leaderboard || users.length === 0) {
-      console.log(
-        chalk.bgRed(
-          'Leaderboard & user seed must be run before leaderboard entry seed'
-        )
+      return Promise.all(
+        users.map((user) => {
+          return factory(LeaderboardEntry)({ leaderboard, user }).create()
+        })
       )
-      return
     }
 
-    await Promise.all(
-      users.map((user) => {
-        return factory(LeaderboardEntry)({ leaderboard, user }).create({
-          created_at: date
-        })
-      })
-    )
+    async setupDependencies() {
+      const users = await UsersSetup(name, count)
+      const leaderboards = await LeaderboardsSetup(name, 1)
+      return {
+        users,
+        leaderboard: leaderboards[0]
+      }
+    }
   }
+
+  return runSeeder(Setup)
 }
 
-export class LeaderboardEntriesTeardown implements Seeder {
-  connection: Connection
+export async function LeaderboardEntriesTeardown(name: string): Promise<void> {
+  class Teardown implements Seeder {
+    connection: Connection
 
-  public async run(factory: Factory, connection: Connection): Promise<any> {
-    await connection.getRepository(LeaderboardEntry).delete({
-      created_at: date
-    })
+    public async run(factory: Factory, connection: Connection): Promise<any> {
+      const users = await connection.getRepository(User).find({
+        where: { name },
+        take: 1000
+      })
+      await connection
+        .getRepository(LeaderboardEntry)
+        .delete({ user: In(users) })
+      await this.teardownDependencies()
+    }
+
+    async teardownDependencies() {
+      await UsersTeardown(name)
+      await LeaderboardsTeardown(name)
+    }
   }
+
+  return runSeeder(Teardown)
 }

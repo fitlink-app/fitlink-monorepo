@@ -1,25 +1,29 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { Connection, getConnection, Repository } from 'typeorm'
-import { runSeeder, useSeeding } from 'typeorm-seeding'
+import { Connection, Repository } from 'typeorm'
+import { useSeeding } from 'typeorm-seeding'
 import { AuthModule } from '../src/modules/auth/auth.module'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { UserRole } from '../src/modules/user-roles/entities/user-role.entity'
 import { UserRolesModule } from '../src/modules/user-roles/user-roles.module'
+import { User } from '../src/modules/users/entities/user.entity'
 import { UsersModule } from '../src/modules/users/users.module'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
-import UserRolesSeeder from './seeds/user-roles.seed'
+import {
+  SubscriptionsSetup,
+  SubscriptionsTeardown
+} from './seeds/subscriptions.seed'
+import { UserRolesSetup, UserRolesTeardown } from './seeds/user-roles.seed'
 
 describe('User Roles', () => {
   let app: NestFastifyApplication
-  let connection: Connection
   let organisationRepository: Repository<Organisation>
   let userRoleRepository: Repository<UserRole>
   let authHeader
   let orgAdminHeaders
   let superadminHeaders
   let seededOrganisation: Organisation
-  let seededUser
+  let seededUser: User
   let seeded_user_role
   let orgAdminPayload
   let teamAdminPayload
@@ -32,12 +36,18 @@ describe('User Roles', () => {
       controllers: []
     })
 
-    connection = getConnection()
-    organisationRepository = connection.getRepository(Organisation)
-    userRoleRepository = connection.getRepository(UserRole)
+    await useSeeding()
+
+    const subscriptions = await SubscriptionsSetup('User Roles Test')
+    const subscription = subscriptions[0]
+
+    organisationRepository = app.get(Connection).getRepository(Organisation)
+    userRoleRepository = app.get(Connection).getRepository(UserRole)
     superadminHeaders = getAuthHeaders({ spr: true })
 
+    // Use the newly seeded organisation
     const seed = await organisationRepository.find({
+      where: { id: subscription.organisation.id },
       relations: ['teams', 'subscriptions']
     })
 
@@ -48,8 +58,7 @@ describe('User Roles', () => {
       orgAdminHeaders = getAuthHeaders({ o_a: [organisation.id] })
     }
 
-    await useSeeding()
-    const seededUserRole = await runSeeder(UserRolesSeeder)
+    const seededUserRole = await UserRolesSetup('Test User Roles')
     seeded_user_role = seededUserRole
     seededUser = seededUserRole.user
     authHeader = getAuthHeaders({}, seededUserRole.user.id)
@@ -66,6 +75,12 @@ describe('User Roles', () => {
       role: 'subscription_admin',
       subscription: seededOrganisation.subscriptions[0].id
     }
+  })
+
+  afterAll(async () => {
+    await UserRolesTeardown('Test User Roles')
+    await SubscriptionsTeardown('User Roles Test')
+    await app.close()
   })
 
   /**
@@ -238,15 +253,11 @@ describe('User Roles', () => {
      */
     const data = await app.inject({
       method: 'POST',
-      url: `roles/superadmin/${seededUser}`,
+      url: `roles/superadmin/${seededUser.id}`,
       headers: superadminHeaders
     })
 
     expect(data.statusCode).toBe(201)
     expect(data.statusMessage).toBe('Created')
-  })
-
-  afterAll(async () => {
-    await app.close()
   })
 })

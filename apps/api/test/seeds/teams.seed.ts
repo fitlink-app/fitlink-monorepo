@@ -1,35 +1,67 @@
-import { Seeder, Factory } from 'typeorm-seeding'
+import { Seeder, Factory, runSeeder } from 'typeorm-seeding'
 import { Connection } from 'typeorm'
 import { Team } from '../../src/modules/teams/entities/team.entity'
 import { Organisation } from '../../src/modules/organisations/entities/organisation.entity'
-import * as chalk from 'chalk'
+import { OrganisationsSetup, OrganisationsTeardown } from './organisations.seed'
+import { UsersSetup, UsersTeardown } from './users.seed'
+import { User } from '../../src/modules/users/entities/user.entity'
 
 const COUNT_TEAMS = 2
+const COUNT_USERS = 10
+const TOTAL_USERS = COUNT_TEAMS * COUNT_USERS
 
-export const name = 'Test Team'
+export async function TeamsSetup(
+  name: string,
+  count = COUNT_TEAMS
+): Promise<Team[]> {
+  class Setup implements Seeder {
+    connection: Connection
 
-export class TeamsSetup implements Seeder {
-  connection: Connection
+    public async run(factory: Factory, connection: Connection): Promise<any> {
+      const { organisation, users } = await this.setupDependencies()
+      const teams = await factory(Team)({ organisation }).createMany(count, {
+        name
+      })
 
-  public async run(factory: Factory, connection: Connection): Promise<any> {
-    const organisation = await connection.getRepository(Organisation).findOne()
+      // Add COUNT_USERS (.e.g 10 per team)
+      await Promise.all(
+        users.map((user, index) => {
+          const team = Math.floor(index / COUNT_USERS)
+          user.teams = [teams[team]]
+          return connection.getRepository(User).save(user)
+        })
+      )
 
-    if (!organisation) {
-      console.log(chalk.bgRed('Organisation seed must be run before team seed'))
+      return teams
     }
 
-    await factory(Team)({ organisation }).createMany(COUNT_TEAMS, {
-      name
-    })
+    async setupDependencies() {
+      const organisations = await OrganisationsSetup(name, 1)
+      const users = await UsersSetup(name, TOTAL_USERS)
+      return {
+        organisation: organisations[0],
+        users
+      }
+    }
   }
+
+  return runSeeder(Setup)
 }
 
-export class TeamsTeardown implements Seeder {
-  connection: Connection
+export async function TeamsTeardown(name: string): Promise<void> {
+  class Teardown implements Seeder {
+    connection: Connection
 
-  public async run(factory: Factory, connection: Connection): Promise<any> {
-    await connection.getRepository(Team).delete({
-      name
-    })
+    public async run(factory: Factory, connection: Connection): Promise<any> {
+      await connection.getRepository(Team).delete({ name })
+      await this.teardownDependencies()
+    }
+
+    async teardownDependencies() {
+      await OrganisationsTeardown(name)
+      await UsersTeardown(name)
+    }
   }
+
+  await runSeeder(Teardown)
 }
