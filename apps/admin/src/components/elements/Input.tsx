@@ -1,6 +1,7 @@
 export type InputProps = {
   type?: 'text' | 'number' | 'email' | 'tel' | 'textfield'
   label: string
+  placeholder?: string
   name: string
   value?: any
   onChange?: () => void
@@ -9,6 +10,7 @@ export type InputProps = {
 export default function Input({
   type = 'text',
   label,
+  placeholder = '',
   name,
   value = '',
   onChange = () => null
@@ -26,6 +28,7 @@ export default function Input({
         name={name}
         value={value}
         onChange={onChange}
+        placeholder={placeholder}
         />
     </div>
   )

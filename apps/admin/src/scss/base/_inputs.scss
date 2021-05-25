@@ -24,6 +24,12 @@ input:not([type="checkbox"]), select {
   height: 2.75rem;
 }
 
+.react-select {
+  input {
+    height: auto;
+  }
+}
+
 select[multiple] {
   height: 5.5rem;
 }
@@ -72,4 +78,17 @@ select[multiple] {
       background-repeat: no-repeat;
     }
   }
+}
+
+::-webkit-input-placeholder {
+  color: #ccc;
+}
+::-moz-placeholder {
+  color: #ccc;
+}
+:-ms-input-placeholder {
+  color: #ccc;
+}
+:-moz-placeholder {
+  color: #ccc;
 }
