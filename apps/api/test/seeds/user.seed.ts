@@ -98,8 +98,8 @@ export class DeleteUserWithRolesSeed implements Seeder {
             UserRole,
             userRoles.map((entity) => entity.id)
           )
-          return await entityManager.delete(User, user.id)
         }
+        return await entityManager.delete(User, user.id)
       }
     })
   }

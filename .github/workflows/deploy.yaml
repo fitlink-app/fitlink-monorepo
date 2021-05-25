@@ -88,8 +88,8 @@ jobs:
         with:
           time: '10s'
 
-      - name: Migrate and seed test database
-        run: yarn migration:run -c jest && yarn migration:seed -c jest
+      - name: Migrate database database
+        run: yarn migration:run -c jest
 
       - name: Test e2e
         run: yarn run test

@@ -58,8 +58,8 @@ export async function TeamsTeardown(name: string): Promise<void> {
     }
 
     async teardownDependencies() {
-      await OrganisationsTeardown(name)
       await UsersTeardown(name)
+      await OrganisationsTeardown(name)
     }
   }
 

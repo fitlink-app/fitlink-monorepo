@@ -67,6 +67,7 @@ describe('Teams', () => {
         invitee: user.name
       }
     })
+
     invitationToken = data.json().token
   })
 
