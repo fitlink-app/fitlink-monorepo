@@ -1,4 +1,4 @@
-import { formatDistance, parse } from 'date-fns'
+import { formatDistance } from 'date-fns'
 import Card from './Card'
 
 export type LeagueProps = {
@@ -22,13 +22,13 @@ export default function League({
 }:LeagueProps) {
   return (
     <Card className={`league ${className}`}>
-      <div className="league__background" style={{backgroundImage: `url(${image})`}} />
-      <div className="league__bottom">
+      <div className="card__background" style={{backgroundImage: `url(${image})`}} />
+      <div className="card__bottom">
         <h3 className="h5">{name}</h3>
         { description && <p>{description}</p> }
       </div>
-      <div className="league__top">
-        <div className="league__type">{type}</div>
+      <div className="card__top">
+        <div className="card__chip">{type}</div>
         <h4 className="p">{members.toLocaleString()} members</h4>
         <div className="league__resets">
           <small>resets in</small>
