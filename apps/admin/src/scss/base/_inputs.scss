@@ -1,0 +1,75 @@
+input:not([type="checkbox"]), textarea, select {
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  padding: 0.6875rem 0.5rem;
+  line-height: 1em;
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-block;
+  margin: 0.5rem 0;
+
+  &:focus, &:active {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.25), 0 10px 10px 0 rgba($primary, 0.1);
+  }
+
+  &.is-invalid {
+    border-color: $red;
+    box-shadow: 0 0 0 3px rgba($red, 0.25);
+  }
+}
+
+input:not([type="checkbox"]), select {
+  height: 2.75rem;
+}
+
+select[multiple] {
+  height: 5.5rem;
+}
+
+.input-block {
+  position: relative;
+
+  input:not([type="checkbox"]), textarea, label, select {
+    display: block;
+    width: 100%;
+  }
+  input[type="checkbox"] {
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    z-index: 1;
+    opacity: 0;
+  }
+  
+  input[type="checkbox"] + label {
+    padding-left: 1.5rem;
+    position: relative;
+    z-index: 2;
+
+    &:before {
+      content: "";
+      display: block;
+      position: absolute;
+      left: 0;
+      top: -0.0625rem;
+      width: 1.125rem;
+      height: 1.125rem;
+      border: 1px solid #ccc;
+      border-radius: 0.25rem;
+    }
+  }
+
+  input[type="checkbox"]:checked + label {
+    &:before {
+      border-color: $primary;
+      color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.25), 0 10px 10px 0 rgba($primary, 0.1);
+      background-image: url(../img/check-solid.svg);
+      background-size: 10px 10px;
+      background-position: center center;
+      background-repeat: no-repeat;
+    }
+  }
+}

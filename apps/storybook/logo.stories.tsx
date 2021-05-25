@@ -14,6 +14,6 @@ Light.parameters = {
 }
 
 export default {
-  title: 'Logo',
+  title: 'Common/Logo',
   component: Logo
 }
