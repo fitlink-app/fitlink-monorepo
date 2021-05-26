@@ -303,9 +303,79 @@ export class SubscriptionsService {
           })
       })
       return {
-        countUsers: countUsers,
-        customer: await chargebeeCustomerCreate
+        "countUsers": countUsers,
+        "customer": await chargebeeCustomerCreate
+      }
+    } else {
+     return {
+        "countUsers": countUsers
       }
     }
   }
+
+ /**
+    * Getting ChargeBee plan for the subscription
+    * @param orgId,
+    * @param subId,
+    * @param customerId: string
+  */
+  async getChargebeePlan(
+    orgId: string,
+    subId: string,
+    customerId: string
+  ): Promise<any> {
+    const subscription = await this.findOne(orgId, subId, ['organisation', 'users'])
+
+    if (!subscription) {
+      throw new BadRequestException("the subscription doesn't exist for this organisation")
+    }
+
+    const chargebeeCustomer =  new Promise((resolve, reject) => {
+      chargebee.customer
+        .retrieve(customerId)
+        .request((error, result: any) => {
+          if (error) {
+            reject(error)
+          } else {
+            const customer: typeof chargebee.customer = result.customer
+            resolve({ customer })
+          }
+        })
+    })
+    return await chargebeeCustomer
+  }
+
+   /**
+    * Removing ChargeBee plan for the subscription
+    * @param orgId,
+    * @param subId,
+    * @param customerId: string
+  */
+    async removeChargebeePlan(
+      orgId: string,
+      subId: string,
+      customerId: string
+    ): Promise<any> {
+      const subscription = await this.findOne(orgId, subId, ['organisation', 'users'])
+
+      if (!subscription) {
+        throw new BadRequestException("the subscription doesn't exist for this organisation")
+      }
+
+      const chargebeeCustomer =  new Promise((resolve, reject) => {
+        chargebee.customer
+          .delete(customerId)
+          .request((error, result: any) => {
+            if (error) {
+              reject(error)
+            } else {
+              const customer: typeof chargebee.customer = result.customer
+              resolve({ customer })
+            }
+          })
+      })
+      return await chargebeeCustomer
+    }
+
+
 }
