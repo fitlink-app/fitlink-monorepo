@@ -9,6 +9,7 @@ import {
   UsersSetting
 } from '../../src/modules/users-settings/entities/users-setting.entity'
 import { User } from '../../src/modules/users/entities/user.entity'
+import { SubscriptionsSetup } from './subscriptions.seed'
 const username = 'TestUser4'
 
 export default class UserWithRolesSeed implements Seeder {
@@ -32,12 +33,16 @@ export default class UserWithRolesSeed implements Seeder {
       })
     )
 
+    const subscriptions = await SubscriptionsSetup('User With Roles Seed')
+
     const organisation = await organisationRepository
       .createQueryBuilder('organisation')
       .innerJoinAndSelect('organisation.teams', 'teams')
       .innerJoinAndSelect('organisation.subscriptions', 'subscriptions')
       .where('teams.organisation.id = organisation.id')
-      .andWhere('subscriptions.organisation.id = organisation.id')
+      .andWhere('subscriptions.organisation.id = :id', {
+        id: subscriptions[0].organisation.id
+      })
       .getOne()
 
     const roles = [
@@ -176,5 +181,13 @@ export class DeleteUserWithSettingsSeeder implements Seeder {
       .set(null)
 
     await userRepository.remove(user)
+  }
+}
+
+export class UsersSeeder implements Seeder {
+  public async run(factory: Factory): Promise<any> {
+    await factory(User)().createMany(10, {
+      name: `Seeded User`
+    })
   }
 }

@@ -1,5 +1,6 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { getConnection } from 'typeorm'
+import { useSeeding } from 'typeorm-seeding'
 import { mockApp } from './helpers/app'
 import { emailHasContent } from './helpers/mocking'
 import { getAuthHeaders } from './helpers/auth'
@@ -7,8 +8,12 @@ import { OrganisationsModule } from '../src/modules/organisations/organisations.
 import { CreateOrganisationsInvitationDto } from '../src/modules/organisations-invitations/dto/create-organisations-invitation.dto'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { JwtService } from '@nestjs/jwt'
+import {
+  OrganisationsSetup,
+  OrganisationsTeardown
+} from './seeds/organisations.seed'
 
-describe('Activities', () => {
+describe('Organisations Invitations', () => {
   let app: NestFastifyApplication
   let superadminHeaders
   let organisationAdminHeaders
@@ -21,8 +26,15 @@ describe('Activities', () => {
       providers: []
     })
 
+    await useSeeding()
+
     // Retrieve an organisation to test with
-    organisation = await getOrganisation()
+    const organisations = await OrganisationsSetup(
+      'Test Organisation Invitation',
+      1
+    )
+
+    organisation = organisations[0]
     // Superadmin
     superadminHeaders = getAuthHeaders({ spr: true })
     // Org admin
@@ -32,6 +44,7 @@ describe('Activities', () => {
   })
 
   afterAll(async () => {
+    await OrganisationsTeardown('Test Organisation Invitation')
     await app.close()
   })
 

@@ -1,23 +1,29 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { Connection, getConnection, Repository } from 'typeorm'
+import { Connection, Repository } from 'typeorm'
+import { useSeeding } from 'typeorm-seeding'
 import { AuthModule } from '../src/modules/auth/auth.module'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { UserRole } from '../src/modules/user-roles/entities/user-role.entity'
 import { UserRolesModule } from '../src/modules/user-roles/user-roles.module'
+import { User } from '../src/modules/users/entities/user.entity'
 import { UsersModule } from '../src/modules/users/users.module'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
+import {
+  SubscriptionsSetup,
+  SubscriptionsTeardown
+} from './seeds/subscriptions.seed'
+import { UserRolesSetup, UserRolesTeardown } from './seeds/user-roles.seed'
 
 describe('User Roles', () => {
   let app: NestFastifyApplication
-  let connection: Connection
   let organisationRepository: Repository<Organisation>
   let userRoleRepository: Repository<UserRole>
   let authHeader
   let orgAdminHeaders
   let superadminHeaders
-  let seeded_organisation: Organisation
-  let seeded_user
+  let seededOrganisation: Organisation
+  let seededUser: User
   let seeded_user_role
   let orgAdminPayload
   let teamAdminPayload
@@ -30,41 +36,51 @@ describe('User Roles', () => {
       controllers: []
     })
 
-    connection = getConnection()
-    organisationRepository = connection.getRepository(Organisation)
-    userRoleRepository = connection.getRepository(UserRole)
+    await useSeeding()
+
+    const subscriptions = await SubscriptionsSetup('User Roles Test')
+    const subscription = subscriptions[0]
+
+    organisationRepository = app.get(Connection).getRepository(Organisation)
+    userRoleRepository = app.get(Connection).getRepository(UserRole)
     superadminHeaders = getAuthHeaders({ spr: true })
 
+    // Use the newly seeded organisation
     const seed = await organisationRepository.find({
+      where: { id: subscription.organisation.id },
       relations: ['teams', 'subscriptions']
     })
 
     const organisation = seed[0]
-    seeded_organisation = organisation
+    seededOrganisation = organisation
 
     if (organisation) {
       orgAdminHeaders = getAuthHeaders({ o_a: [organisation.id] })
     }
 
-    const userRole = await userRoleRepository.findOne({
-      relations: ['user', 'organisation', 'team', 'subscription']
-    })
-    seeded_user_role = userRole
-    seeded_user = userRole.user
-    authHeader = getAuthHeaders({}, userRole.user.id)
+    const seededUserRole = await UserRolesSetup('Test User Roles')
+    seeded_user_role = seededUserRole
+    seededUser = seededUserRole.user
+    authHeader = getAuthHeaders({}, seededUserRole.user.id)
 
     orgAdminPayload = {
       role: 'organisation_admin',
-      organisation: seeded_organisation.id
+      organisation: seededOrganisation.id
     }
     teamAdminPayload = {
       role: 'team_admin',
-      team: seeded_organisation.teams[0].id
+      team: seededOrganisation.teams[0].id
     }
     subAdminPayload = {
       role: 'subscription_admin',
-      subscription: seeded_organisation.subscriptions[0].id
+      subscription: seededOrganisation.subscriptions[0].id
     }
+  })
+
+  afterAll(async () => {
+    await UserRolesTeardown('Test User Roles')
+    await SubscriptionsTeardown('User Roles Test')
+    await app.close()
   })
 
   /**
@@ -83,15 +99,13 @@ describe('User Roles', () => {
   it('GET /organisations/:organisationId/roles/users/:id/roles', async () => {
     const data = await app.inject({
       method: 'GET',
-      url: `/organisations/${seeded_organisation.id}/roles/users/${seeded_user.id}`,
+      url: `/organisations/${seededOrganisation.id}/roles/users/${seededUser.id}`,
       headers: authHeader
     })
 
-    const role = { ...seeded_user_role }
-    delete role.user
-
     const result = data.json()[0]
-    expect(Object.keys(result)).toEqual(Object.keys(role))
+    expect(result.id).toBeDefined()
+    expect(result.role).toBeDefined()
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
   })
@@ -101,7 +115,7 @@ describe('User Roles', () => {
     async (role, getRolePayload) => {
       const data = await app.inject({
         method: 'POST',
-        url: `/organisations/${seeded_organisation.id}/users/${seeded_user.id}/roles`,
+        url: `/organisations/${seededOrganisation.id}/users/${seededUser.id}/roles`,
         payload: getRolePayload(),
         headers: orgAdminHeaders
       })
@@ -130,7 +144,7 @@ describe('User Roles', () => {
     async (role, getRolePayload) => {
       const data = await app.inject({
         method: 'POST',
-        url: `/organisations/${seeded_organisation.id}/users/${seeded_user.id}/roles`,
+        url: `/organisations/${seededOrganisation.id}/users/${seededUser.id}/roles`,
         payload: getRolePayload(),
         headers: superadminHeaders
       })
@@ -159,7 +173,7 @@ describe('User Roles', () => {
     async (role, getRolePayload) => {
       const data = await app.inject({
         method: 'PUT',
-        url: `/organisations/${seeded_organisation.id}/users/${seeded_user.id}/roles/${seeded_user_role.id}`,
+        url: `/organisations/${seededOrganisation.id}/users/${seededUser.id}/roles/${seeded_user_role.id}`,
         payload: getRolePayload(),
         headers: orgAdminHeaders
       })
@@ -188,7 +202,7 @@ describe('User Roles', () => {
     async (role, getRolePayload) => {
       const data = await app.inject({
         method: 'PUT',
-        url: `/organisations/${seeded_organisation.id}/users/${seeded_user.id}/roles/${seeded_user_role.id}`,
+        url: `/organisations/${seededOrganisation.id}/users/${seededUser.id}/roles/${seeded_user_role.id}`,
         payload: getRolePayload(),
         headers: superadminHeaders
       })
@@ -220,13 +234,13 @@ describe('User Roles', () => {
     const userRole = await userRoleRepository.save(
       userRoleRepository.create({
         role: 'team_admin',
-        user: seeded_user,
-        team: seeded_organisation.teams[0]
+        user: seededUser,
+        team: seededOrganisation.teams[0]
       })
     )
     const data = await app.inject({
       method: 'DELETE',
-      url: `/organisations/${seeded_organisation.id}/users/${seeded_user.id}/roles/${userRole.id}`,
+      url: `/organisations/${seededOrganisation.id}/users/${seededUser.id}/roles/${userRole.id}`,
       headers: authHeader
     })
     expect(data.statusCode).toBe(200)
@@ -239,15 +253,11 @@ describe('User Roles', () => {
      */
     const data = await app.inject({
       method: 'POST',
-      url: `roles/superadmin/${seeded_user}`,
+      url: `roles/superadmin/${seededUser.id}`,
       headers: superadminHeaders
     })
 
     expect(data.statusCode).toBe(201)
     expect(data.statusMessage).toBe('Created')
-  })
-
-  afterAll(async () => {
-    await app.close()
   })
 })

@@ -2,13 +2,15 @@ import { mockApp } from './helpers/app'
 import { LeaderboardEntriesModule } from '../src/modules/leaderboard-entries/leaderboard-entries.module'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
-import { Connection, getConnection, Repository } from 'typeorm'
+import { useSeeding } from 'typeorm-seeding'
+import {
+  LeaderboardEntriesSetup,
+  LeaderboardEntriesTeardown
+} from './seeds/leaderboard-entries.seed'
 
 describe('LeaderboardEntries', () => {
   let app: NestFastifyApplication
   let seed: LeaderboardEntry[]
-  let connection: Connection
-  let leaderboardEntryRepository: Repository<LeaderboardEntry>
   let data: LeaderboardEntry
 
   beforeAll(async () => {
@@ -19,9 +21,15 @@ describe('LeaderboardEntries', () => {
     })
 
     /** Load seeded data */
-    connection = getConnection()
-    leaderboardEntryRepository = connection.getRepository(LeaderboardEntry)
-    seed = await leaderboardEntryRepository.find()
+    await useSeeding()
+    seed = (await LeaderboardEntriesSetup('Test Leaderboard Entry')).map(
+      (e) => {
+        // These fields aren't in use yet in the API (due to Firebase legacy)
+        delete e.leaderboard
+        delete e.user
+        return e
+      }
+    )
     data = seed.map((each) => {
       return {
         leaderboard_id: each.leaderboard_id,
@@ -30,6 +38,11 @@ describe('LeaderboardEntries', () => {
         points: 0
       } as LeaderboardEntry
     })[0]
+  })
+
+  afterAll(async () => {
+    await LeaderboardEntriesTeardown('Test Leaderboard Entry')
+    await app.close()
   })
 
   const headers = {
@@ -57,7 +70,9 @@ describe('LeaderboardEntries', () => {
     })
     const json = result.json()
     expect(result.statusCode).toEqual(200)
-    expect(Object.keys(json.results[0])).toEqual(Object.keys(seed[0]))
+    expect(Object.keys(json.results[0]).sort()).toEqual(
+      Object.keys(seed[0]).sort()
+    )
     expect(json.page_total).toBeGreaterThanOrEqual(1)
     expect(json.total).toEqual(
       seed.filter((value) => value.leaderboard_id === data.leaderboard_id)
@@ -106,7 +121,9 @@ describe('LeaderboardEntries', () => {
       headers
     })
     expect(result.statusCode).toEqual(200)
-    expect(Object.keys(result.json())).toEqual(Object.keys(seed[0]))
+    expect(Object.keys(result.json()).sort()).toEqual(
+      Object.keys(seed[0]).sort()
+    )
   })
 
   it(`/GET  (404) leaderboard-entries/:leaderboardId/:userId `, async () => {
@@ -172,7 +189,7 @@ describe('LeaderboardEntries', () => {
     const json = result.json()
     expect(result.statusCode).toEqual(200)
     expect(result.statusMessage).toEqual('OK')
-    expect(Object.keys(json)).toEqual(Object.keys(seed[0]))
+    expect(Object.keys(json).sort()).toEqual(Object.keys(seed[0]).sort())
   })
 
   // Trying to delete an entry should result in 200
@@ -184,9 +201,5 @@ describe('LeaderboardEntries', () => {
     })
     expect(result.statusCode).toEqual(200)
     expect(result.statusMessage).toEqual('OK')
-  })
-
-  afterAll(async () => {
-    await app.close()
   })
 })

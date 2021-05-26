@@ -1,24 +1,23 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import * as faker from 'faker'
 import { readFile } from 'fs/promises'
-import { Connection, getConnection, Repository } from 'typeorm'
+import { Connection, getConnection } from 'typeorm'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { TeamsModule } from '../src/modules/teams/teams.module'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
 import FormData = require('form-data')
-import { User } from '../src/modules/users/entities/user.entity'
-import { runSeeder, useSeeding } from 'typeorm-seeding'
-import { DeleteUserSeeder, UserSeeder } from './seeds/user.seed'
+import { Team } from '../src/modules/teams/entities/team.entity'
+import { useSeeding } from 'typeorm-seeding'
+import { TeamsSetup, TeamsTeardown } from './seeds/teams.seed'
 
 describe('Teams', () => {
   let app: NestFastifyApplication
   let connection: Connection
-  let organisationRepository: Repository<Organisation>
-  let userRepository: Repository<User>
   let orgAdminHeaders
   let superadminHeaders
-  let seeded_organisation: Organisation
+  let organisation: Organisation
+  let team: Team
   let teamAdminHeaders
   let invitationToken: string
   let authHeaders
@@ -30,43 +29,45 @@ describe('Teams', () => {
       controllers: []
     })
     connection = getConnection()
-    organisationRepository = connection.getRepository(Organisation)
-    userRepository = connection.getRepository(User)
     superadminHeaders = getAuthHeaders({ spr: true })
     // Get Seeded Organisations
 
-    const organisation = await organisationRepository
-      .createQueryBuilder('organisation')
-      .innerJoinAndSelect('organisation.teams', 'teams')
-      .innerJoinAndSelect('teams.users', 'users')
-      .where('teams.organisation.id = organisation.id')
-      .getOne()
+    await useSeeding()
+    const teams = await TeamsSetup('Test Teams')
 
-    seeded_organisation = organisation
+    team = await connection.getRepository(Team).findOne({
+      where: { id: teams[0].id },
+      relations: ['users', 'organisation']
+    })
+
+    const team2 = await connection.getRepository(Team).findOne({
+      where: { id: teams[1].id },
+      relations: ['users', 'organisation']
+    })
+
+    const user = team2.users[0]
+
+    organisation = await connection.getRepository(Organisation).findOne({
+      where: { id: team.organisation.id },
+      relations: ['teams']
+    })
 
     if (organisation) {
       orgAdminHeaders = getAuthHeaders({ o_a: [organisation.id] })
-      teamAdminHeaders = getAuthHeaders({ t_a: [organisation.teams[0].id] })
+      teamAdminHeaders = getAuthHeaders({ t_a: [team.id] })
     }
-
-    await useSeeding()
-    await runSeeder(UserSeeder)
-
-    const user = await userRepository.findOne({
-      where: { name: `Seeded User` },
-      relations: ['teams']
-    })
 
     authHeaders = getAuthHeaders(null, user.id)
     const data = await app.inject({
       method: 'POST',
-      url: `/organisations/${organisation.id}/teams/${organisation.teams[0].id}/invitations`,
+      url: `/organisations/${organisation.id}/teams/${team.id}/invitations`,
       headers: superadminHeaders,
       payload: {
         email: user.email,
         invitee: user.name
       }
     })
+
     invitationToken = data.json().token
   })
 
@@ -88,7 +89,6 @@ describe('Teams', () => {
       headers: authHeaders,
       payload: { token: invitationToken }
     })
-
     expect(data.statusMessage).toBe('Created')
     expect(data.statusCode).toBe(201)
     expect(data.json().resolved_user).toBeDefined()
@@ -101,7 +101,7 @@ describe('Teams', () => {
     async (_, getHeaders) => {
       const data = await app.inject({
         method: 'GET',
-        url: `/organisations/${seeded_organisation.id}/teams/${seeded_organisation.teams[0].id}/users`,
+        url: `/organisations/${organisation.id}/teams/${team.id}/users`,
         headers: getHeaders()
       })
       expect(data.statusCode).toEqual(200)
@@ -115,12 +115,11 @@ describe('Teams', () => {
   testAll(
     `DELETE /organisations/orgId/teams/teamId/users/userId`,
     async (_, getHeaders) => {
-      const team = seeded_organisation.teams.find((team) => team.users !== [])
       const users = team.users
-      let userId = users[Math.floor(Math.random() * users.length)].id
+      let userId = users[0].id
       const data = await app.inject({
         method: 'DELETE',
-        url: `/organisations/${seeded_organisation.id}/teams/${team.id}/users/${userId}`,
+        url: `/organisations/${organisation.id}/teams/${team.id}/users/${userId}`,
         headers: getHeaders()
       })
       expect(data.statusCode).toEqual(200)
@@ -151,7 +150,7 @@ describe('Teams', () => {
   it('GET /organisations/:organisationId/teams', async () => {
     const data = await app.inject({
       method: 'GET',
-      url: `/organisations/${seeded_organisation.id}/teams`,
+      url: `/organisations/${organisation.id}/teams`,
       headers: orgAdminHeaders
     })
     expect(data.statusCode).toBe(200)
@@ -174,7 +173,7 @@ describe('Teams', () => {
   it(`GET /organisations/:organisationId/teams/:teamId`, async () => {
     const data = await app.inject({
       method: 'GET',
-      url: `/organisations/${seeded_organisation.id}/teams/${seeded_organisation.teams[0].id}`,
+      url: `/organisations/${organisation.id}/teams/${team.id}`,
       headers: orgAdminHeaders
     })
     expect(data.statusCode).toBe(200)
@@ -186,7 +185,7 @@ describe('Teams', () => {
   it(`GET /teams/:teamId`, async () => {
     const data = await app.inject({
       method: 'GET',
-      url: `/teams/${seeded_organisation.teams[0].id}`,
+      url: `/teams/${team.id}`,
       headers: superadminHeaders
     })
     expect(data.statusCode).toBe(200)
@@ -205,7 +204,7 @@ describe('Teams', () => {
 
     const data = await app.inject({
       method: 'PUT',
-      url: `/organisations/${seeded_organisation.id}/teams/${seeded_organisation.teams[0].id}`,
+      url: `/organisations/${organisation.id}/teams/${team.id}`,
       payload: form,
       headers: {
         ...form.getHeaders(),
@@ -226,7 +225,7 @@ describe('Teams', () => {
     }
     const data = await app.inject({
       method: 'POST',
-      url: `/organisations/${seeded_organisation.id}/teams`,
+      url: `/organisations/${organisation.id}/teams`,
       payload: form,
       headers: {
         ...form.getHeaders(),
@@ -238,8 +237,7 @@ describe('Teams', () => {
   }
 
   afterAll(async () => {
-    await useSeeding()
-    await runSeeder(DeleteUserSeeder)
+    await TeamsTeardown('Test Teams')
     await app.close()
   })
 })

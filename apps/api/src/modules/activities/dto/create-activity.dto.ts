@@ -53,8 +53,14 @@ export class CreateActivityDto {
   organizer_image?: Image
 
   @ApiProperty()
+  @IsOptional()
   cost?: string
 
   @ApiProperty()
+  @IsOptional()
   organizer_name?: string
+
+  @ApiProperty()
+  @IsOptional()
+  user_id?: string
 }

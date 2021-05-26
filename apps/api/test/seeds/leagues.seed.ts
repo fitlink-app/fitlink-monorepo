@@ -1,52 +1,83 @@
-import { Factory, Seeder } from 'typeorm-seeding'
+import { Factory, runSeeder, Seeder } from 'typeorm-seeding'
 import { Connection, Repository } from 'typeorm'
 import { League } from '../../src/modules/leagues/entities/league.entity'
 import { Team } from '../../src/modules/teams/entities/team.entity'
+import { TeamsSetup, TeamsTeardown } from './teams.seed'
 
-export default class TestingLeagueSeed implements Seeder {
-  public async run(factory: Factory): Promise<any> {
-    /**
-     * This seeded data lives only to be tested on die and then be reborn.
-     */
-    await factory(League)().create({
-      name: 'Dying League',
-      description: 'League Description'
-    })
+const COUNT_LEAGUES = 2
+
+export function LeaguesSetup(
+  name: string,
+  count = COUNT_LEAGUES
+): Promise<League[]> {
+  class TestingLeagueSeed implements Seeder {
+    public async run(factory: Factory): Promise<any> {
+      /**
+       * This seeded data lives only to be tested on die and then be reborn.
+       */
+      return factory(League)().createMany(count, {
+        name
+      })
+    }
   }
+
+  return runSeeder(TestingLeagueSeed)
 }
 
-export class DeleteLeagueSeed implements Seeder {
-  public async run(_factory: Factory, connection: Connection): Promise<any> {
-    const leagueRepository: Repository<League> = connection.getRepository(
-      League
-    )
-    await leagueRepository.delete({ name: 'Dying League' })
+export function LeaguesTeardown(name: string): Promise<void> {
+  class Teardown implements Seeder {
+    public async run(_factory: Factory, connection: Connection): Promise<any> {
+      const leagueRepository: Repository<League> = connection.getRepository(
+        League
+      )
+      await leagueRepository.delete({ name })
+    }
   }
+
+  return runSeeder(Teardown)
 }
 
-export class TeamAssignedLeague implements Seeder {
-  public async run(factory: Factory, connection: Connection): Promise<any> {
-    /**
-     * This is seed lives only to be tested on die and be reborn.
-     * And It's already assigned to a team.
-     */
+export function TeamAssignedLeagueSetup(name: string): Promise<League> {
+  class Setup implements Seeder {
+    public async run(factory: Factory, connection: Connection): Promise<any> {
+      /**
+       * This is seed lives only to be tested on die and be reborn.
+       * And It's already assigned to a team.
+       */
+      const { team } = await this.setupDependencies()
 
-    const teamRepository: Repository<Team> = connection.getRepository(Team)
-    const team = await teamRepository.find()
+      return factory(League)().create({
+        name,
+        description: `${name} description`,
+        team
+      })
+    }
 
-    await factory(League)().create({
-      name: 'Team Assigned Dying League',
-      description: 'League Description',
-      team: team[0]
-    })
+    async setupDependencies() {
+      const teams = await TeamsSetup(name, 1)
+      return {
+        team: teams[0]
+      }
+    }
   }
+
+  return runSeeder(Setup)
 }
 
-export class DeleteTeamAssignedLeague implements Seeder {
-  public async run(_factory: Factory, connection: Connection): Promise<any> {
-    const leagueRepository: Repository<League> = connection.getRepository(
-      League
-    )
-    await leagueRepository.delete({ name: 'Team Assigned Dying League' })
+export function TeamAssignedLeagueTeardown(name: string): Promise<void> {
+  class Teardown implements Seeder {
+    public async run(_factory: Factory, connection: Connection): Promise<any> {
+      const leagueRepository: Repository<League> = connection.getRepository(
+        League
+      )
+      await leagueRepository.delete({ name })
+      await this.teardownDependencies()
+    }
+
+    async teardownDependencies() {
+      return TeamsTeardown(name)
+    }
   }
+
+  return runSeeder(Teardown)
 }

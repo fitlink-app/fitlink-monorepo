@@ -14,6 +14,7 @@ import { Team } from '../../teams/entities/team.entity'
 import { Image } from '../../images/entities/image.entity'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { League } from '../../leagues/entities/league.entity'
+import { User } from '../../users/entities/user.entity'
 
 export enum ActivityType {
   Class = 'class',
@@ -28,6 +29,12 @@ export class Activity extends CreatableEntity {
 
   @Column()
   name: string
+
+  /** Legacy user_id for Firebase */
+  @Column({
+    nullable: true
+  })
+  user_id?: string
 
   @Column()
   description: string
@@ -73,6 +80,9 @@ export class Activity extends CreatableEntity {
   })
   @Index('activity_tsv_index', { synchronize: false })
   tsv?: string
+
+  @ManyToOne(() => User, (user) => user.activities, { nullable: true })
+  user?: User
 
   @ManyToOne(() => Team, (team) => team.activities, { nullable: true })
   team?: Team

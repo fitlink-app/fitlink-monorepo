@@ -19,7 +19,10 @@ import { ActivitiesUpdates1617277086715 } from '../database/migrations/161727708
 import { ActivityTsVector1617639276042 } from '../database/migrations/1617639276042-ActivityTsVector'
 import { RemoveCascadesInTeams1617803214748 } from '../database/migrations/1617803214748-RemoveCascadesInTeams'
 import { GoalsEntrySetDefaults1617974041018 } from '../database/migrations/1617974041018-GoalsEntrySetDefaults'
+import { UpdateUserRolesEntity1618367807302 } from '../database/migrations/1618367807302-UpdateUserRolesEntity'
 import { ActivitiesTelEmail1619175623838 } from '../database/migrations/1619175623838-ActivitiesTelEmail'
+import { CreateQueueable1618386283282 } from '../database/migrations/1618386283282-CreateQueueable'
+import { AddUserToActivities1622016153101 } from '../database/migrations/1622016153101-AddUserToActivities'
 
 export default [
   InitializeSchema1614887523112,
@@ -38,5 +41,8 @@ export default [
   ActivityTsVector1617639276042,
   RemoveCascadesInTeams1617803214748,
   GoalsEntrySetDefaults1617974041018,
-  ActivitiesTelEmail1619175623838
+  UpdateUserRolesEntity1618367807302,
+  CreateQueueable1618386283282,
+  ActivitiesTelEmail1619175623838,
+  AddUserToActivities1622016153101
 ]
