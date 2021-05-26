@@ -376,6 +376,23 @@ describe('Activities', () => {
     expect(data.statusCode).toEqual(200)
   })
 
+  it(`GET /activities/user/:userId 201 A user can list their own activities`, async () => {
+    await createActivityWithImages(false, {
+      user_id: '12345'
+    })
+
+    const data = await app.inject({
+      method: 'GET',
+      url: `/activities/user/12345`,
+      headers
+    })
+    expect(data.statusCode).toEqual(200)
+    const result = Object.keys(data.json().results[0])
+    expect(result).toEqual(
+      expect.arrayContaining([...activityColumns, 'user_id'])
+    )
+  })
+
   async function createActivityWithImages(
     organizer = false,
     override: NodeJS.Dict<string> = {}
