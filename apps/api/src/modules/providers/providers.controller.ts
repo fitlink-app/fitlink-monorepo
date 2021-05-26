@@ -2,14 +2,20 @@ import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common'
 import { ProvidersService } from './providers.service'
 import { CreateProviderDto } from './dto/create-provider.dto'
 import { UpdateProviderDto } from './dto/update-provider.dto'
+import { User } from '../../decorators/authenticated-user.decorator'
+import { AuthenticatedUser } from '../../models'
+import { ProviderType } from './entities/provider.entity'
 
 @Controller('providers')
 export class ProvidersController {
   constructor(private readonly providersService: ProvidersService) {}
 
   @Post()
-  create(@Body() createProviderDto: CreateProviderDto) {
-    return this.providersService.create(createProviderDto)
+  create(
+    @Body() createProviderDto: CreateProviderDto,
+    @User() user: AuthenticatedUser
+  ) {
+    return this.providersService.create(createProviderDto, user.id)
   }
 
   @Get()
@@ -19,19 +25,23 @@ export class ProvidersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.providersService.findOne(+id)
+    return 'Hello There'
   }
 
-  @Put(':id')
+  @Put(':userId/:providerType/')
   update(
-    @Param('id') id: string,
+    @Param('userId') id: string,
+    @Param('providerType') providerType: ProviderType,
     @Body() updateProviderDto: UpdateProviderDto
   ) {
-    return this.providersService.update(+id, updateProviderDto)
+    return this.providersService.update(id, providerType, updateProviderDto)
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.providersService.remove(+id)
+  @Delete(':userId/:providerType')
+  remove(
+    @Param('userId') id: string,
+    @Param('providerType') providerType: ProviderType
+  ) {
+    return this.providersService.remove(id, providerType)
   }
 }
