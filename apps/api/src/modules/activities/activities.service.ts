@@ -58,7 +58,8 @@ export class ActivitiesService {
     const [results, total] = await this.activityRepository.findAndCount({
       where: { user_id },
       take: limit,
-      skip: page * limit
+      skip: page * limit,
+      order: { created_at: 'DESC' }
     })
 
     return new Pagination<Activity>({
