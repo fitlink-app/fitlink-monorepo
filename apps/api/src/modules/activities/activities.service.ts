@@ -46,6 +46,29 @@ export class ActivitiesService {
   }
 
   /**
+   * Find all entries that were created by the particular user_id (legacy Firebase user)
+   *
+   * @param user_id string
+   * @param options { page, limit }
+   */
+  async findUserActivities(
+    user_id: string,
+    { limit, page }: PaginationOptionsInterface
+  ): Promise<Pagination<Activity>> {
+    const [results, total] = await this.activityRepository.findAndCount({
+      where: { user_id },
+      take: limit,
+      skip: page * limit,
+      order: { created_at: 'DESC' }
+    })
+
+    return new Pagination<Activity>({
+      results,
+      total
+    })
+  }
+
+  /**
    * Find all entries by geometry, or alternatively
    * by date created
    *

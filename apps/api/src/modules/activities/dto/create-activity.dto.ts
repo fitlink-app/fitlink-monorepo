@@ -23,12 +23,21 @@ export class CreateActivityDto {
   date: string
 
   @ApiProperty()
+  @IsLatLong()
+  meeting_point: string
+
+  @ApiProperty()
   @IsString()
   meeting_point_text: string
 
   @ApiProperty()
+  @IsOptional()
+  organizer_name?: string
+
+  @ApiProperty()
   @IsUrl()
-  organizer_url: string
+  @IsOptional()
+  organizer_url?: string
 
   @ApiProperty()
   @IsEmail()
@@ -40,8 +49,8 @@ export class CreateActivityDto {
   organizer_telephone?: string
 
   @ApiProperty()
-  @IsLatLong()
-  meeting_point: string
+  @IsOptional()
+  organizer_image?: Image
 
   @ApiProperty()
   @IsArray()
@@ -50,15 +59,7 @@ export class CreateActivityDto {
 
   @ApiProperty()
   @IsOptional()
-  organizer_image?: Image
-
-  @ApiProperty()
-  @IsOptional()
   cost?: string
-
-  @ApiProperty()
-  @IsOptional()
-  organizer_name?: string
 
   @ApiProperty()
   @IsOptional()

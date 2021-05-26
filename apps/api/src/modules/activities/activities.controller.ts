@@ -79,6 +79,21 @@ export class ActivitiesController {
    * @param queryParams
    * @returns
    */
+  @Get('user/:userId')
+  async findUserActivities(@Param('userId') userId: string, @Query() query) {
+    return this.activitiesService.findUserActivities(userId, {
+      limit: parseInt(query.limit) || 10,
+      page: parseInt(query.page) || 0
+    })
+  }
+
+  /**
+   * Finds activities based on coordinates
+   * or alternatively returns activities by created date
+   *
+   * @param queryParams
+   * @returns
+   */
   @Get()
   async findAll(
     @Query()
