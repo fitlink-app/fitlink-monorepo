@@ -138,6 +138,14 @@ export class ActivitiesController {
     return this.activitiesService.findOne(id)
   }
 
+  @Get(':userId/:id')
+  findOneUserActivity(
+    @Param('id') id: string,
+    @Param('userId') userId: string
+  ) {
+    return this.activitiesService.findOneUserActivity(id, userId)
+  }
+
   @Uploads('images[]', 'organizer_image', UploadOptions.Nullable)
   @Put(':id')
   async update(
@@ -177,6 +185,11 @@ export class ActivitiesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.activitiesService.remove(id)
+  }
+
+  @Delete(':userId/:id')
+  removeUserActivity(@Param('id') id: string, @Param('userId') userId: string) {
+    return this.activitiesService.removeUserActivity(id, userId)
   }
 
   static mergeAndPaginate(

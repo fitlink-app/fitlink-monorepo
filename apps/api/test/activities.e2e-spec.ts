@@ -337,6 +337,45 @@ describe('Activities', () => {
     expect(data.statusCode).toEqual(200)
   })
 
+  it(`DELETE /activities 200 An activity created by a user can be deleted by that user`, async () => {
+    const activityData = await createActivityWithImages(false, {
+      user_id: '12345'
+    })
+
+    const id = activityData.json().id
+
+    const data = await app.inject({
+      method: 'DELETE',
+      url: `/activities/12345/${id}`,
+      headers: {
+        ...headers
+      }
+    })
+    expect(data.statusCode).toEqual(200)
+  })
+
+  it(`PUT /activities 201 An activity created by a user can be edited by that user`, async () => {
+    const activityData = await createActivityWithImages(false, {
+      user_id: '12345'
+    })
+
+    const id = activityData.json().id
+
+    const data = await app.inject({
+      method: 'PUT',
+      url: `/activities/${id}`,
+      headers: {
+        ...headers
+      },
+      payload: {
+        user_id: '12345',
+        name: 'User Added Activity'
+      }
+    })
+
+    expect(data.statusCode).toEqual(200)
+  })
+
   async function createActivityWithImages(
     organizer = false,
     override: NodeJS.Dict<string> = {}

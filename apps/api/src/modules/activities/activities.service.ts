@@ -108,6 +108,16 @@ export class ActivitiesService {
     })
   }
 
+  findOneUserActivity(id: string, user_id: string) {
+    return this.activityRepository.findOne({
+      where: {
+        id,
+        user_id
+      },
+      relations: ['organizer_image', 'images']
+    })
+  }
+
   async update(id: string, updateActivityDto: UpdateActivityDto) {
     const { meeting_point } = updateActivityDto
     const updateData = updateActivityDto as any
@@ -152,6 +162,19 @@ export class ActivitiesService {
       .delete()
       .execute()
     return this.activityRepository.delete({ id })
+  }
+
+  async removeUserActivity(id: string, user_id: string) {
+    await this.imageRepository
+      .createQueryBuilder()
+      .where('activityId = :id', { id })
+      .delete()
+      .execute()
+
+    return this.activityRepository.delete({
+      id,
+      user_id
+    })
   }
 
   getTypesFromString(type: string) {
