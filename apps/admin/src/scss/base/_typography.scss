@@ -87,3 +87,10 @@ code {
   display: inline-block;
   vertical-align: middle;
 }
+
+label {
+  font-weight: 700;
+  font-size: 0.875rem;
+  margin: 1.5rem 0 0.5rem;
+  color: $lightGrey;
+}

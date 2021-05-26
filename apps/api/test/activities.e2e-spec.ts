@@ -7,7 +7,10 @@ import { ActivitiesIminService } from '../src/modules/activities/activities.imin
 import { ActivitiesService } from '../src/modules/activities/activities.service'
 import { CreateActivityDto } from '../src/modules/activities/dto/create-activity.dto'
 import { readFile } from 'fs/promises'
+import { Connection } from 'typeorm'
+import { useSeeding } from 'typeorm-seeding'
 import FormData = require('form-data')
+import { ActivitiesSetup, ActivitiesTeardown } from './seeds/activities.seed'
 
 const activityColumns = [
   'id',
@@ -49,9 +52,15 @@ describe('Activities', () => {
     activitiesIminService = app.get(ActivitiesIminService)
     activitiesIminService.findAll = jest.fn()
     activitiesService = app.get(ActivitiesService)
+
+    // Run seed
+    await useSeeding()
+    await ActivitiesSetup('Test activity')
   })
 
   afterAll(async () => {
+    await ActivitiesTeardown('Test activity')
+    await app.get(Connection).close()
     await app.close()
   })
 
@@ -322,6 +331,45 @@ describe('Activities', () => {
       url: `/activities/${id}`,
       headers: {
         ...headers
+      }
+    })
+
+    expect(data.statusCode).toEqual(200)
+  })
+
+  it(`DELETE /activities 200 An activity created by a user can be deleted by that user`, async () => {
+    const activityData = await createActivityWithImages(false, {
+      user_id: '12345'
+    })
+
+    const id = activityData.json().id
+
+    const data = await app.inject({
+      method: 'DELETE',
+      url: `/activities/12345/${id}`,
+      headers: {
+        ...headers
+      }
+    })
+    expect(data.statusCode).toEqual(200)
+  })
+
+  it(`PUT /activities 201 An activity created by a user can be edited by that user`, async () => {
+    const activityData = await createActivityWithImages(false, {
+      user_id: '12345'
+    })
+
+    const id = activityData.json().id
+
+    const data = await app.inject({
+      method: 'PUT',
+      url: `/activities/${id}`,
+      headers: {
+        ...headers
+      },
+      payload: {
+        user_id: '12345',
+        name: 'User Added Activity'
       }
     })
 

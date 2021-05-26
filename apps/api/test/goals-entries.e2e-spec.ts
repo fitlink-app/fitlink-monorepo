@@ -1,16 +1,19 @@
-import { mockApp } from './helpers/app'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { useSeeding } from 'typeorm-seeding'
+import { Connection } from 'typeorm'
+import { mockApp } from './helpers/app'
 import { GoalsEntry } from '../src/modules/goals-entries/entities/goals-entry.entity'
-import { Connection, getConnection, Repository } from 'typeorm'
 import { GoalsEntriesModule } from '../src/modules/goals-entries/goals-entries.module'
 import { getAuthHeaders } from './helpers/auth'
 import { RecreateGoalsEntryDto } from '../src/modules/goals-entries/dto/update-goals-entry.dto'
+import {
+  GoalsEntriesSetup,
+  GoalsEntriesTeardown
+} from './seeds/goals-entries.seed'
 
 describe('GoalsEntries', () => {
   let app: NestFastifyApplication
   let seed: GoalsEntry[]
-  let connection: Connection
-  let goalsEntryRepository: Repository<GoalsEntry>
   let data: Partial<GoalsEntry & { userId: string }>[]
 
   beforeAll(async () => {
@@ -20,9 +23,8 @@ describe('GoalsEntries', () => {
     })
 
     /** Load seeded data */
-    connection = getConnection()
-    goalsEntryRepository = connection.getRepository(GoalsEntry)
-    seed = await goalsEntryRepository.find()
+    await useSeeding()
+    seed = await GoalsEntriesSetup('Test Goal Entry')
     data = seed.map((each) => {
       return {
         userId: each.user.id,
@@ -34,6 +36,12 @@ describe('GoalsEntries', () => {
         current_sleep_hours: 7
       }
     })
+  })
+
+  afterAll(async () => {
+    await GoalsEntriesTeardown('Test Goal Entry')
+    await app.get(Connection).close()
+    await app.close()
   })
 
   it(`/POST (201) Trying to update goals entry with no data should result in 201 created`, async () => {

@@ -1,14 +1,16 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { JwtService } from '@nestjs/jwt'
 import { getConnection } from 'typeorm'
+import { useSeeding } from 'typeorm-seeding'
 import { mockApp } from './helpers/app'
 import { emailHasContent } from './helpers/mocking'
 import { getAuthHeaders } from './helpers/auth'
 import { TeamsModule } from '../src/modules/teams/teams.module'
 import { User } from '../src/modules/users/entities/user.entity'
 import { CreateUsersInvitationDto } from '../src/modules/users-invitations/dto/create-users-invitation.dto'
+import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 
-describe('Activities', () => {
+describe('User Invitations', () => {
   let app: NestFastifyApplication
   let authHeaders
   let user: User
@@ -20,13 +22,16 @@ describe('Activities', () => {
     })
 
     // Retrieve a team to test with
-    user = await getUser()
+    await useSeeding()
+    const users = await UsersSetup('Test User Invitation', 1)
+    user = users[0]
 
     // Auth user
     authHeaders = getAuthHeaders(null, user.id)
   })
 
   afterAll(async () => {
+    await UsersTeardown('Test User Invitation')
     await app.close()
   })
 
@@ -102,13 +107,6 @@ describe('Activities', () => {
     expect(data.statusCode).toEqual(401)
     expect(result.message).toContain('invitation can no longer be used')
   })
-
-  async function getUser() {
-    const connection = getConnection()
-    const repository = connection.getRepository(User)
-    const user = await repository.findOne()
-    return user
-  }
 
   function createInvitation(
     headers = authHeaders,

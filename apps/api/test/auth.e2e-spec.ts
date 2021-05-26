@@ -4,20 +4,18 @@ import mockdate from 'mockdate'
 mockdate.set(date)
 
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { Connection, getConnection, Repository } from 'typeorm'
+import { Connection } from 'typeorm'
 import { AuthModule } from '../src/modules/auth/auth.module'
-import { User } from '../src/modules/users/entities/user.entity'
 import { UsersModule } from '../src/modules/users/users.module'
 import { mockApp } from './helpers/app'
+import { useSeeding } from 'typeorm-seeding'
+import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 
 // Inspect this token at https://jwt.io/
 const expiredToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJmaXRsaW5rLmNvbSIsImlzcyI6ImZpdGxpbmsuY29tIiwic3ViIjoiMTFhOWYxNzQtMDg2NS00MGU1LThmM2UtMWI2NDQwNTIwMGM4IiwiaWF0IjoxNjE1NTgwMTExNjU1LCJyb2xlcyI6eyJvX2EiOlsiMzk4NzIzODcyMzk4NTcyNDAiXSwidF9hIjpbIjM5ODcyMzg3MjM5ODU3MjM5Il0sInNfYSI6dHJ1ZX0sImV4cCI6MTAxNTU4MDExNTI1NX0.eNJIV7D6NFE8s3uOa5No3XgQmXBEMB9QNybE97qkTnk`
 
 describe('Auth', () => {
   let app: NestFastifyApplication
-  let seed: User[]
-  let connection: Connection
-  let userRepository: Repository<User>
 
   // Credentials
   let userId = ''
@@ -31,14 +29,19 @@ describe('Auth', () => {
       controllers: []
     })
 
-    /** Load seeded data */
-    connection = getConnection()
-    userRepository = connection.getRepository(User)
-    seed = await userRepository.find()
+    // Seed the user and use in tests
+    await useSeeding()
+    const users = await UsersSetup('Auth User', 1)
 
     // Set credentials
-    userId = seed[0].id
-    email = seed[0].email
+    userId = users[0].id
+    email = users[0].email
+  })
+
+  afterAll(async () => {
+    await UsersTeardown('Auth User')
+    await app.get(Connection).close()
+    await app.close()
   })
 
   it(`POST /auth/login 401 Does not allow a user to login with incorrect password`, async () => {
@@ -146,10 +149,6 @@ describe('Auth', () => {
 
     expect(result.statusCode).toEqual(401)
     expect(result.statusMessage).toEqual('Unauthorized')
-  })
-
-  afterAll(async () => {
-    await app.close()
   })
 })
 
