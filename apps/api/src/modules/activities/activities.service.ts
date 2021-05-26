@@ -68,11 +68,11 @@ export class ActivitiesService {
     if (geoRadial) {
       const geo = geoRadial.split(',')
       query = query.where(
-        'ST_DistanceSphere(activity.meeting_point, ST_MakePoint(:lon,:lat)) <= :rad * 1000',
+        'ST_DistanceSphere(activity.meeting_point, ST_MakePoint(:lat,:lng)) <= :rad * 1000',
         {
           lat: geo[0],
-          lon: geo[1],
-          rad: 5 // 1km
+          lng: geo[1],
+          rad: parseInt(geo[2]) || 5
         }
       )
     } else {
@@ -104,6 +104,16 @@ export class ActivitiesService {
 
   findOne(id: string) {
     return this.activityRepository.findOne(id, {
+      relations: ['organizer_image', 'images']
+    })
+  }
+
+  findOneUserActivity(id: string, user_id: string) {
+    return this.activityRepository.findOne({
+      where: {
+        id,
+        user_id
+      },
       relations: ['organizer_image', 'images']
     })
   }
@@ -152,6 +162,19 @@ export class ActivitiesService {
       .delete()
       .execute()
     return this.activityRepository.delete({ id })
+  }
+
+  async removeUserActivity(id: string, user_id: string) {
+    await this.imageRepository
+      .createQueryBuilder()
+      .where('activityId = :id', { id })
+      .delete()
+      .execute()
+
+    return this.activityRepository.delete({
+      id,
+      user_id
+    })
   }
 
   getTypesFromString(type: string) {

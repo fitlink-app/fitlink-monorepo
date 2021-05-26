@@ -8,6 +8,8 @@ import { CreateTeamsInvitationDto } from '../src/modules/teams-invitations/dto/c
 import { Team } from '../src/modules/teams/entities/team.entity'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { JwtService } from '@nestjs/jwt'
+import { useSeeding, runSeeder } from 'typeorm-seeding'
+import { TeamsSetup, TeamsTeardown } from './seeds/teams.seed'
 
 describe('Activities', () => {
   let app: NestFastifyApplication
@@ -24,8 +26,12 @@ describe('Activities', () => {
       providers: []
     })
 
+    // Run seed
+    await useSeeding()
+    const teams = await TeamsSetup('Teams Invitations Test')
+
     // Retrieve a team to test with
-    team = await getTeam()
+    team = await getTeam(teams[0].id)
 
     // Get the organisation to test with
     organisation = team.organisation
@@ -41,6 +47,7 @@ describe('Activities', () => {
   })
 
   afterAll(async () => {
+    await TeamsTeardown('Teams Invitations Test')
     await app.close()
   })
 
@@ -272,11 +279,14 @@ describe('Activities', () => {
     expect(result.message).toContain('invitation can no longer be used')
   })
 
-  async function getTeam() {
+  async function getTeam(id: string) {
     const connection = getConnection()
     const repository = connection.getRepository(Team)
     return repository.findOne({
-      relations: ['organisation']
+      relations: ['organisation'],
+      where: {
+        id
+      }
     })
   }
 

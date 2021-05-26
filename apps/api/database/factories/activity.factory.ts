@@ -16,8 +16,8 @@ define(Activity, (faker: typeof Faker) => {
   activity.name = faker.name.jobDescriptor()
   activity.meeting_point_text = faker.address.streetAddress()
 
-  const lat = -1.2578499 + 0.05 * Math.random()
-  const lng = 51.7520131 + 0.05 * Math.random()
+  const lat = 51.7520131 + 0.05 * Math.random()
+  const lng = -1.2578499 + 0.05 * Math.random()
 
   activity.meeting_point = {
     type: 'Point',

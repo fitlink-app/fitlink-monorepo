@@ -47,6 +47,7 @@ describe('User Settings', () => {
   afterAll(async () => {
     await useSeeding()
     await runSeeder(DeleteUserWithSettingsSeeder)
+    await app.close()
   })
 
   it('GET /users-settings/userId', async () => {
