@@ -34,7 +34,7 @@ export class Activity extends CreatableEntity {
   @Column({
     nullable: true
   })
-  user_id: string
+  user_id?: string
 
   @Column()
   description: string
