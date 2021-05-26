@@ -10,6 +10,7 @@ Default.args = {
   shortDescription: 'Small Health Drink',
   points: 200,
   expires: '2021-05-30T07:22:48.220Z',
+  claimed: 1200
 } as RewardProps
 
 export default {
