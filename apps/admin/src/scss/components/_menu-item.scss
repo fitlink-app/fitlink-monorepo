@@ -8,7 +8,7 @@
   font-weight: 400;
   margin: 0 -0.3125rem;
   padding: 0.5rem 0.625rem;
-  border-radius: 1rem;
+  border-radius: 1.125rem;
   color: $grey;
   transition: all 0.1s;
 
@@ -24,7 +24,7 @@
     transition: color 0.1s;
   }
 
-  &:hover {
+  &:hover, &.current {
     background: $grey-50;
     color: $darkGrey;
     
@@ -34,10 +34,6 @@
   }
 
   &.current {
-    color: $primary;
-
-    svg {
-      color: $grey;
-    }
+    border: 1px solid $grey-200; 
   }
 }
