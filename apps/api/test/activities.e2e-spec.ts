@@ -389,7 +389,12 @@ describe('Activities', () => {
     expect(data.statusCode).toEqual(200)
     const result = Object.keys(data.json().results[0])
     expect(result).toEqual(
-      expect.arrayContaining([...activityColumns, 'user_id'])
+      expect.arrayContaining([
+        ...activityColumns,
+        'user_id',
+        'organizer_image',
+        'images'
+      ])
     )
   })
 
