@@ -59,7 +59,8 @@ export class ActivitiesService {
       where: { user_id },
       take: limit,
       skip: page * limit,
-      order: { created_at: 'DESC' }
+      order: { created_at: 'DESC' },
+      relations: ['organizer_image', 'images']
     })
 
     return new Pagination<Activity>({
