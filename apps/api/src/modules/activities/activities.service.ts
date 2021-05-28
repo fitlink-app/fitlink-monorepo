@@ -153,6 +153,8 @@ export class ActivitiesService {
     }
 
     // Merge existing images with new images
+    /*
+    TODO: Not currently in use and solution will be refactored
     if (
       updateData.images &&
       updateData.images.length &&
@@ -169,8 +171,13 @@ export class ActivitiesService {
         ...updateData.images
       ]
     }
+    */
 
-    return this.activityRepository.save({ id, ...updateData })
+    delete updateData.__replaceImages
+    delete updateData.__deleteImages
+
+    await this.activityRepository.save({ id, ...updateData })
+    return this.findOne(id)
   }
 
   /**
