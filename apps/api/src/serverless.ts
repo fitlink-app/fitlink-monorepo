@@ -21,6 +21,7 @@ import {
 import { Logger } from '@nestjs/common'
 import { createConnection } from 'typeorm'
 import migrations from './migrations'
+import { validationExceptionFactory } from './exceptions/validation.exception.factory'
 
 interface NestApp {
   app: NestFastifyApplication
@@ -58,7 +59,11 @@ async function bootstrapServer(): Promise<NestApp> {
     SwaggerModule.setup('api/v1', app, document)
   }
 
-  app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory: validationExceptionFactory
+    })
+  )
   app.useGlobalGuards(new UploadGuard(app.get(Reflector)))
   app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)))
   app.useGlobalGuards(new IamGuard(app.get(Reflector)))
