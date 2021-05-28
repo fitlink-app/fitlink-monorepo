@@ -2,19 +2,21 @@ import Link from 'next/link'
 import clsx from 'clsx'
 
 export type ButtonProps = {
-  to: string
+  to?: string
   label: string
   alt?: boolean
   className?: string
   external?: boolean
+  onClick?: () => void
 }
 
 export default function Button({
-  to,
+  to = '',
   label,
   alt = false,
   className = '',
-  external = false
+  external = false,
+  onClick = () => false
 }: ButtonProps) {
   const classes = clsx({
     button: true,
@@ -22,15 +24,33 @@ export default function Button({
     [className]: true
   })
 
-  if (external) {
+  if (to !== '') {
+    if (external) {
+      return (
+        <a
+          className={classes}
+          href={to}
+          target="_blank"
+          rel="noopener noreferrer"
+          >
+          {label}
+        </a>
+      )
+    }
+    
     return (
-      <a className={classes} href={to} target="_blank" rel="noopener noreferrer">{label}</a>
+      <Link href={to}>
+        <a className={classes}>{label}</a>
+      </Link>
     )
   }
-  
+
   return (
-    <Link href={to}>
-      <a className={classes}>{label}</a>
-    </Link>
+    <button
+      className={classes}
+      onClick={onClick}
+      >
+      {label}
+    </button>
   )
 }

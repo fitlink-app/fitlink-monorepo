@@ -2,9 +2,10 @@
   display: flex;
   
   .content {
+    flex: 1;
     height: 100vh;
     display: block;
-    padding: 4rem 3rem;
+    padding: 5.5rem 3rem 4rem;
     overflow-x: hidden;
     overflow-y: auto;
   }
