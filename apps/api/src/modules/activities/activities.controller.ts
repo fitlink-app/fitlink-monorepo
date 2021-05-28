@@ -73,8 +73,7 @@ export class ActivitiesController {
   }
 
   /**
-   * Finds activities based on coordinates
-   * or alternatively returns activities by created date
+   * Finds activities created by a particular user (legacy Firebase user)
    *
    * @param queryParams
    * @returns
@@ -202,9 +201,14 @@ export class ActivitiesController {
     return this.activitiesService.remove(id)
   }
 
-  @Delete(':userId/:id')
-  removeUserActivity(@Param('id') id: string, @Param('userId') userId: string) {
-    return this.activitiesService.removeUserActivity(id, userId)
+  @Delete(':id/images')
+  removeImages(@Param('id') id: string) {
+    return this.activitiesService.removeImages(id, 'images')
+  }
+
+  @Delete(':id/organizer_image')
+  removeOrganizerImage(@Param('id') id: string) {
+    return this.activitiesService.removeImages(id, 'organizer_image')
   }
 
   static mergeAndPaginate(

@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm'
+import { In, Repository } from 'typeorm'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { CreateActivityDto } from './dto/create-activity.dto'
@@ -199,6 +199,37 @@ export class ActivitiesService {
       id,
       user_id
     })
+  }
+
+  /**
+   * Deletes activity images based on field name
+   * @param id
+   * @returns
+   */
+  async removeImages(id: string, field: 'images' | 'organizer_image') {
+    const activity = await this.activityRepository.findOne({
+      where: { id },
+      relations: ['images', 'organizer_image']
+    })
+
+    let imageIds: string[] = []
+    if (field === 'images' && activity.images.length) {
+      imageIds = activity.images.map((each) => each.id)
+    }
+
+    if (field === 'organizer_image' && activity.organizer_image) {
+      imageIds.push(activity.organizer_image.id)
+      await this.activityRepository.update(id, {
+        organizer_image: null
+      })
+    }
+
+    return this.imageRepository
+      .createQueryBuilder()
+      .where('activityId = :id', { id })
+      .andWhere('id IN(:...imageIds)', { imageIds })
+      .delete()
+      .execute()
   }
 
   getTypesFromString(type: string) {

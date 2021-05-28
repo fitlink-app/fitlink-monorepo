@@ -43,6 +43,7 @@ import { EmailService } from '../../src/modules/common/email.service'
 import { OrganisationsInvitation } from '../../src/modules/organisations-invitations/entities/organisations-invitation.entity'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { Queueable } from '../../src/modules/queue/entities/queueable.entity'
+import { validationExceptionFactory } from '../../src/exceptions/validation.exception.factory'
 
 export const entities = [
   Activity,
@@ -119,7 +120,12 @@ export async function mockApp({
     origin: '*'
   })
 
-  app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory: validationExceptionFactory
+    })
+  )
+
   app.useGlobalGuards(
     new UploadGuard(app.get(Reflector)),
     new JwtAuthGuard(app.get(Reflector)),

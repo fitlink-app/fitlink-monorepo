@@ -12,6 +12,7 @@
     "sourceMap": true,
     "outDir": "./dist/apps/api",
     "baseUrl": "./",
+    "skipLibCheck": true,
     "incremental": true
   }
 }
