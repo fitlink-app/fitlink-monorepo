@@ -13,7 +13,7 @@ export const uploadVariants = [
   {
     type: ImageType.Avatar,
     size: [128, 128],
-    fit: 'contain',
+    fit: 'cover',
     column: 'url_128x128'
   },
   {
@@ -24,8 +24,8 @@ export const uploadVariants = [
   },
   {
     type: ImageType.Standard,
-    size: [1920, 1080],
-    fit: 'contain',
+    size: [1920, 0], // 0 is ignored, and aspect ratio preserved
+    fit: null,
     column: 'url'
   },
   {

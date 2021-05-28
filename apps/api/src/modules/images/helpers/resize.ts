@@ -33,7 +33,13 @@ export const resizeFromBuffer = (
   fit: keyof FitEnum,
   format: OutputFormat = 'jpeg'
 ): Promise<Buffer> => {
-  const imageProcess = sharp(source).resize(size[0], size[1], { fit }).rotate()
+  let width = size[0]
+  let height = size[1]
+  let options = { fit }
+  if (height === 0) {
+    height = null
+  }
+  const imageProcess = sharp(source).resize(width, height, options).rotate()
   imageProcess.toFormat(format)
 
   // Write output to a Buffer. JPEG, PNG, WebP, TIFF and RAW output are supported.
