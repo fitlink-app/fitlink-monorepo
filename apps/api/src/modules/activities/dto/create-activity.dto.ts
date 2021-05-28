@@ -5,29 +5,38 @@ import {
   IsArray,
   IsOptional,
   IsString,
-  IsEmail
+  IsEmail,
+  IsNotEmpty
 } from 'class-validator'
 import { Image } from '../../images/entities/image.entity'
 
+const message = 'This field is required'
+
 export class CreateActivityDto {
   @ApiProperty()
-  @IsString()
+  @IsString({ message })
+  @IsNotEmpty({ message })
   name: string
 
   @ApiProperty()
-  @IsString()
+  @IsString({ message })
+  @IsNotEmpty({ message })
   description: string
 
   @ApiProperty()
-  @IsString()
+  @IsString({ message })
+  @IsNotEmpty({ message })
   date: string
 
   @ApiProperty()
-  @IsLatLong()
+  @IsLatLong({
+    message: 'This field requires a valid point (lat,lng,radius)'
+  })
   meeting_point: string
 
   @ApiProperty()
-  @IsString()
+  @IsString({ message })
+  @IsNotEmpty({ message })
   meeting_point_text: string
 
   @ApiProperty()
@@ -35,12 +44,22 @@ export class CreateActivityDto {
   organizer_name?: string
 
   @ApiProperty()
-  @IsUrl()
+  @IsUrl(
+    {},
+    {
+      message: 'This field requires a valid url'
+    }
+  )
   @IsOptional()
   organizer_url?: string
 
   @ApiProperty()
-  @IsEmail()
+  @IsEmail(
+    {},
+    {
+      message: 'This field requires a valid email address'
+    }
+  )
   @IsOptional()
   organizer_email?: string
 
