@@ -163,7 +163,7 @@ describe('LeaderboardEntries', () => {
     })
     expect(result.statusCode).toEqual(400)
     expect(result.statusMessage).toEqual('Bad Request')
-    expect(result.json().message).toContain('league_id must be a string')
+    expect(result.json().errors['league_id']).toContain('must be a string')
   })
 
   // Trying to create an entry with complete data should result in 201 created

@@ -114,7 +114,7 @@ describe('Activities', () => {
 
     const result = data.json()
     expect(data.statusCode).toEqual(400)
-    expect(result.message).toEqual(['type must be a valid enum value'])
+    expect(result.errors['type']).toContain('must be a valid enum value')
   })
 
   it(`POST /organisations 403 Does not allow an ordinary authenticated user to create an organisation`, async () => {
