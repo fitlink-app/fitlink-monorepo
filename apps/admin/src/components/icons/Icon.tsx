@@ -5,8 +5,8 @@ export type IconProps = {
 }
 
 export default function Icon({
-  width = '1rem',
-  height = '1rem',
+  width = '16px',
+  height = '16px',
   children = <></>
 }:IconProps) {
   return (
