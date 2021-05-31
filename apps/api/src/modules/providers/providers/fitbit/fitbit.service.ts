@@ -1,19 +1,9 @@
-import {
-  BadRequestException,
-  HttpService,
-  Injectable,
-  NotFoundException
-} from '@nestjs/common'
-import { map } from 'rxjs/operators'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import * as fitbitClient from 'fitbit-node'
-import { ProvidersService } from '../../providers.service'
 import { ProviderType } from '../../entities/provider.entity'
+import { ProvidersService } from '../../providers.service'
 
 const FitbitApiClient: any = fitbitClient
-
-// const CLIENT_ID = '22BRK9'
-// const CLIENT_SECRET = '2399fd219c1535c0a66ea090647f2a93'
-//
 
 const CLIENT_ID = '239ZNM'
 const CLIENT_SECRET = '20a2f3cd13da77d0aa9e8934aeb47792'
@@ -88,7 +78,6 @@ export class FitbitService {
     if (!provider) {
       throw new NotFoundException(`Provider Not found`)
     }
-
     let now = new Date(Date.now())
     console.log(`Is FITBIT Token Expired: ${provider.token_expires_at < now}`)
     if (provider.token_expires_at < now) {
