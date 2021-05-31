@@ -1,4 +1,4 @@
-export type InputProps = {
+export type CheckboxProps = {
   label: string
   name: string
   checked?: boolean
@@ -10,7 +10,7 @@ export default function Checkbox({
   name,
   checked = false,
   onChange = () => null
-}: InputProps) {
+}: CheckboxProps) {
 
   return (
     <div className="input-block">

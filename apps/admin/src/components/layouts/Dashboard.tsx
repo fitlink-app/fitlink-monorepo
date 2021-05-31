@@ -34,7 +34,7 @@ export default function Dashboard({
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>{title} - Fitlink</title>
         <meta charSet="UTF-8" />
         <meta httpEquiv="x-ua-compatible" content="ie=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

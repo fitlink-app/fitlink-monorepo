@@ -24,6 +24,12 @@ input:not([type="checkbox"]), select {
   height: 2.75rem;
 }
 
+.react-select {
+  input {
+    height: auto;
+  }
+}
+
 select[multiple] {
   height: 5.5rem;
 }
@@ -66,10 +72,23 @@ select[multiple] {
       border-color: $primary;
       color: $primary;
       box-shadow: 0 0 0 3px rgba($primary, 0.25), 0 10px 10px 0 rgba($primary, 0.1);
-      background-image: url(../img/check-solid.svg);
+      background-image: url(../../img/check-solid.svg);
       background-size: 10px 10px;
       background-position: center center;
       background-repeat: no-repeat;
     }
   }
+}
+
+::-webkit-input-placeholder {
+  color: #ccc;
+}
+::-moz-placeholder {
+  color: #ccc;
+}
+:-ms-input-placeholder {
+  color: #ccc;
+}
+:-moz-placeholder {
+  color: #ccc;
 }

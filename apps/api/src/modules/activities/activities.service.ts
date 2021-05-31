@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm'
+import { In, Repository } from 'typeorm'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { CreateActivityDto } from './dto/create-activity.dto'
@@ -43,6 +43,30 @@ export class ActivitiesService {
     }
 
     return activity
+  }
+
+  /**
+   * Find all entries that were created by the particular user_id (legacy Firebase user)
+   *
+   * @param user_id string
+   * @param options { page, limit }
+   */
+  async findUserActivities(
+    user_id: string,
+    { limit, page }: PaginationOptionsInterface
+  ): Promise<Pagination<Activity>> {
+    const [results, total] = await this.activityRepository.findAndCount({
+      where: { user_id },
+      take: limit,
+      skip: page * limit,
+      order: { created_at: 'DESC' },
+      relations: ['organizer_image', 'images']
+    })
+
+    return new Pagination<Activity>({
+      results,
+      total
+    })
   }
 
   /**
@@ -129,6 +153,8 @@ export class ActivitiesService {
     }
 
     // Merge existing images with new images
+    /*
+    TODO: Not currently in use and solution will be refactored
     if (
       updateData.images &&
       updateData.images.length &&
@@ -145,8 +171,13 @@ export class ActivitiesService {
         ...updateData.images
       ]
     }
+    */
 
-    return this.activityRepository.save({ id, ...updateData })
+    delete updateData.__replaceImages
+    delete updateData.__deleteImages
+
+    await this.activityRepository.save({ id, ...updateData })
+    return this.findOne(id)
   }
 
   /**
@@ -175,6 +206,37 @@ export class ActivitiesService {
       id,
       user_id
     })
+  }
+
+  /**
+   * Deletes activity images based on field name
+   * @param id
+   * @returns
+   */
+  async removeImages(id: string, field: 'images' | 'organizer_image') {
+    const activity = await this.activityRepository.findOne({
+      where: { id },
+      relations: ['images', 'organizer_image']
+    })
+
+    let imageIds: string[] = []
+    if (field === 'images' && activity.images.length) {
+      imageIds = activity.images.map((each) => each.id)
+    }
+
+    if (field === 'organizer_image' && activity.organizer_image) {
+      imageIds.push(activity.organizer_image.id)
+      await this.activityRepository.update(id, {
+        organizer_image: null
+      })
+    }
+
+    return this.imageRepository
+      .createQueryBuilder()
+      .where('activityId = :id', { id })
+      .andWhere('id IN(:...imageIds)', { imageIds })
+      .delete()
+      .execute()
   }
 
   getTypesFromString(type: string) {

@@ -130,9 +130,9 @@ describe('Activities', () => {
 
     const result = data.json()
     expect(data.statusCode).toEqual(400)
-    expect(result.message).toEqual([
-      "geo_radial must be formatted correctly as 'lat,lng,radius'"
-    ])
+    expect(result.errors['geo_radial']).toEqual(
+      "Geo_radial must be formatted correctly as 'lat,lng,radius'"
+    )
   })
 
   it(`GET /activities 200 Fetches real activities from the database, even when none are available from iMin`, async () => {
@@ -237,45 +237,24 @@ describe('Activities', () => {
     expect(data.json().images[1].url).toBeDefined()
   })
 
-  it(`PUT /activities/:id 201 Updates an new activity with images and removes a single image`, async () => {
-    const data = await createActivityWithImages()
+  it(`POST /activities 400 Creates a new activity but validation fails`, async () => {
+    const data = await createActivityWithImages(false, {
+      name: '',
+      description: ''
+    })
+
     const json = data.json()
-    const { form } = await getPayloadWithImages(true, {
-      __deleteImages: [json.images[0].id].join(',')
-    })
-
-    await app.inject({
-      method: 'PUT',
-      url: `/activities/${json.id}`,
-      headers: {
-        ...headers,
-        ...form.getHeaders()
-      },
-      payload: form
-    })
-
-    const get = await app.inject({
-      method: 'GET',
-      url: `/activities/${json.id}`,
-      headers: {
-        ...headers
-      }
-    })
-
-    expect(get.json().images[0].url).toBeDefined()
-    expect(get.json().images[1].url).toBeDefined()
-    expect(get.json().images[2].url).toBeDefined()
-    expect(get.json().images[3]).toBeUndefined()
+    expect(json.errors['name']).toEqual('This field is required')
+    expect(json.errors['description']).toEqual('This field is required')
+    expect(data.statusCode).toEqual(400)
   })
 
   it(`PUT /activities/:id 201 Updates an new activity with images and replaces existing images`, async () => {
     const data = await createActivityWithImages()
     const json = data.json()
-    const form = await getFormWithFile({
-      __replaceImages: '1'
-    })
+    const form = await getFormWithFile()
 
-    await app.inject({
+    const put = await app.inject({
       method: 'PUT',
       url: `/activities/${json.id}`,
       headers: {
@@ -284,6 +263,10 @@ describe('Activities', () => {
       },
       payload: form
     })
+
+    expect(put.json().images[0].url).toBeDefined()
+    expect(put.json().images[1]).toBeUndefined()
+    expect(put.json().created_at).toBeDefined()
 
     const get = await app.inject({
       method: 'GET',
@@ -297,8 +280,30 @@ describe('Activities', () => {
     expect(get.json().images[1]).toBeUndefined()
   })
 
+  it(`PUT /activities/:id 201 Updates an new activity without images and images are left intact`, async () => {
+    const data = await createActivityWithImages(true)
+    const json = data.json()
+
+    const put = await app.inject({
+      method: 'PUT',
+      url: `/activities/${json.id}`,
+      headers: {
+        ...headers
+      },
+      payload: {
+        name: 'Test activity updated'
+      }
+    })
+
+    expect(put.json().images[0].url).toBeDefined()
+    expect(put.json().organizer_image.url).toBeDefined()
+    expect(put.json().created_at).toBeDefined()
+    expect(put.json().name).toEqual('Test activity updated')
+  })
+
   it(`POST /activities 201 Creates a new activity with images including organizer image`, async () => {
     const data = await createActivityWithImages(true)
+
     expect(data.statusCode).toEqual(201)
     expect(data.json().name).toBeDefined()
     expect(data.json().images[0].url).toBeDefined()
@@ -323,7 +328,7 @@ describe('Activities', () => {
   })
 
   it(`DELETE /activities 200 A created activity can be deleted`, async () => {
-    const activityData = await createActivityWithImages()
+    const activityData = await createActivityWithImages(true)
     const id = activityData.json().id
 
     const data = await app.inject({
@@ -346,12 +351,66 @@ describe('Activities', () => {
 
     const data = await app.inject({
       method: 'DELETE',
-      url: `/activities/12345/${id}`,
+      url: `/activities/${id}`,
       headers: {
         ...headers
       }
     })
     expect(data.statusCode).toEqual(200)
+  })
+
+  it(`DELETE /activities 200 An activity image created by a user can be deleted by that user`, async () => {
+    const activityData = await createActivityWithImages(true, {
+      user_id: '12345'
+    })
+
+    let json = activityData.json()
+    expect(json.organizer_image.id).toBeDefined()
+    expect(json.images[0].id).toBeDefined()
+
+    const deleteOrganizerImage = await app.inject({
+      method: 'DELETE',
+      url: `/activities/${json.id}/organizer_image`,
+      headers: {
+        ...headers
+      }
+    })
+
+    expect(deleteOrganizerImage.statusCode).toEqual(200)
+
+    const data = await app.inject({
+      method: 'GET',
+      url: `/activities/${json.id}`,
+      headers: {
+        ...headers
+      }
+    })
+
+    json = data.json()
+    expect(json.organizer_image).toBeNull()
+    expect(json.images[0].id).toBeDefined()
+
+    const deleteImages = await app.inject({
+      method: 'DELETE',
+      url: `/activities/${json.id}/images`,
+      headers: {
+        ...headers
+      }
+    })
+
+    expect(deleteImages.statusCode).toEqual(200)
+
+    const data2 = await app.inject({
+      method: 'GET',
+      url: `/activities/${json.id}`,
+      headers: {
+        ...headers
+      }
+    })
+
+    const json2 = data2.json()
+    expect(json2.organizer_image).toBeNull()
+    expect(json2.images).toEqual([])
   })
 
   it(`PUT /activities 201 An activity created by a user can be edited by that user`, async () => {
@@ -374,6 +433,28 @@ describe('Activities', () => {
     })
 
     expect(data.statusCode).toEqual(200)
+  })
+
+  it(`GET /activities/user/:userId 201 A user can list their own activities`, async () => {
+    await createActivityWithImages(false, {
+      user_id: '12345'
+    })
+
+    const data = await app.inject({
+      method: 'GET',
+      url: `/activities/user/12345`,
+      headers
+    })
+    expect(data.statusCode).toEqual(200)
+    const result = Object.keys(data.json().results[0])
+    expect(result).toEqual(
+      expect.arrayContaining([
+        ...activityColumns,
+        'user_id',
+        'organizer_image',
+        'images'
+      ])
+    )
   })
 
   async function createActivityWithImages(
