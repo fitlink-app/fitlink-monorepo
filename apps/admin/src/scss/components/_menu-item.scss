@@ -11,6 +11,7 @@
   border-radius: 1.125rem;
   color: $grey;
   transition: all 0.1s;
+  border: 1px solid $white;
 
   span {
     display: block;
@@ -34,6 +35,6 @@
   }
 
   &.current {
-    border: 1px solid $grey-200; 
+    border: 1px solid $grey-200;
   }
 }
