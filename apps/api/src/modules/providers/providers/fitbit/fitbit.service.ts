@@ -1,17 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import * as fitbitClient from 'fitbit-node'
 import { ProviderType } from '../../entities/provider.entity'
 import { ProvidersService } from '../../providers.service'
 
 const FitbitApiClient: any = fitbitClient
 
-const CLIENT_ID = '239ZNM'
-const CLIENT_SECRET = '20a2f3cd13da77d0aa9e8934aeb47792'
-const API_VERSION = '1.2'
-const SCOPES = 'activity sleep nutrition'
-const CALLBACK_URL = 'http://localhost:3001/api/v1/providers/fitbit/callback'
-
-interface FitbitAuthResponse {
+export interface FitbitAuthResponse {
   access_token: string
   expires_in: number
   refresh_token: string
@@ -19,18 +14,28 @@ interface FitbitAuthResponse {
   user_id: string
 }
 
-const Fitbit = new FitbitApiClient({
-  clientId: CLIENT_ID,
-  clientSecret: CLIENT_SECRET,
-  apiVersion: API_VERSION
-})
-
 @Injectable()
 export class FitbitService {
-  constructor(private providersService: ProvidersService) {}
+  constructor(
+    private providersService: ProvidersService,
+    private configService: ConfigService
+  ) {}
+
+  Fitbit = new FitbitApiClient({
+    clientId: this.configService.get('FITBIT_CLIENT_ID'),
+    clientSecret: this.configService.get('FITBIT_CLIENT_SECRET'),
+    apiVersion: this.configService.get('FITBIT_API_VERSION')
+  })
 
   getOAuthUrl(userId: string) {
-    return Fitbit.getAuthorizeUrl(SCOPES, CALLBACK_URL, undefined, userId)
+    return {
+      oauth_url: this.Fitbit.getAuthorizeUrl(
+        this.configService.get('FITBIT_SCOPES'),
+        this.configService.get('FITBIT_CALLBACK_URL'),
+        undefined,
+        userId
+      )
+    }
   }
 
   async saveFitbitProvider(code: string, userId: string) {
@@ -57,17 +62,25 @@ export class FitbitService {
 
   async deAuthorize(userId: string) {
     const accessToken = await this.getFreshFitbitToken(userId)
-    await Fitbit.revokeAccessToken(accessToken)
+    await this.revokeToken(accessToken)
     await this.providersService.remove(userId, ProviderType.Fitbit)
     return { revoked_token: accessToken }
   }
 
+  // This is separated into it's own function so that it can be mocked in the tests.
+  async revokeToken(token: string) {
+    return await this.Fitbit.revokeAccessToken(token)
+  }
+
   async exchangeToken(code: string): Promise<FitbitAuthResponse> {
-    return await Fitbit.getAccessToken(code, CALLBACK_URL)
+    return await this.Fitbit.getAccessToken(
+      code,
+      this.configService.get('FITBIT_CALLBACK_URL')
+    )
   }
 
   async refreshToken(accessToken: string, refreshToken: string) {
-    return await Fitbit.refreshAccessToken(accessToken, refreshToken)
+    return await this.Fitbit.refreshAccessToken(accessToken, refreshToken)
   }
 
   async getFreshFitbitToken(userId: string) {

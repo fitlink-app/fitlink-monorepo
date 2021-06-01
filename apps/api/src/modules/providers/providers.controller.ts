@@ -23,11 +23,6 @@ export class ProvidersController {
     return this.providersService.findAll()
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return 'Hello There'
-  }
-
   @Put(':userId/:providerType/')
   update(
     @Param('userId') id: string,

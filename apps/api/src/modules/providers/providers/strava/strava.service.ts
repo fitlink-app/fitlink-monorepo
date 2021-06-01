@@ -11,9 +11,9 @@ import {
 } from '../constants'
 import { map } from 'rxjs/operators'
 import { ProvidersService } from '../../providers.service'
-import { Observable } from 'rxjs'
 import { ProviderType } from '../../entities/provider.entity'
-import { AuthenticatedUser } from 'apps/api/src/models'
+import { AuthenticatedUser } from '../../../../models'
+import { ConfigService } from '@nestjs/config'
 
 const client_id = '59872'
 const client_secret = '657513b1852f65d2d5dac18ca08d77780e1cd5af'
@@ -37,20 +37,49 @@ export interface StravaRefreshTokenResponse {
 export class StravaService {
   constructor(
     private httpService: HttpService,
+    private configService: ConfigService,
     private providersService: ProvidersService
   ) {}
 
-  getOAuthUrl({ client_id, client_secret, redirect_uri, user }) {
-    return `${STRAVA_AUTHORIZE_URL}
-    ?client_id=${client_id}
-    &client_secret=${client_secret}
-    &redirect_uri=${redirect_uri}
-    &scope=activity:read
-    &response_type=code
-    &state=${user.id}`
+  stravaConfig(param: 'id' | 'secret' | 'uri' | 'scopes') {
+    const config = {
+      id: this.configService.get('STRAVA_CLIENT_ID'),
+      secret: this.configService.get('STRAVA_CLIENT_SECRET'),
+      uri: this.configService.get('STRAVA_REDIRECT_URI'),
+      scopes: this.configService.get('STRAVA_SCOPES')
+    }
+    return config[param]
   }
 
-  exchangeTokens(code: string): Observable<StravaCallbackResponse> {
+  getTokenUrl(code: string) {
+    return `${STRAVA_TOKEN_EXCHANGE_URL}?client_id=${this.stravaConfig(
+      'id'
+    )}&client_secret=${this.stravaConfig(
+      'secret'
+    )}&grant_type=authorization_code&code=${code}`
+  }
+
+  getRefreshTokenUrl(refresh_token: string) {
+    return `${STRAVA_TOKEN_EXCHANGE_URL}?client_id=${this.stravaConfig(
+      'id'
+    )}&client_secret=${this.stravaConfig(
+      'secret'
+    )}&grant_type=refresh_token&refresh_token=${refresh_token}`
+  }
+
+  getOAuthUrl(user: AuthenticatedUser) {
+    return {
+      oauth_url: `${STRAVA_AUTHORIZE_URL}
+    ?client_id=${this.stravaConfig('id')}
+    &client_secret=${this.stravaConfig('secret')}
+    &redirect_uri=${this.stravaConfig('uri')}
+    &scope=${this.stravaConfig('scopes')}
+    &response_type=code
+    &state=${user.id}`
+    }
+  }
+
+  exchangeTokens(code: string): Promise<StravaCallbackResponse> {
     return this.httpService
       .post(this.getTokenUrl(code), {
         headers: {
@@ -59,6 +88,7 @@ export class StravaService {
         timeout: 3000
       })
       .pipe(map((response) => response.data))
+      .toPromise()
   }
 
   async saveStravaProvider(code: string, userId: string, scope: any) {
@@ -68,7 +98,7 @@ export class StravaService {
       refresh_token,
       access_token,
       expires_at
-    } = await this.exchangeTokens(code).toPromise()
+    } = await this.exchangeTokens(code)
 
     const token_expires_at = expires_at * 1000
     const result = await this.providersService.create(
@@ -84,15 +114,6 @@ export class StravaService {
     )
     return result
   }
-
-  getTokenUrl(code: string) {
-    return `${STRAVA_TOKEN_EXCHANGE_URL}?client_id=${client_id}&client_secret=${client_secret}&grant_type=authorization_code&code=${code}`
-  }
-
-  getRefreshTokenUrl(refresh_token: string) {
-    return `${STRAVA_TOKEN_EXCHANGE_URL}?client_id=${client_id}&client_secret=${client_secret}&grant_type=refresh_token&refresh_token=${refresh_token}`
-  }
-
   async deAuthorize(user: AuthenticatedUser) {
     try {
       const accessToken = await this.getFreshStravaAccessToken(user.id)

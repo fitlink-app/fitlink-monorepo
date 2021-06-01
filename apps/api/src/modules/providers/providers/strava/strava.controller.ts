@@ -1,44 +1,33 @@
 import { Controller, Get, Query } from '@nestjs/common'
-import { User } from 'apps/api/src/decorators/authenticated-user.decorator'
-import { Public } from 'apps/api/src/decorators/public.decorator'
-import { AuthenticatedUser } from 'apps/api/src/models'
+import { Iam } from '../../../../decorators/iam.decorator'
+import { User } from '../../../../decorators/authenticated-user.decorator'
+import { Public } from '../../../../decorators/public.decorator'
+import { AuthenticatedUser } from '../../../../models'
+import { Roles } from '../../../user-roles/entities/user-role.entity'
 import { StravaService } from './strava.service'
-
-const client_id = '59872'
-const client_secret = '657513b1852f65d2d5dac18ca08d77780e1cd5af'
-const redirect_uri = 'http://localhost:3001/api/v1/providers/strava/callback'
 
 @Controller('/providers/strava')
 export class StravaControler {
   constructor(private stravaService: StravaService) {}
 
-  @Get()
+  @Iam(Roles.Self)
+  @Get(':userId')
   getOAuthUrl(@User() user: AuthenticatedUser) {
-    return this.stravaService.getOAuthUrl({
-      client_id,
-      client_secret,
-      redirect_uri,
-      user
-    })
+    return this.stravaService.getOAuthUrl(user)
   }
 
   @Public()
   @Get('/callback')
   oauthCallback(
-    @Query('code') code,
-    @Query('state') state,
-    @Query('scope') scope
+    @Query('code') code: string,
+    @Query('state') state: string,
+    @Query('scope') scope: string
   ) {
     return this.stravaService.saveStravaProvider(code, state, scope)
   }
 
-  @Get('/revokeToken')
+  @Get('/:userId/revokeToken')
   deAuthorize(@User() user: AuthenticatedUser) {
     return this.stravaService.deAuthorize(user)
-  }
-
-  @Get('/accessToken')
-  getAccessToken(@User() user: AuthenticatedUser) {
-    return this.stravaService.getFreshStravaAccessToken(user.id)
   }
 }

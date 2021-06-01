@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { appendFile, readFile } from 'fs/promises'
 import { TemplatesType } from '../../src/modules/common/email.service'
 
-const env = {
+export const env = {
   AUTH_JWT_SECRET: 'fitlink_jwt_secret',
   S3_ACCESS_KEY_ID: 'S3RVER',
   S3_SECRET_ACCESS_KEY: 'S3RVER',
@@ -14,7 +14,16 @@ const env = {
   IMIN_API_KEY: 'jAyxqV1IVTlcPeQV2aujF05X0483cOKu',
   INVITE_ORGANISATION_URL: 'http://localhost:3001/signup?invite={token}',
   INVITE_TEAM_URL: 'https://fitlinkapp.com/signup?invite={token}&team=1',
-  FIREBASE_BEARER_TOKEN: 'fitlinkLeaderboardEntryToken'
+  FIREBASE_BEARER_TOKEN: 'fitlinkLeaderboardEntryToken',
+  STRAVA_CLIENT_ID: '59872',
+  STRAVA_CLIENT_SECRET: '657513b1852f65d2d5dac18ca08d77780e1cd5af',
+  STRAVA_REDIRECT_URI: 'http://localhost:3001/api/v1/providers/strava/callback',
+  STRAVA_SCOPES: 'activity:read',
+  FITBIT_CLIENT_ID: '239ZNM',
+  FITBIT_CLIENT_SECRET: '20a2f3cd13da77d0aa9e8934aeb47792',
+  FITBIT_API_VERSION: '1.2',
+  FITBIT_SCOPES: 'activity sleep nutrition',
+  FITBIT_CALLBACK_URL: 'http://localhost:3001/api/v1/providers/fitbit/callback'
 }
 
 export const mockRepositoryProvider = (entity) => {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
@@ -26,24 +26,27 @@ export class ProvidersService {
     } = createProviderDto
 
     const tokenExpiresAt = new Date(token_expires_at)
+    try {
+      const provider = this.providerRepository.create({
+        user: { id: userId },
+        token_expires_at: tokenExpiresAt,
+        type,
+        token,
+        refresh_token,
+        scopes,
+        provider_user_id
+      })
 
-    const provider = this.providerRepository.create({
-      user: { id: userId },
-      token_expires_at: tokenExpiresAt,
-      type,
-      token,
-      refresh_token,
-      scopes,
-      provider_user_id
-    })
+      await this.userRepository
+        .createQueryBuilder()
+        .relation(User, 'providers')
+        .of(userId)
+        .add(provider)
 
-    await this.userRepository
-      .createQueryBuilder()
-      .relation(User, 'providers')
-      .of(userId)
-      .add(provider)
-
-    return await this.providerRepository.save(provider)
+      return await this.providerRepository.save(provider)
+    } catch (err) {
+      throw new BadRequestException(err.message)
+    }
   }
 
   findAll() {
