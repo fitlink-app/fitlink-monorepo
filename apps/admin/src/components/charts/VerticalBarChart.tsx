@@ -29,11 +29,11 @@ const data = {
   ],
 }
 
-let options = ChartOptions
+const options = JSON.parse(JSON.stringify(ChartOptions))
 options.scales.y.ticks.beginAtZero = true
 
-const VerticalBar = () => (
-  <Bar data={data} options={options} />
+const VerticalBarChart = () => (
+  <Bar data={data} options={options} type="bar" />
 )
 
-export default VerticalBar
+export default VerticalBarChart

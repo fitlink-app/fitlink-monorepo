@@ -44,13 +44,16 @@ h6, .h6 {
 }
 
 p, .p {
-  font-weight: 300;
   font-size: 0.875rem;
   line-height: 1.4em;
   margin: 0 0 0.5em 0;
   @media screen and (min-width: $medium) {
     font-size: 1rem;
   }
+}
+
+p {
+  font-weight: 300;
 }
 
 ul, ol {
