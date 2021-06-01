@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common'
+import { Controller, Get, Param, Query } from '@nestjs/common'
 import { Iam } from '../../../../decorators/iam.decorator'
 import { User } from '../../../../decorators/authenticated-user.decorator'
 import { Public } from '../../../../decorators/public.decorator'
@@ -26,8 +26,9 @@ export class StravaControler {
     return this.stravaService.saveStravaProvider(code, state, scope)
   }
 
+  @Iam(Roles.Self)
   @Get('/:userId/revokeToken')
-  deAuthorize(@User() user: AuthenticatedUser) {
-    return this.stravaService.deAuthorize(user)
+  deAuthorize(@Param('userId') userId: string) {
+    return this.stravaService.deAuthorize(userId)
   }
 }

@@ -1,5 +1,5 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { Connection, Repository } from 'typeorm'
+import { Connection } from 'typeorm'
 import { useSeeding } from 'typeorm-seeding'
 import { ProvidersModule } from '../src/modules/providers/providers.module'
 import {
@@ -56,10 +56,6 @@ describe('Providers', () => {
     await ProvidersTeardown('ProvidersTest')
     await app.get(Connection).close()
     await app.close()
-  })
-
-  it('To Please test gods', async () => {
-    expect(1).toBe(1)
   })
 
   it('GET /providers/strava Get OAuth URL', async () => {
@@ -209,5 +205,22 @@ describe('Providers', () => {
     expect(parsedQueryValues.scope).toBe(FITBIT_SCOPES)
     expect(parsedQueryValues.redirect_uri).toBe(FITBIT_CALLBACK_URL)
     expect(parsedQueryValues.state).toBe(seededUser.id)
+  })
+
+  it('GET /providers/users/:userId', async () => {
+    await SeedProviderToUser(seededUser.id, 'fitbit')
+    await SeedProviderToUser(seededUser.id, 'strava')
+    const data = await app.inject({
+      method: 'GET',
+      headers: authHeaders,
+      url: `/providers/users/${seededUser.id}`
+    })
+
+    const firstResult = data.json()[0]
+    expect(data.statusCode).toBe(200)
+    expect(data.statusMessage).toBe('OK')
+    expect(firstResult.id).toBeDefined()
+    expect(firstResult.type).toBeDefined()
+    expect(firstResult.refresh_token).toBeDefined()
   })
 })

@@ -15,9 +15,6 @@ import { ProviderType } from '../../entities/provider.entity'
 import { AuthenticatedUser } from '../../../../models'
 import { ConfigService } from '@nestjs/config'
 
-const client_id = '59872'
-const client_secret = '657513b1852f65d2d5dac18ca08d77780e1cd5af'
-
 export interface StravaCallbackResponse {
   expires_at: number
   refresh_token: string
@@ -114,12 +111,12 @@ export class StravaService {
     )
     return result
   }
-  async deAuthorize(user: AuthenticatedUser) {
+  async deAuthorize(userId: string) {
     try {
-      const accessToken = await this.getFreshStravaAccessToken(user.id)
+      const accessToken = await this.getFreshStravaAccessToken(userId)
       const result = await this.revokeToken(accessToken)
       if (result) {
-        await this.providersService.remove(user.id, ProviderType.Strava)
+        await this.providersService.remove(userId, ProviderType.Strava)
       }
       return { revoked_token: result.access_token }
     } catch (err) {

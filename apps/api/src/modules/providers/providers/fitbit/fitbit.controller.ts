@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common'
+import { Controller, Get, Param, Query } from '@nestjs/common'
 import { AuthenticatedUser } from '../../../../models'
 import { User } from '../../../../decorators/authenticated-user.decorator'
 import { Public } from '../../../../decorators/public.decorator'
@@ -24,7 +24,7 @@ export class FitbitController {
 
   @Get(':userId/revokeToken')
   @Iam(Roles.Self)
-  deAuthorize(@User() user: AuthenticatedUser) {
-    return this.fitbitService.deAuthorize(user.id)
+  deAuthorize(@Param('userId') userId: string) {
+    return this.fitbitService.deAuthorize(userId)
   }
 }

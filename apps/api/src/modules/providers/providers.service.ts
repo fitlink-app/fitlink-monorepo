@@ -49,8 +49,10 @@ export class ProvidersService {
     }
   }
 
-  findAll() {
-    return `This action returns all providers`
+  async findAll(id: string) {
+    return await this.providerRepository.find({
+      where: { user: { id } }
+    })
   }
 
   async findOne(userId: string, providerType: ProviderType) {
