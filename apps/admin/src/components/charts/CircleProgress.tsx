@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion'
+
 export type CircleProgessProps = {
   progress: number
   icon?: React.ReactNode
@@ -18,6 +20,7 @@ export default function CircleProgess({
   const normalizedRadius = radius - strokeWidth * 0.5
   const circumference = normalizedRadius * 2 * Math.PI
   const strokeDashoffset = circumference - (progress / 100) * circumference
+
   return (
     <div className="circle-progress" style={{color: color}}>
       <svg height={radius * 2} width={radius * 2} viewBox={`0 0 ${radius * 2} ${radius * 2}`} className="block">
@@ -39,13 +42,22 @@ export default function CircleProgess({
           cy={radius}
           opacity="0.2"
         />
-        <circle
+        <motion.circle
           stroke={gradient ? 'url(#linear)' : color}
           fill="transparent"
           strokeWidth={strokeWidth}
           strokeDasharray={`${circumference} ${circumference}`}
           strokeLinecap="round"
-          style={{ strokeDashoffset }}
+          initial={{
+            strokeDashoffset: 290
+          }}
+          animate={{
+            strokeDashoffset: strokeDashoffset,
+            transition: {
+              duration: 1,
+              delay: 0.25
+            }
+          }}
           r={normalizedRadius}
           cx={radius}
           cy={radius}
