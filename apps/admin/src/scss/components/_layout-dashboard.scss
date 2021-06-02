@@ -1,5 +1,7 @@
 .layout-dashboard {
   display: flex;
+  overflow: hidden;
+  position: relative;
   
   .content {
     flex: 1;
@@ -8,5 +10,27 @@
     padding: 5.5rem 3rem 4rem;
     overflow-x: hidden;
     overflow-y: auto;
+    background: $grey-80;
+  }
+
+  .drawer {
+    position: absolute;
+    z-index: 3;
+    height: 100vh;
+    right: 0;
+    top: 0;
+    width: 500px;
+    max-width: 100%;
+    transform: translateX(100%);
+    background: $white;
+    padding: 5rem 2rem 3rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.25s;
+
+    &.open {
+      transform: translateX(0%);
+    }
   }
 }

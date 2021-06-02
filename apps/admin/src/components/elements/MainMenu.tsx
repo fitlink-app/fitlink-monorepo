@@ -23,7 +23,7 @@ export default function MainMenu() {
         />
       <MenuItem
         to="/users"
-        label="Users"
+        label="User stats"
         current={current === '/users'}
         icon={ <IconFriends /> }
         />
