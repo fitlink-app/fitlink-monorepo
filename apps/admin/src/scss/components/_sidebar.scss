@@ -26,12 +26,6 @@
   }
 
   .fitlink-logo {
-    width: 30px;
-
-    @media screen and (min-width: $large) {
-      width: auto;
-    }
-
     path {
       display: none;
 
