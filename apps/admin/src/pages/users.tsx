@@ -47,25 +47,35 @@ export default function components() {
       <button onClick={() => {
         setDrawContent(
           <div className="">
-            <h4>Date joined</h4>
+            <h4 className="light mb-3">User details</h4>
+            <h6>Date joined</h6>
             <p>{ format(new Date(date_joined), 'yyyy-MM-dd H:m:s OOOO') }</p>
-            <h4>Mobile operating system</h4>
+            <hr className="tight" />
+            <h6>Mobile operating system</h6>
             <p>{ mobile_os }</p>
-            <h4>Connected trackers</h4>
+            <hr className="tight" />
+            <h6>Connected trackers</h6>
             <p>{ tracker }</p>
-            <h4>Last app session</h4>
+            <hr className="tight" />
+            <h6>Last app session</h6>
             <p>{ format(new Date(last_session), 'yyyy-MM-dd H:m:s OOOO') }</p>
-            <h4>Total points</h4>
+            <hr className="tight" />
+            <h6>Total points</h6>
             <p>{ points }</p>
-            <h4>Rank</h4>
+            <hr className="tight" />
+            <h6>Rank</h6>
             <p>{ rank }</p>
-            <h4>Last activity tracked</h4>
+            <hr className="tight" />
+            <h6>Last activity tracked</h6>
             <p>{ last_activity }</p>
-            <h4>Leagues joined</h4>
+            <hr className="tight" />
+            <h6>Leagues joined</h6>
             <p>{ total_leagues }</p>
-            <h4>Leagues created</h4>
+            <hr className="tight" />
+            <h6>Leagues created</h6>
             <p>{ created_leagues }</p>
-            <h4>Rewards redeemed</h4>
+            <hr className="tight" />
+            <h6>Rewards redeemed</h6>
             <p>{ rewards }</p>
           </div>
         )
@@ -79,25 +89,25 @@ export default function components() {
       >
       <h1 className="light">User performance</h1>
       <p>To comply with GDPA regulations, user information is annonymous.</p>
-      <div className="mt-4">
-      <TableContainer
-        columns={[
-          { Header: 'User', accessor: 'avatar', Cell: displayImage },
-          { Header: 'Date Joined', accessor: 'date_joined', Cell: toDateCell },
-          { Header: 'Mobile OS', accessor: 'mobile_os' },
-          { Header: 'Tracker', accessor: 'tracker' },
-          { Header: 'Total Points', accessor: 'points', Cell: toLocaleCell },
-          { Header: 'Rank', accessor: 'rank', Cell: toChipCell },
-          //{ Header: 'Last app session', accessor: 'last_session', Cell: toDateCell },
-          { Header: 'Last activity', accessor: 'last_activity' },
-          { Header: 'Total leagues', accessor: 'total_leagues' },
-          //{ Header: 'Leagues created', accessor: 'created_leagues' },
-          { Header: 'Reward redeemed', accessor: 'rewards', Cell: toLocaleCell },
-          { Header: 'View', Cell: viewDetails }
-        ]}
-        fetch={() =>
-          Promise.resolve(dummy)
-        }
+      <div className="mt-4 overflow-x-auto">
+        <TableContainer
+          columns={[
+            { Header: 'User', accessor: 'avatar', Cell: displayImage },
+            { Header: 'Date Joined', accessor: 'date_joined', Cell: toDateCell },
+            { Header: 'Mobile OS', accessor: 'mobile_os' },
+            { Header: 'Tracker', accessor: 'tracker' },
+            { Header: 'Total Points', accessor: 'points', Cell: toLocaleCell },
+            { Header: 'Rank', accessor: 'rank', Cell: toChipCell },
+            //{ Header: 'Last app session', accessor: 'last_session', Cell: toDateCell },
+            { Header: 'Last activity', accessor: 'last_activity' },
+            { Header: 'Total leagues', accessor: 'total_leagues' },
+            //{ Header: 'Leagues created', accessor: 'created_leagues' },
+            { Header: 'Reward redeemed', accessor: 'rewards', Cell: toLocaleCell },
+            { Header: 'View', Cell: viewDetails }
+          ]}
+          fetch={() =>
+            Promise.resolve(dummy)
+          }
         />
       </div>
       <Drawer>

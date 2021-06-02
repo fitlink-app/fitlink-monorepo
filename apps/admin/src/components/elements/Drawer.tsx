@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import clsx from 'clsx'
+import IconClose from '../icons/IconClose'
 
 export type DrawerProps = {
   children: React.ReactNode
@@ -49,6 +50,9 @@ export default function Drawer({
 
   return (
     <div ref={node} className={drawClass}>
+      <div className="drawer__close" onClick={ () => setOpen(false) }>
+        <IconClose />
+      </div>
       {children}
     </div>
   )

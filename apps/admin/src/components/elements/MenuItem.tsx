@@ -22,7 +22,9 @@ export default function MenuItem({
     <Link href={to}>
       <a className={classes}>
         {icon}
-        {label}
+        <span>
+          {label}
+        </span>
       </a>
     </Link>
   )

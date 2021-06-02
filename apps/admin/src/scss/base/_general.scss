@@ -40,6 +40,10 @@ hr {
   height: 1px;
   border: 0;
   margin: 2rem 0;
+
+  &.tight {
+    margin: 1rem 0;
+  }
 }
 
 .chip {
