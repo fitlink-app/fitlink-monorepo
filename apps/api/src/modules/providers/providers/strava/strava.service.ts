@@ -64,7 +64,7 @@ export class StravaService {
     )}&grant_type=refresh_token&refresh_token=${refresh_token}`
   }
 
-  getOAuthUrl(user: AuthenticatedUser) {
+  getOAuthUrl(userId: string) {
     return {
       oauth_url: `${STRAVA_AUTHORIZE_URL}
     ?client_id=${this.stravaConfig('id')}
@@ -72,7 +72,7 @@ export class StravaService {
     &redirect_uri=${this.stravaConfig('uri')}
     &scope=${this.stravaConfig('scopes')}
     &response_type=code
-    &state=${user.id}`
+    &state=${userId}`
     }
   }
 

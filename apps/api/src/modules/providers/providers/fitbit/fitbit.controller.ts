@@ -1,6 +1,4 @@
 import { Controller, Get, Param, Query } from '@nestjs/common'
-import { AuthenticatedUser } from '../../../../models'
-import { User } from '../../../../decorators/authenticated-user.decorator'
 import { Public } from '../../../../decorators/public.decorator'
 import { FitbitService } from './fitbit.service'
 import { Roles } from '../../../user-roles/entities/user-role.entity'
@@ -10,10 +8,10 @@ import { Iam } from '../../../../decorators/iam.decorator'
 export class FitbitController {
   constructor(private fitbitService: FitbitService) {}
 
-  @Get(':userId')
+  @Get('/auth/:userId')
   @Iam(Roles.Self)
-  getOAuthUrl(@User() user: AuthenticatedUser) {
-    return this.fitbitService.getOAuthUrl(user.id)
+  getOAuthUrl(@Param('userId') userId: string) {
+    return this.fitbitService.getOAuthUrl(userId)
   }
 
   @Public()

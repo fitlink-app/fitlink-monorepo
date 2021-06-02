@@ -58,9 +58,9 @@ describe('Providers', () => {
     await app.close()
   })
 
-  it('GET /providers/strava Get OAuth URL', async () => {
+  it('GET /providers/strava/auth/:userId Get OAuth URL', async () => {
     const data = await app.inject({
-      url: `/providers/strava/${seededUser.id}`,
+      url: `/providers/strava/auth/${seededUser.id}`,
       method: 'GET',
       headers: authHeaders
     })
@@ -184,10 +184,10 @@ describe('Providers', () => {
     expect(data.statusMessage).toBe('OK')
   })
 
-  it('GET /providers/fitbit', async () => {
+  it('GET /providers/fitbit/auth/:userId', async () => {
     const data = await app.inject({
       method: 'GET',
-      url: `/providers/fitbit/${seededUser.id}`,
+      url: `/providers/fitbit/auth/${seededUser.id}`,
       headers: authHeaders
     })
 
