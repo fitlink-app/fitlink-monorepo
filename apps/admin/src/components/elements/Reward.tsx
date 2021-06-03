@@ -4,7 +4,7 @@ import Card from './Card'
 export type RewardProps = {
   className?: string
   image?: string
-  company: string
+  brand: string
   shortDescription: string
   points: number
   expires: string
@@ -14,7 +14,7 @@ export type RewardProps = {
 export default function Reward({
   className = '',
   image = '',
-  company,
+  brand,
   shortDescription,
   points,
   expires,
@@ -25,7 +25,7 @@ export default function Reward({
       <div className="card__background" style={{backgroundImage: `url(${image})`}} />
       <div className="card__bottom">
         <h3 className="h5">
-          <small>{company}</small>
+          <small>{brand}</small>
           {shortDescription}
         </h3>
       </div>

@@ -1,0 +1,30 @@
+{
+  "results": [
+    {
+      "image": "https://storage.googleapis.com/download/storage/v1/b/fitlink-rn.appspot.com/o/reward_images%2F2VRDoMV35ChDkZkFOPQx%2Fimage_original.jpg?generation=1621587914626828&alt=media",
+      "brand": "Halo Fitness",
+      "shortDescription": "Exclusive discount with Fitlink",
+      "points": 105,
+      "expires": "2021-12-31T02:00:00.220Z",
+      "claimed": 0
+    },
+    {
+      "image": "https://storage.googleapis.com/download/storage/v1/b/fitlink-rn.appspot.com/o/reward_images%2F3OtyurXUpjEwdZx9XcRi%2Fimage_original.jpg?generation=1614165731753616&alt=media",
+      "brand": "Suunto",
+      "shortDescription": "Exclusive Reward by Suunto",
+      "points": 200,
+      "expires": "2021-12-31T02:00:00.220Z",
+      "claimed": 1
+    },
+    {
+      "image": "https://storage.googleapis.com/download/storage/v1/b/fitlink-rn.appspot.com/o/reward_images%2FD2j5CKVsBidaoOUl0D12%2Fimage_original.jpg?generation=1614166150482523&alt=media",
+      "brand": "Ribble Cycles",
+      "shortDescription": "Off all products",
+      "points": 110,
+      "expires": "2021-12-31T02:00:00.220Z",
+      "claimed": 2
+    }
+  ],
+  "total": 1,
+  "page_total": 1
+}
