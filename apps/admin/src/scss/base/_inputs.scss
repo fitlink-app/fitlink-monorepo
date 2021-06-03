@@ -25,6 +25,10 @@ input:not([type="checkbox"]), select {
   height: 2.75rem;
 }
 
+textarea {
+  line-height: 1.2em;
+}
+
 .react-select {
   input {
     height: auto;

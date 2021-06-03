@@ -6,7 +6,7 @@ const Template: Story<RewardProps> = (args) => <Reward {...args} />
 export const Default = Template.bind({})
 Default.args = {
   image: 'https://picsum.photos/id/1080/760',
-  company: 'Kauai',
+  brand: 'Kauai',
   shortDescription: 'Small Health Drink',
   points: 200,
   expires: '2021-05-30T07:22:48.220Z',

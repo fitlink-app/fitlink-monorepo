@@ -7,7 +7,7 @@ export type InputProps = {
   placeholder?: string
   name: string
   value?: any
-  changed?: (e:any) => void
+  onChange?: (e:any) => void
   rows?: number
   className?: string
 }
@@ -19,7 +19,7 @@ export default function Input({
   placeholder = '',
   name,
   value = '',
-  changed = (e:any) => null,
+  onChange = () => null,
   rows = 5
 }: InputProps) {
 
@@ -29,12 +29,12 @@ export default function Input({
     [className]: className
   })
 
-/*   useEffect(() => {
+  useEffect(() => {
     setVal(value)
-  }, [value]) */
+  }, [value])
 
   const handleChange = (e) => {
-    changed(e.target.value)
+    onChange(e.target.value)
     setVal(e.target.value)
   }
 
