@@ -7,6 +7,7 @@ input:not([type="checkbox"]), textarea, select {
   -webkit-appearance: none;
   display: inline-block;
   margin: 0.5rem 0;
+  resize: none;
 
   &:focus, &:active {
     outline: none;
@@ -91,4 +92,16 @@ select[multiple] {
 }
 :-moz-placeholder {
   color: #ccc;
+}
+
+.icon-button {
+  border: none;
+  background: none;
+  padding: 0;
+  display: inline-block;
+  cursor: pointer;
+
+  &:active, &:focus {
+    color: $primary;
+  }
 }
