@@ -1,125 +1,90 @@
-import { CreateActivityDto } from 'apps/api/src/modules/activities/dto/create-activity.dto'
-import { CreateOrganisationDto } from 'apps/api/src/modules/organisations/dto/create-organisation.dto'
-import { CreateTeamDto } from 'apps/api/src/modules/teams/dto/create-team.dto'
+import { CreateOrganisationDto } from '../../api/src/modules/organisations/dto/create-organisation.dto'
+import { UpdateOrganisationDto } from '../../api/src/modules/organisations/dto/update-organisation.dto'
+import { CreateTeamDto } from '../../api/src/modules/teams/dto/create-team.dto'
+import { UpdateTeamDto } from '../../api/src/modules/teams/dto/update-team.dto'
 import { Activity } from '../../api/src/modules/activities/entities/activity.entity'
+import { CreateActivityDto } from '../../api/src/modules/activities/dto/create-activity.dto'
+import { UpdateActivityDto } from '../../api/src/modules/activities/dto/update-activity.dto'
 import { Organisation } from '../../api/src/modules/organisations/entities/organisation.entity'
 import { Team } from '../../api/src/modules/teams/entities/team.entity'
-import { AuthLoginDto } from '../../api/src/modules/auth/dto/auth-login'
-import { AuthResultDto } from '../../api/src/modules/auth/dto/auth-result'
-import { User } from '../../api/src/modules/users/entities/user.entity'
+import {
+  AuthLoginDto,
+  AuthRefreshDto
+} from '../../api/src/modules/auth/dto/auth-login'
+import {
+  AuthResultDto,
+  AuthLogoutDto
+} from '../../api/src/modules/auth/dto/auth-result'
+// import { User } from '../../api/src/modules/users/entities/user.entity'
 
-export type ListParams = {
+export type { AuthResultDto, AuthLogoutDto, AuthLoginDto }
+
+type Payload<T> = NodeJS.Dict<any> & {
+  payload?: T
+}
+
+export type AuthLogin = '/auth/login'
+export type AuthLogout = '/auth/logout'
+export type AuthRefresh = '/auth/refresh'
+export type CreatableResource = AuthLogin | AuthLogout | AuthRefresh
+
+export type ListResource =
+  | '/organisations'
+  | '/organisations/:organisationId/activities'
+  | '/organisations/:organisationId/teams'
+  | '/teams/:teamId/activities'
+
+export type ReadResource =
+  | '/organisations/:organisationId'
+  | '/organisations/:organisationId/activities/:activityId'
+  | '/organisations/:organisationId/teams/:teamId'
+  | '/teams/:teamId'
+  | '/teams/:teamId/activities/:activityId'
+
+export type CreateResourceParams<T> = T extends Organisation
+  ? Payload<CreateOrganisationDto>
+  : T extends Team
+  ? Payload<CreateTeamDto>
+  : T extends Activity
+  ? Payload<CreateActivityDto>
+  : T extends AuthLogin
+  ? Payload<AuthLoginDto>
+  : T extends AuthRefresh
+  ? Payload<AuthRefreshDto>
+  : T extends AuthLogout
+  ? Payload<{}>
+  : never
+
+export type CreatableResourceResponse<T> = T extends AuthLogin
+  ? AuthResultDto
+  : T extends AuthRefresh
+  ? AuthResultDto
+  : T extends AuthLogout
+  ? { success: true }
+  : never
+
+export type UpdateResourceParams<T> = T extends Organisation
+  ? Payload<UpdateOrganisationDto>
+  : T extends Team
+  ? Payload<UpdateTeamDto>
+  : T extends Activity
+  ? Payload<UpdateActivityDto>
+  : never
+
+export type ResourceParams = NodeJS.Dict<string>
+
+export type ListParams = NodeJS.Dict<any> & {
   limit?: number
   page?: number
-  params?: NodeJS.Dict<any>
+  query?: NodeJS.Dict<any>
 }
 
-type ListOrganisations = '/organisations'
-type ListActivities = '/organisations/:organisationId/activities'
-type ListTeams = '/organisations/:organisationId/teams'
-type ListUsers = '/users'
-type SingleOrganisation = '/organisations/:organisationId'
-type SingleOrganisationActivity = '/organisations/:organisationId/activities/:activityId'
-type SingleOrganisationTeam = '/organisations/:organisationId/teams/:teamId'
-type AuthLogin = '/auth/login'
-type AuthLogout = '/auth/logout'
-
-type Me = '/me'
-type MyLeagues = '/me/leagues'
-
-type ListOrganisationsParams = ListParams
-type ListActivitiesParams = ListParams & {
-  params: {
-    organisationId: string
-  }
-}
-
-type SingleOrganisationParams = { organisationId: string }
-type SingleOrganisationTeamParams = SingleOrganisationParams & {
-  teamId: string
-}
-type SingleOrganisationActivityParams = SingleOrganisationParams & {
-  activityId: string
-}
-
-export type ListResource = ListOrganisations | ListActivities | ListUsers
-export type AuthResource = AuthLogin | AuthLogout
-
-export type SingleResource =
-  | SingleOrganisation
-  | SingleOrganisationActivity
-  | SingleOrganisationTeam
-  | Me
-
-export type CreateResource = CreateOrganisationDto | CreateActivityDto
-
-type ListResponse = {
-  page_total: number
+export type ListResponse<T> = {
   total: number
+  page_total: number
+  results: T[]
 }
 
-type ListResponseOrganisations = ListResponse & {
-  results: Organisation[]
+export type DeleteResult = {
+  affected: number
 }
-
-type ListResponseActivities = ListResponse & {
-  results: Activity[]
-}
-
-export type ListResourceParams<T> = T extends ListActivities
-  ? ListActivitiesParams
-  : T extends ListOrganisations
-  ? ListOrganisationsParams
-  : never
-
-export type SingleResourceParams<T> = T extends SingleOrganisation
-  ? SingleOrganisationParams
-  : T extends SingleOrganisationActivity
-  ? SingleOrganisationActivityParams
-  : T extends SingleOrganisationTeam
-  ? SingleOrganisationTeamParams
-  : T extends Me
-  ? never
-  : never
-
-export type CreateResourceParams<T> = T extends ListOrganisations
-  ? CreateOrganisationDto
-  : T extends ListActivities
-  ? CreateActivityDto
-  : T extends ListTeams
-  ? CreateTeamDto
-  : T extends AuthLogin
-  ? AuthLoginDto
-  : never
-
-export type UpdateResourceParams<T> = T extends SingleOrganisation
-  ? SingleOrganisationParams
-  : never
-
-export type ApiResponse<T> = T extends ListActivities
-  ? ListResponseActivities
-  : T extends ListOrganisations
-  ? ListResponseOrganisations
-  : T extends SingleOrganisation
-  ? Organisation
-  : T extends SingleOrganisationActivity
-  ? Activity
-  : T extends SingleOrganisationTeam
-  ? Team
-  : T extends Me
-  ? User
-  : never
-
-export type ApiCreateResponse<T> = T extends ListActivities
-  ? Activity
-  : T extends ListOrganisations
-  ? Organisation
-  : T extends ListTeams
-  ? Team
-  : T extends AuthLogin
-  ? AuthResultDto
-  : never
-
-export type ApiUpdateResponse<T> = T extends SingleOrganisation
-  ? Partial<Organisation>
-  : never

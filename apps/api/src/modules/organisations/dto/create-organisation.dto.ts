@@ -18,11 +18,11 @@ export class CreateOrganisationDto {
 
   @ApiProperty()
   @IsOptional()
-  timezone: string
+  timezone?: string
 
   @ApiProperty()
   @IsOptional()
-  avatar: Image
+  avatar?: Image
 
   @ApiProperty()
   @IsOptional()

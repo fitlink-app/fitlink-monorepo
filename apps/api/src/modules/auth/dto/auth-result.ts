@@ -3,3 +3,7 @@ export type AuthResultDto = {
   access_token: string
   refresh_token: string
 }
+
+export type AuthLogoutDto = {
+  success: boolean
+}
