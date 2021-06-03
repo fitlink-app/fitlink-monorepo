@@ -45,6 +45,7 @@ export default function components() {
                   value="8,134"
                   goal="10,000"
                   label="Average daily steps"
+                  color="#4EF0C2"
                 />
               </div>
               <div className="col-4 text-center">
@@ -54,6 +55,7 @@ export default function components() {
                   value="6"
                   goal="8"
                   label="Average hours slept"
+                  color="#7CF5AB"
                 />
               </div>
             </div>
@@ -65,6 +67,7 @@ export default function components() {
                   value="3"
                   goal="10"
                   label="Average mindful minutes"
+                  color="#A6F893"
                 />
               </div>
               <div className="col-4 text-center">
@@ -74,6 +77,7 @@ export default function components() {
                   value="14"
                   goal="11"
                   label="Average floors climbed"
+                  color="#7CF5AB"
                 />
               </div>
               <div className="col-4 text-center">
@@ -83,6 +87,7 @@ export default function components() {
                   value="1"
                   goal="2L"
                   label="Average water intake"
+                  color="#4EF0C2"
                 />
               </div>
               
