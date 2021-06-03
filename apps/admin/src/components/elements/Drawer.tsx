@@ -5,11 +5,13 @@ import IconClose from '../icons/IconClose'
 export type DrawerProps = {
   children: React.ReactNode
   warnBeforeClose?: boolean
+  onClose?: () => void
 }
 
 export default function Drawer({
   children,
-  warnBeforeClose = false
+  warnBeforeClose = false,
+  onClose
 }) {
   const node = useRef()
   const [open, setOpen] = useState(false)
@@ -20,7 +22,8 @@ export default function Drawer({
   }, [children])
 
   const handleClickOutside = e => {
-    if (node.current.contains(e.target)) {
+    const ref = node.current || null
+    if (ref.contains(e.target)) {
       return;
     }
     if (warnBeforeClose) {
@@ -36,6 +39,9 @@ export default function Drawer({
       document.addEventListener('mousedown', handleClickOutside)
     } else {
       document.removeEventListener('mousedown', handleClickOutside)
+      setTimeout(function() {
+        onClose()
+      }, 150)
     }
 
     return () => {
