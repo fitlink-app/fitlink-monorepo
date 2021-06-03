@@ -18,51 +18,51 @@ export default function MainMenu() {
       <MenuItem
         to="/dashboard"
         label="Overview"
-        current={current === '/dashboard'}
+        current={current.startsWith('/dashboard')}
         icon={ <IconGraph /> }
         />
       <MenuItem
         to="/users"
         label="User stats"
-        current={current === '/users'}
+        current={current.startsWith('/users')}
         icon={ <IconFriends /> }
         />
       <MenuItem
         to="/rewards"
         label="Rewards"
-        current={current === '/rewards'}
+        current={current.startsWith('/rewards')}
         icon={ <IconRewards /> }
         />
       <MenuItem
         to="/leagues"
         label="Leagues"
-        current={current === '/leagues'}
+        current={current.startsWith('/leagues')}
         icon={ <IconLeagues /> }
         />
       <MenuItem
         to="/activities"
         label="Activities"
-        current={current === '/activities'}
+        current={current.startsWith('/activities')}
         icon={ <IconActivities /> }
         />
       <hr />
       <MenuItem
         to="/knowledge-base"
         label="Knowledge base"
-        current={current === '/knowledge-base'}
+        current={current.startsWith('/knowledge-base')}
         icon={ <IconYoga /> }
         />
       <hr />
       <MenuItem
         to="/settings"
         label="Account settings"
-        current={current === '/settings'}
+        current={current.startsWith('/settings')}
         icon={ <IconGear /> }
         />
       <MenuItem
         to="/billing"
         label="Billing"
-        current={current === '/billing'}
+        current={current.startsWith('/billing')}
         icon={ <IconCreditCard /> }
         />
       <hr />
