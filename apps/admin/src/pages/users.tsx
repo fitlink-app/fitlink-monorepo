@@ -1,14 +1,26 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import Dashboard from '../components/layouts/Dashboard'
 import TableContainer from '../components/table/TableContainer'
 import { toChipCell, toDateCell, toLocaleCell } from '../components/table/helpers'
 import Drawer from '../components/elements/Drawer'
+import Link from 'next/link'
+import Input from '../components/elements/Input'
+import IconSearch from '../components/icons/IconSearch'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dummy = require('../services/dummy/users.json')
 
-export default function components() {
+export default function users() {
   const [drawContent, setDrawContent] = useState<React.ReactNode | undefined | false>(false)
+  const [userMsg, setUserMsg] = useState('')
+
+  useEffect(() => {
+    console.log('updated', userMsg)
+  }, [userMsg])
+
+  const sendMessage = () => {
+    console.log(userMsg)
+  }
   
   const displayImage = ({
     cell: {
@@ -44,10 +56,20 @@ export default function components() {
     }
   }) => {
     return (
-      <button onClick={() => {
+      <button className="icon-button" onClick={() => {
         setDrawContent(
           <div className="">
             <h4 className="light mb-3">User details</h4>
+            <Input
+              label="Send this user a message"
+              name="message"
+              value={userMsg}
+              type="textarea"
+              changed={ setUserMsg }
+              />
+            <div className="text-right mb-3">
+              <button onClick={ sendMessage } className="button">Send</button>
+            </div>
             <h6>Date joined</h6>
             <p>{ format(new Date(date_joined), 'yyyy-MM-dd H:m:s OOOO') }</p>
             <hr className="tight" />
@@ -79,7 +101,9 @@ export default function components() {
             <p>{ rewards }</p>
           </div>
         )
-      }}>View</button>
+      }}>
+        <IconSearch width="24px" height="24px" />
+      </button>
     )
   }
 
@@ -87,8 +111,17 @@ export default function components() {
     <Dashboard
       title="Users"
       >
-      <h1 className="light">User performance</h1>
-      <p>To comply with GDPA regulations, user information is annonymous.</p>
+      <div className="row ai-c">
+        <div className="col">
+          <h1 className="light mb-0">User performance</h1>
+        </div>
+        <div className="col text-right">
+          <Link href="/settings/users">
+            <a className="button alt">Manage users</a>
+          </Link>
+        </div>
+      </div>
+      <p className="mt-1">To comply with GDPA regulations, user information is annonymous.</p>
       <div className="mt-4 overflow-x-auto">
         <TableContainer
           columns={[
@@ -98,10 +131,8 @@ export default function components() {
             { Header: 'Tracker', accessor: 'tracker' },
             { Header: 'Total Points', accessor: 'points', Cell: toLocaleCell },
             { Header: 'Rank', accessor: 'rank', Cell: toChipCell },
-            //{ Header: 'Last app session', accessor: 'last_session', Cell: toDateCell },
             { Header: 'Last activity', accessor: 'last_activity' },
             { Header: 'Total leagues', accessor: 'total_leagues' },
-            //{ Header: 'Leagues created', accessor: 'created_leagues' },
             { Header: 'Reward redeemed', accessor: 'rewards', Cell: toLocaleCell },
             { Header: 'View', Cell: viewDetails }
           ]}
@@ -116,17 +147,3 @@ export default function components() {
     </Dashboard>
   )
 }
-/*
-OS or Android
-Version they have installed
-Trackers they have connected
-Total points
-Date joined
-Last app session
-Last activity tracked
-How many leagues they are in
-How many leagues they created
-How many rewards they redeemed
-What rewards they redeemed
-How many activities they created
-*/
