@@ -35,7 +35,6 @@ export class UserRolesController {
    * @param userId
    * @returns
    */
-  @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
   @Delete('me/roles/:roleId')
   @DeleteResponse()
   removeMyRole(
