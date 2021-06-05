@@ -23,6 +23,10 @@ type Payload<T> = NodeJS.Dict<any> & {
   payload?: T
 }
 
+type FilePayload = NodeJS.Dict<any> & {
+  payload: FormData
+}
+
 export type AuthLogin = '/auth/login'
 export type AuthLogout = '/auth/logout'
 export type AuthRefresh = '/auth/refresh'
@@ -32,14 +36,67 @@ export type ListResource =
   | '/organisations'
   | '/organisations/:organisationId/activities'
   | '/organisations/:organisationId/teams'
+  | '/organisations/:organisationId/subscriptions'
+  | '/organisations/:organisationId/invitations'
+  | '/organisations/:organisationId/rewards'
+  | '/organisations/:organisationId/leagues'
+  | '/organisations/:organisationId/leagues/:leagueId/leaderboards'
   | '/teams/:teamId/activities'
+  | '/teams/:teamId/invitations'
+  | '/teams/:teamId/rewards'
+  | '/teams/:teamId/rewards/:rewardId/redemptions'
+  | '/teams/:teamId/users'
+  | '/teams/:teamId/users/:userId/roles'
+  | '/teams/:teamId/leagues'
+  | '/teams/:teamId/leagues/:leagueId/leaderboards'
+  | '/activities'
+  | '/rewards'
+  | '/rewards/:rewardId/redemptions'
+  | '/queue'
+  | '/sports'
+  | '/subscriptions'
+  | '/users-invitations'
+  | '/leagues'
+  | '/me'
+  | '/me/activities'
+  | '/me/teams'
+  | '/me/invitations'
+  | '/me/rewards'
+  | '/me/leagues'
+  | '/me/followers'
+  | '/me/following'
+  | '/me/settings'
+  | '/me/roles'
+  | '/me/providers'
+  | '/me/goals'
+  | '/me/feed'
 
 export type ReadResource =
   | '/organisations/:organisationId'
   | '/organisations/:organisationId/activities/:activityId'
   | '/organisations/:organisationId/teams/:teamId'
+  | '/organisations/:organisationId/subscriptions/:subscriptionId'
+  | '/organisations/:organisationId/invitations/:invitationId'
+  | '/organisations/:organisationId/leagues/:leagueId'
   | '/teams/:teamId'
   | '/teams/:teamId/activities/:activityId'
+  | '/teams/:teamId/invitations/:invitationId'
+  | '/teams/:teamId/rewards/:rewardId'
+  | '/teams/:teamId/users/:userId'
+  | '/teams/:teamId/users/:userId/roles/:roleId'
+  | '/teams/:teamId/leagues/:leagueId'
+  | '/teams/:teamId/leagues/:leagueId/leaderboards/:leaderboardId'
+  | '/activities/:activityId'
+  | '/rewards/:rewardId'
+  | '/leagues/:leagueId'
+  | '/queue/:queueId'
+  | '/sports/:sportId'
+  | '/subscriptions/:subscriptionId'
+  | '/users-invitations/:invitationId'
+  | '/me'
+  | '/me/feed/:feedItemId'
+
+export type UploadResource = '/images'
 
 export type CreateResourceParams<T> = T extends Organisation
   ? Payload<CreateOrganisationDto>
@@ -54,6 +111,8 @@ export type CreateResourceParams<T> = T extends Organisation
   : T extends AuthLogout
   ? Payload<{}>
   : never
+
+export type UploadResourceParams = FilePayload
 
 export type CreatableResourceResponse<T> = T extends AuthLogin
   ? AuthResultDto

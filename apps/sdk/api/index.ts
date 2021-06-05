@@ -2,11 +2,13 @@ import { AxiosInstance, AxiosError } from 'axios'
 import {
   ListResource,
   ReadResource,
+  UploadResource,
   ResourceParams,
   CreateResourceParams,
   UpdateResourceParams,
   CreatableResource,
   CreatableResourceResponse,
+  UploadResourceParams,
   ListParams,
   ListResponse,
   AuthLoginDto,
@@ -312,6 +314,23 @@ export class Api {
   }
 
   /**
+   * Upload a file
+   * @param url
+   * @param params
+   * @returns the file entity
+   */
+  async uploadFile<T>(url: UploadResource, params: UploadResourceParams) {
+    const response = await this.axios.post(
+      this.applyParams(url, params),
+      params.formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      }
+    )
+    return response.data as T
+  }
+
+  /**
    * Constructs the url by replacing passed parameters
    *
    * @param url e.g. "/organisations/:organisationId"
@@ -319,7 +338,7 @@ export class Api {
    * @returns string (url)
    */
   applyParams(
-    url: ListResource | ReadResource | CreatableResource,
+    url: ListResource | ReadResource | CreatableResource | UploadResource,
     params: NodeJS.Dict<any> = {}
   ) {
     const { payload, ...rest } = params

@@ -25,6 +25,8 @@ import { UserRole } from '../../user-roles/entities/user-role.entity'
 import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
 import { TeamsInvitation } from '../../teams-invitations/entities/teams-invitation.entity'
 import { Activity } from '../../activities/entities/activity.entity'
+import { ApiProperty } from '@nestjs/swagger'
+import { Exclude } from 'class-transformer'
 
 export enum UnitSystem {
   Metric = 'metric',
@@ -37,11 +39,13 @@ export enum UserRank {
 
 @Entity()
 export class User extends CreatableEntity {
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string
 
   /** Don't allow this column to be read automatically in future */
   @Column()
+  @Exclude()
   password: string
 
   // JoinTable / Cascade is on League entity
@@ -60,6 +64,7 @@ export class User extends CreatableEntity {
   })
   refresh_tokens: RefreshToken[]
 
+  @ApiProperty()
   @Column({
     type: 'enum',
     enum: UnitSystem,
@@ -67,16 +72,19 @@ export class User extends CreatableEntity {
   })
   unit_system: UnitSystem
 
+  @ApiProperty()
   @Column({
     default: false
   })
   onboarded: boolean
 
+  @ApiProperty()
   @Column({
     nullable: true
   })
   last_onboarded_at: Date
 
+  @ApiProperty()
   @Column({
     default: 'Etc/UTC'
   })
@@ -86,21 +94,25 @@ export class User extends CreatableEntity {
   @ManyToMany(() => Team, (team) => team.users)
   teams: Team[]
 
+  @ApiProperty()
   @Column({
     nullable: true
   })
   last_login_at: Date
 
+  @ApiProperty()
   @Column({
     nullable: true
   })
   last_app_opened_at: Date
 
+  @ApiProperty()
   @Column({
     nullable: true
   })
   last_health_activity_at: Date
 
+  @ApiProperty()
   @Column({
     nullable: true
   })
@@ -113,6 +125,9 @@ export class User extends CreatableEntity {
   @JoinColumn()
   avatar: Image
 
+  @ApiProperty({
+    type: UsersSetting
+  })
   @OneToOne(() => UsersSetting, (setting) => setting.user, {
     cascade: ['remove'],
     onDelete: 'CASCADE'
@@ -174,53 +189,77 @@ export class User extends CreatableEntity {
   @OneToMany(() => Activity, (activity) => activity.user)
   activities: Activity[]
 
+  @ApiProperty()
   @Column()
   name: string
 
+  @ApiProperty()
   @Column({
     unique: true
   })
   email: string
 
+  @ApiProperty()
   @Column({
     default: UserRank.Newbie
   })
   rank: UserRank
 
+  @ApiProperty()
   @Column({
     default: 0
   })
   points_total: number
 
+  @ApiProperty()
   @Column({
     default: 0
   })
   points_week: number
 
+  @ApiProperty()
   @Column({
     default: 0
   })
   goal_calories: number
 
+  @ApiProperty()
   @Column({
     default: 0
   })
   goal_steps: number
 
+  @ApiProperty()
   @Column({
     default: 0
   })
   goal_floors_climbed: number
 
+  @ApiProperty()
   @Column({
     type: 'float',
     default: 0
   })
   goal_water_litres: number
 
+  @ApiProperty()
   @Column({
     type: 'float',
     default: 0
   })
   goal_sleep_hours: number
+}
+
+export class UserPublic {
+  @ApiProperty()
+  id: string
+
+  @ApiProperty()
+  name: string
+
+  @ApiProperty()
+  avatar: Image
+
+  @ApiProperty()
+  points_total: number
 }

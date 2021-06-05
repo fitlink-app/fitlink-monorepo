@@ -42,7 +42,7 @@ describe('Followings', () => {
     const userAuthHeaders = getAuthHeaders({}, userData.user.id)
     const result = await app.inject({
       method: 'GET',
-      url: `/followings`,
+      url: `/me/following`,
       headers: userAuthHeaders
     })
     const json = result.json()
@@ -59,12 +59,12 @@ describe('Followings', () => {
   })
 
   // Getting following entities with all user's followers, returns array of results with pagination structure
-  it(`/GET  (200) followers`, async () => {
+  it(`/GET  (200) me/followers`, async () => {
     const userData = data.pop()
     const userAuthHeaders = getAuthHeaders({}, userData.user.id)
     const result = await app.inject({
       method: 'GET',
-      url: `/followings/followers`,
+      url: `/me/followers`,
       headers: userAuthHeaders
     })
     const json = result.json()
@@ -89,7 +89,7 @@ describe('Followings', () => {
     } as CreateFollowingDto
     const result = await app.inject({
       method: 'POST',
-      url: `/followings`,
+      url: `/me/following`,
       headers: userAuthHeaders,
       payload
     })
@@ -106,7 +106,7 @@ describe('Followings', () => {
     } as CreateFollowingDto
     const result = await app.inject({
       method: 'POST',
-      url: `/followings`,
+      url: `/me/following`,
       headers: userAuthHeaders,
       payload
     })
@@ -123,7 +123,7 @@ describe('Followings', () => {
     } as CreateFollowingDto
     const result = await app.inject({
       method: 'POST',
-      url: `/followings`,
+      url: `/me/following`,
       headers: userAuthHeaders,
       payload
     })
@@ -141,7 +141,7 @@ describe('Followings', () => {
 
     const result = await app.inject({
       method: 'DELETE',
-      url: `/followings/${userData.target.id}`,
+      url: `/me/followings/${userData.target.id}`,
       headers: userAuthHeaders,
       payload
     })

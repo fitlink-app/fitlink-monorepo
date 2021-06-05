@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import { PrimaryGeneratedColumn, Column, Entity, OneToOne } from 'typeorm'
 
 import { CreatableEntity } from '../../../classes/entity/creatable'
@@ -18,6 +19,7 @@ export class UsersSetting extends CreatableEntity {
    * Subscribed to newsletters relating to usage of the app
    * (e.g. tips/tricks for fitness)
    */
+  @ApiProperty()
   @Column({
     default: false
   })
@@ -27,17 +29,24 @@ export class UsersSetting extends CreatableEntity {
    * Subscribed to newsletters relating to usage of the platform
    * (e.g. HR materials)
    */
+  @ApiProperty()
   @Column({
     default: false
   })
   newsletter_subscriptions_admin: boolean
 
+  @ApiProperty({
+    enum: PrivacySetting
+  })
   @Column({
     type: 'enum',
     enum: PrivacySetting
   })
   privacy_daily_statistics: PrivacySetting
 
+  @ApiProperty({
+    enum: PrivacySetting
+  })
   @Column({
     type: 'enum',
     enum: PrivacySetting

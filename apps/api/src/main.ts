@@ -1,5 +1,5 @@
 import { NestFactory, Reflector } from '@nestjs/core'
-import { ValidationPipe } from '@nestjs/common'
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common'
 import {
   FastifyAdapter,
   NestFastifyApplication
@@ -39,7 +39,15 @@ async function bootstrap() {
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup('api/v1', app, document)
+  SwaggerModule.setup('api/v1', app, document, {
+    swaggerOptions: {
+      uiConfig: {
+        operationsSorter: 'alpha'
+      }
+    }
+  })
+
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
 
   app.useGlobalPipes(
     new ValidationPipe({
