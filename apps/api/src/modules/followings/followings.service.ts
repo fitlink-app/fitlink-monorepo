@@ -44,7 +44,9 @@ export class FollowingsService {
       ...following
     })
 
-    return plainToClass(UserPublic, saved.following)
+    return plainToClass(UserPublic, saved.following, {
+      excludeExtraneousValues: true
+    })
   }
 
   /**
@@ -67,7 +69,11 @@ export class FollowingsService {
     })
 
     return new Pagination<UserPublic>({
-      results: results.map((each) => plainToClass(UserPublic, each.following)),
+      results: results.map((each) =>
+        plainToClass(UserPublic, each.following, {
+          excludeExtraneousValues: true
+        })
+      ),
       total
     })
   }
@@ -92,7 +98,11 @@ export class FollowingsService {
     })
 
     return new Pagination<UserPublic>({
-      results: results.map((each) => plainToClass(UserPublic, each.following)),
+      results: results.map((each) =>
+        plainToClass(UserPublic, each.following, {
+          excludeExtraneousValues: true
+        })
+      ),
       total
     })
   }

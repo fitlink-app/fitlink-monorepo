@@ -26,7 +26,7 @@ import { OrganisationsInvitation } from '../../organisations-invitations/entitie
 import { TeamsInvitation } from '../../teams-invitations/entities/teams-invitation.entity'
 import { Activity } from '../../activities/entities/activity.entity'
 import { ApiProperty } from '@nestjs/swagger'
-import { Exclude } from 'class-transformer'
+import { Exclude, Expose } from 'class-transformer'
 
 export enum UnitSystem {
   Metric = 'metric',
@@ -252,14 +252,18 @@ export class User extends CreatableEntity {
 
 export class UserPublic {
   @ApiProperty()
+  @Expose()
   id: string
 
   @ApiProperty()
+  @Expose()
   name: string
 
   @ApiProperty()
+  @Expose()
   avatar: Image
 
   @ApiProperty()
+  @Expose()
   points_total: number
 }

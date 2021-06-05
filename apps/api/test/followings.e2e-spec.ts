@@ -47,8 +47,12 @@ describe('Followings', () => {
     })
     const json = result.json()
     expect(result.statusCode).toEqual(200)
-    expect(Object.keys(json.results[0]).sort()).toEqual(
-      Object.keys(seed[0]).sort()
+    expect(Object.keys(json.results[0])).toEqual(
+      Object.keys({
+        id: 1,
+        name: 1,
+        points_total: 1
+      }).sort()
     )
     expect(json.page_total).toBeGreaterThanOrEqual(1)
     expect(json.total).toEqual(
@@ -69,8 +73,12 @@ describe('Followings', () => {
     })
     const json = result.json()
     expect(result.statusCode).toEqual(200)
-    expect(Object.keys(json.results[0]).sort()).toEqual(
-      Object.keys(seed[0]).sort()
+    expect(Object.keys(json.results[0])).toEqual(
+      Object.keys({
+        id: 1,
+        name: 1,
+        points_total: 1
+      }).sort()
     )
     expect(json.page_total).toBeGreaterThanOrEqual(1)
     expect(json.total).toEqual(
