@@ -104,4 +104,42 @@ export class SubscriptionsController {
     return this.subscriptionsService.removeUser(orgId, subId, userId)
   }
 
+  @Iam(Roles.SubscriptionAdmin)
+  @Post('/organisations/:organisationId/subscriptions/:subscriptionId/billing')
+  setupBilling(
+    @Param('organisationId') orgId: string,
+    @Param('subscriptionId') subId: string
+  ) {
+    return this.subscriptionsService.setupBilling(orgId, subId)
+  }
+
+  @Iam(Roles.SubscriptionAdmin)
+  @Post('/organisations/:organisationId/subscriptions/:subscriptionId/billing/chargebee')
+  createChargebeePlan(
+    @Param('organisationId') orgId: string,
+    @Param('subscriptionId') subId: string
+  ) {
+    return this.subscriptionsService.setupBilling(orgId, subId, true)
+  }
+
+  @Iam(Roles.SubscriptionAdmin)
+  @Get('/organisations/:organisationId/subscriptions/:subscriptionId/billing/:customerId')
+  getChargebeePlan(
+    @Param('organisationId') orgId: string,
+    @Param('subscriptionId') subId: string,
+    @Param('customerId') customerId: string
+  ) {
+    return this.subscriptionsService.getChargebeePlan(orgId, subId, customerId)
+  }
+
+  @Iam(Roles.SubscriptionAdmin)
+  @Delete('/organisations/:organisationId/subscriptions/:subscriptionId/billing/:customerId')
+  removeChargebeePlan(
+    @Param('organisationId') orgId: string,
+    @Param('subscriptionId') subId: string,
+    @Param('customerId') customerId: string
+  ) {
+    return this.subscriptionsService.removeChargebeePlan(orgId, subId, customerId)
+  }
+
 }
