@@ -12,23 +12,12 @@ import {
 import { map } from 'rxjs/operators'
 import { ProvidersService } from '../../providers.service'
 import { ProviderType } from '../../entities/provider.entity'
-import { AuthenticatedUser } from '../../../../models'
 import { ConfigService } from '@nestjs/config'
-
-export interface StravaCallbackResponse {
-  expires_at: number
-  refresh_token: string
-  access_token: string
-  athlete: {
-    id: string
-  }
-}
-
-export interface StravaRefreshTokenResponse {
-  expires_at: number
-  refresh_token: string
-  access_token: string
-}
+import {
+  StravaEventData,
+  StravaCallbackResponse,
+  StravaRefreshTokenResponse
+} from '../../types/strava'
 
 @Injectable()
 export class StravaService {
@@ -38,12 +27,17 @@ export class StravaService {
     private providersService: ProvidersService
   ) {}
 
-  stravaConfig(param: 'id' | 'secret' | 'uri' | 'scopes') {
+  processStravaData(stravaEventData: StravaEventData) {
+    console.log(`Strava Events Data`, stravaEventData)
+  }
+
+  stravaConfig(param: 'id' | 'secret' | 'uri' | 'scopes' | 'verify_token') {
     const config = {
       id: this.configService.get('STRAVA_CLIENT_ID'),
       secret: this.configService.get('STRAVA_CLIENT_SECRET'),
       uri: this.configService.get('STRAVA_REDIRECT_URI'),
-      scopes: this.configService.get('STRAVA_SCOPES')
+      scopes: this.configService.get('STRAVA_SCOPES'),
+      verify_token: this.configService.get('STRAVA_VERIFY_STRING')
     }
     return config[param]
   }
@@ -121,6 +115,14 @@ export class StravaService {
       return { revoked_token: result.access_token }
     } catch (err) {
       throw new BadRequestException(err.message)
+    }
+  }
+
+  verifyWebhook(token: string, challenge: string) {
+    if (token !== this.stravaConfig('verify_token')) {
+      throw new BadRequestException(`Unauthorized request for verfication`)
+    } else {
+      return { 'hub.challenge': challenge }
     }
   }
 

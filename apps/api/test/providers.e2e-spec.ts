@@ -2,14 +2,8 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Connection } from 'typeorm'
 import { useSeeding } from 'typeorm-seeding'
 import { ProvidersModule } from '../src/modules/providers/providers.module'
-import {
-  FitbitService,
-  FitbitAuthResponse
-} from '../src/modules/providers/providers/fitbit/fitbit.service'
-import {
-  StravaCallbackResponse,
-  StravaService
-} from '../src/modules/providers/providers/strava/strava.service'
+import { FitbitService } from '../src/modules/providers/providers/fitbit/fitbit.service'
+import { StravaService } from '../src/modules/providers/providers/strava/strava.service'
 import { User } from '../src/modules/users/entities/user.entity'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
@@ -21,6 +15,8 @@ import {
   ProvidersTeardown,
   SeedProviderToUser
 } from './seeds/providers.seed'
+import { FitbitAuthResponse } from '../src/modules/providers/types/fitbit'
+import { StravaCallbackResponse } from '../src/modules/providers/types/strava'
 const {
   STRAVA_CLIENT_ID,
   STRAVA_CLIENT_SECRET,
@@ -58,9 +54,9 @@ describe('Providers', () => {
     await app.close()
   })
 
-  it('GET /providers/strava/auth/:userId Get OAuth URL', async () => {
+  it('GET /providers/strava/auth Get OAuth URL', async () => {
     const data = await app.inject({
-      url: `/providers/strava/auth/${seededUser.id}`,
+      url: `/providers/strava/auth`,
       method: 'GET',
       headers: authHeaders
     })
@@ -130,7 +126,7 @@ describe('Providers', () => {
     stravaService.revokeToken.mockReturnValue({ access_token: provider.token })
     const data = await app.inject({
       method: 'GET',
-      url: `/providers/strava/${seededUser.id}/revokeToken`,
+      url: `/providers/strava/revokeToken`,
       headers: authHeaders
     })
 
@@ -149,6 +145,7 @@ describe('Providers', () => {
     }
 
     fitbitService.exchangeToken = jest.fn()
+    fitbitService.createPushSubscription = jest.fn()
     fitbitService.exchangeToken.mockReturnValue(fitbitApiMockData)
     const data = await app.inject({
       method: 'GET',
@@ -175,7 +172,7 @@ describe('Providers', () => {
     fitbitService.getFreshFitbitToken.mockReturnValue(provider.token)
     const data = await app.inject({
       method: 'GET',
-      url: `/providers/strava/${seededUser.id}/revokeToken`,
+      url: `/providers/fitbit/revokeToken`,
       headers: authHeaders
     })
 
@@ -187,7 +184,7 @@ describe('Providers', () => {
   it('GET /providers/fitbit/auth/:userId', async () => {
     const data = await app.inject({
       method: 'GET',
-      url: `/providers/fitbit/auth/${seededUser.id}`,
+      url: `/providers/fitbit/auth`,
       headers: authHeaders
     })
 
@@ -207,13 +204,13 @@ describe('Providers', () => {
     expect(parsedQueryValues.state).toBe(seededUser.id)
   })
 
-  it('GET /providers/users/:userId', async () => {
+  it('GET /providers/users/', async () => {
     await SeedProviderToUser(seededUser.id, 'fitbit')
     await SeedProviderToUser(seededUser.id, 'strava')
     const data = await app.inject({
       method: 'GET',
       headers: authHeaders,
-      url: `/providers/users/${seededUser.id}`
+      url: `/providers/users`
     })
 
     const firstResult = data.json()[0]

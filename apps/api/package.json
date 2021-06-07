@@ -63,6 +63,7 @@
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
+    "axios": "^0.21.1",
     "babel-loader": "^8.2.2",
     "chalk": "^4.1.0",
     "chargebee-typescript": "^2.0.9",
