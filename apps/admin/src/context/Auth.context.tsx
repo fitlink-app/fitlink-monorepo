@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { makeApi, Api } from '../../../sdk/api'
+import { makeApi, Api } from '@fitlink/api-sdk'
 import Axios from 'axios'
-import { User } from '../../../api/src/modules/users/entities/user.entity'
+import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 
 const axios = Axios.create({
   baseURL: 'http://localhost:3001/api/v1'
@@ -24,7 +24,7 @@ export type AuthContext = {
 export const AuthContext = React.createContext({} as AuthContext)
 
 export function AuthProvider({ children }) {
-  const [state, setState] = useState<AuthContext>({})
+  const [state, setState] = useState<AuthContext>()
 
   async function login({ email, password }) {
     await api.login({
@@ -42,6 +42,10 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     await api.logout()
+    setState({
+      ...state,
+      user: null
+    })
   }
 
   return (

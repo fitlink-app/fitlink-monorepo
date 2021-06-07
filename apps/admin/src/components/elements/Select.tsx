@@ -1,7 +1,7 @@
 import ReactSelect, { Props } from 'react-select'
 import clsx from 'clsx'
 
-type SelectProps = Props & {
+export type SelectProps = Props & {
   id: string
   label?: string
   inline?: boolean
