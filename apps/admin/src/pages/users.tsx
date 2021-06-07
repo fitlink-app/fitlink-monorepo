@@ -122,7 +122,11 @@ export default function users() {
           fetch={() => Promise.resolve(dummy)}
         />
       </div>
-      <Drawer onClose={() => setDrawContent(null)}>{drawContent}</Drawer>
+      { drawContent &&
+        <Drawer remove={() => setDrawContent(null)}>
+          {drawContent}
+        </Drawer>
+      }
     </Dashboard>
   )
 }

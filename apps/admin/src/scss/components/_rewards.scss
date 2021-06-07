@@ -1,5 +1,26 @@
 .rewards {
+  margin: 0 -0.5rem;
   .flickity-viewport {
     overflow: visible;
+  }
+  .reward-wrap {
+    padding: 0.5rem;
+    width: 100%;
+
+    @media screen and (min-width: $medium) {
+      width: 50%;
+    }
+
+    @media screen and (min-width: $extraLarge) {
+      width: 33.33%;
+    }
+
+    @media screen and (min-width: 1600px) {
+      width: 25%;
+    }
+
+    @media screen and (min-width: $fhd) {
+      width: 20%;
+    }
   }
 }

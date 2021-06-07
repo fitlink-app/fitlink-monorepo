@@ -36,6 +36,10 @@ textarea {
   input {
     height: auto;
   }
+
+  .input-block--inline & {
+    width: 9rem !important;
+  }
 }
 
 select[multiple] {

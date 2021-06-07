@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import Dashboard from '../components/layouts/Dashboard'
 import Drawer from '../components/elements/Drawer'
 import Reward, { RewardProps } from '../components/elements/Reward'
-import 'flickity/dist/flickity.min.css'
+//import 'flickity/dist/flickity.min.css'
 import Select from '../components/elements/Select'
 import SortOrder from '../components/elements/SortOrder'
+import RewardDetails from '../components/elements/RewardDetails'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fitlinkRewards = require('../services/dummy/rewards-fitlink.json')
 
@@ -40,16 +41,16 @@ export default function components() {
     }
   ]
 
-  useEffect(() => {
+  /* useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    /* const Flickity = require('flickity')
+    const Flickity = require('flickity')
     const flick = new Flickity('.rewards', {
       prevNextButtons: false,
       pageDots: false,
       cellAlign: 'left',
       contain: true
-    }) */
-  }, [])
+    })
+  }, []) */
 
   useEffect(() => {
     const orig = JSON.parse(JSON.stringify(fitlinkRewards))
@@ -78,6 +79,12 @@ export default function components() {
     }
   }, [fitlinkRewards, sortOnFL, sortFL])
 
+  const loadReadonlyReward = (reward:any) => {
+    setDrawContent(
+      <RewardDetails {...reward} />
+    )
+  }
+
   return (
     <Dashboard title="Rewards">
       <div className="row ai-c mb-1">
@@ -97,6 +104,14 @@ export default function components() {
           <SortOrder value={sort} onChange={(e) => setSort(e)} />
         </div>
       </div>
+      <div className="rewards flex mb-4">
+        { sorted.map((r:RewardProps, i) => (
+          <div className="reward-wrap" key={`fl-r-${i}`}>
+            <Reward {...r} />
+          </div>
+        ))}
+      </div>
+
       <div className="row mb-3">
         <div className="col-12 col-lg-8">
           <h2 className="h1 light mb-0">Fitlink sponsored rewards</h2>
@@ -115,12 +130,18 @@ export default function components() {
         </div>
       </div>
       <div className="rewards flex">
-        {sortedFL.map((r: RewardProps, i) => (
-          <Reward {...r} className="mr-2 mb-2" key={`fl-r-${i}`} />
+        { sortedFL.map((r:RewardProps, i) => (
+          <div className="reward-wrap" key={`fl-r-${i}`}>
+            <Reward {...r} onClick={ () => loadReadonlyReward(r)} />
+          </div>
         ))}
       </div>
 
-      <Drawer onClose={() => setDrawContent(null)}>{drawContent}</Drawer>
+      { drawContent &&
+        <Drawer remove={ () => setDrawContent(null) }>
+          { drawContent }
+        </Drawer>
+      }
     </Dashboard>
   )
 }
