@@ -1,4 +1,4 @@
-import Sidebar from '../admin/src/components/elements/Sidebar'
+import Sidebar from '@fitlink/admin/src/components/elements/Sidebar'
 import { Story } from '@storybook/react'
 
 const Template: Story = (args) => <Sidebar />

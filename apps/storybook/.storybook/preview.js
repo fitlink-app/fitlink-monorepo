@@ -1,6 +1,6 @@
 import { withNextRouter } from 'storybook-addon-next-router';
 import { addDecorator } from '@storybook/react';
-import '../apps/admin/src/scss/Main.scss'
+import '!style-loader!css-loader!resolve-url-loader!sass-loader!../../admin/src/scss/Main.scss'
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },

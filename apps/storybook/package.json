@@ -1,0 +1,38 @@
+{
+  "name": "@fitlink/storybook",
+  "version": "1.0.0",
+  "peerDependencies": {
+    "@fitlink/common": "*"
+  },
+  "scripts": {
+    "dev": "start-storybook -p 6006",
+    "build": "build-storybook"
+  },
+  "dependencies": {
+    "@fitlink/common": "*",
+    "chart.js": "^3.3.0",
+    "clsx": "^1.1.1",
+    "date-fns": "^2.21.3",
+    "flickity": "^2.2.2",
+    "framer-motion": "^4.1.17",
+    "lodash": "^4.17.21",
+    "next": "^10.2.0",
+    "react": "^17.0.2",
+    "react-chartjs-2": "^3.0.3",
+    "react-dom": "^17.0.2",
+    "react-query": "^3.16.1",
+    "react-select": "^4.3.1",
+    "react-table": "^7.7.0",
+    "storybook-addon-next-router": "^2.0.4"
+  },
+  "devDependencies": {
+    "@storybook/addon-actions": "^6.2.9",
+    "@storybook/addon-essentials": "^6.2.9",
+    "@storybook/addon-links": "^6.2.9",
+    "@storybook/preset-scss": "^1.0.3",
+    "@storybook/react": "^6.2.9",
+    "sass": "^1.32.13",
+    "sass-loader": "^10.1.1",
+    "resolve-url-loader": "^4.0.0"
+  }
+}

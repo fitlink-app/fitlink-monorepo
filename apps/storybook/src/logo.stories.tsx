@@ -1,4 +1,4 @@
-import Logo, { LogoProps } from '../admin/src/components/elements/Logo'
+import Logo, { LogoProps } from '@fitlink/admin/src/components/elements/Logo'
 import { Story } from '@storybook/react'
 
 const Template: Story = (args) => <Logo {...args} />

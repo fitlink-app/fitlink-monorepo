@@ -1,21 +1,21 @@
-import { CreateOrganisationDto } from '../../api/src/modules/organisations/dto/create-organisation.dto'
-import { UpdateOrganisationDto } from '../../api/src/modules/organisations/dto/update-organisation.dto'
-import { CreateTeamDto } from '../../api/src/modules/teams/dto/create-team.dto'
-import { UpdateTeamDto } from '../../api/src/modules/teams/dto/update-team.dto'
-import { Activity } from '../../api/src/modules/activities/entities/activity.entity'
-import { CreateActivityDto } from '../../api/src/modules/activities/dto/create-activity.dto'
-import { UpdateActivityDto } from '../../api/src/modules/activities/dto/update-activity.dto'
-import { Organisation } from '../../api/src/modules/organisations/entities/organisation.entity'
-import { Team } from '../../api/src/modules/teams/entities/team.entity'
+import { CreateOrganisationDto } from '@fitlink/api/src/modules/organisations/dto/create-organisation.dto'
+import { UpdateOrganisationDto } from '@fitlink/api/src/modules/organisations/dto/update-organisation.dto'
+import { CreateTeamDto } from '@fitlink/api/src/modules/teams/dto/create-team.dto'
+import { UpdateTeamDto } from '@fitlink/api/src/modules/teams/dto/update-team.dto'
+import { Activity } from '@fitlink/api/src/modules/activities/entities/activity.entity'
+import { CreateActivityDto } from '@fitlink/api/src/modules/activities/dto/create-activity.dto'
+import { UpdateActivityDto } from '@fitlink/api/src/modules/activities/dto/update-activity.dto'
+import { Organisation } from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
+import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 import {
   AuthLoginDto,
   AuthRefreshDto
-} from '../../api/src/modules/auth/dto/auth-login'
+} from '@fitlink/api/src/modules/auth/dto/auth-login'
 import {
   AuthResultDto,
   AuthLogoutDto
-} from '../../api/src/modules/auth/dto/auth-result'
-// import { User } from '../../api/src/modules/users/entities/user.entity'
+} from '@fitlink/api/src/modules/auth/dto/auth-result'
+// import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 
 export type { AuthResultDto, AuthLogoutDto, AuthLoginDto }
 
