@@ -20,7 +20,7 @@ async function getUsers() {
   const connection = getConnection()
   const repository = connection.getRepository(User)
   return repository.find({
-    take: 3,
+    take: 3
   })
 }
 
@@ -44,7 +44,7 @@ describe('ChargeBee', () => {
     // Retrieve an subscription to test with
     const seed = await getSubscriptionsUsers()
     seeded_subscription = seed[Math.ceil(Math.random() * (seed.length - 1))]
-    while(seeded_subscription.users.length < 1) {
+    while (seeded_subscription.users.length < 1) {
       seeded_subscription = seed[Math.ceil(Math.random() * (seed.length - 1))]
     }
     // Subscription admin
@@ -52,9 +52,7 @@ describe('ChargeBee', () => {
     // Auth user
     const users = await getUsers()
     authHeaders = getAuthHeaders(null, users[0].id)
-
   })
-
 
   const testSubAdmainAndUser = test.each([
     ['a subscription admin', () => subscriptionAdminHeaders],
@@ -62,52 +60,51 @@ describe('ChargeBee', () => {
   ])
 
   const chargeBeePlan = [
-      'id',
-      'company',
-      'auto_collection',
-      'net_term_days',
-      'allow_direct_debit',
-      'created_at',
-      'taxability',
-      'updated_at',
-      'pii_cleared',
-      'resource_version',
-      'deleted',
-      'object',
-      'billing_address',
-      'card_status',
-      'promotional_credits',
-      'refundable_credits',
-      'excess_payments',
-      'unbilled_charges',
-      'preferred_currency_code'
+    'id',
+    'company',
+    'auto_collection',
+    'net_term_days',
+    'allow_direct_debit',
+    'created_at',
+    'taxability',
+    'updated_at',
+    'pii_cleared',
+    'resource_version',
+    'deleted',
+    'object',
+    'billing_address',
+    'card_status',
+    'promotional_credits',
+    'refundable_credits',
+    'excess_payments',
+    'unbilled_charges',
+    'preferred_currency_code'
   ]
   const countUsersAnswer = {
-    'countUsers': 3
+    countUsers: 3
   }
   const answer = {
-    'customer':
-      {
-        'customer': {
-          'id': 11,
-          'company': 'test',
-          'auto_collection': 'test',
-          'net_term_days': 'test',
-          'allow_direct_debit': 'test',
-          'created_at': 'test',
-          'taxability': 'test',
-          'updated_at': 'test',
-          'pii_cleared': 'test',
-          'resource_version': 'test',
-          'deleted': 'test',
-          'object': 'test',
-          'billing_address': 'test',
-          'card_status': 'test',
-          'promotional_credits': 'test',
-          'refundable_credits': 'test',
-          'excess_payments': 'test',
-          'unbilled_charges': 'test',
-          'preferred_currency_code': 'test'
+    customer: {
+      customer: {
+        id: 11,
+        company: 'test',
+        auto_collection: 'test',
+        net_term_days: 'test',
+        allow_direct_debit: 'test',
+        created_at: 'test',
+        taxability: 'test',
+        updated_at: 'test',
+        pii_cleared: 'test',
+        resource_version: 'test',
+        deleted: 'test',
+        object: 'test',
+        billing_address: 'test',
+        card_status: 'test',
+        promotional_credits: 'test',
+        refundable_credits: 'test',
+        excess_payments: 'test',
+        unbilled_charges: 'test',
+        preferred_currency_code: 'test'
       }
     }
   }
@@ -122,10 +119,9 @@ describe('ChargeBee', () => {
       subscriptionsService.setupBilling = jest.fn()
       subscriptionsService.setupBilling.mockReturnValue(countUsersAnswer)
 
-
       const result = await app.inject({
         method: 'POST',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/billing`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/billing`,
         headers: getHeaders()
       })
 
@@ -136,9 +132,7 @@ describe('ChargeBee', () => {
 
       //expect(result.statusCode).toEqual(201)
       const jsonResult = Object.keys(result.json())
-      expect(jsonResult).toEqual(expect.arrayContaining([
-        'countUsers',
-      ]))
+      expect(jsonResult).toEqual(expect.arrayContaining(['countUsers']))
     }
   )
 
@@ -152,7 +146,7 @@ describe('ChargeBee', () => {
 
       const result = await app.inject({
         method: 'POST',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/billing/chargebee`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/billing/chargebee`,
         headers: getHeaders()
       })
 
@@ -163,16 +157,14 @@ describe('ChargeBee', () => {
 
       //expect(result.statusCode).toEqual(201)
       const jsonResult = Object.keys(result.json())
-      expect(jsonResult).toEqual(expect.arrayContaining([
-        'countUsers',
-        'customer'
-      ]))
+      expect(jsonResult).toEqual(
+        expect.arrayContaining(['countUsers', 'customer'])
+      )
 
       const customerResult = Object.keys(result.json()['customer']['customer'])
       expect(customerResult).toEqual(expect.arrayContaining(chargeBeePlan))
     }
   )
-
 
   testSubAdmainAndUser(
     `GET /organisations/:organisationId/subscriptions/:subscriptionId/billing/:customerId getting chargebee plan`,
@@ -185,7 +177,7 @@ describe('ChargeBee', () => {
 
       const result = await app.inject({
         method: 'GET',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/billing/${customerId}`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/billing/${customerId}`,
         headers: getHeaders()
       })
 
@@ -207,11 +199,13 @@ describe('ChargeBee', () => {
       const { organisation, id, ...rest } = seeded_subscription
 
       subscriptionsService.removeChargebeePlan = jest.fn()
-      subscriptionsService.removeChargebeePlan.mockReturnValue(answer['customer'])
+      subscriptionsService.removeChargebeePlan.mockReturnValue(
+        answer['customer']
+      )
 
       const result = await app.inject({
         method: 'DELETE',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/billing/${customerId}`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/billing/${customerId}`,
         headers: getHeaders()
       })
 
@@ -220,7 +214,7 @@ describe('ChargeBee', () => {
         return
       }
 
-     //expect(result.statusCode).toEqual(200)
+      //expect(result.statusCode).toEqual(200)
       const customerResult = Object.keys(result.json()['customer'])
       expect(customerResult).toEqual(expect.arrayContaining(chargeBeePlan))
     }
@@ -229,5 +223,4 @@ describe('ChargeBee', () => {
   afterAll(async () => {
     await app.close()
   })
-
 })
