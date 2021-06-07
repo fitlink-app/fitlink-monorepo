@@ -5,7 +5,7 @@ type SelectProps = Props & {
   id: string
   label?: string
   inline?: boolean
-};
+}
 
 const Select: React.FC<SelectProps> = (props) => {
   const classes = clsx({
@@ -46,7 +46,7 @@ const Select: React.FC<SelectProps> = (props) => {
       ...provided,
       backgroundColor: '#eee',
       marginTop: '12px',
-      marginBottom: '12px',
+      marginBottom: '12px'
     }),
     indicatorContainer: (provided) => ({
       ...provided,
@@ -70,12 +70,12 @@ const Select: React.FC<SelectProps> = (props) => {
       ...provided,
       backgroundColor: state.isSelected ? '#eee' : '#fff',
       padding: '0.75rem 0.5rem'
-    }),
+    })
   }
 
   return (
     <div className={classes}>
-      { props.label && <label htmlFor={props.id}>{props.label}</label> }
+      {props.label && <label htmlFor={props.id}>{props.label}</label>}
       <ReactSelect
         id={props.id}
         instanceId={props.id}
@@ -83,7 +83,8 @@ const Select: React.FC<SelectProps> = (props) => {
         classNamePrefix="react-select"
         styles={customStyles}
         theme={theme}
-        {...props} />
+        {...props}
+      />
     </div>
   )
 }

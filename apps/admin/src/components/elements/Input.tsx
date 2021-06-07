@@ -7,7 +7,7 @@ export type InputProps = {
   placeholder?: string
   name: string
   value?: any
-  onChange?: (e:any) => void
+  onChange?: (e: any) => void
   rows?: number
   className?: string
   inline?: boolean
@@ -24,7 +24,6 @@ export default function Input({
   rows = 5,
   inline
 }: InputProps) {
-
   const [val, setVal] = useState(value)
   const classes = clsx({
     'input-block': true,
@@ -43,28 +42,23 @@ export default function Input({
 
   return (
     <div className={classes}>
-      <label
-        htmlFor={name}
-        >
-        {label}
-      </label>
-      { type !== 'textarea' ?
+      <label htmlFor={name}>{label}</label>
+      {type !== 'textarea' ? (
         <input
           type={type}
           name={name}
           value={val}
-          onChange={ (e) => handleChange(e) }
+          onChange={(e) => handleChange(e)}
           placeholder={placeholder}
-          />
-      :
+        />
+      ) : (
         <textarea
           name={name}
           value={val}
-          onChange={ (e) => handleChange(e) }
+          onChange={(e) => handleChange(e)}
           placeholder={placeholder}
-          rows={rows}
-        ></textarea>
-      }
+          rows={rows}></textarea>
+      )}
     </div>
   )
 }

@@ -5,15 +5,15 @@ import { Subscription } from '../../src/modules/subscriptions/entities/subscript
 import { Organisation } from '../../src/modules/organisations/entities/organisation.entity'
 import * as faker from 'faker'
 
-
 export class SubscriptionSeeder implements Seeder {
   public async run(factory: Factory, connection: Connection): Promise<any> {
-
     const userRepository: Repository<User> = connection.getRepository(User)
     const users = await userRepository.find()
-    const usersArray = users.slice(0,3)
+    const usersArray = users.slice(0, 3)
 
-    const organisationRepository: Repository<Organisation> = connection.getRepository(Organisation)
+    const organisationRepository: Repository<Organisation> = connection.getRepository(
+      Organisation
+    )
     const organisation = await organisationRepository.findOne()
 
     await factory(Subscription)().create({
@@ -29,13 +29,14 @@ export class SubscriptionSeeder implements Seeder {
       users: usersArray,
       organisation: organisation
     })
-
   }
 }
 
 export class DeleteSubscriptionSeeder implements Seeder {
   public async run(_, connection: Connection): Promise<any> {
-    const subscriptionRepository: Repository<Subscription> = connection.getRepository(Subscription)
+    const subscriptionRepository: Repository<Subscription> = connection.getRepository(
+      Subscription
+    )
     const subscription = await subscriptionRepository.findOne({
       where: { billing_city: 'London' },
       relations: ['users', 'organisation']
@@ -51,7 +52,7 @@ export class DeleteSubscriptionSeeder implements Seeder {
       .createQueryBuilder()
       .relation('users')
       .of(subscription)
-      .remove(subscription.users);
+      .remove(subscription.users)
 
     await subscriptionRepository.remove(subscription)
   }

@@ -16,15 +16,13 @@ export default function MenuItem({
 }: MenuItemProps) {
   const classes = clsx({
     'menu-item': true,
-    'current': current
+    current: current
   })
   return (
     <Link href={to}>
       <a className={classes}>
         {icon}
-        <span>
-          {label}
-        </span>
+        <span>{label}</span>
       </a>
     </Link>
   )

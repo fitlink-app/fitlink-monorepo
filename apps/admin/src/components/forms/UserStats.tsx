@@ -27,7 +27,6 @@ export default function UserStats({
   last_session,
   created_leagues
 }: UserStatsProps) {
-  
   const [userMsg, setUserMsg] = useState('')
   const [response, setResponse] = useState('')
 
@@ -46,45 +45,47 @@ export default function UserStats({
         name="message"
         value={userMsg}
         type="textarea"
-        onChange={ (e) => {
+        onChange={(e) => {
           setUserMsg(e)
           setResponse('')
         }}
         placeholder="Send this user a push notification of praise or encourangement"
-        />
-      { response && <p className="color-dark">{response}</p> }
+      />
+      {response && <p className="color-dark">{response}</p>}
       <div className="text-right mb-3">
-        <button onClick={ sendMessage } className="button">Send</button>
+        <button onClick={sendMessage} className="button">
+          Send
+        </button>
       </div>
       <h6>Date joined</h6>
-      <p>{ format(new Date(date_joined), 'yyyy-MM-dd H:m:s OOOO') }</p>
+      <p>{format(new Date(date_joined), 'yyyy-MM-dd H:m:s OOOO')}</p>
       <hr className="tight" />
       <h6>Mobile operating system</h6>
-      <p>{ mobile_os }</p>
+      <p>{mobile_os}</p>
       <hr className="tight" />
       <h6>Connected trackers</h6>
-      <p>{ tracker }</p>
+      <p>{tracker}</p>
       <hr className="tight" />
       <h6>Last app session</h6>
-      <p>{ format(new Date(last_session), 'yyyy-MM-dd H:m:s OOOO') }</p>
+      <p>{format(new Date(last_session), 'yyyy-MM-dd H:m:s OOOO')}</p>
       <hr className="tight" />
       <h6>Total points</h6>
-      <p>{ points.toLocaleString() }</p>
+      <p>{points.toLocaleString()}</p>
       <hr className="tight" />
       <h6>Rank</h6>
-      <p>{ rank }</p>
+      <p>{rank}</p>
       <hr className="tight" />
       <h6>Last activity tracked</h6>
-      <p>{ last_activity }</p>
+      <p>{last_activity}</p>
       <hr className="tight" />
       <h6>Leagues joined</h6>
-      <p>{ total_leagues.toLocaleString() }</p>
+      <p>{total_leagues.toLocaleString()}</p>
       <hr className="tight" />
       <h6>Leagues created</h6>
-      <p>{ created_leagues.toLocaleString() }</p>
+      <p>{created_leagues.toLocaleString()}</p>
       <hr className="tight" />
       <h6>Rewards redeemed</h6>
-      <p>{ rewards.toLocaleString() }</p>
+      <p>{rewards.toLocaleString()}</p>
     </>
   )
 }

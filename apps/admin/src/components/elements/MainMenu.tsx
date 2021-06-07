@@ -19,58 +19,54 @@ export default function MainMenu() {
         to="/dashboard"
         label="Overview"
         current={current.startsWith('/dashboard')}
-        icon={ <IconGraph /> }
-        />
+        icon={<IconGraph />}
+      />
       <MenuItem
         to="/users"
         label="User stats"
         current={current.startsWith('/users')}
-        icon={ <IconFriends /> }
-        />
+        icon={<IconFriends />}
+      />
       <MenuItem
         to="/rewards"
         label="Rewards"
         current={current.startsWith('/rewards')}
-        icon={ <IconRewards /> }
-        />
+        icon={<IconRewards />}
+      />
       <MenuItem
         to="/leagues"
         label="Leagues"
         current={current.startsWith('/leagues')}
-        icon={ <IconLeagues /> }
-        />
+        icon={<IconLeagues />}
+      />
       <MenuItem
         to="/activities"
         label="Activities"
         current={current.startsWith('/activities')}
-        icon={ <IconActivities /> }
-        />
+        icon={<IconActivities />}
+      />
       <hr />
       <MenuItem
         to="/knowledge-base"
         label="Knowledge base"
         current={current.startsWith('/knowledge-base')}
-        icon={ <IconYoga /> }
-        />
+        icon={<IconYoga />}
+      />
       <hr />
       <MenuItem
         to="/settings"
         label="Account settings"
         current={current.startsWith('/settings')}
-        icon={ <IconGear /> }
-        />
+        icon={<IconGear />}
+      />
       <MenuItem
         to="/billing"
         label="Billing"
         current={current.startsWith('/billing')}
-        icon={ <IconCreditCard /> }
-        />
+        icon={<IconCreditCard />}
+      />
       <hr />
-      <MenuItem
-        to="/logout"
-        label="Sign out"
-        icon={ <IconSignOut /> }
-        />
+      <MenuItem to="/logout" label="Sign out" icon={<IconSignOut />} />
     </>
   )
 }

@@ -1,4 +1,4 @@
-import CircleProgess from "./CircleProgress"
+import CircleProgess from './CircleProgress'
 
 export type ProgressChartProps = {
   progress: number
@@ -15,21 +15,19 @@ export default function ProgressChart({
   value,
   goal,
   label,
-  color = '#00E9D7',
+  color = '#00E9D7'
 }: ProgressChartProps) {
   return (
     <>
       <CircleProgess
-        progress={ progress }
-        icon={ icon }
-        radius={ 50 }
-        color={ color }
+        progress={progress}
+        icon={icon}
+        radius={50}
+        color={color}
       />
       <h3 className="h5 color-primary mb-0 mt-1">
-        <span style={{color: color }}>
-          {value}
-        </span>
-        { goal && <small className="color-light-grey"> / {goal}</small>}
+        <span style={{ color: color }}>{value}</span>
+        {goal && <small className="color-light-grey"> / {goal}</small>}
       </h3>
       <h4 className="p">{label}</h4>
     </>

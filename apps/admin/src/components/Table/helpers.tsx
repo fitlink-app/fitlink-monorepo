@@ -8,5 +8,5 @@ export const toLocaleCell = ({ value }) => {
 }
 
 export const toChipCell = ({ value }) => {
-  return <div className="chip">{ value }</div>
+  return <div className="chip">{value}</div>
 }

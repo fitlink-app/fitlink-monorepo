@@ -10,12 +10,14 @@ import RewardDetails from '../components/elements/RewardDetails'
 const fitlinkRewards = require('../services/dummy/rewards-fitlink.json')
 
 export default function components() {
-  const [drawContent, setDrawContent] = useState<React.ReactNode | undefined | false>(false)
-  
+  const [drawContent, setDrawContent] = useState<
+    React.ReactNode | undefined | false
+  >(false)
+
   const [sorted, setSorted] = useState([])
   const [sort, setSort] = useState<'asc' | 'desc'>('asc')
   const [sortOn, setSortOn] = useState('points')
-  
+
   const [sortedFL, setSortedFL] = useState([])
   const [sortFL, setSortFL] = useState<'asc' | 'desc'>('asc')
   const [sortOnFL, setSortOnFL] = useState('points')
@@ -52,15 +54,27 @@ export default function components() {
 
   useEffect(() => {
     const orig = JSON.parse(JSON.stringify(fitlinkRewards))
-    switch(sortOnFL) {
+    switch (sortOnFL) {
       case 'shortDescription':
       case 'brand':
-        setSortedFL(orig.results.sort((a, b) => sortFL === 'asc' ? a[sortOnFL].toLowerCase() > b[sortOnFL].toLowerCase() : a[sortOnFL].toLowerCase() < b[sortOnFL].toLowerCase()))
+        setSortedFL(
+          orig.results.sort((a, b) =>
+            sortFL === 'asc'
+              ? a[sortOnFL].toLowerCase() > b[sortOnFL].toLowerCase()
+              : a[sortOnFL].toLowerCase() < b[sortOnFL].toLowerCase()
+          )
+        )
         break
       case 'points':
       case 'claims':
       default:
-        setSortedFL(orig.results.sort((a, b) => sortFL === 'asc' ? parseFloat(a[sortOnFL]) - parseFloat(b[sortOnFL]) : parseFloat(b[sortOnFL]) - parseFloat(a[sortOnFL])))
+        setSortedFL(
+          orig.results.sort((a, b) =>
+            sortFL === 'asc'
+              ? parseFloat(a[sortOnFL]) - parseFloat(b[sortOnFL])
+              : parseFloat(b[sortOnFL]) - parseFloat(a[sortOnFL])
+          )
+        )
         break
     }
   }, [fitlinkRewards, sortOnFL, sortFL])
@@ -72,9 +86,7 @@ export default function components() {
   }
 
   return (
-    <Dashboard
-      title="Rewards"
-      >
+    <Dashboard title="Rewards">
       <div className="row ai-c mb-1">
         <div className="col-12 col-lg-8">
           <h1 className="light mb-0">Your rewards</h1>
@@ -87,12 +99,9 @@ export default function components() {
             options={options}
             label="Sort by"
             inline={true}
-            onChange={ (v) => setSortOn(v.value) }
+            onChange={(v) => setSortOn(v.value)}
           />
-          <SortOrder
-            value={sort}
-            onChange={ (e) => setSort(e) }
-            />
+          <SortOrder value={sort} onChange={(e) => setSort(e)} />
         </div>
       </div>
       <div className="rewards flex mb-4">
@@ -115,12 +124,9 @@ export default function components() {
             options={options}
             label="Sort by"
             inline={true}
-            onChange={ (v) => setSortOnFL(v.value) }
+            onChange={(v) => setSortOnFL(v.value)}
           />
-          <SortOrder
-            value={sortFL}
-            onChange={ (e) => setSortFL(e) }
-            />
+          <SortOrder value={sortFL} onChange={(e) => setSortFL(e)} />
         </div>
       </div>
       <div className="rewards flex">
@@ -130,7 +136,7 @@ export default function components() {
           </div>
         ))}
       </div>
-      
+
       { drawContent &&
         <Drawer remove={ () => setDrawContent(null) }>
           { drawContent }

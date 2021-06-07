@@ -21,10 +21,10 @@ export default function Drawer({
       setOpen(true)
   }, [children]) */
 
-  const handleClickOutside = e => {
+  const handleClickOutside = (e) => {
     const ref = node.current || null
     if (ref.contains(e.target)) {
-      return;
+      return
     }
     e.stopPropagation()
     e.stopImmediatePropagation()
