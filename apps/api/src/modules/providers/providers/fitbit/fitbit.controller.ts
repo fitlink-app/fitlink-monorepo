@@ -1,17 +1,9 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  Param,
-  Post,
-  Query
-} from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common'
 import { Public } from '../../../../decorators/public.decorator'
 import { FitbitService } from './fitbit.service'
-import { Roles } from '../../../user-roles/entities/user-role.entity'
-import { Iam } from '../../../../decorators/iam.decorator'
 import { FitbitEventData } from '../../types/fitbit'
+import { AuthenticatedUser } from '../../../../models/authenticated-user.model'
+import { User } from '../../../../decorators/authenticated-user.decorator'
 
 @Controller('/providers/fitbit')
 export class FitbitController {
@@ -20,7 +12,7 @@ export class FitbitController {
   @Public()
   @HttpCode(204)
   @Post('/webhook')
-  webhookReciever(@Body() fitbitEventData: FitbitEventData[]) {
+  webhookReceiver(@Body() fitbitEventData: FitbitEventData[]) {
     return this.fitbitService.proccessPayload(fitbitEventData)
   }
 
@@ -31,10 +23,9 @@ export class FitbitController {
     return this.fitbitService.verifyWebhook(verify)
   }
 
-  @Get('/auth/:userId')
-  @Iam(Roles.Self)
-  getOAuthUrl(@Param('userId') userId: string) {
-    return this.fitbitService.getOAuthUrl(userId)
+  @Get('/auth')
+  getOAuthUrl(@User() user: AuthenticatedUser) {
+    return this.fitbitService.getOAuthUrl(user.id)
   }
 
   @Public()
@@ -43,9 +34,8 @@ export class FitbitController {
     return this.fitbitService.saveFitbitProvider(code, state)
   }
 
-  @Get(':userId/revokeToken')
-  @Iam(Roles.Self)
-  deAuthorize(@Param('userId') userId: string) {
-    return this.fitbitService.deAuthorize(userId)
+  @Get('/revokeToken')
+  deAuthorize(@User() user: AuthenticatedUser) {
+    return this.fitbitService.deAuthorize(user.id)
   }
 }

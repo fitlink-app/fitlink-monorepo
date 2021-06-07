@@ -1,19 +1,11 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query
-} from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
 import { Iam } from '../../../../decorators/iam.decorator'
 import { Public } from '../../../../decorators/public.decorator'
 import { Roles } from '../../../user-roles/entities/user-role.entity'
 import { StravaService } from './strava.service'
 import { StravaEventData } from '../../types/strava'
-
-const strava_verify_token = 'daVerifyTokenIsAMyth'
+import { AuthenticatedUser } from '../../../../models/authenticated-user.model'
+import { User } from '../../../../decorators/authenticated-user.decorator'
 
 @Controller('/providers/strava')
 export class StravaControler {
@@ -30,15 +22,14 @@ export class StravaControler {
 
   @Public()
   @Post('/webhook')
-  webhookReciever(@Body() stravaEventData: StravaEventData) {
+  webhookReceiver(@Body() stravaEventData: StravaEventData) {
     this.stravaService.processStravaData(stravaEventData)
     return { success: true }
   }
 
-  @Iam(Roles.Self)
-  @Get('/auth/:userId')
-  getOAuthUrl(@Param('userId') userId: string) {
-    return this.stravaService.getOAuthUrl(userId)
+  @Get('/auth')
+  getOAuthUrl(@User() user: AuthenticatedUser) {
+    return this.stravaService.getOAuthUrl(user.id)
   }
 
   @Public()
@@ -51,15 +42,8 @@ export class StravaControler {
     return this.stravaService.saveStravaProvider(code, state, scope)
   }
 
-  @Iam(Roles.Self)
-  @Get('/:userId/revokeToken')
-  deAuthorize(@Param('userId') userId: string) {
-    return this.stravaService.deAuthorize(userId)
-  }
-
-  @Public()
-  @Get('/config')
-  config() {
-    return this.stravaService.stravaConfig('verify_token')
+  @Get('revokeToken')
+  deAuthorize(@User() user: AuthenticatedUser) {
+    return this.stravaService.deAuthorize(user.id)
   }
 }

@@ -3,44 +3,44 @@ import { ProvidersService } from './providers.service'
 import { CreateProviderDto } from './dto/create-provider.dto'
 import { UpdateProviderDto } from './dto/update-provider.dto'
 import { ProviderType } from './entities/provider.entity'
-import { Iam } from '../../decorators/iam.decorator'
-import { Roles } from '../user-roles/entities/user-role.entity'
+import { User } from '../../decorators/authenticated-user.decorator'
+import { AuthenticatedUser } from '../../models'
 
 @Controller('providers')
 export class ProvidersController {
   constructor(private readonly providersService: ProvidersService) {}
 
-  @Iam(Roles.Self)
-  @Post('/users/:userId')
+  @Post('/users')
   create(
     @Body() createProviderDto: CreateProviderDto,
-    @Param('userId') userId: string
+    @User() user: AuthenticatedUser
   ) {
-    return this.providersService.create(createProviderDto, userId)
+    return this.providersService.create(createProviderDto, user.id)
   }
 
-  @Get('/users/:userId')
-  @Iam(Roles.Self)
-  findAll(@Param('userId') userId: string) {
-    return this.providersService.findAll(userId)
+  @Get('/users')
+  findAll(@User() user: AuthenticatedUser) {
+    return this.providersService.findAll(user.id)
   }
 
-  @Iam(Roles.Self)
-  @Put(':userId/:providerType/')
+  @Put(':providerType/')
   update(
-    @Param('userId') id: string,
+    @User() user: AuthenticatedUser,
     @Param('providerType') providerType: ProviderType,
     @Body() updateProviderDto: UpdateProviderDto
   ) {
-    return this.providersService.update(id, providerType, updateProviderDto)
+    return this.providersService.update(
+      user.id,
+      providerType,
+      updateProviderDto
+    )
   }
 
-  @Iam(Roles.Self)
-  @Delete(':userId/:providerType')
+  @Delete(':providerType')
   remove(
-    @Param('userId') id: string,
+    @User() user: AuthenticatedUser,
     @Param('providerType') providerType: ProviderType
   ) {
-    return this.providersService.remove(id, providerType)
+    return this.providersService.remove(user.id, providerType)
   }
 }

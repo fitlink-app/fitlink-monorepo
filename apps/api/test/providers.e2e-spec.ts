@@ -54,9 +54,9 @@ describe('Providers', () => {
     await app.close()
   })
 
-  it('GET /providers/strava/auth/:userId Get OAuth URL', async () => {
+  it('GET /providers/strava/auth Get OAuth URL', async () => {
     const data = await app.inject({
-      url: `/providers/strava/auth/${seededUser.id}`,
+      url: `/providers/strava/auth`,
       method: 'GET',
       headers: authHeaders
     })
@@ -126,7 +126,7 @@ describe('Providers', () => {
     stravaService.revokeToken.mockReturnValue({ access_token: provider.token })
     const data = await app.inject({
       method: 'GET',
-      url: `/providers/strava/${seededUser.id}/revokeToken`,
+      url: `/providers/strava/revokeToken`,
       headers: authHeaders
     })
 
@@ -172,7 +172,7 @@ describe('Providers', () => {
     fitbitService.getFreshFitbitToken.mockReturnValue(provider.token)
     const data = await app.inject({
       method: 'GET',
-      url: `/providers/strava/${seededUser.id}/revokeToken`,
+      url: `/providers/fitbit/revokeToken`,
       headers: authHeaders
     })
 
@@ -184,7 +184,7 @@ describe('Providers', () => {
   it('GET /providers/fitbit/auth/:userId', async () => {
     const data = await app.inject({
       method: 'GET',
-      url: `/providers/fitbit/auth/${seededUser.id}`,
+      url: `/providers/fitbit/auth`,
       headers: authHeaders
     })
 
@@ -204,13 +204,13 @@ describe('Providers', () => {
     expect(parsedQueryValues.state).toBe(seededUser.id)
   })
 
-  it('GET /providers/users/:userId', async () => {
+  it('GET /providers/users/', async () => {
     await SeedProviderToUser(seededUser.id, 'fitbit')
     await SeedProviderToUser(seededUser.id, 'strava')
     const data = await app.inject({
       method: 'GET',
       headers: authHeaders,
-      url: `/providers/users/${seededUser.id}`
+      url: `/providers/users`
     })
 
     const firstResult = data.json()[0]
