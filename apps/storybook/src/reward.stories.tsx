@@ -1,4 +1,6 @@
-import Reward, { RewardProps } from '../admin/src/components/elements/Reward'
+import Reward, {
+  RewardProps
+} from '@fitlink/admin/src/components/elements/Reward'
 import { Story } from '@storybook/react'
 
 const Template: Story<RewardProps> = (args) => <Reward {...args} />
