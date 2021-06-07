@@ -410,8 +410,6 @@ describe('list', () => {
     const formData = mockFormData()
     formData.append('image', (file1 as unknown) as Blob)
     const image = await api.uploadFile<Image>('/images', {
-      organisationId: '111',
-      teamId: '333',
       payload: formData
     })
 
