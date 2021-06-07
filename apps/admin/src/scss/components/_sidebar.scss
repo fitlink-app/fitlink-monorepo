@@ -1,10 +1,15 @@
 .sidebar {
   background: $white;
-  flex: 0 0 15rem;
+  flex: 0 0 3.875rem;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  padding: 1.5rem 1rem;
   overflow-x: hidden;
   overflow-y: auto;
+  
+  @media screen and (min-width: $large) {
+    flex: 0 0 15rem;
+    padding: 1.5rem;
+  }
 
   &__menu {
     margin-top: 2.5rem;
@@ -18,5 +23,15 @@
     margin: 1rem 0;
     background: $grey-200;
     border: none;
+  }
+
+  .fitlink-logo {
+    path {
+      display: none;
+
+      @media screen and (min-width: $large) {
+        display: inline;
+      }
+    }
   }
 }

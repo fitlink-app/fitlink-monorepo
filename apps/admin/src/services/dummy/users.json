@@ -1,0 +1,90 @@
+{
+  "results": [
+    {
+      "avatar": "https://randomuser.me/api/portraits/men/75.jpg",
+      "initials": "AJ",
+      "date_joined": "2021-05-25T07:22:48.220Z",
+      "mobile_os": "android",
+      "tracker": "strava",
+      "points": 1314,
+      "rank": "Fitlink pro",
+      "last_activity": "10km run",
+      "total_leagues": 4,
+      "created_leagues": 2,
+      "rewards": 2,
+      "last_session": "2021-06-01T11:20:48.220Z"
+    },
+    {
+      "avatar": "https://randomuser.me/api/portraits/men/51.jpg",
+      "initials": "KM",
+      "date_joined": "2021-05-25T07:22:48.220Z",
+      "mobile_os": "iphone",
+      "tracker": "strava",
+      "points": 9865,
+      "rank": "Fitlink pro",
+      "last_activity": "21km hike",
+      "total_leagues": 2,
+      "created_leagues": 0,
+      "rewards": 3,
+      "last_session": "2021-06-01T11:20:48.220Z"
+    },
+    {
+      "avatar": "https://randomuser.me/api/portraits/women/21.jpg",
+      "initials": "BB",
+      "date_joined": "2021-05-25T07:22:48.220Z",
+      "mobile_os": "iphone",
+      "tracker": "strava, apple health",
+      "points": 919,
+      "rank": "Fitlink star",
+      "last_activity": "114km cycle",
+      "total_leagues": 1,
+      "created_leagues": 0,
+      "rewards": 1,
+      "last_session": "2021-06-01T11:20:48.220Z"
+    },
+    {
+      "avatar": "https://randomuser.me/api/portraits/women/11.jpg",
+      "initials": "PB",
+      "date_joined": "2021-05-25T07:22:48.220Z",
+      "mobile_os": "android",
+      "tracker": "apple health",
+      "points": 764,
+      "rank": "Fitlink star",
+      "last_activity": "500m swim",
+      "total_leagues": 3,
+      "created_leagues": 1,
+      "rewards": 4,
+      "last_session": "2021-06-01T11:20:48.220Z"
+    },
+    {
+      "avatar": "https://randomuser.me/api/portraits/men/66.jpg",
+      "initials": "LM",
+      "date_joined": "2021-05-25T07:22:48.220Z",
+      "mobile_os": "android",
+      "tracker": "apple health",
+      "points": 111,
+      "rank": "Fitlink newbie",
+      "last_activity": "9km cycle",
+      "total_leagues": 3,
+      "created_leagues": 0,
+      "rewards": 1,
+      "last_session": "2021-06-01T11:20:48.220Z"
+    },
+    {
+      "avatar": "https://randomuser.me/api/portraits/men/25.jpg",
+      "initials": "JC",
+      "date_joined": "2021-05-25T07:22:48.220Z",
+      "mobile_os": "android",
+      "tracker": "apple health",
+      "points": 65,
+      "rank": "Fitlink newbie",
+      "last_activity": "2km walk",
+      "total_leagues": 1,
+      "created_leagues": 0,
+      "rewards": 3,
+      "last_session": "2021-06-01T11:20:48.220Z"
+    }
+  ],
+  "total": 6,
+  "page_total": 1
+}

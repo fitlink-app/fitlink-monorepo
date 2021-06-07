@@ -24,8 +24,7 @@ export class Subscription extends CreatableEntity {
   @OneToMany(() => User, (user) => user.subscription, {
     nullable: true
   })
-  users: User[];
-
+  users: User[]
 
   @ManyToOne(() => Organisation, (organisation) => organisation.subscriptions, {
     nullable: true

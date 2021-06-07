@@ -5,18 +5,30 @@ import {
   Body,
   Put,
   Param,
-  Request,
-  Delete
+  Delete,
+  Query
 } from '@nestjs/common'
 import { OrganisationsService } from './organisations.service'
-import { CreateOrganisationDto } from './dto/create-organisation.dto'
+import {
+  CreateOrganisationDto,
+  CreateOrganisationDtoResult
+} from './dto/create-organisation.dto'
 import { UpdateOrganisationDto } from './dto/update-organisation.dto'
 import { Iam } from '../../decorators/iam.decorator'
 import { Roles } from '../user-roles/entities/user-role.entity'
 import { Files } from '../../decorators/files.decorator'
 import { ImagesService } from '../images/images.service'
 import { Uploads, UploadOptions } from '../../decorators/uploads.decorator'
+import {
+  ApiBaseResponses,
+  DeleteResponse,
+  UpdateResponse
+} from '../../decorators/swagger.decorator'
+import { ApiResponse } from '@nestjs/swagger'
+import { Organisation } from './entities/organisation.entity'
+import { PaginationQuery } from '../../helpers/paginate'
 
+@ApiBaseResponses()
 @Controller('organisations')
 export class OrganisationsController {
   constructor(
@@ -24,9 +36,15 @@ export class OrganisationsController {
     private readonly imagesService: ImagesService
   ) {}
 
+  /**
+   * Creates an organisation
+   * @param createOrganisationDto
+   * @returns
+   */
   @Iam(Roles.SuperAdmin)
   @Uploads('avatar', UploadOptions.Nullable)
   @Post()
+  @ApiResponse({ type: CreateOrganisationDtoResult, status: 201 })
   async create(
     @Files('avatar') file: Storage.MultipartFile,
     @Body() createOrganisationDto: CreateOrganisationDto
@@ -42,23 +60,42 @@ export class OrganisationsController {
     })
   }
 
+  /**
+   * Gets all organisations
+   * @param request
+   * @returns
+   */
   @Iam(Roles.SuperAdmin)
   @Get()
-  findAll(@Request() request) {
+  @ApiResponse({ type: Organisation, isArray: true, status: 200 })
+  findAll(@Query() { limit, page }: PaginationQuery) {
     return this.organisationsService.findAll({
-      limit: request.query.limit || 10,
-      page: request.query.page || 0
+      limit: parseInt(limit) || 10,
+      page: parseInt(page) || 0
     })
   }
 
+  /**
+   * Gets a single organisation
+   * @param id
+   * @returns
+   */
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin)
   @Get(':organisationId')
+  @ApiResponse({ type: Organisation, status: 200 })
   findOne(@Param('organisationId') id: string) {
     return this.organisationsService.findOne(id)
   }
 
+  /**
+   * Updates a single organisation
+   * @param id
+   * @param updateOrganisationDto
+   * @returns
+   */
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin)
   @Put(':organisationId')
+  @UpdateResponse()
   update(
     @Param('organisationId') id: string,
     @Body() updateOrganisationDto: UpdateOrganisationDto
@@ -66,8 +103,14 @@ export class OrganisationsController {
     return this.organisationsService.update(id, updateOrganisationDto)
   }
 
+  /**
+   * Deletes a single organisation
+   * @param id
+   * @returns
+   */
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin)
   @Delete(':organisationId')
+  @DeleteResponse()
   remove(@Param('organisationId') id: string) {
     return this.organisationsService.remove(id)
   }

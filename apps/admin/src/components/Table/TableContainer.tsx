@@ -15,6 +15,8 @@ export type TableContainerProps = {
   }>
 }
 
+const noop = () => {}
+
 export function TableContainer({ columns, fetch }: TableContainerProps) {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
@@ -50,7 +52,6 @@ export function TableContainer({ columns, fetch }: TableContainerProps) {
   }, [refresh])
 
   useEffect(() => {
-    console.log(pagination)
     fetchData()
   }, [refresh])
 

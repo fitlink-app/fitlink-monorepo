@@ -1,0 +1,70 @@
+{
+  "results": [
+    {
+      "image": "https://storage.googleapis.com/download/storage/v1/b/fitlink-rn.appspot.com/o/reward_images%2F2VRDoMV35ChDkZkFOPQx%2Fimage_original.jpg?generation=1621587914626828&alt=media",
+      "brand": "Halo Fitness",
+      "shortDescription": "Exclusive discount with Fitlink",
+      "points": 105,
+      "expires": "2021-12-31T02:00:00.220Z",
+      "claimed": 0
+    },
+    {
+      "image": "https://storage.googleapis.com/download/storage/v1/b/fitlink-rn.appspot.com/o/reward_images%2F3OtyurXUpjEwdZx9XcRi%2Fimage_original.jpg?generation=1614165731753616&alt=media",
+      "brand": "Suunto",
+      "shortDescription": "Exclusive Reward by Suunto",
+      "points": 200,
+      "expires": "2021-12-31T02:00:00.220Z",
+      "claimed": 1
+    },
+    {
+      "image": "https://storage.googleapis.com/download/storage/v1/b/fitlink-rn.appspot.com/o/reward_images%2FD2j5CKVsBidaoOUl0D12%2Fimage_original.jpg?generation=1614166150482523&alt=media",
+      "brand": "Ribble Cycles",
+      "shortDescription": "Off all products",
+      "points": 110,
+      "expires": "2021-12-31T02:00:00.220Z",
+      "claimed": 2
+    },
+    {
+      "image": "https://storage.googleapis.com/download/storage/v1/b/fitlink-rn.appspot.com/o/reward_images%2FEH1eIQDRgpLAZPfHLUXJ%2Fimage_original.jpg?generation=1614167138213567&alt=media",
+      "brand": "Precision Hydration",
+      "shortDescription": "Exclusive Offer",
+      "points": 120,
+      "expires": "2021-12-31T02:00:00.220Z",
+      "claimed": 1
+    },
+    {
+      "image": "https://storage.googleapis.com/download/storage/v1/b/fitlink-rn.appspot.com/o/reward_images%2Fa38kA05YLiDaaimEvbjs%2Fimage_original.jpg?generation=1614166001558685&alt=media",
+      "brand": "Under Armour",
+      "shortDescription": "Fitlink and Under Armour",
+      "points": 100,
+      "expires": "2021-12-31T02:00:00.220Z",
+      "claimed": 1
+    },
+    {
+      "image": "https://storage.googleapis.com/download/storage/v1/b/fitlink-rn.appspot.com/o/reward_images%2FjCjlSUyP4n4DkZfUDutn%2Fimage_original.jpg?generation=1614166294814018&alt=media",
+      "brand": "ProBikeKit",
+      "shortDescription": "Exclusive Reward",
+      "points": 90,
+      "expires": "2021-12-31T02:00:00.220Z",
+      "claimed": 2
+    },
+    {
+      "image": "https://storage.googleapis.com/download/storage/v1/b/fitlink-rn.appspot.com/o/reward_images%2FlUcSx6EHWQwCbytfFJrT%2Fimage_original.jpg?generation=1614167285235217&alt=media",
+      "brand": "Active Root",
+      "shortDescription": "20% OFF (exclusive)",
+      "points": 95,
+      "expires": "2021-12-31T02:00:00.220Z",
+      "claimed": 1
+    },
+    {
+      "image": "https://storage.googleapis.com/download/storage/v1/b/fitlink-rn.appspot.com/o/reward_images%2Ft9csldAsbMGERT2z5aCR%2Fimage_original.jpg?generation=1614167000988684&alt=media",
+      "brand": "Wild",
+      "shortDescription": "Exclusive",
+      "points": 140,
+      "expires": "2021-12-31T02:00:00.220Z",
+      "claimed": 1
+    }
+  ],
+  "total": 1,
+  "page_total": 1
+}

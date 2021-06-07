@@ -6,54 +6,76 @@ import {
   Param,
   Delete,
   Request,
+  Query
 } from '@nestjs/common'
 import { FollowingsService } from './followings.service'
 import { CreateFollowingDto } from './dto/create-following.dto'
-@Controller('followings')
+import { AuthenticatedUser } from '../../models'
+import { User } from '../../decorators/authenticated-user.decorator'
+import { PaginationDto } from '../../helpers/paginate'
+import {
+  ApiBaseResponses,
+  DeleteResponse
+} from '../../decorators/swagger.decorator'
+import { ApiResponse } from '@nestjs/swagger'
+import { Following } from './entities/following.entity'
+import { UserPublic } from '../users/entities/user.entity'
+
+@ApiBaseResponses()
+@Controller()
 export class FollowingsController {
   constructor(private readonly followingsService: FollowingsService) {}
 
-  @Post()
-  create(@Request() request, @Body() body: CreateFollowingDto) {
-    return this.followingsService.create(request.user.id, body)
+  /**
+   * Follows a user (targetId)
+   * @param body `{ targetId: string }`
+   * @returns
+   */
+  @Post('me/following')
+  @ApiResponse({ type: UserPublic, isArray: true, status: 201 })
+  create(@User() user: AuthenticatedUser, @Body() body: CreateFollowingDto) {
+    return this.followingsService.create(user.id, body)
   }
 
   /**
-   * Get following entities with all user's followings by Id
+   * Get all users that the self-user is following
    */
-  @Get()
-  findAllFollowing(@Request() request) {
-    return this.followingsService.findAllFollowing(request.user.id, {
-      limit: Object.prototype.hasOwnProperty.call(request.query, 'limit')
-        ? request.query.limit
-        : 10,
-      page: Object.prototype.hasOwnProperty.call(request.query, 'page')
-        ? request.query.page
-        : 0
+  @Get('me/following')
+  @ApiResponse({ type: UserPublic, isArray: true, status: 201 })
+  findAllFollowing(
+    @Query() query: PaginationDto,
+    @User() user: AuthenticatedUser
+  ) {
+    return this.followingsService.findAllFollowing(user.id, {
+      limit: parseInt(query.limit) || 10,
+      page: parseInt(query.page) || 0
     })
   }
 
   /**
    * Get following entities with all user's followers by Id
    */
-  @Get('followers')
-  findAllFollowers(@Request() request) {
-    return this.followingsService.findAllFollowers(request.user.id, {
-      limit: Object.prototype.hasOwnProperty.call(request.query, 'limit')
-        ? request.query.limit
-        : 10,
-      page: Object.prototype.hasOwnProperty.call(request.query, 'page')
-        ? request.query.page
-        : 0
+  @Get('me/followers')
+  @ApiResponse({ type: UserPublic, isArray: true, status: 201 })
+  findAllFollowers(
+    @Query() query: PaginationDto,
+    @User() user: AuthenticatedUser
+  ) {
+    return this.followingsService.findAllFollowers(user.id, {
+      limit: parseInt(query.limit) || 10,
+      page: parseInt(query.page) || 0
     })
   }
 
-  @Delete(':targetId')
-  removeFollower(
-    @Request() request,
-    @Param('targetId') targetId: string
-  ) {
+  /**
+   * Unfollowing a user
+   * @param request
+   * @param targetId
+   * @returns DeleteResult
+   */
+  @Delete('me/followings/:targetId')
+  @DeleteResponse()
+  removeFollower(@Request() request, @Param('targetId') targetId: string) {
     return this.followingsService.remove(request.user.id, targetId)
   }
 }
-

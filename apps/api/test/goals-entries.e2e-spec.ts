@@ -50,7 +50,7 @@ describe('GoalsEntries', () => {
 
     const result = await app.inject({
       method: 'POST',
-      url: `/goals`,
+      url: `/me/goals`,
       headers: userAuthHeaders
     })
 
@@ -71,7 +71,7 @@ describe('GoalsEntries', () => {
 
     const result = await app.inject({
       method: 'POST',
-      url: `/goals`,
+      url: `/me/goals`,
       headers: userAuthHeaders,
       payload
     })
@@ -91,7 +91,7 @@ describe('GoalsEntries', () => {
 
     const result = await app.inject({
       method: 'POST',
-      url: `/goals`,
+      url: `/me/goals`,
       headers: userAuthHeaders,
       payload
     })
