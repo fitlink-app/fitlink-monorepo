@@ -20,11 +20,6 @@ const Select: React.FC<SelectProps> = (props) => {
   }
 
   const customStyles = {
-    /* container: (provided, state) => ({
-      ...provided,
-      position: 'relative',
-      zIndex: state.menuIsOpen ? 10 : 1,
-    }), */
     control: (provided, state) => ({
       ...provided,
       backgroundColor: '#fff',

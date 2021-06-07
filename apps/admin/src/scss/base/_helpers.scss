@@ -265,6 +265,11 @@
       padding-right: $space !important;
     }
   }
+
+  // width
+  .w-#{$i} {
+    width: $space;
+  }
 }
 
 .text-left { text-align: left; }
