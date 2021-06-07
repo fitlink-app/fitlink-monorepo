@@ -1,5 +1,5 @@
-import clsx from "clsx"
-import { useEffect, useState } from "react"
+import { useEffect, useState } from 'react'
+import clsx from 'clsx'
 
 export type InputProps = {
   type?: 'text' | 'number' | 'email' | 'tel' | 'textarea'
@@ -10,6 +10,7 @@ export type InputProps = {
   onChange?: (e:any) => void
   rows?: number
   className?: string
+  inline?: boolean
 }
 
 export default function Input({
@@ -20,12 +21,14 @@ export default function Input({
   name,
   value = '',
   onChange = () => null,
-  rows = 5
+  rows = 5,
+  inline
 }: InputProps) {
 
   const [val, setVal] = useState(value)
   const classes = clsx({
     'input-block': true,
+    'input-block--inline': inline,
     [className]: className
   })
 

@@ -30,6 +30,9 @@ textarea {
 }
 
 .react-select {
+  /* z-index: 20;
+  position: relative; */
+  text-align: left;
   input {
     height: auto;
   }
@@ -46,6 +49,20 @@ select[multiple] {
     display: block;
     width: 100%;
   }
+
+  &--inline {
+    display: inline-block;
+    input:not([type="checkbox"]), textarea, label, select, .react-select {
+      display: inline-block;
+      vertical-align: middle;
+      width: auto;
+    }
+
+    label {
+      margin: 0 0.5rem 0 0;
+    }
+  }
+
   input[type="checkbox"] {
     width: 0px;
     height: 0px;
