@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as bcrypt from 'bcrypt'
+import { plainToClass } from 'class-transformer'
 import { Connection, Repository } from 'typeorm'
 import { AuthenticatedUser } from '../../models'
 import { CreateUserDto } from '../users/dto/create-user.dto'
@@ -70,7 +71,7 @@ export class AuthService {
    * creates tokens
    *
    * @param user
-   * @returns object containing 3 tokens
+   * @returns object containing 3 tokens and user object
    */
   async signup(createUserDto: CreateUserDto) {
     const { email, name, password } = createUserDto
@@ -82,7 +83,7 @@ export class AuthService {
 
     return {
       auth: await this.login(user),
-      user: user
+      me: plainToClass(User, user)
     }
   }
 

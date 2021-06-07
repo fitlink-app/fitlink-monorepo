@@ -5,7 +5,9 @@
   background: $grey;
   color: $white;
   position: relative;
-  max-width: 25rem;
+  z-index: 0;
+  width: 25rem;
+  max-width: 100%;
   cursor: pointer;
   
   .card__bottom {

@@ -3,19 +3,31 @@ import { IsNotEmpty, IsOptional } from 'class-validator'
 import { Roles } from '../entities/user-role.entity'
 
 export class CreateUserRoleDto {
-  @ApiProperty()
+  @ApiProperty({
+    enum: Roles,
+    required: true
+  })
   @IsNotEmpty()
   role: Roles
 
-  @ApiProperty()
+  @ApiProperty({
+    nullable: true,
+    required: false
+  })
   @IsOptional()
   team?: string
 
-  @ApiProperty()
+  @ApiProperty({
+    nullable: true,
+    required: false
+  })
   @IsOptional()
   organisation?: string
 
-  @ApiProperty()
+  @ApiProperty({
+    nullable: true,
+    required: false
+  })
   @IsOptional()
   subscription?: string
 }

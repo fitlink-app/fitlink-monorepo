@@ -11,6 +11,13 @@ export class CreateUsersInvitationDto {
   @IsOptional()
   invitee: string
 
-  @ApiProperty()
   inviter: Partial<User>
+}
+
+export class CreateUsersInvitationResultDto {
+  @ApiProperty()
+  inviteLink: string
+
+  @ApiProperty()
+  token: string
 }

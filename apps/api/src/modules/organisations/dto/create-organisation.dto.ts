@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { MaxLength, IsEnum, IsOptional, IsEmail } from 'class-validator'
 import { Image } from '../../images/entities/image.entity'
-import { OrganisationType } from '../entities/organisation.entity'
+import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
+import { Organisation, OrganisationType } from '../entities/organisation.entity'
 
 export class CreateOrganisationDto {
   @ApiProperty()
@@ -18,11 +19,11 @@ export class CreateOrganisationDto {
 
   @ApiProperty()
   @IsOptional()
-  timezone: string
+  timezone?: string
 
   @ApiProperty()
   @IsOptional()
-  avatar: Image
+  avatar?: Image
 
   @ApiProperty()
   @IsOptional()
@@ -32,4 +33,10 @@ export class CreateOrganisationDto {
   @ApiProperty()
   @IsOptional()
   invitee?: string
+}
+
+export class CreateOrganisationDtoResult {
+  organisation: Organisation
+  invitation: OrganisationsInvitation
+  inviteLink: string
 }

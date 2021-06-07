@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { makeApi, Api } from '../../../sdk/api'
 import Axios from 'axios'
+import { User } from '../../../api/src/modules/users/entities/user.entity'
 
 const axios = Axios.create({
   baseURL: 'http://localhost:3001/api/v1'
@@ -14,9 +15,7 @@ type Credentials = {
 }
 
 export type AuthContext = {
-  user?: {
-    id: string
-  }
+  user?: User
   api: Api
   login: (credentials: Credentials) => Promise<void>
   logout: () => void
@@ -28,17 +27,12 @@ export function AuthProvider({ children }) {
   const [state, setState] = useState<AuthContext>({})
 
   async function login({ email, password }) {
-    const { access_token /*, refresh_token, id_token */ } = await api.post(
-      '/auth/login',
-      {
-        email,
-        password
-      }
-    )
+    await api.login({
+      email,
+      password
+    })
 
-    api.setToken(access_token)
-
-    const user = await api.get('/me')
+    const user = await api.get<User>('/me')
 
     setState({
       ...state,
@@ -47,7 +41,7 @@ export function AuthProvider({ children }) {
   }
 
   async function logout() {
-    api.setToken(null)
+    await api.logout()
   }
 
   return (

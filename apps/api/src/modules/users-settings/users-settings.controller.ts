@@ -4,13 +4,23 @@ import { CreateUsersSettingDto } from './dto/create-users-setting.dto'
 import { UpdateUsersSettingDto } from './dto/update-users-setting.dto'
 import { Iam } from '../../decorators/iam.decorator'
 import { Roles } from '../user-roles/entities/user-role.entity'
+import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
+import { AuthenticatedUser } from '../../models'
 
-@Controller('users-settings')
+@Controller()
 export class UserSettingsController {
   constructor(private readonly userSettingsService: UserSettingsService) {}
 
+  @Put('me/settings')
+  updateMySettings(
+    @Body() updateUserSettingsDto: UpdateUsersSettingDto,
+    @AuthUser() user: AuthenticatedUser
+  ) {
+    return this.userSettingsService.update(user.id, updateUserSettingsDto)
+  }
+
   @Iam(Roles.Self)
-  @Post(':userId')
+  @Post('users-settings/:userId')
   create(
     @Body() createUsersSettingDto: CreateUsersSettingDto,
     @Param('userId') userId: string
@@ -19,13 +29,13 @@ export class UserSettingsController {
   }
 
   @Iam(Roles.Self)
-  @Get(':userId')
+  @Get('users-settings/:userId')
   findOne(@Param('userId') userId: string) {
     return this.userSettingsService.findOne(userId)
   }
 
   @Iam(Roles.Self)
-  @Put(':userId')
+  @Put('users-settings/:userId')
   update(
     @Param('userId') userId: string,
     @Body() updateUsersSettingDto: UpdateUsersSettingDto
@@ -34,7 +44,7 @@ export class UserSettingsController {
   }
 
   @Iam(Roles.Self)
-  @Delete(':userId')
+  @Delete('users-settings/:userId')
   remove(@Param('userId') userId: string) {
     return this.userSettingsService.remove(userId)
   }

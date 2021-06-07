@@ -1,6 +1,7 @@
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { PrimaryGeneratedColumn, Column, ManyToOne, Entity } from 'typeorm'
 import { Activity } from '../../activities/entities/activity.entity'
+import { ApiProperty } from '@nestjs/swagger'
 
 export enum ImageType {
   Avatar = 'avatar',
@@ -38,6 +39,7 @@ export const uploadVariants = [
 
 @Entity()
 export class Image extends CreatableEntity {
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string
 
@@ -45,35 +47,43 @@ export class Image extends CreatableEntity {
   activity?: Activity
 
   /** Alt text for accessibility */
+  @ApiProperty()
   @Column({
     nullable: true
   })
   alt: string
 
-  /** Standard rescaled image (any ratio) */
+  /** Standard rescaled image (any ratio) 1920px wide */
+  @ApiProperty()
   @Column()
   url: string
 
   /** Standard rescaled image width */
+  @ApiProperty()
   @Column()
   width: number
 
   /** Standard rescaled image height */
+  @ApiProperty()
   @Column()
   height: number
 
   /** Cropped image for avatars (1:1) */
+  @ApiProperty()
   @Column()
   url_128x128: string
 
   /** Cropped image for hi-res avatars/tiles (1:1) */
+  @ApiProperty()
   @Column()
   url_512x512: string
 
+  @ApiProperty()
   @Column()
   url_640x360: string
 
   /** The type which the image is actually optimised for */
+  @ApiProperty()
   @Column({
     type: 'enum',
     enum: ImageType

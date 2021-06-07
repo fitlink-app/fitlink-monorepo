@@ -4,7 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Following } from './entities/following.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
-import { User } from '../users/entities/user.entity'
+import { User, UserPublic } from '../users/entities/user.entity'
+import { plainToClass } from 'class-transformer'
 
 @Injectable()
 export class FollowingsService {
@@ -21,7 +22,7 @@ export class FollowingsService {
   async create(
     userId: string,
     createFollowingDto: CreateFollowingDto
-  ): Promise<Following> {
+  ): Promise<UserPublic> {
     if (createFollowingDto.targetId === userId) {
       throw new BadRequestException('user and target id should be different')
     }
@@ -38,9 +39,13 @@ export class FollowingsService {
 
     const result = await this.followingRepository.findOne(following)
 
-    return await this.followingRepository.save({
+    const saved = await this.followingRepository.save({
       ...result,
       ...following
+    })
+
+    return plainToClass(UserPublic, saved.following, {
+      excludeExtraneousValues: true
     })
   }
 
@@ -52,7 +57,7 @@ export class FollowingsService {
   async findAllFollowing(
     userId: string,
     options: PaginationOptionsInterface
-  ): Promise<Pagination<Following>> {
+  ): Promise<Pagination<UserPublic>> {
     const me = new User()
     me.id = userId
 
@@ -63,8 +68,12 @@ export class FollowingsService {
       skip: options.page * options.limit
     })
 
-    return new Pagination<Following>({
-      results,
+    return new Pagination<UserPublic>({
+      results: results.map((each) =>
+        plainToClass(UserPublic, each.following, {
+          excludeExtraneousValues: true
+        })
+      ),
       total
     })
   }
@@ -77,7 +86,7 @@ export class FollowingsService {
   async findAllFollowers(
     userId: string,
     options: PaginationOptionsInterface
-  ): Promise<Pagination<Following>> {
+  ): Promise<Pagination<UserPublic>> {
     const me = new User()
     me.id = userId
 
@@ -88,8 +97,12 @@ export class FollowingsService {
       skip: options.page * options.limit
     })
 
-    return new Pagination<Following>({
-      results,
+    return new Pagination<UserPublic>({
+      results: results.map((each) =>
+        plainToClass(UserPublic, each.following, {
+          excludeExtraneousValues: true
+        })
+      ),
       total
     })
   }

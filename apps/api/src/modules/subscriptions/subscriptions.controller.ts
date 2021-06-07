@@ -1,11 +1,20 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, Request } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  Request
+} from '@nestjs/common'
 import { SubscriptionsService } from './subscriptions.service'
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto'
 import { CreateDefaultSubscriptionDto } from './dto/create-default-subscription.dto'
 import { Iam } from '../../decorators/iam.decorator'
 import { Roles } from '../user-roles/entities/user-role.entity'
 
-@Controller('subscriptions')
+@Controller()
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
@@ -14,8 +23,11 @@ export class SubscriptionsController {
   create(
     @Body() createDefaultSubscriptionDto: CreateDefaultSubscriptionDto,
     @Param('organisationId') organisationId: string
-    ) {
-    return this.subscriptionsService.createDefault(createDefaultSubscriptionDto, organisationId)
+  ) {
+    return this.subscriptionsService.createDefault(
+      createDefaultSubscriptionDto,
+      organisationId
+    )
   }
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
@@ -23,7 +35,7 @@ export class SubscriptionsController {
   findOne(
     @Param('organisationId') orgId: string,
     @Param('subscriptionId') subId: string
-    ) {
+  ) {
     return this.subscriptionsService.findOne(orgId, subId)
   }
 
@@ -32,7 +44,7 @@ export class SubscriptionsController {
   update(
     @Body() updateOrganisationDto: UpdateSubscriptionDto,
     @Param('organisationId') orgId: string,
-    @Param('subscriptionId') subId: string,
+    @Param('subscriptionId') subId: string
   ) {
     return this.subscriptionsService.update(updateOrganisationDto, orgId, subId)
   }
@@ -53,7 +65,11 @@ export class SubscriptionsController {
     @Param('organisationId') orgId: string,
     @Param('subscriptionId') subId: string
   ) {
-    return this.subscriptionsService.assignUsers(updateSubscriptionDto, orgId, subId)
+    return this.subscriptionsService.assignUsers(
+      updateSubscriptionDto,
+      orgId,
+      subId
+    )
   }
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
@@ -61,20 +77,31 @@ export class SubscriptionsController {
   assignUsersByUsersIds(
     @Body() updateSubscriptionDto: UpdateSubscriptionDto,
     @Param('organisationId') orgId: string,
-    @Param('subscriptionId') subId: string,
+    @Param('subscriptionId') subId: string
   ) {
-    return this.subscriptionsService.assignUsers(updateSubscriptionDto, orgId, subId)
+    return this.subscriptionsService.assignUsers(
+      updateSubscriptionDto,
+      orgId,
+      subId
+    )
   }
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
-  @Post('/organisations/:organisationId/subscriptions/:subscriptionId/:teamId/users')
+  @Post(
+    '/organisations/:organisationId/subscriptions/:subscriptionId/:teamId/users'
+  )
   assignUsersByTeamId(
     @Body() updateSubscriptionDto: UpdateSubscriptionDto,
     @Param('organisationId') orgId: string,
     @Param('subscriptionId') subId: string,
-    @Param('teamId') teamId: string,
+    @Param('teamId') teamId: string
   ) {
-    return this.subscriptionsService.assignUsers(updateSubscriptionDto, orgId, subId, teamId)
+    return this.subscriptionsService.assignUsers(
+      updateSubscriptionDto,
+      orgId,
+      subId,
+      teamId
+    )
   }
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
@@ -95,13 +122,62 @@ export class SubscriptionsController {
   }
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
-  @Delete('/organisations/:organisationId/subscriptions/:subscriptionId/users/:userId')
+  @Delete(
+    '/organisations/:organisationId/subscriptions/:subscriptionId/users/:userId'
+  )
   removeUser(
     @Param('organisationId') orgId: string,
     @Param('subscriptionId') subId: string,
-    @Param('userId') userId: string,
+    @Param('userId') userId: string
   ) {
     return this.subscriptionsService.removeUser(orgId, subId, userId)
   }
 
+  @Iam(Roles.SubscriptionAdmin)
+  @Post('/organisations/:organisationId/subscriptions/:subscriptionId/billing')
+  setupBilling(
+    @Param('organisationId') orgId: string,
+    @Param('subscriptionId') subId: string
+  ) {
+    return this.subscriptionsService.setupBilling(orgId, subId)
+  }
+
+  @Iam(Roles.SubscriptionAdmin)
+  @Post(
+    '/organisations/:organisationId/subscriptions/:subscriptionId/billing/chargebee'
+  )
+  createChargebeePlan(
+    @Param('organisationId') orgId: string,
+    @Param('subscriptionId') subId: string
+  ) {
+    return this.subscriptionsService.setupBilling(orgId, subId, true)
+  }
+
+  @Iam(Roles.SubscriptionAdmin)
+  @Get(
+    '/organisations/:organisationId/subscriptions/:subscriptionId/billing/:customerId'
+  )
+  getChargebeePlan(
+    @Param('organisationId') orgId: string,
+    @Param('subscriptionId') subId: string,
+    @Param('customerId') customerId: string
+  ) {
+    return this.subscriptionsService.getChargebeePlan(orgId, subId, customerId)
+  }
+
+  @Iam(Roles.SubscriptionAdmin)
+  @Delete(
+    '/organisations/:organisationId/subscriptions/:subscriptionId/billing/:customerId'
+  )
+  removeChargebeePlan(
+    @Param('organisationId') orgId: string,
+    @Param('subscriptionId') subId: string,
+    @Param('customerId') customerId: string
+  ) {
+    return this.subscriptionsService.removeChargebeePlan(
+      orgId,
+      subId,
+      customerId
+    )
+  }
 }
