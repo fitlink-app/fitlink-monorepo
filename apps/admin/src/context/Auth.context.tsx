@@ -24,7 +24,7 @@ export type AuthContext = {
 export const AuthContext = React.createContext({} as AuthContext)
 
 export function AuthProvider({ children }) {
-  const [state, setState] = useState<AuthContext>()
+  const [state, setState] = useState<AuthContext>({} as AuthContext)
 
   async function login({ email, password }) {
     await api.login({

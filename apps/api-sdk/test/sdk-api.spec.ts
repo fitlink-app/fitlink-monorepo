@@ -5,11 +5,11 @@ import { readFile } from 'fs/promises'
 import {
   Organisation,
   OrganisationType
-} from '../../api/src/modules/organisations/entities/organisation.entity'
-import { Activity } from '../../api/src/modules/activities/entities/activity.entity'
-import { Team } from '../../api/src/modules/teams/entities/team.entity'
-import { League } from '../../api/src/modules/leagues/entities/league.entity'
-import { Image } from '../../api/src/modules/images/entities/image.entity'
+} from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
+import { Activity } from '@fitlink/api/src/modules/activities/entities/activity.entity'
+import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
+import { League } from '@fitlink/api/src/modules/leagues/entities/league.entity'
+import { Image } from '@fitlink/api/src/modules/images/entities/image.entity'
 import FormDataMocker = require('form-data')
 
 // Mocks formdata and preserves TypeScript compatibility with browser version of FormData
