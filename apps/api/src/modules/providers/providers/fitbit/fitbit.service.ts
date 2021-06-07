@@ -1,18 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as fitbitClient from 'fitbit-node'
 import { ProviderType } from '../../entities/provider.entity'
 import { ProvidersService } from '../../providers.service'
+import {
+  FitbitAuthResponse,
+  FitbitEventData,
+  FitbitSubscriptionResponseBody
+} from '../../types/fitbit'
 
 const FitbitApiClient: any = fitbitClient
 
-export interface FitbitAuthResponse {
-  access_token: string
-  expires_in: number
-  refresh_token: string
-  scope: string
-  user_id: string
-}
+// You'll get this from the dashboard every time you're trying to make a verification
+const fitbit_verify_code =
+  'fbc7cb5495f6268e3705bc1051726897e5d398c2a3caa3dbc5ff80df99c4a93f'
 
 @Injectable()
 export class FitbitService {
@@ -22,9 +29,9 @@ export class FitbitService {
   ) {}
 
   Fitbit = new FitbitApiClient({
-    clientId: this.configService.get('FITBIT_CLIENT_ID'),
-    clientSecret: this.configService.get('FITBIT_CLIENT_SECRET'),
-    apiVersion: this.configService.get('FITBIT_API_VERSION')
+    clientId: '22BRK9',
+    clientSecret: '2399fd219c1535c0a66ea090647f2a93',
+    apiVersion: '1.2'
   })
 
   getOAuthUrl(userId: string) {
@@ -40,11 +47,10 @@ export class FitbitService {
 
   async saveFitbitProvider(code: string, userId: string) {
     const tokenExchangeResult = await this.exchangeToken(code)
-
+    await this.createPushSubscription(tokenExchangeResult.access_token, userId)
     const scopes = tokenExchangeResult.scope.split(' ')
     const token_expires_at =
       new Date().valueOf() + tokenExchangeResult.expires_in * 1000
-
     const result = await this.providersService.create(
       {
         provider_user_id: tokenExchangeResult.user_id,
@@ -56,8 +62,12 @@ export class FitbitService {
       },
       userId
     )
-
     return result
+  }
+
+  proccessPayload(payload: FitbitEventData[]) {
+    console.log(payload)
+    return { success: true }
   }
 
   async deAuthorize(userId: string) {
@@ -116,6 +126,34 @@ export class FitbitService {
       return updateResults.token
     } else {
       return provider.token
+    }
+  }
+
+  verifyWebhook(verifyToken: string) {
+    if (verifyToken !== fitbit_verify_code) {
+      throw new HttpException('NOT FOUND', HttpStatus.NOT_FOUND)
+    }
+  }
+
+  async createPushSubscription(accessToken: string, subscriberId: string) {
+    try {
+      const responses = await Promise.all([
+        this.Fitbit.post(
+          `/activities/apiSubscriptions/${subscriberId}.json?subscriberId=SohailSubId`,
+          accessToken
+        )
+      ])
+
+      for (const response of responses) {
+        const body = response[0] as FitbitSubscriptionResponseBody
+        console.log(body)
+        if (body.errors) {
+          throw new BadRequestException(body.errors[0].message)
+        }
+      }
+    } catch (e) {
+      console.log(e)
+      throw new BadRequestException(e.message)
     }
   }
 }
