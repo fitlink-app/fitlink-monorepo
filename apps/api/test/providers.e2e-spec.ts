@@ -2,14 +2,8 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Connection } from 'typeorm'
 import { useSeeding } from 'typeorm-seeding'
 import { ProvidersModule } from '../src/modules/providers/providers.module'
-import {
-  FitbitService,
-  FitbitAuthResponse
-} from '../src/modules/providers/providers/fitbit/fitbit.service'
-import {
-  StravaCallbackResponse,
-  StravaService
-} from '../src/modules/providers/providers/strava/strava.service'
+import { FitbitService } from '../src/modules/providers/providers/fitbit/fitbit.service'
+import { StravaService } from '../src/modules/providers/providers/strava/strava.service'
 import { User } from '../src/modules/users/entities/user.entity'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
@@ -21,6 +15,8 @@ import {
   ProvidersTeardown,
   SeedProviderToUser
 } from './seeds/providers.seed'
+import { FitbitAuthResponse } from '../src/modules/providers/types/fitbit'
+import { StravaCallbackResponse } from '../src/modules/providers/types/strava'
 const {
   STRAVA_CLIENT_ID,
   STRAVA_CLIENT_SECRET,
@@ -149,6 +145,7 @@ describe('Providers', () => {
     }
 
     fitbitService.exchangeToken = jest.fn()
+    fitbitService.createPushSubscription = jest.fn()
     fitbitService.exchangeToken.mockReturnValue(fitbitApiMockData)
     const data = await app.inject({
       method: 'GET',

@@ -29,9 +29,9 @@ export class FitbitService {
   ) {}
 
   Fitbit = new FitbitApiClient({
-    clientId: '22BRK9',
-    clientSecret: '2399fd219c1535c0a66ea090647f2a93',
-    apiVersion: '1.2'
+    clientId: this.configService.get('FITBIT_CLIENT_ID'),
+    clientSecret: this.configService.get('FITBIT_CLIENT_SECRET'),
+    apiVersion: this.configService.get('FITBIT_API_VERSION')
   })
 
   getOAuthUrl(userId: string) {
