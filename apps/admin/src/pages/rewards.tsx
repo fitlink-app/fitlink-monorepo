@@ -5,6 +5,7 @@ import Reward, { RewardProps } from '../components/elements/Reward'
 //import 'flickity/dist/flickity.min.css'
 import Select from '../components/elements/Select'
 import SortOrder from '../components/elements/SortOrder'
+import RewardDetails from '../components/elements/RewardDetails'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fitlinkRewards = require('../services/dummy/rewards-fitlink.json')
 
@@ -64,6 +65,12 @@ export default function components() {
     }
   }, [fitlinkRewards, sortOnFL, sortFL])
 
+  const loadReadonlyReward = (reward:any) => {
+    setDrawContent(
+      <RewardDetails {...reward} />
+    )
+  }
+
   return (
     <Dashboard
       title="Rewards"
@@ -119,14 +126,16 @@ export default function components() {
       <div className="rewards flex">
         { sortedFL.map((r:RewardProps, i) => (
           <div className="reward-wrap" key={`fl-r-${i}`}>
-            <Reward {...r} />
+            <Reward {...r} onClick={ () => loadReadonlyReward(r)} />
           </div>
         ))}
       </div>
       
-      <Drawer onClose={ () => setDrawContent(null) }>
-        { drawContent }
-      </Drawer>
+      { drawContent &&
+        <Drawer remove={ () => setDrawContent(null) }>
+          { drawContent }
+        </Drawer>
+      }
     </Dashboard>
   )
 }

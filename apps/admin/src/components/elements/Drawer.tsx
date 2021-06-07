@@ -1,37 +1,42 @@
-import { useState, useEffect, useRef } from 'react'
-import clsx from 'clsx'
+import { useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import IconClose from '../icons/IconClose'
 
 export type DrawerProps = {
   children: React.ReactNode
   warnBeforeClose?: boolean
-  onClose?: () => void
+  remove: () => void
 }
 
 export default function Drawer({
   children,
   warnBeforeClose = false,
-  onClose
+  remove
 }) {
   const node = useRef()
-  const [open, setOpen] = useState(false)
+  //const [open, setOpen] = useState(false)
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (children)
       setOpen(true)
-  }, [children])
+  }, [children]) */
 
   const handleClickOutside = e => {
     const ref = node.current || null
     if (ref.contains(e.target)) {
       return;
     }
+    e.stopPropagation()
+    e.stopImmediatePropagation()
     if (warnBeforeClose) {
       const res = confirm('Are you sure you want to exit without saving?')
-      setOpen(!res)
+      if (res) remove()
+      //setOpen(!res)
     } else {
-      setOpen(false)
+      remove()
+      //setOpen(false)
     }
+    return false
   }
 
   useEffect(() => {
@@ -39,9 +44,6 @@ export default function Drawer({
       document.addEventListener('mousedown', handleClickOutside)
     } else {
       document.removeEventListener('mousedown', handleClickOutside)
-      setTimeout(function() {
-        onClose()
-      }, 150)
     }
 
     return () => {
@@ -49,17 +51,32 @@ export default function Drawer({
     }
   }, [open])
 
-  const drawClass = clsx({
+  /* const drawClass = clsx({
     'drawer': true,
     'open': open
-  })
+  }) */
 
   return (
-    <div ref={node} className={drawClass}>
-      <div className="drawer__close" onClick={ () => setOpen(false) }>
-        <IconClose />
-      </div>
-      {children}
-    </div>
+    <AnimatePresence>
+      <motion.div
+        ref={node}
+        className="drawer"
+        initial={{
+          x: '100%'
+        }}
+        animate={{
+          x: 0,
+          transition: { duration: 0.15 }
+        }}
+        exit={{
+          x: '100%'
+        }}
+        >
+        <div className="drawer__close" onClick={ remove }>
+          <IconClose />
+        </div>
+        {children}
+      </motion.div>
+    </AnimatePresence>
   )
 }

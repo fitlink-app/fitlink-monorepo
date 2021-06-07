@@ -8,7 +8,8 @@ export type RewardProps = {
   shortDescription: string
   points: number
   expires: string
-  claimed?: number
+  redeemed?: number
+  onClick?: (e:any) => void
 }
 
 export default function Reward({
@@ -18,10 +19,11 @@ export default function Reward({
   shortDescription,
   points,
   expires,
-  claimed = 0
+  redeemed = 0,
+  onClick
 }:RewardProps) {
   return (
-    <Card className={`reward ${className}`}>
+    <Card className={`reward ${className}`} onClick={onClick}>
       <div className="card__background" style={{backgroundImage: `url(${image})`}} />
       <div className="card__bottom">
         <h3 className="h5">
@@ -31,7 +33,7 @@ export default function Reward({
       </div>
       <div className="card__top">
         <div className="card__chip">{points.toLocaleString()} points</div>
-        { claimed > 0 && <h4 className="p">{claimed.toLocaleString()} claimed</h4> }
+        { redeemed > 0 && <h4 className="p">{redeemed.toLocaleString()} redeemed</h4> }
         <div className="reward__expires">
           <small>Expires</small>
           { format(new Date(expires), 'do MMM, yyyy') }

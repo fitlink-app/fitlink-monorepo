@@ -27,7 +27,7 @@
     overflow-x: hidden;
     overflow-y: auto;
     box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
-    transition: transform 0.15s;
+    //transition: transform 0.15s;
 
     &__close {
       position: absolute;
@@ -47,8 +47,8 @@
       }
     }
 
-    &.open {
+   /*  &.open {
       transform: translateX(0%);
-    }
+    } */
   }
 }
