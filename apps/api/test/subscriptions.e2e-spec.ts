@@ -116,7 +116,7 @@ describe('Subscriptions', () => {
       const payload = { ...rest } as CreateDefaultSubscriptionDto
       const result = await app.inject({
         method: 'POST',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions`,
+        url: `/organisations/${organisation.id}/subscriptions`,
         headers: getHeaders(),
         payload
       })
@@ -163,7 +163,7 @@ describe('Subscriptions', () => {
       const { organisation, id, ...rest } = subscription
       const result = await app.inject({
         method: 'GET',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}`,
         headers: getHeaders()
       })
 
@@ -202,7 +202,7 @@ describe('Subscriptions', () => {
       const payload = { ...rest } as UpdateSubscriptionDto
       const result = await app.inject({
         method: 'PUT',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}`,
         headers: getHeaders(),
         payload
       })
@@ -224,7 +224,7 @@ describe('Subscriptions', () => {
       const wrongOrganisationId = '15d81974-8214-419e-a587-a49a82b19433'
       const result = await app.inject({
         method: 'PUT',
-        url: `/subscriptions/organisations/${wrongOrganisationId}/subscriptions/${id}`,
+        url: `/organisations/${wrongOrganisationId}/subscriptions/${id}`,
         headers: getHeaders(),
         payload
       })
@@ -254,7 +254,7 @@ describe('Subscriptions', () => {
       const { organisation, id, ...rest } = anotherSubscription
       const result = await app.inject({
         method: 'DELETE',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}`,
         headers: getHeaders()
       })
 
@@ -273,7 +273,7 @@ describe('Subscriptions', () => {
     const { organisation, id, ...rest } = anotherSubscription
     const result = await app.inject({
       method: 'DELETE',
-      url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}`,
+      url: `/organisations/${organisation.id}/subscriptions/${id}`,
       headers: getAuthHeaders({ o_a: [organisation.id] })
     })
     expect(result.statusCode).toEqual(200)
@@ -289,7 +289,7 @@ describe('Subscriptions', () => {
       const wrongOrganisationId = '15d81974-8214-419e-a587-a49a82b19433'
       const result = await app.inject({
         method: 'DELETE',
-        url: `/subscriptions/organisations/${wrongOrganisationId}/subscriptions/${id}`,
+        url: `/organisations/${wrongOrganisationId}/subscriptions/${id}`,
         headers: getHeaders()
       })
 
@@ -312,7 +312,7 @@ describe('Subscriptions', () => {
     const wrongOrganisationId = '15d81974-8214-419e-a587-a49a82b19433'
     const result = await app.inject({
       method: 'DELETE',
-      url: `/subscriptions/organisations/${wrongOrganisationId}/subscriptions/${id}`,
+      url: `/organisations/${wrongOrganisationId}/subscriptions/${id}`,
       headers: getAuthHeaders({ s_a: [id] })
     })
     expect(result.statusCode).toEqual(400)
@@ -390,7 +390,7 @@ describe('Assigning users to the subscriptions', () => {
       const payload = { ...rest } as UpdateSubscriptionDto
       const result = await app.inject({
         method: 'POST',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/users`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/users`,
         headers: getHeaders(),
         payload
       })
@@ -439,7 +439,7 @@ describe('Assigning users to the subscriptions', () => {
       const payload = { ...rest } as UpdateSubscriptionDto
       const result = await app.inject({
         method: 'POST',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/${team.id}/users`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/${team.id}/users`,
         headers: getHeaders(),
         payload
       })
@@ -495,7 +495,7 @@ describe('Assigning users to the subscriptions', () => {
       const payload = { ...rest, usersIdsList } as UpdateSubscriptionDto
       const result = await app.inject({
         method: 'POST',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/usersIds`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/usersIds`,
         headers: getHeaders(),
         payload
       })
@@ -543,7 +543,7 @@ describe('Assigning users to the subscriptions', () => {
       const { organisation, id, ...rest } = subscription
       const result = await app.inject({
         method: 'GET',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/users`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/users`,
         headers: getHeaders()
       })
 
@@ -567,7 +567,7 @@ describe('Assigning users to the subscriptions', () => {
       const { organisation, id, users, ...rest } = subscription
       const result = await app.inject({
         method: 'DELETE',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/users/${users[1].id}`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/users/${users[1].id}`,
         headers: getHeaders()
       })
 
@@ -590,7 +590,7 @@ describe('Assigning users to the subscriptions', () => {
       const fakeUser = '22392f90-88b8-4d1b-a42b-eeeeeeeeeeee'
       const result = await app.inject({
         method: 'DELETE',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/users/${fakeUser}`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/users/${fakeUser}`,
         headers: getHeaders()
       })
 

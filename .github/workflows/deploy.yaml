@@ -94,6 +94,9 @@ jobs:
       - name: Test e2e
         run: yarn run test
 
+      - name: Test sdk
+        run: yarn run test-sdk
+
       - name: Stop docker
         run: docker-compose down
 

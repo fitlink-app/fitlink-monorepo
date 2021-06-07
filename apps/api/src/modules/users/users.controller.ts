@@ -25,6 +25,7 @@ import {
 } from '../../decorators/swagger.decorator'
 import { PaginationQuery } from '../../helpers/paginate'
 import { JWTRoles } from '../../models'
+import { Public } from '../../decorators/public.decorator'
 
 @Controller()
 @ApiBaseResponses()
@@ -74,7 +75,8 @@ export class UsersController {
     return this.usersService.create(createUserDto)
   }
 
-  @Iam(Roles.SuperAdmin)
+  // @Iam(Roles.SuperAdmin)
+  @Public()
   @Get('users')
   @PaginationBody()
   @ApiResponse({ type: User, isArray: true, status: 200 })
