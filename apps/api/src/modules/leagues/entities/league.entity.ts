@@ -9,7 +9,7 @@ import {
   JoinTable,
   ManyToOne
 } from 'typeorm'
-import { CreatableByUserEntity } from '../../../classes/entity/creatable'
+import { CreatableByUserEntity } from '../../../classes/entity/creatable.user'
 import { Leaderboard } from '../../leaderboards/entities/leaderboard.entity'
 import { Sport } from '../../sports/entities/sport.entity'
 import { Team } from '../../teams/entities/team.entity'

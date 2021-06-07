@@ -114,12 +114,15 @@ describe('Auth', () => {
     const { access_token } = await getLoginTokens(app, email, password)
     const result = await app.inject({
       method: 'GET',
-      url: `/users/${userId}`,
+      url: `/me`,
       headers: {
         authorization: `Bearer ${access_token}`
       }
     })
 
+    const data = result.json()
+
+    expect(data.created_at).toBeDefined()
     expect(result.statusCode).toEqual(200)
   })
 
@@ -141,7 +144,7 @@ describe('Auth', () => {
   it(`/user/:id 401 Does not allow a user to access a JWT guarded controller with an expired access token`, async () => {
     const result = await app.inject({
       method: 'GET',
-      url: `/users/${userId}`,
+      url: `/me`,
       headers: {
         authorization: `Bearer ${expiredToken}`
       }

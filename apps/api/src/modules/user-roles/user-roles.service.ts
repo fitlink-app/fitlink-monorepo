@@ -89,7 +89,12 @@ export class UserRolesService {
   }
 
   assignSuperAdminRole(userId: string) {
-    return `Boom just assigned super admin to #${userId}`
+    const user = new User()
+    user.id = userId
+    return this.userRoleRepository.save({
+      user,
+      role: 'superadmin'
+    })
   }
 
   async checkOwnerShip(orgId: string, userId: string) {

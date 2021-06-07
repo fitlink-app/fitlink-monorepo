@@ -1,18 +1,20 @@
-import { Controller, Request, Post, UseGuards, Get } from '@nestjs/common'
+import { Controller, Request, Post, UseGuards, Get, Body } from '@nestjs/common'
 import { LocalAuthGuard } from './guards/local-auth.guard'
 import { AuthService } from './auth.service'
-import { UsersService } from '../users/users.service'
-import { User } from '../../decorators/authenticated-user.decorator'
-import { AuthenticatedUser } from '../../models'
 import { Public } from '../../decorators/public.decorator'
+import { AuthLoginDto } from './dto/auth-login'
+import { AuthResultDto, AuthLogoutDto, AuthSignupDto } from './dto/auth-result'
+import { ApiBody, ApiResponse } from '@nestjs/swagger'
+import { ApiBaseResponses } from '../../decorators/swagger.decorator'
+import { CreateUserDto } from '../users/dto/create-user.dto'
 
 @Controller()
+@ApiBaseResponses()
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly usersService: UsersService
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
+  @ApiBody({ type: AuthLoginDto })
+  @ApiResponse({ type: AuthResultDto, status: 200 })
   @UseGuards(LocalAuthGuard)
   @Public()
   @Post('auth/login')
@@ -29,12 +31,15 @@ export class AuthController {
    * @returns
    */
   @Post('auth/logout')
+  @ApiResponse({ type: AuthLogoutDto, status: 200 })
   async logout() {
     return { success: true }
   }
 
-  @Get('me')
-  async me(@User() user: AuthenticatedUser) {
-    return this.usersService.findOne(user.id)
+  @Post('auth/signup')
+  @Public()
+  @ApiResponse({ type: AuthSignupDto, status: 200 })
+  async signup(@Body() createUserDto: CreateUserDto) {
+    return this.authService.signup(createUserDto)
   }
 }

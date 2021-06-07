@@ -12,6 +12,7 @@ import { Team } from '../../teams/entities/team.entity'
 import { Image } from '../../images/entities/image.entity'
 import { Subscription } from '../../subscriptions/entities/subscription.entity'
 import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
+import { ApiProperty } from '@nestjs/swagger'
 
 export enum OrganisationType {
   Company = 'company',
@@ -23,6 +24,7 @@ export enum OrganisationType {
 
 @Entity()
 export class Organisation extends CreatableEntity {
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string
 
@@ -48,9 +50,11 @@ export class Organisation extends CreatableEntity {
   )
   invitations: OrganisationsInvitation[]
 
+  @ApiProperty()
   @Column()
   name: string
 
+  @ApiProperty()
   @Column({
     type: 'enum',
     enum: OrganisationType,
@@ -58,21 +62,25 @@ export class Organisation extends CreatableEntity {
   })
   type: string
 
+  @ApiProperty()
   @Column({
     nullable: true
   })
   type_other?: string
 
+  @ApiProperty()
   @Column({
     default: 'Etc/UTC'
   })
   timezone: string
 
+  @ApiProperty()
   @Column({
     default: 0
   })
   user_count: number
 
+  @ApiProperty()
   @OneToOne(() => Image, {
     cascade: ['remove'],
     onDelete: 'CASCADE'

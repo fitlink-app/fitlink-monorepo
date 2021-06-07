@@ -1,15 +1,12 @@
 import { CreateDateColumn, UpdateDateColumn } from 'typeorm'
-
-import { User } from '../../modules/users/entities/user.entity'
+import { ApiProperty } from '@nestjs/swagger'
 
 export abstract class CreatableEntity {
+  @ApiProperty()
   @CreateDateColumn()
   created_at: Date
 
+  @ApiProperty()
   @UpdateDateColumn()
   updated_at: Date
-}
-
-export abstract class CreatableByUserEntity extends CreatableEntity {
-  created_by: User
 }

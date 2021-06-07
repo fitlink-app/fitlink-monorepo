@@ -1,12 +1,19 @@
 import { ApiParameterError, AuthorizationRefreshError, makeApi } from '../index'
 import axios from 'axios'
 import * as moxios from 'moxios'
+import { readFile } from 'fs/promises'
 import {
   Organisation,
   OrganisationType
 } from '../../../api/src/modules/organisations/entities/organisation.entity'
 import { Activity } from '../../../api/src/modules/activities/entities/activity.entity'
 import { Team } from '../../../api/src/modules/teams/entities/team.entity'
+import { League } from '../../../api/src/modules/leagues/entities/league.entity'
+import { Image } from '../../../api/src/modules/images/entities/image.entity'
+import FormDataMocker = require('form-data')
+
+// Mocks formdata and preserves TypeScript compatibility with browser version of FormData
+const mockFormData = () => (new FormDataMocker() as unknown) as FormData
 
 const api = makeApi(axios)
 
@@ -179,6 +186,11 @@ describe('list', () => {
       response: { results: [{ id: '111' }], page_total: 1, total: 1 }
     })
 
+    moxios.stubOnce('get', /me\/leagues.*/, {
+      status: 200,
+      response: { results: [{ id: '444' }], page_total: 1, total: 1 }
+    })
+
     const organisations = await api.list<Organisation>('/organisations')
     const activities = await api.list<Activity>(
       '/organisations/:organisationId/activities',
@@ -188,9 +200,12 @@ describe('list', () => {
       organisationId: '111'
     })
 
+    const myLeagues = await api.list<League>('/me/leagues')
+
     expect(organisations.results[0].id).toEqual('111')
     expect(activities.results[0].id).toEqual('222')
     expect(teams.results[0].id).toEqual('333')
+    expect(myLeagues.results[0].id).toEqual('444')
   })
 
   it('can get items with entity responses', async () => {
@@ -381,5 +396,25 @@ describe('list', () => {
     expect(organisation.name).toEqual('Updated organisation')
     expect(activity.name).toEqual('Updated activity')
     expect(team.name).toEqual('Updated team')
+  })
+
+  it('can upload images', async () => {
+    moxios.stubOnce('post', /images$/, {
+      status: 201,
+      response: {
+        url: 'https://example.com/imageurl'
+      }
+    })
+
+    const file1 = await readFile(__dirname + '/assets/1200x1200.png')
+    const formData = mockFormData()
+    formData.append('image', (file1 as unknown) as Blob)
+    const image = await api.uploadFile<Image>('/images', {
+      organisationId: '111',
+      teamId: '333',
+      payload: formData
+    })
+
+    expect(image.url).toEqual('https://example.com/imageurl')
   })
 })

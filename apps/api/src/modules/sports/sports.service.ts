@@ -36,14 +36,18 @@ export class SportsService {
       } as Sport
       return await this.sportsRepository.save(newSport)
     } catch (e) {
-      throw new BadRequestException()
+      throw new BadRequestException('Sport already exists')
     }
   }
 
-  async findAll(
-    options: PaginationOptionsInterface
-  ): Promise<Pagination<Sport>> {
-    const [results, total] = await this.sportsRepository.findAndCount()
+  async findAll({
+    limit,
+    page
+  }: PaginationOptionsInterface): Promise<Pagination<Sport>> {
+    const [results, total] = await this.sportsRepository.findAndCount({
+      take: limit,
+      skip: page * limit
+    })
 
     return new Pagination<Sport>({
       results,
