@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import IconClose from '../icons/IconClose'
 
 export type DrawerProps = {
@@ -57,26 +57,25 @@ export default function Drawer({
   }) */
 
   return (
-    <AnimatePresence>
-      <motion.div
-        ref={node}
-        className="drawer"
-        initial={{
-          x: '100%'
-        }}
-        animate={{
-          x: 0,
-          transition: { duration: 0.15 }
-        }}
-        exit={{
-          x: '100%'
-        }}
-        >
-        <div className="drawer__close" onClick={ remove }>
-          <IconClose />
-        </div>
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      ref={node}
+      className="drawer"
+      initial={{
+        x: '100%'
+      }}
+      animate={{
+        x: 0,
+        transition: { duration: 0.15 }
+      }}
+      exit={{
+        x: '100%',
+        transition: { duration: 0.15 }
+      }}
+      >
+      <div className="drawer__close" onClick={ remove }>
+        <IconClose />
+      </div>
+      {children}
+    </motion.div>
   )
 }

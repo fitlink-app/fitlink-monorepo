@@ -17,6 +17,7 @@ import Drawer from '../components/elements/Drawer'
 import Link from 'next/link'
 import IconSearch from '../components/icons/IconSearch'
 import UserStats from '../components/forms/UserStats'
+import { AnimatePresence } from 'framer-motion'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dummy = require('../services/dummy/users.json')
 
@@ -122,11 +123,13 @@ export default function users() {
           fetch={() => Promise.resolve(dummy)}
         />
       </div>
-      { drawContent &&
-        <Drawer remove={() => setDrawContent(null)}>
-          {drawContent}
-        </Drawer>
-      }
+      <AnimatePresence initial={false}>
+        { drawContent &&
+          <Drawer remove={ () => setDrawContent(null) } key="drawer">
+            { drawContent }
+          </Drawer>
+        }
+      </AnimatePresence>
     </Dashboard>
   )
 }

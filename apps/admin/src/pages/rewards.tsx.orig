@@ -6,7 +6,6 @@ import Reward, { RewardProps } from '../components/elements/Reward'
 import Select from '../components/elements/Select'
 import SortOrder from '../components/elements/SortOrder'
 import RewardDetails from '../components/elements/RewardDetails'
-import { AnimatePresence } from 'framer-motion'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fitlinkRewards = require('../services/dummy/rewards-fitlink.json')
 
@@ -131,20 +130,27 @@ export default function components() {
         </div>
       </div>
       <div className="rewards flex">
+<<<<<<< HEAD
         { sortedFL.map((r:RewardProps, i) => (
           <div className="reward-wrap" key={`fl-r-${i}`}>
             <Reward {...r} onClick={ () => loadReadonlyReward(r)} />
           </div>
         ))}
       </div>
+      
+      { drawContent &&
+        <Drawer remove={ () => setDrawContent(null) }>
+          { drawContent }
+        </Drawer>
+      }
+=======
+        {sortedFL.map((r: RewardProps, i) => (
+          <Reward {...r} className="mr-2 mb-2" key={`fl-r-${i}`} />
+        ))}
+      </div>
 
-      <AnimatePresence initial={false}>
-        { drawContent &&
-          <Drawer remove={ () => setDrawContent(null) } key="drawer">
-            { drawContent }
-          </Drawer>
-        }
-      </AnimatePresence>
+      <Drawer onClose={() => setDrawContent(null)}>{drawContent}</Drawer>
+>>>>>>> 9acfe2d8c7e8a8e8d96be2e337d44205453ecea4
     </Dashboard>
   )
 }
