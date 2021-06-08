@@ -2,6 +2,16 @@
   "name": "@fitlink/mobile",
   "version": "0.0.1",
   "private": true,
+  "workspaces": {
+    "nohoist": [
+      "@react-native-community/**",
+      "react-native",
+      "react-native/**",
+      "react-native-svg",
+      "jetifier",
+      "@babel/runtime"
+    ]
+  },
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
