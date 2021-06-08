@@ -5,7 +5,8 @@ import Reward, { RewardProps } from '../components/elements/Reward'
 //import 'flickity/dist/flickity.min.css'
 import Select from '../components/elements/Select'
 import SortOrder from '../components/elements/SortOrder'
-import RewardDetails from '../components/elements/RewardDetails'
+import RewardDetails from '../components/forms/RewardDetails'
+import NewReward from '../components/forms/NewReward'
 import { AnimatePresence } from 'framer-motion'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fitlinkRewards = require('../services/dummy/rewards-fitlink.json')
@@ -86,11 +87,25 @@ export default function components() {
     )
   }
 
+  const NewRewardForm = () => {
+    setDrawContent(
+      <NewReward />
+    )
+  }
+
   return (
     <Dashboard title="Rewards">
       <div className="row ai-c mb-1">
         <div className="col-12 col-lg-8">
-          <h1 className="light mb-0">Your rewards</h1>
+          <div className="flex ai-c">
+            <h1 className="light mb-0 mr-2">Your rewards</h1>
+            <button
+              className="button alt small mt-1"
+              onClick={NewRewardForm}
+              >
+              Add new
+            </button>
+          </div>
         </div>
         <div className="col-12 col-lg-4 text-lg-right">
           <Select
