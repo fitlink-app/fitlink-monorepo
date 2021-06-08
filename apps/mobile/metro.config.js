@@ -16,7 +16,7 @@ function getConfig(appDir, options = {}) {
   // Add additional Yarn workspace package roots to the module map
   // https://bit.ly/2LHHTP0
   const watchFolders = [
-    path.resolve(appDir, '.', 'node_modules'),
+    path.resolve(appDir, '../..', 'node_modules'),
     ...workspaces.filter(workspaceDir => !(workspaceDir === appDir)),
   ];
 
