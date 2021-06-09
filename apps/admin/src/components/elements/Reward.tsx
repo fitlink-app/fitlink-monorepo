@@ -7,7 +7,7 @@ export type RewardProps = {
   brand: string
   shortTitle: string
   points: number
-  expires: string
+  expires: string | Date
   redeemed?: number
   onClick?: (e:any) => void
 }
