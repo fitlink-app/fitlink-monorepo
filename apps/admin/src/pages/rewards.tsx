@@ -15,7 +15,7 @@ export default function components() {
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)
-
+  const [warning, setWarning] = useState(false)
   const [sorted, setSorted] = useState([])
   const [sort, setSort] = useState<'asc' | 'desc'>('asc')
   const [sortOn, setSortOn] = useState('points')
@@ -82,12 +82,14 @@ export default function components() {
   }, [fitlinkRewards, sortOnFL, sortFL])
 
   const loadReadonlyReward = (reward:any) => {
+    setWarning(false)
     setDrawContent(
       <RewardDetails {...reward} />
     )
   }
 
   const NewRewardForm = () => {
+    setWarning(true)
     setDrawContent(
       <NewReward />
     )
@@ -155,7 +157,11 @@ export default function components() {
 
       <AnimatePresence initial={false}>
         { drawContent &&
-          <Drawer remove={ () => setDrawContent(null) } key="drawer">
+          <Drawer
+            remove={ () => setDrawContent(null) }
+            key="drawer"
+            warnBeforeClose={warning}
+            >
             { drawContent }
           </Drawer>
         }

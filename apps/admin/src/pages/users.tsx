@@ -125,7 +125,10 @@ export default function users() {
       </div>
       <AnimatePresence initial={false}>
         { drawContent &&
-          <Drawer remove={ () => setDrawContent(null) } key="drawer">
+          <Drawer
+            remove={ () => setDrawContent(null) }
+            key="drawer"
+            >
             { drawContent }
           </Drawer>
         }
