@@ -4,6 +4,7 @@ import Input from '../elements/Input'
 import Reward from '../elements/Reward'
 import DateInput from '../elements/DateInput'
 import { addYears } from 'date-fns'
+import IconImage from '../icons/IconImage'
 
 export default function NewReward() {
   const [image, setImage] = useState('')
@@ -16,11 +17,14 @@ export default function NewReward() {
   const [instructions, setInstructions] = useState('')
   const [url, setUrl] = useState('')
   const [description, setDescription] = useState('')
+
+  const previewImage = (e) => {
+    setImage(URL.createObjectURL(e.target.files[0]))
+  }
   
   return (
     <>
       <h4 className="light mb-3">New reward</h4>
-      <p>Preview</p>
       <Reward
         image={image}
         brand={brand}
@@ -29,6 +33,12 @@ export default function NewReward() {
         expires={expires}
         redeemed={0}
         />
+
+      <div className="basic-image-select">
+        <input type="file" id="image" onChange={previewImage} accept="image/*" />
+        <IconImage />
+        <label htmlFor="image">Select an image</label>
+      </div>
 
       <Input
         name="points"
@@ -98,6 +108,9 @@ export default function NewReward() {
         minDate={new Date()}
         maxDate={addYears(new Date(), 10)}
         />
+      <div className="text-right mt-2">
+        <button className="button">Create reward</button>
+      </div>
     </>
   )
 }
