@@ -5,7 +5,7 @@ export type RewardProps = {
   className?: string
   image?: string
   brand: string
-  shortDescription: string
+  shortTitle: string
   points: number
   expires: string
   redeemed?: number
@@ -16,7 +16,7 @@ export default function Reward({
   className = '',
   image = '',
   brand,
-  shortDescription,
+  shortTitle,
   points,
   expires,
   redeemed = 0,
@@ -31,7 +31,7 @@ export default function Reward({
       <div className="card__bottom">
         <h3 className="h5">
           <small>{brand}</small>
-          {shortDescription}
+          {shortTitle}
         </h3>
       </div>
       <div className="card__top">
