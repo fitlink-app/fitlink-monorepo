@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { format, add } from 'date-fns'
+import { add } from 'date-fns'
 import Input from '../elements/Input'
 import Reward from '../elements/Reward'
+import DateInput from '../elements/DateInput'
+import { addYears } from 'date-fns'
 
 export default function NewReward() {
   const [image, setImage] = useState('')
@@ -9,7 +11,7 @@ export default function NewReward() {
   const [shortTitle, setShortTitle] = useState('')
   const [title, setTitle] = useState('')
   const [points, setPoints] = useState(0)
-  const [expires, setExpires] = useState(format(add(new Date(), {months: 6}), 'yyyy-MM-dd'))
+  const [expires, setExpires] = useState(add(new Date(), {months: 2}))
   const [code, setCode] = useState('')
   const [instructions, setInstructions] = useState('')
   const [url, setUrl] = useState('')
@@ -81,12 +83,20 @@ export default function NewReward() {
         rows={3}
         onChange={ (v) => setInstructions(v) }
         />
-        <Input
+      <Input
         name="url"
         placeholder="URL"
         label="Redemption URL"
         value={url}
         onChange={ (v) => setUrl(v) }
+        />
+      <DateInput
+        label="Expiry date"
+        name="expires"
+        startDate={expires}
+        onChange={ (v) => setExpires(v) }
+        minDate={new Date()}
+        maxDate={addYears(new Date(), 10)}
         />
     </>
   )
