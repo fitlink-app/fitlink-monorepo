@@ -3,7 +3,7 @@ import clsx from 'clsx'
 
 export type InputProps = {
   type?: 'text' | 'number' | 'email' | 'tel' | 'textarea'
-  label: string
+  label?: string
   placeholder?: string
   name: string
   value?: any
@@ -54,7 +54,7 @@ export default function Input({
 
   return (
     <div className={classes}>
-      <label htmlFor={name}>{label}</label>
+      { label && <label htmlFor={name}>{label}</label> }
       {type !== 'textarea' ? (
         <input
           type={type}
