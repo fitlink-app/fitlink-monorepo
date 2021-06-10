@@ -9,6 +9,8 @@ import RewardDetails from '../components/forms/RewardDetails'
 import NewReward from '../components/forms/NewReward'
 import { AnimatePresence } from 'framer-motion'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
+const rewards = require('../services/dummy/rewards.json')
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const fitlinkRewards = require('../services/dummy/rewards-fitlink.json')
 
 export default function components() {
@@ -31,7 +33,7 @@ export default function components() {
     },
     {
       label: 'Title',
-      value: 'shortDescription'
+      value: 'shortTitle'
     },
     {
       label: 'Brand',
@@ -81,6 +83,33 @@ export default function components() {
     }
   }, [fitlinkRewards, sortOnFL, sortFL])
 
+  useEffect(() => {
+    const orig = JSON.parse(JSON.stringify(rewards))
+    switch (sortOn) {
+      case 'shortDescription':
+      case 'brand':
+        setSorted(
+          orig.results.sort((a, b) =>
+            sort === 'asc'
+              ? a[sortOn].toLowerCase() > b[sortOn].toLowerCase()
+              : a[sortOn].toLowerCase() < b[sortOn].toLowerCase()
+          )
+        )
+        break
+      case 'points':
+      case 'claims':
+      default:
+        setSorted(
+          orig.results.sort((a, b) =>
+            sort === 'asc'
+              ? parseFloat(a[sortOn]) - parseFloat(b[sortOn])
+              : parseFloat(b[sortOn]) - parseFloat(a[sortOn])
+          )
+        )
+        break
+    }
+  }, [rewards, sortOn, sort])
+
   const loadReadonlyReward = (reward:any) => {
     setWarning(false)
     setDrawContent(
@@ -125,7 +154,7 @@ export default function components() {
       <div className="rewards flex mb-4">
         { sorted.map((r:RewardProps, i) => (
           <div className="reward-wrap" key={`fl-r-${i}`}>
-            <Reward {...r} />
+            <Reward {...r} onClick={ () => loadReadonlyReward(r)} />
           </div>
         ))}
       </div>

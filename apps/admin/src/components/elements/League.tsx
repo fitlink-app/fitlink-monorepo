@@ -7,8 +7,9 @@ export type LeagueProps = {
   name: string
   description?: string
   members: number
-  resetDate: string
+  resetDate: string | Date
   type: string
+  onClick?: (e:any) => void
 }
 
 export default function League({
@@ -18,10 +19,11 @@ export default function League({
   description = '',
   members,
   resetDate,
-  type
+  type,
+  onClick
 }:LeagueProps) {
   return (
-    <Card className={`league ${className}`}>
+    <Card className={`league ${className}`} onClick={onClick}>
       <div className="card__background" style={{backgroundImage: `url(${image})`}} />
       <div className="card__bottom">
         <h3 className="h5">{name}</h3>
