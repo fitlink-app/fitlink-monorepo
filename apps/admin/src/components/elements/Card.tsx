@@ -1,7 +1,7 @@
 export type CardProps = {
   className?: string
   children: React.ReactNode
-  onClick: (e:any) => void
+  onClick?: (e:any) => void
 }
 
 export default function Card({

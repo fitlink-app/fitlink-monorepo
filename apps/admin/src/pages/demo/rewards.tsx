@@ -9,7 +9,7 @@ import RewardDetails from '../../components/forms/RewardDetails'
 import NewReward from '../../components/forms/NewReward'
 import { AnimatePresence } from 'framer-motion'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const rewards = require('../services/dummy/rewards.json')
+const rewards = require('../../services/dummy/rewards.json')
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fitlinkRewards = require('../../services/dummy/rewards-fitlink.json')
 

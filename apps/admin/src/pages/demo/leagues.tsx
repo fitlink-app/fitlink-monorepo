@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import League from '../components/elements/League'
-import Select from '../components/elements/Select'
-import SortOrder from '../components/elements/SortOrder'
+import League from '../../components/elements/League'
+import Select from '../../components/elements/Select'
+import SortOrder from '../../components/elements/SortOrder'
 import Dashboard from '../../components/layouts/Dashboard'
 
 export default function components() {
