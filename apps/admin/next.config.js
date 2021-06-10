@@ -1,7 +1,8 @@
 const path = require('path')
 
 module.exports = {
-  distDir: '../../dist/apps/admin',
+  // Disabling this line since it breaks Vercel deployments
+  // distDir: '../../dist/apps/admin',
   webpack: function( config, { defaultLoaders } ){
     /**
      * Include external codebases from mono-repo
