@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import IconClose from '../icons/IconClose'
 
 export type DrawerProps = {
@@ -8,18 +8,8 @@ export type DrawerProps = {
   remove: () => void
 }
 
-export default function Drawer({
-  children,
-  warnBeforeClose = false,
-  remove
-}) {
+export default function Drawer({ children, warnBeforeClose = false, remove }) {
   const node = useRef()
-  //const [open, setOpen] = useState(false)
-
-  /* useEffect(() => {
-    if (children)
-      setOpen(true)
-  }, [children]) */
 
   const handleClickOutside = (e) => {
     const ref = node.current || null
@@ -31,10 +21,8 @@ export default function Drawer({
     if (warnBeforeClose) {
       const res = confirm('Are you sure you want to exit without saving?')
       if (res) remove()
-      //setOpen(!res)
     } else {
       remove()
-      //setOpen(false)
     }
     return false
   }
@@ -51,32 +39,25 @@ export default function Drawer({
     }
   }, [open])
 
-  /* const drawClass = clsx({
-    'drawer': true,
-    'open': open
-  }) */
-
   return (
-    <AnimatePresence>
-      <motion.div
-        ref={node}
-        className="drawer"
-        initial={{
-          x: '100%'
-        }}
-        animate={{
-          x: 0,
-          transition: { duration: 0.15 }
-        }}
-        exit={{
-          x: '100%'
-        }}
-        >
-        <div className="drawer__close" onClick={ remove }>
-          <IconClose />
-        </div>
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      ref={node}
+      className="drawer"
+      initial={{
+        x: '100%'
+      }}
+      animate={{
+        x: 0,
+        transition: { duration: 0.15 }
+      }}
+      exit={{
+        x: '100%',
+        transition: { duration: 0.15 }
+      }}>
+      <div className="drawer__close" onClick={remove}>
+        <IconClose />
+      </div>
+      {children}
+    </motion.div>
   )
 }
