@@ -8,15 +8,62 @@ import IconStairs from '../../components/icons/IconStairs'
 import IconYoga from '../../components/icons/IconYoga'
 import ProgressChart from '../../components/charts/ProgressChart'
 import IconWater from '../../components/icons/IconWater'
+import Select from '../../components/elements/Select'
 
 export default function components() {
+
+  const options = [
+    {
+      label: 'Today',
+      value: 'today'
+    },
+    {
+      label: 'Yesterday',
+      value: 'yesterday'
+    },
+    {
+      label: 'This week',
+      value: 'thisweek'
+    },
+    {
+      label: 'Last week',
+      value: 'lastweek'
+    },
+    {
+      label: 'This month',
+      value: 'thismonth'
+    },
+    {
+      label: 'Last month',
+      value: 'lastmonth'
+    },
+    {
+      label: 'This year',
+      value: 'thisyear'
+    }
+  ]
+
   return (
     <Dashboard title="Dashboard">
       <h1 className="light">Your team at a glance</h1>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">
           <Card className="p-3 card--stretch">
-            <h2 className="h5 color-light-grey">Most popular activities</h2>
+            <div className="row ai-c">
+              <div className="col">
+                <h2 className="h5 color-light-grey m-0">Most popular activities</h2>
+              </div>
+              <div className="col text-right">
+                <Select
+                  id="activities"
+                  defaultValue={options[0]}
+                  isSearchable={false}
+                  options={options}
+                  inline={true}
+                  onChange={(v) => console.log(v.value)}
+                />
+              </div>
+            </div>
             <div style={{ height: '400px' }}>
               <VerticalBarChart />
             </div>
@@ -24,7 +71,21 @@ export default function components() {
         </div>
         <div className="col-12 col-lg-6 mt-2">
           <Card className="p-3 card--stretch">
-            <h2 className="h5 color-light-grey">How is your team doing?</h2>
+            <div className="row ai-c">
+              <div className="col">
+                <h2 className="h5 color-light-grey m-0">How is your team doing?</h2>
+              </div>
+              <div className="col text-right">
+                <Select
+                  id="team"
+                  defaultValue={options[0]}
+                  isSearchable={false}
+                  options={options}
+                  inline={true}
+                  onChange={(v) => console.log(v.value)}
+                />
+              </div>
+            </div>
             <div className="row mt-4">
               <div className="col-4 text-center">
                 <ProgressChart
