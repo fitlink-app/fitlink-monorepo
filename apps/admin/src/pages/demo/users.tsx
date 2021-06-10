@@ -6,19 +6,19 @@ sort table
 */
 
 import { useState } from 'react'
-import Dashboard from '../components/layouts/Dashboard'
-import TableContainer from '../components/table/TableContainer'
+import Dashboard from '../../components/layouts/Dashboard'
+import TableContainer from '../../components/Table/TableContainer'
 import {
   toChipCell,
   toDateCell,
   toLocaleCell
-} from '../components/table/helpers'
-import Drawer from '../components/elements/Drawer'
+} from '../../components/Table/helpers'
+import Drawer from '../../components/elements/Drawer'
 import Link from 'next/link'
-import IconSearch from '../components/icons/IconSearch'
-import UserStats from '../components/forms/UserStats'
+import IconSearch from '../../components/icons/IconSearch'
+import UserStats from '../../components/forms/UserStats'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const dummy = require('../services/dummy/users.json')
+const dummy = require('../../services/dummy/users.json')
 
 export default function users() {
   const [drawContent, setDrawContent] = useState<
@@ -95,7 +95,7 @@ export default function users() {
         </div>
       </div>
       <p className="mt-1">
-        To comply with GDPA regulations, user information is annonymous.
+        To comply with GDPR regulations, user information is anonymous.
       </p>
       <div className="mt-4 overflow-x-auto">
         <TableContainer
@@ -122,11 +122,9 @@ export default function users() {
           fetch={() => Promise.resolve(dummy)}
         />
       </div>
-      { drawContent &&
-        <Drawer remove={() => setDrawContent(null)}>
-          {drawContent}
-        </Drawer>
-      }
+      {drawContent && (
+        <Drawer remove={() => setDrawContent(null)}>{drawContent}</Drawer>
+      )}
     </Dashboard>
   )
 }

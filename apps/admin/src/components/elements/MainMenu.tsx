@@ -16,57 +16,57 @@ export default function MainMenu() {
   return (
     <>
       <MenuItem
-        to="/dashboard"
+        to="/demo/dashboard"
         label="Overview"
-        current={current.startsWith('/dashboard')}
+        current={current.startsWith('/demo/dashboard')}
         icon={<IconGraph />}
       />
       <MenuItem
-        to="/users"
+        to="/demo/users"
         label="User stats"
-        current={current.startsWith('/users')}
+        current={current.startsWith('/demo/users')}
         icon={<IconFriends />}
       />
       <MenuItem
-        to="/rewards"
+        to="/demo/rewards"
         label="Rewards"
-        current={current.startsWith('/rewards')}
+        current={current.startsWith('/demo/rewards')}
         icon={<IconRewards />}
       />
       <MenuItem
-        to="/leagues"
+        to="/demo/leagues"
         label="Leagues"
-        current={current.startsWith('/leagues')}
+        current={current.startsWith('/demo/leagues')}
         icon={<IconLeagues />}
       />
       <MenuItem
-        to="/activities"
+        to="/demo/activities"
         label="Activities"
-        current={current.startsWith('/activities')}
+        current={current.startsWith('/demo/activities')}
         icon={<IconActivities />}
       />
       <hr />
       <MenuItem
-        to="/knowledge-base"
+        to="/demo/knowledge-base"
         label="Knowledge base"
-        current={current.startsWith('/knowledge-base')}
+        current={current.startsWith('/demo/knowledge-base')}
         icon={<IconYoga />}
       />
       <hr />
       <MenuItem
-        to="/settings"
+        to="/demo/settings"
         label="Account settings"
-        current={current.startsWith('/settings')}
+        current={current.startsWith('/demo/settings')}
         icon={<IconGear />}
       />
       <MenuItem
-        to="/billing"
+        to="/demo/billing"
         label="Billing"
-        current={current.startsWith('/billing')}
+        current={current.startsWith('/demo/billing')}
         icon={<IconCreditCard />}
       />
       <hr />
-      <MenuItem to="/logout" label="Sign out" icon={<IconSignOut />} />
+      <MenuItem to="/demo/logout" label="Sign out" icon={<IconSignOut />} />
     </>
   )
 }

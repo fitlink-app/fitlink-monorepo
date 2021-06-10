@@ -1,4 +1,4 @@
-import Dashboard from '../../components/layouts/Dashboard'
+import Dashboard from '../../../components/layouts/Dashboard'
 
 export default function components() {
   return (

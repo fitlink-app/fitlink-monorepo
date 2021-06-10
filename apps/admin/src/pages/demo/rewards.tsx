@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
-import Dashboard from '../components/layouts/Dashboard'
-import Drawer from '../components/elements/Drawer'
-import Reward, { RewardProps } from '../components/elements/Reward'
+import Dashboard from '../../components/layouts/Dashboard'
+import Drawer from '../../components/elements/Drawer'
+import Reward, { RewardProps } from '../../components/elements/Reward'
 //import 'flickity/dist/flickity.min.css'
-import Select from '../components/elements/Select'
-import SortOrder from '../components/elements/SortOrder'
-import RewardDetails from '../components/elements/RewardDetails'
+import Select from '../../components/elements/Select'
+import SortOrder from '../../components/elements/SortOrder'
+import RewardDetails from '../../components/elements/RewardDetails'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const fitlinkRewards = require('../services/dummy/rewards-fitlink.json')
+const fitlinkRewards = require('../../services/dummy/rewards-fitlink.json')
 
 export default function components() {
   const [drawContent, setDrawContent] = useState<
@@ -79,10 +79,8 @@ export default function components() {
     }
   }, [fitlinkRewards, sortOnFL, sortFL])
 
-  const loadReadonlyReward = (reward:any) => {
-    setDrawContent(
-      <RewardDetails {...reward} />
-    )
+  const loadReadonlyReward = (reward: any) => {
+    setDrawContent(<RewardDetails {...reward} />)
   }
 
   return (
@@ -105,7 +103,7 @@ export default function components() {
         </div>
       </div>
       <div className="rewards flex mb-4">
-        { sorted.map((r:RewardProps, i) => (
+        {sorted.map((r: RewardProps, i) => (
           <div className="reward-wrap" key={`fl-r-${i}`}>
             <Reward {...r} />
           </div>
@@ -130,18 +128,16 @@ export default function components() {
         </div>
       </div>
       <div className="rewards flex">
-        { sortedFL.map((r:RewardProps, i) => (
+        {sortedFL.map((r: RewardProps, i) => (
           <div className="reward-wrap" key={`fl-r-${i}`}>
-            <Reward {...r} onClick={ () => loadReadonlyReward(r)} />
+            <Reward {...r} onClick={() => loadReadonlyReward(r)} />
           </div>
         ))}
       </div>
 
-      { drawContent &&
-        <Drawer remove={ () => setDrawContent(null) }>
-          { drawContent }
-        </Drawer>
-      }
+      {drawContent && (
+        <Drawer remove={() => setDrawContent(null)}>{drawContent}</Drawer>
+      )}
     </Dashboard>
   )
 }

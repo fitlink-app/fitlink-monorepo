@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
-import { TableContainer } from '../components/Table/TableContainer'
-import { toDateCell } from '../components/Table/helpers'
+import { TableContainer } from '../../components/Table/TableContainer'
+import { toDateCell } from '../../components/Table/helpers'
 import { AuthContext } from '../context/Auth.context'
 import { CellProps } from 'react-table'
 import { useQuery } from 'react-query'
