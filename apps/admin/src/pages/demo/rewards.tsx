@@ -9,6 +9,8 @@ import RewardDetails from '../../components/forms/RewardDetails'
 import NewReward from '../../components/forms/NewReward'
 import { AnimatePresence } from 'framer-motion'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
+const rewards = require('../../services/dummy/rewards.json')
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const fitlinkRewards = require('../../services/dummy/rewards-fitlink.json')
 
 export default function components() {
@@ -31,7 +33,7 @@ export default function components() {
     },
     {
       label: 'Title',
-      value: 'shortDescription'
+      value: 'shortTitle'
     },
     {
       label: 'Brand',
@@ -81,14 +83,45 @@ export default function components() {
     }
   }, [fitlinkRewards, sortOnFL, sortFL])
 
+  useEffect(() => {
+    const orig = JSON.parse(JSON.stringify(rewards))
+    switch (sortOn) {
+      case 'shortDescription':
+      case 'brand':
+        setSorted(
+          orig.results.sort((a, b) =>
+            sort === 'asc'
+              ? a[sortOn].toLowerCase() > b[sortOn].toLowerCase()
+              : a[sortOn].toLowerCase() < b[sortOn].toLowerCase()
+          )
+        )
+        break
+      case 'points':
+      case 'claims':
+      default:
+        setSorted(
+          orig.results.sort((a, b) =>
+            sort === 'asc'
+              ? parseFloat(a[sortOn]) - parseFloat(b[sortOn])
+              : parseFloat(b[sortOn]) - parseFloat(a[sortOn])
+          )
+        )
+        break
+    }
+  }, [rewards, sortOn, sort])
+
   const loadReadonlyReward = (reward: any) => {
     setWarning(false)
-    setDrawContent(<RewardDetails {...reward} />)
+    setDrawContent(
+      <RewardDetails {...reward} />
+    )
   }
 
   const NewRewardForm = () => {
     setWarning(true)
-    setDrawContent(<NewReward />)
+    setDrawContent(
+      <NewReward />
+    )
   }
 
   return (
@@ -97,7 +130,10 @@ export default function components() {
         <div className="col-12 col-lg-8">
           <div className="flex ai-c">
             <h1 className="light mb-0 mr-2">Your rewards</h1>
-            <button className="button alt small mt-1" onClick={NewRewardForm}>
+            <button
+              className="button alt small mt-1"
+              onClick={NewRewardForm}
+              >
               Add new
             </button>
           </div>
@@ -116,9 +152,9 @@ export default function components() {
         </div>
       </div>
       <div className="rewards flex mb-4">
-        {sorted.map((r: RewardProps, i) => (
+        { sorted.map((r:RewardProps, i) => (
           <div className="reward-wrap" key={`fl-r-${i}`}>
-            <Reward {...r} />
+            <Reward {...r} onClick={ () => loadReadonlyReward(r)} />
           </div>
         ))}
       </div>
@@ -141,9 +177,9 @@ export default function components() {
         </div>
       </div>
       <div className="rewards flex">
-        {sortedFL.map((r: RewardProps, i) => (
+        { sortedFL.map((r:RewardProps, i) => (
           <div className="reward-wrap" key={`fl-r-${i}`}>
-            <Reward {...r} onClick={() => loadReadonlyReward(r)} />
+            <Reward {...r} onClick={ () => loadReadonlyReward(r)} />
           </div>
         ))}
       </div>

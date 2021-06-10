@@ -7,12 +7,12 @@ sort table
 
 import { useState } from 'react'
 import Dashboard from '../../components/layouts/Dashboard'
-import TableContainer from '../../components/Table/TableContainer'
+import TableContainer from '../../components/table/TableContainer'
 import {
   toChipCell,
   toDateCell,
   toLocaleCell
-} from '../../components/Table/helpers'
+} from '../../components/table/helpers'
 import Drawer from '../../components/elements/Drawer'
 import Link from 'next/link'
 import IconSearch from '../../components/icons/IconSearch'
@@ -90,7 +90,7 @@ export default function users() {
           <h1 className="light mb-0">User performance</h1>
         </div>
         <div className="col text-right">
-          <Link href="/settings/users">
+          <Link href="/demo/settings/users">
             <a className="button alt">Manage users</a>
           </Link>
         </div>
