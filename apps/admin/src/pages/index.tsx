@@ -22,10 +22,10 @@ const Index = () => {
 
   useEffect(() => {
     ;(async function () {
-      await auth.login({
-        email: 'Marianna_Bradtke14-example@fitlinkapp.com',
-        password: 'password'
-      })
+      // await auth.login({
+      //   email: 'Marianna_Bradtke14-example@fitlinkapp.com',
+      //   password: 'password'
+      // })
     })()
   }, [])
 

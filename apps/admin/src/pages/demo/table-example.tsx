@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react'
 import { TableContainer } from '../../components/Table/TableContainer'
 import { toDateCell } from '../../components/Table/helpers'
-import { AuthContext } from '../context/Auth.context'
+import { AuthContext } from '../../context/Auth.context'
 import { CellProps } from 'react-table'
 import { useQuery } from 'react-query'
-import { User } from '../../../api/src/modules/users/entities/user.entity'
+import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 
 const cellActions = ({
   cell: {

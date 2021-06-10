@@ -148,3 +148,12 @@ export type ListResponse<T> = {
 export type DeleteResult = {
   affected: number
 }
+
+export type ResponseError = {
+  response: {
+    data: {
+      status: number
+      message: string
+    }
+  }
+}

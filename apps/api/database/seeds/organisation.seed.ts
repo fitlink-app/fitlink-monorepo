@@ -68,13 +68,13 @@ export default class CreateOrganisations implements Seeder {
     const halfUserArray = userArray.splice(0, users.length / 2)
     const subscriptions = flatten(
       await Promise.all(
-        userArray.map(
-          async (user) => {
-            await factory(Subscription)({ organisation: orgs[Math.ceil(Math.random() * (COUNT_ORGANISATIONS - 1))], users: [user, halfUserArray.pop()] }).createMany(
-              COUNT_SUBSCRIPTIONS
-            )
-          }
-        )
+        userArray.map(async (user) => {
+          await factory(Subscription)({
+            organisation:
+              orgs[Math.ceil(Math.random() * (COUNT_ORGANISATIONS - 1))],
+            users: [user, halfUserArray.pop()]
+          }).createMany(COUNT_SUBSCRIPTIONS)
+        })
       )
     )
 
@@ -159,16 +159,15 @@ export default class CreateOrganisations implements Seeder {
      */
     const followings = flatten(
       await Promise.all(
-        users.map(
-          async (user, idx) => {
-            const nextUser = users[idx + 1]
-            if (nextUser) {
-              await factory(Following)({ followerUser: user, followingUser: nextUser }).createMany(
-                COUNT_FOLLOWINGS
-              )
-            }
+        users.map(async (user, idx) => {
+          const nextUser = users[idx + 1]
+          if (nextUser) {
+            await factory(Following)({
+              followerUser: user,
+              followingUser: nextUser
+            }).createMany(COUNT_FOLLOWINGS)
           }
-        )
+        })
       )
     )
 
@@ -180,11 +179,8 @@ export default class CreateOrganisations implements Seeder {
         users.map(
           async (user) =>
             await factory(GoalsEntry)({
-              userId: user
-            }).createMany(
-              COUNT_GOALSENTRY
-            )
-
+              user: user
+            }).createMany(COUNT_GOALSENTRY)
         )
       )
     )
