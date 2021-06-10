@@ -14,7 +14,7 @@ export type DateInputProps = {
   startDate?: Date
   minDate?: Date
   maxDate?: Date
-  onChange?: (e:any) => void
+  onChange?: (e: any) => void
 }
 
 export default function DateInput({
@@ -26,7 +26,7 @@ export default function DateInput({
   minDate,
   maxDate,
   onChange
-}:DateInputProps) {
+}: DateInputProps) {
   const [currDate, setCurrDate] = useState(startDate)
   const classes = clsx({
     'input-block': true,
@@ -35,7 +35,7 @@ export default function DateInput({
   })
 
   const years = []
-  for (let i=getYear(new Date()); i<getYear(new Date())+10; i++) {
+  for (let i = getYear(new Date()); i < getYear(new Date()) + 10; i++) {
     years.push(i)
   }
 
@@ -51,7 +51,7 @@ export default function DateInput({
     'September',
     'October',
     'November',
-    'December',
+    'December'
   ]
 
   const customHeader = ({
@@ -61,22 +61,20 @@ export default function DateInput({
     decreaseMonth,
     increaseMonth,
     prevMonthButtonDisabled,
-    nextMonthButtonDisabled,
+    nextMonthButtonDisabled
   }) => (
     <div
       style={{
         margin: 10,
-        display: "flex",
-        justifyContent: "center",
-      }}
-    >
+        display: 'flex',
+        justifyContent: 'center'
+      }}>
       <button onClick={decreaseMonth} disabled={prevMonthButtonDisabled}>
         <IconArrowLeft />
       </button>
       <select
         value={getYear(date)}
-        onChange={({ target: { value } }) => changeYear(value)}
-      >
+        onChange={({ target: { value } }) => changeYear(value)}>
         {years.map((option) => (
           <option key={option} value={option}>
             {option}
@@ -88,8 +86,7 @@ export default function DateInput({
         value={months[getMonth(date)]}
         onChange={({ target: { value } }) =>
           changeMonth(months.indexOf(value))
-        }
-      >
+        }>
         {months.map((option) => (
           <option key={option} value={option}>
             {option}
@@ -103,15 +100,14 @@ export default function DateInput({
     </div>
   )
 
-  const handleChange = (d:any) => {
+  const handleChange = (d: any) => {
     setCurrDate(d)
-    if (onChange)
-      onChange(d)
+    if (onChange) onChange(d)
   }
 
   return (
     <div className={classes}>
-      { label && <label htmlFor={name}>{label}</label> }
+      {label && <label htmlFor={name}>{label}</label>}
       <DatePicker
         id={name}
         selected={currDate}

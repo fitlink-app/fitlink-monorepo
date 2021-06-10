@@ -1,20 +1,17 @@
-import Dashboard from '../components/layouts/Dashboard'
+import Dashboard from '../../components/layouts/Dashboard'
 
 export default function components() {
-
   const grid = [
     [1],
     [1, 2],
     [1, 2, 3],
     [1, 2, 3, 4],
     [1, 2, 3, 4, 5, 6],
-    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
   ]
 
   return (
-    <Dashboard
-      title="General"
-      >
+    <Dashboard title="General">
       <p className="h6 color-light-grey">Typography</p>
       <div className="row ai-c">
         <div className="col-2">
@@ -64,7 +61,18 @@ export default function components() {
           <h6 className="light">.light</h6>
         </div>
       </div>
-      <p>&lt;p&gt; Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor <strong>incididunt ut labore et dolore magna aliqua</strong>. <em>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat</em>. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      <p>
+        &lt;p&gt; Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+        do eiusmod tempor{' '}
+        <strong>incididunt ut labore et dolore magna aliqua</strong>.{' '}
+        <em>
+          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+          nisi ut aliquip ex ea commodo consequat
+        </em>
+        . Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
+        dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      </p>
       <ul>
         <li>List Item</li>
         <li>List Item</li>
@@ -89,7 +97,10 @@ export default function components() {
 
       <hr className="mt-8" />
       <p className="h6 color-light-grey">Helper Classes</p>
-      <p>Margins and padding can be added in &frac12;rem intervals. Where <strong>x = 3</strong> is equal to <strong>1.5rem</strong></p>
+      <p>
+        Margins and padding can be added in &frac12;rem intervals. Where{' '}
+        <strong>x = 3</strong> is equal to <strong>1.5rem</strong>
+      </p>
 
       <div className="row ai-c">
         <div className="col-2">
@@ -99,7 +110,9 @@ export default function components() {
         </div>
         <div className="col-10">
           <pre>
-            <code className="block">margin: <em>(x/2)*</em>1rem;</code>
+            <code className="block">
+              margin: <em>(x/2)*</em>1rem;
+            </code>
           </pre>
         </div>
         <div className="col-2">
@@ -110,7 +123,8 @@ export default function components() {
         <div className="col-10">
           <pre>
             <code className="block">
-              margin-left: <em>(x/2)*</em>1rem;<br/>
+              margin-left: <em>(x/2)*</em>1rem;
+              <br />
               margin-right: <em>(x/2)*</em>1rem;
             </code>
           </pre>
@@ -123,33 +137,42 @@ export default function components() {
         <div className="col-10">
           <pre>
             <code className="block">
-              margin-top: <em>(x/2)*</em>1rem;<br/>
+              margin-top: <em>(x/2)*</em>1rem;
+              <br />
               margin-bottom: <em>(x/2)*</em>1rem;
-              </code>
+            </code>
           </pre>
         </div>
         <div className="col-2">
           <pre>
-            .mt-<em>x</em><br/>
-            .mr-<em>x</em><br/>
-            .mb-<em>x</em><br/>
+            .mt-<em>x</em>
+            <br />
+            .mr-<em>x</em>
+            <br />
+            .mb-<em>x</em>
+            <br />
             .ml-<em>x</em>
           </pre>
         </div>
         <div className="col-10">
           <pre>
             <code className="block">
-              margin-top: <em>(x/2)*</em>1rem;<br/>
-              margin-right: <em>(x/2)*</em>1rem;<br/>
-              margin-bottom: <em>(x/2)*</em>1rem;<br/>
+              margin-top: <em>(x/2)*</em>1rem;
+              <br />
+              margin-right: <em>(x/2)*</em>1rem;
+              <br />
+              margin-bottom: <em>(x/2)*</em>1rem;
+              <br />
               margin-left: <em>(x/2)*</em>1rem;
             </code>
           </pre>
         </div>
         <div className="col-12">
           <p>
-            Any of the above can include <strong>small</strong>, <strong>medium</strong> or <strong>large</strong> breakpoints in the class name, e.g. 
-            &nbsp;<code>&lt;div className="mt-2 mt-md-4 mt-lg-8"&gt;...</code>
+            Any of the above can include <strong>small</strong>,{' '}
+            <strong>medium</strong> or <strong>large</strong> breakpoints in the
+            class name, e.g. &nbsp;
+            <code>&lt;div className="mt-2 mt-md-4 mt-lg-8"&gt;...</code>
           </p>
         </div>
 
@@ -160,7 +183,9 @@ export default function components() {
         </div>
         <div className="col-10">
           <pre>
-            <code className="block">padding: <em>(x/2)*</em>1rem;</code>
+            <code className="block">
+              padding: <em>(x/2)*</em>1rem;
+            </code>
           </pre>
         </div>
         <div className="col-2">
@@ -171,7 +196,8 @@ export default function components() {
         <div className="col-10">
           <pre>
             <code className="block">
-              padding-left: <em>(x/2)*</em>1rem;<br/>
+              padding-left: <em>(x/2)*</em>1rem;
+              <br />
               padding-right: <em>(x/2)*</em>1rem;
             </code>
           </pre>
@@ -184,40 +210,47 @@ export default function components() {
         <div className="col-10">
           <pre>
             <code className="block">
-              padding-top: <em>(x/2)*</em>1rem;<br/>
+              padding-top: <em>(x/2)*</em>1rem;
+              <br />
               padding-bottom: <em>(x/2)*</em>1rem;
             </code>
           </pre>
         </div>
         <div className="col-2">
           <pre>
-            .pt-<em>x</em><br/>
-            .pr-<em>x</em><br/>
-            .pb-<em>x</em><br/>
+            .pt-<em>x</em>
+            <br />
+            .pr-<em>x</em>
+            <br />
+            .pb-<em>x</em>
+            <br />
             .pl-<em>x</em>
           </pre>
         </div>
         <div className="col-10">
           <pre>
             <code className="block">
-              padding-top: <em>(x/2)*</em>1rem;<br/>
-              padding-right: <em>(x/2)*</em>1rem;<br/>
-              padding-bottom: <em>(x/2)*</em>1rem;<br/>
+              padding-top: <em>(x/2)*</em>1rem;
+              <br />
+              padding-right: <em>(x/2)*</em>1rem;
+              <br />
+              padding-bottom: <em>(x/2)*</em>1rem;
+              <br />
               padding-left: <em>(x/2)*</em>1rem;
             </code>
           </pre>
         </div>
         <div className="col-12">
           <p>
-            Any of the above can include <strong>small</strong>, <strong>medium</strong> or <strong>large</strong> breakpoints in the class name, e.g. 
-            &nbsp;<code>&lt;div className="pt-2 pt-md-4 pt-lg-8"&gt;...</code>
+            Any of the above can include <strong>small</strong>,{' '}
+            <strong>medium</strong> or <strong>large</strong> breakpoints in the
+            class name, e.g. &nbsp;
+            <code>&lt;div className="pt-2 pt-md-4 pt-lg-8"&gt;...</code>
           </p>
         </div>
 
         <div className="col-2">
-          <pre>
-            .text-left
-          </pre>
+          <pre>.text-left</pre>
         </div>
         <div className="col-10">
           <pre>
@@ -225,9 +258,7 @@ export default function components() {
           </pre>
         </div>
         <div className="col-2">
-          <pre>
-            .text-center
-          </pre>
+          <pre>.text-center</pre>
         </div>
         <div className="col-10">
           <pre>
@@ -235,9 +266,7 @@ export default function components() {
           </pre>
         </div>
         <div className="col-2">
-          <pre>
-            .text-right
-          </pre>
+          <pre>.text-right</pre>
         </div>
         <div className="col-10">
           <pre>
@@ -246,53 +275,46 @@ export default function components() {
         </div>
         <div className="col-12">
           <p>
-            Any of the above can include <strong>small</strong>, <strong>medium</strong> or <strong>large</strong> breakpoints in the class name, e.g. 
-            &nbsp;<code>&lt;div className="text-center text-md-left"&gt;...</code>
+            Any of the above can include <strong>small</strong>,{' '}
+            <strong>medium</strong> or <strong>large</strong> breakpoints in the
+            class name, e.g. &nbsp;
+            <code>&lt;div className="text-center text-md-left"&gt;...</code>
           </p>
         </div>
         <div className="col-2">
-          <pre>
-            .block-img
-          </pre>
-        </div>
-        <div className="col-10">
-          <pre>
-            <code className="block">
-              display: block;<br/>
-              max-width: 100%;<br/>
-              height: auto;<br/>
-              margin: 0 auto;
-            </code>
-          </pre>
-        </div>
-        <div className="col-2">
-          <pre>
-            .block
-          </pre>
+          <pre>.block-img</pre>
         </div>
         <div className="col-10">
           <pre>
             <code className="block">
               display: block;
+              <br />
+              max-width: 100%;
+              <br />
+              height: auto;
+              <br />
+              margin: 0 auto;
             </code>
           </pre>
         </div>
         <div className="col-2">
-          <pre>
-            .relative
-          </pre>
+          <pre>.block</pre>
         </div>
         <div className="col-10">
           <pre>
-            <code className="block">
-              position: relative;
-            </code>
+            <code className="block">display: block;</code>
           </pre>
         </div>
         <div className="col-2">
+          <pre>.relative</pre>
+        </div>
+        <div className="col-10">
           <pre>
-            .box-shadow
+            <code className="block">position: relative;</code>
           </pre>
+        </div>
+        <div className="col-2">
+          <pre>.box-shadow</pre>
         </div>
         <div className="col-10">
           <pre>
@@ -308,12 +330,13 @@ export default function components() {
 
       <div className="row ai-c">
         <div className="col-3">
-          <pre>
-            $primary 
-          </pre>
+          <pre>$primary</pre>
         </div>
         <div className="col-3 mb-1">
-          <div className="bg-primary p-2 box-shadow" style={{width: '100px', borderRadius: '0.5rem'}} />
+          <div
+            className="bg-primary p-2 box-shadow"
+            style={{ width: '100px', borderRadius: '0.5rem' }}
+          />
         </div>
         <div className="col-3">
           <pre>
@@ -326,12 +349,13 @@ export default function components() {
           </pre>
         </div>
         <div className="col-3">
-          <pre>
-            $dark 
-          </pre>
+          <pre>$dark</pre>
         </div>
         <div className="col-3 mb-1">
-          <div className="bg-dark p-2 box-shadow" style={{width: '100px', borderRadius: '0.5rem'}} />
+          <div
+            className="bg-dark p-2 box-shadow"
+            style={{ width: '100px', borderRadius: '0.5rem' }}
+          />
         </div>
         <div className="col-3">
           <pre>
@@ -344,12 +368,13 @@ export default function components() {
           </pre>
         </div>
         <div className="col-3">
-          <pre>
-            $darkGrey 
-          </pre>
+          <pre>$darkGrey</pre>
         </div>
         <div className="col-3 mb-1">
-          <div className="bg-dark-grey p-2 box-shadow" style={{width: '100px', borderRadius: '0.5rem'}} />
+          <div
+            className="bg-dark-grey p-2 box-shadow"
+            style={{ width: '100px', borderRadius: '0.5rem' }}
+          />
         </div>
         <div className="col-3">
           <pre>
@@ -362,12 +387,13 @@ export default function components() {
           </pre>
         </div>
         <div className="col-3">
-          <pre>
-            $grey 
-          </pre>
+          <pre>$grey</pre>
         </div>
         <div className="col-3 mb-1">
-          <div className="bg-grey p-2 box-shadow" style={{width: '100px', borderRadius: '0.5rem'}} />
+          <div
+            className="bg-grey p-2 box-shadow"
+            style={{ width: '100px', borderRadius: '0.5rem' }}
+          />
         </div>
         <div className="col-3">
           <pre>
@@ -380,12 +406,13 @@ export default function components() {
           </pre>
         </div>
         <div className="col-3">
-          <pre>
-            $lightGrey 
-          </pre>
+          <pre>$lightGrey</pre>
         </div>
         <div className="col-3 mb-1">
-          <div className="bg-light-grey p-2 box-shadow" style={{width: '100px', borderRadius: '0.5rem'}} />
+          <div
+            className="bg-light-grey p-2 box-shadow"
+            style={{ width: '100px', borderRadius: '0.5rem' }}
+          />
         </div>
         <div className="col-3">
           <pre>
@@ -398,12 +425,13 @@ export default function components() {
           </pre>
         </div>
         <div className="col-3">
-          <pre>
-            $white 
-          </pre>
+          <pre>$white</pre>
         </div>
         <div className="col-3 mb-1">
-          <div className="bg-white p-2 box-shadow" style={{width: '100px', borderRadius: '0.5rem'}} />
+          <div
+            className="bg-white p-2 box-shadow"
+            style={{ width: '100px', borderRadius: '0.5rem' }}
+          />
         </div>
         <div className="col-3">
           <pre>
@@ -416,12 +444,13 @@ export default function components() {
           </pre>
         </div>
         <div className="col-3">
-          <pre>
-            $grey-50
-          </pre>
+          <pre>$grey-50</pre>
         </div>
         <div className="col-3 mb-1">
-          <div className="bg-grey-50 p-2 box-shadow" style={{width: '100px', borderRadius: '0.5rem'}} />
+          <div
+            className="bg-grey-50 p-2 box-shadow"
+            style={{ width: '100px', borderRadius: '0.5rem' }}
+          />
         </div>
         <div className="col-3">
           <pre>
@@ -434,12 +463,13 @@ export default function components() {
           </pre>
         </div>
         <div className="col-3">
-          <pre>
-            $grey-100
-          </pre>
+          <pre>$grey-100</pre>
         </div>
         <div className="col-3 mb-1">
-          <div className="bg-grey-100 p-2 box-shadow" style={{width: '100px', borderRadius: '0.5rem'}} />
+          <div
+            className="bg-grey-100 p-2 box-shadow"
+            style={{ width: '100px', borderRadius: '0.5rem' }}
+          />
         </div>
         <div className="col-3">
           <pre>
@@ -452,12 +482,13 @@ export default function components() {
           </pre>
         </div>
         <div className="col-3">
-          <pre>
-            $grey-200
-          </pre>
+          <pre>$grey-200</pre>
         </div>
         <div className="col-3 mb-1">
-          <div className="bg-grey-200 p-2 box-shadow" style={{width: '100px', borderRadius: '0.5rem'}} />
+          <div
+            className="bg-grey-200 p-2 box-shadow"
+            style={{ width: '100px', borderRadius: '0.5rem' }}
+          />
         </div>
         <div className="col-3">
           <pre>
@@ -470,12 +501,13 @@ export default function components() {
           </pre>
         </div>
         <div className="col-3">
-          <pre>
-            $grey-300
-          </pre>
+          <pre>$grey-300</pre>
         </div>
         <div className="col-3 mb-1">
-          <div className="bg-grey-300 p-2 box-shadow" style={{width: '100px', borderRadius: '0.5rem'}} />
+          <div
+            className="bg-grey-300 p-2 box-shadow"
+            style={{ width: '100px', borderRadius: '0.5rem' }}
+          />
         </div>
         <div className="col-3">
           <pre>
@@ -488,12 +520,13 @@ export default function components() {
           </pre>
         </div>
         <div className="col-3">
-          <pre>
-            $red
-          </pre>
+          <pre>$red</pre>
         </div>
         <div className="col-3 mb-1">
-          <div className="bg-red p-2 box-shadow" style={{width: '100px', borderRadius: '0.5rem'}} />
+          <div
+            className="bg-red p-2 box-shadow"
+            style={{ width: '100px', borderRadius: '0.5rem' }}
+          />
         </div>
         <div className="col-3">
           <pre>
@@ -511,117 +544,138 @@ export default function components() {
       <p className="h6 color-light-grey">Grid</p>
       <p>Basic grid structure</p>
       <pre>
-        <code className="block" dangerouslySetInnerHTML={{ __html: `&lt;div className="row"&gt;\n  &lt;div className="col"&gt;...&lt;/div&gt;\n  &lt;div className="col"&gt;...&lt;/div&gt;\n  &lt;div className="col"&gt;...&lt;/div&gt;\n&lt;/div&gt;` }} />
+        <code
+          className="block"
+          dangerouslySetInnerHTML={{
+            __html: `&lt;div className="row"&gt;\n  &lt;div className="col"&gt;...&lt;/div&gt;\n  &lt;div className="col"&gt;...&lt;/div&gt;\n  &lt;div className="col"&gt;...&lt;/div&gt;\n&lt;/div&gt;`
+          }}
+        />
       </pre>
 
-      <p className="mt-2">Alignment (applied to <strong>.row</strong>)</p>
+      <p className="mt-2">
+        Alignment (applied to <strong>.row</strong>)
+      </p>
       <div className="row ai-c">
         <div className="col-2">
           <pre>
-            .ai-s<br/>
-            .ai-c<br/>
+            .ai-s
+            <br />
+            .ai-c
+            <br />
             .ai-e
           </pre>
         </div>
         <div className="col-10">
           <pre>
             <code className="block">
-              align-items: flex-start;<br/>
-              align-items: center;<br/>
+              align-items: flex-start;
+              <br />
+              align-items: center;
+              <br />
               align-items: flex-end;
             </code>
           </pre>
         </div>
         <div className="col-2">
           <pre>
-            .ac-s<br/>
-            .ac-c<br/>
+            .ac-s
+            <br />
+            .ac-c
+            <br />
             .ac-e
           </pre>
         </div>
         <div className="col-10">
           <pre>
             <code className="block">
-              align-content: flex-start;<br/>
-              align-content: center;<br/>
+              align-content: flex-start;
+              <br />
+              align-content: center;
+              <br />
               align-content: flex-end;
             </code>
           </pre>
         </div>
         <div className="col-2">
           <pre>
-            .ji-s<br/>
-            .ji-c<br/>
+            .ji-s
+            <br />
+            .ji-c
+            <br />
             .ji-e
           </pre>
         </div>
         <div className="col-10">
           <pre>
             <code className="block">
-              justify-items: flex-start;<br/>
-              justify-items: center;<br/>
+              justify-items: flex-start;
+              <br />
+              justify-items: center;
+              <br />
               justify-items: flex-end;
             </code>
           </pre>
         </div>
         <div className="col-2">
           <pre>
-            .jc-s<br/>
-            .jc-c<br/>
-            .jc-e<br/>
+            .jc-s
+            <br />
+            .jc-c
+            <br />
+            .jc-e
+            <br />
             .jc-sa
           </pre>
         </div>
         <div className="col-10">
           <pre>
             <code className="block">
-              justify-content: flex-start;<br/>
-              justify-content: center;<br/>
-              justify-content: flex-end;<br/>
+              justify-content: flex-start;
+              <br />
+              justify-content: center;
+              <br />
+              justify-content: flex-end;
+              <br />
               justify-content: space-around;
             </code>
           </pre>
         </div>
       </div>
 
-      <p className="mt-2">Alignment (applied to <strong>.col</strong>)</p>
+      <p className="mt-2">
+        Alignment (applied to <strong>.col</strong>)
+      </p>
       <div className="row ai-c">
         <div className="col-2">
-          <pre>
-            .al
-          </pre>
+          <pre>.al</pre>
         </div>
         <div className="col-10">
           <pre>
             <code className="block">
-              margin-left: 0;<br/>
+              margin-left: 0;
+              <br />
               margin-right: auto;
             </code>
           </pre>
         </div>
         <div className="col-2">
-          <pre>
-            .ar
-          </pre>
+          <pre>.ar</pre>
         </div>
         <div className="col-10">
           <pre>
             <code className="block">
-              margin-left: auto;<br/>
+              margin-left: auto;
+              <br />
               margin-right: 0;
             </code>
           </pre>
         </div>
         <div className="col-2">
-          <pre>
-            .auto
-          </pre>
+          <pre>.auto</pre>
         </div>
         <div className="col-10">
           <pre>
-            <code className="block">
-              margin: auto;
-            </code>
+            <code className="block">margin: auto;</code>
           </pre>
         </div>
       </div>
@@ -629,50 +683,44 @@ export default function components() {
       <p className="mt-2">Column sizing</p>
       <div className="row ai-c">
         <div className="col-2">
-          <pre>
-            .al
-          </pre>
+          <pre>.al</pre>
         </div>
         <div className="col-10">
           <pre>
             <code className="block">
-              margin-left: 0;<br/>
+              margin-left: 0;
+              <br />
               margin-right: auto;
             </code>
           </pre>
         </div>
         <div className="col-2">
-          <pre>
-            .ar
-          </pre>
+          <pre>.ar</pre>
         </div>
         <div className="col-10">
           <pre>
             <code className="block">
-              margin-left: auto;<br/>
+              margin-left: auto;
+              <br />
               margin-right: 0;
             </code>
           </pre>
         </div>
         <div className="col-2">
-          <pre>
-            .auto
-          </pre>
+          <pre>.auto</pre>
         </div>
         <div className="col-10">
           <pre>
-            <code className="block">
-              margin: auto;
-            </code>
+            <code className="block">margin: auto;</code>
           </pre>
         </div>
       </div>
 
       <p className="mt-2">Autosizing Sizing</p>
 
-      { grid.map((r, i) => (
+      {grid.map((r, i) => (
         <div className="row" key={`arow-${i}`}>
-          { r.map(c => (
+          {r.map((c) => (
             <div className="col my-1" key={`acol-${c}`}>
               <div className="bg-grey-200 p-2">
                 <pre>.col</pre>
@@ -683,14 +731,24 @@ export default function components() {
       ))}
 
       <p className="mt-2">Responsive Sizing</p>
-      <p>Using &nbsp;<code>.col-<em>[1-12]</em></code> and breaking with &nbsp;<code>.col-<em>[sm/md/lg/xl]</em>-<em>[1-12]</em></code></p>
+      <p>
+        Using &nbsp;
+        <code>
+          .col-<em>[1-12]</em>
+        </code>{' '}
+        and breaking with &nbsp;
+        <code>
+          .col-<em>[sm/md/lg/xl]</em>-<em>[1-12]</em>
+        </code>
+      </p>
 
-      { grid.map((r, i) => (
+      {grid.map((r, i) => (
         <div className="row" key={`brow-${i}`}>
-          { r.map(c => (
-            <div className={`col-12 my-1 col-lg-${12/r.length}`} key={`bcol-${c}`}>
-              <div className="bg-grey-200 py-4">
-              </div>
+          {r.map((c) => (
+            <div
+              className={`col-12 my-1 col-lg-${12 / r.length}`}
+              key={`bcol-${c}`}>
+              <div className="bg-grey-200 py-4"></div>
             </div>
           ))}
         </div>

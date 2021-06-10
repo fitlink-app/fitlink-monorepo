@@ -44,9 +44,18 @@ export default function Input({
     const char = e.which
     console.log(char, type)
     if (type === 'number') {
-      if (char === 9 || char === 37 || char === 39 || char === 8 || char === 46 || char === 13 || (char >= 48 && char <= 57) || (char >= 96 && char <= 105))
+      if (
+        char === 9 ||
+        char === 37 ||
+        char === 39 ||
+        char === 8 ||
+        char === 46 ||
+        char === 13 ||
+        (char >= 48 && char <= 57) ||
+        (char >= 96 && char <= 105)
+      )
         return true
-      
+
       e.preventDefault()
       return false
     }
@@ -54,7 +63,7 @@ export default function Input({
 
   return (
     <div className={classes}>
-      { label && <label htmlFor={name}>{label}</label> }
+      {label && <label htmlFor={name}>{label}</label>}
       {type !== 'textarea' ? (
         <input
           type={type}

@@ -8,11 +8,7 @@ export type DrawerProps = {
   remove: () => void
 }
 
-export default function Drawer({
-  children,
-  warnBeforeClose = false,
-  remove
-}) {
+export default function Drawer({ children, warnBeforeClose = false, remove }) {
   const node = useRef()
 
   const handleClickOutside = (e) => {
@@ -57,9 +53,8 @@ export default function Drawer({
       exit={{
         x: '100%',
         transition: { duration: 0.15 }
-      }}
-      >
-      <div className="drawer__close" onClick={ remove }>
+      }}>
+      <div className="drawer__close" onClick={remove}>
         <IconClose />
       </div>
       {children}

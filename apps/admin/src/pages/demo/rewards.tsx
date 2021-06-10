@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react'
-import Dashboard from '../components/layouts/Dashboard'
-import Drawer from '../components/elements/Drawer'
-import Reward, { RewardProps } from '../components/elements/Reward'
+import Dashboard from '../../components/layouts/Dashboard'
+import Drawer from '../../components/elements/Drawer'
+import Reward, { RewardProps } from '../../components/elements/Reward'
 //import 'flickity/dist/flickity.min.css'
-import Select from '../components/elements/Select'
-import SortOrder from '../components/elements/SortOrder'
-import RewardDetails from '../components/forms/RewardDetails'
-import NewReward from '../components/forms/NewReward'
+import Select from '../../components/elements/Select'
+import SortOrder from '../../components/elements/SortOrder'
+import RewardDetails from '../../components/forms/RewardDetails'
+import NewReward from '../../components/forms/NewReward'
 import { AnimatePresence } from 'framer-motion'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const rewards = require('../services/dummy/rewards.json')
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const fitlinkRewards = require('../services/dummy/rewards-fitlink.json')
+const fitlinkRewards = require('../../services/dummy/rewards-fitlink.json')
 
 export default function components() {
   const [drawContent, setDrawContent] = useState<
@@ -110,7 +110,7 @@ export default function components() {
     }
   }, [rewards, sortOn, sort])
 
-  const loadReadonlyReward = (reward:any) => {
+  const loadReadonlyReward = (reward: any) => {
     setWarning(false)
     setDrawContent(
       <RewardDetails {...reward} />
@@ -185,15 +185,14 @@ export default function components() {
       </div>
 
       <AnimatePresence initial={false}>
-        { drawContent &&
+        {drawContent && (
           <Drawer
-            remove={ () => setDrawContent(null) }
+            remove={() => setDrawContent(null)}
             key="drawer"
-            warnBeforeClose={warning}
-            >
-            { drawContent }
+            warnBeforeClose={warning}>
+            {drawContent}
           </Drawer>
-        }
+        )}
       </AnimatePresence>
     </Dashboard>
   )
