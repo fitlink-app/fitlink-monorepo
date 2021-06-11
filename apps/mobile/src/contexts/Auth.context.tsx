@@ -1,6 +1,9 @@
-import React, {createContext, useState} from 'react';
+import React, {createContext} from 'react';
 import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 import api, {getErrors, RequestError} from '@api';
+import {AsyncStorageKeys} from '@constants';
+import {usePersistedState} from '@hooks';
+import {useEffect} from 'react';
 
 type Credentials = {
   email: string;
@@ -20,7 +23,10 @@ export const AuthContext = createContext<AuthContextType>(
 );
 
 export const AuthProvider: React.FC = ({children}) => {
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = usePersistedState<User | undefined>(
+    undefined,
+    AsyncStorageKeys.USER,
+  );
 
   async function signIn(credentials: Credentials) {
     try {
@@ -41,7 +47,10 @@ export const AuthProvider: React.FC = ({children}) => {
     }
   }
 
-  async function logout() {}
+  async function logout() {
+    // TODO: Implement dropping JWT keys from api instance
+    setUser(undefined);
+  }
 
   function isLoggedIn() {
     return !!user;
