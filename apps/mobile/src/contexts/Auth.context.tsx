@@ -1,6 +1,7 @@
 import React, {createContext, useState} from 'react';
 import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 import api from '@api';
+import {getErrorMessage} from '@fitlink/api-sdk';
 
 type Credentials = {
   email: string;
@@ -28,7 +29,9 @@ export const AuthProvider: React.FC = ({children}) => {
   async function signIn(credentials: Credentials) {
     try {
       const result = await api.login(credentials);
-    } catch (e) {}
+    } catch (e) {
+      const errorMsg = getErrorMessage(e);
+    }
   }
 
   async function signUp() {}

@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import { AuthContext } from '../context/Auth.context'
 import { useMutation } from 'react-query'
 import { AuthLoginDto, AuthResultDto } from '@fitlink/api-sdk/types'
-import { getErrorMessage } from '@fitlink/common/react-query/helpers'
+import { getErrorMessage } from '@fitlink/api-sdk'
 import { ApiMutationResult } from '@fitlink/common/react-query/types'
 import jwtDecode, { JwtPayload } from 'jwt-decode'
 
