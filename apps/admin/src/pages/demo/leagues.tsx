@@ -57,6 +57,13 @@ export default function components() {
     }
   }, [leagues, sortOn, sort])
 
+  const loadLeague = (league: any) => {
+    setWarning(true)
+    setDrawContent(
+      <LeagueForm current={league} />
+    )
+  }
+
   const NewLeagueForm = () => {
     setWarning(true)
     setDrawContent(
@@ -100,7 +107,7 @@ export default function components() {
         </div>
         { sorted.map((r:LeagueProps, i) => (
           <div className="rewards__wrap" key={`fl-r-${i}`}>
-            <League {...r} onClick={ () => console.log(r)} />
+            <League {...r} onClick={ () => loadLeague(r)} />
           </div>
         ))}
       </div>
