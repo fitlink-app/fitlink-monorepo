@@ -1,5 +1,9 @@
 import React, { useEffect } from 'react'
 import { useTable, usePagination, Column } from 'react-table'
+import IconArrowLeft from '../icons/IconArrowLeft'
+import IconArrowLeftDouble from '../icons/IconArrowLeftDouble'
+import IconArrowRight from '../icons/IconArrowRight'
+import IconArrowRightDouble from '../icons/IconArrowRightDouble'
 
 export type TableProps = {
   columns: Column<any>[]
@@ -114,16 +118,16 @@ export function Table({
       */}
       <div className="pagination">
         <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-          {'<<'}
+          <IconArrowLeftDouble />
         </button>{' '}
         <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-          {'<'}
+          <IconArrowLeft />
         </button>{' '}
         <button onClick={() => nextPage()} disabled={!canNextPage}>
-          {'>'}
+          <IconArrowRight />
         </button>{' '}
         <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-          {'>>'}
+          <IconArrowRightDouble />
         </button>{' '}
         <span>
           Page{' '}
@@ -132,7 +136,7 @@ export function Table({
           </strong>{' '}
         </span>
         <span>
-          | Go to page:{' '}
+          Go to page:{' '}
           <input
             type="number"
             defaultValue={pageIndex + 1}
