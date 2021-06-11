@@ -1,0 +1,36 @@
+.static-table {
+  &__image {
+    width: 4rem;
+    background-size: cover;
+    background-position: center;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px 0 rgba(0,0,0,0.1);
+    overflow: hidden;
+    
+    &:after {
+      content: "";
+      display: block;
+      padding-top: 75%;
+    }
+  }
+
+  td {
+    padding: 0.3125rem;
+    border-bottom: 1px solid $grey-100;
+
+    &:first-child {
+      padding-left: 0;
+    }
+
+    &:last-child {
+      padding-right: 0;
+    }
+  }
+
+  tr:last-child {
+    td {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+  }
+}
