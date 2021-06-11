@@ -18,7 +18,7 @@ import {
 } from '@fitlink/api/src/modules/auth/dto/auth-result'
 import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 
-export type { AuthResultDto, AuthLogoutDto, AuthLoginDto }
+export type { AuthResultDto, AuthLogoutDto, AuthLoginDto, CreateUserDto }
 
 type Payload<T> = NodeJS.Dict<any> & {
   payload?: T

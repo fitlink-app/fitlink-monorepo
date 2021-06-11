@@ -1,4 +1,3 @@
-import { CreateUserDto } from '@fitlink/api/src/modules/users/dto/create-user.dto'
 import { AxiosInstance, AxiosError } from 'axios'
 import {
   ListResource,
@@ -14,6 +13,7 @@ import {
   ListResponse,
   AuthLoginDto,
   AuthResultDto,
+  CreateUserDto,
   AuthLogin,
   AuthLogout,
   AuthRefresh,
