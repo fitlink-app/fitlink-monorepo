@@ -283,11 +283,11 @@ export class Api {
   /**
    * Signs up a new user, logs in and stores tokens
    *
-   * @param emailPass An object of `{ email, password, name? }`
+   * @param dto An object of `{ email, password, name (optional) }`
    * @returns `{auth: AuthResult, me: User}`
    */
-  async signUp(emailPass: CreateUserDto) {
-    const result = await this.post<AuthSignUp>('/auth/signup', emailPass)
+  async signUp(dto: CreateUserDto) {
+    const result = await this.post<AuthSignUp>('/auth/signup', dto)
     this.setTokens(result.auth)
     return result
   }
