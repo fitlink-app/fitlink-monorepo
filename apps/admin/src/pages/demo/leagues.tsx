@@ -54,7 +54,7 @@ export default function components() {
         </div>
       </div>
       <div className="rewards flex mb-4">
-        <div className="reward-wrap">
+        <div className="rewards__wrap">
           <League
             image="https://source.unsplash.com/ljoCgjs63SM/760"
             name="Weekly Steps Challenge"

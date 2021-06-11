@@ -6,17 +6,34 @@ import DateInput from '../elements/DateInput'
 import { addYears } from 'date-fns'
 import IconImage from '../icons/IconImage'
 
-export default function NewReward() {
-  const [image, setImage] = useState('')
-  const [brand, setBrand] = useState('')
-  const [shortTitle, setShortTitle] = useState('')
-  const [title, setTitle] = useState('')
-  const [points, setPoints] = useState(0)
-  const [expires, setExpires] = useState(add(new Date(), { months: 2 }))
-  const [code, setCode] = useState('')
-  const [instructions, setInstructions] = useState('')
-  const [url, setUrl] = useState('')
-  const [description, setDescription] = useState('')
+export type RewardFormProps = {
+  current?: {
+    image?: string
+    brand?: string
+    shortTitle?: string
+    title?: string
+    points?: number
+    expires?: string | Date
+    code?: string
+    instructions?: string
+    url?: string
+    description?: string
+  }
+}
+
+export default function RewardForm({
+  current
+}:RewardFormProps) {
+  const [image, setImage] = useState(current?.image || '')
+  const [brand, setBrand] = useState(current?.brand || '')
+  const [shortTitle, setShortTitle] = useState(current?.shortTitle || '')
+  const [title, setTitle] = useState(current?.title || '')
+  const [points, setPoints] = useState(current?.points || 0)
+  const [expires, setExpires] = useState(current?.expires ? new Date(current?.expires) : add(new Date(), { months: 2 }))
+  const [code, setCode] = useState(current?.code || '')
+  const [instructions, setInstructions] = useState(current?.instructions || '')
+  const [url, setUrl] = useState(current?.url || '')
+  const [description, setDescription] = useState(current?.description || '')
 
   const previewImage = (e) => {
     setImage(URL.createObjectURL(e.target.files[0]))
@@ -24,7 +41,9 @@ export default function NewReward() {
 
   return (
     <>
-      <h4 className="light mb-3">New reward</h4>
+      <h4 className="light mb-3">
+        { current ? 'Edit reward' : 'New reward' }
+      </h4>
       <Reward
         image={image}
         brand={brand}
@@ -114,7 +133,9 @@ export default function NewReward() {
         maxDate={addYears(new Date(), 10)}
       />
       <div className="text-right mt-2">
-        <button className="button">Create reward</button>
+        <button className="button">
+        { current ? 'Update' : 'Create reward' }
+        </button>
       </div>
     </>
   )

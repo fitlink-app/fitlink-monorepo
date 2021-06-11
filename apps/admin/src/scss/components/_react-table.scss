@@ -81,15 +81,22 @@
     }
 
     button {
+      background: transparent;
       border: 1px solid $grey-300;
       padding: 0.25rem;
       border-radius: 0.375rem;
-      background: $white;
       color: $lightGrey;
-      transition: all 0.15s;
-
+      transition: all 0.1s;
+      margin-right: 0.25rem;
+      width: 1.625rem;
+      height: 1.625rem;
+      text-align: center;
+      
       &:hover:not([disabled]) {
         color: $grey;
+        border: $white;
+        background: $white;
+        box-shadow: 0px 2px 5px 0 rgba(0, 0, 0, 0.1);
       }
 
       &:disabled {
@@ -98,6 +105,9 @@
 
       svg {
         display: block;
+        width: 0.75rem;
+        height: 0.75rem;
+        margin: 0 auto;
       }
     }
     

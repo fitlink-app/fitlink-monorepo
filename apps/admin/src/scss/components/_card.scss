@@ -13,7 +13,7 @@
     height: 100%;
     background-size: cover;
 
-    &:before {
+    &:before, &:after {
       content: "";
       display: block;
       position: absolute;
@@ -21,13 +21,20 @@
       top: 0;
       width: 100%;
       height: 100%;
+    }
+    &:before {
       background-image: linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.48));
+    }
+    &:after {
+      background-image: linear-gradient(rgba($primary, 0.3), rgba($primary, 0.7));
+      opacity: 0;
+      transition: opacity 0.2s;
     }
   }
 
   &:hover &__background {
-    &:before {
-      background-image: linear-gradient(rgba($primary, 0.3), rgba($primary, 0.7));
+    &:after {
+      opacity: 1;
     }
   }
 

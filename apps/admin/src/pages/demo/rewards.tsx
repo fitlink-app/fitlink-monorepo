@@ -6,8 +6,9 @@ import Reward, { RewardProps } from '../../components/elements/Reward'
 import Select from '../../components/elements/Select'
 import SortOrder from '../../components/elements/SortOrder'
 import RewardDetails from '../../components/forms/RewardDetails'
-import NewReward from '../../components/forms/NewReward'
+import RewardForm from '../../components/forms/RewardForm'
 import { AnimatePresence } from 'framer-motion'
+import IconPlus from '../../components/icons/IconPlus'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const rewards = require('../../services/dummy/rewards.json')
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -117,10 +118,17 @@ export default function components() {
     )
   }
 
+  const loadReward = (reward: any) => {
+    setWarning(true)
+    setDrawContent(
+      <RewardForm current={reward} />
+    )
+  }
+
   const NewRewardForm = () => {
     setWarning(true)
     setDrawContent(
-      <NewReward />
+      <RewardForm />
     )
   }
 
@@ -152,9 +160,14 @@ export default function components() {
         </div>
       </div>
       <div className="rewards flex mb-4">
+        <div className="p-1">
+          <div className="rewards__add" onClick={NewRewardForm}>
+            <IconPlus />
+          </div>
+        </div>
         { sorted.map((r:RewardProps, i) => (
-          <div className="reward-wrap" key={`fl-r-${i}`}>
-            <Reward {...r} onClick={ () => loadReadonlyReward(r)} />
+          <div className="rewards__wrap" key={`fl-r-${i}`}>
+            <Reward {...r} onClick={ () => loadReward(r)} />
           </div>
         ))}
       </div>
@@ -178,7 +191,7 @@ export default function components() {
       </div>
       <div className="rewards flex">
         { sortedFL.map((r:RewardProps, i) => (
-          <div className="reward-wrap" key={`fl-r-${i}`}>
+          <div className="rewards__wrap" key={`fl-r-${i}`}>
             <Reward {...r} onClick={ () => loadReadonlyReward(r)} />
           </div>
         ))}
