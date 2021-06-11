@@ -48,8 +48,12 @@ export const AuthProvider: React.FC = ({children}) => {
   }
 
   async function logout() {
-    // TODO: Implement dropping JWT keys from api instance
-    setUser(undefined);
+    try {
+      const result = await api.logout();
+      if (result.success) setUser(undefined);
+    } catch (e) {
+      return getErrors(e);
+    }
   }
 
   function isLoggedIn() {
