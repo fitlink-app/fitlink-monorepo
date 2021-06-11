@@ -8,7 +8,7 @@ const StyledLabel = styled(Label)({
   textAlign: 'center',
   alignSelf: 'center',
   maxWidth: 280,
-  lineHeight: 20,
+  lineHeight: '20px',
 });
 
 export const TermsOfServiceLabel = () => {

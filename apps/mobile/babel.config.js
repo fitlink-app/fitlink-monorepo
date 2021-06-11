@@ -10,6 +10,7 @@ module.exports = {
           '@components': './src/components',
           '@hooks': './src/hooks',
           '@api': './src/api',
+          '@constants': './src/constants',
         },
       },
     ],

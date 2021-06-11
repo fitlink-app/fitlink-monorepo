@@ -1,7 +1,9 @@
-import React, {createContext, useState} from 'react';
+import React, {createContext} from 'react';
 import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
-import api from '@api';
-import {getErrorMessage} from '@fitlink/api-sdk';
+import api, {getErrors, RequestError} from '@api';
+import {AsyncStorageKeys} from '@constants';
+import {usePersistedState} from '@hooks';
+import {useEffect} from 'react';
 
 type Credentials = {
   email: string;
@@ -10,9 +12,10 @@ type Credentials = {
 
 interface AuthContextType {
   user?: User;
-  signIn: (credentials: Credentials) => Promise<void>;
-  signUp: (credentials: Credentials) => Promise<void>;
+  signIn: (credentials: Credentials) => Promise<RequestError | undefined>;
+  signUp: (credentials: Credentials) => Promise<RequestError | undefined>;
   logout: () => Promise<void>;
+  isLoggedIn: () => boolean;
 }
 
 export const AuthContext = createContext<AuthContextType>(
@@ -20,25 +23,40 @@ export const AuthContext = createContext<AuthContextType>(
 );
 
 export const AuthProvider: React.FC = ({children}) => {
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = usePersistedState<User | undefined>(
+    undefined,
+    AsyncStorageKeys.USER,
+  );
+
+  async function signIn(credentials: Credentials) {
+    try {
+      await api.login(credentials);
+      const responseUser = await api.get<User>('/me');
+      setUser(responseUser);
+    } catch (e) {
+      return getErrors(e);
+    }
+  }
+
+  async function signUp(credentials: Credentials) {
+    try {
+      const {me} = await api.signUp(credentials);
+      setUser(me);
+    } catch (e) {
+      return getErrors(e);
+    }
+  }
+
+  async function logout() {
+    // TODO: Implement dropping JWT keys from api instance
+    setUser(undefined);
+  }
 
   function isLoggedIn() {
     return !!user;
   }
 
-  async function signIn(credentials: Credentials) {
-    try {
-      const result = await api.login(credentials);
-    } catch (e) {
-      const errorMsg = getErrorMessage(e);
-    }
-  }
-
-  async function signUp() {}
-
-  async function logout() {}
-
-  const contextValue = {user, signIn, signUp, logout};
+  const contextValue = {user, signIn, signUp, logout, isLoggedIn};
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
