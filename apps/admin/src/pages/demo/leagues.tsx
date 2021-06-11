@@ -1,11 +1,20 @@
 import { useState, useEffect } from 'react'
-import League from '../../components/elements/League'
+import League, { LeagueProps } from '../../components/elements/League'
 import Select from '../../components/elements/Select'
 import SortOrder from '../../components/elements/SortOrder'
+import IconPlus from '../../components/icons/IconPlus'
 import Dashboard from '../../components/layouts/Dashboard'
+import Drawer from '../../components/elements/Drawer'
+import LeagueForm from '../../components/forms/LeagueForm'
+import { AnimatePresence } from 'framer-motion'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const leagues = require('../../services/dummy/leagues.json')
 
 export default function components() {
-
+  const [drawContent, setDrawContent] = useState<
+    React.ReactNode | undefined | false
+  >(false)
+  const [warning, setWarning] = useState(false)
   const [sorted, setSorted] = useState([])
   const [sort, setSort] = useState<'asc' | 'desc'>('asc')
   const [sortOn, setSortOn] = useState('points')
@@ -25,6 +34,36 @@ export default function components() {
     }
   ]
 
+  useEffect(() => {
+    const orig = JSON.parse(JSON.stringify(leagues))
+    switch (sortOn) {
+      case 'members':
+        setSorted(
+          orig.results.sort((a, b) =>
+          sort === 'asc'
+          ? parseFloat(a[sortOn]) - parseFloat(b[sortOn])
+          : parseFloat(b[sortOn]) - parseFloat(a[sortOn])
+          )
+        )
+        break
+      default:
+        setSorted(
+          orig.results.sort((a, b) =>
+            sort === 'asc'
+              ? a[sortOn].toLowerCase() > b[sortOn].toLowerCase()
+              : a[sortOn].toLowerCase() < b[sortOn].toLowerCase()
+          )
+        )
+    }
+  }, [leagues, sortOn, sort])
+
+  const NewLeagueForm = () => {
+    setWarning(true)
+    setDrawContent(
+      <LeagueForm />
+    )
+  }
+
   return (
     <Dashboard
       title="Leagues"
@@ -32,7 +71,7 @@ export default function components() {
       <div className="row ai-c mb-1">
         <div className="col-12 col-lg-8">
           <div className="flex ai-c">
-            <h1 className="light mb-0 mr-2">Your rewards</h1>
+            <h1 className="light mb-0 mr-2">Your leagues</h1>
             <button
               className="button alt small mt-1"
               >
@@ -54,17 +93,27 @@ export default function components() {
         </div>
       </div>
       <div className="rewards flex mb-4">
-        <div className="rewards__wrap">
-          <League
-            image="https://source.unsplash.com/ljoCgjs63SM/760"
-            name="Weekly Steps Challenge"
-            description="Join this weekly steps league to see if you can get all the steps!"
-            members={1256}
-            resetDate="2021-06-30T07:22:48.220Z"
-            type="Steps"
-            />
+      <div className="p-1">
+          <div className="rewards__add" onClick={NewLeagueForm}>
+            <IconPlus />
+          </div>
         </div>
+        { sorted.map((r:LeagueProps, i) => (
+          <div className="rewards__wrap" key={`fl-r-${i}`}>
+            <League {...r} onClick={ () => console.log(r)} />
+          </div>
+        ))}
       </div>
+      <AnimatePresence initial={false}>
+        {drawContent && (
+          <Drawer
+            remove={() => setDrawContent(null)}
+            key="drawer"
+            warnBeforeClose={warning}>
+            {drawContent}
+          </Drawer>
+        )}
+      </AnimatePresence>
     </Dashboard>
   )
 }
