@@ -153,7 +153,12 @@ export type ResponseError = {
   response: {
     data: {
       status: number
+
+      /** Error message */
       message: string
+
+      /** Field errors if available */
+      errors?: { [field: string]: string };
     }
   }
 }
