@@ -2,8 +2,9 @@ import React, {useState} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {TextInputProps, Platform} from 'react-native';
 import {Icon} from './Icon';
+import {FieldWrapper} from './form';
 
-const Wrapper = styled.View({width: '100%'});
+const Wrapper = styled(FieldWrapper)({width: '100%'});
 
 const FieldContainer = styled.View({
   borderWidth: 1,
@@ -35,7 +36,7 @@ const InputFieldIcon = styled(Icon)({
 
 export interface InputFieldProps extends TextInputProps {
   /** Makes the border red if set true */
-  error?: boolean;
+  error?: string;
 
   /** Enable button to clear field value */
   clearButtonEnabled?: boolean;
@@ -72,7 +73,7 @@ export const InputField = React.forwardRef(
     };
 
     return (
-      <Wrapper {...{style}}>
+      <Wrapper {...{style, error}}>
         <FieldContainer
           style={[
             {
