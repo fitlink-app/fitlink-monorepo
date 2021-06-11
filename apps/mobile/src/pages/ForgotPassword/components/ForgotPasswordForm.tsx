@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, InputField, Label} from '@components';
+import {Button, FormError, InputField, Label} from '@components';
 import {useForm} from '@hooks';
 import styled from 'styled-components/native';
 
@@ -31,10 +31,18 @@ interface ForgotPasswordFormProps {
 export const ForgotPasswordForm = ({email = ''}: ForgotPasswordFormProps) => {
   const initialValues: ForgotPasswordFormValues = {email};
 
-  const {handleChange, handleSubmit, values, errors, isSubmitting} =
-    useForm(initialValues);
+  const {
+    handleChange,
+    handleSubmit,
+    values,
+    fieldErrors,
+    errorMessage,
+    isSubmitting,
+  } = useForm(initialValues);
 
-  const onSubmit = async () => {};
+  const onSubmit = async () => {
+    return {message: 'Not implemented.'} as any;
+  };
 
   return (
     <Wrapper>
@@ -42,7 +50,7 @@ export const ForgotPasswordForm = ({email = ''}: ForgotPasswordFormProps) => {
 
       <StyledInputField
         value={values.email}
-        error={!!errors.email}
+        error={fieldErrors.email}
         onChangeText={handleChange('email')}
         clearButtonEnabled
         placeholder={'E-mail address'}
@@ -51,6 +59,8 @@ export const ForgotPasswordForm = ({email = ''}: ForgotPasswordFormProps) => {
         textContentType="emailAddress"
         autoCompleteType={'email'}
       />
+
+      {!!errorMessage && <FormError>{errorMessage}</FormError>}
 
       <SubmitButton
         text="Send reset instructions"

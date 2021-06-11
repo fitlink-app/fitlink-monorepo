@@ -1,5 +1,5 @@
 import React, {useRef} from 'react';
-import {Button, InputField, Label} from '@components';
+import {Button, FormError, FormTitle, InputField} from '@components';
 import {useAuth, useForm} from '@hooks';
 import styled from 'styled-components/native';
 import {TextInput} from 'react-native';
@@ -10,11 +10,6 @@ const Wrapper = styled.View({
 
 const StyledInputField = styled(InputField)({
   marginBottom: 10,
-});
-
-const Title = styled(Label)({
-  alignSelf: 'center',
-  marginBottom: 20,
 });
 
 const SignInButton = styled(Button)({
@@ -37,21 +32,28 @@ export const SignInForm = ({onEmailChanged}: SignInFormProps) => {
 
   const initialValues: SignInFormValues = {email: '', password: ''};
 
-  const {handleChange, handleSubmit, values, errors, setErrors, isSubmitting} =
-    useForm(initialValues);
+  const {
+    handleChange,
+    handleSubmit,
+    values,
+    fieldErrors,
+    errorMessage,
+    isSubmitting,
+  } = useForm(initialValues);
 
   const onSubmit = async () => {
     const credentials = {email: values.email, password: values.password};
-    await signIn(credentials);
+    const requestError = await signIn(credentials);
+    return requestError;
   };
 
   return (
     <Wrapper>
-      <Title type={'title'}>Sign in</Title>
+      <FormTitle type={'title'}>Sign in</FormTitle>
 
       <StyledInputField
         value={values.email}
-        error={!!errors.email}
+        error={fieldErrors.email}
         onChangeText={text => {
           handleChange('email')(text);
           onEmailChanged && onEmailChanged(text);
@@ -69,7 +71,7 @@ export const SignInForm = ({onEmailChanged}: SignInFormProps) => {
       <StyledInputField
         ref={passwordFieldRef}
         value={values.password}
-        error={!!errors.password}
+        error={fieldErrors.password}
         onChangeText={handleChange('password')}
         clearButtonEnabled
         placeholder={'Password'}
@@ -79,6 +81,8 @@ export const SignInForm = ({onEmailChanged}: SignInFormProps) => {
         textContentType="password"
         autoCompleteType={'password'}
       />
+
+      {!!errorMessage && <FormError>{errorMessage}</FormError>}
 
       <SignInButton
         text="Sign in"

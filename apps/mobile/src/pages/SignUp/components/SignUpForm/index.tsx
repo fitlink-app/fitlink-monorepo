@@ -1,6 +1,6 @@
 import React, {useRef} from 'react';
-import {Button, InputField, Label} from '@components';
-import {useForm} from '@hooks';
+import {Button, FormError, InputField, Label} from '@components';
+import {useAuth, useForm} from '@hooks';
 import styled from 'styled-components/native';
 import {TextInput} from 'react-native';
 import {PrivacyPolicyLabel, TermsOfServiceLabel} from './components';
@@ -28,14 +28,26 @@ export interface SignUpFormValues {
 }
 
 export const SignUpForm = () => {
+  const {signUp} = useAuth();
+
   const passwordFieldRef = useRef<TextInput>(null);
 
   const initialValues: SignUpFormValues = {email: '', password: ''};
 
-  const {handleChange, handleSubmit, values, errors, setErrors, isSubmitting} =
-    useForm(initialValues);
+  const {
+    handleChange,
+    handleSubmit,
+    values,
+    fieldErrors,
+    errorMessage,
+    isSubmitting,
+  } = useForm(initialValues);
 
-  const onSubmit = async () => {};
+  const onSubmit = async () => {
+    const credentials = {email: values.email, password: values.password};
+    const requestError = await signUp(credentials);
+    return requestError;
+  };
 
   return (
     <Wrapper>
@@ -43,7 +55,7 @@ export const SignUpForm = () => {
 
       <StyledInputField
         value={values.email}
-        error={!!errors.email}
+        error={fieldErrors.email}
         onChangeText={handleChange('email')}
         clearButtonEnabled
         placeholder={'E-mail address'}
@@ -58,7 +70,7 @@ export const SignUpForm = () => {
       <StyledInputField
         ref={passwordFieldRef}
         value={values.password}
-        error={!!errors.password}
+        error={fieldErrors.password}
         onChangeText={handleChange('password')}
         clearButtonEnabled
         placeholder={'Password'}
@@ -69,6 +81,8 @@ export const SignUpForm = () => {
         autoCompleteType={'password'}
       />
       <TermsOfServiceLabel />
+
+      {!!errorMessage && !fieldErrors && <FormError>{errorMessage}</FormError>}
 
       <SignUpButton
         text="Agree and Sign up"
