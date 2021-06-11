@@ -11,11 +11,12 @@ import {
   AuthLoginDto,
   AuthRefreshDto
 } from '@fitlink/api/src/modules/auth/dto/auth-login'
+import { CreateUserDto } from '@fitlink/api/src/modules/users/dto/create-user.dto'
 import {
   AuthResultDto,
   AuthLogoutDto
 } from '@fitlink/api/src/modules/auth/dto/auth-result'
-// import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
+import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 
 export type { AuthResultDto, AuthLogoutDto, AuthLoginDto }
 
@@ -30,7 +31,8 @@ type FilePayload = NodeJS.Dict<any> & {
 export type AuthLogin = '/auth/login'
 export type AuthLogout = '/auth/logout'
 export type AuthRefresh = '/auth/refresh'
-export type CreatableResource = AuthLogin | AuthLogout | AuthRefresh
+export type AuthSignUp = '/auth/signup'
+export type CreatableResource = AuthLogin | AuthLogout | AuthRefresh | AuthSignUp
 
 export type ListResource =
   | '/organisations'
@@ -99,12 +101,19 @@ export type ReadResource =
 
 export type UploadResource = '/images'
 
+export type CreateUserResult = {
+  auth: AuthResultDto
+  me: User
+}
+
 export type CreateResourceParams<T> = T extends Organisation
   ? Payload<CreateOrganisationDto>
   : T extends Team
   ? Payload<CreateTeamDto>
   : T extends Activity
   ? Payload<CreateActivityDto>
+  : T extends AuthSignUp
+  ? Payload<CreateUserDto>
   : T extends AuthLogin
   ? Payload<AuthLoginDto>
   : T extends AuthRefresh
@@ -115,7 +124,9 @@ export type CreateResourceParams<T> = T extends Organisation
 
 export type UploadResourceParams = FilePayload
 
-export type CreatableResourceResponse<T> = T extends AuthLogin
+export type CreatableResourceResponse<T> =  T extends AuthSignUp 
+  ? CreateUserResult
+  : T extends AuthLogin
   ? AuthResultDto
   : T extends AuthRefresh
   ? AuthResultDto

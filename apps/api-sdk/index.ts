@@ -1,3 +1,4 @@
+import { CreateUserDto } from '@fitlink/api/src/modules/users/dto/create-user.dto'
 import { AxiosInstance, AxiosError } from 'axios'
 import {
   ListResource,
@@ -16,7 +17,8 @@ import {
   AuthLogin,
   AuthLogout,
   AuthRefresh,
-  DeleteResult
+  DeleteResult,
+  AuthSignUp
 } from './types'
 
 const ERR_TOKEN_EXPIRED = 'Token expired'
@@ -279,16 +281,28 @@ export class Api {
   }
 
   /**
+   * Signs up a new user, logs in and stores tokens
+   *
+   * @param emailPass An object of `{ email, password, name? }`
+   * @returns `{auth: AuthResult, me: User}`
+   */
+  async signUp(emailPass: CreateUserDto) {
+    const result = await this.post<AuthSignUp>('/auth/login', emailPass)
+    this.setTokens(result.auth)
+    return result
+  }
+
+    /**
    * Logs in and stores tokens
    *
    * @param emailPass An object of `{ email, password }`
    * @returns `{ id_token, access_token, refresh_token }`
    */
-  async login(emailPass: AuthLoginDto) {
-    const result = await this.post<AuthLogin>('/auth/login', emailPass)
-    this.setTokens(result)
-    return result
-  }
+     async login(emailPass: AuthLoginDto) {
+      const result = await this.post<AuthLogin>('/auth/login', emailPass)
+      this.setTokens(result)
+      return result
+    }
 
   /**
    * Logs the user out. In practice, the JWT will not expire
