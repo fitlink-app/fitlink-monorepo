@@ -1,20 +1,26 @@
 import {
+  DefaultTheme,
   NavigationContainer,
   NavigationContainerRef,
 } from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
 import React from 'react';
-import {WelcomeNavigator} from './welcome.navigator';
-
-const Stack = createStackNavigator();
+import {useTheme} from 'styled-components/native';
+import {AuthenticationNavigator} from './authentication.navigator';
 
 // Exports a reference to the navigation object for cases when the navigation prop is not available
 export const navigationRef = React.createRef<NavigationContainerRef | null>();
 
 export default function Router() {
+  const {colors} = useTheme();
+
   return (
-    <NavigationContainer ref={navigationRef as any}>
-      <WelcomeNavigator />
+    <NavigationContainer
+      ref={navigationRef as any}
+      theme={{
+        ...DefaultTheme,
+        colors: {...DefaultTheme.colors, background: colors.background},
+      }}>
+      <AuthenticationNavigator />
     </NavigationContainer>
   );
 }
