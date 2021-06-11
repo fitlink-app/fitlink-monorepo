@@ -40,13 +40,11 @@
     "docs:generate": "@compodoc/compodoc -p tsconfig.json -s",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\""
   },
-  "workspaces": [
-    "apps/api",
-    "apps/api-sdk",
-    "apps/admin",
-    "apps/storybook",
-    "apps/common"
-  ],
+  "workspaces": {
+    "packages": [
+      "apps/*"
+    ]
+  },
   "dependencies": {
     "@fitlink/common": "*",
     "ts-loader": "^8.0.17"
