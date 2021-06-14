@@ -12,10 +12,10 @@ type Credentials = {
 
 interface AuthContextType {
   user?: User;
+  isLoggedIn: boolean;
   signIn: (credentials: Credentials) => Promise<RequestError | undefined>;
   signUp: (credentials: Credentials) => Promise<RequestError | undefined>;
-  logout: () => Promise<void>;
-  isLoggedIn: () => boolean;
+  logout: () => Promise<RequestError | undefined>;
 }
 
 export const AuthContext = createContext<AuthContextType>(
@@ -27,6 +27,8 @@ export const AuthProvider: React.FC = ({children}) => {
     undefined,
     AsyncStorageKeys.USER,
   );
+
+  const isLoggedIn = !!user;
 
   async function signIn(credentials: Credentials) {
     try {
@@ -56,11 +58,7 @@ export const AuthProvider: React.FC = ({children}) => {
     }
   }
 
-  function isLoggedIn() {
-    return !!user;
-  }
-
-  const contextValue = {user, signIn, signUp, logout, isLoggedIn};
+  const contextValue = {user, isLoggedIn, signIn, signUp, logout};
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
