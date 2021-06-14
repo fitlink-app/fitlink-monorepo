@@ -1,3 +1,4 @@
+import {AppBackground} from '@components';
 import {AuthProvider} from 'contexts';
 import React from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -9,7 +10,9 @@ const App = () => {
     <SafeAreaProvider>
       <ThemeProvider>
         <AuthProvider>
-          <Router />
+          <AppBackground>
+            <Router />
+          </AppBackground>
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
