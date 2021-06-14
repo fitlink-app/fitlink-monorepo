@@ -16,8 +16,8 @@ export default function components() {
   >(false)
   const [warning, setWarning] = useState(false)
   const [sorted, setSorted] = useState([])
-  const [sort, setSort] = useState<'asc' | 'desc'>('asc')
-  const [sortOn, setSortOn] = useState('points')
+  const [sort, setSort] = useState<'asc' | 'desc'>('desc')
+  const [sortOn, setSortOn] = useState('members')
 
   const options = [
     {
@@ -26,7 +26,7 @@ export default function components() {
     },
     {
       label: 'Title',
-      value: 'shortDescription'
+      value: 'name'
     },
     {
       label: 'Reset date',
