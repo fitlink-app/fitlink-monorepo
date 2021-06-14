@@ -9,11 +9,11 @@ const App = () => {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <AuthProvider>
-          <AppBackground>
+        <AppBackground>
+          <AuthProvider>
             <Router />
-          </AppBackground>
-        </AuthProvider>
+          </AuthProvider>
+        </AppBackground>
       </ThemeProvider>
     </SafeAreaProvider>
   );
