@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { add } from 'date-fns'
 import Input from '../elements/Input'
+import Checkbox from '../elements/Checkbox'
 import League from '../elements/League'
 import IconImage from '../icons/IconImage'
 import Select from '../elements/Select'
@@ -164,6 +165,13 @@ export default function LeagueForm({
         label="Sport"
         onChange={(v) => setSport(v.value)}
       />
+      <Checkbox
+        label="This activity repeats"
+        name="repeats"
+        checked={repeats}
+        showSwitch={true}
+        onChange={(v) => setRepeats(v)}
+        />
       <div className="text-right mt-2">
         <button className="button">
         { current ? 'Update' : 'Create league' }

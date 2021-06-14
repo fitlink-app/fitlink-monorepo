@@ -81,6 +81,7 @@ export default function components() {
             <h1 className="light mb-0 mr-2">Your leagues</h1>
             <button
               className="button alt small mt-1"
+              onClick={NewLeagueForm}
               >
               Add new
             </button>
