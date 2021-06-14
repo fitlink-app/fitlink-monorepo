@@ -10,12 +10,22 @@ import { User } from '../users/entities/user.entity'
 import { UsersService } from '../users/users.service'
 import { AuthResultDto } from './dto/auth-result'
 import { RefreshToken } from './entities/auth.entity'
+import { EmailService } from '../common/email.service'
+import { ConfigService } from '@nestjs/config'
+import { AuthResetPasswordDto } from './dto/auth-reset-password'
+
+type PasswordResetToken = {
+  sub: string
+  iat: string
+}
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private emailService: EmailService,
+    private configService: ConfigService,
     @InjectRepository(User)
     private refreshTokenRepository: Repository<RefreshToken>,
     private connection: Connection
@@ -239,5 +249,71 @@ export class AuthService {
   async verifyPassword(password: string, hash: string) {
     const isMatch = await bcrypt.compare(password, hash)
     return isMatch
+  }
+
+  /**
+   * Sends user a password reset link in an email
+   * @param email
+   * @returns
+   */
+  async requestPasswordReset(email: string) {
+    const user = await this.usersService.findByEmail(email)
+    if (user) {
+      const resetPasswordUrl = this.configService
+        .get('RESET_PASSWORD_URL')
+        .replace('{token}', this.getResetPasswordToken(user))
+      await this.emailService.sendTemplatedEmail(
+        'password-reset',
+        {
+          PASSWORD_RESET_LINK: resetPasswordUrl
+        },
+        [email]
+      )
+    }
+
+    // The client should not be told whether or not this user exists
+    return true
+  }
+
+  /**
+   * Sends user a password reset link in an email
+   * @param email
+   * @returns
+   */
+  async resetPassword(resetPasswordDto: AuthResetPasswordDto) {
+    const tokenData = this.jwtService.decode(
+      resetPasswordDto.token
+    ) as PasswordResetToken
+
+    if (!tokenData) {
+      throw new Error('Invalid token, or token may have expired')
+    }
+
+    const user = await this.usersService.findByEmail(tokenData.sub)
+
+    if (user) {
+      const password = await this.hashPassword(resetPasswordDto.password)
+      return this.usersService.updatePassword(user.id, password)
+    } else {
+      throw new Error('User not found')
+    }
+  }
+
+  /**
+   * Generates a JWT for password reset
+   * @param user The user retrieved by email
+   * @returns The token
+   */
+  getResetPasswordToken(user: User) {
+    const payload = {
+      aud: 'fitlink.com',
+      iss: 'fitlink.com',
+      sub: user.email,
+      iat: new Date().getTime()
+    }
+
+    return this.jwtService.sign(payload, {
+      expiresIn: '30m'
+    })
   }
 }

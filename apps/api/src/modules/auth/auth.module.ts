@@ -11,6 +11,7 @@ import { UsersService } from '../users/users.service'
 import { AuthController } from './auth.controller'
 import { RefreshToken } from './entities/auth.entity'
 import { UserRolesModule } from '../user-roles/user-roles.module'
+import { CommonModule } from '../common/common.module'
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UserRolesModule } from '../user-roles/user-roles.module'
     ConfigModule,
     UsersModule,
     PassportModule,
+    CommonModule,
     forwardRef(() => UserRolesModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],

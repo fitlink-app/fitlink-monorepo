@@ -10,6 +10,8 @@ import { UsersModule } from '../src/modules/users/users.module'
 import { mockApp } from './helpers/app'
 import { useSeeding } from 'typeorm-seeding'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
+import { emailHasContent } from './helpers/mocking'
+import { createTokenFromPayload } from './helpers/auth'
 
 // Inspect this token at https://jwt.io/
 const expiredToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJmaXRsaW5rLmNvbSIsImlzcyI6ImZpdGxpbmsuY29tIiwic3ViIjoiMTFhOWYxNzQtMDg2NS00MGU1LThmM2UtMWI2NDQwNTIwMGM4IiwiaWF0IjoxNjE1NTgwMTExNjU1LCJyb2xlcyI6eyJvX2EiOlsiMzk4NzIzODcyMzk4NTcyNDAiXSwidF9hIjpbIjM5ODcyMzg3MjM5ODU3MjM5Il0sInNfYSI6dHJ1ZX0sImV4cCI6MTAxNTU4MDExNTI1NX0.eNJIV7D6NFE8s3uOa5No3XgQmXBEMB9QNybE97qkTnk`
@@ -21,6 +23,7 @@ describe('Auth', () => {
   let userId = ''
   let email = ''
   const password = 'password'
+  let passwordToken
 
   beforeAll(async () => {
     app = await mockApp({
@@ -36,6 +39,14 @@ describe('Auth', () => {
     // Set credentials
     userId = users[0].id
     email = users[0].email
+
+    // Create password reset token
+    passwordToken = createTokenFromPayload({
+      aud: 'fitlink.com',
+      iss: 'fitlink.com',
+      sub: email,
+      iat: new Date().getTime()
+    })
   })
 
   afterAll(async () => {
@@ -87,6 +98,83 @@ describe('Auth', () => {
       access_token: expect.anything(),
       refresh_token: expect.anything()
     })
+  })
+
+  it.only(`/auth/login 201 Allows a user to sign up with only an email address and password`, async () => {
+    const result = await app.inject({
+      method: 'POST',
+      url: '/auth/signup',
+      payload: {
+        email: Date.now() + '-email@example.com',
+        password: 'password'
+      }
+    })
+
+    const json = result.json()
+
+    expect(result.statusCode).toEqual(201)
+    expect(json.auth).toMatchObject({
+      id_token: expect.anything(),
+      access_token: expect.anything(),
+      refresh_token: expect.anything()
+    })
+    expect(json.me.id).toBeDefined()
+  })
+
+  it.only(`/auth/login 400 Fails for weak password`, async () => {
+    const result = await app.inject({
+      method: 'POST',
+      url: '/auth/signup',
+      payload: {
+        email: Date.now() + '-email@example.com',
+        password: 'pass'
+      }
+    })
+
+    const json = result.json()
+    expect(result.statusCode).toEqual(400)
+    expect(json.errors['password']).toContain('must be at least')
+  })
+
+  it.only(`/auth/request-password-reset 200 Allows user to receive a reset password email with link`, async () => {
+    const result = await app.inject({
+      method: 'POST',
+      url: '/auth/request-password-reset',
+      payload: {
+        email
+      }
+    })
+
+    expect(result.statusCode).toEqual(201)
+    expect(await emailHasContent(email)).toBe(true)
+  })
+
+  it.only(`/auth/reset-password 400 Bad request when user tries reset their password with a bad token`, async () => {
+    const result = await app.inject({
+      method: 'PUT',
+      url: '/auth/reset-password',
+      payload: {
+        password: 'password',
+        token: '123'
+      }
+    })
+
+    expect(result.statusCode).toEqual(400)
+    expect(result.json().message).toContain('Invalid token')
+  })
+
+  it.only(`/auth/reset-password 200 User can reset their password with a valid reset token (originates from email)`, async () => {
+    const result = await app.inject({
+      method: 'PUT',
+      url: '/auth/reset-password',
+      payload: {
+        password: 'password',
+        token: passwordToken
+      }
+    })
+
+    expect(result.statusCode).toEqual(200)
+    expect(result.json().affected).toBe(1)
   })
 
   it(`/me 200 Allows a user to access a JWT guarded controller with a valid access token`, async () => {

@@ -1,12 +1,29 @@
-import { Controller, Request, Post, UseGuards, Get, Body } from '@nestjs/common'
+import {
+  Controller,
+  Request,
+  Post,
+  Put,
+  UseGuards,
+  Get,
+  Body,
+  BadRequestException
+} from '@nestjs/common'
 import { LocalAuthGuard } from './guards/local-auth.guard'
 import { AuthService } from './auth.service'
 import { Public } from '../../decorators/public.decorator'
 import { AuthLoginDto } from './dto/auth-login'
 import { AuthResultDto, AuthLogoutDto, AuthSignupDto } from './dto/auth-result'
 import { ApiBody, ApiResponse } from '@nestjs/swagger'
-import { ApiBaseResponses } from '../../decorators/swagger.decorator'
+import {
+  ApiBaseResponses,
+  SuccessResponse,
+  UpdateResponse
+} from '../../decorators/swagger.decorator'
 import { CreateUserDto } from '../users/dto/create-user.dto'
+import {
+  AuthResetPasswordDto,
+  AuthRequestResetPasswordDto
+} from './dto/auth-reset-password'
 
 @Controller()
 @ApiBaseResponses()
@@ -41,5 +58,26 @@ export class AuthController {
   @ApiResponse({ type: AuthSignupDto, status: 200 })
   async signup(@Body() createUserDto: CreateUserDto) {
     return this.authService.signup(createUserDto)
+  }
+
+  @Post('auth/request-password-reset')
+  @Public()
+  @SuccessResponse()
+  async requestPasswordReset(
+    @Body() requestPasswordDto: AuthRequestResetPasswordDto
+  ) {
+    return this.authService.requestPasswordReset(requestPasswordDto.email)
+  }
+
+  @Put('auth/reset-password')
+  @Public()
+  @UpdateResponse()
+  async resetPassword(@Body() resetPasswordDto: AuthResetPasswordDto) {
+    try {
+      const result = await this.authService.resetPassword(resetPasswordDto)
+      return result
+    } catch (e) {
+      throw new BadRequestException(e.message)
+    }
   }
 }
