@@ -29,13 +29,13 @@ export class GoalsEntry extends CreatableEntity {
   @Column({
     default: 0
   })
-  current_calories: number
+  current_mindfulness_minutes: number
 
   @ApiProperty()
   @Column({
     default: 0
   })
-  target_calories: number
+  target_mindfulness_minutes: number
 
   @ApiProperty()
   @Column({
