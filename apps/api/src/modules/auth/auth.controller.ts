@@ -17,7 +17,8 @@ import { ApiBody, ApiResponse } from '@nestjs/swagger'
 import {
   ApiBaseResponses,
   SuccessResponse,
-  UpdateResponse
+  UpdateResponse,
+  ValidationResponse
 } from '../../decorators/swagger.decorator'
 import { CreateUserDto } from '../users/dto/create-user.dto'
 import {
@@ -55,6 +56,7 @@ export class AuthController {
 
   @Post('auth/signup')
   @Public()
+  @ValidationResponse()
   @ApiResponse({ type: AuthSignupDto, status: 200 })
   async signup(@Body() createUserDto: CreateUserDto) {
     return this.authService.signup(createUserDto)
@@ -72,6 +74,7 @@ export class AuthController {
   @Put('auth/reset-password')
   @Public()
   @UpdateResponse()
+  @ValidationResponse()
   async resetPassword(@Body() resetPasswordDto: AuthResetPasswordDto) {
     try {
       const result = await this.authService.resetPassword(resetPasswordDto)

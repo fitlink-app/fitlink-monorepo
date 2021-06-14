@@ -3,6 +3,7 @@ import { ApiResponse, ApiQuery } from '@nestjs/swagger'
 import { DeleteResultDto } from '../classes/dto/delete'
 import { UpdateResultDto } from '../classes/dto/update'
 import { SuccessResultDto } from '../classes/dto/success'
+import { ValidationResultDto } from '../classes/dto/validation'
 import { ForbiddenErrorDto, ServerErrorDto } from '../classes/dto/error'
 import { PaginationDto } from '../helpers/paginate'
 
@@ -23,6 +24,12 @@ export function UpdateResponse() {
 
 export function SuccessResponse() {
   return applyDecorators(ApiResponse({ type: SuccessResultDto, status: 200 }))
+}
+
+export function ValidationResponse() {
+  return applyDecorators(
+    ApiResponse({ type: ValidationResultDto, status: 400 })
+  )
 }
 
 export function PaginationBody() {

@@ -1,8 +1,3 @@
-const date = new Date()
-
-import mockdate from 'mockdate'
-mockdate.set(date)
-
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Connection } from 'typeorm'
 import { AuthModule } from '../src/modules/auth/auth.module'
@@ -10,7 +5,7 @@ import { UsersModule } from '../src/modules/users/users.module'
 import { mockApp } from './helpers/app'
 import { useSeeding } from 'typeorm-seeding'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
-import { emailHasContent } from './helpers/mocking'
+import { emailHasContent, timeout } from './helpers/mocking'
 import { createTokenFromPayload } from './helpers/auth'
 
 // Inspect this token at https://jwt.io/
@@ -175,6 +170,40 @@ describe('Auth', () => {
 
     expect(result.statusCode).toEqual(200)
     expect(result.json().affected).toBe(1)
+  })
+
+  it.only(`/auth/reset-password 400 Bad request when user tries to reset their password with the token that is issued before their last password reset date`, async () => {
+    const passwordToken1 = createTokenFromPayload({
+      aud: 'fitlink.com',
+      iss: 'fitlink.com',
+      sub: email,
+      iat: new Date().getTime()
+    })
+
+    await timeout(1000)
+
+    await app.inject({
+      method: 'PUT',
+      url: '/auth/reset-password',
+      payload: {
+        password: 'password',
+        token: passwordToken1
+      }
+    })
+
+    await timeout(1000)
+
+    const result = await app.inject({
+      method: 'PUT',
+      url: '/auth/reset-password',
+      payload: {
+        password: 'password',
+        token: passwordToken1
+      }
+    })
+
+    expect(result.statusCode).toEqual(400)
+    expect(result.json().message).toContain('already reset your password')
   })
 
   it(`/me 200 Allows a user to access a JWT guarded controller with a valid access token`, async () => {
