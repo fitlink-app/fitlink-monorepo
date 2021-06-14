@@ -1,20 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, IsOptional, MinLength } from 'class-validator'
+import { IsEmail, MinLength } from 'class-validator'
 
-export class CreateUserDto {
+export class AuthRequestResetPasswordDto {
   @ApiProperty()
-  @IsNotEmpty()
-  @IsOptional()
-  name?: string
-
-  @ApiProperty()
-  @IsNotEmpty()
+  @IsEmail()
   email: string
+}
 
+export class AuthResetPasswordDto {
   @ApiProperty()
-  @IsNotEmpty()
   @MinLength(8, {
     message: 'Password must be at least 8 characters in length'
   })
   password: string
+
+  @ApiProperty()
+  token: string
 }
