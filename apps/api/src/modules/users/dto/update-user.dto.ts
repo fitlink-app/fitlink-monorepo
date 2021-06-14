@@ -37,7 +37,7 @@ export class UpdateUserDto {
   @ApiProperty()
   @IsOptional()
   @IsNumber()
-  goal_calories: number
+  goal_mindfulness_minutes: number
 
   @ApiProperty()
   @IsOptional()
