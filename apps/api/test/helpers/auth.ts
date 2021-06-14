@@ -48,3 +48,7 @@ export function getAuthHeaders(
     Authorization: `Bearer ${token}`
   }
 }
+
+export function createTokenFromPayload(payload: any) {
+  return jwtService.sign(payload)
+}

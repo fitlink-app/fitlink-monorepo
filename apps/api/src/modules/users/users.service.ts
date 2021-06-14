@@ -62,6 +62,13 @@ export class UsersService {
     return this.userRepository.update(id, updateUserDto)
   }
 
+  updatePassword(id: string, hashedPassword: string) {
+    return this.userRepository.update(id, {
+      password: hashedPassword,
+      password_reset_at: new Date()
+    })
+  }
+
   updateAvatar(id: string, imageId: string) {
     const avatar = new Image()
     avatar.id = imageId
