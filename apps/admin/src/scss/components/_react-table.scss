@@ -147,6 +147,18 @@
     }
   }
 
+  .map-preview {
+    max-width: 200px;
+    
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 1rem;
+      box-shadow: 0 5px 10px 0 rgba(0,0,0,0.1);
+    }
+  }
+
   tr:nth-child(1n) {
     .bua { span { background: rgba($primary, 0.5); } }
   }
