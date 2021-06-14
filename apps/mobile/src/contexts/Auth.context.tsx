@@ -3,7 +3,6 @@ import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 import api, {getErrors, RequestError} from '@api';
 import {AsyncStorageKeys} from '@constants';
 import {usePersistedState} from '@hooks';
-import {useEffect} from 'react';
 
 type Credentials = {
   email: string;
@@ -23,7 +22,7 @@ export const AuthContext = createContext<AuthContextType>(
 );
 
 export const AuthProvider: React.FC = ({children}) => {
-  const [user, setUser] = usePersistedState<User | undefined>(
+  const [user, setUser, isRestored] = usePersistedState<User | undefined>(
     undefined,
     AsyncStorageKeys.USER,
   );
@@ -51,8 +50,8 @@ export const AuthProvider: React.FC = ({children}) => {
 
   async function logout() {
     try {
-      const result = await api.logout();
-      if (result.success) setUser(undefined);
+      setUser(undefined);
+      await api.logout();
     } catch (e) {
       return getErrors(e);
     }
@@ -61,6 +60,8 @@ export const AuthProvider: React.FC = ({children}) => {
   const contextValue = {user, isLoggedIn, signIn, signUp, logout};
 
   return (
-    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>
+      {isRestored ? children : null}
+    </AuthContext.Provider>
   );
 };

@@ -1,34 +1,65 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Dispatch, SetStateAction, useEffect, useRef, useState} from 'react';
+import {useEffect, useReducer, useRef} from 'react';
+
+type State<S> = {
+  data?: S;
+  isRestored: boolean;
+};
+
+type Action<S> = {type: 'SET_STATE'; payload?: S};
+
+enum Actions {
+  SetState = 'SET_STATE',
+}
+
+const createPersistedReducer =
+  <S>() =>
+  (state: State<S>, action: Action<S>): State<S> => {
+    switch (action.type) {
+      case 'SET_STATE':
+        return {data: action.payload, isRestored: true};
+      default:
+        throw new Error();
+    }
+  };
 
 /**
  * Creates a state value similarly to useState,
  * but persists the value between app sessions to AsyncStorage
  *
+ * uses useReducer hook internally to avoid multiple state changes on hydration
+ *
  * @param initialState
  * @param key Key to persist the data with using AsyncStorage
- * @returns [getter, setter]
+ * @returns [value, value setter, is restored value]
  */
 export function usePersistedState<S>(
-  initialState: S | (() => S),
+  initialState: S,
   key: string,
-): [S, Dispatch<SetStateAction<S>>] {
-  const [state, setState] = useState<S>(initialState);
+): [S | undefined, (data?: S | undefined) => void, boolean] {
+  const [state, dispatch] = useReducer(createPersistedReducer<S>(), {
+    ...initialState,
+    isRestored: false,
+  });
+
   const didMount = useRef(false);
 
   useEffect(() => {
-    if (didMount.current) {
-      setPersistedState(state);
-    } else {
+    if (!didMount.current) {
       hydrate();
+      didMount.current = true;
+    } else {
+      setPersistedState(state.data);
     }
-  }, [state]);
+  }, [state.data]);
 
   async function hydrate() {
     const persistedState = await getPersistedState();
-    if (persistedState) setState(persistedState);
+    setState(persistedState);
+  }
 
-    didMount.current = true;
+  function setState(data?: S) {
+    dispatch({type: Actions.SetState, payload: data});
   }
 
   async function setPersistedState(state?: S) {
@@ -46,5 +77,5 @@ export function usePersistedState<S>(
     return state;
   }
 
-  return [state, setState];
+  return [state.data, setState, state.isRestored];
 }
