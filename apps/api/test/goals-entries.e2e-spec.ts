@@ -10,6 +10,7 @@ import {
   GoalsEntriesSetup,
   GoalsEntriesTeardown
 } from './seeds/goals-entries.seed'
+import { startOfDay } from 'date-fns'
 
 describe('GoalsEntries', () => {
   let app: NestFastifyApplication
@@ -29,7 +30,7 @@ describe('GoalsEntries', () => {
       return {
         userId: each.user.id,
 
-        current_calories: 500,
+        current_mindfulness_minutes: 45,
         current_steps: 10000,
         current_floors_climbed: 5,
         current_water_litres: 1,
@@ -62,7 +63,7 @@ describe('GoalsEntries', () => {
     const userData = data.pop()
     const userAuthHeaders = getAuthHeaders({}, userData.userId)
     const payload = {
-      current_calories: userData.current_calories,
+      current_mindfulness_minutes: userData.current_mindfulness_minutes,
       current_steps: userData.current_steps,
       current_floors_climbed: userData.target_floors_climbed,
       current_water_litres: userData.current_water_litres,
@@ -84,7 +85,7 @@ describe('GoalsEntries', () => {
     const userData = data.pop()
     const userAuthHeaders = getAuthHeaders({}, userData.userId)
     const payload = {
-      current_calories: userData.current_calories,
+      current_mindfulness_minutes: userData.current_mindfulness_minutes,
       current_steps: userData.current_steps,
       current_floors_climbed: userData.current_floors_climbed
     } as RecreateGoalsEntryDto
@@ -97,5 +98,23 @@ describe('GoalsEntries', () => {
     })
 
     expect(result.statusCode).toEqual(201)
+  })
+
+  it("GET /me/goals (200) Should get today's goal entries", async () => {
+    const userData = data.pop()
+    const userAuthHeaders = getAuthHeaders({}, userData.userId)
+
+    const result = await app.inject({
+      method: 'GET',
+      url: `/me/goals`,
+      headers: userAuthHeaders
+    })
+
+    const json = result.json()
+
+    expect(result.statusCode).toEqual(200)
+    expect(startOfDay(new Date(json.created_at))).toEqual(
+      startOfDay(new Date())
+    )
   })
 })

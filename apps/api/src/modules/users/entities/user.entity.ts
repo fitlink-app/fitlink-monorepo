@@ -228,7 +228,7 @@ export class User extends CreatableEntity {
   @Column({
     default: 0
   })
-  goal_calories: number
+  goal_mindfulness_minutes: number
 
   @ApiProperty()
   @Column({

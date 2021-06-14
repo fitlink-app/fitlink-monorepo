@@ -95,7 +95,7 @@ describe('Auth', () => {
     })
   })
 
-  it.only(`/auth/login 201 Allows a user to sign up with only an email address and password`, async () => {
+  it(`/auth/login 201 Allows a user to sign up with only an email address and password`, async () => {
     const result = await app.inject({
       method: 'POST',
       url: '/auth/signup',
@@ -116,7 +116,7 @@ describe('Auth', () => {
     expect(json.me.id).toBeDefined()
   })
 
-  it.only(`/auth/login 400 Fails for weak password`, async () => {
+  it(`/auth/login 400 Fails for weak password`, async () => {
     const result = await app.inject({
       method: 'POST',
       url: '/auth/signup',
@@ -131,7 +131,7 @@ describe('Auth', () => {
     expect(json.errors['password']).toContain('must be at least')
   })
 
-  it.only(`/auth/request-password-reset 200 Allows user to receive a reset password email with link`, async () => {
+  it(`/auth/request-password-reset 200 Allows user to receive a reset password email with link`, async () => {
     const result = await app.inject({
       method: 'POST',
       url: '/auth/request-password-reset',
@@ -144,7 +144,7 @@ describe('Auth', () => {
     expect(await emailHasContent(email)).toBe(true)
   })
 
-  it.only(`/auth/reset-password 400 Bad request when user tries reset their password with a bad token`, async () => {
+  it(`/auth/reset-password 400 Bad request when user tries reset their password with a bad token`, async () => {
     const result = await app.inject({
       method: 'PUT',
       url: '/auth/reset-password',
@@ -158,7 +158,7 @@ describe('Auth', () => {
     expect(result.json().message).toContain('Invalid token')
   })
 
-  it.only(`/auth/reset-password 200 User can reset their password with a valid reset token (originates from email)`, async () => {
+  it(`/auth/reset-password 200 User can reset their password with a valid reset token (originates from email)`, async () => {
     const result = await app.inject({
       method: 'PUT',
       url: '/auth/reset-password',
@@ -172,7 +172,7 @@ describe('Auth', () => {
     expect(result.json().affected).toBe(1)
   })
 
-  it.only(`/auth/reset-password 400 Bad request when user tries to reset their password with the token that is issued before their last password reset date`, async () => {
+  it(`/auth/reset-password 400 Bad request when user tries to reset their password with the token that is issued before their last password reset date`, async () => {
     const passwordToken1 = createTokenFromPayload({
       aud: 'fitlink.com',
       iss: 'fitlink.com',

@@ -19,7 +19,7 @@ export class GoalsEntriesController {
   @Post('me/goals')
   @ApiResponse({ type: GoalsEntry, status: 201 })
   create(@User() user: AuthenticatedUser, @Body() body: RecreateGoalsEntryDto) {
-    return this.goalsEntriesService.create(user.id, body)
+    return this.goalsEntriesService.createOrUpdate(user.id, body)
   }
 
   @Get('me/goals')
