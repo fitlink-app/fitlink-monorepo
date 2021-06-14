@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {TextInputProps, Platform} from 'react-native';
 import {Icon} from './Icon';
-import {FieldWrapper} from './form';
+import {FieldWrapper} from '../form';
 
 const Wrapper = styled(FieldWrapper)({width: '100%'});
 
