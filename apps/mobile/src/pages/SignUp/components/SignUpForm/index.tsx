@@ -41,6 +41,7 @@ export const SignUpForm = () => {
     fieldErrors,
     errorMessage,
     isSubmitting,
+    isSubmitted,
   } = useForm(initialValues);
 
   const onSubmit = async () => {
@@ -89,7 +90,9 @@ export const SignUpForm = () => {
         onPress={handleSubmit(onSubmit)}
         loading={isSubmitting}
         disabled={
-          isSubmitting || !(values.email?.length && values.password?.length)
+          isSubmitting ||
+          isSubmitted ||
+          !(values.email?.length && values.password?.length)
         }
       />
 
