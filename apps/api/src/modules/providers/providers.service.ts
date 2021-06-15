@@ -56,12 +56,16 @@ export class ProvidersService {
   }
 
   async findOne(userId: string, providerType: ProviderType) {
-    return await this.providerRepository.findOne({
-      where: {
-        user: { id: userId },
-        type: providerType
-      }
-    })
+    try {
+      return await this.providerRepository.findOne({
+        where: {
+          user: { id: userId },
+          type: providerType
+        }
+      })
+    } catch (e) {
+      throw new BadRequestException(e.message, `Not Found`)
+    }
   }
 
   async update(
@@ -80,6 +84,13 @@ export class ProvidersService {
     return await this.providerRepository.delete({
       type: providerType,
       user: { id: userId }
+    })
+  }
+
+  async getUserByOwnerId(owner_id: string) {
+    return await this.providerRepository.findOne({
+      where: { provider_user_id: owner_id },
+      relations: ['user']
     })
   }
 }

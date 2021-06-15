@@ -1,5 +1,15 @@
-import { PrimaryGeneratedColumn, ManyToOne, Entity, Column } from 'typeorm'
+import {
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  Entity,
+  Column,
+  OneToMany
+} from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
+import { HealthActivityDto } from '../../health-activities/dto/create-health-activity.dto'
+import { healthActivityType } from '../../health-activities/dto/healthActivityType'
+import { HealthActivity } from '../../health-activities/entities/health-activity.entity'
+import { HealthActivitiesService } from '../../health-activities/health-activities.service'
 import { User } from '../../users/entities/user.entity'
 
 export enum ProviderType {
@@ -40,4 +50,11 @@ export class Provider extends CreatableEntity {
   /** External id from the service to map the user if required */
   @Column()
   provider_user_id: string
+
+  @OneToMany(
+    () => HealthActivity,
+    (healthActivity) => healthActivity.provider,
+    { nullable: true }
+  )
+  health_activities: HealthActivity[]
 }

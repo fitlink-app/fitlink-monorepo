@@ -1,11 +1,9 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
-import { Iam } from '../../../../decorators/iam.decorator'
-import { Public } from '../../../../decorators/public.decorator'
-import { Roles } from '../../../user-roles/entities/user-role.entity'
-import { StravaService } from './strava.service'
-import { StravaEventData } from '../../types/strava'
-import { AuthenticatedUser } from '../../../../models/authenticated-user.model'
+import { Body, Controller, Get, Post, Query } from '@nestjs/common'
 import { User } from '../../../../decorators/authenticated-user.decorator'
+import { Public } from '../../../../decorators/public.decorator'
+import { AuthenticatedUser } from '../../../../models/authenticated-user.model'
+import { StravaEventData } from '../../types/strava'
+import { StravaService } from './strava.service'
 
 @Controller('/providers/strava')
 export class StravaControler {
@@ -17,14 +15,13 @@ export class StravaControler {
     @Query('hub.challenge') challenge: string,
     @Query('hub.verify_token') token: string
   ) {
-    return this.verifyWebhook(token, challenge)
+    return this.stravaService.verifyWebhook(token, challenge)
   }
 
   @Public()
   @Post('/webhook')
   webhookReceiver(@Body() stravaEventData: StravaEventData) {
-    this.stravaService.processStravaData(stravaEventData)
-    return { success: true }
+    return this.stravaService.processStravaData(stravaEventData)
   }
 
   @Get('/auth')

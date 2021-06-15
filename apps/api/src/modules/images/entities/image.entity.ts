@@ -2,6 +2,7 @@ import { CreatableEntity } from '../../../classes/entity/creatable'
 import { PrimaryGeneratedColumn, Column, ManyToOne, Entity } from 'typeorm'
 import { Activity } from '../../activities/entities/activity.entity'
 import { ApiProperty } from '@nestjs/swagger'
+import { HealthActivity } from '../../health-activities/entities/health-activity.entity'
 
 export enum ImageType {
   Avatar = 'avatar',
@@ -45,6 +46,9 @@ export class Image extends CreatableEntity {
 
   @ManyToOne(() => Activity, (activity) => activity.images)
   activity?: Activity
+
+  @ManyToOne(() => HealthActivity, (health_activity) => health_activity.images)
+  health_activity?: HealthActivity
 
   /** Alt text for accessibility */
   @ApiProperty()
