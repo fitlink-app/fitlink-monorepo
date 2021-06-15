@@ -6,3 +6,4 @@ export * from './Navbar';
 export * from './InputField';
 export * from './KeyboardAvoidingView';
 export * from './Avatar';
+export * from './Card';
