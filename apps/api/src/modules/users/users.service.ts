@@ -101,6 +101,12 @@ export class UsersService {
     })
   }
 
+  updateFollowerCount(userId: string, count: number) {
+    return this.userRepository.update(userId, {
+      followers_total: count
+    })
+  }
+
   deleteAvatar(id: string) {
     return this.userRepository.update(id, {
       avatar: null
