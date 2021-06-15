@@ -1,4 +1,4 @@
 export * from './useForm';
-export * from './useAuth';
 export * from './usePersistedState';
+export * from './auth';
 export * from './me';
