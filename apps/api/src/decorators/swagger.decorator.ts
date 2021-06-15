@@ -1,5 +1,5 @@
 import { applyDecorators } from '@nestjs/common'
-import { ApiResponse, ApiQuery } from '@nestjs/swagger'
+import { ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger'
 import { DeleteResultDto } from '../classes/dto/delete'
 import { UpdateResultDto } from '../classes/dto/update'
 import { SuccessResultDto } from '../classes/dto/success'
@@ -10,7 +10,8 @@ import { PaginationDto } from '../helpers/paginate'
 export function ApiBaseResponses() {
   return applyDecorators(
     ApiResponse({ type: ForbiddenErrorDto, status: 401 }),
-    ApiResponse({ type: ServerErrorDto, status: 500 })
+    ApiResponse({ type: ServerErrorDto, status: 500 }),
+    ApiBearerAuth()
   )
 }
 
