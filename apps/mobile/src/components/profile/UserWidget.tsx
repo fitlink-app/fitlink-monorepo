@@ -8,6 +8,7 @@ import {Avatar, Label} from '../common';
 import React from 'react';
 import styled from 'styled-components/native';
 import {TouchableOpacity, View} from 'react-native';
+import {NumberFormatterUtils} from '@utils';
 
 interface UserWidgetProps {
   name: string;
@@ -78,7 +79,8 @@ const UserStat = ({
   return (
     <UserStatWrapper {...onPress}>
       <StatValue>
-        {value} <StatLabel>{label}</StatLabel>
+        {NumberFormatterUtils.toCommaSeparated(value.toString())}{' '}
+        <StatLabel>{label}</StatLabel>
       </StatValue>
     </UserStatWrapper>
   );
@@ -101,7 +103,6 @@ export const UserWidget = (props: UserWidgetProps) => {
           <UserStat value={props.friendCount} label={'Friends'} />
           <UserStat value={props.followerCount} label={'Followers'} />
           <UserStat value={props.pointCount} label={'Points'} />
-          <View />
         </StatContainer>
       </ContentContainer>
     </Wrapper>
