@@ -20,7 +20,10 @@ export default function Drawer({ children, warnBeforeClose = false, remove }) {
     e.stopImmediatePropagation()
     if (warnBeforeClose) {
       const res = confirm('Are you sure you want to exit without saving?')
-      if (res) remove()
+      if (res) {
+        warnBeforeClose = false
+        remove()
+      }
     } else {
       remove()
     }

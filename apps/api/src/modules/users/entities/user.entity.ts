@@ -118,6 +118,11 @@ export class User extends CreatableEntity {
   })
   last_lifestyle_activity_at: Date
 
+  @Column({
+    nullable: true
+  })
+  password_reset_at: Date
+
   @OneToOne(() => Image, {
     cascade: ['remove'],
     onDelete: 'CASCADE'
@@ -190,7 +195,9 @@ export class User extends CreatableEntity {
   activities: Activity[]
 
   @ApiProperty()
-  @Column()
+  @Column({
+    nullable: true
+  })
   name: string
 
   @ApiProperty()
@@ -221,7 +228,7 @@ export class User extends CreatableEntity {
   @Column({
     default: 0
   })
-  goal_calories: number
+  goal_mindfulness_minutes: number
 
   @ApiProperty()
   @Column({

@@ -23,6 +23,9 @@ import { UpdateUserRolesEntity1618367807302 } from '../database/migrations/16183
 import { ActivitiesTelEmail1619175623838 } from '../database/migrations/1619175623838-ActivitiesTelEmail'
 import { CreateQueueable1618386283282 } from '../database/migrations/1618386283282-CreateQueueable'
 import { AddUserToActivities1622016153101 } from '../database/migrations/1622016153101-AddUserToActivities'
+import { UpdateUserNamePassword1623652934525 } from '../database/migrations/1623652934525-UpdateUserNamePassword'
+import { UpdateGoalTypes1623699931634 } from '../database/migrations/1623699931634-UpdateGoalTypes'
+import { SimplifyGoalsDates1623703853664 } from '../database/migrations/1623703853664-SimplifyGoalsDates'
 
 export default [
   InitializeSchema1614887523112,
@@ -44,5 +47,8 @@ export default [
   UpdateUserRolesEntity1618367807302,
   CreateQueueable1618386283282,
   ActivitiesTelEmail1619175623838,
-  AddUserToActivities1622016153101
+  AddUserToActivities1622016153101,
+  UpdateUserNamePassword1623652934525,
+  UpdateGoalTypes1623699931634,
+  SimplifyGoalsDates1623703853664
 ]

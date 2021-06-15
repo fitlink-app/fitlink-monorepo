@@ -105,6 +105,48 @@ select[multiple] {
     }
   }
 
+  input[type="checkbox"].toggle-switch + label {
+    padding-left: 3rem;
+
+    &:before {
+      width: 42px;
+      height: 22px;
+      border-radius: 11px;
+      background: $grey-200;
+      position: absolute;
+      left: 0;
+      top: -0.1875rem;
+      border: 0;
+    }
+
+    &:after {
+      content: "";
+      display: block;
+      position: absolute;
+      left: 2px;
+      top: calc(-0.1875rem + 2px);
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: $white;
+      transition: all 0.1s;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    }
+  }
+
+  input[type="checkbox"].toggle-switch:checked + label {
+    &:before {
+      background-color: $primary;
+      color: $primary;
+      box-shadow: none;
+      background-image: none;
+    }
+
+    &:after {
+      left: 22px;
+    }
+  }
+
   .react-datepicker-wrapper {
     width: 100%;
 

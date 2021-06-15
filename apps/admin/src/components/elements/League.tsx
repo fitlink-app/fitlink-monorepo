@@ -8,7 +8,8 @@ export type LeagueProps = {
   description?: string
   members: number
   resetDate: string | Date
-  type: string
+  sport: string
+  repeats?: boolean
   onClick?: (e:any) => void
 }
 
@@ -19,7 +20,8 @@ export default function League({
   description = '',
   members,
   resetDate,
-  type,
+  sport = '',
+  repeats = true,
   onClick
 }:LeagueProps) {
   return (
@@ -30,10 +32,14 @@ export default function League({
         { description && <p>{description}</p> }
       </div>
       <div className="card__top">
-        <div className="card__chip">{type}</div>
+        <div className="card__chip">
+          {sport.length > 0 ? sport[0].toUpperCase() + sport.slice(1) : sport}
+        </div>
         <h4 className="p">{members.toLocaleString()} members</h4>
         <div className="league__resets">
-          <small>resets in</small>
+          <small>
+            { repeats ? 'resets in' : 'ends in' }
+          </small>
           { formatDistance(new Date(), new Date(resetDate)) }
         </div>
       </div>

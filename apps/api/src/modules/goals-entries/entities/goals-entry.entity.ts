@@ -15,27 +15,17 @@ export class GoalsEntry extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  /** The year */
   @ApiProperty()
-  @Column()
-  year: number
-
-  /** The day for the user in their timezone (1 out of 365) */
-  @ApiProperty()
-  @Column()
-  day: number
+  @Column({
+    default: 0
+  })
+  current_mindfulness_minutes: number
 
   @ApiProperty()
   @Column({
     default: 0
   })
-  current_calories: number
-
-  @ApiProperty()
-  @Column({
-    default: 0
-  })
-  target_calories: number
+  target_mindfulness_minutes: number
 
   @ApiProperty()
   @Column({

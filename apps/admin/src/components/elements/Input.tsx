@@ -42,7 +42,6 @@ export default function Input({
 
   const handleKeyDown = (e) => {
     const char = e.which
-    console.log(char, type)
     if (type === 'number') {
       if (
         char === 9 ||
