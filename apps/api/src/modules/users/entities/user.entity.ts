@@ -255,6 +255,12 @@ export class User extends CreatableEntity {
     default: 0
   })
   goal_sleep_hours: number
+
+  @ApiProperty()
+  @Column({
+    default: 0
+  })
+  followers_total: number
 }
 
 export class UserPublic {
@@ -273,4 +279,8 @@ export class UserPublic {
   @ApiProperty()
   @Expose()
   points_total: number
+
+  @ApiProperty()
+  @Expose()
+  followers_total: number
 }

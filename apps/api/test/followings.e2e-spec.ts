@@ -47,11 +47,12 @@ describe('Followings', () => {
     })
     const json = result.json()
     expect(result.statusCode).toEqual(200)
-    expect(Object.keys(json.results[0])).toEqual(
+    expect(Object.keys(json.results[0]).sort()).toEqual(
       Object.keys({
         id: 1,
         name: 1,
-        points_total: 1
+        points_total: 1,
+        followers_total: 1
       }).sort()
     )
     expect(json.page_total).toBeGreaterThanOrEqual(1)
@@ -73,11 +74,12 @@ describe('Followings', () => {
     })
     const json = result.json()
     expect(result.statusCode).toEqual(200)
-    expect(Object.keys(json.results[0])).toEqual(
+    expect(Object.keys(json.results[0]).sort()).toEqual(
       Object.keys({
         id: 1,
         name: 1,
-        points_total: 1
+        points_total: 1,
+        followers_total: 1
       }).sort()
     )
     expect(json.page_total).toBeGreaterThanOrEqual(1)
@@ -103,6 +105,14 @@ describe('Followings', () => {
     })
     expect(result.statusCode).toEqual(201)
     expect(result.statusMessage).toEqual('Created')
+
+    const me = await app.inject({
+      method: 'GET',
+      url: '/me',
+      headers: userAuthHeaders
+    })
+
+    expect(me.json().followers_total).toBeGreaterThanOrEqual(1)
   })
 
   // Trying to create a following entry with user id = target id should result in a 400 error
