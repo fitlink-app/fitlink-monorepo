@@ -1,5 +1,5 @@
 import React from 'react';
-import {Card, Label} from '../../common';
+import {Card, CardLabel} from '../../common';
 import styled from 'styled-components/native';
 import {Goal} from './components/Goal';
 
@@ -7,10 +7,7 @@ const Wrapper = styled(Card)({
   paddingVertical: 10,
 });
 
-const Title = styled(Label).attrs(() => ({
-  type: 'caption',
-  bold: true,
-}))({
+const Title = styled(CardLabel)({
   marginLeft: 15,
 });
 
