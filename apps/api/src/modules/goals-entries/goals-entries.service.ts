@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
-import { zonedStartOfDay, zonedEndOfDay } from '@fitlink/common/date/helpers'
+import { zonedStartOfDay } from '../../../../common/date/helpers'
 
 @Injectable()
 export class GoalsEntriesService {
