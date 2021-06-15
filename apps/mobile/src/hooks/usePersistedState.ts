@@ -6,7 +6,7 @@ type State<S> = {
   isRestored: boolean;
 };
 
-type Action<S> = {type: 'SET_STATE'; payload?: S};
+type Action<S> = {type: 'SET_STATE'; payload: {data?: S; merge: boolean}};
 
 enum Actions {
   SetState = 'SET_STATE',
@@ -17,7 +17,12 @@ const createPersistedReducer =
   (state: State<S>, action: Action<S>): State<S> => {
     switch (action.type) {
       case 'SET_STATE':
-        return {data: action.payload, isRestored: true};
+        const {data, merge} = action.payload;
+
+        return {
+          data: merge && state.data ? {...state.data, ...data} : data,
+          isRestored: true,
+        };
       default:
         throw new Error();
     }
@@ -36,7 +41,7 @@ const createPersistedReducer =
 export function usePersistedState<S>(
   initialState: S,
   key: string,
-): [S | undefined, (data?: S | undefined) => void, boolean] {
+): [S | undefined, (data: S | undefined) => void, boolean] {
   const [state, dispatch] = useReducer(createPersistedReducer<S>(), {
     ...initialState,
     isRestored: false,
@@ -58,8 +63,8 @@ export function usePersistedState<S>(
     setState(persistedState);
   }
 
-  function setState(data?: S) {
-    dispatch({type: Actions.SetState, payload: data});
+  function setState(data: S | undefined, merge: boolean = false) {
+    dispatch({type: Actions.SetState, payload: {data, merge}});
   }
 
   async function setPersistedState(state?: S) {
