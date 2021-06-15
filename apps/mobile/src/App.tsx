@@ -1,5 +1,6 @@
 import {AppBackground} from '@components';
 import {AuthProvider} from 'contexts';
+import {withQueryClient} from 'query/queryClient';
 import React from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Router from './routes/router';
@@ -19,4 +20,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default withQueryClient(App);
