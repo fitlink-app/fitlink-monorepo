@@ -8,3 +8,4 @@ export * from './InputField';
 export * from './KeyboardAvoidingView';
 export * from './Avatar';
 export * from './Card';
+export * from './TouchHandler';
