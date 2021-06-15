@@ -1,8 +1,11 @@
-import React, {createContext} from 'react';
-import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
+import React, {createContext, useState} from 'react';
 import api, {getErrors, RequestError} from '@api';
 import {AsyncStorageKeys} from '@constants';
 import {usePersistedState} from '@hooks';
+import {AuthResultDto} from '../../../api-sdk/types';
+import {useEffect} from 'react';
+import {queryClient, QueryKeys} from '@query';
+import {User} from '../../../api/src/modules/users/entities/user.entity';
 
 type Credentials = {
   email: string;
@@ -10,7 +13,6 @@ type Credentials = {
 };
 
 interface AuthContextType {
-  user?: User;
   isLoggedIn: boolean;
   signIn: (credentials: Credentials) => Promise<RequestError | undefined>;
   signUp: (credentials: Credentials) => Promise<RequestError | undefined>;
@@ -21,19 +23,47 @@ export const AuthContext = createContext<AuthContextType>(
   {} as AuthContextType,
 );
 
+type AuthState = {
+  auth: AuthResultDto | null;
+  user: User | null;
+};
+
+const initialState = {
+  auth: null,
+  user: null,
+};
+
 export const AuthProvider: React.FC = ({children}) => {
-  const [user, setUser, isRestored] = usePersistedState<User | undefined>(
-    undefined,
+  const [state, setState, isRestored] = usePersistedState<AuthState>(
+    initialState,
     AsyncStorageKeys.USER,
   );
 
-  const isLoggedIn = !!user;
+  const [isUserRestored, setUserRestored] = useState(false);
+
+  const isLoggedIn = !!state?.auth;
+
+  const isContextInitialized = isRestored && isUserRestored;
+
+  useEffect(() => {
+    if (!state || !isRestored) return;
+
+    const {auth, user} = state;
+
+    // Restore persisted AuthResult and attach to the API SDK instance
+    if (auth) api.setTokens(auth);
+
+    // Restore persisted User and store it in the corresponding query
+    if (user) queryClient.setQueryData(QueryKeys.Me, () => user);
+
+    setUserRestored(true);
+  }, [state]);
 
   async function signIn(credentials: Credentials) {
     try {
-      await api.login(credentials);
-      const responseUser = await api.get<User>('/me');
-      setUser(responseUser);
+      const auth = await api.login(credentials);
+      const user = await api.get<User>('/me');
+      setState({auth, user});
     } catch (e) {
       return getErrors(e);
     }
@@ -41,8 +71,8 @@ export const AuthProvider: React.FC = ({children}) => {
 
   async function signUp(credentials: Credentials) {
     try {
-      const {me} = await api.signUp(credentials);
-      setUser(me);
+      const {me, auth} = await api.signUp(credentials);
+      setState({auth, user: me});
     } catch (e) {
       return getErrors(e);
     }
@@ -50,18 +80,18 @@ export const AuthProvider: React.FC = ({children}) => {
 
   async function logout() {
     try {
-      setUser(undefined);
+      setState(initialState);
       await api.logout();
     } catch (e) {
       return getErrors(e);
     }
   }
 
-  const contextValue = {user, isLoggedIn, signIn, signUp, logout};
+  const contextValue = {isLoggedIn, signIn, signUp, logout};
 
   return (
     <AuthContext.Provider value={contextValue}>
-      {isRestored ? children : null}
+      {isContextInitialized ? children : null}
     </AuthContext.Provider>
   );
 };
