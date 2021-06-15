@@ -8,10 +8,21 @@ const IcoMoonIcon = createIconSetFromIcoMoon(icoMoonConfig);
 
 interface IconProps
   extends Omit<IcoMoonIconProps, 'onPress'>,
-    Pick<TouchHandlerProps, 'onPress' | 'hitSlop'> {}
+    Pick<TouchHandlerProps, 'onPress'> {
+  hitSlop?: number;
+}
 
-export const Icon = ({onPress, hitSlop, ...rest}: IconProps) => (
-  <TouchHandler {...{onPress, hitSlop}} disabled={!onPress}>
-    <IcoMoonIcon {...rest} />
-  </TouchHandler>
-);
+export const Icon = ({onPress, hitSlop = 10, ...rest}: IconProps) => {
+  const hitSlopInsets = {
+    top: hitSlop,
+    left: hitSlop,
+    bottom: hitSlop,
+    right: hitSlop,
+  };
+
+  return (
+    <TouchHandler {...{onPress}} disabled={!onPress} hitSlop={hitSlopInsets}>
+      <IcoMoonIcon {...rest} />
+    </TouchHandler>
+  );
+};
