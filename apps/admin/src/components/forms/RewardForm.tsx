@@ -51,6 +51,11 @@ export default function RewardForm({
         points={points}
         expires={expires}
         redeemed={0}
+        title={title}
+        description={description}
+        code={code}
+        instructions={instructions}
+        showExtra={true}
       />
 
       <div className="basic-image-select">
