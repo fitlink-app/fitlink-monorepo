@@ -79,9 +79,7 @@ export class GoalsEntry extends CreatableEntity {
   })
   target_sleep_hours: number
 
-  @ManyToOne(() => User, (user) => user.goals_entries, {
-    eager: true
-  })
+  @ManyToOne(() => User, (user) => user.goals_entries)
   @JoinColumn()
   user: User
 }

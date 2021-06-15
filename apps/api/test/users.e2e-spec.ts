@@ -13,6 +13,7 @@ describe('Users', () => {
   let connection: Connection
   let userRepository: Repository<User>
   let userAuthHeaders: NodeJS.Dict<string>
+  let otherUser: User
 
   beforeAll(async () => {
     app = await mockApp({
@@ -28,6 +29,7 @@ describe('Users', () => {
     await useSeeding()
     const users = await UsersSetup('Test Users Unique Name')
     userAuthHeaders = getAuthHeaders({}, users[0].id)
+    otherUser = users[1]
   })
 
   afterAll(async () => {
@@ -46,5 +48,27 @@ describe('Users', () => {
     })
     expect(result.statusCode).toEqual(200)
     expect(result.json().results.length).toBeGreaterThan(0)
+  })
+
+  it(`GET /users/:userId 200 Gets another user and sees only their public profile data`, async () => {
+    const result = await app.inject({
+      method: 'GET',
+      url: `/users/${otherUser.id}`,
+      headers: userAuthHeaders
+    })
+    expect(result.statusCode).toEqual(200)
+    expect(Object.keys(result.json())).toEqual(
+      expect.arrayContaining(
+        Object.keys({
+          followers_total: 1,
+          id: 1,
+          name: 1,
+          points_total: 1
+        })
+      )
+    )
+
+    expect(result.json().email).toBeUndefined()
+    expect(result.json().password).toBeUndefined()
   })
 })

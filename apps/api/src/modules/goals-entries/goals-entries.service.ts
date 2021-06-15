@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common'
 import { RecreateGoalsEntryDto } from './dto/update-goals-entry.dto'
 import { GoalsEntry } from './entities/goals-entry.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { MoreThanOrEqual, Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { zonedStartOfDay } from '../../../../common/date/helpers'
+import { plainToClass } from 'class-transformer'
 
 @Injectable()
 export class GoalsEntriesService {
@@ -92,12 +93,12 @@ export class GoalsEntriesService {
   }
 
   async getCurrentEntry(user: User) {
-    return this.goalsEntryRepository
-      .createQueryBuilder('entries')
-      .where('entries.created_at >= :start', {
-        start: zonedStartOfDay(user.timezone)
-      })
-      .getOne()
+    return this.goalsEntryRepository.findOne({
+      where: {
+        created_at: MoreThanOrEqual(zonedStartOfDay(user.timezone)),
+        user: { id: user.id }
+      }
+    })
   }
 
   /**
@@ -107,26 +108,37 @@ export class GoalsEntriesService {
    */
   async getLatest(userId: string): Promise<GoalsEntry> {
     const user = await this.userRepository.findOne(userId)
-
-    let goalsEntry = new GoalsEntry()
-    goalsEntry.user = user
-
-    const result = this.getCurrentEntry(user)
+    const result = await this.getCurrentEntry(user)
 
     if (!result) {
-      return this.createOrUpdate(
-        userId,
-        {
-          current_mindfulness_minutes: 0,
-          current_floors_climbed: 0,
-          current_sleep_hours: 0,
-          current_steps: 0,
-          current_water_litres: 0
-        },
-        true
-      )
+      return this.getEmptyEntry(user)
     }
 
     return result
+  }
+
+  /**
+   * Returns a placeholder goal entry entity
+   * if one for the day is not available
+   *
+   * @param user
+   * @returns
+   */
+  getEmptyEntry(user: User) {
+    const goalsEntry = new GoalsEntry()
+
+    // Attach user's current goals to the goal entry
+    goalsEntry.target_mindfulness_minutes = user.goal_mindfulness_minutes
+    goalsEntry.target_floors_climbed = user.goal_floors_climbed
+    goalsEntry.target_sleep_hours = user.goal_sleep_hours
+    goalsEntry.target_steps = user.goal_steps
+    goalsEntry.target_water_litres = user.goal_water_litres
+    goalsEntry.current_steps = 0
+    goalsEntry.current_floors_climbed = 0
+    goalsEntry.current_water_litres = 0
+    goalsEntry.current_sleep_hours = 0
+    goalsEntry.current_mindfulness_minutes = 0
+
+    return goalsEntry
   }
 }
