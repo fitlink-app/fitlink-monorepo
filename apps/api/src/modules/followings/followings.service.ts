@@ -132,4 +132,14 @@ export class FollowingsService {
 
     return await this.followingRepository.delete(following)
   }
+
+  getFollowerCount(userBeingFollowedId: string) {
+    return this.followingRepository.count({
+      where: {
+        following: {
+          id: userBeingFollowedId
+        }
+      }
+    })
+  }
 }
