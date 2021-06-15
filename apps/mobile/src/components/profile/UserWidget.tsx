@@ -4,10 +4,9 @@
  * @format
  */
 
-import {Avatar, Label} from '../common';
+import {Avatar, Label, TouchHandler} from '../common';
 import React from 'react';
 import styled from 'styled-components/native';
-import {TouchableOpacity, View} from 'react-native';
 import {NumberFormatterUtils} from '@utils';
 
 interface UserWidgetProps {
@@ -65,7 +64,7 @@ const StatLabel = styled(Label).attrs(() => ({
   appearance: 'secondary',
 }))({});
 
-const UserStatWrapper = styled(TouchableOpacity)({marginRight: 15});
+const UserStatWrapper = styled(TouchHandler)({marginRight: 15});
 
 const UserStat = ({
   value,
@@ -89,9 +88,9 @@ const UserStat = ({
 export const UserWidget = (props: UserWidgetProps) => {
   return (
     <Wrapper>
-      <TouchableOpacity onPress={props.avatarOnPress}>
+      <TouchHandler onPress={props.avatarOnPress}>
         <Avatar url={props.avatar} />
-      </TouchableOpacity>
+      </TouchHandler>
 
       <ContentContainer>
         <Name>{props.name}</Name>

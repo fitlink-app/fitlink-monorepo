@@ -1,20 +1,9 @@
 import React from 'react';
-import {
-  TouchableOpacityProps,
-  TouchableOpacity,
-  ViewStyle,
-  ActivityIndicator,
-  StyleProp,
-  TextStyle,
-} from 'react-native';
+import {ViewStyle, ActivityIndicator, StyleProp, TextStyle} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {Label} from './Label';
 import {Icon} from './Icon';
-
-const ButtonBase = styled(TouchableOpacity)({
-  alignItems: 'center',
-  width: '100%',
-});
+import {TouchHandler, TouchHandlerProps} from './TouchHandler';
 
 const ButtonLabel = styled(Label)({textAlign: 'center'});
 
@@ -31,7 +20,7 @@ const ButtonContentContainer = styled.View(({theme: {colors}}) => ({
 
 type ButtonType = 'default' | 'danger';
 
-export interface ButtonProps extends TouchableOpacityProps {
+export interface ButtonProps extends TouchHandlerProps {
   text?: string;
   type?: ButtonType;
   textStyle?: StyleProp<TextStyle>;
@@ -48,7 +37,6 @@ export const Button = ({
   outline,
   textOnly,
   textStyle,
-  delayPressIn = 50,
   icon,
   loading,
   style,
@@ -133,11 +121,14 @@ export const Button = ({
 
   const textColor = createButtonTextColor();
 
-  const buttonBaseStyleModifier = {width: textOnly ? undefined : '100%'};
+  const buttonBaseStyleModifier: StyleProp<ViewStyle> = {
+    width: textOnly ? undefined : '100%',
+    alignItems: 'center',
+  };
 
   return (
-    <ButtonBase
-      {...{...rest, disabled, delayPressIn}}
+    <TouchHandler
+      {...{...rest, disabled}}
       style={[style, buttonBaseStyleModifier]}>
       <ButtonContentContainer style={createContainerStyle()}>
         {loading ? (
@@ -159,6 +150,6 @@ export const Button = ({
           </Row>
         )}
       </ButtonContentContainer>
-    </ButtonBase>
+    </TouchHandler>
   );
 };
