@@ -12,6 +12,7 @@ module.exports = {
           '@api': './src/api',
           '@constants': './src/constants',
           '@utils': './src/utils',
+          '@query': './src/query',
         },
       },
     ],

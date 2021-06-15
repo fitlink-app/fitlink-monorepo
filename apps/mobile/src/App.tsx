@@ -1,8 +1,8 @@
-import {AppBackground} from '@components';
-import {AuthProvider} from 'contexts';
-import {withQueryClient} from 'query/queryClient';
 import React from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {AppBackground} from '@components';
+import {withQueryClient} from '@query';
+import {AuthProvider} from './contexts';
 import Router from './routes/router';
 import ThemeProvider from './theme/ThemeProvider';
 
