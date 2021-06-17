@@ -40,7 +40,7 @@ export default function RewardForm({
   }
 
   return (
-    <>
+    <form onSubmit={ () => { return false }}>
       <h4 className="light mb-3">
         { current ? 'Edit reward' : 'New reward' }
       </h4>
@@ -142,6 +142,6 @@ export default function RewardForm({
         { current ? 'Update' : 'Create reward' }
         </button>
       </div>
-    </>
+    </form>
   )
 }

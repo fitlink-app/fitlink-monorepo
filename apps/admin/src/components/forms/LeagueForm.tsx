@@ -109,7 +109,7 @@ export default function LeagueForm({
   }
 
   return (
-    <>
+    <form onSubmit={ () => { return false }}>
       <h4 className="light mb-3">
         { current ? 'Edit league' : 'New league' }
       </h4>
@@ -177,6 +177,6 @@ export default function LeagueForm({
         { current ? 'Update' : 'Create league' }
         </button>
       </div>
-    </>
+    </form>
   )
 }

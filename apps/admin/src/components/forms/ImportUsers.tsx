@@ -7,7 +7,7 @@ export default function ImportUsers() {
   const [email, setEmail] = useState('')
 
   return (
-    <>
+    <form onSubmit={ () => { return false }}>
       <h4 className="light mb-3">Bulk invite users to your team</h4>
       
       <div className="text-right mt-2">
@@ -15,6 +15,6 @@ export default function ImportUsers() {
           Invite users
         </button>
       </div>
-    </>
+    </form>
   )
 }

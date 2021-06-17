@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import IconClose from '../icons/IconClose'
 
@@ -10,6 +10,7 @@ export type DrawerProps = {
 
 export default function Drawer({ children, warnBeforeClose = false, remove }) {
   const node = useRef()
+  const [mustWarn, setMustWarn] = useState(false)
 
   const handleClickOutside = (e) => {
     const ref = node.current || null
@@ -18,10 +19,10 @@ export default function Drawer({ children, warnBeforeClose = false, remove }) {
     }
     e.stopPropagation()
     e.stopImmediatePropagation()
-    if (warnBeforeClose) {
+    if (mustWarn) {
       const res = confirm('Are you sure you want to exit without saving?')
       if (res) {
-        warnBeforeClose = false
+        setMustWarn(false)
         remove()
       }
     } else {
@@ -33,14 +34,17 @@ export default function Drawer({ children, warnBeforeClose = false, remove }) {
   useEffect(() => {
     if (open) {
       document.addEventListener('mousedown', handleClickOutside)
+      const form = document.querySelector('.drawer form')
+      form.addEventListener('change', () => {
+        if (warnBeforeClose) setMustWarn(true)
+      })
     } else {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [open])
+  }, [open, mustWarn])
 
   return (
     <motion.div
