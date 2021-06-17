@@ -5,21 +5,22 @@
 @import 'base/flex';
 @import 'base/inputs';
 
-@import 'components/layout-dashboard';
-@import 'components/sidebar';
+@import 'components/blog-post';
+@import 'components/blog-thumb';
 @import 'components/button';
 @import 'components/card';
+@import 'components/chips';
+@import 'components/circle-progress';
+@import 'components/layout-dashboard';
 @import 'components/league';
+@import 'components/menu-item';
+@import 'components/news';
+@import 'components/react-table';
 @import 'components/reward';
 @import 'components/rewards';
-@import 'components/menu-item';
-@import 'components/circle-progress';
-@import 'components/react-table';
+@import 'components/sidebar';
 @import 'components/sort-on';
 @import 'components/static-table';
-@import 'components/blog-thumb';
-@import 'components/blog-post';
-@import 'components/news';
 
 @import 'base/important';
 @import 'base/helpers';

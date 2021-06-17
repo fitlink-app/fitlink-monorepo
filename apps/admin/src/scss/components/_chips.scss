@@ -1,0 +1,43 @@
+.chip {
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  background: $grey;
+  color: $white;
+  text-transform: capitalize;
+}
+
+.confirmed {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 1rem;
+  color: $white;
+  //background: $green;
+  background-image: linear-gradient(134deg, #00E9D7 0%, #00CEBE 100%);
+  display: flex;
+
+  svg {
+    display: block;
+    width: 0.8em;
+    height: 0.8em;
+    margin: auto;
+  }
+}
+
+.unconfirmed {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 1rem;
+  color: $lightGrey;
+  border: 1px solid $lightGrey;
+  display: flex;
+
+  svg {
+    display: block;
+    width: 0.8em;
+    height: 0.8em;
+    margin: auto;
+  }
+}
