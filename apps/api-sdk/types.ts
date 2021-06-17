@@ -17,6 +17,7 @@ import {
   AuthLogoutDto
 } from '@fitlink/api/src/modules/auth/dto/auth-result'
 import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
+import { UpdateUserDto } from 'apps/api/src/modules/users/dto/update-user.dto'
 
 export type { AuthResultDto, AuthLogoutDto, AuthLoginDto, CreateUserDto }
 
@@ -32,7 +33,11 @@ export type AuthLogin = '/auth/login'
 export type AuthLogout = '/auth/logout'
 export type AuthRefresh = '/auth/refresh'
 export type AuthSignUp = '/auth/signup'
-export type CreatableResource = AuthLogin | AuthLogout | AuthRefresh | AuthSignUp
+export type CreatableResource =
+  | AuthLogin
+  | AuthLogout
+  | AuthRefresh
+  | AuthSignUp
 
 export type ListResource =
   | '/organisations'
@@ -124,7 +129,7 @@ export type CreateResourceParams<T> = T extends Organisation
 
 export type UploadResourceParams = FilePayload
 
-export type CreatableResourceResponse<T> =  T extends AuthSignUp 
+export type CreatableResourceResponse<T> = T extends AuthSignUp
   ? CreateUserResult
   : T extends AuthLogin
   ? AuthResultDto
@@ -140,6 +145,8 @@ export type UpdateResourceParams<T> = T extends Organisation
   ? Payload<UpdateTeamDto>
   : T extends Activity
   ? Payload<UpdateActivityDto>
+  : T extends User
+  ? Payload<UpdateUserDto>
   : never
 
 export type ResourceParams = NodeJS.Dict<string>
@@ -169,7 +176,7 @@ export type ResponseError = {
       message: string
 
       /** Field errors if available */
-      errors?: { [field: string]: string };
+      errors?: { [field: string]: string }
     }
   }
 }
