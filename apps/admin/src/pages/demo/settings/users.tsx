@@ -10,9 +10,11 @@ export default function components() {
     React.ReactNode | undefined | false
   >(false)
   const [warning, setWarning] = useState(false)
+  const [wide, setWide] = useState(false)
 
   const InviteUserForm = () => {
     setWarning(true)
+    setWide(false)
     setDrawContent(
       <InviteUser />
     )
@@ -20,6 +22,7 @@ export default function components() {
 
   const ImportUsersForm = () => {
     setWarning(true)
+    setWide(true)
     setDrawContent(
       <ImportUsers />
     )
@@ -48,7 +51,9 @@ export default function components() {
           <Drawer
             remove={() => setDrawContent(null)}
             key="drawer"
-            warnBeforeClose={warning}>
+            warnBeforeClose={warning}
+            wide={wide}
+            >
             {drawContent}
           </Drawer>
         )}
