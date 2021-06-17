@@ -1,8 +1,10 @@
 import {useNavigation} from '@react-navigation/core';
 import React from 'react';
+import {StyleProp, ViewStyle} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {Icon} from './Icon';
+import {Label} from './Label';
 
 export const NAVBAR_HEIGHT = 40;
 
@@ -25,6 +27,15 @@ const LeftContent = styled(Content)({flex: 1, alignItems: 'flex-start'});
 
 const RightContent = styled(Content)({flex: 1, alignItems: 'flex-end'});
 
+const Title = styled(Label).attrs(() => ({
+  appearance: 'primary',
+  type: 'caption',
+  bold: true,
+  numberOfLines: 1,
+}))({
+  textAlign: 'center',
+});
+
 interface NavbarProps {
   disableBackButton?: boolean;
 
@@ -36,12 +47,24 @@ interface NavbarProps {
 
   /** Override navbar center component */
   centerComponent?: JSX.Element;
+
+  /** Override back button icon */
+  backButtonIcon?: string;
+
+  /** Set navbar title (if centerComponent is provided, title will be overridden) */
+  title?: string;
+
+  /** Set this as an overlay navbar so content can appear below it */
+  overlay?: boolean;
 }
 
 export const Navbar = ({
   leftComponent,
   rightComponent,
   centerComponent,
+  backButtonIcon = 'arrow-left',
+  title,
+  overlay,
 }: NavbarProps) => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
@@ -54,7 +77,7 @@ export const Navbar = ({
   const renderBackButton = () => {
     return (
       <Icon
-        name={'arrow-left'}
+        name={backButtonIcon}
         size={22}
         color={colors.accent}
         onPress={handleOnBackPressed}
@@ -62,14 +85,31 @@ export const Navbar = ({
     );
   };
 
+  const renderTitle = () => {
+    return <Title>{title}</Title>;
+  };
+
+  const overlayStyle: StyleProp<ViewStyle> = overlay
+    ? {
+        position: 'absolute',
+        top: 0,
+        zIndex: 10,
+        backgroundColor: `${colors.background}CC`,
+      }
+    : {};
+
   return (
-    <Wrapper style={{paddingTop: insets.top}}>
+    <Wrapper
+      style={{
+        paddingTop: insets.top,
+        ...overlayStyle,
+      }}>
       <ContentContainer>
         <LeftContent>
           {leftComponent ? leftComponent : renderBackButton()}
         </LeftContent>
 
-        <Content>{centerComponent}</Content>
+        <Content>{title ? renderTitle() : centerComponent}</Content>
 
         <RightContent>{rightComponent}</RightContent>
       </ContentContainer>

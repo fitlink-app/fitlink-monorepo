@@ -1,14 +1,16 @@
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
-import {Welcome, SignIn, SignUp, ForgotPassword} from '../pages';
-import {RootStackParamList} from './types';
+import {
+  CardStyleInterpolators,
+  createStackNavigator,
+} from '@react-navigation/stack';
+import {Welcome, SignIn, SignUp, ForgotPassword} from '../../pages';
+import {RootStackParamList} from '../types';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 const navigatorOptions = {
   headerShown: false,
   cardShadowEnabled: true,
-  cardOverlayEnabled: true,
 };
 
 export const AuthenticationNavigator = () => {

@@ -6,6 +6,7 @@ export function useForm<T, K extends keyof T>(initialValues: T) {
   const [fieldErrors, setFieldErrors] = useState<Partial<T>>({} as T);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setSubmitting] = useState(false);
+  const [isSubmitted, setSubmitted] = useState(false);
 
   /** Set field value */
   const handleChange = (name: K) => (value: typeof values[K]) => {
@@ -41,6 +42,8 @@ export function useForm<T, K extends keyof T>(initialValues: T) {
           const {message, fields} = requestError;
           if (message) setErrorMessage(message);
           if (fields) setFieldErrors(fields as unknown as Partial<T>);
+        } else {
+          setSubmitted(true);
         }
       } catch (e) {
         console.warn(
@@ -56,6 +59,7 @@ export function useForm<T, K extends keyof T>(initialValues: T) {
     handleChange,
     handleSubmit,
     isSubmitting,
+    isSubmitted,
     errorMessage,
     setErrorMessage,
     fieldErrors,

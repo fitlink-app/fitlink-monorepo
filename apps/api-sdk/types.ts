@@ -149,6 +149,8 @@ export type UpdateResourceParams<T> = T extends Organisation
   ? Payload<UpdateTeamDto>
   : T extends Activity
   ? Payload<UpdateActivityDto>
+  : T extends User
+  ? Payload<UpdateUserDto>
   : T extends ImageUpload
   ? Payload<ImageUpload>
   : never
