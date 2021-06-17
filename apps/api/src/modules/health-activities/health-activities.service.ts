@@ -28,7 +28,8 @@ export class HealthActivitiesService {
       elevation,
       quantity,
       provider,
-      type
+      type,
+      polyline
     } = activity
 
     // Get the users's provider
@@ -37,16 +38,12 @@ export class HealthActivitiesService {
     )
     userProviderErr && console.error('User provider not found')
     type == 'unknown' && console.error('Sport not registered')
-    // const [sport, sportErr] = await this.tryAndCatch(
     const sport = await this.sportsRepository.findOne({
       where: { name_key: type }
     })
     if (!sport) {
       console.error('Sport doesnt exist')
     }
-    // console.log(sport)
-    // )
-    // sportErr && console.error('Sport not found')
     const isDuplicate = await this.isActivityOverlapping(
       start_time,
       end_time,
@@ -74,6 +71,7 @@ export class HealthActivitiesService {
             quantity: quantity || 0,
             stairs: elevation || 0,
             provider: userProvider,
+            polyline: polyline || '',
             sport,
             points: this.calculatePoints(calories),
             user: { id: userId }
@@ -87,12 +85,6 @@ export class HealthActivitiesService {
     }
   }
 
-  /**
-   *
-   * You can use this to do error handling
-   * @param promise
-   * @returns [0] data or null [1] error or null
-   */
   calculatePoints(calories: number) {
     return Math.ceil(calories / 100) || 1
   }
@@ -102,7 +94,6 @@ export class HealthActivitiesService {
     endTime: string,
     userId: string
   ) {
-    // start
     const [userActivities, error] = await tryAndCatch(
       this.healthActivityRepository.findOne({
         where: {
