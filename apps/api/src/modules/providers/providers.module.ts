@@ -1,4 +1,4 @@
-import { HttpModule, Module } from '@nestjs/common'
+import { forwardRef, HttpModule, Module } from '@nestjs/common'
 import { ProvidersService } from './providers.service'
 import { ProvidersController } from './providers.controller'
 import { StravaControler } from './providers/strava/strava.controller'
@@ -10,15 +10,18 @@ import { FitbitController } from './providers/fitbit/fitbit.controller'
 import { FitbitService } from './providers/fitbit/fitbit.service'
 import { AuthModule } from '../auth/auth.module'
 import { ConfigModule } from '@nestjs/config'
+import { HealthActivitiesModule } from '../health-activities/health-activities.module'
 
 @Module({
   imports: [
     HttpModule,
+    forwardRef(() => HealthActivitiesModule),
     TypeOrmModule.forFeature([Provider, User]),
     ConfigModule,
     AuthModule
   ],
   controllers: [ProvidersController, StravaControler, FitbitController],
-  providers: [ProvidersService, StravaService, FitbitService]
+  providers: [ProvidersService, StravaService, FitbitService],
+  exports: [ProvidersService]
 })
 export class ProvidersModule {}

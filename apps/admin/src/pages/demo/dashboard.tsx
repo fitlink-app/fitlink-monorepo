@@ -1,4 +1,5 @@
 import Card from '../../components/elements/Card'
+import Link from 'next/link'
 import Dashboard from '../../components/layouts/Dashboard'
 import VerticalBarChart from '../../components/charts/VerticalBarChart'
 import IconFriends from '../../components/icons/IconFriends'
@@ -45,18 +46,18 @@ export default function components() {
       value: 'thisyear'
     },
     {
-      label: 'All data',
+      label: 'All time',
       value: 'all'
     }
   ]
 
   const colors = [
-    '#00E9D7',
-    '#00CDE9',
-    '#00AEE8',
-    '#5A8BD1',
-    '#7E69A8',
     '#864A76',
+    '#7E69A8',
+    '#5A8BD1',
+    '#00AEE8',
+    '#00CDE9',
+    '#00E9D7',
     '#4EF0C2',
     '#7CF5AB',
     '#A6F893',
@@ -174,7 +175,7 @@ export default function components() {
 
       </div>
       <div className="row mt-2">
-        <div className="col-12 col-lg-6 mt-2">
+        <div className="col-12 col-lg-4 mt-2">
           <Card className="p-3 card--stretch">
             <div className="row ai-c">
               <div className="col">
@@ -213,9 +214,45 @@ export default function components() {
             </table>
           </Card>
         </div>
-        <div className="col-12 col-lg-6 mt-2">
+        <div className="col-12 col-lg-4 mt-2">
           <Card className="p-3 card--stretch">
-            <h2 className="h5 color-light-grey mt-1">News and recommendations</h2>
+            <h2 className="h5 color-light-grey mt-1">Team insights</h2>
+            <ul className="news">
+              <li className="unread">
+                <h5>Your team isn't dinking enough water 💧</h5>
+                <p>Failing to drink enough water can cause dehydration and adverse symptoms, including fatigue, headache and weakened immunity. Here are some tips to promote water intake.</p>
+              </li>
+              <Link href="/demo/knowledge-base/3316">
+                <li className="unread link">
+                  <h5>Encouranging mindfulness in the workplace 🧘🏽</h5>
+                  <p>One way mindfulness can help is simply by allowing us to improve our focus. When we constantly flit from one task to another, the quality of our work can suffer. By practicing mindfulness — simply coming back to the present moment over and over again — we can train ourselves to become more focused.</p>
+                </li>
+              </Link>
+              <li>
+                <h5>Create your first league 🏆</h5>
+                <p>Inspire your team to get moving, why not create a simple steps league so that everyone can get involved.</p>
+              </li>
+              <li>
+                <h5>Create your first reward 🎁</h5>
+                <p>Encourage your team to get active, get moving and stay healthy by creating rewards that fit your people. How about free yoga classes, a free smoothie, fitness trackers and gadgets, spa vouchers, lunch vouchers, 1-hour off work, a day off work, a free getaway? The options are endless.</p>
+              </li>
+            </ul>
+          </Card>
+        </div>
+        <div className="col-12 col-lg-4 mt-2">
+          <Card className="p-3 card--stretch">
+            <h2 className="h5 color-light-grey mt-1">Fitlink News</h2>
+            <ul className="news">
+              <li className="unread">
+                <h5>App version 2.1.0 release</h5>
+                <p>We've made a few under the hood improvements to performace. This update will happen automatically when your team launches the app.</p>
+              </li>
+              <li className="unread">
+                <img src="/temp/tomorrows-forests.png" alt="" />
+                <h5>Tomorrow's Forests</h5>
+                <p>We've partnered with Tomorrows Forrest to offer all Fitlink users the opportunity to spend their points on planting a tree. You'll receive GPS coordinates for every tree you plant, regular updates on how our forests are developing, plus exclusive blog articles you can share with your employees or customers.</p>
+              </li>
+            </ul>
           </Card>
         </div>
       </div>

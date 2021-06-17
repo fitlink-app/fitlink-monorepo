@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common'
-import { HealthActivitiesService } from './health-activities.service'
-import { CreateHealthActivityDto } from './dto/create-health-activity.dto'
+import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common'
+import { Public } from '../../decorators/public.decorator'
 import { UpdateHealthActivityDto } from './dto/update-health-activity.dto'
+import { HealthActivitiesService } from './health-activities.service'
 
 @Controller('health-activities')
 export class HealthActivitiesController {
@@ -9,16 +9,12 @@ export class HealthActivitiesController {
     private readonly healthActivitiesService: HealthActivitiesService
   ) {}
 
-  @Post()
-  create(@Body() createHealthActivityDto: CreateHealthActivityDto) {
-    return this.healthActivitiesService.create(createHealthActivityDto)
-  }
-
   @Get()
   findAll() {
     return this.healthActivitiesService.findAll()
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.healthActivitiesService.findOne(+id)

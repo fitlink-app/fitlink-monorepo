@@ -44,6 +44,7 @@ import { OrganisationsInvitation } from '../../src/modules/organisations-invitat
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { Queueable } from '../../src/modules/queue/entities/queueable.entity'
 import { validationExceptionFactory } from '../../src/exceptions/validation.exception.factory'
+import { UploadGuardV2 } from '../../src/guards/upload-v2.guard'
 
 export const entities = [
   Activity,
@@ -128,6 +129,7 @@ export async function mockApp({
 
   app.useGlobalGuards(
     new UploadGuard(app.get(Reflector)),
+    new UploadGuardV2(app.get(Reflector)),
     new JwtAuthGuard(app.get(Reflector)),
     new IamGuard(app.get(Reflector))
   )

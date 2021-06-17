@@ -26,6 +26,7 @@ import { AddUserToActivities1622016153101 } from '../database/migrations/1622016
 import { UpdateUserNamePassword1623652934525 } from '../database/migrations/1623652934525-UpdateUserNamePassword'
 import { UpdateGoalTypes1623699931634 } from '../database/migrations/1623699931634-UpdateGoalTypes'
 import { SimplifyGoalsDates1623703853664 } from '../database/migrations/1623703853664-SimplifyGoalsDates'
+import { ImagesAddOwner1623913230113 } from '../database/migrations/1623913230113-ImagesAddOwner'
 
 export default [
   InitializeSchema1614887523112,
@@ -50,5 +51,6 @@ export default [
   AddUserToActivities1622016153101,
   UpdateUserNamePassword1623652934525,
   UpdateGoalTypes1623699931634,
-  SimplifyGoalsDates1623703853664
+  SimplifyGoalsDates1623703853664,
+  ImagesAddOwner1623913230113
 ]

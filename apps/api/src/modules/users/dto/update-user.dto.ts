@@ -1,18 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
   IsBoolean,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsNumberString,
   IsOptional,
+  IsUUID,
   MinLength
 } from 'class-validator'
 import { UnitSystem } from '../entities/user.entity'
+import { IsTimezone } from '../../../decorators/class-validator/IsTimezone'
 
 export class UpdateUserDto {
   @ApiProperty()
   @IsOptional()
-  @MinLength(2)
+  @MinLength(2, {
+    message: 'Name must be at least 2 characters long'
+  })
   name: string
 
   @ApiProperty({
@@ -20,6 +25,9 @@ export class UpdateUserDto {
   })
   @IsOptional()
   @IsNotEmpty()
+  @IsEnum(UnitSystem, {
+    message: 'Unit system must be metric or imperial'
+  })
   unit_system: UnitSystem
 
   @ApiProperty({
@@ -27,6 +35,7 @@ export class UpdateUserDto {
   })
   @IsOptional()
   @IsNotEmpty()
+  @IsTimezone()
   timezone: string
 
   @ApiProperty()
@@ -62,5 +71,8 @@ export class UpdateUserDto {
 
 export class UpdateUserAvatarDto {
   @ApiProperty()
+  @IsUUID(4, {
+    message: 'Invalid image id'
+  })
   imageId: string
 }

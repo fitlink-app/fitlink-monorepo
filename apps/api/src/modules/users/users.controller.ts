@@ -20,7 +20,8 @@ import {
   ApiResponse,
   ApiExcludeEndpoint,
   ApiQuery,
-  ApiBearerAuth
+  ApiBearerAuth,
+  ApiBody
 } from '@nestjs/swagger'
 import {
   ApiBaseResponses,
@@ -62,6 +63,7 @@ export class UsersController {
 
   @Put('me/avatar')
   @UpdateResponse()
+  @ApiBody({ type: UpdateUserAvatarDto })
   deleteAvatar(
     @AuthUser() user: AuthenticatedUser,
     @Body() updateUserAvatarDto: UpdateUserAvatarDto
@@ -108,11 +110,10 @@ export class UsersController {
     })
   }
 
-  @Iam(Roles.SuperAdmin)
   @Get('users/:userId')
-  @ApiResponse({ type: User, status: 200 })
-  findOne(@Param('userId') id: string) {
-    return this.usersService.findOne(id)
+  @ApiResponse({ type: UserPublic, status: 200 })
+  async findOne(@Param('userId') id: string) {
+    return this.usersService.findPublic(id)
   }
 
   @Iam(Roles.SuperAdmin)

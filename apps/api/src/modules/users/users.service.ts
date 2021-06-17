@@ -76,10 +76,26 @@ export class UsersService {
     })
   }
 
+  /**
+   * Finds a user
+   * @param id
+   * @param options
+   * @returns
+   */
   findOne(id: string) {
     return this.userRepository.findOne(id, {
-      relations: ['settings']
+      relations: ['settings', 'avatar']
     })
+  }
+
+  /**
+   * Searches for a user and returns its interface
+   * @param id
+   * @returns public user
+   */
+  async findPublic(id: string) {
+    const user = await this.findOne(id)
+    return this.getUserPublic(user)
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {
