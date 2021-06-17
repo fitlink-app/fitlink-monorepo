@@ -7,7 +7,7 @@ export default function InviteUser() {
   const [email, setEmail] = useState('')
 
   return (
-    <form onSubmit={ () => { return false }}>
+    <form onSubmit={ (e) => e.preventDefault() }>
       <h4 className="light mb-3">Invite a user to join your team</h4>
       <Input
         name="firstname"
