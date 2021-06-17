@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common'
 import { RecreateGoalsEntryDto } from './dto/update-goals-entry.dto'
 import { GoalsEntry } from './entities/goals-entry.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { MoreThanOrEqual, Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
-import { format } from 'date-fns'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
+import { zonedStartOfDay } from '../../../../common/date/helpers'
+import { plainToClass } from 'class-transformer'
 
 @Injectable()
 export class GoalsEntriesService {
@@ -22,27 +23,36 @@ export class GoalsEntriesService {
    * @param userId
    * @param goalsEntryDto
    */
-  async create(
+  async createOrUpdate(
     userId: string,
-    goalsEntryDto: RecreateGoalsEntryDto
+    goalsEntryDto: RecreateGoalsEntryDto,
+    newEntry = false
   ): Promise<GoalsEntry> {
     const user = await this.userRepository.findOne(userId)
 
     let goalsEntry = new GoalsEntry()
     goalsEntry.user = user
-    goalsEntry.day = parseInt(format(new Date(), 'Y'))
-    goalsEntry.year = parseInt(format(new Date(), 'd'))
 
     // Attach user's current goals to the goal entry
-    goalsEntry.target_calories = user.goal_calories
+    goalsEntry.target_mindfulness_minutes = user.goal_mindfulness_minutes
     goalsEntry.target_floors_climbed = user.goal_floors_climbed
     goalsEntry.target_sleep_hours = user.goal_sleep_hours
     goalsEntry.target_steps = user.goal_steps
     goalsEntry.target_water_litres = user.goal_water_litres
 
-    const result = await this.goalsEntryRepository.findOne(goalsEntry)
+    let result: GoalsEntry
+    if (!newEntry) {
+      result = await this.getCurrentEntry(user)
+    }
 
-    if (goalsEntryDto) {
+    // Only update values that are greater than previously stored
+    if (result && goalsEntryDto) {
+      Object.keys(goalsEntryDto).map((field) => {
+        if (goalsEntryDto[field] > goalsEntry[field]) {
+          goalsEntry[field] = goalsEntryDto[field]
+        }
+      })
+    } else if (goalsEntryDto) {
       goalsEntry = Object.assign(goalsEntry, { ...goalsEntryDto })
     }
 
@@ -82,28 +92,53 @@ export class GoalsEntriesService {
     })
   }
 
+  async getCurrentEntry(user: User) {
+    return this.goalsEntryRepository.findOne({
+      where: {
+        created_at: MoreThanOrEqual(zonedStartOfDay(user.timezone)),
+        user: { id: user.id }
+      }
+    })
+  }
+
   /**
    * Gets the user's current goal entry
    * or creates one for today.
    * @param userId
    */
-  async getLatest(userId: string) {
+  async getLatest(userId: string): Promise<GoalsEntry> {
     const user = await this.userRepository.findOne(userId)
+    const result = await this.getCurrentEntry(user)
 
-    let goalsEntry = new GoalsEntry()
-    goalsEntry.user = user
-    goalsEntry.day = parseInt(format(new Date(), 'Y'))
-    goalsEntry.year = parseInt(format(new Date(), 'd'))
-
-    const result = await this.goalsEntryRepository.findOne(goalsEntry)
     if (!result) {
-      return this.create(userId, {
-        current_calories: 0,
-        current_floors_climbed: 0,
-        current_sleep_hours: 0,
-        current_steps: 0,
-        current_water_litres: 0
-      })
+      return this.getEmptyEntry(user)
     }
+
+    return result
+  }
+
+  /**
+   * Returns a placeholder goal entry entity
+   * if one for the day is not available
+   *
+   * @param user
+   * @returns
+   */
+  getEmptyEntry(user: User) {
+    const goalsEntry = new GoalsEntry()
+
+    // Attach user's current goals to the goal entry
+    goalsEntry.target_mindfulness_minutes = user.goal_mindfulness_minutes
+    goalsEntry.target_floors_climbed = user.goal_floors_climbed
+    goalsEntry.target_sleep_hours = user.goal_sleep_hours
+    goalsEntry.target_steps = user.goal_steps
+    goalsEntry.target_water_litres = user.goal_water_litres
+    goalsEntry.current_steps = 0
+    goalsEntry.current_floors_climbed = 0
+    goalsEntry.current_water_litres = 0
+    goalsEntry.current_sleep_hours = 0
+    goalsEntry.current_mindfulness_minutes = 0
+
+    return goalsEntry
   }
 }

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react'
-import { TableContainer } from '../components/table/TableContainer'
-import { toDateCell } from '../components/table/helpers'
+import { TableContainer } from '../components/Table/TableContainer'
+import { toDateCell } from '../components/Table/helpers'
 import { api, AuthContext } from '../context/Auth.context'
 import { CellProps } from 'react-table'
 
@@ -22,10 +22,10 @@ const Index = () => {
 
   useEffect(() => {
     ;(async function () {
-      await auth.login({
-        email: 'Marianna_Bradtke14-example@fitlinkapp.com',
-        password: 'password'
-      })
+      // await auth.login({
+      //   email: 'Marianna_Bradtke14-example@fitlinkapp.com',
+      //   password: 'password'
+      // })
     })()
   }, [])
 

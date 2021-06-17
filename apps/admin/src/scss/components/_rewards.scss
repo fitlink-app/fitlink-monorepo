@@ -3,7 +3,8 @@
   .flickity-viewport {
     overflow: visible;
   }
-  .reward-wrap {
+  
+  &__wrap {
     padding: 0.5rem;
     width: 100%;
 
@@ -21,6 +22,31 @@
 
     @media screen and (min-width: $fhd) {
       width: 20%;
+    }
+  }
+
+  &__add {
+    width: 5rem;
+    height: 10rem;
+    border-radius: 1rem;
+    border: 1px solid $grey-300;
+    color: $lightGrey;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    cursor: pointer;
+    
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    
+    &:hover {
+      background: $white;
+      box-shadow: 0px 5px 10px 0 rgba(0, 0, 0, 0.1);
+      border-color: $white;
+      color: $grey;
     }
   }
 }

@@ -1,14 +1,22 @@
 const path = require('path')
 
 module.exports = {
-  distDir: '../../dist/apps/admin',
+  // Disabling this line since it breaks Vercel deployments
+  // distDir: '../../dist/apps/admin',
   webpack: function( config, { defaultLoaders } ){
     /**
-     * Includes the sdk for API
+     * Include external codebases from mono-repo
      */
     config.module.rules.push({
       test: /\.(ts|tsx)$/,
-      include: [ path.join(path.dirname(__dirname), 'api-sdk') ],
+      include: [
+
+        // Api sdk
+        path.join(path.dirname(__dirname), 'api-sdk'),
+
+        // Common helpers / types / libs
+        path.join(path.dirname(__dirname), 'common')
+      ],
       use: [ defaultLoaders.babel ],
     })
     return config

@@ -7,7 +7,7 @@ export class RecreateGoalsEntryDto extends PartialType(CreateGoalsEntryDto) {
   @ApiProperty()
   @IsInt()
   @IsOptional()
-  current_calories: number
+  current_mindfulness_minutes: number
 
   @ApiProperty()
   @IsInt()

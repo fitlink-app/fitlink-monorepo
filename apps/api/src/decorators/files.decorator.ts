@@ -25,3 +25,11 @@ export const Files = createParamDecorator(
     return results
   }
 )
+
+export const File = createParamDecorator(
+  (name: string, ctx: ExecutionContext) => {
+    const req = ctx.switchToHttp().getRequest() as FastifyRequest
+    const file = req.incomingFile
+    return file
+  }
+)

@@ -89,3 +89,11 @@ export async function emailHasContent(search: string) {
   const content = await readFile('email-debug.log')
   return content.toString().toLowerCase().indexOf(search.toLowerCase()) > -1
 }
+
+export async function timeout(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, ms)
+  })
+}

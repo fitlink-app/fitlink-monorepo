@@ -5,6 +5,8 @@ import { readFile } from 'fs/promises'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import FormData = require('form-data')
 import { Connection } from 'typeorm'
+import { UsersSetup, UsersTeardown } from './seeds/users.seed'
+import { useSeeding } from 'typeorm-seeding'
 
 /**
  * Images are tested using s3rver running inside docker
@@ -17,60 +19,117 @@ describe('Image', () => {
   let file2: Buffer
 
   // Set auth headers
-  const headers = getAuthHeaders()
+  let headers: NodeJS.Dict<string>
+  let userId: string
 
   beforeAll(async () => {
     app = await mockApp({
       imports: [ImagesModule]
     })
 
+    await useSeeding()
+    const users = await UsersSetup('Test Users Image Upload')
+    headers = getAuthHeaders({}, users[0].id)
+    userId = users[0].id
+
     file1 = await readFile(__dirname + '/assets/1200x1200.png')
     file2 = await readFile(__dirname + '/assets/1416x721.png')
   })
 
   afterAll(async () => {
+    await useSeeding()
+    await UsersTeardown('Test Users Image Upload')
     await app.get(Connection).close()
     await app.close()
   })
 
-  it(`POST /images 201 Allows the uploading of multiple images and only interprets specific fields`, async () => {
+  it(`POST /images 201 Allows the uploading of a single image`, async () => {
     const form = new FormData()
 
-    form.append('images[]', file1)
-    form.append('images[]', file2)
+    form.append('any_file_name_works', file1)
 
     const result = await app.inject({
       method: 'POST',
       url: '/images',
       payload: form,
       headers: {
-        ...form.getHeaders(),
-        ...headers
+        ...headers,
+        ...form.getHeaders()
       }
     })
+
     expect(result.statusCode).toEqual(201)
     expect(result.statusMessage).toContain('Created')
-    expect(result.json()[0]).toBeDefined()
-    expect(result.json()[1]).toBeDefined()
-    expect(result.json()[2]).toBeUndefined()
+    expect(result.json().url).toBeDefined()
+    expect(result.json().owner.id).toEqual(userId)
+    expect(result.json().type).toEqual('standard')
   })
 
-  it(`POST /images 400 Fails when trying to upload an image with a field name that is unexpected`, async () => {
+  it(`POST /images 201 Ignores other images and only uploads the first file, allows type to be set`, async () => {
     const form = new FormData()
 
-    form.append('images[]', file1)
-    form.append('other[]', file2)
+    form.append('image', file1)
+    form.append('other', file2)
+    form.append('type', 'avatar')
 
     const result = await app.inject({
       method: 'POST',
       url: '/images',
       payload: form,
       headers: {
-        ...form.getHeaders(),
-        ...headers
+        ...headers,
+        ...form.getHeaders()
       }
     })
+
+    expect(result.statusCode).toEqual(201)
+    expect(result.json().url).toBeDefined()
+    expect(result.json().type).toEqual('avatar')
+    expect(result.json().owner.id).toEqual(userId)
+  })
+
+  it(`POST /images 201 Ignores other images and only uploads the first file, allows type to be set`, async () => {
+    const form = new FormData()
+
+    form.append('image', file1)
+    form.append('other', file2)
+    form.append('type', 'avatar')
+
+    const result = await app.inject({
+      method: 'POST',
+      url: '/images',
+      payload: form,
+      headers: {
+        ...headers,
+        ...form.getHeaders()
+      }
+    })
+
+    expect(result.statusCode).toEqual(201)
+    expect(result.json().url).toBeDefined()
+    expect(result.json().type).toEqual('avatar')
+    expect(result.json().owner.id).toEqual(userId)
+  })
+
+  it(`POST /images 400 Fails when type is incorrectly set`, async () => {
+    const form = new FormData()
+
+    form.append('image', file1)
+    form.append('other', file2)
+    form.append('type', 'other')
+
+    const result = await app.inject({
+      method: 'POST',
+      url: '/images',
+      payload: form,
+      headers: {
+        ...headers,
+        ...form.getHeaders()
+      }
+    })
+
     expect(result.statusCode).toEqual(400)
-    expect(result.json().message).toContain('Unexpected file')
+    expect(result.json().message).toEqual('Validation failed')
+    expect(result.json().errors.type).toEqual('Invalid image type')
   })
 })

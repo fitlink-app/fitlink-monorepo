@@ -1,5 +1,6 @@
 .button {
   display: inline-block;
+  vertical-align: middle;
   font-family: 'Lato', sans-serif;
   font-size: 0.875rem;
   font-weight: 700;
@@ -23,18 +24,28 @@
     transition: all 0.35s;
   }
 
+  &.small {
+    padding: 0.5rem 1rem 0.5625rem;
+    font-size: 0.75rem;
+  }
+  
   &.alt, &--alt {
     border: 1px solid $primary;
     background: $white;
     color: $primary;
     padding: 0.75rem 1.4375rem 0.8125rem;
-
+    
     &:hover {
       color: $white;
       background: #00CEBE;
       border-color: #00CEBE;
     }
   }
+
+  &.small.alt, &--alt.small {
+    padding: 0.5rem 1rem 0.5rem;
+  }
+  
 
   &:disabled {
     opacity: 0.5;

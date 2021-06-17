@@ -22,6 +22,7 @@ import { Logger } from '@nestjs/common'
 import { createConnection } from 'typeorm'
 import migrations from './migrations'
 import { validationExceptionFactory } from './exceptions/validation.exception.factory'
+import { UploadGuardV2 } from './guards/upload-v2.guard'
 
 interface NestApp {
   app: NestFastifyApplication
@@ -65,6 +66,7 @@ async function bootstrapServer(): Promise<NestApp> {
     })
   )
   app.useGlobalGuards(new UploadGuard(app.get(Reflector)))
+  app.useGlobalGuards(new UploadGuardV2(app.get(Reflector)))
   app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)))
   app.useGlobalGuards(new IamGuard(app.get(Reflector)))
   await app.init()
