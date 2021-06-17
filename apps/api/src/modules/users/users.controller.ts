@@ -20,7 +20,8 @@ import {
   ApiResponse,
   ApiExcludeEndpoint,
   ApiQuery,
-  ApiBearerAuth
+  ApiBearerAuth,
+  ApiBody
 } from '@nestjs/swagger'
 import {
   ApiBaseResponses,
@@ -62,6 +63,7 @@ export class UsersController {
 
   @Put('me/avatar')
   @UpdateResponse()
+  @ApiBody({ type: UpdateUserAvatarDto })
   deleteAvatar(
     @AuthUser() user: AuthenticatedUser,
     @Body() updateUserAvatarDto: UpdateUserAvatarDto

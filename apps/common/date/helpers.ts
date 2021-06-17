@@ -1,5 +1,5 @@
 import { endOfDay, startOfDay } from 'date-fns'
-import { zonedTimeToUtc } from 'date-fns-tz'
+import { zonedTimeToUtc, getTimezoneOffset } from 'date-fns-tz'
 
 /**
  * Converts a date to UTC and applies the timezone difference
@@ -27,4 +27,17 @@ export function zonedStartOfDay(tz = 'Etc/UTC', date = new Date()) {
  */
 export function zonedEndOfDay(tz = 'Etc/UTC', date = new Date()) {
   return zonedTimeToUtc(endOfDay(date), tz)
+}
+
+/**
+ * Checks whether timezone string is valid
+ * @param tz
+ * @returns boolean
+ */
+export function isValidTimezone(tz: string) {
+  try {
+    return !!getTimezoneOffset(tz)
+  } catch (e) {
+    return false
+  }
 }

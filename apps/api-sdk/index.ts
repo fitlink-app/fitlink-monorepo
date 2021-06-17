@@ -18,6 +18,7 @@ import {
   AuthLogout,
   AuthRefresh,
   DeleteResult,
+  UpdateResult,
   AuthSignUp
 } from './types'
 
@@ -254,7 +255,7 @@ export class Api {
    */
   async put<T>(url: ReadResource, params: UpdateResourceParams<T>) {
     const response = await this.axios.put(this.applyParams(url, params), params)
-    return response.data as Partial<T>
+    return response.data as UpdateResult
   }
 
   /**
@@ -292,17 +293,17 @@ export class Api {
     return result
   }
 
-    /**
+  /**
    * Logs in and stores tokens
    *
    * @param emailPass An object of `{ email, password }`
    * @returns `{ id_token, access_token, refresh_token }`
    */
-     async login(emailPass: AuthLoginDto) {
-      const result = await this.post<AuthLogin>('/auth/login', emailPass)
-      this.setTokens(result)
-      return result
-    }
+  async login(emailPass: AuthLoginDto) {
+    const result = await this.post<AuthLogin>('/auth/login', emailPass)
+    this.setTokens(result)
+    return result
+  }
 
   /**
    * Logs the user out. In practice, the JWT will not expire
