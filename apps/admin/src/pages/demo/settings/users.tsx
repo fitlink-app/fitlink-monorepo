@@ -4,6 +4,10 @@ import Drawer from '../../../components/elements/Drawer'
 import InviteUser from '../../../components/forms/InviteUser'
 import ImportUsers from '../../../components/forms/ImportUsers'
 import Dashboard from '../../../components/layouts/Dashboard'
+import TableContainer from '../../../components/table/TableContainer'
+import { boolToIcon } from '../../../components/table/helpers'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const dummy = require('../../../services/dummy/team-users.json')
 
 export default function components() {
   const [drawContent, setDrawContent] = useState<
@@ -20,6 +24,14 @@ export default function components() {
     )
   }
 
+  const EditUserForm = (firstName, lastName, email) => {
+    setWarning(true)
+    setWide(false)
+    setDrawContent(
+      <InviteUser current={{ firstName: firstName, lastName: lastName, email:email }} />
+    )
+  }
+
   const ImportUsersForm = () => {
     setWarning(true)
     setWide(true)
@@ -27,6 +39,36 @@ export default function components() {
       <ImportUsers />
     )
   }
+
+  const showAvatar = ({
+    cell: {
+      row: {
+        original: { avatar, firstName, lastName }
+      }
+    }
+  }) => {
+    return (
+      <div className="avatar">
+        <span>{`${firstName[0]}${lastName[0]}`}</span>
+        { avatar &&
+          <img src={avatar} alt={`${firstName[0]}${lastName[0]}`} />
+        }
+      </div>
+    )
+  }
+
+  const cellActions = ({
+    cell: {
+      row: {
+        original: { firstName, lastName, email }
+      }
+    }
+  }) => (
+    <div className="text-right">
+      <button className="button alt small">Delete</button>
+      <button className="button small ml-1" onClick={ () => EditUserForm(firstName, lastName, email)}>Edit</button>
+    </div>
+  )
 
   return (
     <Dashboard title="Settings Users">
@@ -44,6 +86,20 @@ export default function components() {
           >
           Bluk import
         </button>
+      </div>
+
+      <div className="mt-4 overflow-x-auto">
+        <TableContainer
+          columns={[
+            { Header: ' ', accessor: 'avatar', Cell: showAvatar },
+            { Header: 'First Name', accessor: 'firstName' },
+            { Header: 'Last Name', accessor: 'lastName' },
+            { Header: 'Email', accessor: 'email' },
+            { Header: 'Registered', accessor: 'registered', Cell: boolToIcon },
+            { Header: ' ', Cell: cellActions }
+          ]}
+          fetch={() => Promise.resolve(dummy)}
+        />
       </div>
 
       <AnimatePresence initial={false}>
