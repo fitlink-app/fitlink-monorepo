@@ -1,4 +1,5 @@
 import { ApiParameterError, AuthorizationRefreshError, makeApi } from '../index'
+import { ImageUpload } from '../types'
 import axios from 'axios'
 import * as moxios from 'moxios'
 import { readFile } from 'fs/promises'
@@ -10,6 +11,7 @@ import { Activity } from '@fitlink/api/src/modules/activities/entities/activity.
 import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 import { League } from '@fitlink/api/src/modules/leagues/entities/league.entity'
 import { Image } from '@fitlink/api/src/modules/images/entities/image.entity'
+
 import FormDataMocker = require('form-data')
 
 // Mocks formdata and preserves TypeScript compatibility with browser version of FormData
@@ -54,6 +56,29 @@ describe('list', () => {
       refresh_token: 'updated',
       id_token: 'updated'
     }
+
+    it('can signup', async () => {
+      moxios.stubRequest('/auth/signup', {
+        status: 200,
+        response: {
+          me: {
+            id: '123'
+          },
+          auth: tokens
+        }
+      })
+
+      const { auth, me } = await api.signUp({
+        email: 'test',
+        password: 'test'
+      })
+
+      expect(auth.access_token).toEqual('11111')
+      expect(auth.id_token).toEqual('22222')
+      expect(auth.refresh_token).toEqual('33333')
+      expect(api.getTokens()).toEqual(tokens)
+      expect(me.id).toEqual('123')
+    })
 
     it('can log in and log out', async () => {
       moxios.stubRequest('/auth/login', {
@@ -334,23 +359,23 @@ describe('list', () => {
 
   it('can update items', async () => {
     moxios.stubOnce('put', /organisations\/111\/teams\/333$/, {
-      status: 201,
+      status: 200,
       response: {
-        name: 'Updated team'
+        affected: 1
       }
     })
 
     moxios.stubOnce('put', /organisations\/111\/activities\/222$/, {
-      status: 201,
+      status: 200,
       response: {
-        name: 'Updated activity'
+        affected: 1
       }
     })
 
     moxios.stubOnce('put', /organisations\/111$/, {
-      status: 201,
+      status: 200,
       response: {
-        name: 'Updated organisation'
+        affected: 1
       }
     })
 
@@ -393,9 +418,9 @@ describe('list', () => {
       }
     )
 
-    expect(organisation.name).toEqual('Updated organisation')
-    expect(activity.name).toEqual('Updated activity')
-    expect(team.name).toEqual('Updated team')
+    expect(organisation.affected).toEqual(1)
+    expect(activity.affected).toEqual(1)
+    expect(team.affected).toEqual(1)
   })
 
   it('can upload images', async () => {
@@ -415,5 +440,20 @@ describe('list', () => {
     })
 
     expect(image.url).toEqual('https://example.com/imageurl')
+  })
+
+  it('can upload imageId for user avatar', async () => {
+    moxios.stubOnce('put', /me\/avatar/, {
+      status: 200,
+      response: { affected: 1 }
+    })
+
+    const image = await api.put<ImageUpload>('/me/avatar', {
+      payload: {
+        imageId: '123'
+      }
+    })
+
+    expect(image.affected).toEqual(1)
   })
 })
