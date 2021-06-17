@@ -4,19 +4,19 @@ import { useSeeding } from 'typeorm-seeding'
 import { ProvidersModule } from '../src/modules/providers/providers.module'
 import { FitbitService } from '../src/modules/providers/providers/fitbit/fitbit.service'
 import { StravaService } from '../src/modules/providers/providers/strava/strava.service'
+import { FitbitAuthResponse } from '../src/modules/providers/types/fitbit'
+import { StravaCallbackResponse } from '../src/modules/providers/types/strava'
 import { User } from '../src/modules/users/entities/user.entity'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
 import { env } from './helpers/mocking'
-import { MockType } from './helpers/types'
 import { parseQuery } from './helpers/parseQuery'
+import { MockType } from './helpers/types'
 import {
   ProvidersSetup,
   ProvidersTeardown,
   SeedProviderToUser
 } from './seeds/providers.seed'
-import { FitbitAuthResponse } from '../src/modules/providers/types/fitbit'
-import { StravaCallbackResponse } from '../src/modules/providers/types/strava'
 const {
   STRAVA_CLIENT_ID,
   STRAVA_CLIENT_SECRET,

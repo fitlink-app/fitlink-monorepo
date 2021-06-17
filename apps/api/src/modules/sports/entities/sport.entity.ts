@@ -1,5 +1,6 @@
-import { PrimaryGeneratedColumn, Entity, Column } from 'typeorm'
+import { PrimaryGeneratedColumn, Entity, Column, OneToMany } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
+import { HealthActivity } from '../../health-activities/entities/health-activity.entity'
 
 @Entity()
 export class Sport extends CreatableEntity {
@@ -25,4 +26,7 @@ export class Sport extends CreatableEntity {
   /** Plural display of the sport, e.g. trail runs */
   @Column()
   plural: string
+
+  @OneToMany(() => HealthActivity, (healthActivity) => healthActivity.sport)
+  health_activities: HealthActivity[]
 }

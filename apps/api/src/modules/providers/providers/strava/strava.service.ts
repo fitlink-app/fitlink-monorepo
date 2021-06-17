@@ -5,6 +5,7 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import {
+  ACTIVITY_TYPE_MAP,
   STRAVA_AUTHORIZE_URL,
   STRAVA_DEAUTH_URL,
   STRAVA_TOKEN_EXCHANGE_URL
@@ -16,19 +17,72 @@ import { ConfigService } from '@nestjs/config'
 import {
   StravaEventData,
   StravaCallbackResponse,
-  StravaRefreshTokenResponse
+  StravaRefreshTokenResponse,
+  StravaActivityType,
+  StravaActivity
 } from '../../types/strava'
+import { healthActivityType } from '../../../health-activities/dto/healthActivityType'
+import { lifestyleActivityType } from '../../../health-activities/dto/lifestyleActivityType'
+import { HealthActivityDto } from '../../../health-activities/dto/create-health-activity.dto'
+import { HealthActivitiesService } from '../../../health-activities/health-activities.service'
+import { tryAndCatch } from '../../../../helpers/tryAndCatch'
 
 @Injectable()
 export class StravaService {
   constructor(
     private httpService: HttpService,
     private configService: ConfigService,
-    private providersService: ProvidersService
+    private providersService: ProvidersService,
+    private healthActivityService: HealthActivitiesService
   ) {}
 
-  processStravaData(stravaEventData: StravaEventData) {
-    console.log(`Strava Events Data`, stravaEventData)
+  async processStravaData(stravaEventData: StravaEventData) {
+    if (stravaEventData.object_type === 'activity') {
+      switch (stravaEventData.aspect_type) {
+        case 'create': {
+          const provider = await this.providersService.getUserByOwnerId(
+            stravaEventData.owner_id.toString()
+          )
+          const [result, resultErr] = await tryAndCatch(
+            this.getStravaActivity(
+              stravaEventData.object_id.toString(),
+              provider.user.id
+            )
+          )
+          resultErr && console.error(resultErr)
+          const normalizedActivity = this.createNormalizedHealthActivity(result)
+          const healthActivitySaveResult = await this.healthActivityService.create(
+            normalizedActivity,
+            provider.user.id
+          )
+
+          return healthActivitySaveResult
+        }
+        default:
+          break
+      }
+    }
+  }
+
+  async getStravaActivity(activityId: string, userId: string) {
+    const [accessToken, accessTokenErr] = await tryAndCatch(
+      this.getFreshStravaAccessToken(userId)
+    )
+    accessTokenErr && console.error(accessTokenErr.message)
+    const [activity, activityErr] = await tryAndCatch(
+      this.httpService
+        .get(`https://www.strava.com/api/v3/activities/${activityId}`, {
+          headers: {
+            accept: 'application/json',
+            Authorization: `Bearer ${accessToken}`
+          },
+          timeout: 3000
+        })
+        .pipe(map((response) => response.data))
+        .toPromise()
+    )
+    activityErr && console.error(activityErr.message)
+    return activity
   }
 
   stravaConfig(param: 'id' | 'secret' | 'uri' | 'scopes' | 'verify_token') {
@@ -164,6 +218,11 @@ export class StravaService {
     }
   }
 
+  /**
+   *
+   * @param userId
+   * @returns an access token that isn't expired
+   */
   async getFreshStravaAccessToken(userId: string) {
     // Get Strava Provider with the user Id
     const provider = await this.providersService.findOne(
@@ -174,7 +233,6 @@ export class StravaService {
       throw new NotFoundException(`Provider Not found`)
     }
     let now = new Date(Date.now())
-    console.log(`Is Token Expired: ${provider.token_expires_at < now}`)
     if (provider.token_expires_at < now) {
       // Token Expired Get New Token
       const {
@@ -201,5 +259,42 @@ export class StravaService {
     } else {
       return provider.token
     }
+  }
+
+  /**
+   *
+   * @param activityName Coming from strava this is gonna be included in our ACTIVITY_TYPE_MAP
+   * @returns the name_key version of the activity so that we can query for it in the db.
+   */
+  normalizeActivityType(activityName: StravaActivityType) {
+    return ACTIVITY_TYPE_MAP[activityName] || 'unknown'
+  }
+
+  createNormalizedHealthActivity(activity: StravaActivity): HealthActivityDto {
+    const end_time = new Date(
+      new Date(activity.start_date).valueOf() + activity.elapsed_time * 1000
+    ).toISOString()
+
+    const type = this.normalizeActivityType(activity.type) as
+      | healthActivityType
+      | lifestyleActivityType
+      | 'unknown'
+
+    const normalizedActivity: HealthActivityDto = {
+      type,
+      provider: ProviderType.Strava,
+      start_time: activity.start_date,
+      end_time,
+      calories: activity.calories,
+      distance: activity.distance,
+      elevation: activity.total_elevation_gain,
+      active_time: activity.moving_time
+    }
+
+    if (activity.map && activity.map.polyline) {
+      normalizedActivity.polyline = activity.map.polyline
+    }
+
+    return normalizedActivity
   }
 }
