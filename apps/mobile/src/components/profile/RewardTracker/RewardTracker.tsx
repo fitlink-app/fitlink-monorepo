@@ -41,7 +41,7 @@ interface RewardTrackerProps extends TouchHandlerProps {
   claimableRewardsCount: number;
 }
 
-export const RewardTracker = ({
+export const _RewardTracker = ({
   points,
   targetPoints,
   claimableRewardsCount,
@@ -93,12 +93,4 @@ export const RewardTracker = ({
   );
 };
 
-{
-  /* <CardHeader>
-{unclaimedRewardsCount !== 0
-  ? unclaimedRewardsCount === 1
-    ? `You have an unclaimed reward`
-    : `You have ${unclaimedRewardsCount} unclaimed rewards`
-  : `${remainingPoints} Points remaining`}
-</CardHeader> */
-}
+export const RewardTracker = React.memo(_RewardTracker);

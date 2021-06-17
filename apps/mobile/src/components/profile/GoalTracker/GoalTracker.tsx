@@ -45,7 +45,7 @@ interface GoalTrackerProps {
   trackers: Tracker[];
 }
 
-export const GoalTracker = ({trackers}: GoalTrackerProps) => {
+export const _GoalTracker = ({trackers}: GoalTrackerProps) => {
   const renderWidgets = () => {
     const sortedTrackers: Tracker[] = [...trackers];
 
@@ -65,3 +65,5 @@ export const GoalTracker = ({trackers}: GoalTrackerProps) => {
     </Wrapper>
   );
 };
+
+export const GoalTracker = React.memo(_GoalTracker);
