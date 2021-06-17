@@ -36,6 +36,9 @@
   }
 
   tbody {
+    tr {
+      transition: background 0.2s;
+    }
     td {
       padding: 0.5rem 0.5rem;
       border-bottom: 1px solid $grey-80;
@@ -53,9 +56,9 @@
 
     tr:not(:last-child) {
       &:hover {
-        //background: $grey-100;
+        background: $grey-50;
         td {
-          border-color: $grey-300;
+          //border-color: $grey-300;
         }
       }
     }
@@ -125,21 +128,19 @@
     
   }
 
-  .bua {
+  .bua, .avatar {
     width: 2.5rem;
     height: 2.5rem;
     display: block;
     border-radius: 50%;
     overflow: hidden;
-    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.1);
     position: relative;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.1);
     
     img {
       display: block;
       width: 100%;
       height: 100%;
-      filter: blur(3px);
-      -webkit-filter: blur(2px);
     }
 
     span {
@@ -153,9 +154,29 @@
       height: 100%;
       align-items: center;
       justify-content: center;
-      background: rgba($primary, 0.5);
       //mix-blend-mode: screen;
       color: $white;
+    }
+  }
+  
+  .bua {
+    img {
+      filter: blur(3px);
+      -webkit-filter: blur(2px);
+    }
+    span {
+      background: rgba($primary, 0.5);
+    }
+  }
+
+  .avatar {
+    img {
+      position: relative;
+      z-index: 2;
+    }
+
+    span {
+      background: $lightGrey;
     }
   }
 
