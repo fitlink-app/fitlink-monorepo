@@ -1,7 +1,14 @@
 import { CreatableEntity } from '../../../classes/entity/creatable'
-import { PrimaryGeneratedColumn, Column, ManyToOne, Entity } from 'typeorm'
+import {
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  Entity,
+  JoinColumn
+} from 'typeorm'
 import { Activity } from '../../activities/entities/activity.entity'
 import { ApiProperty } from '@nestjs/swagger'
+import { User } from '../../users/entities/user.entity'
 
 export enum ImageType {
   Avatar = 'avatar',
@@ -88,5 +95,10 @@ export class Image extends CreatableEntity {
     type: 'enum',
     enum: ImageType
   })
-  type: string
+  type: ImageType
+
+  /** The image owner */
+  @ManyToOne(() => User, (user) => user.image_uploads)
+  @JoinColumn()
+  owner?: User
 }

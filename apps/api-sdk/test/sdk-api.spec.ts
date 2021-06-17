@@ -409,6 +409,7 @@ describe('list', () => {
     const file1 = await readFile(__dirname + '/assets/1200x1200.png')
     const formData = mockFormData()
     formData.append('image', (file1 as unknown) as Blob)
+    formData.append('type', 'avatar')
     const image = await api.uploadFile<Image>('/images', {
       payload: formData
     })

@@ -18,5 +18,6 @@ declare global {
 declare module 'fastify' {
   interface FastifyRequest {
     incomingFiles: Storage.MultipartFile[]
+    incomingFile: Storage.MultipartFile
   }
 }
