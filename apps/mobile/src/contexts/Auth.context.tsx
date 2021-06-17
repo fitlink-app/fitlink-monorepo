@@ -54,7 +54,7 @@ export const AuthProvider: React.FC = ({children}) => {
     if (auth) api.setTokens(auth);
 
     // Restore persisted User and store it in the corresponding query
-    if (user) queryClient.setQueryData(QueryKeys.Me, () => user);
+    if (user) queryClient.setQueryData<User>(QueryKeys.Me, () => user);
 
     setUserRestored(true);
   }, [state]);
