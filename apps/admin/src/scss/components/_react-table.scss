@@ -4,6 +4,18 @@
   background: $white;
   border-radius: 0.5rem;
   box-shadow: 0 5px 8px 0 $grey-200;
+  
+  .drawer & {
+    box-shadow: none;
+
+    th:first-child, td:first-child {
+      padding-left: 0;
+    }
+
+    th:last-child, td:last-child {
+      padding-right: 0;
+    }
+  }
 
   thead {
     th {
@@ -201,5 +213,12 @@
 
   tr:nth-child(11n) {
     .bua { span { background: rgba(#F9F871, 0.5); } }
+  }
+}
+
+.drawer {
+  .pagination {
+    padding-left: 0;
+    padding-right: 0;
   }
 }
