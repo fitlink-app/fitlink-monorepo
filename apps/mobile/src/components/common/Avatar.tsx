@@ -20,6 +20,6 @@ interface AvatarProps extends Omit<ImageProps, 'source'> {
 }
 
 export const Avatar: React.FC<AvatarProps> = props => {
-  const {url, size = defaultSize, ...rest} = props;
+  const {url, ...rest} = props;
   return <StyledImage source={url ? {uri: url} : defaultAvatar} {...rest} />;
 };
