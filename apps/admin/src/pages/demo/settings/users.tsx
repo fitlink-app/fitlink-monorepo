@@ -2,6 +2,7 @@ import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import Drawer from '../../../components/elements/Drawer'
 import InviteUser from '../../../components/forms/InviteUser'
+import ImportUsers from '../../../components/forms/ImportUsers'
 import Dashboard from '../../../components/layouts/Dashboard'
 
 export default function components() {
@@ -17,6 +18,13 @@ export default function components() {
     )
   }
 
+  const ImportUsersForm = () => {
+    setWarning(true)
+    setDrawContent(
+      <ImportUsers />
+    )
+  }
+
   return (
     <Dashboard title="Settings Users">
       <div className="flex ai-c">
@@ -29,7 +37,7 @@ export default function components() {
         </button>
         <button
           className="button alt small mt-1 ml-1"
-          //onClick={NewLeagueForm}
+          onClick={ImportUsersForm}
           >
           Bluk import
         </button>
