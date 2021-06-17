@@ -1,14 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import IconClose from '../icons/IconClose'
+import clsx from 'clsx'
 
 export type DrawerProps = {
   children: React.ReactNode
   warnBeforeClose?: boolean
+  wide?: boolean
   remove: () => void
 }
 
-export default function Drawer({ children, warnBeforeClose = false, remove }) {
+export default function Drawer({
+  children,
+  warnBeforeClose = false,
+  wide = false,
+  remove
+}) {
   const node = useRef()
   const [mustWarn, setMustWarn] = useState(false)
 
@@ -46,10 +53,15 @@ export default function Drawer({ children, warnBeforeClose = false, remove }) {
     }
   }, [open, mustWarn])
 
+  const classes = clsx({
+    'drawer': true,
+    'drawer--wide': wide
+  })
+
   return (
     <motion.div
       ref={node}
-      className="drawer"
+      className={classes}
       initial={{
         x: '100%'
       }}

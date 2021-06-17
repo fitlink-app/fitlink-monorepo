@@ -29,6 +29,10 @@
     box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
     //transition: transform 0.15s;
 
+    &--wide {
+      width: 800px;
+    }
+
     &__close {
       position: absolute;
       top: 2rem;
