@@ -13,6 +13,8 @@ import {
   createStackNavigator,
 } from '@react-navigation/stack';
 import {RootStackParamList} from './types';
+import {Settings} from 'pages';
+import {CustomInterpolators} from './interpolators';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -27,6 +29,7 @@ export default function Router() {
   const navigatorOptions = {
     cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     cardShadowEnabled: true,
+    cardOverlayEnabled: true,
     headerShown: false,
   };
 
@@ -50,6 +53,14 @@ export default function Router() {
             }}
           />
         )}
+
+        <Stack.Screen
+          name={'Settings'}
+          component={Settings}
+          options={{
+            cardStyleInterpolator: CustomInterpolators.forVerticalWithOverlay,
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
