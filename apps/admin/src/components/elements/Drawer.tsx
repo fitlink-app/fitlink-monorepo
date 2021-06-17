@@ -42,9 +42,11 @@ export default function Drawer({
     if (open) {
       document.addEventListener('mousedown', handleClickOutside)
       const form = document.querySelector('.drawer form')
-      form.addEventListener('change', () => {
-        if (warnBeforeClose) setMustWarn(true)
-      })
+      if (form) {
+        form.addEventListener('change', () => {
+          if (warnBeforeClose) setMustWarn(true)
+        })
+      }
     } else {
       document.removeEventListener('mousedown', handleClickOutside)
     }
