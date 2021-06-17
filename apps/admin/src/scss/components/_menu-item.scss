@@ -51,3 +51,12 @@
     border: 1px solid $grey-200;
   }
 }
+
+.sub-menu {
+  margin-left: 2.5rem;
+
+  .current {
+    background: transparent;
+    border: 1px solid $white;
+  }
+}
