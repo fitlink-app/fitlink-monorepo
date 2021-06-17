@@ -30,7 +30,7 @@ export class ImagesController {
 
   @Post()
   @ApiBody({ type: UploadImageDto })
-  @ApiResponse({ type: Image, isArray: true, status: 201 })
+  @ApiResponse({ type: Image, status: 201 })
   @Upload({
     maxFileSize: 10,
     fileType: 'image'
