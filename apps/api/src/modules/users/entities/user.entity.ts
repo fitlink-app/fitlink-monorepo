@@ -194,6 +194,9 @@ export class User extends CreatableEntity {
   @OneToMany(() => Activity, (activity) => activity.user)
   activities: Activity[]
 
+  @OneToMany(() => Image, (image) => image.owner)
+  image_uploads: Image[]
+
   @ApiProperty()
   @Column({
     nullable: true
