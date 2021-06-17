@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import {Label} from '../Label';
+import {Label} from '../common/Label';
 
 export const FormError = styled(Label).attrs(() => ({
   appearance: 'error',

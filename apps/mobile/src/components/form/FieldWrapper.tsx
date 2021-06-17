@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import {Label} from '../Label';
+import {Label} from '../common/Label';
 
 const Wrapper = styled.View({});
 
