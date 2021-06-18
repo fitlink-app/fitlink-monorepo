@@ -10,10 +10,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get('AUTH_JWT_SECRET'),
-      jsonWebTokenOptions: {
-        clockTimestamp: Date.now()
-      }
+      secretOrKey: configService.get('AUTH_JWT_SECRET')
     } as StrategyOptions)
   }
 
