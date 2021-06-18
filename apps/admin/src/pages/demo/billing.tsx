@@ -84,12 +84,14 @@ export default function components() {
                 Current billing period ending { format(endOfMonth(new Date()), 'do MMMM, yyyy')}
               </small>
             </p>
-            <h2 className="h1 light mb-0">
-              £21.88
-            </h2>
-            <p className="color-grey">
-              For <strong>11</strong> active users. <strong>0.55%</strong> discount applied
-            </p>
+            <div className="flex ai-c mt-1">
+              <h2 className="h1 light mb-0 unbilled-amount">
+                £21.88
+              </h2>
+              <p className="color-grey ml-2">
+                For <strong>11</strong> active users<br/><strong>0.55%</strong> discount applied
+              </p>
+            </div>
             <hr />
             <h3 className="h5 color-light-grey m-0">Previous invoices</h3>
             <div className="invoices mt-2">
