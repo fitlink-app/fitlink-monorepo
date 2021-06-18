@@ -33,8 +33,16 @@ textarea {
   /* z-index: 20;
   position: relative; */
   text-align: left;
+  
   input {
-    height: auto;
+    height: auto !important;
+    margin: 0 !important;
+
+    &:focus, &:active {
+      outline: none;
+      border: 0;
+      box-shadow: none !important;
+    }
   }
 
   .input-block--inline & {

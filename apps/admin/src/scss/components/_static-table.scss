@@ -1,5 +1,6 @@
 .static-table {
   width: 100%;
+
   &__image {
     width: 4rem;
     background-size: cover;
@@ -30,6 +31,15 @@
 
     &:last-child {
       padding-right: 0;
+    }
+  }
+
+  &--billing {
+    th {
+      padding-left: 0;
+    }
+    td {
+      border-bottom: 0;
     }
   }
 

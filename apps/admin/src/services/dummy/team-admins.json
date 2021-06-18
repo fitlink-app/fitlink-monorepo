@@ -1,0 +1,28 @@
+{
+  "results": [
+    
+    {
+      "avatar": "https://randomuser.me/api/portraits/women/11.jpg",
+      "firstName":"Heather",
+      "lastName":"Perkins",
+      "email":"h.perkins@myco.com",
+      "registered": true
+    },
+    {
+      "avatar": "https://randomuser.me/api/portraits/men/14.jpg",
+      "firstName":"Kelvin",
+      "lastName":"Wells",
+      "email":"k.wells@myco.com",
+      "registered": true
+    },
+    {
+      "avatar": "https://randomuser.me/api/portraits/men/19.jpg",
+      "firstName":"Adrian",
+      "lastName":"Harper",
+      "email":"a.harper@myco.com",
+      "registered": true
+    }
+  ],
+  "total": 3,
+  "page_total": 1
+}
