@@ -193,27 +193,27 @@
   }
 
   tr:nth-child(1n) {
-    .bua { span { background: rgba($primary, 0.5); } }
+    .bua { span { background: rgba(#864A76, 0.5); } }
   }
 
   tr:nth-child(2n) {
-    .bua { span { background: rgba(#00CDE9, 0.5); } }
-  }
-
-  tr:nth-child(3n) {
-    .bua { span { background: rgba(#00AEE8, 0.5); } }
-  }
-
-  tr:nth-child(4n) {
-    .bua { span { background: rgba(#5A8BD1, 0.5); } }
-  }
-
-  tr:nth-child(5n) {
     .bua { span { background: rgba(#7E69A8, 0.5); } }
   }
 
+  tr:nth-child(3n) {
+    .bua { span { background: rgba(#5A8BD1, 0.5); } }
+  }
+
+  tr:nth-child(4n) {
+    .bua { span { background: rgba(#00AEE8, 0.5); } }
+  }
+
+  tr:nth-child(5n) {
+    .bua { span { background: rgba(#00CDE9, 0.5); } }
+  }
+
   tr:nth-child(6n) {
-    .bua { span { background: rgba(#864A76, 0.5); } }
+    .bua { span { background: rgba(#00E9D7, 0.5); } }
   }
 
   tr:nth-child(7n) {
