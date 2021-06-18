@@ -3,6 +3,8 @@ import { useState } from 'react'
 import Card from '../../components/elements/Card'
 import Drawer from '../../components/elements/Drawer'
 import BillingForm from '../../components/forms/BillingForm'
+import IconCheck from '../../components/icons/IconCheck'
+import IconVisa from '../../components/icons/IconVisa'
 import Dashboard from '../../components/layouts/Dashboard'
 
 const billingInfo = {
@@ -46,6 +48,21 @@ export default function components() {
         <div className="col-12 col-lg-6 mt-2">
           <Card className="p-3 card--stretch">
             <h2 className="h5 color-light-grey m-0">Payment information</h2>
+            <div className="row mt-2">
+              <div className="col-2 text-center color-light-grey">
+                <IconVisa width="32px" height="32px" />
+              </div>
+              <div className="col">
+                <h4 className="light mb-0">************4242</h4>
+                <p>Expiry date: 12/2029</p>
+              </div>
+              <div className="col flex ai-c">
+                <div className="chip">Primary</div>
+                <div className="confirmed ml-1">
+                  <IconCheck />
+                </div>
+              </div>
+            </div>
             <div className="mt-2">
               <button className="button">Update payment informatin</button>
             </div>
