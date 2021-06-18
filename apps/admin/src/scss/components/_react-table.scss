@@ -5,7 +5,7 @@
   border-radius: 0.5rem;
   box-shadow: 0 5px 8px 0 $grey-200;
   
-  .drawer & {
+  .drawer &, .invoices & {
     box-shadow: none;
 
     th:first-child, td:first-child {
@@ -237,7 +237,7 @@
   }
 }
 
-.drawer {
+.drawer, .invoices {
   .pagination {
     padding-left: 0;
     padding-right: 0;

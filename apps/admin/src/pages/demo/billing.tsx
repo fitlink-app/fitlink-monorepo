@@ -7,6 +7,9 @@ import IconCheck from '../../components/icons/IconCheck'
 import IconVisa from '../../components/icons/IconVisa'
 import Dashboard from '../../components/layouts/Dashboard'
 import {format, endOfMonth} from 'date-fns'
+import TableContainer from '../../components/table/TableContainer'
+import { toChipCell, toDateCell } from '../../components/table/helpers'
+import IconDownload from '../../components/icons/IconDownload'
 
 const billingInfo = {
   firstname: 'Paul',
@@ -22,12 +25,36 @@ const billingInfo = {
   postalcode: 'N1 7GU'
 }
 
+const invoices = {
+  results:[
+    {
+      id: 'fitlink-202106-87',
+      status: 'paid',
+      amount: 21.88,
+      due_date: '2021-06-01T00:00:00.220Z'
+    },
+    {
+      id: 'fitlink-202105-87',
+      status: 'paid',
+      amount: 20.00,
+      due_date: '2021-05-01T00:00:00.220Z'
+    },
+    {
+      id: 'fitlink-202105-87',
+      status: 'paid',
+      amount: 15.94,
+      due_date: '2021-04-01T00:00:00.220Z'
+    }
+  ],
+  total: 3,
+  page_total: 1
+}
+
 export default function components() {
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)
   const [warning, setWarning] = useState(false)
-
 
   const EditBilling = () => {
     setWarning(true)
@@ -38,8 +65,12 @@ export default function components() {
     )
   }
 
-  const lastDayofMonth = () => {
+  const toCurrency = ({ value }) => {
+    return '£'+value.toLocaleString(undefined, {minimumFractionDigits: 2})
+  }
 
+  const Download = () => {
+    return <IconDownload width="24px" height="24px" />
   }
 
   return (
@@ -61,6 +92,22 @@ export default function components() {
             </p>
             <hr />
             <h3 className="h5 color-light-grey m-0">Previous invoices</h3>
+            <div className="invoices mt-2">
+              <TableContainer
+                columns={[
+                  { Header: 'Invoice', accessor: 'id' },
+                  { Header: 'Status', accessor: 'status', Cell: toChipCell },
+                  { Header: 'Amount', accessor: 'amount', Cell: toCurrency },
+                  {
+                    Header: 'Due date',
+                    accessor: 'due_date',
+                    Cell: toDateCell
+                  },
+                  { Header: ' ', Cell: Download }
+                ]}
+                fetch={() => Promise.resolve(invoices)}
+              />
+            </div>
           </Card>
         </div>
         <div className="col-12 col-lg-6 mt-2">
