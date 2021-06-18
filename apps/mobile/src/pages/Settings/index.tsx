@@ -1,4 +1,11 @@
-import {Avatar, Button, Navbar, NAVBAR_HEIGHT} from '@components';
+import {
+  Avatar,
+  Button,
+  Label,
+  Navbar,
+  NAVBAR_HEIGHT,
+  TouchHandler,
+} from '@components';
 import {UserGoalPreferences, useSettings} from '@hooks';
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
@@ -99,9 +106,28 @@ export const Settings = () => {
     settings.setGoals(parsedGoals);
   };
 
+  const handleOnSavePressed = async () => {
+    // TODO: Show loading overlay
+    await settings.submit();
+    navigation.goBack();
+  };
+
   return (
     <Wrapper>
-      <Navbar backButtonIcon={'times'} title="Settings" overlay />
+      <Navbar
+        rightComponent={
+          settings.didSettingsChange ? (
+            <TouchHandler onPress={handleOnSavePressed}>
+              <Label bold appearance={'accent'}>
+                Save
+              </Label>
+            </TouchHandler>
+          ) : undefined
+        }
+        backButtonIcon={'times'}
+        title="Settings"
+        overlay
+      />
       <ScrollView
         contentContainerStyle={{
           marginTop: NAVBAR_HEIGHT + insets.top,
