@@ -6,6 +6,7 @@ import BillingForm from '../../components/forms/BillingForm'
 import IconCheck from '../../components/icons/IconCheck'
 import IconVisa from '../../components/icons/IconVisa'
 import Dashboard from '../../components/layouts/Dashboard'
+import {format, endOfMonth} from 'date-fns'
 
 const billingInfo = {
   firstname: 'Paul',
@@ -37,12 +38,29 @@ export default function components() {
     )
   }
 
+  const lastDayofMonth = () => {
+
+  }
+
   return (
     <Dashboard title="Billing">
       <h1 className="light">Billing</h1>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">
           <Card className="p-3 card--stretch">
+            <p className="mb-0">
+              <small>
+                Current billing period ending { format(endOfMonth(new Date()), 'do MMMM, yyyy')}
+              </small>
+            </p>
+            <h2 className="h1 light mb-0">
+              £21.88
+            </h2>
+            <p className="color-grey">
+              For <strong>11</strong> active users. <strong>0.55%</strong> discount applied
+            </p>
+            <hr />
+            <h3 className="h5 color-light-grey m-0">Previous invoices</h3>
           </Card>
         </div>
         <div className="col-12 col-lg-6 mt-2">
@@ -64,7 +82,7 @@ export default function components() {
               </div>
             </div>
             <div className="mt-2">
-              <button className="button">Update payment informatin</button>
+              <button className="button">Update payment information</button>
             </div>
             <hr />
             <h3 className="h5 color-light-grey m-0">Billing information</h3>
