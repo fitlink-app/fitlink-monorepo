@@ -5,6 +5,7 @@ import {withQueryClient} from '@query';
 import {AuthProvider} from './contexts';
 import Router from './routes/router';
 import ThemeProvider from './theme/ThemeProvider';
+import {QueryPersistor} from 'query/QueryPersistor';
 
 const App = () => {
   return (
@@ -12,7 +13,9 @@ const App = () => {
       <ThemeProvider>
         <AppBackground>
           <AuthProvider>
-            <Router />
+            <QueryPersistor>
+              <Router />
+            </QueryPersistor>
           </AuthProvider>
         </AppBackground>
       </ThemeProvider>
