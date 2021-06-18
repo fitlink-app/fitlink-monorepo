@@ -1,8 +1,15 @@
-import { Controller, Get, Post, Param, Delete } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Delete,
+  Body,
+  UseGuards
+} from '@nestjs/common'
 import { ImagesService } from './images.service'
-import { Files } from '../../decorators/files.decorator'
-import { Uploads, UploadOptions } from '../../decorators/uploads.decorator'
-import { Image } from '../images/entities/image.entity'
+import { File, Files } from '../../decorators/files.decorator'
+import { Image, ImageType } from '../images/entities/image.entity'
 import { UploadImageDto } from '../images/dto/create-image.dto'
 import { ApiBody, ApiResponse } from '@nestjs/swagger'
 import {
@@ -11,6 +18,10 @@ import {
 } from '../../decorators/swagger.decorator'
 import { Iam } from '../../decorators/iam.decorator'
 import { Roles } from '../user-roles/entities/user-role.entity'
+import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
+import { AuthenticatedUser } from '../../models/authenticated-user.model'
+import { User } from '../../modules/users/entities/user.entity'
+import { Upload } from '../../decorators/uploads.decorator'
 
 @ApiBaseResponses()
 @Controller('images')
@@ -19,10 +30,22 @@ export class ImagesController {
 
   @Post()
   @ApiBody({ type: UploadImageDto })
-  @ApiResponse({ type: Image, isArray: true, status: 201 })
-  @Uploads('images[]', UploadOptions.Required)
-  create(@Files('images[]') files: Storage.MultipartFile[]): Promise<Image[]> {
-    return this.imagesService.createMany(files)
+  @ApiResponse({ type: Image, status: 201 })
+  @Upload({
+    maxFileSize: 10,
+    fileType: 'image'
+  })
+  create(
+    @File() file: Storage.MultipartFile,
+    @Body() body: UploadImageDto,
+    @AuthUser() user: AuthenticatedUser
+  ): Promise<Image> {
+    const owner = new User()
+    owner.id = user.id
+    return this.imagesService.createOne(file, body.type, {
+      owner,
+      type: body.type || ImageType.Standard
+    })
   }
 
   @Get(':id')

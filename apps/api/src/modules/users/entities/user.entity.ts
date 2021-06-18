@@ -118,6 +118,11 @@ export class User extends CreatableEntity {
   })
   last_lifestyle_activity_at: Date
 
+  @Column({
+    nullable: true
+  })
+  password_reset_at: Date
+
   @OneToOne(() => Image, {
     cascade: ['remove'],
     onDelete: 'CASCADE'
@@ -189,8 +194,13 @@ export class User extends CreatableEntity {
   @OneToMany(() => Activity, (activity) => activity.user)
   activities: Activity[]
 
+  @OneToMany(() => Image, (image) => image.owner)
+  image_uploads: Image[]
+
   @ApiProperty()
-  @Column()
+  @Column({
+    nullable: true
+  })
   name: string
 
   @ApiProperty()
@@ -221,7 +231,7 @@ export class User extends CreatableEntity {
   @Column({
     default: 0
   })
-  goal_calories: number
+  goal_mindfulness_minutes: number
 
   @ApiProperty()
   @Column({
@@ -248,6 +258,12 @@ export class User extends CreatableEntity {
     default: 0
   })
   goal_sleep_hours: number
+
+  @ApiProperty()
+  @Column({
+    default: 0
+  })
+  followers_total: number
 }
 
 export class UserPublic {
@@ -266,4 +282,8 @@ export class UserPublic {
   @ApiProperty()
   @Expose()
   points_total: number
+
+  @ApiProperty()
+  @Expose()
+  followers_total: number
 }

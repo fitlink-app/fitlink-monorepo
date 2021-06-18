@@ -16,8 +16,8 @@ export default function components() {
   >(false)
   const [warning, setWarning] = useState(false)
   const [sorted, setSorted] = useState([])
-  const [sort, setSort] = useState<'asc' | 'desc'>('asc')
-  const [sortOn, setSortOn] = useState('points')
+  const [sort, setSort] = useState<'asc' | 'desc'>('desc')
+  const [sortOn, setSortOn] = useState('members')
 
   const options = [
     {
@@ -26,7 +26,7 @@ export default function components() {
     },
     {
       label: 'Title',
-      value: 'shortDescription'
+      value: 'name'
     },
     {
       label: 'Reset date',
@@ -75,12 +75,13 @@ export default function components() {
     <Dashboard
       title="Leagues"
       >
-      <div className="row ai-c mb-1">
+      <div className="row ai-c mb-2">
         <div className="col-12 col-lg-8">
           <div className="flex ai-c">
             <h1 className="light mb-0 mr-2">Your leagues</h1>
             <button
               className="button alt small mt-1"
+              onClick={NewLeagueForm}
               >
               Add new
             </button>

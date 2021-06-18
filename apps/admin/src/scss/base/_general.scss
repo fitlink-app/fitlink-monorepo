@@ -15,12 +15,13 @@ html {
 
 blockquote {
   margin: 2rem 0;
-  padding: 2.5rem;
-  box-shadow: 0px -5px 10px 0px #fff, 0px 10px 15px 0 rgba(0, 0, 0, 0.08);
-  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid $grey-300;
+  border-radius: 0.25rem;
   
   p {
-    color: $grey;
+    //color: $grey;
+    font-style: italic;
 
     &:last-child {
       margin-bottom: 0;
@@ -46,14 +47,21 @@ hr {
   }
 }
 
-.chip {
-  font-size: 0.75rem;
-  font-weight: 700;
+.h1-back {
   display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.5rem;
-  background: $grey;
-  color: $white;
+  vertical-align: middle;
+  color: $lightGrey;
+  margin-right: 0.5rem;
+
+  &:hover {
+    color: $darkGrey;
+  }
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    display: block;
+  }
 }
 
 /* .link {

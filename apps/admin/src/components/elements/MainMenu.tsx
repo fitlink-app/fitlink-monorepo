@@ -52,13 +52,35 @@ export default function MainMenu() {
         current={current.startsWith('/demo/knowledge-base')}
         icon={<IconYoga />}
       />
-      <hr />
       <MenuItem
         to="/demo/settings"
         label="Account settings"
         current={current.startsWith('/demo/settings')}
         icon={<IconGear />}
       />
+      {current.startsWith('/demo/settings') &&
+        <div className="sub-menu">
+          <MenuItem
+            to="/demo/settings/users"
+            label="Manage users"
+            current={current.startsWith('/demo/settings/users')}
+            icon={<></>}
+          />
+          <MenuItem
+            to="/demo/settings/page"
+            label="Manage my page"
+            current={current.startsWith('/demo/settings/page')}
+            icon={<></>}
+          />
+          <MenuItem
+            to="/demo/settings/admins"
+            label="Admin access"
+            current={current.startsWith('/demo/settings/admins')}
+            icon={<></>}
+          />
+          <hr />
+        </div>
+      }
       <MenuItem
         to="/demo/billing"
         label="Billing"

@@ -1,0 +1,34 @@
+.blog-thumb {
+  display: block;
+  color: $darkGrey;
+  text-decoration: none;
+  margin: 1rem 0;
+  
+  &__image {
+    width: 100%;
+    padding-top: 56.25%;
+    background-size: cover;
+    background-position: center;
+    border-radius: 1rem;
+    box-shadow: 0 5px 10px 0 rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+
+    /* &:before {
+      content: "";
+      display: block;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-image: linear-gradient(rgba($primary, 0.3), rgba($primary, 0.7));
+      opacity: 0;
+      transition: opacity 0.2s;
+    } */
+  }
+
+  /* &:hover &__image:before {
+    opacity: 1;
+  } */
+}

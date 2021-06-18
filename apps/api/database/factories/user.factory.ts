@@ -10,7 +10,10 @@ interface Context {
 define(User, (faker: typeof Faker, context: Context) => {
   const user = new User()
   user.name = faker.name.findName()
-  user.email = faker.internet.userName() + '-example@fitlinkapp.com'
+  user.email =
+    faker.internet.userName().toLowerCase() +
+    faker.random.number(100) +
+    '-example@fitlinkapp.com'
   user.password = '$2a$10$SxsiyEPj2gjEgufzMiWTWuej0Cld6IzPT/59.0.Y6xSEosQ856u6m'
   return user
 })

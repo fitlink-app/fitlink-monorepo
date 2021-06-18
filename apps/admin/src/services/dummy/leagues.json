@@ -7,10 +7,22 @@
       "members": 35,
       "duration": 7,
       "resetDate": "2021-06-30T07:22:48.220Z",
+      "created": "2021-06-02T07:22:48.220Z",
       "sport": "steps",
+      "repeats": true
+    },
+    {
+      "image": "/temp/photo-1541625602330-2277a4c46182.jpeg",
+      "name": "Monthly Cycle Challenge",
+      "description": "Who can put in the most miles in a month!",
+      "members": 11,
+      "duration": 28,
+      "resetDate": "2021-06-30T07:22:48.220Z",
+      "created": "2021-06-02T07:22:48.220Z",
+      "sport": "ride",
       "repeats": true
     }
   ],
-  "total": 1,
+  "total": 2,
   "page_total": 1
 }

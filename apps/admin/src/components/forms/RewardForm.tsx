@@ -40,7 +40,7 @@ export default function RewardForm({
   }
 
   return (
-    <>
+    <form onSubmit={ (e) => e.preventDefault() }>
       <h4 className="light mb-3">
         { current ? 'Edit reward' : 'New reward' }
       </h4>
@@ -51,9 +51,14 @@ export default function RewardForm({
         points={points}
         expires={expires}
         redeemed={0}
+        title={title}
+        description={description}
+        code={code}
+        instructions={instructions}
+        showExtra={true}
       />
 
-      <div className="basic-image-select">
+      <div className="basic-file-select">
         <input
           type="file"
           id="image"
@@ -137,6 +142,6 @@ export default function RewardForm({
         { current ? 'Update' : 'Create reward' }
         </button>
       </div>
-    </>
+    </form>
   )
 }

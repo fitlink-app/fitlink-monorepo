@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { add } from 'date-fns'
 import Input from '../elements/Input'
+import Checkbox from '../elements/Checkbox'
 import League from '../elements/League'
 import IconImage from '../icons/IconImage'
 import Select from '../elements/Select'
@@ -108,7 +109,7 @@ export default function LeagueForm({
   }
 
   return (
-    <>
+    <form onSubmit={ (e) => e.preventDefault() }>
       <h4 className="light mb-3">
         { current ? 'Edit league' : 'New league' }
       </h4>
@@ -122,7 +123,7 @@ export default function LeagueForm({
         repeats={repeats}
       />
 
-      <div className="basic-image-select">
+      <div className="basic-file-select">
         <input
           type="file"
           id="image"
@@ -164,11 +165,18 @@ export default function LeagueForm({
         label="Sport"
         onChange={(v) => setSport(v.value)}
       />
+      <Checkbox
+        label="This activity repeats"
+        name="repeats"
+        checked={repeats}
+        showSwitch={true}
+        onChange={(v) => setRepeats(v)}
+        />
       <div className="text-right mt-2">
         <button className="button">
         { current ? 'Update' : 'Create league' }
         </button>
       </div>
-    </>
+    </form>
   )
 }

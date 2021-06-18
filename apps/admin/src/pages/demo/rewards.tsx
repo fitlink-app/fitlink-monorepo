@@ -134,7 +134,7 @@ export default function components() {
 
   return (
     <Dashboard title="Rewards">
-      <div className="row ai-c mb-1">
+      <div className="row ai-c mb-2">
         <div className="col-12 col-lg-8">
           <div className="flex ai-c">
             <h1 className="light mb-0 mr-2">Your rewards</h1>
@@ -172,7 +172,7 @@ export default function components() {
         ))}
       </div>
 
-      <div className="row mb-3">
+      <div className="row mb-2">
         <div className="col-12 col-lg-8">
           <h2 className="h1 light mb-0">Fitlink sponsored rewards</h2>
         </div>

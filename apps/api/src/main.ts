@@ -16,6 +16,7 @@ import { EmailService } from './modules/common/email.service'
 import { sendTemplatedEmail } from '../test/helpers/mocking'
 import { validationExceptionFactory } from './exceptions/validation.exception.factory'
 import { bgMagenta, bold } from 'chalk'
+import { UploadGuardV2 } from './guards/upload-v2.guard'
 
 declare const module: any
 
@@ -35,7 +36,11 @@ async function bootstrap() {
     .setDescription('The Fitlink API on Nest')
     .setVersion('1.0')
     .addTag('fitlink')
-    .addBearerAuth()
+    .addBearerAuth({
+      bearerFormat: 'JWT',
+      type: 'http',
+      scheme: 'bearer'
+    })
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
@@ -54,6 +59,7 @@ async function bootstrap() {
       exceptionFactory: validationExceptionFactory
     })
   )
+  app.useGlobalGuards(new UploadGuardV2(app.get(Reflector)))
   app.useGlobalGuards(new UploadGuard(app.get(Reflector)))
   app.useGlobalGuards(new JwtAuthGuard(app.get(Reflector)))
   app.useGlobalGuards(new IamGuard(app.get(Reflector)))

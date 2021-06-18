@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { formatRoles } from '../../helpers/formatRoles'
-import { Repository } from 'typeorm'
+import { ILike, Repository } from 'typeorm'
 import { JWTRoles } from '../../models'
 import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { User } from './entities/user.entity'
+import { User, UserPublic } from './entities/user.entity'
 import { Image } from '../images/entities/image.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
+import { plainToClass } from 'class-transformer'
 
 @Injectable()
 export class UsersService {
@@ -43,6 +44,23 @@ export class UsersService {
     })
   }
 
+  async searchByName(
+    keyword: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ) {
+    const [results, total] = await this.userRepository.findAndCount({
+      take: limit,
+      skip: page * limit,
+      where: {
+        name: ILike(`%${keyword}%`)
+      }
+    })
+    return new Pagination<UserPublic>({
+      results: results.map(this.getUserPublic),
+      total
+    })
+  }
+
   async findByEmail(email: string) {
     const user = await this.userRepository.findOne({
       where: {
@@ -52,14 +70,43 @@ export class UsersService {
     return user
   }
 
+  getUserPublic(user: User) {
+    return plainToClass(UserPublic, user, {
+      excludeExtraneousValues: true
+    })
+  }
+
+  /**
+   * Finds a user
+   * @param id
+   * @param options
+   * @returns
+   */
   findOne(id: string) {
     return this.userRepository.findOne(id, {
-      relations: ['settings']
+      relations: ['settings', 'avatar']
     })
+  }
+
+  /**
+   * Searches for a user and returns its interface
+   * @param id
+   * @returns public user
+   */
+  async findPublic(id: string) {
+    const user = await this.findOne(id)
+    return this.getUserPublic(user)
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {
     return this.userRepository.update(id, updateUserDto)
+  }
+
+  updatePassword(id: string, hashedPassword: string) {
+    return this.userRepository.update(id, {
+      password: hashedPassword,
+      password_reset_at: new Date()
+    })
   }
 
   updateAvatar(id: string, imageId: string) {
@@ -67,6 +114,12 @@ export class UsersService {
     avatar.id = imageId
     return this.userRepository.update(id, {
       avatar
+    })
+  }
+
+  updateFollowerCount(userId: string, count: number) {
+    return this.userRepository.update(userId, {
+      followers_total: count
     })
   }
 

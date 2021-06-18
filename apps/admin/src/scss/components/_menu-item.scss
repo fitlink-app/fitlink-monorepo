@@ -49,5 +49,15 @@
 
   &.current {
     border: 1px solid $grey-200;
+    font-weight: 700;
+  }
+}
+
+.sub-menu {
+  margin-left: 2.5rem;
+
+  .current {
+    background: transparent;
+    border: 1px solid $white;
   }
 }

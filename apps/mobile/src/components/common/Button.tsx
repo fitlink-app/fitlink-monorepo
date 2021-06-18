@@ -1,37 +1,26 @@
 import React from 'react';
-import {
-  TouchableOpacityProps,
-  TouchableOpacity,
-  ViewStyle,
-  ActivityIndicator,
-  StyleProp,
-  TextStyle,
-  View,
-} from 'react-native';
+import {ViewStyle, ActivityIndicator, StyleProp, TextStyle} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {Label} from './Label';
 import {Icon} from './Icon';
+import {TouchHandler, TouchHandlerProps} from './TouchHandler';
 
-const ButtonBase = styled(TouchableOpacity)({
-  width: '100%',
-});
+const ButtonLabel = styled(Label)({textAlign: 'center'});
 
 const Row = styled.View({flexDirection: 'row'});
 
 const ButtonContentContainer = styled.View(({theme: {colors}}) => ({
   borderRadius: 8,
-  width: '100%',
   height: 44,
   paddingHorizontal: 24,
   justifyContent: 'center',
+  width: '100%',
   alignItems: 'center',
 }));
 
-const ButtonLabel = styled(Label)({flex: 1, textAlign: 'center'});
-
 type ButtonType = 'default' | 'danger';
 
-export interface ButtonProps extends TouchableOpacityProps {
+export interface ButtonProps extends TouchHandlerProps {
   text?: string;
   type?: ButtonType;
   textStyle?: StyleProp<TextStyle>;
@@ -50,6 +39,7 @@ export const Button = ({
   textStyle,
   icon,
   loading,
+  style,
   ...rest
 }: ButtonProps) => {
   const {typography, colors, fonts} = useTheme();
@@ -90,6 +80,7 @@ export const Button = ({
       additionalContainerStyles.push({
         borderWidth: 0,
         backgroundColor: 'transparent',
+        width: undefined,
       });
     }
 
@@ -121,7 +112,7 @@ export const Button = ({
   }
 
   function createTextStyle() {
-    let style: StyleProp<TextStyle> = {};
+    let style: StyleProp<TextStyle> = {flex: 1};
 
     if (textOnly) style = typography.textButton;
 
@@ -130,8 +121,15 @@ export const Button = ({
 
   const textColor = createButtonTextColor();
 
+  const buttonBaseStyleModifier: StyleProp<ViewStyle> = {
+    width: textOnly ? undefined : '100%',
+    alignItems: 'center',
+  };
+
   return (
-    <ButtonBase {...{...rest, disabled}}>
+    <TouchHandler
+      {...{...rest, disabled}}
+      style={[style, buttonBaseStyleModifier]}>
       <ButtonContentContainer style={createContainerStyle()}>
         {loading ? (
           <ActivityIndicator color={textColor} />
@@ -152,6 +150,6 @@ export const Button = ({
           </Row>
         )}
       </ButtonContentContainer>
-    </ButtonBase>
+    </TouchHandler>
   );
 };

@@ -7,6 +7,7 @@ import { EmailService } from './email.service'
 
 @Module({
   imports: [ConfigModule, TypeOrmModule.forFeature([Queueable])],
-  providers: [EmailService, QueueService]
+  providers: [EmailService, QueueService],
+  exports: [EmailService, QueueService]
 })
 export class CommonModule {}
