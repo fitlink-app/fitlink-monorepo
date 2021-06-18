@@ -175,7 +175,7 @@ export default function components() {
 
       </div>
       <div className="row mt-2">
-        <div className="col-12 col-lg-4 mt-2">
+        <div className="col-12 col-xl-6 col-hd-4 mt-2">
           <Card className="p-3 card--stretch">
             <div className="row ai-c">
               <div className="col">
@@ -214,7 +214,7 @@ export default function components() {
             </table>
           </Card>
         </div>
-        <div className="col-12 col-lg-4 mt-2">
+        <div className="col-12 col-xl-6 col-hd-4 mt-2">
           <Card className="p-3 card--stretch">
             <h2 className="h5 color-light-grey mt-1">Team insights</h2>
             <ul className="news">
@@ -239,7 +239,7 @@ export default function components() {
             </ul>
           </Card>
         </div>
-        <div className="col-12 col-lg-4 mt-2">
+        <div className="col-12 col-hd-4 mt-2">
           <Card className="p-3 card--stretch">
             <h2 className="h5 color-light-grey mt-1">Fitlink News</h2>
             <ul className="news">

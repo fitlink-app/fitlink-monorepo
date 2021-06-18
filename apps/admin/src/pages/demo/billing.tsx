@@ -1,9 +1,144 @@
+import { AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
+import Card from '../../components/elements/Card'
+import Drawer from '../../components/elements/Drawer'
+import BillingForm from '../../components/forms/BillingForm'
+import IconCheck from '../../components/icons/IconCheck'
+import IconVisa from '../../components/icons/IconVisa'
 import Dashboard from '../../components/layouts/Dashboard'
+import {format, endOfMonth} from 'date-fns'
+
+const billingInfo = {
+  firstname: 'Paul',
+  lastname: 'Gosnell',
+  address1: '20-22 Wenlock Road',
+  address2: '',
+  city: 'London',
+  state: 'London',
+  country: {
+    value: 'UK',
+    label: 'United Kingdom'
+  },
+  postalcode: 'N1 7GU'
+}
 
 export default function components() {
+  const [drawContent, setDrawContent] = useState<
+    React.ReactNode | undefined | false
+  >(false)
+  const [warning, setWarning] = useState(false)
+
+
+  const EditBilling = () => {
+    setWarning(true)
+    setDrawContent(
+      <BillingForm
+        {...billingInfo}
+       />
+    )
+  }
+
+  const lastDayofMonth = () => {
+
+  }
+
   return (
     <Dashboard title="Billing">
       <h1 className="light">Billing</h1>
+      <div className="row mt-2">
+        <div className="col-12 col-lg-6 mt-2">
+          <Card className="p-3 card--stretch">
+            <p className="mb-0">
+              <small>
+                Current billing period ending { format(endOfMonth(new Date()), 'do MMMM, yyyy')}
+              </small>
+            </p>
+            <h2 className="h1 light mb-0">
+              £21.88
+            </h2>
+            <p className="color-grey">
+              For <strong>11</strong> active users. <strong>0.55%</strong> discount applied
+            </p>
+            <hr />
+            <h3 className="h5 color-light-grey m-0">Previous invoices</h3>
+          </Card>
+        </div>
+        <div className="col-12 col-lg-6 mt-2">
+          <Card className="p-3 card--stretch">
+            <h2 className="h5 color-light-grey m-0">Payment information</h2>
+            <div className="row mt-2">
+              <div className="col-2 text-center color-light-grey">
+                <IconVisa width="32px" height="32px" />
+              </div>
+              <div className="col">
+                <h4 className="light mb-0">************4242</h4>
+                <p>Expiry date: 12/2029</p>
+              </div>
+              <div className="col flex ai-c">
+                <div className="chip">Primary</div>
+                <div className="confirmed ml-1">
+                  <IconCheck />
+                </div>
+              </div>
+            </div>
+            <div className="mt-2">
+              <button className="button">Update payment information</button>
+            </div>
+            <hr />
+            <h3 className="h5 color-light-grey m-0">Billing information</h3>
+            <table className="static-table static-table--billing mt-2">
+              <tbody>
+                <tr>
+                  <th>First name</th>
+                  <td>{billingInfo.firstname}</td>
+                </tr>
+                <tr>
+                  <th>Last name</th>
+                  <td>{billingInfo.lastname}</td>
+                </tr>
+                <tr>
+                  <th>Address line 1</th>
+                  <td>{billingInfo.address1}</td>
+                </tr>
+                <tr>
+                  <th>Address line 2</th>
+                  <td>{billingInfo.address2}</td>
+                </tr>
+                <tr>
+                  <th>City</th>
+                  <td>{billingInfo.city}</td>
+                </tr>
+                <tr>
+                  <th>State / Province</th>
+                  <td>{billingInfo.state}</td>
+                </tr>
+                <tr>
+                  <th>Zip / Postal code</th>
+                  <td>{billingInfo.postalcode}</td>
+                </tr>
+                <tr>
+                  <th>Country</th>
+                  <td>{billingInfo.country.label}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div className="mt-2">
+              <button className="button" onClick={EditBilling}>Update billing address</button>
+            </div>
+          </Card>
+        </div>
+      </div>
+      <AnimatePresence initial={false}>
+        {drawContent && (
+          <Drawer
+            remove={() => setDrawContent(null)}
+            key="drawer"
+            warnBeforeClose={warning}
+            >
+            {drawContent}
+          </Drawer>
+        )}
+      </AnimatePresence>
     </Dashboard>
   )
 }

@@ -33,8 +33,16 @@ textarea {
   /* z-index: 20;
   position: relative; */
   text-align: left;
+  
   input {
-    height: auto;
+    height: auto !important;
+    margin: 0 !important;
+
+    &:focus, &:active {
+      outline: none;
+      border: 0;
+      box-shadow: none !important;
+    }
   }
 
   .input-block--inline & {
@@ -78,7 +86,7 @@ select[multiple] {
   input[type="checkbox"] + label {
     padding-left: 1.5rem;
     position: relative;
-    z-index: 2;
+    //z-index: 2;
 
     &:before {
       content: "";
@@ -250,7 +258,7 @@ select[multiple] {
   }
 }
 
-.basic-image-select {
+.basic-file-select {
   position: relative;
   display: flex;
   align-items: center;

@@ -1,14 +1,26 @@
 import { useState } from 'react'
 import Input from '../elements/Input'
 
-export default function InviteUser() {
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
+export type InviteUserProps = {
+  current?: {
+    firstName: string
+    lastName: string
+    email: string
+  }
+}
+
+export default function InviteUser({
+  current
+}:InviteUserProps) {
+  const [firstName, setFirstName] = useState(current.firstName || '')
+  const [lastName, setLastName] = useState(current.lastName || '')
+  const [email, setEmail] = useState(current.email || '')
 
   return (
-    <>
-      <h4 className="light mb-3">Invite a user to join your team</h4>
+    <form onSubmit={ (e) => e.preventDefault() }>
+      <h4 className="light mb-3">
+        { current ? 'Edit user details' : 'Invite a user to join your team' }
+      </h4>
       <Input
         name="firstname"
         placeholder="First name"
@@ -33,9 +45,9 @@ export default function InviteUser() {
       />
       <div className="text-right mt-2">
         <button className="button">
-          Invite user
+          { current ? 'Edit user' : 'Invite user' }
         </button>
       </div>
-    </>
+    </form>
   )
 }
