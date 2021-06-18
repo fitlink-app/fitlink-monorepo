@@ -18,7 +18,7 @@ type Credentials = {
 export type AuthContext = {
   user?: User
   api: Api
-  login: (credentials: Credentials) => Promise<void>
+  login: (credentials: Credentials) => Promise<AuthResultDto>
   logout: () => void
 }
 
