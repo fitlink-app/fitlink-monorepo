@@ -7,8 +7,8 @@ import IconCheck from '../../components/icons/IconCheck'
 import IconVisa from '../../components/icons/IconVisa'
 import Dashboard from '../../components/layouts/Dashboard'
 import {format, endOfMonth} from 'date-fns'
-import TableContainer from '../../components/table/TableContainer'
-import { toChipCell, toDateCell } from '../../components/table/helpers'
+import TableContainer from '../../components/Table/TableContainer'
+import { toChipCell, toDateCell } from '../../components/Table/helpers'
 import IconDownload from '../../components/icons/IconDownload'
 
 const billingInfo = {

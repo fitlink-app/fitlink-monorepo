@@ -1,8 +1,8 @@
 import Dashboard from '../../components/layouts/Dashboard'
-import TableContainer from '../../components/table/TableContainer'
+import TableContainer from '../../components/Table/TableContainer'
 import {
   toChipCell
-} from '../../components/table/helpers'
+} from '../../components/Table/helpers'
 import IconSearch from '../../components/icons/IconSearch'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dummy = require('../../services/dummy/activities.json')

@@ -4,7 +4,7 @@ import Drawer from '../../../components/elements/Drawer'
 import InviteUser from '../../../components/forms/InviteUser'
 import ImportUsers from '../../../components/forms/ImportUsers'
 import Dashboard from '../../../components/layouts/Dashboard'
-import TableContainer from '../../../components/table/TableContainer'
+import TableContainer from '../../../components/Table/TableContainer'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dummy = require('../../../services/dummy/team-admins.json')
 

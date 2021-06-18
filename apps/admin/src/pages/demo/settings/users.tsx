@@ -4,8 +4,8 @@ import Drawer from '../../../components/elements/Drawer'
 import InviteUser from '../../../components/forms/InviteUser'
 import ImportUsers from '../../../components/forms/ImportUsers'
 import Dashboard from '../../../components/layouts/Dashboard'
-import TableContainer from '../../../components/table/TableContainer'
-import { boolToIcon } from '../../../components/table/helpers'
+import TableContainer from '../../../components/Table/TableContainer'
+import { boolToIcon } from '../../../components/Table/helpers'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dummy = require('../../../services/dummy/team-users.json')
 

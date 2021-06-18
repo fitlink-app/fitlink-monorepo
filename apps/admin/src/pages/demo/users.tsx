@@ -7,12 +7,12 @@ sort table
 
 import { useState } from 'react'
 import Dashboard from '../../components/layouts/Dashboard'
-import TableContainer from '../../components/table/TableContainer'
+import TableContainer from '../../components/Table/TableContainer'
 import {
   toChipCell,
   toDateCell,
   toLocaleCell
-} from '../../components/table/helpers'
+} from '../../components/Table/helpers'
 import Drawer from '../../components/elements/Drawer'
 import Link from 'next/link'
 import IconSearch from '../../components/icons/IconSearch'
