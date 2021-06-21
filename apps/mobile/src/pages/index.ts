@@ -4,4 +4,5 @@ export * from './SignUp';
 export * from './ForgotPassword';
 export * from './Feed';
 export * from './Settings';
+export * from './UpdateEmail';
 export * from './Webview';

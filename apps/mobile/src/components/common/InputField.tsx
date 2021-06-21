@@ -3,6 +3,7 @@ import styled, {useTheme} from 'styled-components/native';
 import {TextInputProps, Platform} from 'react-native';
 import {Icon} from './Icon';
 import {FieldWrapper} from '../form';
+import {Label} from './Label';
 
 const Wrapper = styled(FieldWrapper)({width: '100%'});
 
@@ -34,12 +35,19 @@ const InputFieldIcon = styled(Icon)({
   paddingLeft: 5,
 });
 
+const InputFieldLabel = styled(Label).attrs({
+  type: 'body',
+  appearance: 'primary',
+})({marginBottom: 8});
+
 export interface InputFieldProps extends TextInputProps {
   /** Makes the border red if set true */
   error?: string;
 
   /** Enable button to clear field value */
   clearButtonEnabled?: boolean;
+
+  label?: string;
 }
 
 export const InputField = React.forwardRef(
@@ -57,6 +65,7 @@ export const InputField = React.forwardRef(
       multiline,
       clearButtonEnabled,
       onChangeText,
+      label,
       ...rest
     } = props;
 
@@ -74,6 +83,7 @@ export const InputField = React.forwardRef(
 
     return (
       <Wrapper {...{style, error}}>
+        {!!label?.length && <InputFieldLabel>{label}</InputFieldLabel>}
         <FieldContainer
           style={[
             {

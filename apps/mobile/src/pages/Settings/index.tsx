@@ -161,7 +161,7 @@ export const Settings = () => {
         <SettingsButton
           label={'E-mail address'}
           onPress={() => {
-            // TODO: Navigate to update email address screen
+            navigation.navigate('UpdateEmail');
           }}
         />
         <SettingsButton
