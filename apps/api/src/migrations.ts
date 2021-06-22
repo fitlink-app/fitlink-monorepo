@@ -29,6 +29,7 @@ import { UpatedProviderRelationshipAndSportRelationShip1623225545622 } from '../
 import { UpdateUserNamePassword1623652934525 } from '../database/migrations/1623652934525-UpdateUserNamePassword'
 import { UpdateGoalTypes1623699931634 } from '../database/migrations/1623699931634-UpdateGoalTypes'
 import { SimplifyGoalsDates1623703853664 } from '../database/migrations/1623703853664-SimplifyGoalsDates'
+import { AddUserFollowersTotal1623748154107 } from '../database/migrations/1623748154107-AddUserFollowersTotal'
 import { ImagesAddOwner1623913230113 } from '../database/migrations/1623913230113-ImagesAddOwner'
 import { AddedPolylineToHealthActivities1623922917753 } from '../database/migrations/1623922917753-AddedPolylineToHealthActivities'
 import { LeaguesStructureChanges1624261653546 } from '../database/migrations/1624261653546-LeaguesStructureChanges'
@@ -60,6 +61,7 @@ export default [
   UpdateUserNamePassword1623652934525,
   UpdateGoalTypes1623699931634,
   SimplifyGoalsDates1623703853664,
+  AddUserFollowersTotal1623748154107,
   ImagesAddOwner1623913230113,
   AddedPolylineToHealthActivities1623922917753,
   LeaguesStructureChanges1624261653546
