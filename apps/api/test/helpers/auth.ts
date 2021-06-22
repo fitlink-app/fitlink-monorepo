@@ -2,7 +2,7 @@ import { JwtService } from '@nestjs/jwt'
 import { JWTRoles } from '../../src/models'
 
 const jwtService = new JwtService({
-  secret: 'fitlink_jwt_secret',
+  secret: process.env.AUTH_JWT_SECRET,
   verifyOptions: {
     clockTimestamp: Date.now()
   }

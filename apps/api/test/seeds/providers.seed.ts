@@ -52,7 +52,6 @@ export async function ProvidersTeardown(name: string): Promise<void> {
       const result = await connection
         .getRepository(Provider)
         .delete({ user: { name } })
-      console.log(result)
     }
     async teardownDependencies() {
       await UsersTeardown(name)
