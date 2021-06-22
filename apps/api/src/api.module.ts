@@ -41,7 +41,7 @@ import { HealthActivitiesModule } from './modules/health-activities/health-activ
 import { ImagesModule } from './modules/images/images.module'
 import { LeaderboardsModule } from './modules/leaderboards/leaderboards.module'
 import { LeaderboardEntriesModule } from './modules/leaderboard-entries/leaderboard-entries.module'
-import { LeaguesInvitationsModule } from './modules/leagues-invitations/leagues-invitations.module'
+import { LeaguesInvitationModule } from './modules/leagues-invitations/leagues-invitations.module'
 import { LeaguesModule } from './modules/leagues/leagues.module'
 import { OrganisationsModule } from './modules/organisations/organisations.module'
 import { OrganisationsInvitationsModule } from './modules/organisations-invitations/organisations-invitations.module'
@@ -120,7 +120,7 @@ import { UsersInvitationsModule } from './modules/users-invitations/users-invita
     LeaderboardsModule,
     LeaderboardEntriesModule,
     LeaguesModule,
-    LeaguesInvitationsModule,
+    LeaguesInvitationModule,
     OrganisationsModule,
     OrganisationsInvitationsModule,
     ProvidersModule,

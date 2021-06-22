@@ -52,6 +52,9 @@ export class User extends CreatableEntity {
   @ManyToMany(() => League, (league) => league.users)
   leagues: League[]
 
+  @OneToMany(() => Provider, (provider) => provider.user)
+  owned_leagues: League[]
+
   @OneToMany(() => Provider, (provider) => provider.user, {
     cascade: ['remove'],
     onDelete: 'CASCADE'

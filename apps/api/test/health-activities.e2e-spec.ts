@@ -90,6 +90,8 @@ describe('Health Activities', () => {
   })
 
   it('POST /providers/strava/webhook Activity Overlapping Error', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+
     const mockPayload: StravaEventData = {
       aspect_type: 'create',
       event_time: 12039,
@@ -116,5 +118,6 @@ describe('Health Activities', () => {
     })
 
     expect(data.json().healthActivity).toBe(null)
+    expect(console.error).toHaveBeenCalled()
   })
 })

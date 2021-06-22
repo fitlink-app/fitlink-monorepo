@@ -75,7 +75,7 @@ describe('Users', () => {
     expect(result.json().password).toBeUndefined()
   })
 
-  it.only(`PUT /me 200 Updates self-user's data`, async () => {
+  it(`PUT /me 200 Updates self-user's data`, async () => {
     const result = await app.inject({
       method: 'PUT',
       url: `/me`,
@@ -91,7 +91,7 @@ describe('Users', () => {
     expect(result.json().affected).toEqual(1)
   })
 
-  it.only(`PUT /me 400 Fails to update with invalid data and shows error messages`, async () => {
+  it(`PUT /me 400 Fails to update with invalid data and shows error messages`, async () => {
     const result = await app.inject({
       method: 'PUT',
       url: `/me`,
@@ -108,7 +108,7 @@ describe('Users', () => {
     expect(result.json().errors.timezone).toContain('valid timezone')
   })
 
-  it.only(`PUT /me/avatar 200 Allows the self-user to set their avatar using image service`, async () => {
+  it(`PUT /me/avatar 200 Allows the self-user to set their avatar using image service`, async () => {
     const form = new FormData()
     const file1 = await readFile(__dirname + '/assets/1200x1200.png')
     form.append('image', file1)

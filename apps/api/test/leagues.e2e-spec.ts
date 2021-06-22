@@ -1,31 +1,51 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import * as faker from 'faker'
-import { Connection, getConnection, Repository } from 'typeorm'
-import { runSeeder, useSeeding } from 'typeorm-seeding'
+import { Connection } from 'typeorm'
+import { useSeeding } from 'typeorm-seeding'
+import { Image } from '../src/modules/images/entities/image.entity'
 import { CreateLeagueDto } from '../src/modules/leagues/dto/create-league.dto'
-import { League } from '../src/modules/leagues/entities/league.entity'
+import { UpdateLeagueDto } from '../src/modules/leagues/dto/update-league.dto'
+import {
+  League,
+  LeagueAccess
+} from '../src/modules/leagues/entities/league.entity'
 import { LeaguesModule } from '../src/modules/leagues/leagues.module'
-import { Sport } from '../src/modules/sports/entities/sport.entity'
+import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { Team } from '../src/modules/teams/entities/team.entity'
+import { User } from '../src/modules/users/entities/user.entity'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
+import { ImagesSetup } from './seeds/images.seed'
 import {
   LeaguesSetup,
   LeaguesTeardown,
   TeamAssignedLeagueSetup,
-  TeamAssignedLeagueTeardown
+  TeamAssignedLeagueTeardown,
+  OrganisationAssignedLeagueSetup,
+  OrganisationAssignedLeagueTeardown
 } from './seeds/leagues.seed'
 import { SportSetup, SportsTeardown } from './seeds/sport.seed'
+import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 
 describe('Leagues', () => {
   let app: NestFastifyApplication
-  let superadminHeaders
-  let teamAdminHeaders
+  let superadminHeaders: NodeJS.Dict<string>
+  let teamAdminHeaders: NodeJS.Dict<string>
+  let teamUserHeaders: NodeJS.Dict<string>
+  let authHeaders: NodeJS.Dict<string>
+  let authHeaders2: NodeJS.Dict<string>
+  let authHeaders3: NodeJS.Dict<string>
   let seeded_league: League
   let seeded_team: Team
+  let seeded_organisation: Organisation
   let team_assigned_league: League
-  let sportID: string
+  let organisation_assigned_league: League
+  let images: Image[]
+  let sportId: string
   let sportName: string
+  let user1: string
+  let user2: string
+  let user3: string
 
   beforeAll(async () => {
     app = await mockApp({
@@ -47,10 +67,23 @@ describe('Leagues', () => {
       singular: 'run'
     })
 
+    sportId = sport.id
+
     const leagues = await LeaguesSetup('Test League')
     team_assigned_league = await TeamAssignedLeagueSetup('Test Team League')
+    organisation_assigned_league = await OrganisationAssignedLeagueSetup(
+      'Test Organisation League'
+    )
 
-    sportID = sport.id
+    const users = await UsersSetup('Test League', 3)
+    user1 = users[0].id
+    user2 = users[1].id
+    user3 = users[2].id
+    authHeaders = getAuthHeaders({}, user1)
+    authHeaders2 = getAuthHeaders({}, user2)
+    authHeaders3 = getAuthHeaders({}, user3)
+
+    images = await ImagesSetup('Test League', 10)
 
     // Get Currently Seeded Data.
     seeded_league = leagues[0]
@@ -58,11 +91,261 @@ describe('Leagues', () => {
     // // Get the team name to use it's credentials for testing
     seeded_team = team_assigned_league.team
 
+    // Get the organisation
+    seeded_organisation = organisation_assigned_league.organisation
+
     // // Get the League that is already assigned to our team aka teams[0]
     if (seeded_team) {
       teamAdminHeaders = getAuthHeaders({ t_a: [seeded_team.id] })
     }
+
+    // Add a user to the team (authHeaders3)
+    await app
+      .get(Connection)
+      .getRepository(Team)
+      .createQueryBuilder()
+      .relation(Team, 'users')
+      .of(seeded_team.id)
+      .add(user3)
+
+    // Add a user to the team underneath the organisation
+    await app
+      .get(Connection)
+      .getRepository(Team)
+      .createQueryBuilder()
+      .relation(Team, 'users')
+      .of(seeded_organisation.teams[0].id)
+      .add(user2)
   })
+
+  afterAll(async () => {
+    await LeaguesTeardown('Test League')
+    await TeamAssignedLeagueTeardown('Test Team League')
+    await UsersTeardown('Test League')
+    await SportsTeardown(sportName)
+    await app.close()
+  })
+
+  it('POST /leagues 201 A user can create a private league', async () => {
+    const imageId = images.pop().id
+    const payload: CreateLeagueDto = {
+      name: 'Test League',
+      description: 'A league for testers',
+      sportId: sportId,
+      duration: 7,
+      repeat: true,
+      imageId
+    }
+    const data = await app.inject({
+      method: 'POST',
+      url: '/leagues',
+      headers: authHeaders,
+      payload
+    })
+
+    expect(data.statusCode).toEqual(201)
+    expect(data.json().name).toEqual('Test League')
+    expect(data.json().repeat).toEqual(true)
+    expect(data.json().duration).toEqual(7)
+    expect(data.json().sport.id).toEqual(sportId)
+    expect(data.json().owner.id).toEqual(user1)
+    expect(data.json().image.id).toEqual(imageId)
+  })
+
+  it('PUT /leagues 200 A user can edit their own private league', async () => {
+    const imageId = images.pop().id
+
+    const post = await app.inject({
+      method: 'POST',
+      url: '/leagues',
+      headers: authHeaders,
+      payload: {
+        name: 'Test League',
+        description: 'A league for testers',
+        sportId: sportId,
+        duration: 7,
+        repeat: true,
+        imageId
+      }
+    })
+
+    const payload: UpdateLeagueDto = {
+      name: 'Test League 2',
+      description: 'An updated league'
+    }
+
+    const put = await app.inject({
+      method: 'PUT',
+      url: `/leagues/${post.json().id}`,
+      headers: authHeaders,
+      payload
+    })
+
+    expect(put.statusCode).toEqual(200)
+
+    const data = await app.inject({
+      method: 'GET',
+      url: `/leagues/${post.json().id}`,
+      headers: authHeaders,
+      payload
+    })
+
+    expect(data.statusCode).toEqual(200)
+    expect(data.json().name).toEqual('Test League 2')
+    expect(data.json().description).toEqual('An updated league')
+  })
+
+  it("PUT /leagues 403 Another user cannot read or edit another user' private league", async () => {
+    const imageId = images.pop().id
+
+    const post = await app.inject({
+      method: 'POST',
+      url: '/leagues',
+      headers: authHeaders,
+      payload: {
+        name: 'Test League',
+        description: 'A league for testers',
+        sportId: sportId,
+        duration: 7,
+        repeat: true,
+        imageId
+      }
+    })
+
+    const payload: UpdateLeagueDto = {
+      name: 'Test League 2',
+      description: 'An updated league'
+    }
+
+    const put = await app.inject({
+      method: 'PUT',
+      url: `/leagues/${post.json().id}`,
+      headers: authHeaders2,
+      payload
+    })
+
+    const get = await app.inject({
+      method: 'GET',
+      url: `/leagues/${post.json().id}`,
+      headers: authHeaders2
+    })
+
+    expect(put.statusCode).toEqual(403)
+    expect(get.statusCode).toEqual(403)
+    expect(put.json().message).toContain('not have permission')
+    expect(get.json().message).toContain('not have permission')
+  })
+
+  it('POST /leagues 201 A superadmin can create a fully public league', async () => {
+    const imageId = images.pop().id
+    const payload: CreateLeagueDto = {
+      name: 'Public Test League',
+      description: 'A public league for testers',
+      sportId: sportId,
+      duration: 7,
+      repeat: true,
+      imageId,
+      access: LeagueAccess.Public
+    }
+    const post = await app.inject({
+      method: 'POST',
+      url: '/leagues',
+      headers: superadminHeaders,
+      payload
+    })
+
+    const get = await app.inject({
+      method: 'GET',
+      url: `/leagues/${post.json().id}`,
+      headers: authHeaders2
+    })
+
+    expect(post.statusCode).toEqual(201)
+    expect(get.json().name).toEqual('Public Test League')
+    expect(get.json().repeat).toEqual(true)
+    expect(get.json().duration).toEqual(7)
+    expect(get.json().owner).toBeUndefined()
+    expect(get.json().sport.id).toEqual(sportId)
+    expect(get.json().image.id).toEqual(imageId)
+  })
+
+  it('POST /leagues/:leagueId/join 201 A user can join any public league', async () => {
+    const league = await createPublicLeague()
+
+    const post = await app.inject({
+      method: 'POST',
+      url: `/leagues/${league.id}/join`,
+      headers: authHeaders
+    })
+
+    const get = await app.inject({
+      method: 'GET',
+      url: '/me/leagues',
+      headers: authHeaders,
+      query: {
+        page: '0',
+        limit: '100'
+      }
+    })
+
+    expect(post.statusCode).toEqual(201)
+    expect(post.json().success).toEqual(true)
+    expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
+      1
+    )
+  })
+
+  it('POST /leagues/:leagueId/leave 200 A user can leave any public league', async () => {
+    const league = await createPublicLeague()
+
+    const post = await app.inject({
+      method: 'POST',
+      url: `/leagues/${league.id}/join`,
+      headers: authHeaders
+    })
+
+    const get1 = await app.inject({
+      method: 'GET',
+      url: '/me/leagues',
+      headers: authHeaders,
+      query: {
+        page: '0',
+        limit: '100'
+      }
+    })
+
+    const leave = await app.inject({
+      method: 'POST',
+      url: `/leagues/${league.id}/leave`,
+      headers: authHeaders
+    })
+
+    const get2 = await app.inject({
+      method: 'GET',
+      url: '/me/leagues',
+      headers: authHeaders,
+      query: {
+        page: '0',
+        limit: '100'
+      }
+    })
+
+    // Join
+    expect(post.statusCode).toEqual(201)
+    expect(post.json().success).toEqual(true)
+    expect(
+      get1.json().results.filter((e) => e.id === league.id).length
+    ).toEqual(1)
+
+    // Leave
+    expect(leave.statusCode).toEqual(200)
+    expect(leave.json()).toEqual({ success: true })
+    expect(
+      get2.json().results.filter((e) => e.id === league.id).length
+    ).toEqual(0)
+  })
+
+  // Note that private league tests are found in leagues-invitations.e2e-spec.ts
 
   it('GET /leagues', async () => {
     const data = await app.inject({
@@ -72,7 +355,19 @@ describe('Leagues', () => {
     })
 
     expect(data.statusCode).toEqual(200)
-    expect(data.statusMessage).toContain('OK')
+    expect(data.json().results.length).toBeGreaterThan(0)
+  })
+
+  it('GET /leagues A user can retrieve all leagues including for teams/organisations they belong to or private leagues', async () => {
+    // Join the user to the team
+
+    const data = await app.inject({
+      method: 'GET',
+      url: '/leagues',
+      headers: authHeaders3
+    })
+
+    expect(data.statusCode).toEqual(200)
     expect(data.json().results.length).toBeGreaterThan(0)
   })
 
@@ -88,7 +383,7 @@ describe('Leagues', () => {
     expect(data.json().results.length).toBeGreaterThan(0)
   })
 
-  it(`GET /leagues/:id`, async () => {
+  it(`GET /leagues/:id A superadmin can get any league`, async () => {
     const data = await app.inject({
       method: 'GET',
       url: `/leagues/${seeded_league.id}`,
@@ -102,7 +397,60 @@ describe('Leagues', () => {
     expect(payload.name).toBeDefined()
   })
 
-  it(`GET /teams/teamId/leagues/:id`, async () => {
+  it(`GET /leagues/:id An ordinary user can get any public league or private league they have access to`, async () => {
+    const data = await app.inject({
+      method: 'GET',
+      url: `/leagues/${seeded_league.id}`,
+      headers: authHeaders
+    })
+
+    const payload = data.json()
+    expect(data.statusCode).toBe(200)
+    expect(data.statusMessage).toBe('OK')
+    expect(payload.id).toBeDefined()
+    expect(payload.name).toBeDefined()
+  })
+
+  it.only(`GET /leagues/:id A team user can get any team or organisation league they have access to`, async () => {
+    const data = await app.inject({
+      method: 'GET',
+      url: `/leagues/${team_assigned_league.id}`,
+      headers: authHeaders3
+    })
+
+    const data2 = await app.inject({
+      method: 'GET',
+      url: `/leagues/${team_assigned_league.id}`,
+      headers: authHeaders
+    })
+
+    const data3 = await app.inject({
+      method: 'GET',
+      url: `/leagues/${organisation_assigned_league.id}`,
+      headers: authHeaders3
+    })
+
+    const data4 = await app.inject({
+      method: 'GET',
+      url: `/leagues/${organisation_assigned_league.id}`,
+      headers: authHeaders2
+    })
+
+    expect(data.statusCode).toBe(200)
+    expect(data.json().id).toBe(team_assigned_league.id)
+
+    expect(data2.statusCode).toBe(403)
+    expect(data2.json().message).toContain('not have permission')
+
+    expect(data3.statusCode).toBe(403)
+    expect(data3.json().message).toContain('not have permission')
+
+    expect(data4.statusCode).toBe(200)
+    expect(data4.json().id).toBe(organisation_assigned_league.id)
+  })
+
+  // A team admin can access a team league
+  it(`GET /teams/:teamId/leagues/:id`, async () => {
     const data = await app.inject({
       method: 'GET',
       url: `/teams/${seeded_team.id}/leagues/${team_assigned_league.id}`,
@@ -116,11 +464,17 @@ describe('Leagues', () => {
     expect(payload.name).toBeDefined()
   })
 
-  it('POST /leagues', async () => {
+  it('POST /leagues 201 A superadmin can create a fully public league', async () => {
+    const imageId = images.pop().id
+
     const payload: CreateLeagueDto = {
       description: faker.name.jobDescriptor(),
       name: faker.name.jobTitle(),
-      sportId: sportID
+      sportId,
+      imageId,
+      duration: 7,
+      repeat: true,
+      access: LeagueAccess.Public
     }
     const data = await app.inject({
       method: 'POST',
@@ -128,19 +482,26 @@ describe('Leagues', () => {
       headers: superadminHeaders,
       payload: payload
     })
-    const parsed = data.json()
+
     expect(data.statusCode).toBe(201)
-    expect(data.statusMessage).toBe('Created')
-    expect(parsed.league.id).toBeDefined()
-    expect(parsed.league.name).toBeDefined()
-    expect(parsed.league.description).toBeDefined()
+
+    const json = data.json()
+    expect(json.id).toBeDefined()
+    expect(json.name).toBeDefined()
+    expect(json.description).toBeDefined()
+    expect(json.active_leaderboard.id).toBeDefined()
   })
 
   it('POST /teams/:teamId/leagues', async () => {
+    const imageId = images.pop().id
+
     const payload: CreateLeagueDto = {
       description: faker.name.jobDescriptor(),
       name: faker.name.jobTitle(),
-      sportId: sportID
+      sportId: sportId,
+      duration: 7,
+      repeat: false,
+      imageId
     }
     const data = await app.inject({
       method: 'POST',
@@ -148,12 +509,14 @@ describe('Leagues', () => {
       headers: teamAdminHeaders,
       payload: payload
     })
-    const parsed = data.json()
+    const json = data.json()
     expect(data.statusCode).toBe(201)
-    expect(data.statusMessage).toBe('Created')
-    expect(parsed.league.id).toBeDefined()
-    expect(parsed.league.name).toBeDefined()
-    expect(parsed.league.description).toBeDefined()
+    expect(json.id).toBeDefined()
+    expect(json.name).toBeDefined()
+    expect(json.description).toBeDefined()
+    expect(json.active_leaderboard.id).toBeDefined()
+    expect(json.team.id).toBeDefined()
+    expect(json.access).toEqual(LeagueAccess.Team)
   })
 
   it('PUT /leagues/:id', async () => {
@@ -170,10 +533,7 @@ describe('Leagues', () => {
     const parsed = data.json()
 
     expect(data.statusCode).toBe(200)
-    expect(data.statusMessage).toBe('OK')
-    expect(parsed.id).toBeDefined()
-    expect(parsed.name).toBeDefined()
-    expect(parsed.description).toBeDefined()
+    expect(parsed.affected).toBe(1)
   })
 
   it('PUT teams/:teamId/leagues/:id', async () => {
@@ -190,10 +550,7 @@ describe('Leagues', () => {
     const parsed = data.json()
 
     expect(data.statusCode).toBe(200)
-    expect(data.statusMessage).toBe('OK')
-    expect(parsed.id).toBeDefined()
-    expect(parsed.name).toBeDefined()
-    expect(parsed.description).toBeDefined()
+    expect(parsed.affected).toBe(1)
   })
 
   it('DELETE /leagues/:id', async () => {
@@ -222,10 +579,24 @@ describe('Leagues', () => {
     // await runSeeder(TeamAssignedLeagueSetup)
   })
 
-  afterAll(async () => {
-    await LeaguesTeardown('Test League')
-    await TeamAssignedLeagueTeardown('Test Team League')
-    await SportsTeardown(sportName)
-    await app.close()
-  })
+  async function createPublicLeague() {
+    const imageId = images.pop().id
+    const payload: CreateLeagueDto = {
+      name: 'Public Test League',
+      description: 'A public league for testers',
+      sportId: sportId,
+      duration: 7,
+      repeat: true,
+      imageId,
+      access: LeagueAccess.Public
+    }
+    const post = await app.inject({
+      method: 'POST',
+      url: '/leagues',
+      headers: superadminHeaders,
+      payload
+    })
+
+    return post.json()
+  }
 })
