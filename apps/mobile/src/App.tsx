@@ -6,6 +6,13 @@ import {AuthProvider, ModalProvider} from './contexts';
 import Router from './routes/router';
 import ThemeProvider from './theme/ThemeProvider';
 import {QueryPersistor} from 'query/QueryPersistor';
+import {Platform, UIManager} from 'react-native';
+
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 
 const App = () => {
   return (
