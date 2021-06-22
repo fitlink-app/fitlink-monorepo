@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, FormError, InputField, Label} from '@components';
+import {Button, FormError, InputField} from '@components';
 import {useForm, useMe} from '@hooks';
 import styled from 'styled-components/native';
 

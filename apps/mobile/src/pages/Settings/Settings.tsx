@@ -166,9 +166,7 @@ export const Settings = () => {
         />
         <SettingsButton
           label={'Update password'}
-          onPress={() => {
-            // TODO: Navigate to update password screen
-          }}
+          onPress={() => navigation.navigate('UpdatePassword')}
         />
         <SettingsButton
           label={'Log out'}
