@@ -6,11 +6,19 @@ import {
   Put,
   Param,
   Delete,
-  Query
+  Query,
+  BadRequestException,
+  HttpCode
 } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
-import { UpdateUserAvatarDto, UpdateUserDto } from './dto/update-user.dto'
+import {
+  UpdateUserAvatarDto,
+  UpdateUserDto,
+  UpdateUserEmailDto,
+  UpdateUserPasswordDto,
+  VerifyUserEmailDto
+} from './dto/update-user.dto'
 import { Iam } from '../../decorators/iam.decorator'
 import { Roles } from '../user-roles/entities/user-role.entity'
 import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
@@ -20,7 +28,6 @@ import {
   ApiResponse,
   ApiExcludeEndpoint,
   ApiQuery,
-  ApiBearerAuth,
   ApiBody
 } from '@nestjs/swagger'
 import {
@@ -33,6 +40,7 @@ import { PaginationQuery } from '../../helpers/paginate'
 import { JWTRoles } from '../../models'
 // import { Public } from '../../decorators/public.decorator'
 import { SearchUserDto } from './dto/search-user.dto'
+import { Public } from '../../decorators/public.decorator'
 
 @Controller()
 @ApiBaseResponses()
@@ -48,11 +56,8 @@ export class UsersController {
 
   @Put('me')
   @ApiResponse({ type: User, status: 200 })
-  updateSelf(
-    @AuthUser() user: AuthenticatedUser,
-    @Body() updateUserDto: UpdateUserDto
-  ) {
-    return this.usersService.update(user.id, updateUserDto)
+  updateSelf(@AuthUser() user: AuthenticatedUser, @Body() body: UpdateUserDto) {
+    return this.usersService.update(user.id, body)
   }
 
   @Delete('me')
@@ -66,9 +71,55 @@ export class UsersController {
   @ApiBody({ type: UpdateUserAvatarDto })
   deleteAvatar(
     @AuthUser() user: AuthenticatedUser,
-    @Body() updateUserAvatarDto: UpdateUserAvatarDto
+    @Body() body: UpdateUserAvatarDto
   ) {
-    return this.usersService.updateAvatar(user.id, updateUserAvatarDto.imageId)
+    return this.usersService.updateAvatar(user.id, body.imageId)
+  }
+
+  @Put('me/email')
+  @UpdateResponse()
+  @ApiBody({ type: UpdateUserEmailDto })
+  updateEmail(
+    @AuthUser() user: AuthenticatedUser,
+    @Body() body: UpdateUserEmailDto
+  ) {
+    return this.usersService.updateEmail(user.id, body.email)
+  }
+
+  @Put('me/password')
+  @UpdateResponse()
+  @ApiBody({ type: UpdateUserPasswordDto })
+  async updatePassword(
+    @AuthUser() user: AuthenticatedUser,
+    @Body() body: UpdateUserPasswordDto
+  ) {
+    const result = await this.usersService.verifyAndUpdatePassword(
+      user.id,
+      body.current_password,
+      body.new_password
+    )
+
+    if (!result) {
+      throw new BadRequestException(
+        'Unable to reset your password, did you type your previous password correctly?'
+      )
+    }
+
+    return result
+  }
+
+  @Public()
+  @Post('users/verify-email')
+  @UpdateResponse()
+  @HttpCode(200)
+  @ApiBody({ type: VerifyUserEmailDto })
+  async verifyEmail(@Body() verifyEmailDto: VerifyUserEmailDto) {
+    const result = await this.usersService.verifyEmail(verifyEmailDto.token)
+    if (!result) {
+      throw new BadRequestException('The token is expired or invalid')
+    } else {
+      return result
+    }
   }
 
   @Delete('me/avatar')

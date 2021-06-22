@@ -1,6 +1,6 @@
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { ConfigService } from '@nestjs/config'
-import { appendFile, readFile } from 'fs/promises'
+import { readFile, writeFile } from 'fs/promises'
 import { TemplatesType } from '../../src/modules/common/email.service'
 import { config } from 'dotenv'
 const path = require('path')
@@ -57,30 +57,49 @@ export async function sendTemplatedEmail(
   toAddresses: string[],
   fromAddress: string
 ) {
-  const email = getEmailTemplate(template, data, toAddresses, fromAddress)
-  await appendFile('email-debug.log', email)
+  const content = await appendEmailContent(
+    template,
+    data,
+    toAddresses,
+    fromAddress
+  )
+  await writeFile('email-debug.log', JSON.stringify(content, null, 2))
   return '1'
 }
 
-function getEmailTemplate(
+async function appendEmailContent(
   template: TemplatesType,
   data: NodeJS.Dict<string>,
   toAddresses: string[],
   fromAddress = 'jest@example.com'
 ) {
-  return `
--------------------------
-Template: ${template}
-To: ${toAddresses.join(',')}
-From: ${fromAddress}
--------------------------
-${JSON.stringify(data, null, 2)}
-`
+  const content = await getEmailContent()
+  content.push({
+    data,
+    template,
+    toAddresses,
+    fromAddress
+  })
+  return content
 }
 
 export async function emailHasContent(search: string) {
   const content = await readFile('email-debug.log')
   return content.toString().toLowerCase().indexOf(search.toLowerCase()) > -1
+}
+
+export async function getEmailContent() {
+  try {
+    const content = await readFile('email-debug.log')
+    return JSON.parse(content.toString()) as {
+      template: string
+      data: NodeJS.Dict<string>
+      toAddresses: string[]
+      fromAddress: string
+    }[]
+  } catch (e) {
+    return []
+  }
 }
 
 export async function timeout(ms: number): Promise<void> {
