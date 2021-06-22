@@ -411,7 +411,7 @@ describe('Leagues', () => {
     expect(payload.name).toBeDefined()
   })
 
-  it.only(`GET /leagues/:id A team user can get any team or organisation league they have access to`, async () => {
+  it(`GET /leagues/:id A team user can get any team or organisation league they have access to`, async () => {
     const data = await app.inject({
       method: 'GET',
       url: `/leagues/${team_assigned_league.id}`,
