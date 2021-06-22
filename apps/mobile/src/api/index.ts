@@ -19,4 +19,8 @@ export function getErrors(e: ResponseError) {
   } as RequestError;
 }
 
+axios.interceptors.request.use(
+  config => new Promise(resolve => setTimeout(() => resolve(config), 600)),
+);
+
 export default makeApi(axios);

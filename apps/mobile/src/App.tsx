@@ -2,9 +2,10 @@ import React from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {AppBackground} from '@components';
 import {withQueryClient} from '@query';
-import {AuthProvider} from './contexts';
+import {AuthProvider, ModalProvider} from './contexts';
 import Router from './routes/router';
 import ThemeProvider from './theme/ThemeProvider';
+import {QueryPersistor} from 'query/QueryPersistor';
 
 const App = () => {
   return (
@@ -12,7 +13,11 @@ const App = () => {
       <ThemeProvider>
         <AppBackground>
           <AuthProvider>
-            <Router />
+            <QueryPersistor>
+              <ModalProvider>
+                <Router />
+              </ModalProvider>
+            </QueryPersistor>
           </AuthProvider>
         </AppBackground>
       </ThemeProvider>
