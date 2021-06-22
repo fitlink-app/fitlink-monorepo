@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import styled from 'styled-components/native';
 import {Card} from './Card';
 import {Button, ButtonProps} from './Button';
@@ -50,12 +50,12 @@ export const Modal: React.FC<ModalProps> = ({
     buttons?.length ? (
       <ButtonsContainer>
         {buttons?.map((buttonProps, index) => (
-          <>
-            <Button key={index} {...buttonProps} />
+          <Fragment key={index}>
+            <Button {...buttonProps} />
             {index !== buttons.length - 1 && (
               <ButtonSpacer key={`spacer_${index}`} />
             )}
-          </>
+          </Fragment>
         ))}
       </ButtonsContainer>
     ) : null;

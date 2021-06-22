@@ -127,8 +127,10 @@ export const ModalProvider: React.FC = ({children}) => {
     close(components[components.length - 1].id);
   }
 
-  const renderComponents = components.map(modalComponent => (
-    <Fragment key={modalComponent.id}>{modalComponent.component}</Fragment>
+  const renderComponents = components.map((modalComponent, index) => (
+    <Fragment key={modalComponent.id + index}>
+      {modalComponent.component}
+    </Fragment>
   ));
 
   const animatedStyle = {
