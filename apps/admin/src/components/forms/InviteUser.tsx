@@ -12,9 +12,9 @@ export type InviteUserProps = {
 export default function InviteUser({
   current
 }:InviteUserProps) {
-  const [firstName, setFirstName] = useState(current.firstName || '')
-  const [lastName, setLastName] = useState(current.lastName || '')
-  const [email, setEmail] = useState(current.email || '')
+  const [firstName, setFirstName] = useState(current?.firstName || '')
+  const [lastName, setLastName] = useState(current?.lastName || '')
+  const [email, setEmail] = useState(current?.email || '')
 
   return (
     <form onSubmit={ (e) => e.preventDefault() }>

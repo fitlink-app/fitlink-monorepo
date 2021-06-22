@@ -1,7 +1,9 @@
 import { format } from 'date-fns'
 import IconCheck from '../icons/IconCheck'
 import IconClose from '../icons/IconClose'
+
 export const toDateCell = ({ value }) => {
+  if (value === '') return '-'
   return format(new Date(value), 'yyyy-MM-dd')
 }
 
