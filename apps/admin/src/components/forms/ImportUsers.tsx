@@ -2,7 +2,7 @@ import { useState } from 'react'
 import IconClose from '../icons/IconClose'
 import IconTrash from '../icons/IconTrash'
 import IconUpload from '../icons/IconUpload'
-import TableContainer from '../table/TableContainer'
+import TableContainer from '../Table/TableContainer'
 
 export default function ImportUsers() {
   const [users, setUsers] = useState([])

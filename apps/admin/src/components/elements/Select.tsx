@@ -66,6 +66,12 @@ const Select: React.FC<SelectProps> = (props) => {
       padding: 0,
       border: 0
     }),
+    input: (provided) => ({
+      ...provided,
+      padding: 0,
+      margin: 0,
+      border: 0
+    }),
     option: (provided, state) => ({
       ...provided,
       backgroundColor: state.isSelected ? '#eee' : '#fff',

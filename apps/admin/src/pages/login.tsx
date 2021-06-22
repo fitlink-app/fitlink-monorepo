@@ -25,7 +25,7 @@ const Login = () => {
       {user && JSON.stringify(user)}
       {isError && getErrorMessage(error)}
       {isSuccess && JSON.stringify(jwtDecode<JwtPayload>(data.access_token))}
-
+      <h1>Login</h1>
       <div>
         <label>Email</label>
         <input

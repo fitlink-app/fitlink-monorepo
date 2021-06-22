@@ -1,10 +1,19 @@
-import {Avatar, Button, Navbar, NAVBAR_HEIGHT} from '@components';
-import {UserGoalPreferences, useSettings} from '@hooks';
+import {
+  Avatar,
+  Button,
+  Label,
+  Modal,
+  Navbar,
+  NAVBAR_HEIGHT,
+  TouchHandler,
+} from '@components';
+import {useModal, UserGoalPreferences, useSettings} from '@hooks';
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
-import {Platform, ScrollView} from 'react-native';
+import {Keyboard, Platform, ScrollView, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
+import {UnitSystem} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {
   CategoryLabel,
   SettingsButton,
@@ -43,6 +52,7 @@ export const Settings = () => {
   const navigation = useNavigation();
 
   const settings = useSettings();
+  const {open, close} = useModal();
 
   // TODO: Hook up with state
   // TODO: Add Avatar url once API supports it
@@ -99,9 +109,31 @@ export const Settings = () => {
     settings.setGoals(parsedGoals);
   };
 
+  const handleOnSavePressed = async () => {
+    Keyboard.dismiss();
+
+    // TODO: Show loading overlay
+
+    await settings.submit();
+    navigation.goBack();
+  };
+
   return (
     <Wrapper>
-      <Navbar backButtonIcon={'times'} title="Settings" overlay />
+      <Navbar
+        rightComponent={
+          settings.didSettingsChange ? (
+            <TouchHandler onPress={handleOnSavePressed}>
+              <Label bold appearance={'accent'}>
+                Save
+              </Label>
+            </TouchHandler>
+          ) : undefined
+        }
+        backButtonIcon={'times'}
+        title="Settings"
+        overlay
+      />
       <ScrollView
         contentContainerStyle={{
           marginTop: NAVBAR_HEIGHT + insets.top,
@@ -129,20 +161,37 @@ export const Settings = () => {
         <SettingsButton
           label={'E-mail address'}
           onPress={() => {
-            // TODO: Navigate to update email address screen
+            navigation.navigate('UpdateEmail');
           }}
         />
         <SettingsButton
           label={'Update password'}
-          onPress={() => {
-            // TODO: Navigate to update password screen
-          }}
+          onPress={() => navigation.navigate('UpdatePassword')}
         />
         <SettingsButton
           label={'Log out'}
           icon={'sign-out'}
           onPress={() => {
-            // TODO: Show logout confirmation modal
+            open(id => {
+              return (
+                <Modal
+                  title={'Log out'}
+                  description={'Are you sure you want to log out?'}
+                  buttons={[
+                    {
+                      text: 'Log out',
+                      type: 'danger',
+                      onPress: () => close(id),
+                    },
+                    {
+                      text: 'Stay',
+                      textOnly: true,
+                      onPress: () => close(id),
+                    },
+                  ]}
+                />
+              );
+            });
           }}
         />
 
@@ -150,7 +199,7 @@ export const Settings = () => {
         <CategoryLabel>Trackers</CategoryLabel>
         {Platform.OS === 'android' && <SettingsButton label={'Google Fit'} />}
         {Platform.OS === 'ios' && <SettingsButton label={'Apple Health'} />}
-        <SettingsButton label={'Strava'} />
+        <SettingsButton label={'Strava'} onPress={() => {}} />
         <SettingsButton label={'Fitbit'} />
 
         {/* Goals */}
@@ -214,8 +263,18 @@ export const Settings = () => {
         {/* Units */}
         <CategoryLabel>Units</CategoryLabel>
 
-        <SettingsButton label={'Miles'} accent={true} icon={'check'} />
-        <SettingsButton label={'Kilometres'} accent={false} icon={'none'} />
+        <SettingsButton
+          label={'Miles'}
+          accent={settings.unitSystem === 'imperial'}
+          icon={settings.unitSystem === 'imperial' ? 'check' : 'none'}
+          onPress={() => settings.setUnitSystem('imperial' as UnitSystem)}
+        />
+        <SettingsButton
+          label={'Kilometres'}
+          accent={settings.unitSystem === 'metric'}
+          icon={settings.unitSystem === 'metric' ? 'check' : 'none'}
+          onPress={() => settings.setUnitSystem('metric' as UnitSystem)}
+        />
 
         {/* Privacy */}
         <CategoryLabel>Privacy</CategoryLabel>
@@ -267,7 +326,34 @@ export const Settings = () => {
         <SettingsButton label={`Version 3.0.0`} />
 
         <DeleteButtonWrapper>
-          <Button text={'Delete my account'} type={'danger'} />
+          <Button
+            text={'Delete my account'}
+            type={'danger'}
+            onPress={() =>
+              open(id => {
+                return (
+                  <Modal
+                    title={'Delete Account?'}
+                    description={
+                      'Are you sure you want to delete your account? This action is irreversible.'
+                    }
+                    buttons={[
+                      {
+                        text: 'Delete My Account',
+                        type: 'danger',
+                        onPress: () => close(id),
+                      },
+                      {
+                        text: 'Back',
+                        textOnly: true,
+                        onPress: () => close(id),
+                      },
+                    ]}
+                  />
+                );
+              })
+            }
+          />
         </DeleteButtonWrapper>
       </ScrollView>
     </Wrapper>

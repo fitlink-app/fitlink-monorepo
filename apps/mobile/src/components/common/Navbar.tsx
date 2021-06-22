@@ -19,6 +19,7 @@ const ContentContainer = styled.View({
   height: NAVBAR_HEIGHT,
   flexDirection: 'row',
   justifyContent: 'space-between',
+  alignItems: 'center',
 });
 
 const Content = styled.View({justifyContent: 'center', paddingHorizontal: 5});
