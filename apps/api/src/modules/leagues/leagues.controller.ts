@@ -255,8 +255,11 @@ export class LeaguesController {
     @User() authUser: AuthenticatedUser
   ) {
     // A non-superadmin tries to create a public league
-    const league = await this.leaguesService.findOne(leagueId)
-    if (league.access === LeagueAccess.Private) {
+    const league = await this.leaguesService.findOneAccessibleToUser(
+      leagueId,
+      authUser.id
+    )
+    if (!league) {
       throw new ForbiddenException(
         'You do not have permission to join this league'
       )

@@ -19,8 +19,11 @@ describe('Health Activities', () => {
   let providerService: MockType<ProvidersService>
   let seededUser: User
   let sportId
+  let spyConsole
 
   beforeAll(async () => {
+    spyConsole = jest.spyOn(console, 'error').mockImplementation(() => {})
+
     app = await mockApp({
       imports: [ProvidersModule, HealthActivitiesModule],
       providers: []
@@ -47,6 +50,7 @@ describe('Health Activities', () => {
     await ProvidersTeardown('StravaHealthActivityTest')
     await app.get(Connection).close()
     await app.close()
+    spyConsole.mockRestore()
   })
 
   it('Pleases', () => {
@@ -90,8 +94,6 @@ describe('Health Activities', () => {
   })
 
   it('POST /providers/strava/webhook Activity Overlapping Error', async () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {})
-
     const mockPayload: StravaEventData = {
       aspect_type: 'create',
       event_time: 12039,

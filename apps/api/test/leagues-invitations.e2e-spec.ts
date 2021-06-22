@@ -1,30 +1,22 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { Connection, getConnection, Repository } from 'typeorm'
+import { Connection, Repository } from 'typeorm'
 import { mockApp } from './helpers/app'
-import { emailHasContent, mockConfigVariable } from './helpers/mocking'
+import { emailHasContent } from './helpers/mocking'
 import { getAuthHeaders } from './helpers/auth'
-import { TeamsModule } from '../src/modules/teams/teams.module'
-import { CreateLeaguesInvitationDto } from '../src/modules/leagues-invitations/dto/create-leagues-invitation.dto'
 import { League } from '../src/modules/leagues/entities/league.entity'
-import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { useSeeding } from 'typeorm-seeding'
 import { LeaguesSetup, LeaguesTeardown } from './seeds/leagues.seed'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
-import { User } from '../src/modules/users/entities/user.entity'
 import { LeaguesModule } from '../src/modules/leagues/leagues.module'
 import { JwtService } from '@nestjs/jwt'
-import { ConfigService } from '@nestjs/config'
 import { LeaguesInvitationsService } from '../src/modules/leagues-invitations/leagues-invitations.service'
 
-describe('Activities', () => {
+describe('Leagues Invitations', () => {
   let app: NestFastifyApplication
-  let superadminHeaders
   let league: League
   let leaguesRepository: Repository<League>
-  let organisation: Organisation
-  let user1, user2, user3, user4
-  let auth1, auth2, auth3, auth4
-  let anotherUser: User
+  let user1, user2, user3
+  let auth1, auth2
 
   beforeAll(async () => {
     app = await mockApp({
@@ -50,7 +42,6 @@ describe('Activities', () => {
 
     auth1 = getAuthHeaders({}, user1.id)
     auth2 = getAuthHeaders({}, user2.id)
-    auth3 = getAuthHeaders({}, user3.id)
 
     // Set the league owner to the auth user
     await leaguesRepository

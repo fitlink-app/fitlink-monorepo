@@ -222,9 +222,16 @@ export class LeaguesService {
   queryFindAccessibleToUser(userId: string) {
     return this.leaguesRepository
       .createQueryBuilder('league')
+      .leftJoinAndSelect('league.sport', 'sport')
+      .leftJoinAndSelect('league.image', 'image')
+      .leftJoinAndSelect('league.team', 'leagueTeam')
+      .leftJoinAndSelect('league.organisation', 'leagueOrganisation')
+      .leftJoinAndSelect('leagueTeam.avatar', 'leagueTeamAvatar')
+      .leftJoinAndSelect(
+        'leagueOrganisation.avatar',
+        'leagueOrganisationAvatar'
+      )
       .leftJoin('league.users', 'leagueUser')
-      .leftJoin('league.team', 'leagueTeam')
-      .leftJoin('league.organisation', 'leagueOrganisation')
       .leftJoin('leagueTeam.users', 'teamUser')
       .leftJoin('leagueOrganisation.teams', 'organisationTeam')
       .leftJoin('organisationTeam.users', 'organisationUser')
@@ -259,6 +266,7 @@ export class LeaguesService {
           userId
         }
       )
+      .orderBy('league.created_at', 'DESC')
   }
 
   async joinLeague(leagueId: string, userId: string) {

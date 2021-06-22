@@ -12,7 +12,6 @@ import {
 import { LeaguesModule } from '../src/modules/leagues/leagues.module'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { Team } from '../src/modules/teams/entities/team.entity'
-import { User } from '../src/modules/users/entities/user.entity'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
 import { ImagesSetup } from './seeds/images.seed'
@@ -31,7 +30,6 @@ describe('Leagues', () => {
   let app: NestFastifyApplication
   let superadminHeaders: NodeJS.Dict<string>
   let teamAdminHeaders: NodeJS.Dict<string>
-  let teamUserHeaders: NodeJS.Dict<string>
   let authHeaders: NodeJS.Dict<string>
   let authHeaders2: NodeJS.Dict<string>
   let authHeaders3: NodeJS.Dict<string>
@@ -99,6 +97,15 @@ describe('Leagues', () => {
       teamAdminHeaders = getAuthHeaders({ t_a: [seeded_team.id] })
     }
 
+    // Add a user to the league
+    await app
+      .get(Connection)
+      .getRepository(League)
+      .createQueryBuilder()
+      .relation(League, 'users')
+      .of(seeded_league.id)
+      .add(user1)
+
     // Add a user to the team (authHeaders3)
     await app
       .get(Connection)
@@ -121,6 +128,7 @@ describe('Leagues', () => {
   afterAll(async () => {
     await LeaguesTeardown('Test League')
     await TeamAssignedLeagueTeardown('Test Team League')
+    await OrganisationAssignedLeagueTeardown('Test Organisation League')
     await UsersTeardown('Test League')
     await SportsTeardown(sportName)
     await app.close()
@@ -369,6 +377,9 @@ describe('Leagues', () => {
 
     expect(data.statusCode).toEqual(200)
     expect(data.json().results.length).toBeGreaterThan(0)
+    expect(
+      data.json().results.filter((e) => !!(e.team && e.team.id)).length
+    ).toBeGreaterThan(0)
   })
 
   it('GET /teams/:teamId/leagues', async () => {
@@ -406,8 +417,7 @@ describe('Leagues', () => {
 
     const payload = data.json()
     expect(data.statusCode).toBe(200)
-    expect(data.statusMessage).toBe('OK')
-    expect(payload.id).toBeDefined()
+    expect(payload.id).toBe(seeded_league.id)
     expect(payload.name).toBeDefined()
   })
 
@@ -438,6 +448,7 @@ describe('Leagues', () => {
 
     expect(data.statusCode).toBe(200)
     expect(data.json().id).toBe(team_assigned_league.id)
+    expect(data.json().team.avatar).toBeDefined()
 
     expect(data2.statusCode).toBe(403)
     expect(data2.json().message).toContain('not have permission')
@@ -447,6 +458,7 @@ describe('Leagues', () => {
 
     expect(data4.statusCode).toBe(200)
     expect(data4.json().id).toBe(organisation_assigned_league.id)
+    expect(data4.json().organisation.avatar).toBeDefined()
   })
 
   // A team admin can access a team league
@@ -578,6 +590,11 @@ describe('Leagues', () => {
     // After we're done deleting the seeded data we need to re run it.
     // await runSeeder(TeamAssignedLeagueSetup)
   })
+
+  // TODO: This work is still only partially complete:
+  // Organisation and team creation / edit / delete of leagues
+  // Organisation-wide leagues
+  // Team-wide leagues
 
   async function createPublicLeague() {
     const imageId = images.pop().id

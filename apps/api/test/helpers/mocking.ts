@@ -9,6 +9,8 @@ const dotenv = config({
   path: path.join(__dirname, '../../../..', '.env.test')
 })
 
+export const env = dotenv.parsed
+
 export const mockRepositoryProvider = (entity) => {
   return {
     provide: getRepositoryToken(entity),
