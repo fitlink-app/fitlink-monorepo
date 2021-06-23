@@ -37,7 +37,7 @@ export default function components() {
       <h1 className="light">Settings</h1>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">
-          <Card className="p-3 card--stretch">
+          <Card className="p-3 card--stretch pb-4">
             <h2 className="h5 color-light-grey m-0">General account settings</h2>
             <Input
               name="company"
@@ -69,7 +69,7 @@ export default function components() {
               />
             <p className="pl-6">Receive important information, updates, and helpful tips to boost your employee wellness campaigns.</p>
             <Checkbox
-              label="User bewsletter"
+              label="User newsletter"
               name="admin"
               checked={true}
               showSwitch={true}
