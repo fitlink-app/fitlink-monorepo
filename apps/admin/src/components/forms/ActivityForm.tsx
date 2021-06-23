@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Currency from '../elements/Currency'
+import Checkbox from '../elements/Checkbox'
 import Input from '../elements/Input'
 import Select from '../elements/Select'
 import LocationSelect from '../elements/LocationSelect'
@@ -14,6 +15,7 @@ export type InviteUserProps = {
     organizer_url: string
     organizer_telephone: string
     organizer_email: string
+    organizer_image: string
     meeting_point_text: string
     lat: string
     lng: string
@@ -51,10 +53,12 @@ export default function ActivityForm({
   const [meeting_point_text, setMeeting_point_text] = useState(current?.meeting_point_text || '')
   const [lat, setLat] = useState(current?.lat || '')
   const [lng, setLng] = useState(current?.lng || '')
+  const [showOrg, setShowOrg] = useState(current?.organizer_name ? true : false)
   const [organizer_name, setOrganizer_name] = useState(current?.organizer_name || '')
   const [organizer_url, setOrganizer_url] = useState(current?.organizer_url || '')
   const [organizer_telephone, setOrganizer_telephone] = useState(current?.organizer_telephone || '')
   const [organizer_email, setOrganizer_email] = useState(current?.organizer_email || '')
+  const [organizer_image, setOrganizer_image] = useState(current?.organizer_email || '')
 
   return (
     <form onSubmit={ (e) => e.preventDefault() }>
@@ -113,6 +117,47 @@ export default function ActivityForm({
           setLat(lat)
         }}
       />
+      <Checkbox
+        label="Show organisers details"
+        name="showorg"
+        checked={showOrg}
+        showSwitch={true}
+        onChange={(v) => setShowOrg(v)}
+      />
+
+      { showOrg &&
+        <>
+          <Input
+            name="organizer_name"
+            placeholder="Organisers name"
+            label="Organisers name"
+            value={organizer_name}
+            onChange={(v) => setOrganizer_name(v)}
+          />
+          <Input
+            name="organizer_url"
+            placeholder="https://"
+            label="Organisers URL"
+            value={organizer_url}
+            onChange={(v) => setOrganizer_url(v)}
+          />
+          <Input
+            name="organizer_telephone"
+            placeholder="(000) 0000 0000"
+            label="Organisers telephone number"
+            value={organizer_telephone}
+            onChange={(v) => setOrganizer_telephone(v)}
+          />
+          <Input
+            name="organizer_email"
+            placeholder="hello@organiser.com"
+            label="Organisers email"
+            value={organizer_email}
+            onChange={(v) => setOrganizer_email(v)}
+          />
+        </>
+      }
+
       <div className="text-right mt-2">
         <button className="button">
           { current ? 'Edit activity' : 'Create activity' }
