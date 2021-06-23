@@ -13,7 +13,12 @@ const fetchUsers = ({
 }: {
   pageParam?: number | undefined;
   query: string;
-}) => api.get<any>(`/users/search?q=${query}&page=${pageParam}&limit=${limit}`);
+}) =>
+  api.list<UserPublic>(`/users/search`, {
+    page: pageParam,
+    q: query,
+    limit,
+  });
 
 export function useSearchUsers(query: string) {
   return useInfiniteQuery<ListResponse<UserPublic>, Error>(
