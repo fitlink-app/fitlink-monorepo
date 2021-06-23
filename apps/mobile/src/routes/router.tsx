@@ -13,8 +13,9 @@ import {
   createStackNavigator,
 } from '@react-navigation/stack';
 import {RootStackParamList} from './types';
-import {Settings} from 'pages';
+import {Webview} from 'pages';
 import {CustomInterpolators} from './interpolators';
+import {SettingsNavigator} from './Settings';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -54,11 +55,13 @@ export default function Router() {
           />
         )}
 
+        <Stack.Screen name={'Settings'} component={SettingsNavigator} />
+
         <Stack.Screen
-          name={'Settings'}
-          component={Settings}
+          name={'Webview'}
+          component={Webview}
           options={{
-            cardStyleInterpolator: CustomInterpolators.forVerticalWithOverlay,
+            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
           }}
         />
       </Stack.Navigator>

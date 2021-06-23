@@ -1,61 +1,183 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Query
+} from '@nestjs/common'
 import { ApiBody, ApiResponse } from '@nestjs/swagger'
+import { User } from '../../decorators/authenticated-user.decorator'
 import { Iam } from '../../decorators/iam.decorator'
 import {
   ApiBaseResponses,
   DeleteResponse,
+  PaginationBody,
+  SuccessResponse,
   UpdateResponse
 } from '../../decorators/swagger.decorator'
+import { PaginationQuery } from '../../helpers/paginate'
+import { AuthenticatedUser } from '../../models'
 import { Roles } from '../user-roles/entities/user-role.entity'
 import { CreateLeagueDto } from './dto/create-league.dto'
 import { UpdateLeagueDto } from './dto/update-league.dto'
-import { League } from './entities/league.entity'
+import {
+  JoinPrivateLeagueDto,
+  JoinPrivateLeagueResultDto
+} from './dto/join-private-league.dto'
+import { League, LeagueAccess } from './entities/league.entity'
 import { LeaguesService } from './leagues.service'
+import { LeaguesInvitationsService } from '../leagues-invitations/leagues-invitations.service'
 
 @ApiBaseResponses()
 @Controller()
 export class LeaguesController {
-  constructor(private readonly leaguesService: LeaguesService) {}
+  constructor(
+    private readonly leaguesService: LeaguesService,
+    private readonly leaguesInvitationsService: LeaguesInvitationsService
+  ) {}
 
   /**
-   * Superadmins typically create public leagues
+   * 1. Anyone can create a private league
+   * 2. Only superadmin can create a public league
+   * All other scenarios are handled by nested routes (e..g /team/ /organisation/ routes)
+   *
    * @param createLeagueDto
    * @returns
    */
-  @Iam(Roles.SuperAdmin)
   @Post('/leagues')
   @ApiResponse({ type: League, status: 201 })
-  create(@Body() createLeagueDto: CreateLeagueDto) {
-    return this.leaguesService.create(createLeagueDto)
+  create(
+    @Body() createLeagueDto: CreateLeagueDto,
+    @User() authUser: AuthenticatedUser
+  ) {
+    // A non-superadmin tries to create a public league
+    if (
+      createLeagueDto.access !== LeagueAccess.Private &&
+      !authUser.isSuperAdmin()
+    ) {
+      throw new ForbiddenException(
+        'You do not have permission to create non-private leagues'
+      )
+    }
+
+    let options
+
+    if (!authUser.isSuperAdmin()) {
+      options = { userId: authUser.id }
+    }
+
+    return this.leaguesService.create(createLeagueDto, options)
   }
 
   /**
-   * Team admins create leagues for their team
+   * 1. Owner of the league can update the league (but cannot set to public)
+   * 2. Superadmin can update any league
+   *
+   * All other scenarios are handled by nested routes (e..g /team/ /organisation/ routes)
+   * @param id
+   * @param updateLeagueDto
+   * @returns
+   */
+  @Put('/leagues/:id')
+  @ApiBody({ type: UpdateLeagueDto })
+  @UpdateResponse()
+  async update(
+    @Param('id') id: string,
+    @Body() updateLeagueDto: UpdateLeagueDto,
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      // A non-superadmin tries to update a league to public
+      if (updateLeagueDto.access !== LeagueAccess.Private) {
+        throw new ForbiddenException(
+          'You do not have permission to create non-private leagues'
+        )
+      }
+
+      if (!(await this.leaguesService.isOwnedBy(id, authUser.id))) {
+        throw new ForbiddenException(
+          'You do not have permission to edit this league'
+        )
+      }
+    }
+
+    return this.leaguesService.update(id, updateLeagueDto)
+  }
+
+  /**
+   * Admins create leagues for their team / organisation
    * @param createLeagueDto
    * @param teamId
    * @returns
    */
 
-  @Iam(Roles.TeamAdmin)
-  @Post('/teams/:teamId/leagues')
+  @Iam(Roles.TeamAdmin, Roles.OrganisationAdmin)
+  @Post([
+    '/teams/:teamId/leagues',
+    '/organisations/:organisationId/teams/:teamId/leagues'
+  ])
   @ApiResponse({ type: League, status: 201 })
   teamCreate(
     @Body() createLeagueDto: CreateLeagueDto,
-    @Param('teamId') teamId: string
+    @Param('teamId') teamId: string,
+    @Param('organisationId') organisationId: string
   ) {
-    return this.leaguesService.create(createLeagueDto, teamId)
+    return this.leaguesService.create(createLeagueDto, {
+      teamId,
+      organisationId
+    })
   }
 
   /**
-   * Superadmin can retrieve all leagues
-   * This should typically be public leagues
+   * 1. Superadmin can retrieve all leagues
+   * 2. Ordinary users retrieve all public leagues
+   * 3. Users belonging to teams and organisations can retrieve these leagues
    * @returns
    */
-  @Iam(Roles.SuperAdmin)
   @Get('/leagues')
   @ApiResponse({ type: League, isArray: true, status: 200 })
-  findAll() {
-    return this.leaguesService.findAll()
+  @PaginationBody()
+  findAll(
+    @User() authUser: AuthenticatedUser,
+    @Query() query: PaginationQuery
+  ) {
+    const pagination = {
+      limit: Number(query.limit) || 10,
+      page: Number(query.page) || 0
+    }
+    if (authUser.isSuperAdmin()) {
+      return this.leaguesService.findAll({}, pagination)
+    } else {
+      return this.leaguesService.findManyAccessibleToUser(
+        authUser.id,
+        pagination
+      )
+    }
+  }
+
+  /**
+   * Gets all leagues the user is participating in
+   * @param authUser
+   * @returns
+   */
+  @Get('/me/leagues')
+  @ApiResponse({ type: League, isArray: true, status: 200 })
+  @PaginationBody()
+  findMyLeagues(
+    @User() authUser: AuthenticatedUser,
+    @Query() query: PaginationQuery
+  ) {
+    return this.leaguesService.findAllParticipating(authUser.id, {
+      limit: Number(query.limit) || 10,
+      page: Number(query.page) || 0
+    })
   }
 
   /**
@@ -71,16 +193,97 @@ export class LeaguesController {
   }
 
   /**
-   * Superadmin can get a single league
-   * Typically this is a public league
+   * 1. Superadmin can get a single league
+   * 2. Ordinary user can read a public league
+   * 3. Owner user can read their own league
+   * 4. TODO: Users belonging to teams and organisations may also have access to read
+   *
    * @param id
    * @returns
    */
-  @Iam(Roles.SuperAdmin)
-  @Get('/leagues/:id')
+  @Get('/leagues/:leagueId')
   @ApiResponse({ type: League, status: 200 })
-  findOne(@Param('id') id: string) {
-    return this.leaguesService.findOne(id)
+  async findOne(
+    @Param('leagueId') leagueId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      const result = await this.leaguesService.findOneAccessibleToUser(
+        leagueId,
+        authUser.id
+      )
+      if (!result) {
+        throw new ForbiddenException(
+          'You do not have permission to view this league'
+        )
+      }
+      return result
+    } else {
+      return this.leaguesService.findOne(leagueId)
+    }
+  }
+
+  /**
+   * A user can join a private league
+   *
+   * @param id
+   * @param joinLeagueDto
+   * @param authUser
+   */
+  @Post('/leagues/join')
+  @ApiResponse({ type: JoinPrivateLeagueResultDto, status: 200 })
+  @HttpCode(200)
+  async joinPrivateLeague(
+    @Body() { token }: JoinPrivateLeagueDto,
+    @User() authUser: AuthenticatedUser
+  ) {
+    const invitation = await this.leaguesInvitationsService.verifyToken(token)
+    return this.leaguesService.joinLeague(invitation.league.id, authUser.id)
+  }
+
+  /**
+   * A user can join a public league
+   *
+   * @param id
+   * @param joinLeagueDto
+   * @param authUser
+   */
+  @Post('/leagues/:leagueId/join')
+  @SuccessResponse()
+  async joinLeague(
+    @Param('leagueId') leagueId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    // A non-superadmin tries to create a public league
+    const league = await this.leaguesService.findOneAccessibleToUser(
+      leagueId,
+      authUser.id
+    )
+    if (!league) {
+      throw new ForbiddenException(
+        'You do not have permission to join this league'
+      )
+    }
+
+    return this.leaguesService.joinLeague(leagueId, authUser.id)
+  }
+
+  /**
+   * A user can join a public league or a private league
+   * (given a valid invitation token)
+   *
+   * @param id
+   * @param joinLeagueDto
+   * @param authUser
+   */
+  @Post('/leagues/:leagueId/leave')
+  @SuccessResponse()
+  @HttpCode(200)
+  async leaveLeague(
+    @Param('leagueId') id: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    return this.leaguesService.leaveLeague(id, authUser.id)
   }
 
   /**
@@ -94,21 +297,6 @@ export class LeaguesController {
   @ApiResponse({ type: League, status: 200 })
   teamFindOne(@Param('teamId') teamId: string, @Param('id') id: string) {
     return this.leaguesService.getTeamLeagueWithId(id, teamId)
-  }
-
-  /**
-   * Superadmin can update a league
-   * Typically this is a public league
-   * @param id
-   * @param updateLeagueDto
-   * @returns
-   */
-  @Iam(Roles.SuperAdmin)
-  @Put('/leagues/:id')
-  @ApiBody({ type: UpdateLeagueDto })
-  @ApiResponse({ type: League, status: 200 })
-  update(@Param('id') id: string, @Body() updateLeagueDto: UpdateLeagueDto) {
-    return this.leaguesService.update(id, updateLeagueDto)
   }
 
   /**
@@ -126,7 +314,7 @@ export class LeaguesController {
     @Param('id') id: string,
     @Body() updateLeagueDto: UpdateLeagueDto
   ) {
-    return this.leaguesService.update(id, updateLeagueDto, teamId)
+    return this.leaguesService.update(id, updateLeagueDto, { teamId })
   }
 
   /**

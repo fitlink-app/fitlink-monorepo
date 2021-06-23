@@ -1,14 +1,12 @@
 import {
   PrimaryGeneratedColumn,
   Entity,
-  OneToOne,
   JoinColumn,
-  Column
+  Column,
+  ManyToOne
 } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
-import { Image } from '../../images/entities/image.entity'
 import { League } from '../../leagues/entities/league.entity'
-import { Team } from '../../teams/entities/team.entity'
 import { User } from '../../users/entities/user.entity'
 
 @Entity()
@@ -16,23 +14,15 @@ export class LeaguesInvitation extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User)
   @JoinColumn()
   to_user: User
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User)
   @JoinColumn()
   from_user: User
 
-  @OneToOne(() => Image, { nullable: true })
-  @JoinColumn()
-  from_photo: Image
-
-  @OneToOne(() => Team)
-  @JoinColumn()
-  team: Team
-
-  @OneToOne(() => League)
+  @ManyToOne(() => League)
   @JoinColumn()
   league: League
 

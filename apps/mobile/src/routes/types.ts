@@ -6,4 +6,7 @@ export type RootStackParamList = {
   SignUp: undefined;
   ForgotPassword: {email?: string};
   Settings: undefined;
+  UpdateEmail: undefined;
+  UpdatePassword: undefined;
+  Webview: {url: string; title: string};
 };

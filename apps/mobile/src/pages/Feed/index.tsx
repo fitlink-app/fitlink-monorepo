@@ -38,7 +38,9 @@ export const Feed = () => {
     data: user,
     isFetching: isFetchingUser,
     refetch: refetchUser,
-  } = useMe();
+  } = useMe({
+    refetchOnMount: false,
+  });
 
   if (!user) return null;
 

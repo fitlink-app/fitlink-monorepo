@@ -49,3 +49,4 @@ export type TemplatesType =
   | 'welcome'
   | 'organisation-invitation'
   | 'team-invitation'
+  | 'league-invitation'

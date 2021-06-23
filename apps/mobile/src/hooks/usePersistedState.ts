@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {getPersistedData, persistData} from '@utils';
 import {useEffect, useReducer, useRef} from 'react';
 
 type State<S> = {
@@ -54,32 +55,17 @@ export function usePersistedState<S>(
       hydrate();
       didMount.current = true;
     } else {
-      setPersistedState(state.data);
+      persistData(key, state.data);
     }
   }, [state.data]);
 
   async function hydrate() {
-    const persistedState = await getPersistedState();
+    const persistedState = await getPersistedData<S>(key);
     setState(persistedState);
   }
 
   function setState(data: S | undefined, merge: boolean = false) {
     dispatch({type: Actions.SetState, payload: {data, merge}});
-  }
-
-  async function setPersistedState(state?: S) {
-    if (state) {
-      await AsyncStorage.setItem(key, JSON.stringify(state));
-    } else {
-      await AsyncStorage.removeItem(key);
-    }
-  }
-
-  async function getPersistedState() {
-    const stateString = await AsyncStorage.getItem(key);
-    const state = stateString ? (JSON.parse(stateString) as S) : undefined;
-
-    return state;
   }
 
   return [state.data, setState, state.isRestored];
