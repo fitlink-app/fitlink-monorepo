@@ -1,14 +1,21 @@
+import { useState } from 'react'
 import Dashboard from '../../components/layouts/Dashboard'
 import TableContainer from '../../components/Table/TableContainer'
 import {
   toChipCell
 } from '../../components/Table/helpers'
 import IconSearch from '../../components/icons/IconSearch'
+import { AnimatePresence } from 'framer-motion'
+import Drawer from '../../components/elements/Drawer'
+import ActivityForm from '../../components/forms/ActivityForm'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dummy = require('../../services/dummy/activities.json')
 
 export default function components() {
-
+  const [drawContent, setDrawContent] = useState<
+    React.ReactNode | undefined | false
+  >(false)
+  const [warning, setWarning] = useState(false)
   const displayImage = ({ value }) => {
     return (
       <div className="map-preview">
@@ -60,6 +67,13 @@ export default function components() {
     )
   }
 
+  const NewActivityForm = () => {
+    setWarning(true)
+    setDrawContent(
+      <ActivityForm />
+    )
+  }
+
   return (
     <Dashboard title="Activities">
       <div>
@@ -67,7 +81,7 @@ export default function components() {
           <h1 className="light mb-0 mr-2">Your activities</h1>
           <button
             className="button alt small mt-1"
-            //onClick={NewLeagueForm}
+            onClick={NewActivityForm}
             >
             Add new
           </button>
@@ -86,6 +100,16 @@ export default function components() {
           fetch={() => Promise.resolve(dummy)}
         />
       </div>
+      <AnimatePresence initial={false}>
+        {drawContent && (
+          <Drawer
+            remove={() => setDrawContent(null)}
+            key="drawer"
+            warnBeforeClose={warning}>
+            {drawContent}
+          </Drawer>
+        )}
+      </AnimatePresence>
     </Dashboard>
   )
 }
