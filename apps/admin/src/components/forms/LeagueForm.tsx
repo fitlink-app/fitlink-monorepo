@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { add } from 'date-fns'
 import Input from '../elements/Input'
 import Checkbox from '../elements/Checkbox'
 import League from '../elements/League'
 import IconImage from '../icons/IconImage'
 import Select from '../elements/Select'
+import { add, addYears } from 'date-fns'
+import DateInput from '../elements/DateInput'
 
 export type LeagueFormProps = {
   current?: {
@@ -15,6 +16,7 @@ export type LeagueFormProps = {
     duration?: number
     sport?: string
     repeats?: boolean
+    startDate?: string | Date
     resetDate?: string
     created?: string
   }
@@ -100,6 +102,7 @@ export default function LeagueForm({
   const [image, setImage] = useState(current?.image || '')
   const [name, setName] = useState(current?.name || '')
   const [description, setDescription] = useState(current?.description || '')
+  const [startDate, setStartDate] = useState(current?.startDate ? new Date(current?.startDate) : add(new Date(), { months: 2 }))
   const [duration, setDuration] = useState(current?.duration || 7)
   const [sport, setSport] = useState(current?.sport || 'steps')
   const [repeats, setRepeats] = useState(current?.repeats || true)
@@ -148,6 +151,14 @@ export default function LeagueForm({
         value={description}
         type="textarea"
         onChange={(v) => setDescription(v)}
+      />
+      <DateInput
+        label="Start date"
+        name="startDate"
+        startDate={startDate}
+        onChange={(v) => setStartDate(v)}
+        minDate={new Date()}
+        maxDate={addYears(new Date(), 10)}
       />
       <Select
         id="duration"
