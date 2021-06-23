@@ -13,6 +13,7 @@ import { Image } from '../../images/entities/image.entity'
 import { Subscription } from '../../subscriptions/entities/subscription.entity'
 import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
 import { ApiProperty } from '@nestjs/swagger'
+import { League } from '../../leagues/entities/league.entity'
 
 export enum OrganisationType {
   Company = 'company',
@@ -33,6 +34,9 @@ export class Organisation extends CreatableEntity {
     onDelete: 'CASCADE'
   })
   teams: Team[]
+
+  @OneToMany(() => League, (league) => league.organisation)
+  leagues: League[]
 
   @OneToMany(() => Subscription, (subscription) => subscription.organisation, {
     cascade: ['remove'],
