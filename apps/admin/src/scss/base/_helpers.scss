@@ -74,6 +74,10 @@
       margin-right: $space !important;
     }
   }
+
+  .mt-a {
+    margin-top: auto;
+  }
   
   .mt-#{$i} {
     margin-top: $space;
@@ -95,6 +99,10 @@
     @media only screen and (min-width: $large) {
       margin-top: $space !important;
     }
+  }
+
+  .mb-a {
+    margin-bottom: auto;
   }
   
   .mb-#{$i} {
@@ -118,6 +126,10 @@
       margin-bottom: $space !important;
     }
   }
+
+  .ml-a {
+    margin-left: auto;
+  }
   
   .ml-#{$i} {
     margin-left: $space;
@@ -139,6 +151,10 @@
     @media only screen and (min-width: $large) {
       margin-left: $space !important;
     }
+  }
+
+  .mr-a {
+    margin-right: auto;
   }
   
   .mr-#{$i} {

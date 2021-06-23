@@ -29,6 +29,9 @@ export default function AvatarSelect({
         accept="image/*"
       />
       <label htmlFor="image">Select an image</label>
+      { image !== '' &&
+        <small className="block ml-a mr-0" onClick={ () => setImage('') }>remove image</small>
+      }
     </div>
   )
 }

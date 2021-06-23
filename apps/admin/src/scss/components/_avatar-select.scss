@@ -10,7 +10,7 @@
     border-radius: 50%;
     overflow: hidden;
     background-size: cover;
-    background-color: $grey-300;
+    background-color: $grey-200;
     margin-right: 0.5rem;
     box-shadow: 0 2px 5px 0 rgba(0,0,0,0.1);
   }
@@ -26,5 +26,9 @@
 
   label {
     margin: 0;
+  }
+
+  small {
+    cursor: pointer;
   }
 }
