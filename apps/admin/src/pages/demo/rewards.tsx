@@ -27,6 +27,8 @@ export default function components() {
   const [sortFL, setSortFL] = useState<'asc' | 'desc'>('asc')
   const [sortOnFL, setSortOnFL] = useState('points')
 
+  const [showFL, setShowFL] = useState(false)
+
   const options = [
     {
       label: 'Points',
@@ -56,6 +58,14 @@ export default function components() {
       contain: true
     })
   }, []) */
+
+  useEffect(() => {
+    setShowFL(window.localStorage.getItem('showFLrewards') === 'true')
+  }, [])
+
+  useEffect(() => {
+    window.localStorage.setItem('showFLrewards', showFL.toString())
+  }, [showFL])
 
   useEffect(() => {
     const orig = JSON.parse(JSON.stringify(fitlinkRewards))
@@ -172,30 +182,44 @@ export default function components() {
         ))}
       </div>
 
-      <div className="row mb-2">
-        <div className="col-12 col-lg-8">
-          <h2 className="h1 light mb-0">Fitlink sponsored rewards</h2>
-        </div>
-        <div className="col-12 col-lg-4 text-lg-right">
-          <Select
-            id="sortFR"
-            defaultValue={options[0]}
-            isSearchable={false}
-            options={options}
-            label="Sort by"
-            inline={true}
-            onChange={(v) => setSortOnFL(v.value)}
-          />
-          <SortOrder value={sortFL} onChange={(e) => setSortFL(e)} />
-        </div>
-      </div>
-      <div className="rewards flex">
-        { sortedFL.map((r:RewardProps, i) => (
-          <div className="rewards__wrap" key={`fl-r-${i}`}>
-            <Reward {...r} onClick={ () => loadReadonlyReward(r)} />
+      { showFL ?
+        <>
+          <div className="row mb-2">
+            <div className="col-12 col-lg-8 flex ai-c">
+              <h2 className="h1 light mb-0">
+                Fitlink sponsored rewards
+              </h2>
+              <small
+                className="ml-1 mt-3"
+                onClick={ () => setShowFL(false) }
+                >
+                Hide Fitlink sponsored rewards
+                </small>
+            </div>
+            <div className="col-12 col-lg-4 text-lg-right">
+              <Select
+                id="sortFR"
+                defaultValue={options[0]}
+                isSearchable={false}
+                options={options}
+                label="Sort by"
+                inline={true}
+                onChange={(v) => setSortOnFL(v.value)}
+              />
+              <SortOrder value={sortFL} onChange={(e) => setSortFL(e)} />
+            </div>
           </div>
-        ))}
-      </div>
+          <div className="rewards flex">
+            { sortedFL.map((r:RewardProps, i) => (
+              <div className="rewards__wrap" key={`fl-r-${i}`}>
+                <Reward {...r} onClick={ () => loadReadonlyReward(r)} />
+              </div>
+            ))}
+          </div>
+        </>
+        :
+        <small onClick={ () => setShowFL(true) }>Show Fitlink sponsored rewards</small>
+      }
 
       <AnimatePresence initial={false}>
         {drawContent && (
