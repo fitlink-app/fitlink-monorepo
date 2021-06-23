@@ -9,6 +9,7 @@
     "@fitlink/common": "*"
   },
   "dependencies": {
+    "@mapbox/mapbox-gl-geocoder": "^4.7.1",
     "axios": "^0.21.1",
     "chart.js": "^3.3.0",
     "clsx": "^1.1.1",
@@ -17,9 +18,11 @@
     "framer-motion": "^4.1.17",
     "html-react-parser": "^1.2.6",
     "lodash": "^4.17.21",
+    "mapbox-gl": "^2.3.1",
     "next": "^10.2.0",
     "react": "^17.0.2",
     "react-chartjs-2": "^3.0.3",
+    "react-currency-input-field": "^3.4.1",
     "react-datepicker": "^4.1.1",
     "react-dom": "^17.0.2",
     "react-query": "^3.17.0",
