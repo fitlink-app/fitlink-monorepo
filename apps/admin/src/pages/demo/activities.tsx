@@ -25,42 +25,53 @@ export default function components() {
   }
 
   const viewDetails = ({
-    /* cell: {
+    cell: {
       row: {
         original: {
-          date_joined,
-          mobile_os,
-          tracker,
-          points,
-          rank,
-          last_activity,
-          total_leagues,
-          rewards,
-          last_session,
-          created_leagues
+          name,
+          description,
+          date,
+          cost,
+          organizer_name,
+          organizer_url,
+          organizer_telephone,
+          organizer_email,
+          organizer_image,
+          meeting_point_text,
+          type,
+          meeting_point
         }
       }
-    } */
+    }
   }) => {
     return (
       <button
         className="icon-button"
-        /* onClick={() => {
+        onClick={() => {
+          setWarning(true)
           setDrawContent(
-            <UserStats
-              date_joined={date_joined}
-              mobile_os={mobile_os}
-              tracker={tracker}
-              points={points}
-              rank={rank}
-              last_activity={last_activity}
-              total_leagues={total_leagues}
-              rewards={rewards}
-              last_session={last_session}
-              created_leagues={created_leagues}
-            />
+            <ActivityForm
+              current={{
+                name: name,
+                description: description,
+                date: date,
+                cost: cost,
+                organizer_name: organizer_name,
+                organizer_url: organizer_url,
+                organizer_telephone: organizer_telephone,
+                organizer_email: organizer_email,
+                organizer_image: organizer_image?.url || '',
+                meeting_point_text: meeting_point_text,
+                lat: meeting_point.coordinates[0],
+                lng: meeting_point.coordinates[1],
+                type: {
+                  label: type.charAt(0).toUpperCase() + type.slice(1),
+                  value: type
+                },
+              }}
+              />
           )
-        }} */
+        }}
         >
         <IconSearch />
       </button>
