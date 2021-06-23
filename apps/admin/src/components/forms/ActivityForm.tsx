@@ -18,8 +18,8 @@ export type InviteUserProps = {
     organizer_email: string
     organizer_image: string
     meeting_point_text: string
-    lat: string
-    lng: string
+    lat: number
+    lng: number
     type: {
       value: string
       label: string
@@ -52,8 +52,8 @@ export default function ActivityForm({
   const [date, setDate] = useState(current?.date || '')
   const [cost, setCost] = useState(current?.cost || 0.00)
   const [meeting_point_text, setMeeting_point_text] = useState(current?.meeting_point_text || '')
-  const [lat, setLat] = useState(current?.lat || '')
-  const [lng, setLng] = useState(current?.lng || '')
+  const [lat, setLat] = useState(current?.lat || 51.513421230466804)
+  const [lng, setLng] = useState(current?.lng || -0.08863214657057483)
   const [showOrg, setShowOrg] = useState(current?.organizer_name ? true : false)
   const [organizer_name, setOrganizer_name] = useState(current?.organizer_name || '')
   const [organizer_url, setOrganizer_url] = useState(current?.organizer_url || '')
@@ -112,6 +112,8 @@ export default function ActivityForm({
         onChange={(v) => setMeeting_point_text(v)}
       />
       <LocationSelect
+        lng={lng}
+        lat={lat}
         label="Select location"
         onChange={(lng, lat) => {
           setLng(lng)
