@@ -4,6 +4,7 @@ import Checkbox from '../elements/Checkbox'
 import Input from '../elements/Input'
 import Select from '../elements/Select'
 import LocationSelect from '../elements/LocationSelect'
+import AvatarSelect from '../elements/AvatarSelect'
 
 export type InviteUserProps = {
   current?: {
@@ -155,6 +156,9 @@ export default function ActivityForm({
             value={organizer_email}
             onChange={(v) => setOrganizer_email(v)}
           />
+          <AvatarSelect
+            src={organizer_image}
+            />
         </>
       }
 
