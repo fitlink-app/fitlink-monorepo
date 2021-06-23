@@ -1,18 +1,13 @@
-import React, {useState} from 'react';
+import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {Label, ProfileRow} from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
-import {useSearchUsers} from '@hooks';
-import {ActivityIndicator, FlatList} from 'react-native';
-import {SearchBox} from './components';
+import {useFollowers} from '@hooks';
+import {ActivityIndicator, FlatList, RefreshControl} from 'react-native';
 
 const Wrapper = styled.View({
   flex: 1,
   justifyContent: 'center',
-});
-
-const SearchBoxContainer = styled.View({
-  paddingHorizontal: 20,
 });
 
 const EmptyContainer = styled.View({
@@ -21,21 +16,18 @@ const EmptyContainer = styled.View({
   alignItems: 'center',
 });
 
-export const Search = () => {
+export const Followers = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
   const {colors} = useTheme();
 
-  const [query, setQuery] = useState('');
-
-  const {data, isFetching, isFetchingNextPage, fetchNextPage, error} =
-    useSearchUsers(query);
-
-  const handleOnChangeText = (text: string) => {
-    setQuery(text);
-  };
-
-  const handleOnSubmit = () => {
-    fetchNextPage();
-  };
+  const {
+    data,
+    isFetching,
+    isFetchedAfterMount,
+    isFetchingNextPage,
+    refetch,
+    fetchNextPage,
+    error,
+  } = useFollowers();
 
   const renderItem = ({item}: {item: UserPublic}) => {
     return (
@@ -59,16 +51,6 @@ export const Search = () => {
     return [...acc, ...current.results];
   }, []);
 
-  const ListHeaderComponent = (
-    <SearchBoxContainer>
-      <SearchBox
-        {...{query, handleOnChangeText, handleOnSubmit}}
-        placeholder={'Search for a user'}
-        onClearPressed={() => handleOnChangeText('')}
-      />
-    </SearchBoxContainer>
-  );
-
   const ListFooterComponent = isFetchingNextPage ? (
     <EmptyContainer style={{height: 72}}>
       <ActivityIndicator color={colors.accent} />
@@ -82,18 +64,21 @@ export const Search = () => {
         paddingTop: 50,
         paddingHorizontal: 20,
       }}>
-      {isFetching ? (
+      {isFetching && !isFetchedAfterMount ? (
         <ActivityIndicator color={colors.accent} />
+      ) : error ? (
+        <Label
+          type="body"
+          appearance={'accentSecondary'}
+          style={{textAlign: 'center'}}>
+          {error}
+        </Label>
       ) : (
         <Label
           type="body"
           appearance={'accentSecondary'}
           style={{textAlign: 'center'}}>
-          {error
-            ? error
-            : data && query.length
-            ? `No results found for "${query}"`
-            : `Find friends, colleagues and others.`}
+          You don't have any followers yet.
         </Label>
       )}
     </EmptyContainer>
@@ -103,7 +88,6 @@ export const Search = () => {
     <Wrapper>
       <FlatList
         {...{
-          ListHeaderComponent,
           ListFooterComponent,
           ListEmptyComponent,
           renderItem,
@@ -112,6 +96,14 @@ export const Search = () => {
         onEndReachedThreshold={0.2}
         onEndReached={() => fetchNextPage()}
         data={results}
+        refreshControl={
+          <RefreshControl
+            refreshing={isFetching && isFetchedAfterMount}
+            onRefresh={refetch}
+            tintColor={colors.accent}
+            colors={[colors.accent]}
+          />
+        }
       />
     </Wrapper>
   );

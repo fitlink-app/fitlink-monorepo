@@ -9,7 +9,7 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import {RootStackParamList} from 'routes/types';
-import {Following, Search} from './tabs';
+import {Following, Followers, Search} from './tabs';
 import {TabView} from '@components';
 
 const Wrapper = styled.View({
@@ -41,10 +41,10 @@ export const Friends = (
   const renderTabs = ({route, ...rest}: {route: Route}) => {
     switch (route.key) {
       case 'following':
-        return <Following {...rest} />;
+        return <Following {...(rest as any)} />;
 
       case 'followers':
-        return <Following {...rest} />;
+        return <Followers {...(rest as any)} />;
 
       case 'search':
         return <Search {...rest} />;
