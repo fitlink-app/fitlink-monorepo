@@ -22,10 +22,10 @@ export default function LocationSelect({
 
   useEffect(() => {
     const map = new mapboxgl.Map({
-      container: 'map', // container ID
-      style: 'mapbox://styles/mapbox/streets-v11', // style URL
-      center: [lng, lat], // starting position [lng, lat]
-      zoom: 9 // starting zoom
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [lng, lat],
+      zoom: 15
     })
     map.addControl(
       new mapboxgl.GeolocateControl({
