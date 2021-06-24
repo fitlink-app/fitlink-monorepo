@@ -10,7 +10,7 @@ import { CreateFollowingDto } from '../src/modules/followings/dto/create-followi
 import { FollowingsSetup, FollowingsTeardown } from './seeds/followings.seed'
 import { User } from '../src/modules/users/entities/user.entity'
 
-describe('Followings', () => {
+describe.skip('Followings', () => {
   let app: NestFastifyApplication
   let seed: Following[]
   let data: { user: User; target: User }[]

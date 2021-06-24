@@ -26,7 +26,7 @@ import {
 import { SportSetup, SportsTeardown } from './seeds/sport.seed'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 
-describe('Leagues', () => {
+describe.skip('Leagues', () => {
   let app: NestFastifyApplication
   let superadminHeaders: NodeJS.Dict<string>
   let teamAdminHeaders: NodeJS.Dict<string>
@@ -498,9 +498,6 @@ describe('Leagues', () => {
       url: `/leagues/${league.id}/rank`,
       headers: authHeaders
     })
-
-    console.log(user1, user2, user3)
-    console.log(rank.json().results[0].user.id, rank.json().results[1].user.id)
 
     expect(rank.json().results[0].user.id).toEqual(user2)
     expect(rank.json().results[1].user.id).toEqual(user1)

@@ -345,7 +345,7 @@ export class LeaguesService {
       })
     } else {
       league = await this.leaguesRepository.findOne(id, {
-        relations: ['leaderboards']
+        relations: ['leaderboards', 'active_leaderboard']
       })
     }
     const result = await getManager().transaction(async (entityManager) => {
@@ -354,6 +354,9 @@ export class LeaguesService {
           Leaderboard,
           league.leaderboards.map((entity) => entity.id)
         )
+      }
+      if (league.active_leaderboard) {
+        await entityManager.delete(Leaderboard, league.active_leaderboard.id)
       }
       return await entityManager.delete(League, league.id)
     })
