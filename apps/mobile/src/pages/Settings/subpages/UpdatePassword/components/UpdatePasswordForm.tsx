@@ -1,8 +1,10 @@
 import React, {useRef} from 'react';
-import {Button, FormError, InputField} from '@components';
-import {useForm} from '@hooks';
+import {Button, FormError, InputField, Modal} from '@components';
+import {useForm, useModal, useUpdatePassword} from '@hooks';
 import styled from 'styled-components/native';
 import {TextInput} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {getErrors} from '@api';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -22,7 +24,11 @@ export interface UpdatePasswordFormValues {
 }
 
 export const UpdatePasswordForm = () => {
-  // TODO: Hook up with API
+  const navigation = useNavigation();
+  const {openModal, closeModal} = useModal();
+
+  const {mutateAsync} = useUpdatePassword();
+
   const initialValues: UpdatePasswordFormValues = {
     currentPassword: '',
     confirmPassword: '',
@@ -40,9 +46,36 @@ export const UpdatePasswordForm = () => {
   } = useForm(initialValues);
 
   const onSubmit = async () => {
-    // const credentials = {email: values.email, password: values.password};
-    // const requestError = await signUp(credentials);
-    // return requestError;
+    try {
+      await mutateAsync({
+        current_password: values.currentPassword,
+        new_password: values.confirmPassword,
+      });
+    } catch (e) {
+      const requestErrors = getErrors(e);
+      console.log(requestErrors);
+      return requestErrors;
+    }
+
+    openModal(
+      id => (
+        <Modal
+          title={'Password Changed'}
+          description={'Your password has been changed'}
+          buttons={[
+            {
+              text: 'Ok',
+              onPress: () => closeModal(id),
+            },
+          ]}
+        />
+      ),
+      () => {
+        navigation.goBack();
+      },
+    );
+
+    return undefined;
   };
 
   return (
@@ -77,7 +110,9 @@ export const UpdatePasswordForm = () => {
         autoCompleteType={'password'}
       />
 
-      {!!errorMessage && !fieldErrors && <FormError>{errorMessage}</FormError>}
+      {!!errorMessage && (!fieldErrors || !Object.keys(fieldErrors).length) && (
+        <FormError>{errorMessage}</FormError>
+      )}
 
       <SignUpButton
         text="Update Password"
