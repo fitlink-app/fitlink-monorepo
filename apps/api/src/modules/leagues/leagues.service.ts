@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, FindOneOptions, getManager, Repository } from 'typeorm'
+import { Brackets, FindOneOptions, getManager, In, Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { QueueableEventPayload } from '../../models/queueable.model'
 import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
@@ -114,9 +114,9 @@ export class LeaguesService {
     return league
   }
 
-  async isOwnedBy(id: string, userId: string) {
+  async isOwnedBy(leagueId: string, userId: string) {
     const result = await this.leaguesRepository.findOne({
-      where: { id, owner: { id: userId } }
+      where: { id: leagueId, owner: { id: userId } }
     })
     return !!result
   }
@@ -337,27 +337,35 @@ export class LeaguesService {
     let league: League
     if (team) {
       league = await this.leaguesRepository.findOne({
-        relations: ['leaderboards'],
         where: {
           team,
           id
         }
       })
     } else {
-      league = await this.leaguesRepository.findOne(id, {
-        relations: ['leaderboards', 'active_leaderboard']
-      })
+      league = await this.leaguesRepository.findOne(id)
     }
     const result = await getManager().transaction(async (entityManager) => {
-      if (league.leaderboards.length) {
-        await entityManager.delete(
-          Leaderboard,
-          league.leaderboards.map((entity) => entity.id)
-        )
-      }
-      if (league.active_leaderboard) {
-        await entityManager.delete(Leaderboard, league.active_leaderboard.id)
-      }
+      // Delete leaderboard entries for league
+      await entityManager.getRepository(LeaderboardEntry).delete({
+        leaderboard: {
+          league: { id: league.id }
+        }
+      })
+
+      // Remove active leaderboard
+      await entityManager
+        .getRepository(League)
+        .createQueryBuilder()
+        .relation(League, 'active_leaderboard')
+        .of(league)
+        .set(null)
+
+      // Delete leaderboards for league
+      await entityManager.getRepository(Leaderboard).delete({
+        league: { id: league.id }
+      })
+
       return await entityManager.delete(League, league.id)
     })
     return result

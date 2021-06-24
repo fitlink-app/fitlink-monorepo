@@ -36,22 +36,34 @@ export class FollowingsSubscriber
     type: 'insert' | 'remove'
   ) {
     let following: User
+    let follower: User
     const followingRepository = event.manager.getRepository(Following)
     const userRepository = event.manager.getRepository(User)
 
     // The entity only exists in certain scenarios
     // otherwise it needs to be loaded.
-    if (event.entity) {
+    if (event.entity && event.entity.following && event.entity.follower) {
       following = event.entity.following
-    } else {
-      const follow = await followingRepository.findOne(entityId)
+      follower = event.entity.follower
+    } else if (entityId) {
+      const follow = await followingRepository.findOne(entityId, {
+        relations: ['following', 'follower']
+      })
       following = follow.following
+      follower = follow.follower
+    } else {
+      // Bail out. Delete or querybuilder was used instead of remove
+      // Subscribers require the entity to be passed in order to act
+      // on it.
+      return
     }
 
     if (type === 'insert') {
       await userRepository.increment({ id: following.id }, 'followers_total', 1)
+      await userRepository.increment({ id: follower.id }, 'following_total', 1)
     } else {
       await userRepository.decrement({ id: following.id }, 'followers_total', 1)
+      await userRepository.decrement({ id: follower.id }, 'following_total', 1)
     }
   }
 }

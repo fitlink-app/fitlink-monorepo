@@ -10,10 +10,23 @@ import { CreateFollowingDto } from '../src/modules/followings/dto/create-followi
 import { FollowingsSetup, FollowingsTeardown } from './seeds/followings.seed'
 import { User } from '../src/modules/users/entities/user.entity'
 
-describe.skip('Followings', () => {
+describe('Followings', () => {
   let app: NestFastifyApplication
   let seed: Following[]
   let data: { user: User; target: User }[]
+  let user: string
+
+  // This is the UserPublic model
+  const expected = Object.keys({
+    id: 1,
+    name: 1,
+    points_total: 1,
+    followers_total: 1,
+    following_total: 1,
+    following: 1,
+    follower: 1,
+    avatar: 1
+  }).sort()
 
   beforeAll(async () => {
     app = await mockApp({
@@ -24,6 +37,11 @@ describe.skip('Followings', () => {
     /** Load seeded data */
     await useSeeding()
     seed = await FollowingsSetup('Test Following')
+    user = seed[0].follower.id
+
+    // Shift one item off as we're ignoring the first user
+    seed.shift()
+
     data = seed.map((each) => ({
       user: each.follower,
       target: each.following
@@ -36,8 +54,7 @@ describe.skip('Followings', () => {
     await app.close()
   })
 
-  // Getting following entities with all user's followings, returns array of results with pagination structure
-  it(`/GET  (200) `, async () => {
+  it(`GET /me/following 200 A user can get all the users they are following`, async () => {
     const userData = data[0]
     const userAuthHeaders = getAuthHeaders({}, userData.user.id)
     const result = await app.inject({
@@ -47,14 +64,7 @@ describe.skip('Followings', () => {
     })
     const json = result.json()
     expect(result.statusCode).toEqual(200)
-    expect(Object.keys(json.results[0]).sort()).toEqual(
-      Object.keys({
-        id: 1,
-        name: 1,
-        points_total: 1,
-        followers_total: 1
-      }).sort()
-    )
+    expect(Object.keys(json.results[0]).sort()).toEqual(expected)
     expect(json.page_total).toBeGreaterThanOrEqual(1)
     expect(json.total).toEqual(
       seed.filter((value) => {
@@ -63,40 +73,40 @@ describe.skip('Followings', () => {
     )
   })
 
-  // Getting following entities with all user's followers, returns array of results with pagination structure
-  it(`/GET  (200) me/followers`, async () => {
-    const userData = data.pop()
-    const userAuthHeaders = getAuthHeaders({}, userData.user.id)
+  it(`GET /me/followers 200 A user can get their followers`, async () => {
+    const userAuthHeaders = getAuthHeaders({}, user)
     const result = await app.inject({
       method: 'GET',
       url: `/me/followers`,
       headers: userAuthHeaders
     })
     const json = result.json()
+
     expect(result.statusCode).toEqual(200)
-    expect(Object.keys(json.results[0]).sort()).toEqual(
-      Object.keys({
-        id: 1,
-        name: 1,
-        points_total: 1,
-        followers_total: 1
-      }).sort()
+    expect(Object.keys(json.results[0]).sort()).toEqual(expected)
+
+    // All returned items are followers
+    expect(json.results.filter((e) => e.follower === true).length).toBe(
+      json.results.length
     )
-    expect(json.page_total).toBeGreaterThanOrEqual(1)
-    expect(json.total).toEqual(
-      seed.filter((value) => {
-        return value.following.id === userData.user.id
-      }).length
+
+    // 1 item returned is a following
+    expect(json.results.filter((e) => e.following === true).length).toBe(1)
+
+    expect(json.page_total).toBeGreaterThan(1)
+
+    expect(seed.filter((v) => v.following.id === user).length).toEqual(
+      json.total
     )
   })
 
-  // Trying to create a following entry with complete data should result in 201 created
-  it(`/POST (201) `, async () => {
+  it(`POST /me/following 201 A user can follow another user`, async () => {
     const userData = data.pop()
     const userAuthHeaders = getAuthHeaders({}, userData.user.id)
     const payload = {
       targetId: userData.target.id
     } as CreateFollowingDto
+
     const result = await app.inject({
       method: 'POST',
       url: `/me/following`,
@@ -104,7 +114,6 @@ describe.skip('Followings', () => {
       payload
     })
     expect(result.statusCode).toEqual(201)
-    expect(result.statusMessage).toEqual('Created')
 
     const me = await app.inject({
       method: 'GET',
@@ -112,11 +121,36 @@ describe.skip('Followings', () => {
       headers: userAuthHeaders
     })
 
-    expect(me.json().followers_total).toBeGreaterThanOrEqual(1)
+    expect(me.json().following_total).toBeGreaterThanOrEqual(1)
   })
 
-  // Trying to create a following entry with user id = target id should result in a 400 error
-  it(`/POST (400) `, async () => {
+  it(`POST /me/following 201 A user can be followed by another user`, async () => {
+    const userData = data.pop()
+    const userAuthHeaders = getAuthHeaders({}, userData.user.id)
+    const userHeaders = getAuthHeaders({}, user)
+    const payload = {
+      targetId: userData.user.id
+    } as CreateFollowingDto
+
+    const result = await app.inject({
+      method: 'POST',
+      url: `/me/following`,
+      headers: userHeaders,
+      payload
+    })
+
+    expect(result.statusCode).toEqual(201)
+
+    const me = await app.inject({
+      method: 'GET',
+      url: '/me',
+      headers: userAuthHeaders
+    })
+
+    expect(me.json().followers_total).toBe(1)
+  })
+
+  it(`POST /me/following 400 A user cannot follow themselves`, async () => {
     const userData = data.pop()
     const userAuthHeaders = getAuthHeaders({}, userData.user.id)
     const payload = {
@@ -129,11 +163,9 @@ describe.skip('Followings', () => {
       payload
     })
     expect(result.statusCode).toEqual(400)
-    expect(result.statusMessage).toEqual('Bad Request')
   })
 
-  // Trying to create a following entry without complete data should result in a 400 error
-  it(`/POST (400) `, async () => {
+  it(`POST /me/following 400 Validation`, async () => {
     const userData = data.pop()
     const userAuthHeaders = getAuthHeaders({}, userData.user.id)
     const payload = {
@@ -146,24 +178,111 @@ describe.skip('Followings', () => {
       payload
     })
     expect(result.statusCode).toEqual(400)
-    expect(result.statusMessage).toEqual('Bad Request')
+    expect(result.json().errors.targetId).toContain('is required')
   })
 
-  // Delete following entities. Unsubscribe from user
-  it(`/DEL  (200) :targetId`, async () => {
+  it(`DELETE /me/following/:userId A user can unfollow a user they follow and counts are updated`, async () => {
     const userData = data.pop()
     const userAuthHeaders = getAuthHeaders({}, userData.user.id)
-    const payload = {
-      targetId: userData.user.id
-    } as UpdateFollowingDto
+
+    const followings = (
+      await app.inject({
+        method: 'GET',
+        url: `/me/following`,
+        headers: userAuthHeaders,
+        query: {
+          limit: '100'
+        }
+      })
+    ).json().results
+
+    // Get the current total users followed.
+    const total = (await getMe(userAuthHeaders)).following_total
+    const userToUnfollow = followings[0].id
 
     const result = await app.inject({
       method: 'DELETE',
-      url: `/me/followings/${userData.target.id}`,
-      headers: userAuthHeaders,
-      payload
+      url: `/me/following/${userToUnfollow}`,
+      headers: userAuthHeaders
     })
+
     expect(result.statusCode).toEqual(200)
-    expect(result.statusMessage).toEqual('OK')
+
+    const followingsAfter = (
+      await app.inject({
+        method: 'GET',
+        url: `/me/following`,
+        headers: userAuthHeaders,
+        query: {
+          limit: '100'
+        }
+      })
+    ).json().results
+
+    // Expect that the followed user no longer exists in followings
+    expect(followingsAfter.filter((f) => f.id === userToUnfollow).length).toBe(
+      0
+    )
+
+    // Expect that the user's following total changed by 1
+    const newTotal = (await getMe(userAuthHeaders)).following_total
+    expect(newTotal).toBe(total - 1)
   })
+
+  it(`DELETE /me/following/:userId A user's counts are updated when another user unfollows them`, async () => {
+    const userAuthHeaders = getAuthHeaders({}, user)
+
+    const followers = (
+      await app.inject({
+        method: 'GET',
+        url: `/me/followers`,
+        headers: userAuthHeaders,
+        query: {
+          limit: '100'
+        }
+      })
+    ).json().results
+
+    // Get the current total users that are following.
+    const total = (await getMe(userAuthHeaders)).followers_total
+    const userWillUnfollow = followers[0].id
+
+    const result = await app.inject({
+      method: 'DELETE',
+      url: `/me/following/${user}`,
+      headers: getAuthHeaders({}, userWillUnfollow)
+    })
+
+    expect(result.statusCode).toEqual(200)
+
+    const followersAfter = (
+      await app.inject({
+        method: 'GET',
+        url: `/me/followers`,
+        headers: userAuthHeaders,
+        query: {
+          limit: '100'
+        }
+      })
+    ).json().results
+
+    // Expect that the followed user no longer exists in followings
+    expect(followersAfter.filter((f) => f.id === userWillUnfollow).length).toBe(
+      0
+    )
+
+    // Expect that the user's following total changed by 1
+    const newTotal = (await getMe(userAuthHeaders)).followers_total
+    expect(newTotal).toBe(total - 1)
+  })
+
+  async function getMe(userAuthHeaders) {
+    const me = await app.inject({
+      method: 'GET',
+      url: '/me',
+      headers: userAuthHeaders
+    })
+
+    return me.json()
+  }
 })
