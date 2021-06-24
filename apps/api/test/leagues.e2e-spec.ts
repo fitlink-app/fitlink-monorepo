@@ -343,6 +343,15 @@ describe('Leagues', () => {
     expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
       1
     )
+
+    // Check participants count
+    const count = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders
+    })
+
+    expect(count.json().participants_total).toEqual(1)
   })
 
   it('POST /leagues/:leagueId/leave 200 A user can leave any public league', async () => {
@@ -393,6 +402,15 @@ describe('Leagues', () => {
     expect(
       get2.json().results.filter((e) => e.id === league.id).length
     ).toEqual(0)
+
+    // Check participants count
+    const count = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders
+    })
+
+    expect(count.json().participants_total).toEqual(0)
   })
 
   // Note that private league tests are found in leagues-invitations.e2e-spec.ts
