@@ -1,6 +1,7 @@
 import { League } from '../../src/modules/leagues/entities/league.entity'
 import { define } from 'typeorm-seeding'
 import Faker from 'faker'
+import { Leaderboard } from '../../src/modules/leaderboards/entities/leaderboard.entity'
 
 define(League, (faker: typeof Faker) => {
   const league = new League()

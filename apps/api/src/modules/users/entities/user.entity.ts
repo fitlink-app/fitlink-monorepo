@@ -300,4 +300,14 @@ export class UserPublic {
   @ApiProperty()
   @Expose()
   followers_total: number
+
+  @ApiProperty()
+  @Expose()
+  /** Whether the entity user is a follower of the authenticated user */
+  follower?: boolean
+
+  @ApiProperty()
+  @Expose()
+  /** Whether the authenticated user is following the entity user */
+  following?: boolean
 }
