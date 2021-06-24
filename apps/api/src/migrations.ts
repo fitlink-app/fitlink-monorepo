@@ -34,6 +34,7 @@ import { ImagesAddOwner1623913230113 } from '../database/migrations/162391323011
 import { AddedPolylineToHealthActivities1623922917753 } from '../database/migrations/1623922917753-AddedPolylineToHealthActivities'
 import { LeaguesStructureChanges1624261653546 } from '../database/migrations/1624261653546-LeaguesStructureChanges'
 import { UserEmailPasswordResets1624400390377 } from '../database/migrations/1624400390377-UserEmailPasswordResets'
+import { EmailVerificationAndFollowerChanges1624535361790 } from '../database/migrations/1624535361790-EmailVerificationAndFollowerChanges'
 
 export default [
   InitializeSchema1614887523112,
@@ -66,5 +67,6 @@ export default [
   ImagesAddOwner1623913230113,
   AddedPolylineToHealthActivities1623922917753,
   LeaguesStructureChanges1624261653546,
-  UserEmailPasswordResets1624400390377
+  UserEmailPasswordResets1624400390377,
+  EmailVerificationAndFollowerChanges1624535361790
 ]

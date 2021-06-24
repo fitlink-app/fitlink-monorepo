@@ -73,10 +73,10 @@ export class FollowingsController {
    * @param targetId
    * @returns DeleteResult
    */
-  @Delete('me/following/:targetId')
+  @Delete('me/following/:userId')
   @DeleteResponse()
   removeFollower(
-    @Param('targetId') targetId: string,
+    @Param('userId') targetId: string,
     @User() user: AuthenticatedUser
   ) {
     return this.followingsService.remove(user.id, targetId)
