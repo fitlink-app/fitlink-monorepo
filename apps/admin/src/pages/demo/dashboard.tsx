@@ -10,6 +10,7 @@ import IconYoga from '../../components/icons/IconYoga'
 import ProgressChart from '../../components/charts/ProgressChart'
 import IconWater from '../../components/icons/IconWater'
 import Select from '../../components/elements/Select'
+import IconDownload from '../../components/icons/IconDownload'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 let rewards = require('../../services/dummy/stats-rewards.json')
 
@@ -74,7 +75,12 @@ export default function components() {
               <div className="col">
                 <h2 className="h5 color-light-grey m-0">Most popular activities</h2>
               </div>
-              <div className="col text-right">
+              <div className="col flex ai-c jc-e">
+                <IconDownload
+                  width="24px"
+                  height="24px"
+                  className="mr-1 color-light-grey hover-dark-grey"
+                  />
                 <Select
                   id="activities"
                   defaultValue={options[0]}
@@ -96,7 +102,12 @@ export default function components() {
               <div className="col">
                 <h2 className="h5 color-light-grey m-0">How is your team doing?</h2>
               </div>
-              <div className="col text-right">
+              <div className="col flex ai-c jc-e">
+                <IconDownload
+                  width="24px"
+                  height="24px"
+                  className="mr-1 color-light-grey hover-dark-grey"
+                  />
                 <Select
                   id="team"
                   defaultValue={options[0]}
@@ -181,7 +192,12 @@ export default function components() {
               <div className="col">
                 <h2 className="h5 color-light-grey m-0">Popular rewards</h2>
               </div>
-              <div className="col text-right">
+              <div className="col flex ai-c jc-e">
+                <IconDownload
+                  width="24px"
+                  height="24px"
+                  className="mr-1 color-light-grey hover-dark-grey"
+                  />
                 <Select
                   id="activities"
                   defaultValue={options[7]}

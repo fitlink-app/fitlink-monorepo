@@ -333,6 +333,20 @@
 .color-grey-200 { color: $grey-200; }
 .color-grey-300 { color: $grey-300; }
 
+.hover-primary:hover { color: $primary; }
+.hover-dark:hover { color: $dark; }
+.hover-dark-grey:hover { color: $darkGrey; }
+.hover-grey:hover { color: $grey; }
+.hover-light-grey:hover { color: $lightGrey; }
+.hover-white:hover { color: $white; }
+.hover-red:hover { color: $red; }
+
+.hover-grey-50:hover { color: $grey-50; }
+.hover-grey-80:hover { color: $grey-80; }
+.hover-grey-100:hover { color: $grey-100; }
+.hover-grey-200:hover { color: $grey-200; }
+.hover-grey-300:hover { color: $grey-300; }
+
 .bg-primary { background-color: $primary; }
 .bg-dark { background-color: $dark; }
 .bg-dark-grey { background-color: $darkGrey; }
