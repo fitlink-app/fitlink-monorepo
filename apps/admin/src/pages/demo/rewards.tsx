@@ -189,12 +189,12 @@ export default function components() {
               <h2 className="h1 light mb-0">
                 Fitlink sponsored rewards
               </h2>
-              <small
-                className="ml-1 mt-3"
+              <p
+                className="ml-1 mt-3 pointer color-light-grey hover-dark-grey"
                 onClick={ () => setShowFL(false) }
                 >
                 Hide Fitlink sponsored rewards
-                </small>
+              </p>
             </div>
             <div className="col-12 col-lg-4 text-lg-right">
               <Select
@@ -218,7 +218,7 @@ export default function components() {
           </div>
         </>
         :
-        <small onClick={ () => setShowFL(true) }>Show Fitlink sponsored rewards</small>
+        <p onClick={ () => setShowFL(true) } className="pointer color-light-grey hover-dark-grey">Show Fitlink sponsored rewards</p>
       }
 
       <AnimatePresence initial={false}>
