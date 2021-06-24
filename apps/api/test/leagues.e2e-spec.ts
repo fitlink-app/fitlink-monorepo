@@ -298,6 +298,8 @@ describe('Leagues', () => {
 
     expect(post.statusCode).toEqual(201)
     expect(post.json().success).toEqual(true)
+    expect(post.json().league.id).toEqual(league.id)
+    expect(post.json().leaderboardEntry.id).toBeDefined()
     expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
       1
     )
@@ -459,6 +461,62 @@ describe('Leagues', () => {
     expect(data4.statusCode).toBe(200)
     expect(data4.json().id).toBe(organisation_assigned_league.id)
     expect(data4.json().organisation.avatar).toBeDefined()
+  })
+
+  it(`GET /leagues/:id/members A user can get the members/ranks of a league`, async () => {
+    const league = (await LeaguesSetup('Test League'))[0]
+
+    // Set the league as public
+    await app.get(Connection).getRepository(League).update(league.id, {
+      access: LeagueAccess.Public
+    })
+
+    await joinLeague(authHeaders)
+    await joinLeague(authHeaders2)
+    await joinLeague(authHeaders3)
+
+    const data = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}/members`,
+      headers: authHeaders
+    })
+
+    expect(data.statusCode).toBe(200)
+    expect(data.json().results.length).toBe(3)
+    expect(data.json().results[0].id).toBeDefined()
+    expect(data.json().results[0].points).toBeDefined()
+    expect(data.json().results[0].wins).toBeDefined()
+    expect(data.json().results[0].user.avatar).toBeDefined()
+
+    // Make sure user data hasn't leaked
+    expect(data.json().results[0].user.email).toBeUndefined()
+    expect(data.json().results[0].user.password).toBeUndefined()
+
+    // Gets the
+    const rank = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}/rank`,
+      headers: authHeaders
+    })
+
+    console.log(user1, user2, user3)
+    console.log(rank.json().results[0].user.id, rank.json().results[1].user.id)
+
+    expect(rank.json().results[0].user.id).toEqual(user2)
+    expect(rank.json().results[1].user.id).toEqual(user1)
+    expect(rank.json().results[2]).toBeUndefined()
+
+    // Make sure user data hasn't leaked
+    expect(rank.json().results[0].user.email).toBeUndefined()
+    expect(rank.json().results[0].user.password).toBeUndefined()
+
+    async function joinLeague(headers: NodeJS.Dict<string>) {
+      return await app.inject({
+        method: 'POST',
+        url: `/leagues/${league.id}/join`,
+        headers
+      })
+    }
   })
 
   // A team admin can access a team league

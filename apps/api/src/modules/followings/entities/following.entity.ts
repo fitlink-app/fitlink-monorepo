@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { PrimaryGeneratedColumn, ManyToOne, Entity, JoinColumn } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
-import { User } from '../../users/entities/user.entity'
+import { User, UserPublic } from '../../users/entities/user.entity'
 
 @Entity()
 export class Following extends CreatableEntity {

@@ -16,6 +16,7 @@ import { Team } from '../../teams/entities/team.entity'
 import { Organisation } from '../../organisations/entities/organisation.entity'
 import { User } from '../../users/entities/user.entity'
 import { Image } from '../../images/entities/image.entity'
+import { ApiProperty } from '@nestjs/swagger'
 
 export enum LeagueAccess {
   Private = 'private',
@@ -31,9 +32,11 @@ export enum LeagueInvitePermission {
 
 @Entity()
 export class League extends CreatableEntity {
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string
 
+  @ApiProperty()
   @ManyToOne(() => Sport, (sport) => sport.leagues)
   @JoinColumn()
   sport: Sport
@@ -48,6 +51,7 @@ export class League extends CreatableEntity {
   @ManyToOne(() => User, (user) => user.owned_leagues)
   owner: User
 
+  @ApiProperty()
   @OneToOne(() => Image, { nullable: true })
   @JoinColumn()
   image: Image
@@ -56,34 +60,42 @@ export class League extends CreatableEntity {
   @JoinTable()
   users: User[]
 
+  @ApiProperty()
   @ManyToOne(() => Team, (team) => team.leagues)
   team?: Team
 
+  @ApiProperty()
   @ManyToOne(() => Organisation, (organisation) => organisation.leagues)
   organisation?: Organisation
 
+  @ApiProperty()
   @Column()
   name: string
 
+  @ApiProperty()
   @Column()
   description: string
 
+  @ApiProperty()
   @Column({
     default: 1
   })
   duration: number
 
+  @ApiProperty()
   @Column({
     default: false
   })
   repeat: boolean
 
+  @ApiProperty()
   @Column({
     enum: LeagueAccess,
     default: LeagueAccess.Private
   })
   access: LeagueAccess
 
+  @ApiProperty()
   @Column({
     enum: LeagueInvitePermission,
     default: LeagueInvitePermission.Participant

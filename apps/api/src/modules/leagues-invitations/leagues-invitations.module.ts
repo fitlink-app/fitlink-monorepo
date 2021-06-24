@@ -6,13 +6,14 @@ import { ConfigService, ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { LeaguesInvitation } from './entities/leagues-invitation.entity'
 import { JwtModule } from '@nestjs/jwt'
-import { UsersService } from '../users/users.service'
 import { LeaguesService } from '../leagues/leagues.service'
 import { League } from '../leagues/entities/league.entity'
 import { Team } from '../teams/entities/team.entity'
 import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
 import { Organisation } from '../organisations/entities/organisation.entity'
 import { User } from '../users/entities/user.entity'
+import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
+import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { User } from '../users/entities/user.entity'
       LeaguesInvitation,
       League,
       Leaderboard,
+      LeaderboardEntry,
       Team,
       Organisation,
       User
@@ -39,6 +41,7 @@ import { User } from '../users/entities/user.entity'
   providers: [
     LeaguesInvitationsService,
     LeaguesService,
+    LeaderboardEntriesService,
     EmailService,
     ConfigService
   ],
