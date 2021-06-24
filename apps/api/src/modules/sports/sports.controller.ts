@@ -20,11 +20,12 @@ import {
   DeleteResponse,
   UpdateResponse
 } from '../../decorators/swagger.decorator'
-import { ApiResponse } from '@nestjs/swagger'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { PaginationQuery } from '../../helpers/paginate'
 
 @ApiBaseResponses()
 @Controller('sports')
+@ApiTags('sports')
 export class SportsController {
   constructor(private readonly sportsService: SportsService) {}
 

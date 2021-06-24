@@ -15,8 +15,10 @@ import { Roles } from '../user-roles/entities/user-role.entity'
 import { VerifyOrganisationsInvitationDto } from './dto/verify-organisations-invitation.dto'
 import { Organisation } from '../organisations/entities/organisation.entity'
 import { Public } from '../../decorators/public.decorator'
+import { ApiTags } from '@nestjs/swagger'
 
 @Controller()
+@ApiTags('organisations')
 export class OrganisationsInvitationsController {
   constructor(
     private readonly organisationsInvitationsService: OrganisationsInvitationsService
