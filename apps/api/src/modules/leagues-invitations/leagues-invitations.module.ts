@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common'
 import { LeaguesInvitationsService } from './leagues-invitations.service'
 import { LeaguesInvitationsController } from './leagues-invitations.controller'
-import { EmailService } from '../common/email.service'
 import { ConfigService, ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { LeaguesInvitation } from './entities/leagues-invitation.entity'
@@ -14,9 +13,11 @@ import { Organisation } from '../organisations/entities/organisation.entity'
 import { User } from '../users/entities/user.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
+import { CommonModule } from '../common/common.module'
 
 @Module({
   imports: [
+    CommonModule,
     TypeOrmModule.forFeature([
       LeaguesInvitation,
       League,
@@ -42,7 +43,6 @@ import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-en
     LeaguesInvitationsService,
     LeaguesService,
     LeaderboardEntriesService,
-    EmailService,
     ConfigService
   ],
   exports: [

@@ -126,6 +126,11 @@ export class User extends CreatableEntity {
   })
   password_reset_at: Date
 
+  @Column({
+    nullable: true
+  })
+  email_reset_at: Date
+
   @OneToOne(() => Image, {
     cascade: ['remove'],
     onDelete: 'CASCADE'
@@ -211,6 +216,12 @@ export class User extends CreatableEntity {
     unique: true
   })
   email: string
+
+  @ApiProperty()
+  @Column({
+    default: false
+  })
+  email_verified: boolean
 
   @ApiProperty()
   @Column({

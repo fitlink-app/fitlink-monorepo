@@ -48,7 +48,10 @@ export class AuthService {
   ): Promise<User | false> {
     const user = await this.usersService.findByEmail(email)
     if (user) {
-      const valid = await this.verifyPassword(password, user.password)
+      const valid = await this.usersService.verifyPassword(
+        password,
+        user.password
+      )
       if (valid) {
         return user
       }
@@ -88,8 +91,11 @@ export class AuthService {
     const user = await this.usersService.create({
       name,
       email,
-      password: await this.hashPassword(password)
+      password: await this.usersService.hashPassword(password)
     })
+
+    // Send a verification email
+    await this.usersService.sendVerificationEmail(user.id, email)
 
     return {
       auth: await this.login(user),
@@ -230,28 +236,6 @@ export class AuthService {
   }
 
   /**
-   * Hashes a password with bcrypt
-   * @param password
-   * @returns hashed password
-   */
-  async hashPassword(password: string) {
-    const salt = await bcrypt.genSalt()
-    const hash = await bcrypt.hash(password, salt)
-    return hash
-  }
-
-  /**
-   * Verifies a password with bcrypt
-   * @param password
-   * @param hash
-   * @returns true if valid, otherwise false
-   */
-  async verifyPassword(password: string, hash: string) {
-    const isMatch = await bcrypt.compare(password, hash)
-    return isMatch
-  }
-
-  /**
    * Sends user a password reset link in an email
    * @param email
    * @returns
@@ -296,7 +280,9 @@ export class AuthService {
       if (user.password_reset_at > issuedAt) {
         throw new Error('You have already reset your password')
       }
-      const password = await this.hashPassword(resetPasswordDto.password)
+      const password = await this.usersService.hashPassword(
+        resetPasswordDto.password
+      )
       return this.usersService.updatePassword(user.id, password)
     } else {
       throw new Error('User not found')

@@ -10,11 +10,14 @@ import IconYoga from '../../components/icons/IconYoga'
 import ProgressChart from '../../components/charts/ProgressChart'
 import IconWater from '../../components/icons/IconWater'
 import Select from '../../components/elements/Select'
+import IconDownload from '../../components/icons/IconDownload'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 let rewards = require('../../services/dummy/stats-rewards.json')
 
 export default function components() {
-  rewards = rewards.sort((a, b) => parseFloat(b['redeemed']) - parseFloat(a['redeemed']))
+  rewards = rewards.sort(
+    (a, b) => parseFloat(b['redeemed']) - parseFloat(a['redeemed'])
+  )
 
   const options = [
     {
@@ -72,9 +75,16 @@ export default function components() {
           <Card className="p-3 card--stretch">
             <div className="row ai-c">
               <div className="col">
-                <h2 className="h5 color-light-grey m-0">Most popular activities</h2>
+                <h2 className="h5 color-light-grey m-0">
+                  Most popular activities
+                </h2>
               </div>
-              <div className="col text-right">
+              <div className="col flex ai-c jc-e">
+                <IconDownload
+                  width="24px"
+                  height="24px"
+                  className="mr-1 color-light-grey hover-dark-grey"
+                />
                 <Select
                   id="activities"
                   defaultValue={options[0]}
@@ -94,9 +104,16 @@ export default function components() {
           <Card className="p-3 card--stretch">
             <div className="row ai-c">
               <div className="col">
-                <h2 className="h5 color-light-grey m-0">How is your team doing?</h2>
+                <h2 className="h5 color-light-grey m-0">
+                  How is your team doing?
+                </h2>
               </div>
-              <div className="col text-right">
+              <div className="col flex ai-c jc-e">
+                <IconDownload
+                  width="24px"
+                  height="24px"
+                  className="mr-1 color-light-grey hover-dark-grey"
+                />
                 <Select
                   id="team"
                   defaultValue={options[0]}
@@ -172,7 +189,6 @@ export default function components() {
             </div>
           </Card>
         </div>
-
       </div>
       <div className="row mt-2">
         <div className="col-12 col-xl-6 col-hd-4 mt-2">
@@ -181,7 +197,12 @@ export default function components() {
               <div className="col">
                 <h2 className="h5 color-light-grey m-0">Popular rewards</h2>
               </div>
-              <div className="col text-right">
+              <div className="col flex ai-c jc-e">
+                <IconDownload
+                  width="24px"
+                  height="24px"
+                  className="mr-1 color-light-grey hover-dark-grey"
+                />
                 <Select
                   id="activities"
                   defaultValue={options[7]}
@@ -194,17 +215,22 @@ export default function components() {
             </div>
             <table className="static-table mt-2">
               <tbody>
-                { rewards.slice(0, 10).map((e, i) => (
+                {rewards.slice(0, 10).map((e, i) => (
                   <tr key={`row${i}`}>
                     <td>
-                      <div className="static-table__image" style={{backgroundImage: `url(${e.image})`}} />
+                      <div
+                        className="static-table__image"
+                        style={{ backgroundImage: `url(${e.image})` }}
+                      />
                     </td>
                     <td>
-                    <strong className="medium">{e.brand}</strong>
+                      <strong className="medium">{e.brand}</strong>
                     </td>
                     <td>{e.title}</td>
                     <td className="text-right">
-                      <div className="chip" style={{backgroundColor: colors[i]}}>
+                      <div
+                        className="chip"
+                        style={{ backgroundColor: colors[i] }}>
                         {e.redeemed}
                       </div>
                     </td>
@@ -220,21 +246,41 @@ export default function components() {
             <ul className="news">
               <li className="unread">
                 <h5>Your team isn't dinking enough water 💧</h5>
-                <p>Failing to drink enough water can cause dehydration and adverse symptoms, including fatigue, headache and weakened immunity. Here are some tips to promote water intake.</p>
+                <p>
+                  Failing to drink enough water can cause dehydration and
+                  adverse symptoms, including fatigue, headache and weakened
+                  immunity. Here are some tips to promote water intake.
+                </p>
               </li>
               <Link href="/demo/knowledge-base/3316">
                 <li className="unread link">
                   <h5>Encouranging mindfulness in the workplace 🧘🏽</h5>
-                  <p>One way mindfulness can help is simply by allowing us to improve our focus. When we constantly flit from one task to another, the quality of our work can suffer. By practicing mindfulness — simply coming back to the present moment over and over again — we can train ourselves to become more focused.</p>
+                  <p>
+                    One way mindfulness can help is simply by allowing us to
+                    improve our focus. When we constantly flit from one task to
+                    another, the quality of our work can suffer. By practicing
+                    mindfulness — simply coming back to the present moment over
+                    and over again — we can train ourselves to become more
+                    focused.
+                  </p>
                 </li>
               </Link>
               <li>
                 <h5>Create your first league 🏆</h5>
-                <p>Inspire your team to get moving, why not create a simple steps league so that everyone can get involved.</p>
+                <p>
+                  Inspire your team to get moving, why not create a simple steps
+                  league so that everyone can get involved.
+                </p>
               </li>
               <li>
                 <h5>Create your first reward 🎁</h5>
-                <p>Encourage your team to get active, get moving and stay healthy by creating rewards that fit your people. How about free yoga classes, a free smoothie, fitness trackers and gadgets, spa vouchers, lunch vouchers, 1-hour off work, a day off work, a free getaway? The options are endless.</p>
+                <p>
+                  Encourage your team to get active, get moving and stay healthy
+                  by creating rewards that fit your people. How about free yoga
+                  classes, a free smoothie, fitness trackers and gadgets, spa
+                  vouchers, lunch vouchers, 1-hour off work, a day off work, a
+                  free getaway? The options are endless.
+                </p>
               </li>
             </ul>
           </Card>
@@ -245,12 +291,23 @@ export default function components() {
             <ul className="news">
               <li className="unread">
                 <h5>App version 2.1.0 release</h5>
-                <p>We've made a few under the hood improvements to performace. This update will happen automatically when your team launches the app.</p>
+                <p>
+                  We've made a few under the hood improvements to performace.
+                  This update will happen automatically when your team launches
+                  the app.
+                </p>
               </li>
               <li className="unread">
                 <img src="/temp/tomorrows-forests.png" alt="" />
                 <h5>Tomorrow's Forests</h5>
-                <p>We've partnered with Tomorrows Forrest to offer all Fitlink users the opportunity to spend their points on planting a tree. You'll receive GPS coordinates for every tree you plant, regular updates on how our forests are developing, plus exclusive blog articles you can share with your employees or customers.</p>
+                <p>
+                  We've partnered with Tomorrows Forrest to offer all Fitlink
+                  users the opportunity to spend their points on planting a
+                  tree. You'll receive GPS coordinates for every tree you plant,
+                  regular updates on how our forests are developing, plus
+                  exclusive blog articles you can share with your employees or
+                  customers.
+                </p>
               </li>
             </ul>
           </Card>
