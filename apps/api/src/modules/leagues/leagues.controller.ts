@@ -224,6 +224,55 @@ export class LeaguesController {
   }
 
   /**
+   * 1. Gets a ranked list of members (paginated)
+   *
+   * @param id
+   * @returns
+   */
+  @Get('/leagues/:leagueId/members')
+  @ApiResponse({ type: League, status: 200 })
+  async getLeagueMembers(
+    @Param('leagueId') leagueId: string,
+    @Query() query: PaginationQuery,
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      const result = await this.leaguesService.findOneAccessibleToUser(
+        leagueId,
+        authUser.id
+      )
+      if (!result) {
+        throw new ForbiddenException(
+          'You do not have permission to view this league'
+        )
+      }
+    }
+
+    return this.leaguesService.getLeaderboardMembers(leagueId, {
+      limit: Number(query.limit) || 0,
+      page: Number(query.page) || 0
+    })
+  }
+
+  /**
+   * Gets the rank of the user and 2 users flanking it.
+   *
+   * @param leagueId
+   * @returns
+   */
+  @Get('/leagues/:leagueId/rank')
+  @ApiResponse({ type: League, status: 200 })
+  getLeagueRankAndFlanks(
+    @Param('leagueId') leagueId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    return this.leaguesService.getLeaderboardRankAndFlanks(
+      leagueId,
+      authUser.id
+    )
+  }
+
+  /**
    * A user can join a private league
    *
    * @param id

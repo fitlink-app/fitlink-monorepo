@@ -4,7 +4,8 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
 
-mapboxgl.accessToken = 'pk.eyJ1IjoibHVrZS1maXRsaW5rYXBwIiwiYSI6ImNrcTloMjlnZTAwbGwzMHB0emN6aWpzOXQifQ.Z_8_A-whjV_LJv9nHaNNCg'
+mapboxgl.accessToken =
+  'pk.eyJ1IjoibHVrZS1maXRsaW5rYXBwIiwiYSI6ImNrcTloMjlnZTAwbGwzMHB0emN6aWpzOXQifQ.Z_8_A-whjV_LJv9nHaNNCg'
 
 export type LocationSelectProps = {
   label?: string
@@ -19,7 +20,6 @@ export default function LocationSelect({
   lat = 51.513421230466804,
   onChange
 }: LocationSelectProps) {
-
   useEffect(() => {
     const map = new mapboxgl.Map({
       container: 'map',
@@ -41,39 +41,47 @@ export default function LocationSelect({
       mapboxgl: mapboxgl
     })
     document.getElementById('geocoder').appendChild(geocoder.onAdd(map))
-    geocoder.on('result', function(e) {
+    geocoder.on('result', function (e) {
       if (onChange) {
-        onChange(e.result.geometry.coordinates[0], e.result.geometry.coordinates[1])
+        onChange(
+          e.result.geometry.coordinates[0],
+          e.result.geometry.coordinates[1]
+        )
       }
-      marker.setLngLat([e.result.geometry.coordinates[0], e.result.geometry.coordinates[1]])
+      marker.setLngLat([
+        e.result.geometry.coordinates[0],
+        e.result.geometry.coordinates[1]
+      ])
     })
 
     var marker = new mapboxgl.Marker({
       draggable: true
-      })
+    })
       .setLngLat([lng, lat])
       .addTo(map)
-       
-      function onDragEnd() {
-        var lngLat = marker.getLngLat()
-        if (onChange) {
-          onChange(lngLat.lng, lngLat.lat)
-        }
+
+    function onDragEnd() {
+      var lngLat = marker.getLngLat()
+      if (onChange) {
+        onChange(lngLat.lng, lngLat.lat)
       }
-       
-      marker.on('dragend', onDragEnd)
+    }
+
+    marker.on('dragend', onDragEnd)
   }, [])
 
-  const map = <>
-    <div className="location-select" id="map"></div>
-    <div id="geocoder" className="geocoder"></div>
-  </>
+  const map = (
+    <>
+      <div className="location-select" id="map"></div>
+      <div id="geocoder" className="geocoder"></div>
+    </>
+  )
 
   if (label) {
     return (
       <div className="input-block">
         <label htmlFor="map">{label}</label>
-        { map }
+        {map}
       </div>
     )
   }

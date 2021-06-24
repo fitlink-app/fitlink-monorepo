@@ -123,23 +123,17 @@ export default function components() {
 
   const loadReadonlyReward = (reward: any) => {
     setWarning(false)
-    setDrawContent(
-      <RewardDetails {...reward} />
-    )
+    setDrawContent(<RewardDetails {...reward} />)
   }
 
   const loadReward = (reward: any) => {
     setWarning(true)
-    setDrawContent(
-      <RewardForm current={reward} />
-    )
+    setDrawContent(<RewardForm current={reward} />)
   }
 
   const NewRewardForm = () => {
     setWarning(true)
-    setDrawContent(
-      <RewardForm />
-    )
+    setDrawContent(<RewardForm />)
   }
 
   return (
@@ -148,10 +142,7 @@ export default function components() {
         <div className="col-12 col-lg-8">
           <div className="flex ai-c">
             <h1 className="light mb-0 mr-2">Your rewards</h1>
-            <button
-              className="button alt small mt-1"
-              onClick={NewRewardForm}
-              >
+            <button className="button alt small mt-1" onClick={NewRewardForm}>
               Add new
             </button>
           </div>
@@ -175,24 +166,21 @@ export default function components() {
             <IconPlus />
           </div>
         </div>
-        { sorted.map((r:RewardProps, i) => (
+        {sorted.map((r: RewardProps, i) => (
           <div className="rewards__wrap" key={`fl-r-${i}`}>
-            <Reward {...r} onClick={ () => loadReward(r)} />
+            <Reward {...r} onClick={() => loadReward(r)} />
           </div>
         ))}
       </div>
 
-      { showFL ?
+      {showFL ? (
         <>
           <div className="row mb-2">
             <div className="col-12 col-lg-8 flex ai-c">
-              <h2 className="h1 light mb-0">
-                Fitlink sponsored rewards
-              </h2>
+              <h2 className="h1 light mb-0">Fitlink sponsored rewards</h2>
               <p
                 className="ml-1 mt-3 pointer color-light-grey hover-dark-grey"
-                onClick={ () => setShowFL(false) }
-                >
+                onClick={() => setShowFL(false)}>
                 Hide Fitlink sponsored rewards
               </p>
             </div>
@@ -210,16 +198,20 @@ export default function components() {
             </div>
           </div>
           <div className="rewards flex">
-            { sortedFL.map((r:RewardProps, i) => (
+            {sortedFL.map((r: RewardProps, i) => (
               <div className="rewards__wrap" key={`fl-r-${i}`}>
-                <Reward {...r} onClick={ () => loadReadonlyReward(r)} />
+                <Reward {...r} onClick={() => loadReadonlyReward(r)} />
               </div>
             ))}
           </div>
         </>
-        :
-        <p onClick={ () => setShowFL(true) } className="pointer color-light-grey hover-dark-grey">Show Fitlink sponsored rewards</p>
-      }
+      ) : (
+        <p
+          onClick={() => setShowFL(true)}
+          className="pointer color-light-grey hover-dark-grey">
+          Show Fitlink sponsored rewards
+        </p>
+      )}
 
       <AnimatePresence initial={false}>
         {drawContent && (

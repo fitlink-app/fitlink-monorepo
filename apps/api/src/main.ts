@@ -29,6 +29,7 @@ async function bootstrap() {
     ApiModule,
     fastifyAdapter
   )
+
   app.setGlobalPrefix('api/v1')
 
   const config = new DocumentBuilder()
@@ -71,8 +72,6 @@ async function bootstrap() {
   // Mock email service in local development
   // This writes all emails to the email-debug.log file in the root
   if (configService.get('EMAIL_DEBUG') === '1') {
-    const emailService = app.get(EmailService)
-    emailService.sendTemplatedEmail = sendTemplatedEmail
     console.log(
       bgMagenta('Notice') +
         bold(

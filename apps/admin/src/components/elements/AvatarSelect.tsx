@@ -5,10 +5,7 @@ export type AvatarSelectProps = {
   onChange?: (file) => void
 }
 
-export default function AvatarSelect({
-  src,
-  onChange
-}:AvatarSelectProps) {
+export default function AvatarSelect({ src, onChange }: AvatarSelectProps) {
   const [image, setImage] = useState(src || '')
 
   const previewImage = (e) => {
@@ -20,18 +17,15 @@ export default function AvatarSelect({
     <div className="avatar-select">
       <div
         className="avatar-select__preview"
-        style={{backgroundImage: `url(${image})`}}
-        />
-      <input
-        type="file"
-        id="image"
-        onChange={previewImage}
-        accept="image/*"
+        style={{ backgroundImage: `url(${image})` }}
       />
+      <input type="file" id="image" onChange={previewImage} accept="image/*" />
       <label htmlFor="image">Select an image</label>
-      { image !== '' &&
-        <small className="block ml-a mr-0" onClick={ () => setImage('') }>remove image</small>
-      }
+      {image !== '' && (
+        <small className="block ml-a mr-0" onClick={() => setImage('')}>
+          remove image
+        </small>
+      )}
     </div>
   )
 }

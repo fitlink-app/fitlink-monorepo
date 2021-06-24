@@ -11,7 +11,9 @@ import { plainToClass } from 'class-transformer'
 export class FollowingsService {
   constructor(
     @InjectRepository(Following)
-    private followingRepository: Repository<Following>
+    private followingRepository: Repository<Following>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>
   ) {}
 
   /**
@@ -85,25 +87,50 @@ export class FollowingsService {
    */
   async findAllFollowers(
     userId: string,
-    options: PaginationOptionsInterface
+    { page, limit }: PaginationOptionsInterface
   ): Promise<Pagination<UserPublic>> {
     const me = new User()
     me.id = userId
 
-    const [results, total] = await this.followingRepository.findAndCount({
-      where: { following: { id: userId } },
-      relations: ['following'],
-      take: options.limit,
-      skip: options.page * options.limit
-    })
+    const query = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.followers', 'f1', 'f1.following.id = :userId', {
+        userId
+      })
+      .leftJoinAndSelect(
+        'user.following',
+        'f2',
+        'f2.follower.id = f1.follower.id'
+      )
+      .take(limit)
+      .skip(page * limit)
+      .where('f1.following.id = :userId', { userId })
+
+    const [results, total] = await query.getManyAndCount()
+
+    // const [results, total] = await this.followingRepository.findAndCount({
+    //   where: { following: { id: userId } },
+    //   relations: ['following'],
+    //   take: limit,
+    //   skip: page * limit
+    // })
 
     return new Pagination<UserPublic>({
-      results: results.map((each) =>
-        plainToClass(UserPublic, each.following, {
-          excludeExtraneousValues: true
-        })
-      ),
+      results: results.map(this.getFollowersPublic),
       total
+    })
+  }
+
+  getFollowersPublic(user: User) {
+    const userPublic = (user as unknown) as UserPublic
+
+    userPublic.following = Boolean(
+      user.following && user.following.length === 1
+    )
+    userPublic.follower = Boolean(user.followers && user.followers.length === 1)
+
+    return plainToClass(UserPublic, userPublic, {
+      excludeExtraneousValues: true
     })
   }
 

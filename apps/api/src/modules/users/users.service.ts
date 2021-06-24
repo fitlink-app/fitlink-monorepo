@@ -54,15 +54,26 @@ export class UsersService {
 
   async searchByName(
     keyword: string,
+    userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    const [results, total] = await this.userRepository.findAndCount({
-      take: limit,
-      skip: page * limit,
-      where: {
-        name: ILike(`%${keyword}%`)
-      }
-    })
+    const query = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.following', 'f1', 'f1.follower.id = :userId', {
+        userId
+      })
+      .leftJoinAndSelect('user.followers', 'f2', 'f2.following.id = :userId', {
+        userId
+      })
+      .take(limit)
+      .skip(page * limit)
+      .where('name ILIKE :keyword AND user.id != :userId', {
+        keyword: `%${keyword}%`,
+        userId
+      })
+
+    const [results, total] = await query.getManyAndCount()
+
     return new Pagination<UserPublic>({
       results: results.map(this.getUserPublic),
       total
@@ -79,7 +90,14 @@ export class UsersService {
   }
 
   getUserPublic(user: User) {
-    return plainToClass(UserPublic, user, {
+    const userPublic = (user as unknown) as UserPublic
+
+    userPublic.following = Boolean(
+      user.following && user.following.length === 1
+    )
+    userPublic.follower = Boolean(user.followers && user.followers.length === 1)
+
+    return plainToClass(UserPublic, userPublic, {
       excludeExtraneousValues: true
     })
   }

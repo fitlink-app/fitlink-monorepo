@@ -96,13 +96,15 @@ const durations = [
   }
 ]
 
-export default function LeagueForm({
-  current
-}:LeagueFormProps) {
+export default function LeagueForm({ current }: LeagueFormProps) {
   const [image, setImage] = useState(current?.image || '')
   const [name, setName] = useState(current?.name || '')
   const [description, setDescription] = useState(current?.description || '')
-  const [startDate, setStartDate] = useState(current?.startDate ? new Date(current?.startDate) : add(new Date(), { months: 2 }))
+  const [startDate, setStartDate] = useState(
+    current?.startDate
+      ? new Date(current?.startDate)
+      : add(new Date(), { months: 2 })
+  )
   const [duration, setDuration] = useState(current?.duration || 7)
   const [sport, setSport] = useState(current?.sport || 'steps')
   const [repeats, setRepeats] = useState(current?.repeats || true)
@@ -112,10 +114,8 @@ export default function LeagueForm({
   }
 
   return (
-    <form onSubmit={ (e) => e.preventDefault() }>
-      <h4 className="light mb-3">
-        { current ? 'Edit league' : 'New league' }
-      </h4>
+    <form onSubmit={(e) => e.preventDefault()}>
+      <h4 className="light mb-3">{current ? 'Edit league' : 'New league'}</h4>
       <League
         image={image}
         name={name}
@@ -162,7 +162,9 @@ export default function LeagueForm({
       />
       <Select
         id="duration"
-        defaultValue={durations[durations.findIndex(x => x.value === duration)]}
+        defaultValue={
+          durations[durations.findIndex((x) => x.value === duration)]
+        }
         isSearchable={false}
         options={durations}
         label="Duration"
@@ -170,7 +172,7 @@ export default function LeagueForm({
       />
       <Select
         id="sport"
-        defaultValue={sports[sports.findIndex(x => x.value === sport)]}
+        defaultValue={sports[sports.findIndex((x) => x.value === sport)]}
         isSearchable={false}
         options={sports}
         label="Sport"
@@ -182,10 +184,10 @@ export default function LeagueForm({
         checked={repeats}
         showSwitch={true}
         onChange={(v) => setRepeats(v)}
-        />
+      />
       <div className="text-right mt-2">
         <button className="button">
-        { current ? 'Update' : 'Create league' }
+          {current ? 'Update' : 'Create league'}
         </button>
       </div>
     </form>

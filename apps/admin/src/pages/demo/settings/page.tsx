@@ -11,9 +11,7 @@ export default function components() {
             {/* <h2 className="h5 color-light-grey m-0">General account settings</h2> */}
           </Card>
         </div>
-        <div className="col-12 col-lg-6 mt-2">
-          
-        </div>
+        <div className="col-12 col-lg-6 mt-2"></div>
       </div>
     </Dashboard>
   )

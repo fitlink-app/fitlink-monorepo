@@ -147,6 +147,9 @@ export class UsersController {
 
   /**
    * Searches for users by keyword
+   * and associates the search to the auth
+   * user to determine follower/following relationships
+   *
    * @param query
    * @returns paginated users
    */
@@ -154,8 +157,11 @@ export class UsersController {
   @PaginationBody()
   @ApiQuery({ type: SearchUserDto })
   @ApiResponse({ type: UserPublic, isArray: true, status: 200 })
-  search(@Query() query: PaginationQuery & SearchUserDto) {
-    return this.usersService.searchByName(query.q, {
+  search(
+    @Query() query: PaginationQuery & SearchUserDto,
+    @AuthUser() user: AuthenticatedUser
+  ) {
+    return this.usersService.searchByName(query.q, user.id, {
       limit: Number(query.limit) || 10,
       page: Number(query.page) || 0
     })
