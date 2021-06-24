@@ -19,13 +19,13 @@ const App = () => {
     <SafeAreaProvider>
       <ThemeProvider>
         <AppBackground>
-          <AuthProvider>
-            <QueryPersistor>
-              <ModalProvider>
+          <ModalProvider>
+            <AuthProvider>
+              <QueryPersistor>
                 <Router />
-              </ModalProvider>
-            </QueryPersistor>
-          </AuthProvider>
+              </QueryPersistor>
+            </AuthProvider>
+          </ModalProvider>
         </AppBackground>
       </ThemeProvider>
     </SafeAreaProvider>
