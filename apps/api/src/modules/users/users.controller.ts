@@ -83,7 +83,11 @@ export class UsersController {
     @AuthUser() user: AuthenticatedUser,
     @Body() body: UpdateUserEmailDto
   ) {
-    return this.usersService.updateEmail(user.id, body.email)
+    try {
+      return this.usersService.updateEmail(user.id, body.email)
+    } catch (e) {
+      throw new BadRequestException(e)
+    }
   }
 
   @Put('me/password')

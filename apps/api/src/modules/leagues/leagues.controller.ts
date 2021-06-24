@@ -367,16 +367,26 @@ export class LeaguesController {
   }
 
   /**
-   * Superadmin can delete a league.
-   * Typically this is a public league.
+   * 1. Superadmin can delete a league.
+   * 2. League owner can delete the private league
    * @param id
    * @returns
    */
-  @Iam(Roles.SuperAdmin)
-  @Delete('/leagues/:id')
+  @Delete('/leagues/:leagueId')
   @DeleteResponse()
-  remove(@Param('id') id: string) {
-    return this.leaguesService.remove(id)
+  async remove(
+    @Param('leagueId') leagueId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      if (!(await this.leaguesService.isOwnedBy(leagueId, authUser.id))) {
+        throw new ForbiddenException(
+          'You do not have permission to delete this league'
+        )
+      }
+    }
+
+    return this.leaguesService.remove(leagueId)
   }
 
   /**

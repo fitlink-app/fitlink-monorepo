@@ -45,7 +45,7 @@ describe('Users', () => {
     await app.close()
   })
 
-  it.only(`GET /users/search?q=term 200 Searches for users`, async () => {
+  it(`GET /users/search?q=term 200 Searches for users`, async () => {
     const result = await app.inject({
       method: 'GET',
       url: '/users/search',
@@ -59,12 +59,13 @@ describe('Users', () => {
     expect(result.json().results.length).toBeGreaterThan(0)
   })
 
-  it.only(`GET /users/search?q=term 200 Searches for users and can see followed status`, async () => {
+  it(`GET /users/search?q=term 200 Searches for users and can see followed status`, async () => {
     const unique = Date.now()
     const followings = await FollowingsSetup(
       `Test Users ${unique} Follow Name`,
       2
     )
+
     const beingFollowedAuthHeaders = getAuthHeaders(
       {},
       followings[0].following.id

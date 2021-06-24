@@ -26,7 +26,7 @@ import {
 import { SportSetup, SportsTeardown } from './seeds/sport.seed'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 
-describe.skip('Leagues', () => {
+describe('Leagues', () => {
   let app: NestFastifyApplication
   let superadminHeaders: NodeJS.Dict<string>
   let teamAdminHeaders: NodeJS.Dict<string>
@@ -242,6 +242,46 @@ describe.skip('Leagues', () => {
     expect(get.statusCode).toEqual(403)
     expect(put.json().message).toContain('not have permission')
     expect(get.json().message).toContain('not have permission')
+  })
+
+  it('DELETE /leagues/:id A user cannot delete a league they do not own', async () => {
+    const data = await app.inject({
+      method: 'DELETE',
+      url: `/leagues/${seeded_league.id}`,
+      headers: authHeaders
+    })
+
+    expect(data.statusCode).toBe(403)
+  })
+
+  it('DELETE /leagues/:id A user can delete a private league that they own', async () => {
+    const imageId = images.pop().id
+
+    const post = await app.inject({
+      method: 'POST',
+      url: '/leagues',
+      headers: authHeaders,
+      payload: {
+        name: 'Test League',
+        description: 'A league for test deletion',
+        sportId: sportId,
+        duration: 7,
+        repeat: true,
+        imageId
+      }
+    })
+
+    const league = post.json()
+
+    expect(league.owner.id).toBe(user1)
+
+    const data = await app.inject({
+      method: 'DELETE',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders
+    })
+
+    expect(data.statusCode).toBe(200)
   })
 
   it('POST /leagues 201 A superadmin can create a fully public league', async () => {
@@ -620,7 +660,7 @@ describe.skip('Leagues', () => {
     expect(parsed.affected).toBe(1)
   })
 
-  it('DELETE /leagues/:id', async () => {
+  it('DELETE /leagues/:id A superadmin can delete a league', async () => {
     const data = await app.inject({
       method: 'DELETE',
       url: `/leagues/${seeded_league.id}`,
@@ -629,8 +669,6 @@ describe.skip('Leagues', () => {
 
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
-    // After we're done deleting the seeded data we need to re run it.
-    // await runSeeder(TestingLeagueSeed)
   })
 
   it('DELETE teams/teamId/leagues/:id', async () => {
@@ -640,7 +678,7 @@ describe.skip('Leagues', () => {
       headers: teamAdminHeaders
     })
 
-    expect(data.statusCode).toBe(200)
+    1
     expect(data.statusMessage).toBe('OK')
     // After we're done deleting the seeded data we need to re run it.
     // await runSeeder(TeamAssignedLeagueSetup)
