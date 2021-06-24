@@ -160,6 +160,7 @@ export default function ActivityForm({
           />
           <AvatarSelect
             src={organizer_image}
+            onChange={(v) => setOrganizer_image(v)}
             />
         </>
       }
