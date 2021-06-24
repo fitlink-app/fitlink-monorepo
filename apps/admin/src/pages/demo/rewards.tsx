@@ -60,7 +60,12 @@ export default function components() {
   }, []) */
 
   useEffect(() => {
-    setShowFL(window.localStorage.getItem('showFLrewards') === 'true')
+    if (!window.localStorage.getItem('showFLrewards')) {
+      setShowFL(true)
+      window.localStorage.setItem('showFLrewards', 'true')
+    } else {
+      setShowFL(window.localStorage.getItem('showFLrewards') === 'true' )
+    }
   }, [])
 
   useEffect(() => {
