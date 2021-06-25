@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, FindOneOptions, getManager, Repository } from 'typeorm'
+import { Brackets, FindOneOptions, getManager, In, Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { QueueableEventPayload } from '../../models/queueable.model'
 import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
@@ -114,9 +114,9 @@ export class LeaguesService {
     return league
   }
 
-  async isOwnedBy(id: string, userId: string) {
+  async isOwnedBy(leagueId: string, userId: string) {
     const result = await this.leaguesRepository.findOne({
-      where: { id, owner: { id: userId } }
+      where: { id: leagueId, owner: { id: userId } }
     })
     return !!result
   }
@@ -281,6 +281,15 @@ export class LeaguesService {
       .orderBy('league.created_at', 'DESC')
   }
 
+  /**
+   * Uses a transaction to
+   * 1. Join the league
+   * 2. Add the new member's leaderboard entry to the active leaderboard
+   * 3. Increments participants_total on league by 1
+   * @param leagueId
+   * @param userId
+   * @returns
+   */
   async joinLeague(leagueId: string, userId: string) {
     const user = new User()
     user.id = userId
@@ -288,17 +297,40 @@ export class LeaguesService {
     const league = new League()
     league.id = leagueId
 
-    await this.leaguesRepository
-      .createQueryBuilder()
-      .relation(League, 'users')
-      .of(league)
-      .add(user)
+    const leaderboardEntry = await this.leaguesRepository.manager.transaction(
+      async (manager) => {
+        const repository = manager.getRepository(League)
+        const leaderboardEntryRepository = manager.getRepository(
+          LeaderboardEntry
+        )
+        await repository
+          .createQueryBuilder()
+          .relation(League, 'users')
+          .of(league)
+          .add(user)
 
-    const leaderboardEntry = await this.addLeaderboardEntry(leagueId, userId)
+        const leaderboardEntry = await this.addLeaderboardEntry(
+          leagueId,
+          userId,
+          leaderboardEntryRepository
+        )
+        await repository.increment({ id: leagueId }, 'participants_total', 1)
+        return leaderboardEntry
+      }
+    )
 
     return { success: true, league, leaderboardEntry }
   }
 
+  /**
+   * Uses a transaction to
+   * 1. Leave the league
+   * 2. Remove the member's leaderboard entry from the active leaderboard
+   * 3. Decrements participants_total on league by 1
+   * @param leagueId
+   * @param userId
+   * @returns
+   */
   async leaveLeague(leagueId: string, userId: string) {
     const user = new User()
     user.id = userId
@@ -306,13 +338,22 @@ export class LeaguesService {
     const league = new League()
     league.id = leagueId
 
-    await this.leaguesRepository
-      .createQueryBuilder()
-      .relation(League, 'users')
-      .of(league)
-      .remove(user)
+    await this.leaguesRepository.manager.transaction(async (manager) => {
+      const repository = manager.getRepository(League)
+      const leaderboardEntryRepository = manager.getRepository(LeaderboardEntry)
+      await repository
+        .createQueryBuilder()
+        .relation(League, 'users')
+        .of(league)
+        .remove(user)
 
-    await this.removeLeaderboardEntry(league.id, user.id)
+      await this.removeLeaderboardEntry(
+        leagueId,
+        userId,
+        leaderboardEntryRepository
+      )
+      await repository.decrement({ id: leagueId }, 'participants_total', 1)
+    })
 
     return { success: true }
   }
@@ -337,27 +378,35 @@ export class LeaguesService {
     let league: League
     if (team) {
       league = await this.leaguesRepository.findOne({
-        relations: ['leaderboards'],
         where: {
           team,
           id
         }
       })
     } else {
-      league = await this.leaguesRepository.findOne(id, {
-        relations: ['leaderboards', 'active_leaderboard']
-      })
+      league = await this.leaguesRepository.findOne(id)
     }
     const result = await getManager().transaction(async (entityManager) => {
-      if (league.leaderboards.length) {
-        await entityManager.delete(
-          Leaderboard,
-          league.leaderboards.map((entity) => entity.id)
-        )
-      }
-      if (league.active_leaderboard) {
-        await entityManager.delete(Leaderboard, league.active_leaderboard.id)
-      }
+      // Delete leaderboard entries for league
+      await entityManager.getRepository(LeaderboardEntry).delete({
+        leaderboard: {
+          league: { id: league.id }
+        }
+      })
+
+      // Remove active leaderboard
+      await entityManager
+        .getRepository(League)
+        .createQueryBuilder()
+        .relation(League, 'active_leaderboard')
+        .of(league)
+        .set(null)
+
+      // Delete leaderboards for league
+      await entityManager.getRepository(Leaderboard).delete({
+        league: { id: league.id }
+      })
+
       return await entityManager.delete(League, league.id)
     })
     return result
@@ -464,12 +513,16 @@ export class LeaguesService {
     }
   }
 
-  async addLeaderboardEntry(leagueId: string, userId: string) {
+  async addLeaderboardEntry(
+    leagueId: string,
+    userId: string,
+    repository: Repository<LeaderboardEntry>
+  ) {
     const user = new User()
     user.id = userId
     const league = await this.findOne(leagueId)
-    const entry = await this.leaderboardEntryRepository.save(
-      this.leaderboardEntryRepository.create({
+    const entry = await repository.save(
+      repository.create({
         leaderboard: league.active_leaderboard,
         leaderboard_id: league.active_leaderboard.id,
         league_id: leagueId,
@@ -482,9 +535,13 @@ export class LeaguesService {
     return entry
   }
 
-  async removeLeaderboardEntry(leagueId: string, userId: string) {
+  async removeLeaderboardEntry(
+    leagueId: string,
+    userId: string,
+    repository: Repository<LeaderboardEntry>
+  ) {
     const league = await this.findOne(leagueId)
-    const result = await this.leaderboardEntryRepository.delete({
+    const result = await repository.delete({
       leaderboard: { id: league.active_leaderboard.id },
       user: { id: userId }
     })

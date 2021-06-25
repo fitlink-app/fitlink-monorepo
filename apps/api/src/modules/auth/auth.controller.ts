@@ -13,7 +13,7 @@ import { AuthService } from './auth.service'
 import { Public } from '../../decorators/public.decorator'
 import { AuthLoginDto } from './dto/auth-login'
 import { AuthResultDto, AuthLogoutDto, AuthSignupDto } from './dto/auth-result'
-import { ApiBody, ApiResponse } from '@nestjs/swagger'
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
 import {
   ApiBaseResponses,
   SuccessResponse,
@@ -31,6 +31,7 @@ import {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiTags('auth')
   @ApiBody({ type: AuthLoginDto })
   @ApiResponse({ type: AuthResultDto, status: 200 })
   @UseGuards(LocalAuthGuard)
@@ -48,12 +49,14 @@ export class AuthController {
    *
    * @returns
    */
+  @ApiTags('auth')
   @Post('auth/logout')
   @ApiResponse({ type: AuthLogoutDto, status: 200 })
   async logout() {
     return { success: true }
   }
 
+  @ApiTags('auth')
   @Post('auth/signup')
   @Public()
   @ValidationResponse()
@@ -62,6 +65,7 @@ export class AuthController {
     return this.authService.signup(createUserDto)
   }
 
+  @ApiTags('auth')
   @Post('auth/request-password-reset')
   @Public()
   @SuccessResponse()
@@ -71,6 +75,7 @@ export class AuthController {
     return this.authService.requestPasswordReset(requestPasswordDto.email)
   }
 
+  @ApiTags('auth')
   @Put('auth/reset-password')
   @Public()
   @UpdateResponse()

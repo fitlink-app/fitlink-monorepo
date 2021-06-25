@@ -101,4 +101,10 @@ export class League extends CreatableEntity {
     default: LeagueInvitePermission.Participant
   })
   invite_permission: LeagueInvitePermission
+
+  @ApiProperty()
+  @Column({
+    default: 0
+  })
+  participants_total: number
 }

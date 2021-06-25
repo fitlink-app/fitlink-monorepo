@@ -13,8 +13,10 @@ import { UpdateSubscriptionDto } from './dto/update-subscription.dto'
 import { CreateDefaultSubscriptionDto } from './dto/create-default-subscription.dto'
 import { Iam } from '../../decorators/iam.decorator'
 import { Roles } from '../user-roles/entities/user-role.entity'
+import { ApiTags } from '@nestjs/swagger'
 
 @Controller()
+@ApiTags('subscriptions')
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 

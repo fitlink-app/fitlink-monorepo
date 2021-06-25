@@ -12,7 +12,7 @@ import {
   Put,
   Query
 } from '@nestjs/common'
-import { ApiBody, ApiResponse } from '@nestjs/swagger'
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { Iam } from '../../decorators/iam.decorator'
 import {
@@ -35,6 +35,7 @@ import { League, LeagueAccess } from './entities/league.entity'
 import { LeaguesService } from './leagues.service'
 import { LeaguesInvitationsService } from '../leagues-invitations/leagues-invitations.service'
 
+@ApiTags('leagues')
 @ApiBaseResponses()
 @Controller()
 export class LeaguesController {
@@ -52,6 +53,7 @@ export class LeaguesController {
    * @returns
    */
   @Post('/leagues')
+  @ApiTags('leagues')
   @ApiResponse({ type: League, status: 201 })
   create(
     @Body() createLeagueDto: CreateLeagueDto,
@@ -86,6 +88,7 @@ export class LeaguesController {
    * @returns
    */
   @Put('/leagues/:id')
+  @ApiTags('leagues')
   @ApiBody({ type: UpdateLeagueDto })
   @UpdateResponse()
   async update(
@@ -123,6 +126,7 @@ export class LeaguesController {
     '/teams/:teamId/leagues',
     '/organisations/:organisationId/teams/:teamId/leagues'
   ])
+  @ApiTags('leagues')
   @ApiResponse({ type: League, status: 201 })
   teamCreate(
     @Body() createLeagueDto: CreateLeagueDto,
@@ -142,6 +146,7 @@ export class LeaguesController {
    * @returns
    */
   @Get('/leagues')
+  @ApiTags('leagues')
   @ApiResponse({ type: League, isArray: true, status: 200 })
   @PaginationBody()
   findAll(
@@ -168,6 +173,7 @@ export class LeaguesController {
    * @returns
    */
   @Get('/me/leagues')
+  @ApiTags('me')
   @ApiResponse({ type: League, isArray: true, status: 200 })
   @PaginationBody()
   findMyLeagues(
@@ -186,6 +192,7 @@ export class LeaguesController {
    * @returns
    */
   @Iam(Roles.TeamAdmin)
+  @ApiTags('leagues')
   @Get('/teams/:teamId/leagues')
   @ApiResponse({ type: League, isArray: true, status: 200 })
   teamFindAll(@Param('teamId') teamId: string) {
@@ -202,6 +209,7 @@ export class LeaguesController {
    * @returns
    */
   @Get('/leagues/:leagueId')
+  @ApiTags('leagues')
   @ApiResponse({ type: League, status: 200 })
   async findOne(
     @Param('leagueId') leagueId: string,
@@ -230,6 +238,7 @@ export class LeaguesController {
    * @returns
    */
   @Get('/leagues/:leagueId/members')
+  @ApiTags('leagues')
   @ApiResponse({ type: League, status: 200 })
   async getLeagueMembers(
     @Param('leagueId') leagueId: string,
@@ -261,6 +270,7 @@ export class LeaguesController {
    * @returns
    */
   @Get('/leagues/:leagueId/rank')
+  @ApiTags('leagues')
   @ApiResponse({ type: League, status: 200 })
   getLeagueRankAndFlanks(
     @Param('leagueId') leagueId: string,
@@ -367,16 +377,26 @@ export class LeaguesController {
   }
 
   /**
-   * Superadmin can delete a league.
-   * Typically this is a public league.
+   * 1. Superadmin can delete a league.
+   * 2. League owner can delete the private league
    * @param id
    * @returns
    */
-  @Iam(Roles.SuperAdmin)
-  @Delete('/leagues/:id')
+  @Delete('/leagues/:leagueId')
   @DeleteResponse()
-  remove(@Param('id') id: string) {
-    return this.leaguesService.remove(id)
+  async remove(
+    @Param('leagueId') leagueId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      if (!(await this.leaguesService.isOwnedBy(leagueId, authUser.id))) {
+        throw new ForbiddenException(
+          'You do not have permission to delete this league'
+        )
+      }
+    }
+
+    return this.leaguesService.remove(leagueId)
   }
 
   /**

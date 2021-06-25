@@ -11,7 +11,7 @@ import { ImagesService } from './images.service'
 import { File, Files } from '../../decorators/files.decorator'
 import { Image, ImageType } from '../images/entities/image.entity'
 import { UploadImageDto } from '../images/dto/create-image.dto'
-import { ApiBody, ApiResponse } from '@nestjs/swagger'
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
 import {
   ApiBaseResponses,
   DeleteResponse
@@ -24,6 +24,7 @@ import { User } from '../../modules/users/entities/user.entity'
 import { Upload } from '../../decorators/uploads.decorator'
 
 @ApiBaseResponses()
+@ApiTags('images')
 @Controller('images')
 export class ImagesController {
   constructor(private readonly imagesService: ImagesService) {}

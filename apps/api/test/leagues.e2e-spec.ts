@@ -26,7 +26,7 @@ import {
 import { SportSetup, SportsTeardown } from './seeds/sport.seed'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 
-describe.skip('Leagues', () => {
+describe('Leagues', () => {
   let app: NestFastifyApplication
   let superadminHeaders: NodeJS.Dict<string>
   let teamAdminHeaders: NodeJS.Dict<string>
@@ -244,6 +244,46 @@ describe.skip('Leagues', () => {
     expect(get.json().message).toContain('not have permission')
   })
 
+  it('DELETE /leagues/:id A user cannot delete a league they do not own', async () => {
+    const data = await app.inject({
+      method: 'DELETE',
+      url: `/leagues/${seeded_league.id}`,
+      headers: authHeaders
+    })
+
+    expect(data.statusCode).toBe(403)
+  })
+
+  it('DELETE /leagues/:id A user can delete a private league that they own', async () => {
+    const imageId = images.pop().id
+
+    const post = await app.inject({
+      method: 'POST',
+      url: '/leagues',
+      headers: authHeaders,
+      payload: {
+        name: 'Test League',
+        description: 'A league for test deletion',
+        sportId: sportId,
+        duration: 7,
+        repeat: true,
+        imageId
+      }
+    })
+
+    const league = post.json()
+
+    expect(league.owner.id).toBe(user1)
+
+    const data = await app.inject({
+      method: 'DELETE',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders
+    })
+
+    expect(data.statusCode).toBe(200)
+  })
+
   it('POST /leagues 201 A superadmin can create a fully public league', async () => {
     const imageId = images.pop().id
     const payload: CreateLeagueDto = {
@@ -303,6 +343,15 @@ describe.skip('Leagues', () => {
     expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
       1
     )
+
+    // Check participants count
+    const count = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders
+    })
+
+    expect(count.json().participants_total).toEqual(1)
   })
 
   it('POST /leagues/:leagueId/leave 200 A user can leave any public league', async () => {
@@ -353,6 +402,15 @@ describe.skip('Leagues', () => {
     expect(
       get2.json().results.filter((e) => e.id === league.id).length
     ).toEqual(0)
+
+    // Check participants count
+    const count = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders
+    })
+
+    expect(count.json().participants_total).toEqual(0)
   })
 
   // Note that private league tests are found in leagues-invitations.e2e-spec.ts
@@ -620,7 +678,7 @@ describe.skip('Leagues', () => {
     expect(parsed.affected).toBe(1)
   })
 
-  it('DELETE /leagues/:id', async () => {
+  it('DELETE /leagues/:id A superadmin can delete a league', async () => {
     const data = await app.inject({
       method: 'DELETE',
       url: `/leagues/${seeded_league.id}`,
@@ -629,8 +687,6 @@ describe.skip('Leagues', () => {
 
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
-    // After we're done deleting the seeded data we need to re run it.
-    // await runSeeder(TestingLeagueSeed)
   })
 
   it('DELETE teams/teamId/leagues/:id', async () => {
@@ -640,7 +696,7 @@ describe.skip('Leagues', () => {
       headers: teamAdminHeaders
     })
 
-    expect(data.statusCode).toBe(200)
+    1
     expect(data.statusMessage).toBe('OK')
     // After we're done deleting the seeded data we need to re run it.
     // await runSeeder(TeamAssignedLeagueSetup)

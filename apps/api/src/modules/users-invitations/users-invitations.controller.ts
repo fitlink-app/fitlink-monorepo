@@ -10,9 +10,10 @@ import { User } from '../../decorators/authenticated-user.decorator'
 import { AuthenticatedUser } from '../../models'
 import { UsersService } from '../users/users.service'
 import { ApiBaseResponses } from '../../decorators/swagger.decorator'
-import { ApiResponse } from '@nestjs/swagger'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { UserInvitationJWT } from '../../models/user-invitation.jwt.model'
 
+@ApiTags('users')
 @ApiBaseResponses()
 @Controller()
 export class UsersInvitationsController {
