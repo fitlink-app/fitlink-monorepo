@@ -43,7 +43,17 @@ export default function Router() {
       }}>
       <Stack.Navigator screenOptions={navigatorOptions}>
         {isLoggedIn ? (
-          <Stack.Screen name={'HomeNavigator'} component={HomeNavigator} />
+          <>
+            <Stack.Screen name={'HomeNavigator'} component={HomeNavigator} />
+            <Stack.Screen name={'Settings'} component={SettingsNavigator} />
+            <Stack.Screen
+              name={'Webview'}
+              component={Webview}
+              options={{
+                cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+              }}
+            />
+          </>
         ) : (
           <Stack.Screen
             name={'AuthenticationNavigator'}
@@ -54,16 +64,6 @@ export default function Router() {
             }}
           />
         )}
-
-        <Stack.Screen name={'Settings'} component={SettingsNavigator} />
-
-        <Stack.Screen
-          name={'Webview'}
-          component={Webview}
-          options={{
-            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          }}
-        />
       </Stack.Navigator>
     </NavigationContainer>
   );

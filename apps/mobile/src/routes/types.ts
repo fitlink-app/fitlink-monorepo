@@ -9,4 +9,5 @@ export type RootStackParamList = {
   UpdateEmail: undefined;
   UpdatePassword: undefined;
   Webview: {url: string; title: string};
+  Friends: {tab: number};
 };

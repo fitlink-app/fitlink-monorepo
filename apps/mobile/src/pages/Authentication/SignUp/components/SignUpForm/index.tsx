@@ -83,7 +83,9 @@ export const SignUpForm = () => {
       />
       <TermsOfServiceLabel />
 
-      {!!errorMessage && !fieldErrors && <FormError>{errorMessage}</FormError>}
+      {!!errorMessage && (!fieldErrors || !Object.keys(fieldErrors).length) && (
+        <FormError>{errorMessage}</FormError>
+      )}
 
       <SignUpButton
         text="Agree and Sign up"

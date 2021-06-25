@@ -71,6 +71,7 @@ export type ListResource =
   | '/teams/:teamId/leagues'
   | '/teams/:teamId/leagues/:leagueId/leaderboards'
   | '/users'
+  | '/users/search'
   | '/activities'
   | '/rewards'
   | '/rewards/:rewardId/redemptions'
