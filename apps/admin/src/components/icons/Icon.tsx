@@ -12,7 +12,7 @@ export default function Icon({
   children = <></>,
   className = '',
   onClick = () => {}
-}:IconProps) {
+}: IconProps) {
   return (
     <svg
       className={className}
@@ -20,8 +20,7 @@ export default function Icon({
       width={width}
       height={height}
       onClick={onClick}
-      viewBox="0 0 32 32"
-    >
+      viewBox="0 0 32 32">
       {children}
     </svg>
   )

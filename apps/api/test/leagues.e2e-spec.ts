@@ -244,6 +244,46 @@ describe('Leagues', () => {
     expect(get.json().message).toContain('not have permission')
   })
 
+  it('DELETE /leagues/:id A user cannot delete a league they do not own', async () => {
+    const data = await app.inject({
+      method: 'DELETE',
+      url: `/leagues/${seeded_league.id}`,
+      headers: authHeaders
+    })
+
+    expect(data.statusCode).toBe(403)
+  })
+
+  it('DELETE /leagues/:id A user can delete a private league that they own', async () => {
+    const imageId = images.pop().id
+
+    const post = await app.inject({
+      method: 'POST',
+      url: '/leagues',
+      headers: authHeaders,
+      payload: {
+        name: 'Test League',
+        description: 'A league for test deletion',
+        sportId: sportId,
+        duration: 7,
+        repeat: true,
+        imageId
+      }
+    })
+
+    const league = post.json()
+
+    expect(league.owner.id).toBe(user1)
+
+    const data = await app.inject({
+      method: 'DELETE',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders
+    })
+
+    expect(data.statusCode).toBe(200)
+  })
+
   it('POST /leagues 201 A superadmin can create a fully public league', async () => {
     const imageId = images.pop().id
     const payload: CreateLeagueDto = {
@@ -298,9 +338,20 @@ describe('Leagues', () => {
 
     expect(post.statusCode).toEqual(201)
     expect(post.json().success).toEqual(true)
+    expect(post.json().league.id).toEqual(league.id)
+    expect(post.json().leaderboardEntry.id).toBeDefined()
     expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
       1
     )
+
+    // Check participants count
+    const count = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders
+    })
+
+    expect(count.json().participants_total).toEqual(1)
   })
 
   it('POST /leagues/:leagueId/leave 200 A user can leave any public league', async () => {
@@ -351,6 +402,15 @@ describe('Leagues', () => {
     expect(
       get2.json().results.filter((e) => e.id === league.id).length
     ).toEqual(0)
+
+    // Check participants count
+    const count = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders
+    })
+
+    expect(count.json().participants_total).toEqual(0)
   })
 
   // Note that private league tests are found in leagues-invitations.e2e-spec.ts
@@ -461,6 +521,59 @@ describe('Leagues', () => {
     expect(data4.json().organisation.avatar).toBeDefined()
   })
 
+  it(`GET /leagues/:id/members A user can get the members/ranks of a league`, async () => {
+    const league = (await LeaguesSetup('Test League'))[0]
+
+    // Set the league as public
+    await app.get(Connection).getRepository(League).update(league.id, {
+      access: LeagueAccess.Public
+    })
+
+    await joinLeague(authHeaders)
+    await joinLeague(authHeaders2)
+    await joinLeague(authHeaders3)
+
+    const data = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}/members`,
+      headers: authHeaders
+    })
+
+    expect(data.statusCode).toBe(200)
+    expect(data.json().results.length).toBe(3)
+    expect(data.json().results[0].id).toBeDefined()
+    expect(data.json().results[0].points).toBeDefined()
+    expect(data.json().results[0].wins).toBeDefined()
+    expect(data.json().results[0].user.avatar).toBeDefined()
+
+    // Make sure user data hasn't leaked
+    expect(data.json().results[0].user.email).toBeUndefined()
+    expect(data.json().results[0].user.password).toBeUndefined()
+
+    // Gets the
+    const rank = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}/rank`,
+      headers: authHeaders
+    })
+
+    expect(rank.json().results[0].user.id).toEqual(user2)
+    expect(rank.json().results[1].user.id).toEqual(user1)
+    expect(rank.json().results[2]).toBeUndefined()
+
+    // Make sure user data hasn't leaked
+    expect(rank.json().results[0].user.email).toBeUndefined()
+    expect(rank.json().results[0].user.password).toBeUndefined()
+
+    async function joinLeague(headers: NodeJS.Dict<string>) {
+      return await app.inject({
+        method: 'POST',
+        url: `/leagues/${league.id}/join`,
+        headers
+      })
+    }
+  })
+
   // A team admin can access a team league
   it(`GET /teams/:teamId/leagues/:id`, async () => {
     const data = await app.inject({
@@ -565,7 +678,7 @@ describe('Leagues', () => {
     expect(parsed.affected).toBe(1)
   })
 
-  it('DELETE /leagues/:id', async () => {
+  it('DELETE /leagues/:id A superadmin can delete a league', async () => {
     const data = await app.inject({
       method: 'DELETE',
       url: `/leagues/${seeded_league.id}`,
@@ -574,8 +687,6 @@ describe('Leagues', () => {
 
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
-    // After we're done deleting the seeded data we need to re run it.
-    // await runSeeder(TestingLeagueSeed)
   })
 
   it('DELETE teams/teamId/leagues/:id', async () => {
@@ -585,7 +696,7 @@ describe('Leagues', () => {
       headers: teamAdminHeaders
     })
 
-    expect(data.statusCode).toBe(200)
+    1
     expect(data.statusMessage).toBe('OK')
     // After we're done deleting the seeded data we need to re run it.
     // await runSeeder(TeamAssignedLeagueSetup)

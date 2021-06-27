@@ -4,7 +4,7 @@ import { CreateUserRoleDto } from './dto/create-user-role.dto'
 import { UpdateUserRoleDto } from './dto/update-user-role.dto'
 import { Iam } from '../../decorators/iam.decorator'
 import { Roles, UserRole } from './entities/user-role.entity'
-import { ApiBody, ApiResponse } from '@nestjs/swagger'
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
 import {
   ApiBaseResponses,
   DeleteResponse,
@@ -24,6 +24,7 @@ export class UserRolesController {
    */
 
   @Get('me/roles')
+  @ApiTags('me')
   @ApiResponse({ type: UserRole, isArray: true, status: 200 })
   findMyRoles(@User() user: AuthenticatedUser) {
     return this.userRolesService.getAllUserRoles(user.id)
@@ -36,6 +37,7 @@ export class UserRolesController {
    * @returns
    */
   @Delete('me/roles/:roleId')
+  @ApiTags('me')
   @DeleteResponse()
   removeMyRole(
     @User() user: AuthenticatedUser,
@@ -50,6 +52,7 @@ export class UserRolesController {
    * @param userId
    */
   @Iam(Roles.SuperAdmin)
+  @ApiTags('roles')
   @Post('/roles/superadmin/:userId')
   @ApiResponse({ type: UserRole, status: 201 })
   createNewSuperAdmin(@Param('userId') userId: string) {
@@ -63,6 +66,7 @@ export class UserRolesController {
    * @param userId
    */
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
+  @ApiTags('roles')
   @Post('/organisations/:organisationId/users/:userId/roles')
   @ApiResponse({ type: UserRole, status: 201 })
   create(
@@ -83,6 +87,7 @@ export class UserRolesController {
    * @returns
    */
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
+  @ApiTags('roles')
   @Get('/organisations/:organisationId/users/:userId/roles')
   @ApiResponse({ type: UserRole, isArray: true, status: 200 })
   findOne(@Param('userId') userId: string) {
@@ -100,6 +105,7 @@ export class UserRolesController {
    */
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
   @Put('/organisations/:organisationId/users/:userId/roles/:roleId')
+  @ApiTags('roles')
   @UpdateResponse()
   @ApiBody({ type: CreateUserRoleDto })
   update(
@@ -125,6 +131,7 @@ export class UserRolesController {
    * @returns
    */
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
+  @ApiTags('roles')
   @Delete('/organisations/:organisationId/users/:userId/roles/:roleId')
   @DeleteResponse()
   remove(

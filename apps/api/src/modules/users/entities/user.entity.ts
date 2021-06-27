@@ -131,6 +131,11 @@ export class User extends CreatableEntity {
   })
   email_reset_at: Date
 
+  @Column({
+    nullable: true
+  })
+  email_reset_requested_at: Date
+
   @OneToOne(() => Image, {
     cascade: ['remove'],
     onDelete: 'CASCADE'
@@ -219,6 +224,12 @@ export class User extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    nullable: true
+  })
+  email_pending: string
+
+  @ApiProperty()
+  @Column({
     default: false
   })
   email_verified: boolean
@@ -278,6 +289,12 @@ export class User extends CreatableEntity {
     default: 0
   })
   followers_total: number
+
+  @ApiProperty()
+  @Column({
+    default: 0
+  })
+  following_total: number
 }
 
 export class UserPublic {
@@ -300,4 +317,18 @@ export class UserPublic {
   @ApiProperty()
   @Expose()
   followers_total: number
+
+  @ApiProperty()
+  @Expose()
+  following_total: number
+
+  @ApiProperty()
+  @Expose()
+  /** Whether the entity user is a follower of the authenticated user */
+  follower?: boolean
+
+  @ApiProperty()
+  @Expose()
+  /** Whether the authenticated user is following the entity user */
+  following?: boolean
 }

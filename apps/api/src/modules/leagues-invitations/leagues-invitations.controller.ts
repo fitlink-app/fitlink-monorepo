@@ -13,8 +13,10 @@ import { CreateLeaguesInvitationDto } from './dto/create-leagues-invitation.dto'
 import { AuthenticatedUser } from '../../models'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { ApiBaseResponses } from '../../decorators/swagger.decorator'
+import { ApiTags } from '@nestjs/swagger'
 
 @Controller()
+@ApiTags('leagues')
 @ApiBaseResponses()
 export class LeaguesInvitationsController {
   constructor(

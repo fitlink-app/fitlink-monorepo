@@ -10,6 +10,7 @@ import { getAuthHeaders } from './helpers/auth'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import FormData = require('form-data')
 import { ImagesModule } from '../src/modules/images/images.module'
+import { FollowingsSetup } from './seeds/followings.seed'
 import { emailHasContent, getEmailContent } from './helpers/mocking'
 import { parseQuery } from './helpers/parseQuery'
 
@@ -53,8 +54,46 @@ describe('Users', () => {
       },
       headers: userAuthHeaders
     })
+
     expect(result.statusCode).toEqual(200)
     expect(result.json().results.length).toBeGreaterThan(0)
+  })
+
+  it(`GET /users/search?q=term 200 Searches for users and can see followed status`, async () => {
+    const unique = Date.now()
+    const followings = await FollowingsSetup(
+      `Test Users ${unique} Follow Name`,
+      2
+    )
+
+    const beingFollowedAuthHeaders = getAuthHeaders(
+      {},
+      followings[0].following.id
+    )
+    const followerId = followings[0].follower.id
+    const followingId = followings[1].following.id
+
+    const result = await app.inject({
+      method: 'GET',
+      url: '/users/search',
+      query: {
+        q: `${unique}`,
+        limit: '100'
+      },
+      headers: beingFollowedAuthHeaders
+    })
+
+    result.json().results.map((user) => {
+      if (user.id === followerId) {
+        expect(user.follower).toBe(true)
+      }
+      if (user.id === followingId) {
+        expect(user.following).toBe(true)
+      }
+    })
+
+    expect(result.statusCode).toEqual(200)
+    expect(result.json().results.length).toBe(1)
   })
 
   it(`GET /users/:userId 200 Gets another user and sees only their public profile data`, async () => {

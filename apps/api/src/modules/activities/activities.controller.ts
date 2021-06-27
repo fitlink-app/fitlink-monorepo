@@ -21,13 +21,14 @@ import { ImagesService } from '../images/images.service'
 import { Uploads, UploadOptions } from '../../decorators/uploads.decorator'
 import { Public } from '../../decorators/public.decorator'
 import { AuthGuard } from '../../guards/auth.guard'
-import { ApiBearerAuth } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Image, ImageType } from '../images/entities/image.entity'
 import { IminServiceParams } from './types/imin'
 
 @Public()
 @UseGuards(AuthGuard)
 @ApiBearerAuth()
+@ApiTags('activities')
 @Controller('activities')
 export class ActivitiesController {
   constructor(

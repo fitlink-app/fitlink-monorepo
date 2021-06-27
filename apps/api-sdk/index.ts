@@ -206,7 +206,8 @@ export class Api {
       params: {
         limit,
         page,
-        ...query
+        query,
+        ...rest
       }
     })
 
@@ -364,6 +365,7 @@ export class Api {
     if (replaced.indexOf(':') > -1) {
       throw new ApiParameterError(`URL parameter missing in ${replaced}`)
     }
+
     return replaced
   }
 

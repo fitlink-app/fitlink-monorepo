@@ -1,4 +1,4 @@
-import CurrencyInput from 'react-currency-input-field' 
+import CurrencyInput from 'react-currency-input-field'
 import clsx from 'clsx'
 
 export type InputProps = {

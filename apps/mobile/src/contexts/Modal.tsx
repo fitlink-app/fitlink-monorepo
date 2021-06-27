@@ -43,11 +43,11 @@ type ModalComponent = {
 };
 
 interface ModalContextType {
-  open: (
+  openModal: (
     content: (componentId: string) => JSX.Element,
     onCloseCallback?: () => void,
   ) => string;
-  close: (id: string) => void;
+  closeModal: (id: string, callback?: () => void) => void;
 }
 
 export const ModalContext = createContext<ModalContextType>(
@@ -93,7 +93,7 @@ export const ModalProvider: React.FC = ({children}) => {
     if (components.length) animateOpen();
   }, [components]);
 
-  function open(
+  function openModal(
     content: (componentId: string) => JSX.Element,
     onCloseCallback?: () => void,
   ) {
@@ -113,18 +113,19 @@ export const ModalProvider: React.FC = ({children}) => {
     return componentId;
   }
 
-  function close(id: string) {
+  function closeModal(id: string, callback?: () => void) {
     const selectedComponent = components.find(component => component.id === id);
     const newComponents = components.filter(component => component.id !== id);
 
     animateClose(() => {
       selectedComponent?.onCloseCallback && selectedComponent.onCloseCallback();
       setComponents(newComponents);
+      callback && callback();
     });
   }
 
   function closeTopModal() {
-    close(components[components.length - 1].id);
+    closeModal(components[components.length - 1].id);
   }
 
   const renderComponents = components.map((modalComponent, index) => (
@@ -144,7 +145,7 @@ export const ModalProvider: React.FC = ({children}) => {
     ],
   };
 
-  const contextValue = {open, close};
+  const contextValue = {openModal, closeModal};
 
   return (
     <ModalContext.Provider value={contextValue}>

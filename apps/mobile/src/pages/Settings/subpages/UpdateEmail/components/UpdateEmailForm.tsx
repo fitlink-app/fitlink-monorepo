@@ -1,7 +1,10 @@
 import React from 'react';
-import {Button, FormError, InputField} from '@components';
-import {useForm, useMe} from '@hooks';
+import {Button, FormError, InputField, Modal} from '@components';
+import {useForm, useMe, useModal} from '@hooks';
 import styled from 'styled-components/native';
+import {useUpdateEmail} from '@hooks';
+import {getErrors} from '@api';
+import {useNavigation} from '@react-navigation/native';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -20,8 +23,11 @@ export interface UpdateEmailValues {
 }
 
 export const UpdateEmailForm = () => {
-  // TODO: Hook up with API
+  const navigation = useNavigation();
+  const {openModal, closeModal} = useModal();
+
   const {data: userData} = useMe({refetchOnMount: false});
+  const {mutateAsync} = useUpdateEmail();
 
   const initialValues: UpdateEmailValues = {email: ''};
 
@@ -35,9 +41,32 @@ export const UpdateEmailForm = () => {
   } = useForm(initialValues);
 
   const onSubmit = async () => {
-    // const credentials = {email: values.email, password: values.password};
-    // const requestError = await signUp(credentials);
-    // return requestError;
+    try {
+      await mutateAsync({email: values.email});
+    } catch (e) {
+      const requestErrors = getErrors(e);
+      return requestErrors;
+    }
+
+    openModal(
+      id => (
+        <Modal
+          title={'E-mail Changed'}
+          description={'A confirmation email has been sent to you'}
+          buttons={[
+            {
+              text: 'Ok',
+              onPress: () => closeModal(id),
+            },
+          ]}
+        />
+      ),
+      () => {
+        navigation.goBack();
+      },
+    );
+
+    return undefined;
   };
 
   return (
@@ -55,7 +84,10 @@ export const UpdateEmailForm = () => {
         textContentType="emailAddress"
         autoCompleteType={'email'}
       />
-      {!!errorMessage && !fieldErrors && <FormError>{errorMessage}</FormError>}
+
+      {!!errorMessage && (!fieldErrors || !Object.keys(fieldErrors).length) && (
+        <FormError>{errorMessage}</FormError>
+      )}
 
       <SignUpButton
         text="Update E-mail Address"

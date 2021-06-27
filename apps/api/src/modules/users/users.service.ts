@@ -54,15 +54,26 @@ export class UsersService {
 
   async searchByName(
     keyword: string,
+    userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    const [results, total] = await this.userRepository.findAndCount({
-      take: limit,
-      skip: page * limit,
-      where: {
-        name: ILike(`%${keyword}%`)
-      }
-    })
+    const query = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.following', 'f1', 'f1.follower.id = :userId', {
+        userId
+      })
+      .leftJoinAndSelect('user.followers', 'f2', 'f2.following.id = :userId', {
+        userId
+      })
+      .take(limit)
+      .skip(page * limit)
+      .where('name ILIKE :keyword AND user.id != :userId', {
+        keyword: `%${keyword}%`,
+        userId
+      })
+
+    const [results, total] = await query.getManyAndCount()
+
     return new Pagination<UserPublic>({
       results: results.map(this.getUserPublic),
       total
@@ -79,7 +90,14 @@ export class UsersService {
   }
 
   getUserPublic(user: User) {
-    return plainToClass(UserPublic, user, {
+    const userPublic = (user as unknown) as UserPublic
+
+    userPublic.following = Boolean(
+      user.following && user.following.length === 1
+    )
+    userPublic.follower = Boolean(user.followers && user.followers.length === 1)
+
+    return plainToClass(UserPublic, userPublic, {
       excludeExtraneousValues: true
     })
   }
@@ -142,15 +160,37 @@ export class UsersService {
     })
   }
 
-  async updateEmail(id: string, email: string) {
-    await this.sendVerificationEmail(id, email)
+  /**
+   * Ensures the requested email is not yet in use
+   * or pending for another account, then triggers
+   * email update request flow.
+   *
+   * This endpoint can be used for "resend email" as well,
+   * since it does not check whether the email is in use
+   * for the authenticated user.
+   *
+   * @param userId
+   * @param email
+   * @returns
+   */
+  async updateEmail(userId: string, email: string) {
+    const exists = await this.userRepository
+      .createQueryBuilder()
+      .where('(email = :email OR email_pending = :email)', { email })
+      .andWhere('id != :userId', { userId })
+      .getCount()
 
-    return this.userRepository.update(id, {
-      email,
-      email_verified: false,
+    if (exists) {
+      throw new Error('Requested email is already in use')
+    }
+
+    await this.sendVerificationEmail(userId, email)
+
+    return this.userRepository.update(userId, {
+      email_pending: email,
 
       // This could later be used to prevent spammy behaviour
-      email_reset_at: new Date()
+      email_reset_requested_at: new Date()
     })
   }
 
@@ -169,7 +209,9 @@ export class UsersService {
         const [id, email] = payload.sub.split('|')
         return this.userRepository.update(id, {
           email,
-          email_verified: true
+          email_verified: true,
+          email_reset_at: new Date(),
+          email_pending: null
         })
       }
     } catch (e) {

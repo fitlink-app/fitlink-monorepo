@@ -7,10 +7,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { UsersInvitationsModule } from '../users-invitations/users-invitations.module'
 import { UserRolesModule } from '../user-roles/user-roles.module'
 import { JwtModule } from '@nestjs/jwt'
-import { EmailService } from '../common/email.service'
+import { CommonModule } from '../common/common.module'
 
 @Module({
   imports: [
+    CommonModule,
     TypeOrmModule.forFeature([User]),
     ConfigModule,
     HttpModule,
@@ -28,7 +29,7 @@ import { EmailService } from '../common/email.service'
     })
   ],
   controllers: [UsersController],
-  providers: [UsersService, ConfigService, EmailService],
+  providers: [UsersService, ConfigService],
   exports: [TypeOrmModule.forFeature([User]), UsersService]
 })
 export class UsersModule {}

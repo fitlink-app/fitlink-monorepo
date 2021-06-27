@@ -4,8 +4,10 @@ import { FitbitService } from './fitbit.service'
 import { FitbitEventData } from '../../types/fitbit'
 import { AuthenticatedUser } from '../../../../models/authenticated-user.model'
 import { User } from '../../../../decorators/authenticated-user.decorator'
+import { ApiTags } from '@nestjs/swagger'
 
 @Controller('/providers/fitbit')
+@ApiTags('providers')
 export class FitbitController {
   constructor(private fitbitService: FitbitService) {}
 

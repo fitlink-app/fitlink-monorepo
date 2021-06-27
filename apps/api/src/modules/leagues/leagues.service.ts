@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, FindOneOptions, getManager, Repository } from 'typeorm'
+import { Brackets, FindOneOptions, getManager, In, Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { QueueableEventPayload } from '../../models/queueable.model'
 import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
@@ -11,8 +11,11 @@ import { Organisation } from '../organisations/entities/organisation.entity'
 import { CreateLeagueDto } from './dto/create-league.dto'
 import { UpdateLeagueDto } from './dto/update-league.dto'
 import { League, LeagueAccess } from './entities/league.entity'
-import { User } from '../users/entities/user.entity'
+import { User, UserPublic } from '../users/entities/user.entity'
 import { Image } from '../images/entities/image.entity'
+import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
+import { plainToClass } from 'class-transformer'
+import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
 
 type LeagueOptions = {
   teamId?: string
@@ -29,6 +32,9 @@ export class LeaguesService {
     @InjectRepository(Leaderboard)
     private leaderboardRepository: Repository<Leaderboard>,
 
+    @InjectRepository(LeaderboardEntry)
+    private leaderboardEntryRepository: Repository<LeaderboardEntry>,
+
     @InjectRepository(Team)
     private teamRepository: Repository<Team>,
 
@@ -36,7 +42,9 @@ export class LeaguesService {
     private organisationRepository: Repository<Organisation>,
 
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private userRepository: Repository<User>,
+
+    private leaderboardEntriesService: LeaderboardEntriesService
   ) {}
 
   async create(
@@ -106,9 +114,9 @@ export class LeaguesService {
     return league
   }
 
-  async isOwnedBy(id: string, userId: string) {
+  async isOwnedBy(leagueId: string, userId: string) {
     const result = await this.leaguesRepository.findOne({
-      where: { id, owner: { id: userId } }
+      where: { id: leagueId, owner: { id: userId } }
     })
     return !!result
   }
@@ -118,6 +126,7 @@ export class LeaguesService {
       .createQueryBuilder('league')
       .leftJoin('league.users', 'user')
       .leftJoin('league.owner', 'owner')
+      .innerJoinAndSelect('league.active_leaderboard', 'leaderboard')
       .where('league.id = :leagueId', { leagueId })
       .andWhere('(user.id = :userId OR owner.id = :userId)', { userId })
       .getOne()
@@ -178,7 +187,9 @@ export class LeaguesService {
   }
 
   async findOne(id: string, userId?: string) {
-    const result = await this.leaguesRepository.findOne(id)
+    const result = await this.leaguesRepository.findOne(id, {
+      relations: ['active_leaderboard']
+    })
     if (!result) {
       throw new NotFoundException(`League with ID ${id} not found`)
     }
@@ -225,6 +236,7 @@ export class LeaguesService {
       .leftJoinAndSelect('league.sport', 'sport')
       .leftJoinAndSelect('league.image', 'image')
       .leftJoinAndSelect('league.team', 'leagueTeam')
+      .leftJoinAndSelect('league.active_leaderboard', 'leaderboard')
       .leftJoinAndSelect('league.organisation', 'leagueOrganisation')
       .leftJoinAndSelect('leagueTeam.avatar', 'leagueTeamAvatar')
       .leftJoinAndSelect(
@@ -269,6 +281,15 @@ export class LeaguesService {
       .orderBy('league.created_at', 'DESC')
   }
 
+  /**
+   * Uses a transaction to
+   * 1. Join the league
+   * 2. Add the new member's leaderboard entry to the active leaderboard
+   * 3. Increments participants_total on league by 1
+   * @param leagueId
+   * @param userId
+   * @returns
+   */
   async joinLeague(leagueId: string, userId: string) {
     const user = new User()
     user.id = userId
@@ -276,15 +297,40 @@ export class LeaguesService {
     const league = new League()
     league.id = leagueId
 
-    await this.leaguesRepository
-      .createQueryBuilder()
-      .relation(League, 'users')
-      .of(league)
-      .add(user)
+    const leaderboardEntry = await this.leaguesRepository.manager.transaction(
+      async (manager) => {
+        const repository = manager.getRepository(League)
+        const leaderboardEntryRepository = manager.getRepository(
+          LeaderboardEntry
+        )
+        await repository
+          .createQueryBuilder()
+          .relation(League, 'users')
+          .of(league)
+          .add(user)
 
-    return { success: true, league }
+        const leaderboardEntry = await this.addLeaderboardEntry(
+          leagueId,
+          userId,
+          leaderboardEntryRepository
+        )
+        await repository.increment({ id: leagueId }, 'participants_total', 1)
+        return leaderboardEntry
+      }
+    )
+
+    return { success: true, league, leaderboardEntry }
   }
 
+  /**
+   * Uses a transaction to
+   * 1. Leave the league
+   * 2. Remove the member's leaderboard entry from the active leaderboard
+   * 3. Decrements participants_total on league by 1
+   * @param leagueId
+   * @param userId
+   * @returns
+   */
   async leaveLeague(leagueId: string, userId: string) {
     const user = new User()
     user.id = userId
@@ -292,11 +338,22 @@ export class LeaguesService {
     const league = new League()
     league.id = leagueId
 
-    await this.leaguesRepository
-      .createQueryBuilder()
-      .relation(League, 'users')
-      .of(league)
-      .remove(user)
+    await this.leaguesRepository.manager.transaction(async (manager) => {
+      const repository = manager.getRepository(League)
+      const leaderboardEntryRepository = manager.getRepository(LeaderboardEntry)
+      await repository
+        .createQueryBuilder()
+        .relation(League, 'users')
+        .of(league)
+        .remove(user)
+
+      await this.removeLeaderboardEntry(
+        leagueId,
+        userId,
+        leaderboardEntryRepository
+      )
+      await repository.decrement({ id: leagueId }, 'participants_total', 1)
+    })
 
     return { success: true }
   }
@@ -321,25 +378,172 @@ export class LeaguesService {
     let league: League
     if (team) {
       league = await this.leaguesRepository.findOne({
-        relations: ['leaderboards'],
         where: {
           team,
           id
         }
       })
     } else {
-      league = await this.leaguesRepository.findOne(id, {
-        relations: ['leaderboards']
-      })
+      league = await this.leaguesRepository.findOne(id)
     }
     const result = await getManager().transaction(async (entityManager) => {
-      if (league.leaderboards.length) {
-        await entityManager.delete(
-          Leaderboard,
-          league.leaderboards.map((entity) => entity.id)
-        )
-      }
+      // Delete leaderboard entries for league
+      await entityManager.getRepository(LeaderboardEntry).delete({
+        leaderboard: {
+          league: { id: league.id }
+        }
+      })
+
+      // Remove active leaderboard
+      await entityManager
+        .getRepository(League)
+        .createQueryBuilder()
+        .relation(League, 'active_leaderboard')
+        .of(league)
+        .set(null)
+
+      // Delete leaderboards for league
+      await entityManager.getRepository(Leaderboard).delete({
+        league: { id: league.id }
+      })
+
       return await entityManager.delete(League, league.id)
+    })
+    return result
+  }
+
+  /**
+   * Find all entries of a league, with pagination options
+   *
+   * @param leaderboardId
+   * @param options
+   */
+  async getLeaderboardMembers(
+    leagueId: string,
+    options: PaginationOptionsInterface
+  ): Promise<Pagination<LeaderboardEntry & { user: UserPublic }>> {
+    const query = this.leaderboardEntryRepository
+      .createQueryBuilder('entry')
+      .innerJoin('entry.leaderboard', 'entryLeaderboard')
+      .innerJoin('entryLeaderboard.league', 'league')
+      .innerJoin('league.active_leaderboard', 'leaderboard')
+      .innerJoinAndSelect('entry.user', 'user')
+      .leftJoinAndSelect('user.avatar', 'user.avatar')
+      .where('league.id = :leagueId AND leaderboard.id = entryLeaderboard.id', {
+        leagueId
+      })
+      .orderBy('entry.points', 'DESC')
+      .addOrderBy('entry.updated_at', 'DESC')
+      .take(options.limit)
+      .skip(options.page * options.limit)
+
+    const [results, total] = await query.getManyAndCount()
+
+    return new Pagination<LeaderboardEntry & { user: UserPublic }>({
+      results: results.map(this.getLeaguePublic),
+      total
+    })
+  }
+
+  /**
+   * Gets the leaderboard rank and 2 flanking participants (above and below in ranking)
+   *
+   * TODO: Uses some legacy code from the previous (Firebase) build, and this can be improved
+   * in future to be more optimized.
+   *
+   * @param userId
+   * @param leagueId
+   * @returns array of leaderboard entries
+   */
+  async getLeaderboardRankAndFlanks(leagueId: string, userId: string) {
+    const league = await this.findOneOwnedByOrParticipatingIn(leagueId, userId)
+    if (!league) {
+      return false
+    }
+
+    const rank = await this.leaderboardEntriesService.findRankAndFlanksInLeaderboard(
+      userId,
+      league.active_leaderboard.id
+    )
+
+    const entries: LeaderboardEntry[] = []
+
+    if (rank.flanks.prev) {
+      entries.push(rank.flanks.prev)
+    }
+
+    if (rank.user) {
+      entries.push(rank.user)
+    }
+
+    if (rank.flanks.next) {
+      entries.push(rank.flanks.next)
+    }
+
+    const rankEntries = await this.leaderboardEntryRepository.findByIds(
+      entries.map((entry) => entry.id),
+      {
+        relations: ['user', 'user.avatar']
+      }
+    )
+
+    const results = entries.map((entry) => {
+      const rankEntry = rankEntries.filter(
+        (each) => each.user.id === entry.user_id
+      )[0]
+      return {
+        ...rankEntry,
+        rank: entry.rank,
+        user: plainToClass(UserPublic, rankEntry.user, {
+          excludeExtraneousValues: true
+        })
+      }
+    })
+
+    return { results }
+  }
+
+  getLeaguePublic(leaderboardEntry: LeaderboardEntry) {
+    const user = plainToClass(UserPublic, leaderboardEntry.user, {
+      excludeExtraneousValues: true
+    })
+    return {
+      ...leaderboardEntry,
+      user
+    }
+  }
+
+  async addLeaderboardEntry(
+    leagueId: string,
+    userId: string,
+    repository: Repository<LeaderboardEntry>
+  ) {
+    const user = new User()
+    user.id = userId
+    const league = await this.findOne(leagueId)
+    const entry = await repository.save(
+      repository.create({
+        leaderboard: league.active_leaderboard,
+        leaderboard_id: league.active_leaderboard.id,
+        league_id: leagueId,
+        user_id: userId,
+        user,
+        wins: 0,
+        points: 0
+      })
+    )
+    return entry
+  }
+
+  async removeLeaderboardEntry(
+    leagueId: string,
+    userId: string,
+    repository: Repository<LeaderboardEntry>
+  ) {
+    const league = await this.findOne(leagueId)
+    const result = await repository.delete({
+      leaderboard: { id: league.active_leaderboard.id },
+      user: { id: userId }
     })
     return result
   }

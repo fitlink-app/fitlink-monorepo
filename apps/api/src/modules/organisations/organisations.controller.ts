@@ -24,10 +24,11 @@ import {
   DeleteResponse,
   UpdateResponse
 } from '../../decorators/swagger.decorator'
-import { ApiResponse } from '@nestjs/swagger'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Organisation } from './entities/organisation.entity'
 import { PaginationQuery } from '../../helpers/paginate'
 
+@ApiTags('organisations')
 @ApiBaseResponses()
 @Controller('organisations')
 export class OrganisationsController {

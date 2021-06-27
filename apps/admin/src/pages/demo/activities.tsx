@@ -1,9 +1,7 @@
 import { useState } from 'react'
 import Dashboard from '../../components/layouts/Dashboard'
 import TableContainer from '../../components/Table/TableContainer'
-import {
-  toChipCell
-} from '../../components/Table/helpers'
+import { toChipCell } from '../../components/Table/helpers'
 import IconSearch from '../../components/icons/IconSearch'
 import { AnimatePresence } from 'framer-motion'
 import Drawer from '../../components/elements/Drawer'
@@ -19,7 +17,10 @@ export default function components() {
   const displayImage = ({ value }) => {
     return (
       <div className="map-preview">
-        <img src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${value.coordinates[1]},${value.coordinates[0]},15,0,0/400x200?access_token=pk.eyJ1IjoibHVrZS1maXRsaW5rYXBwIiwiYSI6ImNrbzBhNWtweTBkcW8yd29idG9xems4aGIifQ.VfUo8YBLvfuqfMlBMfGn5g`} alt="" />
+        <img
+          src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${value.coordinates[1]},${value.coordinates[0]},15,0,0/400x200?access_token=pk.eyJ1IjoibHVrZS1maXRsaW5rYXBwIiwiYSI6ImNrbzBhNWtweTBkcW8yd29idG9xems4aGIifQ.VfUo8YBLvfuqfMlBMfGn5g`}
+          alt=""
+        />
       </div>
     )
   }
@@ -67,12 +68,11 @@ export default function components() {
                 type: {
                   label: type.charAt(0).toUpperCase() + type.slice(1),
                   value: type
-                },
+                }
               }}
-              />
+            />
           )
-        }}
-        >
+        }}>
         <IconSearch />
       </button>
     )
@@ -80,9 +80,7 @@ export default function components() {
 
   const NewActivityForm = () => {
     setWarning(true)
-    setDrawContent(
-      <ActivityForm />
-    )
+    setDrawContent(<ActivityForm />)
   }
 
   return (
@@ -90,10 +88,7 @@ export default function components() {
       <div>
         <div className="flex ai-c">
           <h1 className="light mb-0 mr-2">Your activities</h1>
-          <button
-            className="button alt small mt-1"
-            onClick={NewActivityForm}
-            >
+          <button className="button alt small mt-1" onClick={NewActivityForm}>
             Add new
           </button>
         </div>
@@ -101,7 +96,11 @@ export default function components() {
       <div className="mt-4 overflow-x-auto">
         <TableContainer
           columns={[
-            { Header: 'Location', accessor: 'meeting_point', Cell: displayImage },
+            {
+              Header: 'Location',
+              accessor: 'meeting_point',
+              Cell: displayImage
+            },
             { Header: 'Name', accessor: 'name' },
             { Header: 'Description', accessor: 'description' },
             { Header: 'Date', accessor: 'date', Cell: toChipCell },

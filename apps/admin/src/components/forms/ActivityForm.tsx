@@ -42,7 +42,7 @@ const types = [
   }
 ]
 
-export default function ActivityForm({
+export default function ActivityForm({ current }: InviteUserProps) {
   current
 }:InviteUserProps) {
 
@@ -50,21 +50,33 @@ export default function ActivityForm({
   const [description, setDescription] = useState(current?.description || '')
   const [type, setType] = useState(current?.type || types[0])
   const [date, setDate] = useState(current?.date || '')
-  const [cost, setCost] = useState(current?.cost || 0.00)
-  const [meeting_point_text, setMeeting_point_text] = useState(current?.meeting_point_text || '')
+  const [cost, setCost] = useState(current?.cost || 0.0)
+  const [meeting_point_text, setMeeting_point_text] = useState(
+    current?.meeting_point_text || ''
+  )
   const [lat, setLat] = useState(current?.lat || 37.734063)
   const [lng, setLng] = useState(current?.lng || -119.6418973)
   const [showOrg, setShowOrg] = useState(current?.organizer_name ? true : false)
-  const [organizer_name, setOrganizer_name] = useState(current?.organizer_name || '')
-  const [organizer_url, setOrganizer_url] = useState(current?.organizer_url || '')
-  const [organizer_telephone, setOrganizer_telephone] = useState(current?.organizer_telephone || '')
-  const [organizer_email, setOrganizer_email] = useState(current?.organizer_email || '')
-  const [organizer_image, setOrganizer_image] = useState(current?.organizer_email || '')
+  const [organizer_name, setOrganizer_name] = useState(
+    current?.organizer_name || ''
+  )
+  const [organizer_url, setOrganizer_url] = useState(
+    current?.organizer_url || ''
+  )
+  const [organizer_telephone, setOrganizer_telephone] = useState(
+    current?.organizer_telephone || ''
+  )
+  const [organizer_email, setOrganizer_email] = useState(
+    current?.organizer_email || ''
+  )
+  const [organizer_image, setOrganizer_image] = useState(
+    current?.organizer_email || ''
+  )
 
   return (
-    <form onSubmit={ (e) => e.preventDefault() }>
+    <form onSubmit={(e) => e.preventDefault()}>
       <h4 className="light mb-3">
-        { current ? 'Edit activity details' : 'Create new activity' }
+        {current ? 'Edit activity details' : 'Create new activity'}
       </h4>
       <Input
         name="name"
@@ -128,7 +140,7 @@ export default function ActivityForm({
         onChange={(v) => setShowOrg(v)}
       />
 
-      { showOrg &&
+      {showOrg && (
         <>
           <Input
             name="organizer_name"
@@ -163,11 +175,11 @@ export default function ActivityForm({
             onChange={(v) => setOrganizer_image(v)}
             />
         </>
-      }
+      )}
 
       <div className="text-right mt-2">
         <button className="button">
-          { current ? 'Edit activity' : 'Create activity' }
+          {current ? 'Edit activity' : 'Create activity'}
         </button>
       </div>
     </form>
