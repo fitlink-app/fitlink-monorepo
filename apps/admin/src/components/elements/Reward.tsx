@@ -15,6 +15,7 @@ export type RewardProps = {
   description?: string
   code?: string
   instructions?: string
+  cost?: string
 }
 
 export default function Reward({
@@ -30,7 +31,8 @@ export default function Reward({
   title,
   description,
   code,
-  instructions
+  instructions,
+  cost
 }: RewardProps) {
   return (
     <>
@@ -46,14 +48,21 @@ export default function Reward({
           </h3>
         </div>
         <div className="card__top">
-          <div className="card__chip">{points.toLocaleString()} points</div>
+          { points > 0 &&
+            <div className="card__chip">{points.toLocaleString()} points</div>
+          }
+          { cost &&
+            <div className="card__chip">{cost}</div>
+          }
           {redeemed > 0 && (
             <h4 className="p">{redeemed.toLocaleString()} redeemed</h4>
           )}
-          <div className="reward__expires">
-            <small>Expires</small>
-            {format(new Date(expires), 'do MMM, yyyy')}
-          </div>
+          { expires !== '' &&
+            <div className="reward__expires">
+              <small>Expires</small>
+              {format(new Date(expires), 'do MMM, yyyy')}
+            </div>
+          }
         </div>
       </Card>
       { showExtra &&

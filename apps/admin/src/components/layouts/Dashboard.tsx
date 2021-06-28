@@ -68,6 +68,7 @@ export default function Dashboard({
           {children}
         </div>
       </div>
+      <div id="modal-root"></div>
     </>
   )
 }

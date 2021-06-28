@@ -5,6 +5,7 @@ import { Leaderboard } from '../../src/modules/leaderboards/entities/leaderboard
 
 define(League, (faker: typeof Faker) => {
   const league = new League()
+  const leaderboard = new Leaderboard()
   league.description = faker.lorem.words(10)
   league.name = faker.random.arrayElement([
     'Runners club',
@@ -13,5 +14,7 @@ define(League, (faker: typeof Faker) => {
     'Run time',
     'Run run run'
   ])
+  league.leaderboards = [leaderboard]
+  league.active_leaderboard = leaderboard
   return league
 })
