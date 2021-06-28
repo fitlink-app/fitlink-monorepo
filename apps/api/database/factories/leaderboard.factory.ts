@@ -9,6 +9,8 @@ interface Context {
 
 define(Leaderboard, (_faker: typeof Faker, context: Context) => {
   const leaderboard = new Leaderboard()
-  leaderboard.league = context.league
+  if (context && context.league) {
+    leaderboard.league = context.league
+  }
   return leaderboard
 })

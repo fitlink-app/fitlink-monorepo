@@ -5,6 +5,7 @@
 @import 'base/flex';
 @import 'base/inputs';
 
+@import 'components/avatar-select';
 @import 'components/blog-post';
 @import 'components/blog-thumb';
 @import 'components/button';
@@ -13,7 +14,10 @@
 @import 'components/circle-progress';
 @import 'components/layout-dashboard';
 @import 'components/league';
+@import 'components/loader';
+@import 'components/location-select';
 @import 'components/menu-item';
+@import 'components/modal';
 @import 'components/news';
 @import 'components/react-table';
 @import 'components/reward';

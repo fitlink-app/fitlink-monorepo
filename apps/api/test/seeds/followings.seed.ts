@@ -12,20 +12,31 @@ export async function FollowingsSetup(
 ): Promise<Following[]> {
   class Setup implements Seeder {
     public async run(factory: Factory): Promise<any> {
+      if (USERS_COUNT < 2) {
+        throw new Error('User count needs to be at least 2')
+      }
+
       const users = await this.setupDependencies()
+      const userToFollow = users[0]
+
+      // Skip the first user in future
+      users.shift()
 
       const followings = await Promise.all(
-        users.map((user, index) => {
-          const followerUser = user
-          const followingUser = users[index + 1] || users[index - 1]
+        users.map((followerUser) => {
           return factory(Following)({
             followerUser,
-            followingUser
+            followingUser: userToFollow
           }).create()
         })
       )
 
-      return followings
+      const following = await factory(Following)({
+        followerUser: userToFollow,
+        followingUser: users[0]
+      }).create()
+
+      return [following, ...followings]
     }
 
     async setupDependencies() {

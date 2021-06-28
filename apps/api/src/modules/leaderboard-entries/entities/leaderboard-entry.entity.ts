@@ -9,7 +9,7 @@ import {
 } from 'typeorm'
 import { IsInt, Min } from 'class-validator'
 import { Leaderboard } from '../../leaderboards/entities/leaderboard.entity'
-import { User } from '../../users/entities/user.entity'
+import { User, UserPublic } from '../../users/entities/user.entity'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 
 @Entity()
@@ -37,7 +37,7 @@ export class LeaderboardEntry extends CreatableEntity {
 
   @ManyToOne(() => User)
   @JoinColumn()
-  user: User
+  user: User | UserPublic
 
   @Index()
   @IsInt()
@@ -51,4 +51,6 @@ export class LeaderboardEntry extends CreatableEntity {
     default: 0
   })
   wins: number
+
+  rank?: string
 }

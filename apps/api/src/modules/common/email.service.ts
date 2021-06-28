@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { SESClient, SendTemplatedEmailCommand } from '@aws-sdk/client-ses'
 import { ConfigService } from '@nestjs/config'
+import { writeFile, readFile } from 'fs/promises'
 
 @Injectable()
 export class EmailService {
@@ -37,6 +38,60 @@ export class EmailService {
   }
 }
 
+/** Mocks email to a file, also useful for development */
+export class EmailServiceLocal extends EmailService {
+  async sendTemplatedEmail(
+    template: TemplatesType,
+    data: NodeJS.Dict<string>,
+    toAddresses: string[],
+    fromAddress: string
+  ) {
+    const content = await this.appendEmailContent(
+      template,
+      data,
+      toAddresses,
+      fromAddress
+    )
+    await writeFile('email-debug.log', JSON.stringify(content, null, 2))
+    return '1'
+  }
+
+  async appendEmailContent(
+    template: TemplatesType,
+    data: NodeJS.Dict<string>,
+    toAddresses: string[],
+    fromAddress = 'jest@example.com'
+  ) {
+    const content = await this.getEmailContent()
+    content.push({
+      data,
+      template,
+      toAddresses,
+      fromAddress
+    })
+    return content
+  }
+
+  async emailHasContent(search: string) {
+    const content = await readFile('email-debug.log')
+    return content.toString().toLowerCase().indexOf(search.toLowerCase()) > -1
+  }
+
+  async getEmailContent() {
+    try {
+      const content = await readFile('email-debug.log')
+      return JSON.parse(content.toString()) as {
+        template: string
+        data: NodeJS.Dict<string>
+        toAddresses: string[]
+        fromAddress: string
+      }[]
+    } catch (e) {
+      return []
+    }
+  }
+}
+
 export type TemplatesType =
   | 'email-verification'
   | 'password-reset'
@@ -49,3 +104,4 @@ export type TemplatesType =
   | 'welcome'
   | 'organisation-invitation'
   | 'team-invitation'
+  | 'league-invitation'

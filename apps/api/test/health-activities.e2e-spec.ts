@@ -27,38 +27,40 @@ describe('Health Activities', () => {
   let sportId
   let cyclingId
   let walkingId
-
+  let spyConsole
   beforeAll(async () => {
+    spyConsole = jest.spyOn(console, 'error').mockImplementation(() => {})
+
     app = await mockApp({
       imports: [ProvidersModule, HealthActivitiesModule],
       providers: []
     })
     await useSeeding()
 
-    // const sport = await SportSetup({
-    //   name: 'Hiking',
-    //   name_key: 'hiking',
-    //   plural: 'hikings',
-    //   singular: 'hiking'
-    // })
+    const sport = await SportSetup({
+      name: 'Hiking',
+      name_key: 'hiking',
+      plural: 'hikings',
+      singular: 'hiking'
+    })
 
-    // const cycling = await SportSetup({
-    //   name: 'Cycling',
-    //   name_key: 'cycling',
-    //   plural: 'cycling',
-    //   singular: 'cycling'
-    // })
+    const cycling = await SportSetup({
+      name: 'Cycling',
+      name_key: 'cycling',
+      plural: 'cycling',
+      singular: 'cycling'
+    })
 
-    // const walking = await SportSetup({
-    //   name: 'Walking',
-    //   name_key: 'walking',
-    //   plural: 'walking',
-    //   singular: 'walking'
-    // })
+    const walking = await SportSetup({
+      name: 'Walking',
+      name_key: 'walking',
+      plural: 'walking',
+      singular: 'walking'
+    })
 
-    // cyclingId = cycling.id
-    // walkingId = walking.id
-    // sportId = sport.id
+    cyclingId = cycling.id
+    walkingId = walking.id
+    sportId = sport.id
 
     await SportsTeardownWithId(sportId)
     await SportsTeardownWithId(walkingId)
@@ -77,6 +79,7 @@ describe('Health Activities', () => {
     await ProvidersTeardown('FitbitHealthActivityTest')
     await app.get(Connection).close()
     await app.close()
+    spyConsole.mockRestore()
   })
 
   it('POST /providers/fitbit/webhook', async () => {
@@ -228,5 +231,6 @@ describe('Health Activities', () => {
     })
 
     expect(data.json().healthActivity).toBe(null)
+    expect(console.error).toHaveBeenCalled()
   })
 })

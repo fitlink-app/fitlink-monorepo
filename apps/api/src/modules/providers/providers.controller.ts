@@ -5,8 +5,10 @@ import { UpdateProviderDto } from './dto/update-provider.dto'
 import { ProviderType } from './entities/provider.entity'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { AuthenticatedUser } from '../../models'
+import { ApiTags } from '@nestjs/swagger'
 
 @Controller('providers')
+@ApiTags('providers')
 export class ProvidersController {
   constructor(private readonly providersService: ProvidersService) {}
 

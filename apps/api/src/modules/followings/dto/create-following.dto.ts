@@ -3,6 +3,8 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class CreateFollowingDto {
   @ApiProperty()
-  @IsString()
+  @IsString({
+    message: 'The targeted user is required'
+  })
   targetId: string
 }

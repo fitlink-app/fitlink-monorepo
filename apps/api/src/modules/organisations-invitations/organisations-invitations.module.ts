@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common'
 import { OrganisationsInvitationsService } from './organisations-invitations.service'
 import { OrganisationsInvitationsController } from './organisations-invitations.controller'
-import { EmailService } from '../common/email.service'
 import { ConfigService, ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { OrganisationsInvitation } from './entities/organisations-invitation.entity'
 import { JwtModule } from '@nestjs/jwt'
+import { CommonModule } from '../common/common.module'
 
 @Module({
   imports: [
+    CommonModule,
     TypeOrmModule.forFeature([OrganisationsInvitation]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -22,7 +23,7 @@ import { JwtModule } from '@nestjs/jwt'
     })
   ],
   controllers: [OrganisationsInvitationsController],
-  providers: [OrganisationsInvitationsService, EmailService, ConfigService],
+  providers: [OrganisationsInvitationsService, ConfigService],
   exports: [
     TypeOrmModule.forFeature([OrganisationsInvitation]),
     OrganisationsInvitationsService
