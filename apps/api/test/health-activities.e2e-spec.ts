@@ -1,6 +1,6 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Connection } from 'typeorm'
-import { useSeeding } from 'typeorm-seeding'
+import { runSeeder, useSeeding } from 'typeorm-seeding'
 import { HealthActivitiesModule } from '../src/modules/health-activities/health-activities.module'
 import { ProvidersModule } from '../src/modules/providers/providers.module'
 import { ProvidersService } from '../src/modules/providers/providers.service'
@@ -16,6 +16,7 @@ import { ProvidersSetup, ProvidersTeardown } from './seeds/providers.seed'
 import { SportSetup, SportsTeardownWithId } from './seeds/sport.seed'
 import fitbitActivitiesPayload from './helpers/fitbitActivitiesPayload'
 import { Provider } from '../src/modules/providers/entities/provider.entity'
+import CreateSports from '../database/seeds/sport.seed'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -24,9 +25,6 @@ describe('Health Activities', () => {
   let providerService: MockType<ProvidersService>
   let userForStrava: User
   let userForFitbit: User
-  let sportId
-  let cyclingId
-  let walkingId
 
   beforeAll(async () => {
     app = await mockApp({
@@ -34,37 +32,13 @@ describe('Health Activities', () => {
       providers: []
     })
     await useSeeding()
+    await runSeeder(CreateSports)
 
-    // const sport = await SportSetup({
-    //   name: 'Hiking',
-    //   name_key: 'hiking',
-    //   plural: 'hikings',
-    //   singular: 'hiking'
-    // })
-
-    // const cycling = await SportSetup({
-    //   name: 'Cycling',
-    //   name_key: 'cycling',
-    //   plural: 'cycling',
-    //   singular: 'cycling'
-    // })
-
-    // const walking = await SportSetup({
-    //   name: 'Walking',
-    //   name_key: 'walking',
-    //   plural: 'walking',
-    //   singular: 'walking'
-    // })
-
-    // cyclingId = cycling.id
-    // walkingId = walking.id
-    // sportId = sport.id
-
-    await SportsTeardownWithId(sportId)
-    await SportsTeardownWithId(walkingId)
-    await SportsTeardownWithId(cyclingId)
     userForStrava = await ProvidersSetup('StravaHealthActivityTest')
     userForFitbit = await ProvidersSetup('FitbitHealthActivityTest')
+
+    console.log(userForFitbit)
+    console.log(userForStrava)
 
     stravaService = app.get(StravaService)
     fitbitService = app.get(FitbitService)
@@ -78,7 +52,6 @@ describe('Health Activities', () => {
     await app.get(Connection).close()
     await app.close()
   })
-
   it('POST /providers/fitbit/webhook', async () => {
     const mockPayload: FitbitEventData[] = [
       {
