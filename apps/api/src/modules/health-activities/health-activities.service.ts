@@ -103,7 +103,7 @@ export class HealthActivitiesService {
         }
       })
     )
-    error && console.error(error.message)
+    error && error.message !== 'Data not found' && console.error(error.message)
     return !!userActivities
   }
 

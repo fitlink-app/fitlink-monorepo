@@ -6,14 +6,23 @@ import {
   NotFoundException
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { tryAndCatch } from '../../../../helpers/tryAndCatch'
 import * as fitbitClient from 'fitbit-node'
+import { HealthActivityDto } from '../../../health-activities/dto/create-health-activity.dto'
+import { healthActivityType } from '../../../health-activities/dto/healthActivityType'
+import { lifestyleActivityType } from '../../../health-activities/dto/lifestyleActivityType'
+import { HealthActivitiesService } from '../../../health-activities/health-activities.service'
 import { ProviderType } from '../../entities/provider.entity'
 import { ProvidersService } from '../../providers.service'
 import {
+  FitbitActivity,
+  FitbitActivityResponseBody,
   FitbitAuthResponse,
   FitbitEventData,
-  FitbitSubscriptionResponseBody
+  FitbitSubscriptionResponseBody,
+  FitbitUserUpdates
 } from '../../types/fitbit'
+import { FITBIT_ACTIVITY_TYPE_MAP } from '../constants'
 
 const FitbitApiClient: any = fitbitClient
 
@@ -25,7 +34,8 @@ const fitbit_verify_code =
 export class FitbitService {
   constructor(
     private providersService: ProvidersService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private healthActivityService: HealthActivitiesService
   ) {}
 
   Fitbit = new FitbitApiClient({
@@ -65,9 +75,77 @@ export class FitbitService {
     return result
   }
 
-  proccessPayload(payload: FitbitEventData[]) {
-    console.log(payload)
-    return { success: true }
+  async processPayload(payload: FitbitEventData[]) {
+    const updatesByUser: FitbitUserUpdates = {}
+    // Categorize updates by user
+    for (const update of payload) {
+      if (!updatesByUser[update.subscriptionId]) {
+        updatesByUser[update.subscriptionId] = [update]
+      } else {
+        updatesByUser[update.subscriptionId].push(update)
+      }
+    }
+
+    const payloadArray = Object.values(updatesByUser)
+
+    /**
+     * Loop through the payload entries by user in parallel.
+     * Each userPayload is an array of updates
+     */
+    for (const userPayload of payloadArray) {
+      // Get user's access token
+      const userId = userPayload[0].subscriptionId
+      const [token, tokenErr] = await tryAndCatch(
+        this.getFreshFitbitToken(userId)
+      )
+      tokenErr && console.error(tokenErr.message)
+
+      for (const update of userPayload) {
+        switch (update.collectionType) {
+          case 'activities': {
+            const [summaryResult, summaryResultErr] = await tryAndCatch(
+              this.fetchActivitySummaryByDay(token, update.date)
+            )
+            summaryResultErr && console.error(summaryResultErr)
+            if (summaryResult.activities?.length) {
+              const [resultsArr, resultsArrErr] = await tryAndCatch(
+                this.saveHealthActivities(
+                  summaryResult.activities as FitbitActivity[],
+                  userId
+                )
+              )
+              resultsArrErr && console.error(resultsArrErr)
+              return resultsArr
+            }
+          }
+
+          default:
+            return { success: true }
+          // Get Activity Summary
+        }
+      }
+    }
+  }
+
+  async saveHealthActivities(activities: FitbitActivity[], userId: string) {
+    const promises = []
+    for (const activity of activities) {
+      const normalizedActivity = this.createNormalizedHealthActivity(activity)
+      promises.push(
+        this.healthActivityService.create(normalizedActivity, userId)
+      )
+    }
+    const results = await Promise.all(promises)
+    return results
+  }
+
+  async fetchActivitySummaryByDay(token: string, date: string) {
+    const req = await this.Fitbit.get(`/activities/date/${date}.json`, token)
+    const body = req[0] as FitbitActivityResponseBody
+    if (body.errors) {
+      throw new BadRequestException(body.errors[0].message)
+    }
+    return body
   }
 
   async deAuthorize(userId: string) {
@@ -135,11 +213,39 @@ export class FitbitService {
     }
   }
 
-  async createPushSubscription(accessToken: string, subscriberId: string) {
+  normalizeActivityType(activityName: string) {
+    return FITBIT_ACTIVITY_TYPE_MAP[activityName] || 'unknown'
+  }
+
+  createNormalizedHealthActivity(activity: FitbitActivity): HealthActivityDto {
+    const end_time = new Date(
+      new Date(activity.startTime).valueOf() + activity.duration
+    ).toISOString()
+
+    const type = this.normalizeActivityType(activity.activityName) as
+      | healthActivityType
+      | lifestyleActivityType
+
+    const normalizedActivity: HealthActivityDto = {
+      type,
+      provider: ProviderType.Fitbit,
+      start_time: activity.startTime,
+      end_time,
+      active_time: activity.activeDuration / 1000,
+      calories: activity.calories,
+      distance: activity.distance * 1000,
+      elevation: 0
+    }
+    return normalizedActivity
+  }
+
+  async createPushSubscription(accessToken: string, subscribeeId: string) {
     try {
+      // Replace this with the sub Id from fitbit dashboard
+      const subscriberId = 'sohailkhan'
       const responses = await Promise.all([
         this.Fitbit.post(
-          `/activities/apiSubscriptions/${subscriberId}.json?subscriberId=SohailSubId`,
+          `/activities/apiSubscriptions/${subscribeeId}.json?subscriberId=${subscriberId}`,
           accessToken
         )
       ])
@@ -148,11 +254,12 @@ export class FitbitService {
         const body = response[0] as FitbitSubscriptionResponseBody
         console.log(body)
         if (body.errors) {
+          console.error(body.errors[0].message)
           throw new BadRequestException(body.errors[0].message)
         }
       }
     } catch (e) {
-      console.log(e)
+      console.log(e.message)
       throw new BadRequestException(e.message)
     }
   }

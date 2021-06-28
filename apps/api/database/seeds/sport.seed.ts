@@ -25,5 +25,14 @@ export default class CreateSports implements Seeder {
         plural: 'rides'
       })
     }
+
+    if (!(await sportRepository.findOne({ name_key: 'walking' }))) {
+      await factory(Sport)().create({
+        name: 'Walking',
+        name_key: 'walking',
+        singular: 'walking',
+        plural: 'walkings'
+      })
+    }
   }
 }
