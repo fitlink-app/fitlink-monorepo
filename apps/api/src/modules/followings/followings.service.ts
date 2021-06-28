@@ -11,7 +11,9 @@ import { plainToClass } from 'class-transformer'
 export class FollowingsService {
   constructor(
     @InjectRepository(Following)
-    private followingRepository: Repository<Following>
+    private followingRepository: Repository<Following>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>
   ) {}
 
   /**
@@ -27,14 +29,14 @@ export class FollowingsService {
       throw new BadRequestException('user and target id should be different')
     }
 
-    const userToFollow = new User()
-    userToFollow.id = createFollowingDto.targetId
+    const userFollowed = new User()
+    userFollowed.id = createFollowingDto.targetId
 
     const me = new User()
     me.id = userId
 
     const following = new Following()
-    following.following = userToFollow
+    following.following = userFollowed
     following.follower = me
 
     const result = await this.followingRepository.findOne(following)
@@ -54,7 +56,7 @@ export class FollowingsService {
    * @param userId
    * @param options
    */
-  async findAllFollowing(
+  async findAllFollowingOld(
     userId: string,
     options: PaginationOptionsInterface
   ): Promise<Pagination<UserPublic>> {
@@ -79,31 +81,101 @@ export class FollowingsService {
   }
 
   /**
+   * Find all following by user (followerId), with pagination options
+   * @param userId
+   * @param options
+   */
+  async findAllFollowing(
+    userId: string,
+    { page, limit }: PaginationOptionsInterface
+  ): Promise<Pagination<UserPublic>> {
+    const me = new User()
+    me.id = userId
+
+    const query = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.avatar', 'avatar')
+
+      // Look for any users that this user is following
+      // Use an inner join, since results must only include following
+      .innerJoinAndSelect(
+        'user.following',
+        'following',
+        'following.follower.id = :userId',
+        { userId }
+      )
+
+      // Look for any users that are following this user
+      // Use a left join to prevent nullish results being excluded
+      .leftJoinAndSelect(
+        'user.followers',
+        'followers',
+        'followers.following.id = :userId',
+        { userId }
+      )
+
+      .take(limit)
+      .skip(page * limit)
+
+    const [results, total] = await query.getManyAndCount()
+
+    return new Pagination<UserPublic>({
+      results: results.map(this.getFollowersPublic),
+      total
+    })
+  }
+
+  /**
    * Find all followers by user (followingId), with pagination options
    * @param userId
    * @param options
    */
   async findAllFollowers(
     userId: string,
-    options: PaginationOptionsInterface
+    { page, limit }: PaginationOptionsInterface
   ): Promise<Pagination<UserPublic>> {
     const me = new User()
     me.id = userId
 
-    const [results, total] = await this.followingRepository.findAndCount({
-      where: { following: { id: userId } },
-      relations: ['following'],
-      take: options.limit,
-      skip: options.page * options.limit
-    })
+    const query = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.avatar', 'avatar')
+
+      // Look for any users that are following this user
+      // Use an inner join, since results must only include followers
+      .innerJoinAndSelect(
+        'user.followers',
+        'followers',
+        'followers.following.id = :userId',
+        { userId }
+      )
+
+      // Look for any users that are followed by this user
+      // Use a left join to prevent nullish results being excluded
+      .leftJoinAndSelect(
+        'user.following',
+        'following',
+        'following.follower.id = :userId',
+        { userId }
+      )
+
+      .take(limit)
+      .skip(page * limit)
+
+    const [results, total] = await query.getManyAndCount()
 
     return new Pagination<UserPublic>({
-      results: results.map((each) =>
-        plainToClass(UserPublic, each.following, {
-          excludeExtraneousValues: true
-        })
-      ),
+      results: results.map(this.getFollowersPublic),
       total
+    })
+  }
+
+  getFollowersPublic(user: User) {
+    const userPublic = (user as unknown) as UserPublic
+    userPublic.following = Boolean(user.following.length)
+    userPublic.follower = Boolean(user.followers.length)
+    return plainToClass(UserPublic, userPublic, {
+      excludeExtraneousValues: true
     })
   }
 
@@ -116,21 +188,25 @@ export class FollowingsService {
 
   /**
    * Deletes the following
+   * Note that the following must first be found
+   * since it needs to trigger subscribers on remove
+   *
+   * Subscribers won't be able to listen properly for deletion
+   * events.
+   *
    * @param userId
    * @param targetId
    */
   async remove(userId: string, targetId: string) {
-    const userToFollow = new User()
-    userToFollow.id = targetId
+    const following = await this.followingRepository.find({
+      // The follower is the userId
+      follower: { id: userId },
 
-    const me = new User()
-    me.id = userId
+      // The user being followed is the targetId
+      following: { id: targetId }
+    })
 
-    const following = new Following()
-    following.following = userToFollow
-    following.follower = me
-
-    return await this.followingRepository.delete(following)
+    return await this.followingRepository.remove(following)
   }
 
   getFollowerCount(userBeingFollowedId: string) {

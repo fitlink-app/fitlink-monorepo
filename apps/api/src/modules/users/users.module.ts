@@ -3,22 +3,33 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { UsersService } from './users.service'
 import { UsersController } from './users.controller'
 import { User } from './entities/user.entity'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { UsersInvitationsModule } from '../users-invitations/users-invitations.module'
-import { UserRolesService } from '../user-roles/user-roles.service'
-import { UserRole } from '../user-roles/entities/user-role.entity'
 import { UserRolesModule } from '../user-roles/user-roles.module'
+import { JwtModule } from '@nestjs/jwt'
+import { CommonModule } from '../common/common.module'
 
 @Module({
   imports: [
+    CommonModule,
     TypeOrmModule.forFeature([User]),
     ConfigModule,
     HttpModule,
     UserRolesModule,
-    UsersInvitationsModule
+    UsersInvitationsModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return {
+          secret: configService.get('EMAIL_JWT_TOKEN_SECRET'),
+          signOptions: { expiresIn: '1h' }
+        }
+      }
+    })
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, ConfigService],
   exports: [TypeOrmModule.forFeature([User]), UsersService]
 })
 export class UsersModule {}

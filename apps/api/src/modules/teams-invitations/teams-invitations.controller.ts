@@ -15,8 +15,10 @@ import { Roles } from '../user-roles/entities/user-role.entity'
 import { VerifyTeamsInvitationDto } from './dto/verify-teams-invitation.dto'
 import { Team } from '../teams/entities/team.entity'
 import { Public } from '../../decorators/public.decorator'
+import { ApiTags } from '@nestjs/swagger'
 
 @Controller()
+@ApiTags('teams')
 export class TeamsInvitationsController {
   constructor(
     private readonly teamsInvitationsService: TeamsInvitationsService

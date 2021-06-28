@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { Files } from '../../decorators/files.decorator'
 import { Iam } from '../../decorators/iam.decorator'
@@ -12,6 +13,7 @@ import { UpdateTeamDto } from './dto/update-team.dto'
 import { TeamsService } from './teams.service'
 
 @Controller()
+@ApiTags('teams')
 export class TeamsController {
   constructor(
     private readonly teamsService: TeamsService,

@@ -47,6 +47,8 @@ export interface InputFieldProps extends TextInputProps {
   /** Enable button to clear field value */
   clearButtonEnabled?: boolean;
 
+  onClearPressed?: () => void;
+
   label?: string;
 }
 
@@ -64,6 +66,7 @@ export const InputField = React.forwardRef(
       secureTextEntry,
       multiline,
       clearButtonEnabled,
+      onClearPressed,
       onChangeText,
       label,
       ...rest
@@ -116,7 +119,10 @@ export const InputField = React.forwardRef(
             <IconButtonContainer>
               {clearButtonEnabled && !!value && value.length !== 0 && (
                 <InputFieldIcon
-                  onPress={() => handleChangeText('')}
+                  onPress={() => {
+                    onClearPressed && onClearPressed();
+                    handleChangeText('');
+                  }}
                   color={colors.accentSecondary}
                   name={'times'}
                   size={18}

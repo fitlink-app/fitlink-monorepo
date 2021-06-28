@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
   IsBoolean,
+  IsEmail,
   IsEnum,
   IsNotEmpty,
   IsNumber,
-  IsNumberString,
   IsOptional,
   IsUUID,
   MinLength
@@ -75,4 +75,28 @@ export class UpdateUserAvatarDto {
     message: 'Invalid image id'
   })
   imageId: string
+}
+
+export class UpdateUserEmailDto {
+  @ApiProperty()
+  @IsEmail(
+    {},
+    {
+      message: 'Must be a valid email address'
+    }
+  )
+  email: string
+}
+
+export class VerifyUserEmailDto {
+  @ApiProperty()
+  token: string
+}
+
+export class UpdateUserPasswordDto {
+  @ApiProperty()
+  current_password: string
+
+  @ApiProperty()
+  new_password: string
 }

@@ -38,6 +38,7 @@ lerna-debug.log*
 /documentation
 /.aws
 .env*
+!.env.test
 terraform
 .serverless
 /s3

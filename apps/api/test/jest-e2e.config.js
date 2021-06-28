@@ -8,5 +8,5 @@ module.exports = {
     "^.+\\.json$": "ts-jest"
   },
   "globalSetup": "<rootDir>/setup.ts",
-  "globalTeardown": "<rootDir>/teardown.ts",
+  "globalTeardown": "<rootDir>/teardown.ts"
 }

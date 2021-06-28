@@ -1,5 +1,10 @@
 import { ApiParameterError, AuthorizationRefreshError, makeApi } from '../index'
-import { ImageUpload } from '../types'
+import {
+  ImageUpload,
+  UpdateUserPasswordDto,
+  UpdateUserEmailDto,
+  UpdateUserAvatarDto
+} from '../types'
 import axios from 'axios'
 import * as moxios from 'moxios'
 import { readFile } from 'fs/promises'
@@ -448,12 +453,43 @@ describe('list', () => {
       response: { affected: 1 }
     })
 
-    const image = await api.put<ImageUpload>('/me/avatar', {
+    const image = await api.put<UpdateUserAvatarDto>('/me/avatar', {
       payload: {
         imageId: '123'
       }
     })
 
     expect(image.affected).toEqual(1)
+  })
+
+  it('can update password for user', async () => {
+    moxios.stubOnce('put', /me\/password/, {
+      status: 200,
+      response: { affected: 1 }
+    })
+
+    const update = await api.put<UpdateUserPasswordDto>('/me/password', {
+      payload: {
+        current_password: 'test',
+        new_password: 'test2'
+      }
+    })
+
+    expect(update.affected).toEqual(1)
+  })
+
+  it('can update email for user', async () => {
+    moxios.stubOnce('put', /me\/email/, {
+      status: 200,
+      response: { affected: 1 }
+    })
+
+    const update = await api.put<UpdateUserEmailDto>('/me/email', {
+      payload: {
+        email: 'test@example.com'
+      }
+    })
+
+    expect(update.affected).toEqual(1)
   })
 })

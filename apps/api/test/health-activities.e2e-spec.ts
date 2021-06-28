@@ -25,8 +25,11 @@ describe('Health Activities', () => {
   let providerService: MockType<ProvidersService>
   let userForStrava: User
   let userForFitbit: User
+  let spyConsole
 
   beforeAll(async () => {
+    spyConsole = jest.spyOn(console, 'error').mockImplementation(() => {})
+
     app = await mockApp({
       imports: [ProvidersModule, HealthActivitiesModule],
       providers: []
@@ -51,6 +54,7 @@ describe('Health Activities', () => {
     await ProvidersTeardown('FitbitHealthActivityTest')
     await app.get(Connection).close()
     await app.close()
+    spyConsole.mockRestore()
   })
   it('POST /providers/fitbit/webhook', async () => {
     const mockPayload: FitbitEventData[] = [
@@ -201,5 +205,6 @@ describe('Health Activities', () => {
     })
 
     expect(data.json().healthActivity).toBe(null)
+    expect(console.error).toHaveBeenCalled()
   })
 })

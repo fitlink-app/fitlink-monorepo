@@ -23,8 +23,8 @@ export function UpdateResponse() {
   return applyDecorators(ApiResponse({ type: UpdateResultDto, status: 200 }))
 }
 
-export function SuccessResponse() {
-  return applyDecorators(ApiResponse({ type: SuccessResultDto, status: 200 }))
+export function SuccessResponse(status = 200) {
+  return applyDecorators(ApiResponse({ type: SuccessResultDto, status }))
 }
 
 export function ValidationResponse() {

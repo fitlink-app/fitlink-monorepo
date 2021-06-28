@@ -6,10 +6,11 @@ import { Following } from './entities/following.entity'
 import { AuthModule } from '../auth/auth.module'
 import { ConfigModule } from '@nestjs/config'
 import { HttpModule, Module } from '@nestjs/common'
+import { User } from '../users/entities/user.entity'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Following]),
+    TypeOrmModule.forFeature([Following, User]),
     AuthModule,
     ConfigModule,
     HttpModule

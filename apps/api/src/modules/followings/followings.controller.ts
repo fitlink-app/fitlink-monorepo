@@ -17,7 +17,7 @@ import {
   ApiBaseResponses,
   DeleteResponse
 } from '../../decorators/swagger.decorator'
-import { ApiResponse } from '@nestjs/swagger'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Following } from './entities/following.entity'
 import { UserPublic } from '../users/entities/user.entity'
 
@@ -31,6 +31,7 @@ export class FollowingsController {
    * @param body `{ targetId: string }`
    * @returns
    */
+  @ApiTags('me')
   @Post('me/following')
   @ApiResponse({ type: UserPublic, isArray: true, status: 201 })
   create(@User() user: AuthenticatedUser, @Body() body: CreateFollowingDto) {
@@ -40,6 +41,7 @@ export class FollowingsController {
   /**
    * Get all users that the self-user is following
    */
+  @ApiTags('me')
   @Get('me/following')
   @ApiResponse({ type: UserPublic, isArray: true, status: 201 })
   findAllFollowing(
@@ -55,6 +57,7 @@ export class FollowingsController {
   /**
    * Get following entities with all user's followers by Id
    */
+  @ApiTags('me')
   @Get('me/followers')
   @ApiResponse({ type: UserPublic, isArray: true, status: 201 })
   findAllFollowers(
@@ -73,9 +76,13 @@ export class FollowingsController {
    * @param targetId
    * @returns DeleteResult
    */
-  @Delete('me/followings/:targetId')
+  @ApiTags('me')
+  @Delete('me/following/:userId')
   @DeleteResponse()
-  removeFollower(@Request() request, @Param('targetId') targetId: string) {
-    return this.followingsService.remove(request.user.id, targetId)
+  removeFollower(
+    @Param('userId') targetId: string,
+    @User() user: AuthenticatedUser
+  ) {
+    return this.followingsService.remove(user.id, targetId)
   }
 }

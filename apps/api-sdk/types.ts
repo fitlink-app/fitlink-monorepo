@@ -19,10 +19,21 @@ import {
 import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 import {
   UpdateUserAvatarDto,
-  UpdateUserDto
+  UpdateUserDto,
+  UpdateUserEmailDto,
+  UpdateUserPasswordDto
 } from '@fitlink/api/src/modules/users/dto/update-user.dto'
 
-export type { AuthResultDto, AuthLogoutDto, AuthLoginDto, CreateUserDto }
+export type {
+  AuthResultDto,
+  AuthLogoutDto,
+  AuthLoginDto,
+  CreateUserDto,
+  UpdateUserDto,
+  UpdateUserEmailDto,
+  UpdateUserPasswordDto,
+  UpdateUserAvatarDto
+}
 
 type Payload<T> = NodeJS.Dict<any> & {
   payload?: T
@@ -60,6 +71,7 @@ export type ListResource =
   | '/teams/:teamId/leagues'
   | '/teams/:teamId/leagues/:leagueId/leaderboards'
   | '/users'
+  | '/users/search'
   | '/activities'
   | '/rewards'
   | '/rewards/:rewardId/redemptions'
@@ -107,6 +119,8 @@ export type ReadResource =
   | '/me'
   | '/me/feed/:feedItemId'
   | '/me/avatar'
+  | '/me/email'
+  | '/me/password'
 
 export type UploadResource = '/images'
 
@@ -152,7 +166,11 @@ export type UpdateResourceParams<T> = T extends Organisation
   : T extends User
   ? Payload<UpdateUserDto>
   : T extends ImageUpload
-  ? Payload<ImageUpload>
+  ? Payload<ImageUpload | UpdateUserAvatarDto>
+  : T extends UpdateUserPasswordDto
+  ? Payload<UpdateUserPasswordDto>
+  : T extends UpdateUserEmailDto
+  ? Payload<UpdateUserEmailDto>
   : never
 
 export type ResourceParams = NodeJS.Dict<string>
@@ -160,6 +178,9 @@ export type ResourceParams = NodeJS.Dict<string>
 export type ImageUpload = {
   imageId: string
 }
+
+export type Password = {}
+export type Email = {}
 
 export type ListParams = NodeJS.Dict<any> & {
   limit?: number
