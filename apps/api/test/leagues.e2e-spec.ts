@@ -442,6 +442,49 @@ describe('Leagues', () => {
     ).toBeGreaterThan(0)
   })
 
+  it.only('GET /leagues A user can search all leagues including for teams/organisations they belong to or private leagues', async () => {
+    // Join the user to the team
+    await createPublicLeague({
+      name: 'Early morning joggers'
+    })
+
+    const search1 = await app.inject({
+      method: 'GET',
+      url: '/leagues/search',
+      headers: authHeaders3,
+      query: {
+        q: 'morn'
+      }
+    })
+
+    expect(search1.statusCode).toEqual(200)
+    expect(search1.json().results.length).toBeGreaterThan(0)
+    expect(
+      search1.json().results.filter((e) => e.name.indexOf('morning') > -1)
+        .length
+    ).toBeGreaterThan(0)
+    expect(
+      search1.json().results.filter((e) => e.name.indexOf('Team') > -1).length
+    ).toBe(0)
+
+    const search2 = await app.inject({
+      method: 'GET',
+      url: '/leagues/search',
+      headers: authHeaders3,
+      query: {
+        q: 'team'
+      }
+    })
+
+    expect(
+      search2.json().results.filter((e) => e.name.indexOf('morning') > -1)
+        .length
+    ).toBe(0)
+    expect(
+      search2.json().results.filter((e) => e.name.indexOf('Team') > -1).length
+    ).toBeGreaterThan(0)
+  })
+
   it('GET /teams/:teamId/leagues', async () => {
     const data = await app.inject({
       method: 'GET',
@@ -707,7 +750,7 @@ describe('Leagues', () => {
   // Organisation-wide leagues
   // Team-wide leagues
 
-  async function createPublicLeague() {
+  async function createPublicLeague(override?: Partial<CreateLeagueDto>) {
     const imageId = images.pop().id
     const payload: CreateLeagueDto = {
       name: 'Public Test League',
@@ -716,7 +759,8 @@ describe('Leagues', () => {
       duration: 7,
       repeat: true,
       imageId,
-      access: LeagueAccess.Public
+      access: LeagueAccess.Public,
+      ...override
     }
     const post = await app.inject({
       method: 'POST',

@@ -12,7 +12,7 @@ import {
   Put,
   Query
 } from '@nestjs/common'
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBody, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { Iam } from '../../decorators/iam.decorator'
 import {
@@ -27,6 +27,7 @@ import { AuthenticatedUser } from '../../models'
 import { Roles } from '../user-roles/entities/user-role.entity'
 import { CreateLeagueDto } from './dto/create-league.dto'
 import { UpdateLeagueDto } from './dto/update-league.dto'
+import { SearchLeagueDto } from './dto/search-league.dto'
 import {
   JoinPrivateLeagueDto,
   JoinPrivateLeagueResultDto
@@ -165,6 +166,27 @@ export class LeaguesController {
         pagination
       )
     }
+  }
+
+  /**
+   * Searches for leagues by keyword
+   *
+   * @param query
+   * @returns paginated leagues
+   */
+  @Get('leagues/search')
+  @ApiTags('leagues')
+  @PaginationBody()
+  @ApiQuery({ type: SearchLeagueDto })
+  @ApiResponse({ type: League, isArray: true, status: 200 })
+  search(
+    @Query() query: PaginationQuery & SearchLeagueDto,
+    @User() user: AuthenticatedUser
+  ) {
+    return this.leaguesService.searchManyAccessibleToUser(query.q, user.id, {
+      limit: Number(query.limit) || 10,
+      page: Number(query.page) || 0
+    })
   }
 
   /**
