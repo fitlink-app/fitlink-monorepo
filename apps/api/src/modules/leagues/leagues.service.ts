@@ -211,6 +211,26 @@ export class LeaguesService {
     })
   }
 
+  async searchManyAccessibleToUser(
+    keyword: string,
+    userId: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ) {
+    const [results, total] = await this.queryFindAccessibleToUser(userId)
+      .andWhere(
+        '(league.name ILIKE :keyword OR league.description ILIKE :keyword)',
+        { keyword: `%${keyword}%` }
+      )
+      .take(limit)
+      .skip(page * limit)
+      .getManyAndCount()
+
+    return new Pagination<League>({
+      results,
+      total
+    })
+  }
+
   async findOneAccessibleToUser(leagueId: string, userId: string) {
     const query = this.queryFindAccessibleToUser(userId)
     return await query.andWhere('league.id = :leagueId', { leagueId }).getOne()
