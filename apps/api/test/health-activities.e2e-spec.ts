@@ -25,8 +25,15 @@ describe('Health Activities', () => {
   let providerService: MockType<ProvidersService>
   let userForStrava: User
   let userForFitbit: User
+<<<<<<< HEAD
   let spyConsole
 
+=======
+  let sportId
+  let cyclingId
+  let walkingId
+  let spyConsole
+>>>>>>> 4e376ca84028a4979f962ddbe8ed5b8c49aea687
   beforeAll(async () => {
     spyConsole = jest.spyOn(console, 'error').mockImplementation(() => {})
 
@@ -37,6 +44,37 @@ describe('Health Activities', () => {
     await useSeeding()
     await runSeeder(CreateSports)
 
+<<<<<<< HEAD
+=======
+    const sport = await SportSetup({
+      name: 'Hiking',
+      name_key: 'hiking',
+      plural: 'hikings',
+      singular: 'hiking'
+    })
+
+    const cycling = await SportSetup({
+      name: 'Cycling',
+      name_key: 'cycling',
+      plural: 'cycling',
+      singular: 'cycling'
+    })
+
+    const walking = await SportSetup({
+      name: 'Walking',
+      name_key: 'walking',
+      plural: 'walking',
+      singular: 'walking'
+    })
+
+    cyclingId = cycling.id
+    walkingId = walking.id
+    sportId = sport.id
+
+    await SportsTeardownWithId(sportId)
+    await SportsTeardownWithId(walkingId)
+    await SportsTeardownWithId(cyclingId)
+>>>>>>> 4e376ca84028a4979f962ddbe8ed5b8c49aea687
     userForStrava = await ProvidersSetup('StravaHealthActivityTest')
     userForFitbit = await ProvidersSetup('FitbitHealthActivityTest')
 
