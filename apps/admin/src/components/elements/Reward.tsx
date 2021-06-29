@@ -9,6 +9,7 @@ export type RewardProps = {
   points: number
   expires: string | Date
   redeemed?: number
+  available?: number
   onClick?: (e: any) => void
   showExtra?: boolean
   title?: string
@@ -16,6 +17,7 @@ export type RewardProps = {
   code?: string
   instructions?: string
   cost?: string
+  purchased?: boolean
 }
 
 export default function Reward({
@@ -26,13 +28,15 @@ export default function Reward({
   points,
   expires,
   redeemed = 0,
+  available,
   onClick,
   showExtra = false,
   title,
   description,
   code,
   instructions,
-  cost
+  cost,
+  purchased
 }: RewardProps) {
   return (
     <>
@@ -51,7 +55,7 @@ export default function Reward({
           { points > 0 &&
             <div className="card__chip">{points.toLocaleString()} points</div>
           }
-          { cost &&
+          { (cost && !purchased) &&
             <div className="card__chip">{cost}</div>
           }
           {redeemed > 0 && (
@@ -61,6 +65,18 @@ export default function Reward({
             <div className="reward__expires">
               <small>Expires</small>
               {format(new Date(expires), 'do MMM, yyyy')}
+            </div>
+          }
+          { purchased !== undefined &&
+            <div className="reward__expires">
+              { !purchased ?
+                  <div className={ `button small` }>Purchase</div>
+                :
+                  <>
+                    <small>Remaining</small>
+                    { available || '' }
+                  </>
+              }
             </div>
           }
         </div>
