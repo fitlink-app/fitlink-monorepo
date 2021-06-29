@@ -42,7 +42,7 @@ const types = [
   }
 ]
 
-export default function ActivityForm({ current }: InviteUserProps) {
+export default function ActivityForm({
   current
 }:InviteUserProps) {
 
