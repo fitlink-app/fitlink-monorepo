@@ -4,7 +4,9 @@ export const STRAVA_AUTHORIZE_URL =
 export const STRAVA_TOKEN_EXCHANGE_URL = 'https://www.strava.com/oauth/token'
 export const STRAVA_DEAUTH_URL = 'https://www.strava.com/oauth/deauthorize'
 
-export const ACTIVITY_TYPE_MAP: { [stravaActivityType: string]: string } = {
+export const STRAVA_ACTIVITY_TYPE_MAP: {
+  [stravaActivityType: string]: string
+} = {
   AlpineSki: 'skiing',
   BackcountrySki: 'skiing',
   // Canoeing: "fitlink_value",
@@ -41,5 +43,22 @@ export const ACTIVITY_TYPE_MAP: { [stravaActivityType: string]: string } = {
   // Wheelchair: "fitlink_value",
   // Windsurf: "fitlink_value",
   // Workout: "fitlink_value",
+  Yoga: 'yoga'
+}
+
+export const FITBIT_ACTIVITY_TYPE_MAP: {
+  [fitbitActivityType: string]: string
+} = {
+  Skiing: 'skiing',
+  'Cross Country Skiing': 'skiing',
+  CrossFit: 'crossfitTraining',
+  Hike: 'hiking',
+  Bike: 'cycling',
+  'Mountain Bike': 'cycling',
+  Rowing: 'rowing',
+  Run: 'running',
+  'Surfing, body or board': 'surfing',
+  Swim: 'swimming',
+  Walk: 'walking',
   Yoga: 'yoga'
 }
