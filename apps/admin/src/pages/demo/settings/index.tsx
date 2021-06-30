@@ -4,6 +4,7 @@ import Input from '../../../components/elements/Input'
 import Select from '../../../components/elements/Select'
 import Checkbox from '../../../components/elements/Checkbox'
 import Dashboard from '../../../components/layouts/Dashboard'
+import ImageSelect from '../../../components/elements/ImageSelect'
 
 const currencies = [
   {
@@ -36,7 +37,7 @@ export default function components() {
     <Dashboard title="Settings">
       <h1 className="light">Settings</h1>
       <div className="row mt-2">
-        <div className="col-12 col-lg-6 mt-2">
+        <div className="col-12 col-md-6 col-xl-4 mt-2">
           <Card className="p-3 card--stretch pb-4">
             <h2 className="h5 color-light-grey m-0">
               General account settings
@@ -56,9 +57,14 @@ export default function components() {
               options={currencies}
               onChange={(v) => setCurrency(v)}
             />
+            <ImageSelect
+              filename="/temp/5562234313_b5cbbb37-8b89-44ad-9673-4bc837f72af8.png"
+              label="Select your company logo"
+              backgroundSize="80%"
+              />
           </Card>
         </div>
-        <div className="col-12 col-lg-6 mt-2">
+        <div className="col-12 col-md-6 col-xl-8 mt-2">
           <Card className="p-3 card--stretch">
             <h3 className="h5 color-light-grey mb-3">
               Newsletter subscriptions
