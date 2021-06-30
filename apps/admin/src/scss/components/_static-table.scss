@@ -34,6 +34,20 @@
     }
   }
 
+  &--invoice {
+    font-size: 0.875rem;
+
+    td {
+      /* &:first-child {
+        padding-left: 0.3125rem;
+      } */
+
+      &:last-child {
+        padding-right: 1rem;
+      }
+    }
+  }
+
   &--billing {
     th {
       padding-left: 0;
