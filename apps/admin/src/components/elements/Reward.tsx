@@ -70,16 +70,15 @@ export default function Reward({
               {redeemed > 0 && (
                 <h4 className="p">{redeemed.toLocaleString()} redeemed</h4>
               )}
-              { expires !== '' &&
-                <div className="reward__expires">
-                  <small>Expires</small>
-                  {format(new Date(expires), 'do MMM, yyyy')}
-                </div>
-              }
-              { admin?.purchased !== undefined &&
+              { admin?.purchased !== undefined ?
                 <div className="reward__expires">
                   <small>Remaining</small>
                   { admin?.available || '' }
+                </div>
+              :
+                <div className="reward__expires">
+                  <small>Expires</small>
+                  {format(new Date(expires), 'do MMM, yyyy')}
                 </div>
               }
             </div>
@@ -111,8 +110,8 @@ export default function Reward({
         <div className="reward-extra">
           <h4>{title}</h4>
           <p>{description}</p>
-          <h5>{code}</h5>
-          <p><small>{instructions}</small></p>
+          { code && <h5>{code}</h5> }
+          { instructions && <p><small>{instructions}</small></p> }
         </div>
       }
     </>
