@@ -81,7 +81,7 @@ ul, ol {
   }
 }
 
-small {
+small, .small {
   font-size: 0.75em;
 }
 
@@ -106,7 +106,7 @@ code {
   vertical-align: middle;
 }
 
-label {
+label, .label {
   font-weight: 700;
   font-size: 0.875rem;
   margin: 1.5rem 0 0.5rem;
