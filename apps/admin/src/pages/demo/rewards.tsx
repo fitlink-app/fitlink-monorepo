@@ -11,6 +11,7 @@ import { AnimatePresence } from 'framer-motion'
 import IconPlus from '../../components/icons/IconPlus'
 import IconEye from '../../components/icons/IconEye'
 import IconEyeSlash from '../../components/icons/IconEyeSlash'
+import CharityForm from '../../components/forms/CharityForm'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const rewards = require('../../services/dummy/rewards.json')
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -33,7 +34,7 @@ export default function components() {
   const [sortOnFL, setSortOnFL] = useState('points')
 
   const [sortedCharity, setSortedCharity] = useState([])
-  const [sortCharity, setSortCharity] = useState<'asc' | 'desc'>('asc')
+  const [sortCharity, setSortCharity] = useState<'asc' | 'desc'>('desc')
   const [sortOnCharity, setSortOnCharity] = useState('points')
 
   const [showCharity, setShowCharity] = useState(false)
@@ -185,6 +186,13 @@ export default function components() {
     )
   }
 
+  const loadCharityForm = (reward: any) => {
+    setWarning(true)
+    setDrawContent(
+      <CharityForm current={reward} />
+    )
+  }
+
   const NewRewardForm = () => {
     setWarning(true)
     setDrawContent(
@@ -263,7 +271,7 @@ export default function components() {
           <div className="rewards flex mb-4">
             { sortedCharity.map((r:RewardProps, i) => (
               <div className="rewards__wrap" key={`fl-r-${i}`}>
-                <Reward {...r} onClick={ () => loadReadonlyReward(r)} />
+                <Reward {...r} onClick={ () => loadCharityForm(r)} />
               </div>
             ))}
           </div>

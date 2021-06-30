@@ -1,24 +1,13 @@
 import { useState } from 'react'
 import { add } from 'date-fns'
 import Input from '../elements/Input'
-import Reward from '../elements/Reward'
+import Reward, { RewardProps } from '../elements/Reward'
 import DateInput from '../elements/DateInput'
 import { addYears } from 'date-fns'
 import IconImage from '../icons/IconImage'
 
 export type RewardFormProps = {
-  current?: {
-    image?: string
-    brand?: string
-    shortTitle?: string
-    title?: string
-    points?: number
-    expires?: string | Date
-    code?: string
-    instructions?: string
-    url?: string
-    description?: string
-  }
+  current?: RewardProps
 }
 
 export default function RewardForm({

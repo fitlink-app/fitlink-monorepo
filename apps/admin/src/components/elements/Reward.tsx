@@ -9,15 +9,27 @@ export type RewardProps = {
   points: number
   expires: string | Date
   redeemed?: number
-  available?: number
   onClick?: (e: any) => void
   showExtra?: boolean
   title?: string
   description?: string
   code?: string
   instructions?: string
-  cost?: string
-  purchased?: boolean
+  url?: string
+  admin?: {
+    cost?: number
+    currency?: {
+      symbol?: string
+      value?: string
+    }
+    options?: { value: number, label: string}[],
+    purchased?: boolean
+    available?: number
+    image?: string
+    brand?: string
+    title?: string
+    description?: string
+  }
 }
 
 export default function Reward({
@@ -28,58 +40,72 @@ export default function Reward({
   points,
   expires,
   redeemed = 0,
-  available,
   onClick,
   showExtra = false,
   title,
   description,
   code,
   instructions,
-  cost,
-  purchased
+  admin
 }: RewardProps) {
   return (
     <>
       <Card className={`reward ${className}`} onClick={onClick}>
-        <div
-          className="card__background"
-          style={{ backgroundImage: `url(${image})` }}
-        />
-        <div className="card__bottom">
-          <h3 className="h5">
-            <small>{brand}</small>
-            {shortTitle}
-          </h3>
-        </div>
-        <div className="card__top">
-          { points > 0 &&
-            <div className="card__chip">{points.toLocaleString()} points</div>
-          }
-          { (cost && !purchased) &&
-            <div className="card__chip">{cost}</div>
-          }
-          {redeemed > 0 && (
-            <h4 className="p">{redeemed.toLocaleString()} redeemed</h4>
-          )}
-          { expires !== '' &&
-            <div className="reward__expires">
-              <small>Expires</small>
-              {format(new Date(expires), 'do MMM, yyyy')}
+        { (admin?.purchased || !admin) ? // none charity, or purchased
+          <>
+            <div
+              className="card__background"
+              style={{ backgroundImage: `url(${image})` }}
+            />
+            <div className="card__bottom">
+              <h3 className="h5">
+                <small>{brand}</small>
+                {shortTitle}
+              </h3>
             </div>
-          }
-          { purchased !== undefined &&
-            <div className="reward__expires">
-              { !purchased ?
-                  <div className={ `button small` }>Purchase</div>
-                :
-                  <>
-                    <small>Remaining</small>
-                    { available || '' }
-                  </>
+            <div className="card__top">
+              { points > 0 &&
+                <div className="card__chip">{points.toLocaleString()} points</div>
+              }
+              {redeemed > 0 && (
+                <h4 className="p">{redeemed.toLocaleString()} redeemed</h4>
+              )}
+              { expires !== '' &&
+                <div className="reward__expires">
+                  <small>Expires</small>
+                  {format(new Date(expires), 'do MMM, yyyy')}
+                </div>
+              }
+              { admin?.purchased !== undefined &&
+                <div className="reward__expires">
+                  <small>Remaining</small>
+                  { admin?.available || '' }
+                </div>
               }
             </div>
-          }
-        </div>
+          </>
+        : // charity, unpurchased
+          <>
+            <div
+              className="card__background"
+              style={{ backgroundImage: `url(${admin?.image || ''})` }}
+            />
+            <div className="card__bottom">
+              <h3 className="h5">
+                <small>{admin?.brand}</small>
+                {admin?.title}
+              </h3>
+            </div>
+            <div className="card__top">
+              <div className="card__chip">
+                {admin?.currency.symbol}{admin?.cost.toLocaleString()} each
+              </div>
+              <div className="reward__expires">
+                <div className={ `button small` }>Purchase</div>
+              </div>
+            </div>
+          </>
+        }
       </Card>
       { showExtra &&
         <div className="reward-extra">
