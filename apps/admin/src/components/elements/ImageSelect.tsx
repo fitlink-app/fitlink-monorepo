@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import IconImage from '../icons/IconImage'
+import clsx from 'clsx'
 
 export type ImageSelectProps = {
   filename?: string
@@ -9,6 +10,7 @@ export type ImageSelectProps = {
   showPreview?: boolean
   label?: string
   backgroundSize?: string
+  className?: string
 }
 
 export default function ImageSelect({
@@ -18,10 +20,14 @@ export default function ImageSelect({
   onChange,
   showPreview = true,
   label = 'Select an image',
-  backgroundSize = 'cover'
+  backgroundSize = 'cover',
+  className
 }:ImageSelectProps) {
-
   const [preview, setPreview] = useState(filename || '')
+  const classes = clsx({
+    'image-select': true,
+    [className]: className
+  })
 
   const previewImage = (e) => {
     if (onChange) {
@@ -31,7 +37,7 @@ export default function ImageSelect({
   }
 
   return(
-    <div className="image-select">
+    <div className={classes}>
       <input
         type="file"
         id="image"
@@ -39,7 +45,7 @@ export default function ImageSelect({
         accept="image/*"
         />
       <IconImage />
-      <label htmlFor="image">Select an image</label>
+      <label htmlFor="image">{label}</label>
       { showPreview &&
         <div
           className="image-select__preview"
