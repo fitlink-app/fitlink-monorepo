@@ -88,3 +88,10 @@ export type LifestyleGoalActivityDTO = {
   /** The total number of flights climbed  */
   floors_climbed: number
 }
+
+export interface FitbitSleepResponseBody extends FitbitResponseBody {
+  sleep: any[]
+  summary: {
+    totalMinutesAsleep: number
+  }
+}
