@@ -38,3 +38,53 @@ export interface FitbitAuthResponse {
   scope: string
   user_id: string
 }
+
+export type FitbitActivity = {
+  startTime: string
+
+  /** Duration in ms */
+  duration: number
+
+  /** Active duration of an activity in seconds. It does account for pauses or breaks */
+  activeDuration: number
+
+  activityName: string
+
+  activityTypeId: number
+
+  calories: number
+
+  distance: number
+
+  distanceUnit: 'Kilometer' | string
+}
+
+export type FitbitUserUpdates = {
+  [subscriptionId: string]: FitbitEventData[]
+}
+
+export interface FitbitActivityResponseBody extends FitbitResponseBody {
+  activities: FitbitActivity[]
+  summary: {
+    steps?: number
+    floors?: number
+  }
+}
+
+/** Common between any service, the higher number is always taken as latest */
+export type LifestyleGoalActivityDTO = {
+  /** The total hours of sleep for the current day */
+  sleep_hours: number
+
+  /** The total number of steps taken for the current day */
+  steps: number
+
+  /** The total number of litres of water for the current day */
+  water_litres: number
+
+  /** The total number of mindfulness minutes  */
+  mindfulness: number
+
+  /** The total number of flights climbed  */
+  floors_climbed: number
+}

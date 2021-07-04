@@ -2,8 +2,8 @@ import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useTheme} from 'styled-components/native';
 import {Icon} from '@components';
-import {Feed} from 'pages';
 import {BottomTabBar} from './components';
+import {Feed, Friends} from 'pages';
 
 const Tab = createBottomTabNavigator();
 
@@ -34,7 +34,7 @@ export const HomeNavigator = () => {
 
       <Tab.Screen
         name="Friends"
-        component={Feed}
+        component={Friends}
         options={{
           tabBarIcon: ({focused}) => renderTabIcon(focused, 'friends'),
         }}

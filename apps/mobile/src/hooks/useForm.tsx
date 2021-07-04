@@ -33,6 +33,7 @@ export function useForm<T, K extends keyof T>(initialValues: T) {
     async () => {
       setSubmitting(true);
       setFieldErrors({});
+      setErrorMessage(null);
 
       try {
         const requestError = await callback(values);

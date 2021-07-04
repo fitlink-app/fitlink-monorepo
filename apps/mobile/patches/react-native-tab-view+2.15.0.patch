@@ -1,0 +1,26 @@
+diff --git a/node_modules/react-native-tab-view/lib/module/TabBar.js b/node_modules/react-native-tab-view/lib/module/TabBar.js
+index afd8e4c..108e122 100644
+--- a/node_modules/react-native-tab-view/lib/module/TabBar.js
++++ b/node_modules/react-native-tab-view/lib/module/TabBar.js
+@@ -281,7 +281,7 @@ export default class TabBar extends React.Component {
+       }]),
+       ref: el => {
+         // @ts-ignore
+-        this.scrollView = el === null || el === void 0 ? void 0 : el.getNode();
++        this.scrollView = el;
+       }
+     }, routes.map(route => {
+       const props = {
+diff --git a/node_modules/react-native-tab-view/src/TabBar.tsx b/node_modules/react-native-tab-view/src/TabBar.tsx
+index 586dae2..4d63c4b 100644
+--- a/node_modules/react-native-tab-view/src/TabBar.tsx
++++ b/node_modules/react-native-tab-view/src/TabBar.tsx
+@@ -415,7 +415,7 @@ export default class TabBar<T extends Route> extends React.Component<
+             ])}
+             ref={(el) => {
+               // @ts-ignore
+-              this.scrollView = el?.getNode();
++              this.scrollView = el;
+             }}
+           >
+             {routes.map((route: T) => {

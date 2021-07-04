@@ -1,11 +1,9 @@
 import {
   BadRequestException,
   HttpService,
-  Injectable,
-  NotFoundException
-} from '@nestjs/common'
+  Injectable, NotFoundException } from '@nestjs/common'
 import {
-  ACTIVITY_TYPE_MAP,
+  STRAVA_ACTIVITY_TYPE_MAP,
   STRAVA_AUTHORIZE_URL,
   STRAVA_DEAUTH_URL,
   STRAVA_TOKEN_EXCHANGE_URL
@@ -267,7 +265,7 @@ export class StravaService {
    * @returns the name_key version of the activity so that we can query for it in the db.
    */
   normalizeActivityType(activityName: StravaActivityType) {
-    return ACTIVITY_TYPE_MAP[activityName] || 'unknown'
+    return STRAVA_ACTIVITY_TYPE_MAP[activityName] || 'unknown'
   }
 
   createNormalizedHealthActivity(activity: StravaActivity): HealthActivityDto {

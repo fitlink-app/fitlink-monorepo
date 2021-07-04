@@ -1,1 +1,1 @@
-export * from './useUserGoals';
+export * from './useSearchUsers';

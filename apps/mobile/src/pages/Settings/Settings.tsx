@@ -7,7 +7,7 @@ import {
   NAVBAR_HEIGHT,
   TouchHandler,
 } from '@components';
-import {useModal, UserGoalPreferences, useSettings} from '@hooks';
+import {useAuth, useModal, UserGoalPreferences, useSettings} from '@hooks';
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {Keyboard, Platform, ScrollView, View} from 'react-native';
@@ -52,7 +52,8 @@ export const Settings = () => {
   const navigation = useNavigation();
 
   const settings = useSettings();
-  const {open, close} = useModal();
+  const {logout} = useAuth();
+  const {openModal, closeModal} = useModal();
 
   // TODO: Hook up with state
   // TODO: Add Avatar url once API supports it
@@ -172,7 +173,7 @@ export const Settings = () => {
           label={'Log out'}
           icon={'sign-out'}
           onPress={() => {
-            open(id => {
+            openModal(id => {
               return (
                 <Modal
                   title={'Log out'}
@@ -181,12 +182,32 @@ export const Settings = () => {
                     {
                       text: 'Log out',
                       type: 'danger',
-                      onPress: () => close(id),
+                      onPress: () => {
+                        closeModal(id, () => {
+                          openModal(confirmationModalId => {
+                            return (
+                              <Modal
+                                title={'Logged Out'}
+                                description={'You have been logged out.'}
+                                buttons={[
+                                  {
+                                    text: 'Ok',
+                                    onPress: () =>
+                                      closeModal(confirmationModalId),
+                                  },
+                                ]}
+                              />
+                            );
+                          });
+                        });
+
+                        logout();
+                      },
                     },
                     {
                       text: 'Stay',
                       textOnly: true,
-                      onPress: () => close(id),
+                      onPress: () => closeModal(id),
                     },
                   ]}
                 />
@@ -330,7 +351,7 @@ export const Settings = () => {
             text={'Delete my account'}
             type={'danger'}
             onPress={() =>
-              open(id => {
+              openModal(id => {
                 return (
                   <Modal
                     title={'Delete Account?'}
@@ -341,12 +362,12 @@ export const Settings = () => {
                       {
                         text: 'Delete My Account',
                         type: 'danger',
-                        onPress: () => close(id),
+                        onPress: () => closeModal(id),
                       },
                       {
                         text: 'Back',
                         textOnly: true,
-                        onPress: () => close(id),
+                        onPress: () => closeModal(id),
                       },
                     ]}
                   />

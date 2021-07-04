@@ -4,6 +4,7 @@ import Input from '../../../components/elements/Input'
 import Select from '../../../components/elements/Select'
 import Checkbox from '../../../components/elements/Checkbox'
 import Dashboard from '../../../components/layouts/Dashboard'
+import ImageSelect from '../../../components/elements/ImageSelect'
 
 const currencies = [
   {
@@ -35,8 +36,8 @@ export default function components() {
   return (
     <Dashboard title="Settings">
       <h1 className="light">Settings</h1>
-      <div className="row mt-2">
-        <div className="col-12 col-lg-6 mt-2">
+      <div className="row mt-2 ai-s">
+        <div className="col-12 col-md-6 col-xl-5 col-hd-4 mt-2">
           <Card className="p-3 card--stretch pb-4">
             <h2 className="h5 color-light-grey m-0">
               General account settings
@@ -56,9 +57,15 @@ export default function components() {
               options={currencies}
               onChange={(v) => setCurrency(v)}
             />
+            <ImageSelect
+              filename="/temp/5562234313_b5cbbb37-8b89-44ad-9673-4bc837f72af8.png"
+              label="Company logo"
+              backgroundSize="80%"
+              className="mb-0"
+              />
           </Card>
         </div>
-        <div className="col-12 col-lg-6 mt-2">
+        <div className="col-12 col-md-6 col-xl-5 col-hd-4 mt-2">
           <Card className="p-3 card--stretch">
             <h3 className="h5 color-light-grey mb-3">
               Newsletter subscriptions
@@ -70,7 +77,7 @@ export default function components() {
               showSwitch={true}
               onChange={(v) => {}}
             />
-            <p className="pl-6">
+            <p className="pl-7 pl-md-6">
               Receive important information, updates, and helpful tips to boost
               your employee wellness campaigns.
             </p>
@@ -81,7 +88,7 @@ export default function components() {
               showSwitch={true}
               onChange={(v) => {}}
             />
-            <p className="pl-6">
+            <p className="pl-7 pl-md-6">
               Receive information on app updates, new rewards, and tips to keep
               you inspired and motivated to achieve your wellness goals.
             </p>

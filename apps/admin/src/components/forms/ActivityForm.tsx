@@ -42,7 +42,10 @@ const types = [
   }
 ]
 
-export default function ActivityForm({ current }: InviteUserProps) {
+export default function ActivityForm({
+  current
+}:InviteUserProps) {
+
   const [name, setName] = useState(current?.name || '')
   const [description, setDescription] = useState(current?.description || '')
   const [type, setType] = useState(current?.type || types[0])
@@ -167,7 +170,10 @@ export default function ActivityForm({ current }: InviteUserProps) {
             value={organizer_email}
             onChange={(v) => setOrganizer_email(v)}
           />
-          <AvatarSelect src={organizer_image} />
+          <AvatarSelect
+            src={organizer_image}
+            onChange={(v) => setOrganizer_image(v)}
+            />
         </>
       )}
 

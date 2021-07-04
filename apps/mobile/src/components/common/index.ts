@@ -11,3 +11,4 @@ export * from './Card';
 export * from './TouchHandler';
 export * from './Dropdown';
 export * from './Modal';
+export * from './TabView';
