@@ -27,6 +27,7 @@ import {
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Organisation } from './entities/organisation.entity'
 import { PaginationQuery } from '../../helpers/paginate'
+import { Pagination } from '../../decorators/pagination.decorator'
 
 @ApiTags('organisations')
 @ApiBaseResponses()
@@ -69,11 +70,8 @@ export class OrganisationsController {
   @Iam(Roles.SuperAdmin)
   @Get()
   @ApiResponse({ type: Organisation, isArray: true, status: 200 })
-  findAll(@Query() { limit, page }: PaginationQuery) {
-    return this.organisationsService.findAll({
-      limit: parseInt(limit) || 10,
-      page: parseInt(page) || 0
-    })
+  findAll(@Pagination() pagination: PaginationQuery) {
+    return this.organisationsService.findAll(pagination)
   }
 
   /**

@@ -35,6 +35,7 @@ import {
 import { League, LeagueAccess } from './entities/league.entity'
 import { LeaguesService } from './leagues.service'
 import { LeaguesInvitationsService } from '../leagues-invitations/leagues-invitations.service'
+import { Pagination } from '../../decorators/pagination.decorator'
 
 @ApiTags('leagues')
 @ApiBaseResponses()
@@ -152,12 +153,8 @@ export class LeaguesController {
   @PaginationBody()
   findAll(
     @User() authUser: AuthenticatedUser,
-    @Query() query: PaginationQuery
+    @Pagination() pagination: PaginationQuery
   ) {
-    const pagination = {
-      limit: Number(query.limit) || 10,
-      page: Number(query.page) || 0
-    }
     if (authUser.isSuperAdmin()) {
       return this.leaguesService.findAll({}, pagination)
     } else {
@@ -180,13 +177,15 @@ export class LeaguesController {
   @ApiQuery({ type: SearchLeagueDto })
   @ApiResponse({ type: League, isArray: true, status: 200 })
   search(
-    @Query() query: PaginationQuery & SearchLeagueDto,
-    @User() user: AuthenticatedUser
+    @Query() query: SearchLeagueDto,
+    @User() user: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery
   ) {
-    return this.leaguesService.searchManyAccessibleToUser(query.q, user.id, {
-      limit: Number(query.limit) || 10,
-      page: Number(query.page) || 0
-    })
+    return this.leaguesService.searchManyAccessibleToUser(
+      query.q,
+      user.id,
+      pagination
+    )
   }
 
   /**
@@ -200,12 +199,9 @@ export class LeaguesController {
   @PaginationBody()
   findMyLeagues(
     @User() authUser: AuthenticatedUser,
-    @Query() query: PaginationQuery
+    @Pagination() pagination: PaginationQuery
   ) {
-    return this.leaguesService.findAllParticipating(authUser.id, {
-      limit: Number(query.limit) || 10,
-      page: Number(query.page) || 0
-    })
+    return this.leaguesService.findAllParticipating(authUser.id, pagination)
   }
 
   /**
@@ -264,7 +260,7 @@ export class LeaguesController {
   @ApiResponse({ type: League, status: 200 })
   async getLeagueMembers(
     @Param('leagueId') leagueId: string,
-    @Query() query: PaginationQuery,
+    @Pagination() pagination: PaginationQuery,
     @User() authUser: AuthenticatedUser
   ) {
     if (!authUser.isSuperAdmin()) {
@@ -279,10 +275,7 @@ export class LeaguesController {
       }
     }
 
-    return this.leaguesService.getLeaderboardMembers(leagueId, {
-      limit: Number(query.limit) || 0,
-      page: Number(query.page) || 0
-    })
+    return this.leaguesService.getLeaderboardMembers(leagueId, pagination)
   }
 
   /**

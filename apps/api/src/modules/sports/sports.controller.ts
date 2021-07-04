@@ -22,6 +22,7 @@ import {
 } from '../../decorators/swagger.decorator'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { PaginationQuery } from '../../helpers/paginate'
+import { Pagination } from '../../decorators/pagination.decorator'
 
 @ApiBaseResponses()
 @Controller('sports')
@@ -48,11 +49,8 @@ export class SportsController {
   @Iam(Roles.SuperAdmin)
   @Get()
   @ApiResponse({ type: Sport, isArray: true, status: 200 })
-  findAll(@Query() { page, limit }: PaginationQuery) {
-    return this.sportsService.findAll({
-      limit: parseInt(limit) || 10,
-      page: parseInt(page) || 0
-    })
+  findAll(@Pagination() pagination: PaginationQuery) {
+    return this.sportsService.findAll(pagination)
   }
 
   /**

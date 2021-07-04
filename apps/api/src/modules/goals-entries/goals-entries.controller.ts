@@ -18,6 +18,7 @@ import { GoalsEntry } from './entities/goals-entry.entity'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { AuthenticatedUser } from '../../models'
 import { PaginationQuery } from '../../helpers/paginate'
+import { Pagination } from '../../decorators/pagination.decorator'
 
 @ApiBaseResponses()
 @Controller()
@@ -44,12 +45,9 @@ export class GoalsEntriesController {
   @ApiResponse({ type: GoalsEntry, isArray: true, status: 201 })
   getHistory(
     @User() user: AuthenticatedUser,
-    @Query() options: PaginationQuery
+    @Pagination() pagination: PaginationQuery
   ) {
-    return this.goalsEntriesService.findAll(user.id, {
-      limit: parseInt(options.limit) || 10,
-      page: parseInt(options.page) || 0
-    })
+    return this.goalsEntriesService.findAll(user.id, pagination)
   }
 
   /**
@@ -75,11 +73,8 @@ export class GoalsEntriesController {
   @ApiResponse({ type: GoalsEntry, isArray: true, status: 200 })
   getUserGoalsHistory(
     @Param('userId') userId: string,
-    @Query() options: PaginationQuery
+    @Pagination() pagination: PaginationQuery
   ) {
-    return this.goalsEntriesService.findAll(userId, {
-      limit: parseInt(options.limit) || 10,
-      page: parseInt(options.page) || 0
-    })
+    return this.goalsEntriesService.findAll(userId, pagination)
   }
 }

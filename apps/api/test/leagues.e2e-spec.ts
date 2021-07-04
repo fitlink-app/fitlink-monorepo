@@ -442,7 +442,7 @@ describe('Leagues', () => {
     ).toBeGreaterThan(0)
   })
 
-  it.only('GET /leagues A user can search all leagues including for teams/organisations they belong to or private leagues', async () => {
+  it('GET /leagues A user can search all leagues including for teams/organisations they belong to or private leagues', async () => {
     // Join the user to the team
     await createPublicLeague({
       name: 'Early morning joggers'
