@@ -15,8 +15,8 @@ export class Pagination<PaginationEntity> {
 }
 
 export class PaginationQuery {
-  limit?: string
-  page?: string
+  limit: number
+  page: number
 }
 
 export class PaginationDto {
