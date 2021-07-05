@@ -10,7 +10,7 @@ import { Team } from '../teams/entities/team.entity'
 import { Organisation } from '../organisations/entities/organisation.entity'
 import { CreateLeagueDto } from './dto/create-league.dto'
 import { UpdateLeagueDto } from './dto/update-league.dto'
-import { League, LeagueAccess } from './entities/league.entity'
+import { League, LeagueAccess, LeaguePublic } from './entities/league.entity'
 import { User, UserPublic } from '../users/entities/user.entity'
 import { Image } from '../images/entities/image.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
@@ -153,14 +153,15 @@ export class LeaguesService {
   ) {
     const [results, total] = await this.leaguesRepository
       .createQueryBuilder('leagues')
-      .innerJoinAndSelect('leagues.users', 'user')
-      .where('user.id = :userId', { userId })
+      .innerJoinAndSelect('leagues.users', 'users')
+      .leftJoinAndSelect('leagues.owner', 'owner')
+      .where('users.id = :userId', { userId })
       .take(limit)
       .offset(page * limit)
       .getManyAndCount()
 
-    return new Pagination<League>({
-      results,
+    return new Pagination<LeaguePublic>({
+      results: results.map((league) => this.getLeaguePublic(league, userId)),
       total
     })
   }
@@ -186,7 +187,7 @@ export class LeaguesService {
     return result
   }
 
-  async findOne(id: string, userId?: string) {
+  async findOne(id: string) {
     const result = await this.leaguesRepository.findOne(id, {
       relations: ['active_leaderboard']
     })
@@ -205,8 +206,8 @@ export class LeaguesService {
       .skip(page * limit)
       .getManyAndCount()
 
-    return new Pagination<League>({
-      results,
+    return new Pagination<LeaguePublic>({
+      results: results.map((league) => this.getLeaguePublic(league, userId)),
       total
     })
   }
@@ -225,15 +226,29 @@ export class LeaguesService {
       .skip(page * limit)
       .getManyAndCount()
 
-    return new Pagination<League>({
-      results,
+    return new Pagination<LeaguePublic>({
+      results: results.map((league) => this.getLeaguePublic(league, userId)),
       total
     })
   }
 
+  getLeaguePublic(league: League, userId: string) {
+    const leaguePublic = (league as unknown) as LeaguePublic
+    leaguePublic.participating = Boolean(league.users.length > 0)
+    leaguePublic.is_owner = Boolean(league.owner && league.owner.id === userId)
+    return leaguePublic
+  }
+
   async findOneAccessibleToUser(leagueId: string, userId: string) {
     const query = this.queryFindAccessibleToUser(userId)
-    return await query.andWhere('league.id = :leagueId', { leagueId }).getOne()
+    const result = await query
+      .andWhere('league.id = :leagueId', { leagueId })
+      .getOne()
+    if (result) {
+      return this.getLeaguePublic(result, userId)
+    } else {
+      return result
+    }
   }
 
   /**
@@ -255,6 +270,7 @@ export class LeaguesService {
       .createQueryBuilder('league')
       .leftJoinAndSelect('league.sport', 'sport')
       .leftJoinAndSelect('league.image', 'image')
+      .leftJoinAndSelect('league.owner', 'owner')
       .leftJoinAndSelect('league.team', 'leagueTeam')
       .leftJoinAndSelect('league.active_leaderboard', 'leaderboard')
       .leftJoinAndSelect('league.organisation', 'leagueOrganisation')
@@ -263,7 +279,12 @@ export class LeaguesService {
         'leagueOrganisation.avatar',
         'leagueOrganisationAvatar'
       )
-      .leftJoin('league.users', 'leagueUser')
+      .leftJoinAndSelect(
+        'league.users',
+        'leagueUser',
+        'leagueUser.id = :userId',
+        { userId }
+      )
       .leftJoin('leagueTeam.users', 'teamUser')
       .leftJoin('leagueOrganisation.teams', 'organisationTeam')
       .leftJoin('organisationTeam.users', 'organisationUser')
@@ -460,7 +481,7 @@ export class LeaguesService {
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<LeaderboardEntry & { user: UserPublic }>({
-      results: results.map(this.getLeaguePublic),
+      results: results.map(this.getLeaderboardEntryPublic),
       total
     })
   }
@@ -523,7 +544,7 @@ export class LeaguesService {
     return { results }
   }
 
-  getLeaguePublic(leaderboardEntry: LeaderboardEntry) {
+  getLeaderboardEntryPublic(leaderboardEntry: LeaderboardEntry) {
     const user = plainToClass(UserPublic, leaderboardEntry.user, {
       excludeExtraneousValues: true
     })

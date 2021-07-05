@@ -14,9 +14,10 @@ import { Leaderboard } from '../../leaderboards/entities/leaderboard.entity'
 import { Sport } from '../../sports/entities/sport.entity'
 import { Team } from '../../teams/entities/team.entity'
 import { Organisation } from '../../organisations/entities/organisation.entity'
-import { User } from '../../users/entities/user.entity'
+import { User, UserPublic } from '../../users/entities/user.entity'
 import { Image } from '../../images/entities/image.entity'
 import { ApiProperty } from '@nestjs/swagger'
+import { Expose } from 'class-transformer'
 
 export enum LeagueAccess {
   Private = 'private',
@@ -107,4 +108,14 @@ export class League extends CreatableEntity {
     default: 0
   })
   participants_total: number
+}
+
+export class LeaguePublic extends League {
+  @ApiProperty()
+  @Expose()
+  participating: boolean
+
+  @ApiProperty()
+  @Expose()
+  is_owner: boolean
 }
