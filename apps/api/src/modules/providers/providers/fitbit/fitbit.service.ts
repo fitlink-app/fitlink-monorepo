@@ -39,7 +39,7 @@ export class FitbitService {
     private providersService: ProvidersService,
     private configService: ConfigService,
     private healthActivityService: HealthActivitiesService,
-    private gaolsEntriesService: GoalsEntriesService
+    private goalsEntriesService: GoalsEntriesService
   ) {}
 
   Fitbit = new FitbitApiClient({
@@ -163,7 +163,7 @@ export class FitbitService {
     userId: string,
     lifeStyleStats: LifestyleGoalActivityDTO
   ) {
-    return await this.gaolsEntriesService.createOrUpdate(userId, {
+    return await this.goalsEntriesService.createOrUpdate(userId, {
       current_floors_climbed: lifeStyleStats.floors_climbed,
       current_mindfulness_minutes: lifeStyleStats.mindfulness,
       current_sleep_hours: lifeStyleStats.sleep_hours,
