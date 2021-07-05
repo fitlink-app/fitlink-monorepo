@@ -236,6 +236,17 @@ export class LeaguesService {
     const leaguePublic = (league as unknown) as LeaguePublic
     leaguePublic.participating = Boolean(league.users.length > 0)
     leaguePublic.is_owner = Boolean(league.owner && league.owner.id === userId)
+
+    // Ensure personal user data of owner is sanitized.
+    if (leaguePublic.owner) {
+      ;((leaguePublic.owner as unknown) as UserPublic) = plainToClass(
+        UserPublic,
+        leaguePublic.owner,
+        {
+          excludeExtraneousValues: true
+        }
+      )
+    }
     return leaguePublic
   }
 
