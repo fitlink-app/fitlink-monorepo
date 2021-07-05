@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common'
 import { Public } from '../../../../decorators/public.decorator'
 import { FitbitService } from './fitbit.service'
-import { FitbitActivity, FitbitEventData } from '../../types/fitbit'
+import { FitbitEventData } from '../../types/fitbit'
 import { AuthenticatedUser } from '../../../../models/authenticated-user.model'
 import { User } from '../../../../decorators/authenticated-user.decorator'
 import { ApiTags } from '@nestjs/swagger'
@@ -39,11 +39,5 @@ export class FitbitController {
   @Get('/revokeToken')
   deAuthorize(@User() user: AuthenticatedUser) {
     return this.fitbitService.deAuthorize(user.id)
-  }
-
-  @Public()
-  @Post('/normalize')
-  normalize(@Body() activity: FitbitActivity) {
-    return this.fitbitService.createNormalizedHealthActivity(activity)
   }
 }

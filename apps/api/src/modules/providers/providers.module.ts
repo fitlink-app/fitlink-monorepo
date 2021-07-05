@@ -11,6 +11,7 @@ import { FitbitService } from './providers/fitbit/fitbit.service'
 import { AuthModule } from '../auth/auth.module'
 import { ConfigModule } from '@nestjs/config'
 import { HealthActivitiesModule } from '../health-activities/health-activities.module'
+import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { HealthActivitiesModule } from '../health-activities/health-activities.m
     forwardRef(() => HealthActivitiesModule),
     TypeOrmModule.forFeature([Provider, User]),
     ConfigModule,
-    AuthModule
+    AuthModule,
+    GoalsEntriesModule
   ],
   controllers: [ProvidersController, StravaControler, FitbitController],
   providers: [ProvidersService, StravaService, FitbitService],
