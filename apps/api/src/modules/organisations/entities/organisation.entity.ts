@@ -14,6 +14,7 @@ import { Subscription } from '../../subscriptions/entities/subscription.entity'
 import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
 import { ApiProperty } from '@nestjs/swagger'
 import { League } from '../../leagues/entities/league.entity'
+import { Reward } from '../../rewards/entities/reward.entity'
 
 export enum OrganisationType {
   Company = 'company',
@@ -37,6 +38,9 @@ export class Organisation extends CreatableEntity {
 
   @OneToMany(() => League, (league) => league.organisation)
   leagues: League[]
+
+  @OneToMany(() => Reward, (reward) => reward.organisation)
+  rewards: Reward[]
 
   @OneToMany(() => Subscription, (subscription) => subscription.organisation, {
     cascade: ['remove'],

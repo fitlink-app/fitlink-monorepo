@@ -79,19 +79,38 @@ export default function components() {
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">
           <Card className="p-3 card--stretch">
-            <p className="mb-0">
-              <small>
-                Current billing period ending { format(endOfMonth(new Date()), 'do MMMM, yyyy')}
-              </small>
-            </p>
             <div className="flex ai-c mt-1">
-              <h2 className="h1 light mb-0 unbilled-amount">
-                £21.88
-              </h2>
-              <p className="color-grey ml-2">
-                For <strong>11</strong> active users<br/><strong>0.55%</strong> discount applied
+              <p className="mb-0 mr-2">
+                <small>
+                  Current billing period ending { format(endOfMonth(new Date()), 'do MMMM, yyyy')}
+                </small>
               </p>
+              <h2 className="h1 light mb-0 ml-a unbilled-amount">
+                £34.89
+              </h2>
             </div>
+            <table className="static-table static-table--invoice">
+              <tbody>
+                <tr>
+                  <td>Active users</td>
+                  <td>11</td>
+                  <td className="text-right">$2.00</td>
+                  <td className="text-right pr-1">£22</td>
+                </tr>
+                <tr>
+                  <td>User discount</td>
+                  <td>0.55%</td>
+                  <td className="text-right"></td>
+                  <td className="text-right pr-1">-£0.12</td>
+                </tr>
+                <tr>
+                  <td>Ecologi, Tree planting reward</td>
+                  <td>100</td>
+                  <td className="text-right">$0.18</td>
+                  <td className="text-right pr-1">($18.00) £13.01</td>
+                </tr>
+              </tbody>
+            </table>
             <hr />
             <h3 className="h5 color-light-grey m-0">Previous invoices</h3>
             <div className="invoices mt-2">

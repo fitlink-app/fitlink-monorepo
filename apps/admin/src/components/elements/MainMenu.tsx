@@ -66,12 +66,12 @@ export default function MainMenu() {
             current={current.startsWith('/demo/settings/users')}
             icon={<></>}
           />
-          <MenuItem
+          {/* <MenuItem
             to="/demo/settings/page"
             label="Manage my page"
             current={current.startsWith('/demo/settings/page')}
             icon={<></>}
-          />
+          /> */}
           <MenuItem
             to="/demo/settings/admins"
             label="Admin access"

@@ -158,6 +158,15 @@ describe('Leagues', () => {
     expect(data.json().sport.id).toEqual(sportId)
     expect(data.json().owner.id).toEqual(user1)
     expect(data.json().image.id).toEqual(imageId)
+
+    const get = await app.inject({
+      method: 'GET',
+      url: `/leagues/${data.json().id}`,
+      headers: authHeaders
+    })
+
+    expect(get.json().is_owner).toEqual(true)
+    expect(get.json().participating).toEqual(false)
   })
 
   it('PUT /leagues 200 A user can edit their own private league', async () => {
@@ -312,7 +321,7 @@ describe('Leagues', () => {
     expect(get.json().name).toEqual('Public Test League')
     expect(get.json().repeat).toEqual(true)
     expect(get.json().duration).toEqual(7)
-    expect(get.json().owner).toBeUndefined()
+    expect(get.json().owner).toBe(null)
     expect(get.json().sport.id).toEqual(sportId)
     expect(get.json().image.id).toEqual(imageId)
   })
@@ -343,6 +352,9 @@ describe('Leagues', () => {
     expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
       1
     )
+    expect(get.json().results.filter((e) => e.participating).length).toEqual(
+      get.json().results.length
+    )
 
     // Check participants count
     const count = await app.inject({
@@ -352,6 +364,7 @@ describe('Leagues', () => {
     })
 
     expect(count.json().participants_total).toEqual(1)
+    expect(count.json().participating).toEqual(true)
   })
 
   it('POST /leagues/:leagueId/leave 200 A user can leave any public league', async () => {
@@ -411,6 +424,7 @@ describe('Leagues', () => {
     })
 
     expect(count.json().participants_total).toEqual(0)
+    expect(count.json().participating).toEqual(false)
   })
 
   // Note that private league tests are found in leagues-invitations.e2e-spec.ts
@@ -426,9 +440,7 @@ describe('Leagues', () => {
     expect(data.json().results.length).toBeGreaterThan(0)
   })
 
-  it('GET /leagues A user can retrieve all leagues including for teams/organisations they belong to or private leagues', async () => {
-    // Join the user to the team
-
+  it('GET /leagues A user can retrieve all leagues including for teams/organisations they belong to or private leagues (i.e. "explore feature")', async () => {
     const data = await app.inject({
       method: 'GET',
       url: '/leagues',
@@ -442,7 +454,7 @@ describe('Leagues', () => {
     ).toBeGreaterThan(0)
   })
 
-  it.only('GET /leagues A user can search all leagues including for teams/organisations they belong to or private leagues', async () => {
+  it('GET /leagues A user can search all leagues including for teams/organisations they belong to or private leagues', async () => {
     // Join the user to the team
     await createPublicLeague({
       name: 'Early morning joggers'

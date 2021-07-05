@@ -43,6 +43,7 @@ import { JWTRoles } from '../../models'
 // import { Public } from '../../decorators/public.decorator'
 import { SearchUserDto } from './dto/search-user.dto'
 import { Public } from '../../decorators/public.decorator'
+import { Pagination } from '../../decorators/pagination.decorator'
 
 @Controller()
 @ApiBaseResponses()
@@ -154,11 +155,8 @@ export class UsersController {
   @ApiTags('users')
   @PaginationBody()
   @ApiResponse({ type: User, isArray: true, status: 200 })
-  findAll(@Query() query: PaginationQuery) {
-    return this.usersService.findAllUsers({
-      limit: Number(query.limit) || 10,
-      page: Number(query.page) || 0
-    })
+  findAll(@Pagination() pagination: PaginationQuery) {
+    return this.usersService.findAllUsers(pagination)
   }
 
   /**
@@ -175,13 +173,11 @@ export class UsersController {
   @ApiQuery({ type: SearchUserDto })
   @ApiResponse({ type: UserPublic, isArray: true, status: 200 })
   search(
-    @Query() query: PaginationQuery & SearchUserDto,
+    @Query() query: SearchUserDto,
+    @Pagination() pagination: PaginationQuery,
     @AuthUser() user: AuthenticatedUser
   ) {
-    return this.usersService.searchByName(query.q, user.id, {
-      limit: Number(query.limit) || 10,
-      page: Number(query.page) || 0
-    })
+    return this.usersService.searchByName(query.q, user.id, pagination)
   }
 
   @Get('users/:userId')

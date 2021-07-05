@@ -15,7 +15,7 @@ export class FitbitController {
   @HttpCode(204)
   @Post('/webhook')
   webhookReceiver(@Body() fitbitEventData: FitbitEventData[]) {
-    return this.fitbitService.proccessPayload(fitbitEventData)
+    return this.fitbitService.processPayload(fitbitEventData)
   }
 
   @Public()

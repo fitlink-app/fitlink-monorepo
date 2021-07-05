@@ -114,7 +114,11 @@ select[multiple] {
   }
 
   input[type="checkbox"].toggle-switch + label {
-    padding-left: 3rem;
+    padding-left: 3.5rem;
+
+    @media screen and (min-width: $medium) {
+      padding-left: 3rem;
+    }
 
     &:before {
       width: 42px;
@@ -123,8 +127,12 @@ select[multiple] {
       background: $grey-200;
       position: absolute;
       left: 0;
-      top: -0.1875rem;
       border: 0;
+      top: -0.35rem;
+
+      @media screen and (min-width: $medium) {
+        top: -0.1875rem;
+      }
     }
 
     &:after {
@@ -132,13 +140,17 @@ select[multiple] {
       display: block;
       position: absolute;
       left: 2px;
-      top: calc(-0.1875rem + 2px);
       width: 18px;
       height: 18px;
       border-radius: 50%;
       background: $white;
       transition: all 0.1s;
       box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+      top: calc(-0.35rem + 2px);
+
+      @media screen and (min-width: $medium) {
+        top: calc(-0.1875rem + 2px);
+      }
     }
   }
 

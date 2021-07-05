@@ -11,6 +11,8 @@ export type InputProps = {
   rows?: number
   className?: string
   inline?: boolean
+  min?: number
+  max?: number
 }
 
 export default function Input({
@@ -22,7 +24,9 @@ export default function Input({
   value = '',
   onChange = () => null,
   rows = 5,
-  inline
+  inline,
+  min,
+  max
 }: InputProps) {
   const [val, setVal] = useState(value)
   const classes = clsx({
@@ -60,10 +64,20 @@ export default function Input({
     }
   }
 
-  return (
-    <div className={classes}>
-      {label && <label htmlFor={name}>{label}</label>}
-      {type !== 'textarea' ? (
+  const output = () => {
+    if (type === 'textarea') {
+      return (
+        <textarea
+          name={name}
+          value={val}
+          onChange={(e) => handleChange(e)}
+          placeholder={placeholder}
+          rows={rows}
+        />
+      )
+    }
+    if (type === 'number') {
+      return (
         <input
           type={type}
           name={name}
@@ -71,15 +85,27 @@ export default function Input({
           onChange={(e) => handleChange(e)}
           placeholder={placeholder}
           onKeyDown={(e) => handleKeyDown(e)}
+          min={min || -9999999999}
+          max={max || 9999999999}
         />
-      ) : (
-        <textarea
-          name={name}
-          value={val}
-          onChange={(e) => handleChange(e)}
-          placeholder={placeholder}
-          rows={rows}></textarea>
-      )}
+      )
+    }
+    return (
+      <input
+        type={type}
+        name={name}
+        value={val}
+        onChange={(e) => handleChange(e)}
+        placeholder={placeholder}
+        onKeyDown={(e) => handleKeyDown(e)}
+      />
+    )
+  }
+
+  return (
+    <div className={classes}>
+      {label && <label htmlFor={name}>{label}</label>}
+      {output()}
     </div>
   )
 }
