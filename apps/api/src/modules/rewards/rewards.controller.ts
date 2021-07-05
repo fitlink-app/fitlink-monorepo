@@ -18,13 +18,17 @@ import { Pagination } from '../../decorators/pagination.decorator'
 import { Roles } from '../user-roles/entities/user-role.entity'
 import { AuthenticatedUser } from '../../models'
 import { PaginationQuery } from '../../helpers/paginate'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBaseResponses } from '../../decorators/swagger.decorator'
+import { Reward } from './entities/reward.entity'
 
+@ApiBaseResponses()
 @Controller()
 export class RewardsController {
   constructor(private readonly rewardsService: RewardsService) {}
 
   @ApiTags('rewards')
+  @ApiResponse({ type: Reward, status: 201 })
   @Iam(Roles.OrganisationAdmin, Roles.TeamAdmin, Roles.SuperAdmin)
   @Post([
     '/organisations/:organisationId/rewards',
@@ -50,6 +54,7 @@ export class RewardsController {
   }
 
   @ApiTags('rewards')
+  @ApiResponse({ type: Reward, isArray: true, status: 200 })
   @Get('/rewards')
   findAll(
     @User() authUser: AuthenticatedUser,
