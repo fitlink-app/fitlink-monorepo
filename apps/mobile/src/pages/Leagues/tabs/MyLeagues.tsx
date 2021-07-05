@@ -1,8 +1,8 @@
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
-import {Label, ProfileRow} from '@components';
-import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
-import {useFollowers} from '@hooks';
+import {Label} from '@components';
+import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
+import {useMyLeagues} from '@hooks';
 import {ActivityIndicator, FlatList, RefreshControl} from 'react-native';
 
 const Wrapper = styled.View({
@@ -16,7 +16,7 @@ const EmptyContainer = styled.View({
   alignItems: 'center',
 });
 
-export const Followers = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
+export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
   const {colors} = useTheme();
 
   const {
@@ -27,27 +27,15 @@ export const Followers = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
     refetch,
     fetchNextPage,
     error,
-  } = useFollowers();
+  } = useMyLeagues();
 
-  const renderItem = ({item}: {item: UserPublic}) => {
-    return (
-      <ProfileRow
-        isFollowed={false}
-        actions={{
-          onFollow: async () => {},
-          onUnfollow: async () => {},
-          onPress: () => {},
-        }}
-        userId={item.id}
-        name={item.name}
-        avatarUrl={item.avatar?.url}
-      />
-    );
+  const renderItem = ({item}: {item: League}) => {
+    return <Label>{item.name}</Label>;
   };
 
-  const keyExtractor = (item: UserPublic) => item.id as string;
+  const keyExtractor = (item: League) => item.id as string;
 
-  const results = data?.pages.reduce<UserPublic[]>((acc, current) => {
+  const results = data?.pages.reduce<League[]>((acc, current) => {
     return [...acc, ...current.results];
   }, []);
 
@@ -78,7 +66,11 @@ export const Followers = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
           type="body"
           appearance={'accentSecondary'}
           style={{textAlign: 'center'}}>
-          You don't have any followers yet.
+          You are not a member of any leagues right now.
+          {'\n'}
+          {'\n'}
+          <Label onPress={() => jumpTo('explore')}>Explore</Label> your options
+          and find the league that’s just your thing.
         </Label>
       )}
     </EmptyContainer>

@@ -3,3 +3,5 @@ export * from './Feed';
 export * from './Settings';
 export * from './Webview';
 export * from './Friends';
+export * from './Leagues';
+export * from './League';

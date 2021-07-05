@@ -1,10 +1,9 @@
 import React, {useState} from 'react';
 import styled, {useTheme} from 'styled-components/native';
-import {Label, ProfileRow} from '@components';
+import {Label, ProfileRow, SearchBox} from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useSearchUsers} from '@hooks';
 import {ActivityIndicator, FlatList} from 'react-native';
-import {SearchBox} from './components';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -13,6 +12,7 @@ const Wrapper = styled.View({
 
 const SearchBoxContainer = styled.View({
   paddingHorizontal: 20,
+  marginVertical: 20,
 });
 
 const EmptyContainer = styled.View({
@@ -90,7 +90,7 @@ export const Search = () => {
           appearance={'accentSecondary'}
           style={{textAlign: 'center'}}>
           {error
-            ? error
+            ? error.message
             : data && query.length
             ? `No results found for "${query}"`
             : `Find friends, colleagues and others.`}

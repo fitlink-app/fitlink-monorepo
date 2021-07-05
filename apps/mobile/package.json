@@ -16,7 +16,8 @@
       "jetifier",
       "@babel/runtime",
       "@react-native-picker/picker",
-      "react-native-tab-view"
+      "react-native-tab-view",
+      "react-native-linear-gradient"
     ]
   },
   "scripts": {

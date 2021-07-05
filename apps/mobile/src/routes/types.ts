@@ -1,3 +1,5 @@
+import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
+
 export type RootStackParamList = {
   AuthenticationNavigator: undefined;
   HomeNavigator: undefined;
@@ -10,4 +12,6 @@ export type RootStackParamList = {
   UpdatePassword: undefined;
   Webview: {url: string; title: string};
   Friends: {tab: number};
+  Leagues: {tab: number};
+  League: {id: string; league?: League};
 };

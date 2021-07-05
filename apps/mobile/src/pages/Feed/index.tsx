@@ -133,6 +133,13 @@ export const Feed = () => {
               <HeaderWidgetContainer>
                 <Button text="Test hook" onPress={() => refetchUser()} />
               </HeaderWidgetContainer>
+
+              <HeaderWidgetContainer>
+                <Button
+                  text="Test nav"
+                  onPress={() => navigation.navigate('Friends', {tab: 2})}
+                />
+              </HeaderWidgetContainer>
             </HeaderContainer>
           </>
         }

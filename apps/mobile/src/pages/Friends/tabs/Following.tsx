@@ -51,6 +51,9 @@ export const Following = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
     return [...acc, ...current.results];
   }, []);
 
+  console.log(data);
+  console.log(results);
+
   const ListFooterComponent = isFetchingNextPage ? (
     <EmptyContainer style={{height: 72}}>
       <ActivityIndicator color={colors.accent} />
@@ -71,7 +74,7 @@ export const Following = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
           type="body"
           appearance={'accentSecondary'}
           style={{textAlign: 'center'}}>
-          {error}
+          {error.message}
         </Label>
       ) : (
         <Label

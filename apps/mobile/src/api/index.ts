@@ -19,6 +19,11 @@ export function getErrors(e: ResponseError) {
   } as RequestError;
 }
 
+axios.interceptors.response.use(response => {
+  console.log('Response:', JSON.stringify(response, null, 2));
+  return response;
+});
+
 axios.interceptors.request.use(
   config => new Promise(resolve => setTimeout(() => resolve(config), 600)),
 );

@@ -13,8 +13,7 @@ import {
   createStackNavigator,
 } from '@react-navigation/stack';
 import {RootStackParamList} from './types';
-import {Webview} from 'pages';
-import {CustomInterpolators} from './interpolators';
+import {League, Webview} from 'pages';
 import {SettingsNavigator} from './Settings';
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -28,7 +27,6 @@ export default function Router() {
   const {isLoggedIn} = useAuth();
 
   const navigatorOptions = {
-    cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
     cardShadowEnabled: true,
     cardOverlayEnabled: true,
     headerShown: false,
@@ -45,14 +43,15 @@ export default function Router() {
         {isLoggedIn ? (
           <>
             <Stack.Screen name={'HomeNavigator'} component={HomeNavigator} />
-            <Stack.Screen name={'Settings'} component={SettingsNavigator} />
             <Stack.Screen
-              name={'Webview'}
-              component={Webview}
+              name={'Settings'}
+              component={SettingsNavigator}
               options={{
-                cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+                cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
               }}
             />
+            <Stack.Screen name={'League'} component={League} />
+            <Stack.Screen name={'Webview'} component={Webview} />
           </>
         ) : (
           <Stack.Screen

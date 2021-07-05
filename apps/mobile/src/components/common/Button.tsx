@@ -1,5 +1,11 @@
 import React from 'react';
-import {ViewStyle, ActivityIndicator, StyleProp, TextStyle} from 'react-native';
+import {
+  ViewStyle,
+  ActivityIndicator,
+  StyleProp,
+  TextStyle,
+  View,
+} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {Label} from './Label';
 import {Icon} from './Icon';
@@ -7,9 +13,11 @@ import {TouchHandler, TouchHandlerProps} from './TouchHandler';
 
 const ButtonLabel = styled(Label)({textAlign: 'center'});
 
-const Row = styled.View({flexDirection: 'row'});
+const Row = styled.View({
+  flexDirection: 'row',
+});
 
-const ButtonContentContainer = styled.View(({theme: {colors}}) => ({
+const ButtonContentContainer = styled.View(() => ({
   borderRadius: 8,
   height: 44,
   paddingHorizontal: 24,
@@ -24,7 +32,9 @@ export interface ButtonProps extends TouchHandlerProps {
   text?: string;
   type?: ButtonType;
   textStyle?: StyleProp<TextStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
   outline?: boolean;
+  wrapContent?: boolean;
   textOnly?: boolean;
   icon?: string;
   loading?: boolean;
@@ -35,14 +45,16 @@ export const Button = ({
   type = 'default',
   disabled,
   outline,
+  wrapContent,
   textOnly,
   textStyle,
+  containerStyle,
   icon,
   loading,
   style,
   ...rest
 }: ButtonProps) => {
-  const {typography, colors, fonts} = useTheme();
+  const {typography, colors} = useTheme();
 
   const buttonMainColor = createButtonMainColor();
 
@@ -84,6 +96,14 @@ export const Button = ({
       });
     }
 
+    if (!wrapContent) {
+      additionalContainerStyles.push({width: '100%', alignItems: 'center'});
+    }
+
+    if (containerStyle) {
+      additionalContainerStyles.push(containerStyle as ViewStyle);
+    }
+
     return additionalContainerStyles;
   }
 
@@ -112,7 +132,7 @@ export const Button = ({
   }
 
   function createTextStyle() {
-    let style: StyleProp<TextStyle> = {flex: 1};
+    let style: StyleProp<TextStyle> = wrapContent ? {} : {flex: 1};
 
     if (textOnly) style = typography.textButton;
 
@@ -122,7 +142,7 @@ export const Button = ({
   const textColor = createButtonTextColor();
 
   const buttonBaseStyleModifier: StyleProp<ViewStyle> = {
-    width: textOnly ? undefined : '100%',
+    width: textOnly || wrapContent ? undefined : '100%',
     alignItems: 'center',
   };
 
@@ -131,24 +151,30 @@ export const Button = ({
       {...{...rest, disabled}}
       style={[style, buttonBaseStyleModifier]}>
       <ButtonContentContainer style={createContainerStyle()}>
-        {loading ? (
-          <ActivityIndicator color={textColor} />
-        ) : (
-          <Row>
-            {!!icon && <Icon name={icon} size={18} color={textColor} />}
-
-            <ButtonLabel
-              numberOfLines={1}
+        <Row>
+          {!!icon && <Icon name={icon} size={18} color={textColor} />}
+          {loading && (
+            <View
               style={{
-                ...typography.button,
-                ...createTextStyle(),
-                color: textColor,
-                ...(textStyle as {}),
+                position: 'absolute',
+                alignItems: 'center',
+                width: '100%',
               }}>
-              {text}
-            </ButtonLabel>
-          </Row>
-        )}
+              <ActivityIndicator color={textColor} />
+            </View>
+          )}
+          <ButtonLabel
+            numberOfLines={1}
+            style={{
+              ...typography.button,
+              ...createTextStyle(),
+              color: textColor,
+              ...(textStyle as {}),
+              opacity: loading ? 0 : 1,
+            }}>
+            {text}
+          </ButtonLabel>
+        </Row>
       </ButtonContentContainer>
     </TouchHandler>
   );

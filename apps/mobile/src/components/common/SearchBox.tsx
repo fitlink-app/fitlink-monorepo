@@ -2,9 +2,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 import {InputField, InputFieldProps} from '@components';
 
-const Wrapper = styled.View({
-  marginVertical: 20,
-});
+const Wrapper = styled.View({});
 
 interface SearchBoxProps extends Pick<InputFieldProps, 'onClearPressed'> {
   query: string;
