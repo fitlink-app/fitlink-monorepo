@@ -49,6 +49,9 @@ export class League extends CreatableEntity {
   @JoinColumn()
   active_leaderboard: Leaderboard
 
+  @ApiProperty({
+    type: UserPublic
+  })
   @ManyToOne(() => User, (user) => user.owned_leagues)
   owner: User
 
