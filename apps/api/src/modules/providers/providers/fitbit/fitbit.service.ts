@@ -19,10 +19,13 @@ import {
   FitbitActivityResponseBody,
   FitbitAuthResponse,
   FitbitEventData,
+  FitbitSleepResponseBody,
   FitbitSubscriptionResponseBody,
-  FitbitUserUpdates
+  FitbitUserUpdates,
+  LifestyleGoalActivityDTO
 } from '../../types/fitbit'
 import { FITBIT_ACTIVITY_TYPE_MAP } from '../constants'
+import { GoalsEntriesService } from '../../../goals-entries/goals-entries.service'
 
 const FitbitApiClient: any = fitbitClient
 
@@ -35,7 +38,8 @@ export class FitbitService {
   constructor(
     private providersService: ProvidersService,
     private configService: ConfigService,
-    private healthActivityService: HealthActivitiesService
+    private healthActivityService: HealthActivitiesService,
+    private goalsEntriesService: GoalsEntriesService
   ) {}
 
   Fitbit = new FitbitApiClient({
@@ -102,29 +106,77 @@ export class FitbitService {
 
       for (const update of userPayload) {
         switch (update.collectionType) {
-          case 'activities': {
-            const [summaryResult, summaryResultErr] = await tryAndCatch(
-              this.fetchActivitySummaryByDay(token, update.date)
-            )
-            summaryResultErr && console.error(summaryResultErr)
-            if (summaryResult.activities?.length) {
-              const [resultsArr, resultsArrErr] = await tryAndCatch(
-                this.saveHealthActivities(
-                  summaryResult.activities as FitbitActivity[],
-                  userId
-                )
+          case 'activities':
+            {
+              const [summaryResult, summaryResultErr] = await tryAndCatch(
+                this.fetchActivitySummaryByDay(token, update.date)
               )
-              resultsArrErr && console.error(resultsArrErr)
-              return resultsArr
+              summaryResultErr && console.error(summaryResultErr)
+              if (summaryResult.activities?.length) {
+                const [resultsArr, resultsArrErr] = await tryAndCatch(
+                  this.saveHealthActivities(
+                    summaryResult.activities as FitbitActivity[],
+                    userId
+                  )
+                )
+                resultsArrErr && console.error(resultsArrErr)
+                return resultsArr
+              }
+              if (this.datesAreOnSameDay(new Date(update.date), new Date())) {
+                const lifestyleStats: LifestyleGoalActivityDTO = {
+                  steps: summaryResult.summary.steps || 0,
+                  floors_climbed: summaryResult.summary.floors || 0,
+                  sleep_hours: 0,
+                  water_litres: 0,
+                  mindfulness: 0
+                }
+                await this.prcoessDailyGoalsHistory(userId, lifestyleStats)
+              }
+            }
+            break
+
+          case 'sleep': {
+            const sleepLogs = await this.fetchSleepLogByDay(token, update.date)
+            if (this.datesAreOnSameDay(new Date(update.date), new Date())) {
+              const lifestyleStats: LifestyleGoalActivityDTO = {
+                steps: 0,
+                floors_climbed: 0,
+                sleep_hours: sleepLogs.summary.totalMinutesAsleep / 60 || 0,
+                water_litres: 0,
+                mindfulness: 0
+              }
+
+              return await this.prcoessDailyGoalsHistory(userId, lifestyleStats)
+            } else {
+              return { goalEntry: null }
             }
           }
 
           default:
             return { success: true }
-          // Get Activity Summary
         }
       }
     }
+  }
+
+  async prcoessDailyGoalsHistory(
+    userId: string,
+    lifeStyleStats: LifestyleGoalActivityDTO
+  ) {
+    return await this.goalsEntriesService.createOrUpdate(userId, {
+      current_floors_climbed: lifeStyleStats.floors_climbed,
+      current_mindfulness_minutes: lifeStyleStats.mindfulness,
+      current_sleep_hours: lifeStyleStats.sleep_hours,
+      current_steps: lifeStyleStats.steps,
+      current_water_litres: lifeStyleStats.water_litres
+    })
+  }
+
+  async fetchSleepLogByDay(token: string, date: string) {
+    const req = await this.Fitbit.get(`/sleep/date/${date}.json`, token)
+    const body = req[0] as FitbitSleepResponseBody
+    body.errors && console.error(body.errors[0].message)
+    return body
   }
 
   async saveHealthActivities(activities: FitbitActivity[], userId: string) {
@@ -146,6 +198,14 @@ export class FitbitService {
       throw new BadRequestException(body.errors[0].message)
     }
     return body
+  }
+
+  datesAreOnSameDay(first: Date, second: Date) {
+    const isOnSameDay =
+      first.getFullYear() === second.getFullYear() &&
+      first.getMonth() === second.getMonth() &&
+      first.getDate() === second.getDate()
+    return isOnSameDay
   }
 
   async deAuthorize(userId: string) {
@@ -262,5 +322,27 @@ export class FitbitService {
       console.log(e.message)
       throw new BadRequestException(e.message)
     }
+  }
+
+  // Get all fitbit subscriptions
+  async getFitbitSubscriptions(token: string) {
+    const res = await this.Fitbit.get(
+      `/activities/apiSubscriptions.json`,
+      token
+    )
+    const body = res[0]
+    if (body.errors) {
+      console.error(body.errors[0].message)
+    }
+    return body
+  }
+
+  async deleteFitbitSubscription(token: string, subId: string) {
+    const res = await this.Fitbit.delete(
+      `/activities/apiSubscriptions/${subId}.json`,
+      token
+    )
+    const body = res[0]
+    return body
   }
 }

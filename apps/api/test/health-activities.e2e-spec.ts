@@ -17,6 +17,7 @@ import { SportSetup, SportsTeardownWithId } from './seeds/sport.seed'
 import fitbitActivitiesPayload from './helpers/fitbitActivitiesPayload'
 import { Provider } from '../src/modules/providers/entities/provider.entity'
 import CreateSports from '../database/seeds/sport.seed'
+import fitbitSleepPayload from './helpers/fitbitSleepPayload'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -39,9 +40,6 @@ describe('Health Activities', () => {
 
     userForStrava = await ProvidersSetup('StravaHealthActivityTest')
     userForFitbit = await ProvidersSetup('FitbitHealthActivityTest')
-
-    console.log(userForFitbit)
-    console.log(userForStrava)
 
     stravaService = app.get(StravaService)
     fitbitService = app.get(FitbitService)
@@ -140,6 +138,78 @@ describe('Health Activities', () => {
     })
     expect(data.json()[0].healthActivity).toBe(null)
     expect(data.json()[1].healthActivity).toBe(null)
+  })
+
+  it('/providers/fitbit/webhook Sleep Logs Test', async () => {
+    const mockPayload: FitbitEventData[] = [
+      {
+        collectionType: 'sleep',
+        date: '2020-06-01',
+        ownerId: '184X36',
+        ownerType: 'user',
+        subscriptionId: userForFitbit.id
+      }
+    ]
+
+    providerService.findOne = jest.fn()
+    providerService.findOne.mockReturnValue({
+      user: { id: userForFitbit.id }
+    } as Partial<Provider>)
+
+    fitbitService.getFreshFitbitToken = jest.fn()
+    fitbitService.getFreshFitbitToken.mockReturnValue(
+      `SomethingThat Won't error out`
+    )
+
+    fitbitService.fetchSleepLogByDay = jest.fn()
+    fitbitService.fetchSleepLogByDay.mockReturnValue(fitbitSleepPayload)
+
+    const data = await app.inject({
+      method: 'POST',
+      payload: mockPayload,
+      url: '/providers/fitbit/webhook'
+    })
+
+    expect(data.json().goalEntry).toBe(null)
+  })
+
+  it('/providers/fitbit/webhook Logging Sleep Data Dates are on the same date', async () => {
+    const mockPayload: FitbitEventData[] = [
+      {
+        collectionType: 'sleep',
+        date: '2020-06-01',
+        ownerId: '184X36',
+        ownerType: 'user',
+        subscriptionId: userForFitbit.id
+      }
+    ]
+
+    providerService.findOne = jest.fn()
+    providerService.findOne.mockReturnValue({
+      user: { id: userForFitbit.id }
+    } as Partial<Provider>)
+
+    fitbitService.datesAreOnSameDay = jest.fn()
+    fitbitService.datesAreOnSameDay.mockReturnValue(true)
+    fitbitService.getFreshFitbitToken = jest.fn()
+    fitbitService.getFreshFitbitToken.mockReturnValue(
+      `SomethingThat Won't error out`
+    )
+
+    fitbitService.fetchSleepLogByDay = jest.fn()
+    fitbitService.fetchSleepLogByDay.mockReturnValue(fitbitSleepPayload)
+
+    const data = await app.inject({
+      method: 'POST',
+      payload: mockPayload,
+      url: '/providers/fitbit/webhook'
+    })
+
+    const result = data.json()
+    expect(result.user).toBeDefined()
+    expect(result.current_sleep_hours).toBeDefined()
+    expect(result.current_steps).toBeDefined()
+    expect(result.current_floors_climbed).toBeDefined()
   })
 
   it('POST /providers/strava/webhook', async () => {
