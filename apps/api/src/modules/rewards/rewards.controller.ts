@@ -23,7 +23,8 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import {
   ApiBaseResponses,
   DeleteResponse,
-  UpdateResponse
+  UpdateResponse,
+  PaginationResponse
 } from '../../decorators/swagger.decorator'
 import { Reward, RewardPublic } from './entities/reward.entity'
 import { RewardsRedemption } from '../rewards-redemptions/entities/rewards-redemption.entity'
@@ -60,7 +61,7 @@ export class RewardsController {
   }
 
   @ApiTags('rewards')
-  @ApiResponse({ type: RewardPublic, isArray: true, status: 200 })
+  @PaginationResponse(RewardPublic)
   @Get('/rewards')
   findAll(
     @User() authUser: AuthenticatedUser,
@@ -74,8 +75,8 @@ export class RewardsController {
   }
 
   @ApiTags('me')
-  @ApiResponse({ type: RewardPublic, isArray: true, status: 200 })
   @Get('/me/rewards')
+  @PaginationResponse(RewardPublic)
   findMyRewards(
     @User() authUser: AuthenticatedUser,
     @Pagination() pagination: PaginationQuery
@@ -175,16 +176,18 @@ export class RewardsController {
     return result
   }
 
+  @ApiTags('rewards')
   @Post('/rewards/:rewardId/redeem')
   @HttpCode(200)
-  @ApiResponse({ type: RewardsRedemption, status: 200 })
+  @ApiResponse({ type: RewardPublic, status: 200 })
   async redeem(
     @Param('rewardId') rewardId: string,
     @User() authUser: AuthenticatedUser
   ) {
     const reward = await this.rewardsService.findOneAccessibleToUser(
       rewardId,
-      authUser.id
+      authUser.id,
+      true // skip expiry checks
     )
 
     if (!reward) {
@@ -200,6 +203,11 @@ export class RewardsController {
       throw new BadRequestException('The reward has already expired')
     }
 
+    // Reward redemptions are finished (limited supply)
+    if (result === 'not available') {
+      throw new BadRequestException('The reward is no longer available')
+    }
+
     // Reward was already redeemed
     if (result === 'already redeemed') {
       throw new BadRequestException('You have already redeemed this reward')
@@ -212,6 +220,6 @@ export class RewardsController {
       )
     }
 
-    return result
+    return reward
   }
 }

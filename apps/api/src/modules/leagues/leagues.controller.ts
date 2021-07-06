@@ -19,6 +19,7 @@ import {
   ApiBaseResponses,
   DeleteResponse,
   PaginationBody,
+  PaginationResponse,
   SuccessResponse,
   UpdateResponse
 } from '../../decorators/swagger.decorator'
@@ -149,7 +150,7 @@ export class LeaguesController {
    */
   @Get('/leagues')
   @ApiTags('leagues')
-  @ApiResponse({ type: LeaguePublic, isArray: true, status: 200 })
+  @PaginationResponse(LeaguePublic)
   @PaginationBody()
   findAll(
     @User() authUser: AuthenticatedUser,
@@ -175,7 +176,7 @@ export class LeaguesController {
   @ApiTags('leagues')
   @PaginationBody()
   @ApiQuery({ type: SearchLeagueDto })
-  @ApiResponse({ type: LeaguePublic, isArray: true, status: 200 })
+  @PaginationResponse(LeaguePublic)
   search(
     @Query() query: SearchLeagueDto,
     @User() user: AuthenticatedUser,
@@ -195,7 +196,7 @@ export class LeaguesController {
    */
   @Get('/me/leagues')
   @ApiTags('me')
-  @ApiResponse({ type: LeaguePublic, isArray: true, status: 200 })
+  @PaginationResponse(LeaguePublic)
   @PaginationBody()
   findMyLeagues(
     @User() authUser: AuthenticatedUser,
@@ -212,7 +213,7 @@ export class LeaguesController {
   @Iam(Roles.TeamAdmin)
   @ApiTags('leagues')
   @Get('/teams/:teamId/leagues')
-  @ApiResponse({ type: LeaguePublic, isArray: true, status: 200 })
+  @PaginationResponse(LeaguePublic)
   teamFindAll(@Param('teamId') teamId: string) {
     return this.leaguesService.getAllLeaguesForTeam(teamId)
   }

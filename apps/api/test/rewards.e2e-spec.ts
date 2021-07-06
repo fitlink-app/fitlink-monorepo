@@ -538,8 +538,8 @@ describe('Rewards', () => {
 
     expect(result.statusCode).toBe(200)
     expect(result.json().id).toBeDefined()
-    expect(result.json().reward).toBeDefined()
-    expect(result.json().user).toBeDefined()
+    expect(result.json().code).toBeDefined()
+    expect(result.json().redeem_url).toBeDefined()
 
     const me = await app.inject({
       method: 'GET',
@@ -588,6 +588,25 @@ describe('Rewards', () => {
 
     expect(result.statusCode).toBe(400)
     expect(result.json().message).toContain('insufficient points')
+  })
+
+  it(`POST /rewards/:rewardId/redeem (200) A user cannot redeem a reward if the reward is not available`, async () => {
+    const reward = (
+      await RewardsSetup('Test Reward', 1, {
+        limit_units: true,
+        units_available: 0,
+        redeemed_count: 0
+      })
+    )[0]
+
+    const result = await app.inject({
+      method: 'POST',
+      url: `/rewards/${reward.id}/redeem`,
+      headers: authHeaders
+    })
+
+    expect(result.statusCode).toBe(400)
+    expect(result.json().message).toContain('no longer available')
   })
 
   it('GET /rewards (200) A user can see which rewards they have redeemed in the list', async () => {
