@@ -5,8 +5,13 @@ import Input from '../elements/Input'
 import Select from '../elements/Select'
 import LocationSelect from '../elements/LocationSelect'
 import AvatarSelect from '../elements/AvatarSelect'
+import ImageStack from '../elements/ImageStack'
 
-export type InviteUserProps = {
+export type ImageProps = {
+  url: string
+}
+
+export type ActivityFormProps = {
   current?: {
     name: string
     description: string
@@ -23,7 +28,8 @@ export type InviteUserProps = {
     type: {
       value: string
       label: string
-    }
+    },
+    images: ImageProps[]
   }
 }
 
@@ -44,7 +50,9 @@ const types = [
 
 export default function ActivityForm({
   current
-}:InviteUserProps) {
+}:ActivityFormProps) {
+
+  console.log(current)
 
   const [name, setName] = useState(current?.name || '')
   const [description, setDescription] = useState(current?.description || '')
@@ -71,7 +79,8 @@ export default function ActivityForm({
   )
   const [organizer_image, setOrganizer_image] = useState(
     current?.organizer_email || ''
-  )
+    )
+  const [images, setImages] = useState(current?.images || [])
 
   return (
     <form onSubmit={(e) => e.preventDefault()}>
@@ -122,6 +131,10 @@ export default function ActivityForm({
         value={meeting_point_text}
         type="textarea"
         onChange={(v) => setMeeting_point_text(v)}
+      />
+      <ImageStack
+        label="Images"
+        files={images}
       />
       <LocationSelect
         lng={lng}
