@@ -5,7 +5,7 @@
   box-shadow: 0 5px 10px 0 rgba(0,0,0,0.1);
   overflow: hidden;
   position: relative;
-  max-width: 20rem;
+  //max-width: 13.625rem;
 
   &:before {
     display: block;
@@ -13,7 +13,6 @@
     width: 100%;
     padding-top: 56.25%;
   }
-
 
   div {
     background-size: cover;
@@ -96,4 +95,13 @@
     }
   }
 
+  svg {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2rem;
+    height: 2rem;
+    transform: translate(-50%, -50%);
+    color: #ccc;
+  }
 }

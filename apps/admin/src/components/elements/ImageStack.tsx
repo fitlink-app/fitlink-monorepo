@@ -1,4 +1,4 @@
-import clsx from 'clsx'
+import IconImage from '../icons/IconImage'
 
 export type ImageStackProps = {
   files: {
@@ -13,10 +13,6 @@ export default function ImageStack({
   label,
   onClick
 }:ImageStackProps) {
-  const classes = clsx({
-    'image-stack': true,
-    [`image-count-${files.length}`]: true
-  })
   return (
     <>
       { label && <label className="block">{label}</label> }
@@ -31,6 +27,9 @@ export default function ImageStack({
           <div className="more">
             +{files.length-4} more
           </div>
+        }
+        { files.length === 0 &&
+          <IconImage />
         }
       </div>
     </>
