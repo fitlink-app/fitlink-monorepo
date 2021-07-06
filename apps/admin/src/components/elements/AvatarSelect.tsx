@@ -2,15 +2,27 @@ import { useState } from 'react'
 
 export type AvatarSelectProps = {
   src?: string
+  label?: string
   onChange?: (file) => void
 }
 
-export default function AvatarSelect({ src, onChange }: AvatarSelectProps) {
+export default function AvatarSelect({
+  src,
+  onChange,
+  label = 'Select an image'
+}: AvatarSelectProps) {
+  const id = `image_${Math.random().toString(36).substring(7)}`
+
   const [image, setImage] = useState(src || '')
 
   const previewImage = (e) => {
     setImage(URL.createObjectURL(e.target.files[0]))
     if (onChange) onChange(e.target.files[0])
+  }
+
+  const reset = (e) => {
+    (document.getElementById(id) as HTMLInputElement).value = null
+    setImage('')
   }
 
   return (
@@ -19,10 +31,12 @@ export default function AvatarSelect({ src, onChange }: AvatarSelectProps) {
         className="avatar-select__preview"
         style={{ backgroundImage: `url(${image})` }}
       />
-      <input type="file" id="image" onChange={previewImage} accept="image/*" />
-      <label htmlFor="image">Select an image</label>
+      <input type="file" id={id} onChange={previewImage} accept="image/*" />
+      <label htmlFor={id}>
+        {label}
+      </label>
       {image !== '' && (
-        <small className="block ml-a mr-0" onClick={() => setImage('')}>
+        <small className="block ml-a mr-0" onClick={reset}>
           remove image
         </small>
       )}

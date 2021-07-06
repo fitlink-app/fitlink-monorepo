@@ -52,8 +52,6 @@ export default function ActivityForm({
   current
 }:ActivityFormProps) {
 
-  console.log(current)
-
   const [name, setName] = useState(current?.name || '')
   const [description, setDescription] = useState(current?.description || '')
   const [type, setType] = useState(current?.type || types[0])
@@ -184,6 +182,7 @@ export default function ActivityForm({
             onChange={(v) => setOrganizer_email(v)}
           />
           <AvatarSelect
+            label="Organisers image"
             src={organizer_image}
             onChange={(v) => setOrganizer_image(v)}
             />
