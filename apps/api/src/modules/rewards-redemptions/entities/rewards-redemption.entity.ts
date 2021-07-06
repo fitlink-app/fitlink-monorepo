@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, OneToOne, Entity, JoinColumn } from 'typeorm'
+import { PrimaryGeneratedColumn, Entity, JoinColumn, ManyToOne } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { User } from '../../users/entities/user.entity'
 import { Reward } from '../../rewards/entities/reward.entity'
@@ -8,11 +8,11 @@ export class RewardsRedemption extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User, (user) => user.rewards_redemptions)
   @JoinColumn()
   user: User
 
-  @OneToOne(() => Reward)
+  @ManyToOne(() => Reward, (reward) => reward.redemptions)
   @JoinColumn()
   reward: Reward
 }

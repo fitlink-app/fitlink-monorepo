@@ -4,10 +4,13 @@ import { Brackets, Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { Image } from '../images/entities/image.entity'
 import { Organisation } from '../organisations/entities/organisation.entity'
+import { RewardsRedemption } from '../rewards-redemptions/entities/rewards-redemption.entity'
 import { Team } from '../teams/entities/team.entity'
+import { User } from '../users/entities/user.entity'
 import { CreateRewardDto } from './dto/create-reward.dto'
 import { UpdateRewardDto } from './dto/update-reward.dto'
-import { Reward, RewardAccess } from './entities/reward.entity'
+import { Reward, RewardAccess, RewardPublic } from './entities/reward.entity'
+import { startOfDay } from 'date-fns'
 
 type ParentIds = {
   organisationId?: string
@@ -18,7 +21,11 @@ type ParentIds = {
 export class RewardsService {
   constructor(
     @InjectRepository(Reward)
-    private rewardsRepository: Repository<Reward>
+    private rewardsRepository: Repository<Reward>,
+    @InjectRepository(RewardsRedemption)
+    private rewardsRedemptionRepository: Repository<RewardsRedemption>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>
   ) {}
 
   create(createRewardDto: CreateRewardDto) {
@@ -57,8 +64,8 @@ export class RewardsService {
       .skip(page * limit)
       .getManyAndCount()
 
-    return new Pagination<Reward>({
-      results,
+    return new Pagination<RewardPublic>({
+      results: results.map(this.getRewardPublic),
       total
     })
   }
@@ -93,6 +100,12 @@ export class RewardsService {
       .leftJoinAndSelect('reward.image', 'image')
       .leftJoinAndSelect('reward.team', 'rewardTeam')
       .leftJoinAndSelect('reward.organisation', 'rewardOrganisation')
+      .leftJoinAndSelect(
+        'reward.redemptions',
+        'redemptions',
+        'redemptions.user.id = :userId',
+        { userId }
+      )
       .leftJoinAndSelect('rewardTeam.avatar', 'rewardTeamAvatar')
       .leftJoin('rewardTeam.users', 'teamUser')
       .leftJoinAndSelect(
@@ -127,19 +140,33 @@ export class RewardsService {
           userId
         }
       )
+      .andWhere('reward.reward_expires_at > :date', {
+        date: startOfDay(new Date())
+      })
       .orderBy('reward.reward_expires_at', 'ASC')
   }
 
-  findOneAccessibleToUser(rewardId: string, userId: string) {
-    return this.queryFindAccessibleToUser(userId)
+  async findOneAccessibleToUser(rewardId: string, userId: string) {
+    const result = await this.queryFindAccessibleToUser(userId)
       .andWhere('reward.id = :rewardId', { rewardId })
       .getOne()
+    if (result) {
+      return this.getRewardPublic(result)
+    } else {
+      return result
+    }
   }
 
   findOne(rewardId: string) {
     return this.rewardsRepository.findOne(rewardId, {
       relations: ['image', 'team', 'organisation']
     })
+  }
+
+  getRewardPublic(reward: Reward) {
+    ;((reward as unknown) as RewardPublic).redeemed =
+      reward.redemptions.length > 0
+    return reward as RewardPublic
   }
 
   /**
@@ -249,6 +276,84 @@ export class RewardsService {
 
     return this.rewardsRepository.delete({
       id: rewardId
+    })
+  }
+
+  /**
+   * Uses a transaction to redeem a reward
+   * The user must have sufficient points to redeem
+   * The points they need to redeem will be decremented from their entity
+   *
+   * This reward needs to be accessible to the particular user, but the assumption
+   * is that this check has already been made in the controller.
+   * e.g. using findOneAccessibleToUser
+   *
+   * @param reward
+   * @param userId
+   * @returns
+   */
+  async redeem(reward: Reward, userId: string) {
+    // If the reward expires before today
+    if (reward.reward_expires_at < startOfDay(new Date())) {
+      return 'reward expired'
+    }
+
+    const user = await this.userRepository.findOne(userId)
+    const redemption = await this.rewardsRedemptionRepository.findOne({
+      user: { id: userId },
+      reward: { id: reward.id }
+    })
+
+    if (redemption) {
+      return 'already redeemed'
+    }
+
+    if (user.points_total < reward.points_required) {
+      return false
+    }
+
+    const result = await this.rewardsRepository.manager.transaction(
+      async (manager) => {
+        const rewardsRedemptionRepository = manager.getRepository(
+          RewardsRedemption
+        )
+        const userRepository = manager.getRepository(User)
+        const redemption = rewardsRedemptionRepository.create({
+          user: { id: userId },
+          reward: { id: reward.id }
+        })
+        const result = await rewardsRedemptionRepository.save(redemption)
+        await userRepository.decrement(
+          { id: user.id },
+          'points_total',
+          reward.points_required
+        )
+        return result
+      }
+    )
+
+    return result
+  }
+
+  /**
+   * Finds the user's redeemed rewards
+   * @param userId
+   * @param param1
+   * @returns
+   */
+  async findRedeemedRewards(
+    userId: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ) {
+    const [results, total] = await this.queryFindAccessibleToUser(userId)
+      .where('redemptions.user.id = :userId', { userId })
+      .take(limit)
+      .skip(page * limit)
+      .getManyAndCount()
+
+    return new Pagination<RewardPublic>({
+      results: results.map(this.getRewardPublic),
+      total
     })
   }
 }

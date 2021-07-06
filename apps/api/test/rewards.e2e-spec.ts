@@ -48,7 +48,7 @@ describe('Rewards', () => {
 
     images = await ImagesSetup('Test Rewards', 20)
     users = await UsersSetup('Test Rewards', 2)
-    rewards = await RewardsSetup('Test Rewards', 6)
+    rewards = await RewardsSetup('Test Rewards', 8)
 
     // User types
     authHeaders = getAuthHeaders({}, users[0].id)
@@ -110,6 +110,11 @@ describe('Rewards', () => {
       .relation(Reward, 'team')
       .of(rewards[4].id)
       .set(team.id)
+
+    // Add points to user
+    await app.get(Connection).getRepository(User).update(users[0].id, {
+      points_total: 250
+    })
   })
 
   afterAll(async () => {
@@ -523,4 +528,98 @@ describe('Rewards', () => {
       }
     }
   )
+
+  it(`POST /rewards/:rewardId/redeem (200) A user can redeem a reward if they have sufficient points, and points are subtracted`, async () => {
+    const result = await app.inject({
+      method: 'POST',
+      url: `/rewards/${rewards[5].id}/redeem`,
+      headers: authHeaders
+    })
+
+    expect(result.statusCode).toBe(200)
+    expect(result.json().id).toBeDefined()
+    expect(result.json().reward).toBeDefined()
+    expect(result.json().user).toBeDefined()
+
+    const me = await app.inject({
+      method: 'GET',
+      url: `/me`,
+      headers: authHeaders
+    })
+
+    // Expect points to be reduced
+    expect(me.json().points_total).toEqual(150)
+
+    const result2 = await app.inject({
+      method: 'GET',
+      url: `/rewards/${rewards[5].id}`,
+      headers: authHeaders
+    })
+
+    // Expect reward to show as redeemed
+    expect(result2.json().redeemed).toBe(true)
+  })
+
+  it(`POST /rewards/:rewardId/redeem (200) A user cannot redeem a reward they have already redeemed`, async () => {
+    const result = await app.inject({
+      method: 'POST',
+      url: `/rewards/${rewards[6].id}/redeem`,
+      headers: authHeaders
+    })
+
+    expect(result.statusCode).toBe(200)
+
+    const result2 = await app.inject({
+      method: 'POST',
+      url: `/rewards/${rewards[6].id}/redeem`,
+      headers: authHeaders
+    })
+
+    expect(result2.statusCode).toBe(400)
+    expect(result2.json().message).toContain('already redeemed')
+  })
+
+  it(`POST /rewards/:rewardId/redeem (200) A user cannot redeem a reward if they have insufficient points`, async () => {
+    const result = await app.inject({
+      method: 'POST',
+      url: `/rewards/${rewards[7].id}/redeem`,
+      headers: authHeaders
+    })
+
+    expect(result.statusCode).toBe(400)
+    expect(result.json().message).toContain('insufficient points')
+  })
+
+  it('GET /rewards (200) A user can see which rewards they have redeemed in the list', async () => {
+    const result = await app.inject({
+      method: 'GET',
+      url: `/rewards`,
+      headers: authHeaders,
+      query: {
+        limit: '1000'
+      }
+    })
+
+    expect(result.statusCode).toBe(200)
+    expect(
+      result.json().results.filter((e) => e.redeemed === true).length
+    ).toBeGreaterThan(0)
+    expect(
+      result.json().results.filter((e) => e.redeemed === false).length
+    ).toBeGreaterThan(0)
+  })
+
+  it('GET /rewards (200) A user can see all their redeemed rewards', async () => {
+    const result = await app.inject({
+      method: 'GET',
+      url: `/me/rewards`,
+      headers: authHeaders,
+      query: {
+        limit: '1000'
+      }
+    })
+
+    expect(result.statusCode).toBe(200)
+    expect(result.json().results.length).toBeGreaterThan(0)
+  })
 })

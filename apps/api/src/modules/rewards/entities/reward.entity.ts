@@ -12,6 +12,7 @@ import { Team } from '../../teams/entities/team.entity'
 import { Organisation } from '../../organisations/entities/organisation.entity'
 import { Image } from '../../images/entities/image.entity'
 import { RewardsRedemption } from '../../rewards-redemptions/entities/rewards-redemption.entity'
+import { ApiProperty } from '@nestjs/swagger'
 
 export enum RewardAccess {
   Public = 'public',
@@ -25,6 +26,7 @@ export enum RewardPlatform {
 
 @Entity()
 export class Reward extends CreatableEntity {
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string
 
@@ -97,4 +99,9 @@ export class Reward extends CreatableEntity {
 
   @OneToMany(() => RewardsRedemption, (redemption) => redemption.reward)
   redemptions: RewardsRedemption[]
+}
+
+export class RewardPublic extends Reward {
+  @ApiProperty()
+  redeemed: boolean
 }
