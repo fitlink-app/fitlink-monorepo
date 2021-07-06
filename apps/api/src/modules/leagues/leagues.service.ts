@@ -151,11 +151,8 @@ export class LeaguesService {
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    const [results, total] = await this.leaguesRepository
-      .createQueryBuilder('leagues')
-      .innerJoinAndSelect('leagues.users', 'users')
-      .leftJoinAndSelect('leagues.owner', 'owner')
-      .where('users.id = :userId', { userId })
+    const [results, total] = await this.queryFindAccessibleToUser(userId)
+      .where('leagueUser.id = :userId', { userId })
       .take(limit)
       .offset(page * limit)
       .getManyAndCount()
@@ -201,10 +198,16 @@ export class LeaguesService {
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    const [results, total] = await this.queryFindAccessibleToUser(userId)
+    let [results, total] = await this.queryFindAccessibleToUser(userId)
       .take(limit)
       .skip(page * limit)
       .getManyAndCount()
+
+    // const positions = await this.getPositionInLeagues( results.map( e => e.id ), userId )
+
+    // console.log( 'POSITIONS', positions )
+
+    // results = this.applyPositionsToLeagues( results, positions )
 
     return new Pagination<LeaguePublic>({
       results: results.map((league) => this.getLeaguePublic(league, userId)),
@@ -232,10 +235,34 @@ export class LeaguesService {
     })
   }
 
+  /**
+   * Applies positions to leagues
+   * @param leagues
+   * @param positions
+   * @returns
+   */
+  applyPositionsToLeagues(
+    leagues: League[],
+    positions: { position: number; leagueId: string }[]
+  ) {
+    return leagues.map((each) => {
+      let item = each
+      item.position = null
+      positions.map((rank) => {
+        if (rank.leagueId === each.id) {
+          item.position = rank.position
+        }
+      })
+      return each
+    })
+  }
+
   getLeaguePublic(league: League, userId: string) {
     const leaguePublic = (league as unknown) as LeaguePublic
     leaguePublic.participating = Boolean(league.users.length > 0)
     leaguePublic.is_owner = Boolean(league.owner && league.owner.id === userId)
+
+    // console.log(leaguePublic.position)
 
     // Ensure personal user data of owner is sanitized.
     if (leaguePublic.owner) {
@@ -331,6 +358,24 @@ export class LeaguesService {
         }
       )
       .orderBy('league.created_at', 'DESC')
+  }
+
+  async getPositionInLeagues(leagueIds: string[], userId: string) {
+    // Create a subquery to find the rank
+    return this.leaderboardEntryRepository
+      .createQueryBuilder('entry')
+      .select(
+        'RANK() OVER (ORDER BY entry.points DESC, entry.updated_at DESC) AS position, league.id AS leagueId'
+      )
+      .leftJoin('entry.leaderboard', 'leaderboard')
+      .leftJoin('leaderboard.league', 'league')
+      .where(
+        'entry.leaderboard.id = leaderboard.id AND entry.user.id = :userId',
+        { userId }
+      )
+      .andWhere('league.active_leaderboard.id = leaderboard.id')
+      .andWhere('league.id IN (:...leagueIds)', { leagueIds })
+      .getRawMany()
   }
 
   /**

@@ -111,6 +111,8 @@ export class League extends CreatableEntity {
     default: 0
   })
   participants_total: number
+
+  position: number
 }
 
 export class LeaguePublic extends League {
@@ -121,4 +123,8 @@ export class LeaguePublic extends League {
   @ApiProperty()
   @Expose()
   is_owner: boolean
+
+  @ApiProperty()
+  @Expose()
+  position: number
 }

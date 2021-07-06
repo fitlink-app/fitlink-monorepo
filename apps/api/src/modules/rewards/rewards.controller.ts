@@ -7,7 +7,8 @@ import {
   Param,
   Delete,
   ForbiddenException,
-  Query
+  HttpCode,
+  BadRequestException
 } from '@nestjs/common'
 import { RewardsService } from './rewards.service'
 import { CreateRewardDto } from './dto/create-reward.dto'
@@ -18,13 +19,23 @@ import { Pagination } from '../../decorators/pagination.decorator'
 import { Roles } from '../user-roles/entities/user-role.entity'
 import { AuthenticatedUser } from '../../models'
 import { PaginationQuery } from '../../helpers/paginate'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBaseResponses,
+  DeleteResponse,
+  UpdateResponse,
+  PaginationResponse
+} from '../../decorators/swagger.decorator'
+import { Reward, RewardPublic } from './entities/reward.entity'
+import { RewardsRedemption } from '../rewards-redemptions/entities/rewards-redemption.entity'
 
+@ApiBaseResponses()
 @Controller()
 export class RewardsController {
   constructor(private readonly rewardsService: RewardsService) {}
 
   @ApiTags('rewards')
+  @ApiResponse({ type: Reward, status: 201 })
   @Iam(Roles.OrganisationAdmin, Roles.TeamAdmin, Roles.SuperAdmin)
   @Post([
     '/organisations/:organisationId/rewards',
@@ -50,6 +61,7 @@ export class RewardsController {
   }
 
   @ApiTags('rewards')
+  @PaginationResponse(RewardPublic)
   @Get('/rewards')
   findAll(
     @User() authUser: AuthenticatedUser,
@@ -62,8 +74,19 @@ export class RewardsController {
     return this.rewardsService.findManyAccessibleToUser(authUser.id, pagination)
   }
 
+  @ApiTags('me')
+  @Get('/me/rewards')
+  @PaginationResponse(RewardPublic)
+  findMyRewards(
+    @User() authUser: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.rewardsService.findRedeemedRewards(authUser.id, pagination)
+  }
+
   @ApiTags('rewards')
   @Get('/rewards/:rewardId')
+  @ApiResponse({ type: RewardPublic, status: 200 })
   async findOne(
     @Param('rewardId') rewardId: string,
     @User() authUser: AuthenticatedUser
@@ -90,6 +113,7 @@ export class RewardsController {
     '/teams/:teamId/rewards/:rewardId',
     '/organisations/:organisationId/rewards/:rewardId'
   ])
+  @UpdateResponse()
   async update(
     @Param('rewardId') rewardId: string,
     @Param('teamId') teamId: string,
@@ -118,6 +142,7 @@ export class RewardsController {
     return result
   }
 
+  @DeleteResponse()
   @Iam(Roles.OrganisationAdmin, Roles.TeamAdmin, Roles.SuperAdmin)
   @Delete([
     '/rewards/:rewardId',
@@ -149,5 +174,52 @@ export class RewardsController {
     }
 
     return result
+  }
+
+  @ApiTags('rewards')
+  @Post('/rewards/:rewardId/redeem')
+  @HttpCode(200)
+  @ApiResponse({ type: RewardPublic, status: 200 })
+  async redeem(
+    @Param('rewardId') rewardId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    const reward = await this.rewardsService.findOneAccessibleToUser(
+      rewardId,
+      authUser.id,
+      true // skip expiry checks
+    )
+
+    if (!reward) {
+      throw new ForbiddenException(
+        'You do not have permission to redeem this reward'
+      )
+    }
+
+    const result = await this.rewardsService.redeem(reward, authUser.id)
+
+    // Reward has expired
+    if (result === 'reward expired') {
+      throw new BadRequestException('The reward has already expired')
+    }
+
+    // Reward redemptions are finished (limited supply)
+    if (result === 'not available') {
+      throw new BadRequestException('The reward is no longer available')
+    }
+
+    // Reward was already redeemed
+    if (result === 'already redeemed') {
+      throw new BadRequestException('You have already redeemed this reward')
+    }
+
+    // If the reward could not be redeemed, it's due to lack of points
+    if (!result) {
+      throw new BadRequestException(
+        'You have insufficient points to redeem this reward'
+      )
+    }
+
+    return reward
   }
 }

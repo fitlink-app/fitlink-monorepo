@@ -349,6 +349,7 @@ describe('Leagues', () => {
     expect(post.json().success).toEqual(true)
     expect(post.json().league.id).toEqual(league.id)
     expect(post.json().leaderboardEntry.id).toBeDefined()
+    // expect(get.json().results[0].position).toBe(0)
     expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
       1
     )
@@ -478,6 +479,7 @@ describe('Leagues', () => {
     expect(
       search1.json().results.filter((e) => e.name.indexOf('Team') > -1).length
     ).toBe(0)
+    // expect(search1.json().results[0].position).toBe(null)
 
     const search2 = await app.inject({
       method: 'GET',
