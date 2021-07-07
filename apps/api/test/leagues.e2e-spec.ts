@@ -451,8 +451,15 @@ describe('Leagues', () => {
 
     expect(data.statusCode).toEqual(200)
     expect(data.json().results.length).toBeGreaterThan(0)
+
+    // Expect some of the leagues to be team leagues
     expect(
       data.json().results.filter((e) => !!(e.team && e.team.id)).length
+    ).toBeGreaterThan(0)
+
+    // Expect not to be ranked in all the leagues
+    expect(
+      data.json().results.filter((e) => e.rank === null).length
     ).toBeGreaterThan(0)
   })
 

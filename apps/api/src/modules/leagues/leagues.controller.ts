@@ -19,7 +19,6 @@ import {
   ApiBaseResponses,
   DeleteResponse,
   PaginationBody,
-  PaginationResponse,
   SuccessResponse,
   UpdateResponse
 } from '../../decorators/swagger.decorator'
@@ -33,7 +32,12 @@ import {
   JoinPrivateLeagueDto,
   JoinPrivateLeagueResultDto
 } from './dto/join-private-league.dto'
-import { League, LeagueAccess, LeaguePublic } from './entities/league.entity'
+import {
+  League,
+  LeagueAccess,
+  LeaguePublic,
+  LeaguePublicPagination
+} from './entities/league.entity'
 import { LeaguesService } from './leagues.service'
 import { LeaguesInvitationsService } from '../leagues-invitations/leagues-invitations.service'
 import { Pagination } from '../../decorators/pagination.decorator'
@@ -150,7 +154,7 @@ export class LeaguesController {
    */
   @Get('/leagues')
   @ApiTags('leagues')
-  @PaginationResponse(LeaguePublic)
+  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
   @PaginationBody()
   findAll(
     @User() authUser: AuthenticatedUser,
@@ -176,7 +180,7 @@ export class LeaguesController {
   @ApiTags('leagues')
   @PaginationBody()
   @ApiQuery({ type: SearchLeagueDto })
-  @PaginationResponse(LeaguePublic)
+  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
   search(
     @Query() query: SearchLeagueDto,
     @User() user: AuthenticatedUser,
@@ -196,7 +200,7 @@ export class LeaguesController {
    */
   @Get('/me/leagues')
   @ApiTags('me')
-  @PaginationResponse(LeaguePublic)
+  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
   @PaginationBody()
   findMyLeagues(
     @User() authUser: AuthenticatedUser,
@@ -213,7 +217,7 @@ export class LeaguesController {
   @Iam(Roles.TeamAdmin)
   @ApiTags('leagues')
   @Get('/teams/:teamId/leagues')
-  @PaginationResponse(LeaguePublic)
+  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
   teamFindAll(@Param('teamId') teamId: string) {
     return this.leaguesService.getAllLeaguesForTeam(teamId)
   }

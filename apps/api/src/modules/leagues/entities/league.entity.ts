@@ -140,3 +140,17 @@ export class LeaguePublic extends League {
   @Expose()
   rank: number
 }
+
+export class LeaguePublicPagination {
+  @ApiProperty()
+  page_total: number
+
+  @ApiProperty()
+  total: number
+
+  @ApiProperty({
+    type: LeaguePublic,
+    isArray: true
+  })
+  results: LeaguePublic[]
+}

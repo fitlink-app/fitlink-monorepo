@@ -23,11 +23,13 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import {
   ApiBaseResponses,
   DeleteResponse,
-  UpdateResponse,
-  PaginationResponse
+  UpdateResponse
 } from '../../decorators/swagger.decorator'
-import { Reward, RewardPublic } from './entities/reward.entity'
-import { RewardsRedemption } from '../rewards-redemptions/entities/rewards-redemption.entity'
+import {
+  Reward,
+  RewardPublic,
+  RewardPublicPagination
+} from './entities/reward.entity'
 
 @ApiBaseResponses()
 @Controller()
@@ -61,7 +63,7 @@ export class RewardsController {
   }
 
   @ApiTags('rewards')
-  @PaginationResponse(RewardPublic)
+  @ApiResponse({ type: RewardPublicPagination, status: 200 })
   @Get('/rewards')
   findAll(
     @User() authUser: AuthenticatedUser,
@@ -76,7 +78,7 @@ export class RewardsController {
 
   @ApiTags('me')
   @Get('/me/rewards')
-  @PaginationResponse(RewardPublic)
+  @ApiResponse({ type: RewardPublicPagination, status: 200 })
   findMyRewards(
     @User() authUser: AuthenticatedUser,
     @Pagination() pagination: PaginationQuery

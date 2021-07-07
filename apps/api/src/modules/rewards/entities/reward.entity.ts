@@ -121,3 +121,17 @@ export class RewardPublic extends Reward {
   @ApiProperty()
   redeemed: boolean
 }
+
+export class RewardPublicPagination {
+  @ApiProperty()
+  page_total: number
+
+  @ApiProperty()
+  total: number
+
+  @ApiProperty({
+    type: RewardPublic,
+    isArray: true
+  })
+  results: RewardPublic[]
+}
