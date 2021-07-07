@@ -2,6 +2,7 @@ import { League } from '../../src/modules/leagues/entities/league.entity'
 import { define } from 'typeorm-seeding'
 import Faker from 'faker'
 import { Leaderboard } from '../../src/modules/leaderboards/entities/leaderboard.entity'
+import { addDays } from 'date-fns'
 
 define(League, (faker: typeof Faker) => {
   const league = new League()
@@ -16,5 +17,7 @@ define(League, (faker: typeof Faker) => {
   ])
   league.leaderboards = [leaderboard]
   league.active_leaderboard = leaderboard
+  league.starts_at = new Date()
+  league.ends_at = addDays(new Date(), 1)
   return league
 })
