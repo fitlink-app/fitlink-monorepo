@@ -28,9 +28,7 @@ export default function ImageStack({
             +{files.length-4} more
           </div>
         }
-        { files.length === 0 &&
-          <IconImage />
-        }
+        <IconImage className={files.length === 0 ? 'always-visible' : ''} />
       </div>
     </>
   )
