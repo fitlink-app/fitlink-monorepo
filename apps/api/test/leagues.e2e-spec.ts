@@ -3,6 +3,7 @@ import * as faker from 'faker'
 import { Connection } from 'typeorm'
 import { useSeeding } from 'typeorm-seeding'
 import { Image } from '../src/modules/images/entities/image.entity'
+import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
 import { CreateLeagueDto } from '../src/modules/leagues/dto/create-league.dto'
 import { UpdateLeagueDto } from '../src/modules/leagues/dto/update-league.dto'
 import {
@@ -349,7 +350,7 @@ describe('Leagues', () => {
     expect(post.json().success).toEqual(true)
     expect(post.json().league.id).toEqual(league.id)
     expect(post.json().leaderboardEntry.id).toBeDefined()
-    // expect(get.json().results[0].position).toBe(0)
+    expect(get.json().results[0].rank).toBe(1)
     expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
       1
     )
@@ -450,8 +451,15 @@ describe('Leagues', () => {
 
     expect(data.statusCode).toEqual(200)
     expect(data.json().results.length).toBeGreaterThan(0)
+
+    // Expect some of the leagues to be team leagues
     expect(
       data.json().results.filter((e) => !!(e.team && e.team.id)).length
+    ).toBeGreaterThan(0)
+
+    // Expect not to be ranked in all the leagues
+    expect(
+      data.json().results.filter((e) => e.rank === null).length
     ).toBeGreaterThan(0)
   })
 
@@ -479,7 +487,7 @@ describe('Leagues', () => {
     expect(
       search1.json().results.filter((e) => e.name.indexOf('Team') > -1).length
     ).toBe(0)
-    // expect(search1.json().results[0].position).toBe(null)
+    // expect(search1.json().results[0].rank).toBe(null)
 
     const search2 = await app.inject({
       method: 'GET',
@@ -590,6 +598,65 @@ describe('Leagues', () => {
     await joinLeague(authHeaders2)
     await joinLeague(authHeaders3)
 
+    console.log('Leaderboard is ', league.active_leaderboard.id)
+
+    // Apply leaderboard points manually
+    const repo = app.get(Connection).getRepository(LeaderboardEntry)
+
+    await repo.update(
+      {
+        leaderboard: { id: league.active_leaderboard.id },
+        user: { id: user1 }
+      },
+      {
+        points: 200
+      }
+    )
+
+    await repo.update(
+      {
+        leaderboard: { id: league.active_leaderboard.id },
+        user: { id: user2 }
+      },
+      {
+        points: 300
+      }
+    )
+
+    await repo.update(
+      {
+        leaderboard: { id: league.active_leaderboard.id },
+        user: { id: user3 }
+      },
+      {
+        points: 100
+      }
+    )
+
+    const get1 = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders
+    })
+
+    expect(get1.json().rank).toBe(2)
+
+    const get2 = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders2
+    })
+
+    expect(get2.json().rank).toBe(1)
+
+    const get3 = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders3
+    })
+
+    expect(get3.json().rank).toBe(3)
+
     const data = await app.inject({
       method: 'GET',
       url: `/leagues/${league.id}/members`,
@@ -607,7 +674,7 @@ describe('Leagues', () => {
     expect(data.json().results[0].user.email).toBeUndefined()
     expect(data.json().results[0].user.password).toBeUndefined()
 
-    // Gets the
+    // Gets the rank of the current user within the leaderboard
     const rank = await app.inject({
       method: 'GET',
       url: `/leagues/${league.id}/rank`,
@@ -616,11 +683,52 @@ describe('Leagues', () => {
 
     expect(rank.json().results[0].user.id).toEqual(user2)
     expect(rank.json().results[1].user.id).toEqual(user1)
-    expect(rank.json().results[2]).toBeUndefined()
+    expect(rank.json().results[2].user.id).toEqual(user3)
 
     // Make sure user data hasn't leaked
     expect(rank.json().results[0].user.email).toBeUndefined()
     expect(rank.json().results[0].user.password).toBeUndefined()
+
+    // Try a different rank
+    await repo.update(
+      {
+        leaderboard: { id: league.active_leaderboard.id },
+        user: { id: user1 }
+      },
+      {
+        points: 100
+      }
+    )
+
+    await repo.update(
+      {
+        leaderboard: { id: league.active_leaderboard.id },
+        user: { id: user2 }
+      },
+      {
+        points: 200
+      }
+    )
+
+    await repo.update(
+      {
+        leaderboard: { id: league.active_leaderboard.id },
+        user: { id: user3 }
+      },
+      {
+        points: 300
+      }
+    )
+
+    // Gets the rank of the current user within the leaderboard
+    const rank2 = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}/rank`,
+      headers: authHeaders
+    })
+
+    expect(rank2.json().results[0].user.id).toEqual(user2)
+    expect(rank2.json().results[1].user.id).toEqual(user1)
 
     async function joinLeague(headers: NodeJS.Dict<string>) {
       return await app.inject({

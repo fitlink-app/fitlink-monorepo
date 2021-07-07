@@ -16,6 +16,7 @@ import { Image } from '../images/entities/image.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
 import { plainToClass } from 'class-transformer'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
+import { addDays } from 'date-fns'
 
 type LeagueOptions = {
   teamId?: string
@@ -111,6 +112,13 @@ export class LeaguesService {
 
     league.active_leaderboard = leaderboard
 
+    // League starts immediately
+    league.starts_at = new Date()
+
+    // Set the end date based on duration
+    // It will restart if `repeat` is set to true
+    league.ends_at = addDays(new Date(), league.duration)
+
     return league
   }
 
@@ -151,11 +159,13 @@ export class LeaguesService {
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    const [results, total] = await this.queryFindAccessibleToUser(userId)
+    let { entities, raw } = await this.queryFindAccessibleToUser(userId)
       .where('leagueUser.id = :userId', { userId })
       .take(limit)
-      .offset(page * limit)
-      .getManyAndCount()
+      .skip(page * limit)
+      .getRawAndEntities()
+
+    const [results, total] = this.applyRawResults(entities, raw)
 
     return new Pagination<LeaguePublic>({
       results: results.map((league) => this.getLeaguePublic(league, userId)),
@@ -198,21 +208,30 @@ export class LeaguesService {
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    let [results, total] = await this.queryFindAccessibleToUser(userId)
+    let { entities, raw } = await this.queryFindAccessibleToUser(userId)
       .take(limit)
       .skip(page * limit)
-      .getManyAndCount()
+      .getRawAndEntities()
 
-    // const positions = await this.getPositionInLeagues( results.map( e => e.id ), userId )
-
-    // console.log( 'POSITIONS', positions )
-
-    // results = this.applyPositionsToLeagues( results, positions )
+    const [results, total] = this.applyRawResults(entities, raw)
 
     return new Pagination<LeaguePublic>({
       results: results.map((league) => this.getLeaguePublic(league, userId)),
       total
     })
+  }
+
+  applyRawResults(entities: League[], raw: any[]): [League[], number] {
+    let total = 0
+    const results = entities.map((league, index: number) => {
+      total = raw[index].row_count
+      return {
+        ...league,
+        rank: raw[index].rank
+      }
+    })
+
+    return [results, total]
   }
 
   async searchManyAccessibleToUser(
@@ -220,14 +239,16 @@ export class LeaguesService {
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    const [results, total] = await this.queryFindAccessibleToUser(userId)
+    const { entities, raw } = await this.queryFindAccessibleToUser(userId)
       .andWhere(
         '(league.name ILIKE :keyword OR league.description ILIKE :keyword)',
         { keyword: `%${keyword}%` }
       )
       .take(limit)
       .skip(page * limit)
-      .getManyAndCount()
+      .getRawAndEntities()
+
+    const [results, total] = this.applyRawResults(entities, raw)
 
     return new Pagination<LeaguePublic>({
       results: results.map((league) => this.getLeaguePublic(league, userId)),
@@ -235,34 +256,11 @@ export class LeaguesService {
     })
   }
 
-  /**
-   * Applies positions to leagues
-   * @param leagues
-   * @param positions
-   * @returns
-   */
-  applyPositionsToLeagues(
-    leagues: League[],
-    positions: { position: number; leagueId: string }[]
-  ) {
-    return leagues.map((each) => {
-      let item = each
-      item.position = null
-      positions.map((rank) => {
-        if (rank.leagueId === each.id) {
-          item.position = rank.position
-        }
-      })
-      return each
-    })
-  }
-
   getLeaguePublic(league: League, userId: string) {
     const leaguePublic = (league as unknown) as LeaguePublic
     leaguePublic.participating = Boolean(league.users.length > 0)
     leaguePublic.is_owner = Boolean(league.owner && league.owner.id === userId)
-
-    // console.log(leaguePublic.position)
+    leaguePublic.rank = Number(leaguePublic.rank) || null
 
     // Ensure personal user data of owner is sanitized.
     if (leaguePublic.owner) {
@@ -279,13 +277,16 @@ export class LeaguesService {
 
   async findOneAccessibleToUser(leagueId: string, userId: string) {
     const query = this.queryFindAccessibleToUser(userId)
-    const result = await query
+    const { entities, raw } = await query
       .andWhere('league.id = :leagueId', { leagueId })
-      .getOne()
-    if (result) {
-      return this.getLeaguePublic(result, userId)
+      .getRawAndEntities()
+
+    const [results] = this.applyRawResults(entities, raw)
+
+    if (results[0]) {
+      return this.getLeaguePublic(results[0], userId)
     } else {
-      return result
+      return results[0]
     }
   }
 
@@ -304,78 +305,85 @@ export class LeaguesService {
    * @returns
    */
   queryFindAccessibleToUser(userId: string) {
-    return this.leaguesRepository
-      .createQueryBuilder('league')
-      .leftJoinAndSelect('league.sport', 'sport')
-      .leftJoinAndSelect('league.image', 'image')
-      .leftJoinAndSelect('league.owner', 'owner')
-      .leftJoinAndSelect('league.team', 'leagueTeam')
-      .leftJoinAndSelect('league.active_leaderboard', 'leaderboard')
-      .leftJoinAndSelect('league.organisation', 'leagueOrganisation')
-      .leftJoinAndSelect('leagueTeam.avatar', 'leagueTeamAvatar')
-      .leftJoinAndSelect(
-        'leagueOrganisation.avatar',
-        'leagueOrganisationAvatar'
-      )
-      .leftJoinAndSelect(
-        'league.users',
-        'leagueUser',
-        'leagueUser.id = :userId',
-        { userId }
-      )
-      .leftJoin('leagueTeam.users', 'teamUser')
-      .leftJoin('leagueOrganisation.teams', 'organisationTeam')
-      .leftJoin('organisationTeam.users', 'organisationUser')
-
-      .where(
-        new Brackets((qb) => {
-          // The league is public
-          return (
-            qb
-              .where('league.access = :accessPublic')
-
-              // The league is private & owned by the user
-              .orWhere(
-                '(league.access = :accessPrivate AND league.ownerId = :userId)'
-              )
-
-              // The league is private & user is a participant of the league
-              .orWhere(
-                `(league.access = :accessPrivate AND leagueUser.id = :userId)`
-              )
-
-              // The user belongs to the team that the league belongs to
-              .orWhere(`(teamUser.id = :userId)`)
-
-              // The user belongs to the organisation that the league belongs to
-              .orWhere(`(organisationUser.id = :userId)`)
-          )
-        }),
-        {
-          accessPrivate: LeagueAccess.Private,
-          accessPublic: LeagueAccess.Public,
-          userId
-        }
-      )
-      .orderBy('league.created_at', 'DESC')
-  }
-
-  async getPositionInLeagues(leagueIds: string[], userId: string) {
-    // Create a subquery to find the rank
-    return this.leaderboardEntryRepository
+    const rankQb = this.leaderboardEntryRepository
       .createQueryBuilder('entry')
       .select(
-        'RANK() OVER (ORDER BY entry.points DESC, entry.updated_at DESC) AS position, league.id AS leagueId'
+        'RANK() OVER (PARTITION BY entry.leaderboard.id ORDER BY entry.points DESC, entry.created_at DESC) AS rank, league.id AS leagueId, entry.user.id AS userId'
       )
       .leftJoin('entry.leaderboard', 'leaderboard')
       .leftJoin('leaderboard.league', 'league')
-      .where(
-        'entry.leaderboard.id = leaderboard.id AND entry.user.id = :userId',
-        { userId }
-      )
+      .where('entry.leaderboard.id = leaderboard.id')
       .andWhere('league.active_leaderboard.id = leaderboard.id')
-      .andWhere('league.id IN (:...leagueIds)', { leagueIds })
-      .getRawMany()
+
+    return (
+      this.leaguesRepository
+        .createQueryBuilder('league')
+        .leftJoinAndSelect('league.sport', 'sport')
+        .leftJoinAndSelect('league.image', 'image')
+        .leftJoinAndSelect('league.owner', 'owner')
+        .leftJoinAndSelect('league.team', 'leagueTeam')
+        .leftJoinAndSelect('league.active_leaderboard', 'leaderboard')
+        .leftJoinAndSelect('league.organisation', 'leagueOrganisation')
+        .leftJoinAndSelect('leagueTeam.avatar', 'leagueTeamAvatar')
+        .leftJoinAndSelect(
+          'leagueOrganisation.avatar',
+          'leagueOrganisationAvatar'
+        )
+        .leftJoinAndSelect(
+          'league.users',
+          'leagueUser',
+          'leagueUser.id = :userId',
+          { userId }
+        )
+        .leftJoin('leagueTeam.users', 'teamUser')
+        .leftJoin('leagueOrganisation.teams', 'organisationTeam')
+        .leftJoin('organisationTeam.users', 'organisationUser')
+        .leftJoin(
+          `(${rankQb.getQuery()})`,
+          'ranked',
+          'ranked.leagueId = league.id AND ranked.userId = :userId',
+          { userId }
+        )
+        .addSelect('ranked.rank AS rank')
+        .addSelect('COUNT(*) OVER() AS row_count')
+
+        .where(
+          new Brackets((qb) => {
+            // The league is public
+            return (
+              qb
+                .where('league.access = :accessPublic')
+
+                // The league is private & owned by the user
+                .orWhere(
+                  '(league.access = :accessPrivate AND league.ownerId = :userId)'
+                )
+
+                // The league is private & user is a participant of the league
+                .orWhere(
+                  `(league.access = :accessPrivate AND leagueUser.id = :userId)`
+                )
+
+                // The user belongs to the team that the league belongs to
+                .orWhere(`(teamUser.id = :userId)`)
+
+                // The user belongs to the organisation that the league belongs to
+                .orWhere(`(organisationUser.id = :userId)`)
+            )
+          }),
+          {
+            accessPrivate: LeagueAccess.Private,
+            accessPublic: LeagueAccess.Public,
+            userId
+          }
+        )
+
+        // The league has not ended yet (or it repeats, in which case it's always visible)
+        .andWhere('(league.repeat = true OR league.ends_at > :date)', {
+          date: new Date()
+        })
+        .orderBy('league.created_at', 'DESC')
+    )
   }
 
   /**
@@ -530,7 +538,7 @@ export class LeaguesService {
         leagueId
       })
       .orderBy('entry.points', 'DESC')
-      .addOrderBy('entry.updated_at', 'DESC')
+      .addOrderBy('user.name', 'ASC')
       .take(options.limit)
       .skip(options.page * options.limit)
 

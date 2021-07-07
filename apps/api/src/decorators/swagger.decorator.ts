@@ -41,21 +41,3 @@ export function ValidationResponse() {
 export function PaginationBody() {
   return applyDecorators(ApiQuery({ type: PaginationDto }))
 }
-
-export function PaginationResponse(type: any) {
-  class PaginationType {
-    @ApiProperty()
-    page_total: number
-
-    @ApiProperty()
-    total: number
-
-    @ApiProperty({
-      type: type,
-      isArray: true
-    })
-    results: any[]
-  }
-
-  return applyDecorators(ApiResponse({ type: PaginationType, status: 200 }))
-}
