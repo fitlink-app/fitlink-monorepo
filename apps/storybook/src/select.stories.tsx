@@ -8,9 +8,7 @@ const Template: Story<SelectProps> = (args) => <Select {...args} />
 export const Default = Template.bind({})
 Default.args = {
   label: 'Select your platform',
-  name: 'platform',
-  value: 'ios',
-  multiple: false,
+  inline: true,
   options: [
     { label: 'iOS', value: 'ios' },
     { label: 'Android', value: 'android' }
