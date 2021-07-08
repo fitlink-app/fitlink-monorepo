@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 import {Background, GradientUnderlay, WelcomeHeader} from './components';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useAuth} from '@hooks';
+import {Platform} from 'react-native';
 
 const Wrapper = styled.View({flex: 1, alignItems: 'center'});
 
@@ -28,7 +29,7 @@ const SpacedButton = styled(Button)({
 export const Welcome = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const {signInWithGoogle} = useAuth();
+  const {signInWithGoogle, signInWithApple, isAppleSignInSupported} = useAuth();
 
   const handleOnSignUpPressed = () => {
     navigation.navigate('SignUp');
@@ -40,6 +41,10 @@ export const Welcome = () => {
 
   const handleOnGooglePressed = () => {
     signInWithGoogle();
+  };
+
+  const handleOnApplePressed = () => {
+    signInWithApple();
   };
 
   return (
@@ -61,7 +66,14 @@ export const Welcome = () => {
           icon={'google'}
           onPress={handleOnGooglePressed}
         />
-        <SpacedButton text={'Continue with Apple'} outline icon={'apple'} />
+        {Platform.OS === 'ios' && isAppleSignInSupported && (
+          <SpacedButton
+            text={'Continue with Apple'}
+            outline
+            icon={'apple'}
+            onPress={handleOnApplePressed}
+          />
+        )}
         <SpacedButton text={'Log in'} textOnly onPress={handleOnLoginPressed} />
       </ButtonContainer>
 

@@ -7,6 +7,7 @@ import {User} from '../../../api/src/modules/users/entities/user.entity';
 import {queryClient, QueryKeys} from '@query';
 import {AsyncStorageKeys} from '@utils';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import appleAuth from '@invertase/react-native-apple-authentication';
 
 type Credentials = {
   email: string;
@@ -15,7 +16,9 @@ type Credentials = {
 
 interface AuthContextType {
   isLoggedIn: boolean;
+  isAppleSignInSupported: boolean;
   signInWithGoogle: () => void;
+  signInWithApple: () => void;
   signIn: (credentials: Credentials) => Promise<RequestError | undefined>;
   signUp: (credentials: Credentials) => Promise<RequestError | undefined>;
   logout: () => Promise<RequestError | undefined>;
@@ -35,8 +38,6 @@ export const AuthProvider: React.FC = ({children}) => {
     AsyncStorageKeys.AUTH_RESULT,
   );
 
-  const isLoggedIn = !!authResult;
-
   useEffect(() => {
     if (!authResult || !isRestored) return;
 
@@ -52,6 +53,10 @@ export const AuthProvider: React.FC = ({children}) => {
       return getErrors(e);
     }
   }
+
+  const isLoggedIn = !!authResult;
+
+  const isAppleSignInSupported = appleAuth.isSupported;
 
   async function signInWithGoogle() {
     // TODO: Move this to env/config file
@@ -70,6 +75,25 @@ export const AuthProvider: React.FC = ({children}) => {
     console.log('Google Token: ' + idToken);
 
     // TODO: Authenticate token on backend against Google, get back JWT
+  }
+
+  async function signInWithApple() {
+    // Start the sign-in request
+    const appleAuthRequestResponse = await appleAuth.performRequest({
+      requestedOperation: appleAuth.Operation.LOGIN,
+      requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+    });
+
+    // Ensure Apple returned a user identityToken
+    if (!appleAuthRequestResponse.identityToken)
+      throw Error('Apple Sign-In failed - no identify token returned');
+
+    const {identityToken, nonce} = appleAuthRequestResponse;
+
+    console.log('Apple token:');
+    console.log(identityToken);
+    console.log(nonce);
+    // TODO: Authenticate token on backend against Apple, get back JWT
   }
 
   async function signUp(credentials: Credentials) {
@@ -92,7 +116,15 @@ export const AuthProvider: React.FC = ({children}) => {
     }
   }
 
-  const contextValue = {isLoggedIn, signInWithGoogle, signIn, signUp, logout};
+  const contextValue = {
+    isLoggedIn,
+    isAppleSignInSupported,
+    signInWithGoogle,
+    signInWithApple,
+    signIn,
+    signUp,
+    logout,
+  };
 
   return (
     <AuthContext.Provider value={contextValue}>

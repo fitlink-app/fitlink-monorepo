@@ -18,7 +18,8 @@
       "@react-native-picker/picker",
       "react-native-tab-view",
       "react-native-linear-gradient",
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      "@invertase/react-native-apple-authentication"
     ]
   },
   "scripts": {
@@ -33,6 +34,7 @@
     "@fitlink/common": "*"
   },
   "dependencies": {
+    "@invertase/react-native-apple-authentication": "^2.1.2",
     "@react-native-async-storage/async-storage": "^1.15.5",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-native-google-signin/google-signin": "^6.0.1",
