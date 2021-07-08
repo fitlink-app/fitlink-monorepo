@@ -61,6 +61,9 @@ export class HealthActivity extends CreatableEntity {
   @Column({ nullable: true })
   stairs: number
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   polyline: string
+
+  @Column({ default: false })
+  distributed: boolean
 }
