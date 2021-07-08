@@ -17,7 +17,8 @@
       "@babel/runtime",
       "@react-native-picker/picker",
       "react-native-tab-view",
-      "react-native-linear-gradient"
+      "react-native-linear-gradient",
+      "@react-native-google-signin/google-signin"
     ]
   },
   "scripts": {
