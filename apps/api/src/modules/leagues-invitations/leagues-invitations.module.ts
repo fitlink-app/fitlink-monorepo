@@ -14,6 +14,7 @@ import { User } from '../users/entities/user.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
 import { CommonModule } from '../common/common.module'
+import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { CommonModule } from '../common/common.module'
       LeaderboardEntry,
       Team,
       Organisation,
-      User
+      User,
+      HealthActivity
     ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],

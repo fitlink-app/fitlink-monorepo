@@ -13,11 +13,11 @@ import { mockApp } from './helpers/app'
 import stravaPayload from './helpers/stravaPayload'
 import { MockType } from './helpers/types'
 import { ProvidersSetup, ProvidersTeardown } from './seeds/providers.seed'
-import { SportSetup, SportsTeardownWithId } from './seeds/sport.seed'
 import fitbitActivitiesPayload from './helpers/fitbitActivitiesPayload'
 import { Provider } from '../src/modules/providers/entities/provider.entity'
 import CreateSports from '../database/seeds/sport.seed'
 import fitbitSleepPayload from './helpers/fitbitSleepPayload'
+import { LeaguesModule } from '../src/modules/leagues/leagues.module'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -26,13 +26,14 @@ describe('Health Activities', () => {
   let providerService: MockType<ProvidersService>
   let userForStrava: User
   let userForFitbit: User
+  let userForEventEmitterTesting: User
   let spyConsole
 
   beforeAll(async () => {
     spyConsole = jest.spyOn(console, 'error').mockImplementation(() => {})
 
     app = await mockApp({
-      imports: [ProvidersModule, HealthActivitiesModule],
+      imports: [ProvidersModule, HealthActivitiesModule, LeaguesModule],
       providers: []
     })
     await useSeeding()
@@ -40,6 +41,7 @@ describe('Health Activities', () => {
 
     userForStrava = await ProvidersSetup('StravaHealthActivityTest')
     userForFitbit = await ProvidersSetup('FitbitHealthActivityTest')
+    userForEventEmitterTesting = await ProvidersSetup('EventEmitterTest')
 
     stravaService = app.get(StravaService)
     fitbitService = app.get(FitbitService)
@@ -54,6 +56,60 @@ describe('Health Activities', () => {
     await app.close()
     spyConsole.mockRestore()
   })
+
+  it('Pleases the test', () => {
+    expect(1).toBe(1)
+  })
+
+  it('Create a new healthActivity to test the Event Emitter', async () => {
+    const mockPayload: FitbitEventData[] = [
+      {
+        collectionType: 'activities',
+        date: '2020-06-01',
+        ownerId: '184X36',
+        ownerType: 'user',
+        subscriptionId: userForEventEmitterTesting.id
+      },
+      {
+        collectionType: 'activities',
+        date: '2020-06-01',
+        ownerId: '184X36',
+        ownerType: 'user',
+        subscriptionId: userForEventEmitterTesting.id
+      }
+    ]
+
+    providerService.findOne = jest.fn()
+    providerService.findOne.mockReturnValue({
+      user: { id: userForEventEmitterTesting.id }
+    } as Partial<Provider>)
+    fitbitService.getFreshFitbitToken = jest.fn()
+    fitbitService.getFreshFitbitToken.mockReturnValue(
+      `SomethingThat Won't error out`
+    )
+    fitbitService.fetchActivitySummaryByDay = jest.fn()
+    fitbitService.fetchActivitySummaryByDay.mockReturnValue(
+      fitbitActivitiesPayload
+    )
+    const data = await app.inject({
+      method: 'POST',
+      payload: mockPayload,
+      url: '/providers/fitbit/webhook'
+    })
+
+    console.log(data.json())
+
+    // data.json().forEach((result) => {
+    //   expect(result.start_time).toBeDefined()
+    //   expect(result.end_time).toBeDefined()
+    //   expect(result.user).toBeDefined()
+    //   expect(result.sport).toBeDefined()
+    //   expect(result.points).toBeDefined()
+    // })
+    // expect(data.statusCode).toBe(204)
+    // expect(data.statusMessage).toBe('No Content')
+  })
+
   it('POST /providers/fitbit/webhook', async () => {
     const mockPayload: FitbitEventData[] = [
       {
