@@ -6,6 +6,7 @@ import {useEffect} from 'react';
 import {User} from '../../../api/src/modules/users/entities/user.entity';
 import {queryClient, QueryKeys} from '@query';
 import {AsyncStorageKeys} from '@utils';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 type Credentials = {
   email: string;
@@ -14,6 +15,7 @@ type Credentials = {
 
 interface AuthContextType {
   isLoggedIn: boolean;
+  signInWithGoogle: () => void;
   signIn: (credentials: Credentials) => Promise<RequestError | undefined>;
   signUp: (credentials: Credentials) => Promise<RequestError | undefined>;
   logout: () => Promise<RequestError | undefined>;
@@ -51,6 +53,25 @@ export const AuthProvider: React.FC = ({children}) => {
     }
   }
 
+  async function signInWithGoogle() {
+    // TODO: Move this to env/config file
+    GoogleSignin.configure({
+      webClientId:
+        '369193601741-o9ao2iqikmcm0fte2t4on85hrni4dsjc.apps.googleusercontent.com',
+      iosClientId:
+        '369193601741-bkluos3jpe42b0a5pqfuv7lg5f640n8t.apps.googleusercontent.com',
+    });
+
+    await GoogleSignin.signOut();
+
+    // Get the users ID token
+    const {idToken} = await GoogleSignin.signIn();
+
+    console.log('Google Token: ' + idToken);
+
+    // TODO: Authenticate token on backend against Google, get back JWT
+  }
+
   async function signUp(credentials: Credentials) {
     try {
       const {me, auth} = await api.signUp(credentials);
@@ -71,7 +92,7 @@ export const AuthProvider: React.FC = ({children}) => {
     }
   }
 
-  const contextValue = {isLoggedIn, signIn, signUp, logout};
+  const contextValue = {isLoggedIn, signInWithGoogle, signIn, signUp, logout};
 
   return (
     <AuthContext.Provider value={contextValue}>
