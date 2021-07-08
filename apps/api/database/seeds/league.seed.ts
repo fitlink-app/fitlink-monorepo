@@ -16,6 +16,9 @@ export default class CreatePublicLeagues implements Seeder {
     const sportRepository = connection.getRepository(Sport)
 
     const running = await sportRepository.findOne({ name_key: 'running' })
+
+    const starts_at = new Date()
+    const ends_at = new Date(starts_at.getTime() + 7 * 24 * 60 * 60 * 1000)
     /**
      * Create leagues
      */
@@ -30,7 +33,9 @@ export default class CreatePublicLeagues implements Seeder {
           access: LeagueAccess.Public,
           duration: [7, 14, 28][Faker.random.number(2)],
           repeat: Faker.random.boolean(),
-          sport: running
+          sport: running,
+          starts_at,
+          ends_at
         })
         return league
       })
