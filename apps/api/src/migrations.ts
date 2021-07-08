@@ -36,6 +36,9 @@ import { LeaguesStructureChanges1624261653546 } from '../database/migrations/162
 import { UserEmailPasswordResets1624400390377 } from '../database/migrations/1624400390377-UserEmailPasswordResets'
 import { EmailVerificationAndFollowerChanges1624535361790 } from '../database/migrations/1624535361790-EmailVerificationAndFollowerChanges'
 import { AddParticipantsCountLeagues1624549177792 } from '../database/migrations/1624549177792-AddParticipantsCountLeagues'
+import { RewardsUpdates1625057321096 } from '../database/migrations/1625057321096-RewardsUpdates'
+import { RewardsRedemptionsUpdates1625572472206 } from '../database/migrations/1625572472206-RewardsRedemptionsUpdates'
+import { LeaguesStartEndDates1625649869427 } from '../database/migrations/1625649869427-LeaguesStartEndDates'
 
 export default [
   InitializeSchema1614887523112,
@@ -70,5 +73,8 @@ export default [
   LeaguesStructureChanges1624261653546,
   UserEmailPasswordResets1624400390377,
   EmailVerificationAndFollowerChanges1624535361790,
-  AddParticipantsCountLeagues1624549177792
+  AddParticipantsCountLeagues1624549177792,
+  RewardsUpdates1625057321096,
+  RewardsRedemptionsUpdates1625572472206,
+  LeaguesStartEndDates1625649869427
 ]

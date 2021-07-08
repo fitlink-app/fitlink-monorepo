@@ -38,6 +38,18 @@ export class League extends CreatableEntity {
   id: string
 
   @ApiProperty()
+  @Column({
+    default: () => 'CURRENT_TIMESTAMP'
+  })
+  starts_at: Date
+
+  @ApiProperty()
+  @Column({
+    default: () => "(CURRENT_TIMESTAMP + INTERVAL '1 day')"
+  })
+  ends_at: Date
+
+  @ApiProperty()
   @ManyToOne(() => Sport, (sport) => sport.leagues)
   @JoinColumn()
   sport: Sport
@@ -111,6 +123,8 @@ export class League extends CreatableEntity {
     default: 0
   })
   participants_total: number
+
+  rank: number
 }
 
 export class LeaguePublic extends League {
@@ -121,4 +135,22 @@ export class LeaguePublic extends League {
   @ApiProperty()
   @Expose()
   is_owner: boolean
+
+  @ApiProperty()
+  @Expose()
+  rank: number
+}
+
+export class LeaguePublicPagination {
+  @ApiProperty()
+  page_total: number
+
+  @ApiProperty()
+  total: number
+
+  @ApiProperty({
+    type: LeaguePublic,
+    isArray: true
+  })
+  results: LeaguePublic[]
 }

@@ -298,15 +298,10 @@ export default function components() {
                 </p>
               </li>
               <li className="unread">
-                <img src="/temp/tomorrows-forests.png" alt="" />
-                <h5>Tomorrow's Forests</h5>
+                <img src="/temp/ecologi.svg" alt="" />
+                <h5>Give back with Ecologi 🌱</h5>
                 <p>
-                  We've partnered with Tomorrows Forrest to offer all Fitlink
-                  users the opportunity to spend their points on planting a
-                  tree. You'll receive GPS coordinates for every tree you plant,
-                  regular updates on how our forests are developing, plus
-                  exclusive blog articles you can share with your employees or
-                  customers.
+                  We've partnered with Ecologi to offer all Fitlink teams the opportunity to reward their users with carbon offsetting and planting trees. Spend your points on making the world a better place.
                 </p>
               </li>
             </ul>

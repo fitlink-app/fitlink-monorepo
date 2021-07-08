@@ -14,6 +14,7 @@ export type CharityFormProps = {
 export default function CharityForm({
   current
 }:CharityFormProps) {
+  const [purchased, setPurchased] = useState(current?.admin?.purchased || false)
   const [image, setImage] = useState(current?.image || '')
   const [brand, setBrand] = useState(current?.brand || '')
   const [shortTitle, setShortTitle] = useState(current?.shortTitle || '')
@@ -34,9 +35,13 @@ export default function CharityForm({
     setImage(URL.createObjectURL(e.target.files[0]))
   }
 
+  const purchase = () => {
+    setPurchased(true)
+  }
+
   return (
     <form onSubmit={ (e) => e.preventDefault() }>
-      { !current.admin.purchased ?
+      { !purchased ?
         <>
           <h3 className="light">{current.admin.title}</h3>
           <h4 className="unbilled-amount light inline-block">
@@ -74,7 +79,7 @@ export default function CharityForm({
             <p className="my-0">will be added to your next invoice</p>
           </div>
           <div className="text-right mt-2">
-            <button className="button">
+            <button className="button" onClick={purchase}>
               Purchase now
             </button>
           </div>

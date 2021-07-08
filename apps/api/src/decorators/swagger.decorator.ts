@@ -1,11 +1,16 @@
 import { applyDecorators } from '@nestjs/common'
-import { ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger'
+import {
+  ApiResponse,
+  ApiQuery,
+  ApiBearerAuth,
+  ApiProperty
+} from '@nestjs/swagger'
 import { DeleteResultDto } from '../classes/dto/delete'
 import { UpdateResultDto } from '../classes/dto/update'
 import { SuccessResultDto } from '../classes/dto/success'
 import { ValidationResultDto } from '../classes/dto/validation'
 import { ForbiddenErrorDto, ServerErrorDto } from '../classes/dto/error'
-import { PaginationDto } from '../helpers/paginate'
+import { PaginationDto, Pagination } from '../helpers/paginate'
 
 export function ApiBaseResponses() {
   return applyDecorators(

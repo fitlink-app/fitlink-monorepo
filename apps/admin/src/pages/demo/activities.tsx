@@ -40,7 +40,8 @@ export default function components() {
           organizer_image,
           meeting_point_text,
           type,
-          meeting_point
+          meeting_point,
+          images
         }
       }
     }
@@ -57,6 +58,7 @@ export default function components() {
                 description: description,
                 date: date,
                 cost: cost,
+                images: images,
                 organizer_name: organizer_name,
                 organizer_url: organizer_url,
                 organizer_telephone: organizer_telephone,
