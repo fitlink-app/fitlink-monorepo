@@ -4,6 +4,7 @@ import {Label, ProfileRow} from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useFollowing} from '@hooks';
 import {ActivityIndicator, FlatList, RefreshControl} from 'react-native';
+import {getResultsFromPages} from 'utils/api';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -47,12 +48,7 @@ export const Following = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
 
   const keyExtractor = (item: UserPublic) => item.id as string;
 
-  const results = data?.pages.reduce<UserPublic[]>((acc, current) => {
-    return [...acc, ...current.results];
-  }, []);
-
-  console.log(data);
-  console.log(results);
+  const results = getResultsFromPages(data);
 
   const ListFooterComponent = isFetchingNextPage ? (
     <EmptyContainer style={{height: 72}}>

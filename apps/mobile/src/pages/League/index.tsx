@@ -7,6 +7,7 @@ import {RootStackParamList} from 'routes/types';
 import styled from 'styled-components/native';
 import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/entities/leaderboard-entry.entity';
 import {Header, Leaderboard} from './components';
+import {League as LeagueType} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 
 const HEADER_HEIGHT = 250;
 
@@ -21,12 +22,14 @@ export const League = (
     data: fetchedLeague,
     isFetching: isFetchingLeague,
     refetch: refetchLeague,
+    isFetchedAfterMount: isLeagueFetchedAfterMount,
   } = useLeague(id);
 
   const {
     data: membersData,
     isFetching: isFetchingMembers,
     refetch: refetchMembers,
+    isFetchedAfterMount: areMembersFetchedAfterMount,
   } = useLeagueMembers(id);
 
   const members = membersData?.pages.reduce<LeaderboardEntry[]>(
@@ -36,7 +39,7 @@ export const League = (
     [],
   );
 
-  const activeLeague = fetchedLeague || league;
+  const activeLeague = {...league, ...fetchedLeague} as LeagueType;
 
   if (!activeLeague) return null;
 
@@ -49,6 +52,9 @@ export const League = (
       useNativeDriver: true,
     },
   );
+
+  let leagueEndDate = new Date(activeLeague.active_leaderboard.created_at);
+  leagueEndDate.setDate(leagueEndDate.getDate() + activeLeague.duration);
 
   return (
     <Wrapper>
@@ -64,9 +70,15 @@ export const League = (
       />
 
       <Leaderboard
+        isRepeat={activeLeague.repeat}
+        endDate={leagueEndDate}
+        isLoaded={areMembersFetchedAfterMount || !!members?.length}
         description={activeLeague.description}
         data={members}
-        refreshing={isFetchingLeague}
+        refreshing={
+          (isFetchingLeague && isLeagueFetchedAfterMount) ||
+          (isFetchingMembers && areMembersFetchedAfterMount)
+        }
         onRefresh={refetchLeague}
         contentInset={{top: HEADER_HEIGHT}}
         contentOffset={{x: 0, y: -HEADER_HEIGHT}}
@@ -81,7 +93,13 @@ export const League = (
         leagueId={id}
         title={activeLeague.name}
         memberCount={activeLeague.participants_total}
-        membership={'none'}
+        membership={
+          activeLeague.participating
+            ? activeLeague.is_owner
+              ? 'owner'
+              : 'member'
+            : 'none'
+        }
         scrollAnimatedValue={scrollValue}
       />
     </Wrapper>

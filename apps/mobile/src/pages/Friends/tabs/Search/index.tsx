@@ -4,6 +4,7 @@ import {Label, ProfileRow, SearchBox} from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useSearchUsers} from '@hooks';
 import {ActivityIndicator, FlatList} from 'react-native';
+import {getResultsFromPages} from 'utils/api';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -55,9 +56,7 @@ export const Search = () => {
 
   const keyExtractor = (item: UserPublic) => item.id as string;
 
-  const results = data?.pages.reduce<UserPublic[]>((acc, current) => {
-    return [...acc, ...current.results];
-  }, []);
+  const results = getResultsFromPages(data);
 
   const ListHeaderComponent = (
     <SearchBoxContainer>

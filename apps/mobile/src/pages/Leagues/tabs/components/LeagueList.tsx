@@ -10,7 +10,7 @@ import {
   LeagueAccess,
 } from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import styled, {useTheme} from 'styled-components/native';
-import {Label, LeagueCard} from '@components';
+import {LeagueCard} from '@components';
 import {useNavigation} from '@react-navigation/core';
 
 const EmptyContainer = styled.View({
@@ -23,7 +23,6 @@ interface LeagueListProps extends Omit<FlatListProps<League>, 'renderItem'> {
   isFetching: boolean;
   isFetchingNextPage: boolean;
   isFetchedAfterMount: boolean;
-  noResultsText: string;
   error?: Error;
   onRefresh?: () => void;
 }
@@ -32,9 +31,9 @@ export const LeagueList = ({
   isFetching,
   isFetchingNextPage,
   isFetchedAfterMount,
-  noResultsText,
   error,
   onRefresh,
+  ListEmptyComponent,
   ...rest
 }: LeagueListProps) => {
   const {colors} = useTheme();
@@ -64,41 +63,14 @@ export const LeagueList = ({
     </EmptyContainer>
   ) : null;
 
-  const ListEmptyComponent = isFetchingNextPage ? null : (
-    <EmptyContainer
-      style={{
-        justifyContent: isFetching ? 'center' : 'flex-start',
-        paddingTop: 50,
-        paddingHorizontal: 20,
-      }}>
-      {isFetching && !isFetchedAfterMount ? (
-        <ActivityIndicator color={colors.accent} />
-      ) : error ? (
-        <Label
-          type="body"
-          appearance={'accentSecondary'}
-          style={{textAlign: 'center'}}>
-          {error.message}
-        </Label>
-      ) : (
-        <Label
-          type="body"
-          appearance={'accentSecondary'}
-          style={{textAlign: 'center'}}>
-          {noResultsText}
-        </Label>
-      )}
-    </EmptyContainer>
-  );
-
   return (
     <FlatList
       {...{
         ListFooterComponent,
-        ListEmptyComponent,
         renderItem,
         keyExtractor,
       }}
+      ListEmptyComponent={<EmptyContainer>{ListEmptyComponent}</EmptyContainer>}
       contentContainerStyle={{padding: 20}}
       onEndReachedThreshold={0.2}
       refreshControl={

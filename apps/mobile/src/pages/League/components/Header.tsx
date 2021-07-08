@@ -1,5 +1,6 @@
 import {Button, Icon, Label} from '@components';
 import {useJoinLeague} from '@hooks';
+import {useLeaveLeague} from 'hooks/api/leagues/useLeaveLeague';
 import React from 'react';
 import {Animated, Image, StyleSheet} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -65,15 +66,18 @@ export const Header = ({
   membership = 'none',
   scrollAnimatedValue,
 }: HeaderProps) => {
-  const {mutateAsync, isLoading: isJoining, error} = useJoinLeague();
+  const {mutateAsync: joinLeague, isLoading: isJoining} = useJoinLeague();
+  const {mutateAsync: leaveLeague, isLoading: isLeaving} = useLeaveLeague();
 
   const handleOnInvitePressed = () => {};
 
   const handleOnJoinPressed = () => {
-    mutateAsync(leagueId);
+    joinLeague(leagueId);
   };
 
-  const handleOnLeavePressed = () => {};
+  const handleOnLeavePressed = () => {
+    leaveLeague(leagueId);
+  };
 
   const handleOnEditPressed = () => {};
 
@@ -84,13 +88,13 @@ export const Header = ({
           <Button
             wrapContent
             loading={isJoining}
+            disabled={isJoining}
             containerStyle={{
               height: 36,
               paddingHorizontal: 16,
             }}
             text={'Join League'}
             onPress={handleOnJoinPressed}
-            disabled={isJoining}
           />
         );
 
@@ -98,6 +102,8 @@ export const Header = ({
         return (
           <Button
             wrapContent
+            loading={isLeaving}
+            disabled={isLeaving}
             outline
             containerStyle={{
               height: 36,

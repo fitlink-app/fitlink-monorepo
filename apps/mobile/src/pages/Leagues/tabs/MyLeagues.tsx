@@ -1,9 +1,10 @@
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {Label} from '@components';
-import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {useMyLeagues} from '@hooks';
-import {ActivityIndicator, FlatList, RefreshControl} from 'react-native';
+import {ActivityIndicator} from 'react-native';
+import {getResultsFromPages} from 'utils/api';
+import {LeagueList} from './components';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -29,21 +30,7 @@ export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
     error,
   } = useMyLeagues();
 
-  const renderItem = ({item}: {item: League}) => {
-    return <Label>{item.name}</Label>;
-  };
-
-  const keyExtractor = (item: League) => item.id as string;
-
-  const results = data?.pages.reduce<League[]>((acc, current) => {
-    return [...acc, ...current.results];
-  }, []);
-
-  const ListFooterComponent = isFetchingNextPage ? (
-    <EmptyContainer style={{height: 72}}>
-      <ActivityIndicator color={colors.accent} />
-    </EmptyContainer>
-  ) : null;
+  const results = getResultsFromPages(data);
 
   const ListEmptyComponent = isFetchingNextPage ? null : (
     <EmptyContainer
@@ -78,24 +65,16 @@ export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
 
   return (
     <Wrapper>
-      <FlatList
+      <LeagueList
         {...{
-          ListFooterComponent,
+          isFetching,
+          isFetchingNextPage,
+          isFetchedAfterMount,
           ListEmptyComponent,
-          renderItem,
-          keyExtractor,
         }}
-        onEndReachedThreshold={0.2}
-        onEndReached={() => fetchNextPage()}
         data={results}
-        refreshControl={
-          <RefreshControl
-            refreshing={isFetching && isFetchedAfterMount}
-            onRefresh={refetch}
-            tintColor={colors.accent}
-            colors={[colors.accent]}
-          />
-        }
+        onEndReached={() => fetchNextPage()}
+        onRefresh={refetch}
       />
     </Wrapper>
   );
