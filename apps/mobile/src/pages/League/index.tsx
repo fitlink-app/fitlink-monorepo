@@ -53,9 +53,6 @@ export const League = (
     },
   );
 
-  let leagueEndDate = new Date(activeLeague.active_leaderboard.created_at);
-  leagueEndDate.setDate(leagueEndDate.getDate() + activeLeague.duration);
-
   return (
     <Wrapper>
       <Navbar
@@ -71,7 +68,7 @@ export const League = (
 
       <Leaderboard
         isRepeat={activeLeague.repeat}
-        endDate={leagueEndDate}
+        endDate={activeLeague.ends_at}
         isLoaded={areMembersFetchedAfterMount || !!members?.length}
         description={activeLeague.description}
         data={members}
