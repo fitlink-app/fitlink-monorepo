@@ -277,7 +277,7 @@ describe('Auth', () => {
     expect(result.statusMessage).toEqual('Unauthorized')
   })
 
-  it(`/user/:id 400 Does not proceed with invalid auth provider`, async () => {
+  it(`POST /auth/connect 400 Does not proceed with invalid auth provider`, async () => {
     const result = await app.inject({
       method: 'POST',
       url: `/auth/connect`,
@@ -288,10 +288,11 @@ describe('Auth', () => {
     })
 
     expect(result.statusCode).toEqual(400)
-    expect(result.statusMessage).toContain('provider is not valid')
+    expect(result.json().message).toContain('Validation failed')
+    expect(result.json().errors.provider).toContain('google.com')
   })
 
-  it(`/user/:id 400 Allows a new signup with the provider`, async () => {
+  it(`POST /auth/connect 201 Allows a new signup with the provider`, async () => {
     const authService = app.get(AuthService)
 
     authService.verifyProviderGoogle = jest.fn(() => {
@@ -321,7 +322,7 @@ describe('Auth', () => {
     expect(result.json().auth).toBeDefined()
   })
 
-  it(`/user/:id 400 Allows an association with the provider`, async () => {
+  it(`POST /auth/connect 201 Allows an association with the provider`, async () => {
     const authService = app.get(AuthService)
 
     authService.verifyProviderGoogle = jest.fn(() => {
@@ -352,7 +353,7 @@ describe('Auth', () => {
     expect(result.json().auth).toBeDefined()
   })
 
-  it(`/user/:id 400 Allows an association with the provider from a password-based user`, async () => {
+  it(`POST /auth/connect 201 Allows an association with the provider from a password-based user`, async () => {
     const authService = app.get(AuthService)
 
     authService.verifyProviderGoogle = jest.fn(() => {
