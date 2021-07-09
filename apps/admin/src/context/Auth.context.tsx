@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { makeApi, Api } from '@fitlink/api-sdk'
 import Axios from 'axios'
 import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
-import { AuthResultDto } from '@fitlink/api-sdk/types'
+import {
+  AuthResultDto,
+  AuthSignupDto,
+  AuthProviderType
+} from '@fitlink/api-sdk/types'
 
 const axios = Axios.create({
   baseURL: 'http://localhost:3001/api/v1'
@@ -15,10 +19,16 @@ type Credentials = {
   password: string
 }
 
+type ConnectProvider = {
+  token: string
+  provider: AuthProviderType
+}
+
 export type AuthContext = {
   user?: User
   api: Api
   login: (credentials: Credentials) => Promise<AuthResultDto>
+  connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
   logout: () => void
 }
 
@@ -68,6 +78,33 @@ export function AuthProvider({ children }) {
   }
 
   /**
+   * Connect to Apple or Google
+   *
+   * In the case of Google, the id_token must be supplied
+   * In the case of Apple, the authorization.code must be supplied
+   *
+   * @param ConnectProvider { token, provider }
+   * @returns
+   */
+  async function connect({ token, provider }: ConnectProvider) {
+    const result = await api.connect({
+      token,
+      provider
+    })
+
+    storeTokens(api.getTokens())
+
+    const user = result.me
+
+    setState({
+      ...state,
+      user
+    })
+
+    return result
+  }
+
+  /**
    * TODO: A better approach is to use an http-only cookie
    * and proxy API calls through Next.js
    *
@@ -97,7 +134,8 @@ export function AuthProvider({ children }) {
         api,
         user: state.user,
         login,
-        logout
+        logout,
+        connect
       }}>
       {children}
     </AuthContext.Provider>

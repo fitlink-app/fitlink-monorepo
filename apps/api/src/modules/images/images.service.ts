@@ -1,6 +1,10 @@
 import { FindOneOptions, Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Injectable, InternalServerErrorException } from '@nestjs/common'
+import {
+  HttpService,
+  Injectable,
+  InternalServerErrorException
+} from '@nestjs/common'
 import { Image, ImageType, uploadVariants } from './entities/image.entity'
 import {
   S3Client,
@@ -18,7 +22,8 @@ export class ImagesService {
   constructor(
     @InjectRepository(Image)
     private imageRepository: Repository<Image>,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private httpService: HttpService
   ) {}
 
   async create(
@@ -45,6 +50,18 @@ export class ImagesService {
   ) {
     const buffer = await file.toBuffer()
     const result = await this.create(buffer, imageType, imageProperties)
+    return result[0]
+  }
+
+  async createOneFromUrl(
+    url: string,
+    imageType = ImageType.Standard,
+    imageProperties?: Partial<Image>
+  ) {
+    const response = await this.httpService
+      .get(url, { responseType: 'arraybuffer' })
+      .toPromise()
+    const result = await this.create(response.data, imageType, imageProperties)
     return result[0]
   }
 
@@ -110,6 +127,7 @@ export class ImagesService {
         try {
           url = await this.upload(buffer, name)
         } catch (e) {
+          console.error(e)
           throw new InternalServerErrorException(
             'Cannot upload images at this time.'
           )
@@ -174,5 +192,27 @@ export class ImagesService {
    */
   remove(id: string) {
     return this.imageRepository.delete(id)
+  }
+
+  /**
+   * Creates an image from an external trusted url,
+   * e.g. one provided by Apple or Google (sign in)
+   *
+   * @param url
+   * @param override
+   * @returns Image
+   */
+  createProxy(url: string, override: Partial<Image>, imageId?: string) {
+    const image = this.imageRepository.create({
+      url: url,
+      url_128x128: url,
+      url_512x512: url,
+      url_640x360: url,
+      width: 0,
+      height: 0,
+      ...override
+    })
+
+    return this.imageRepository.save(image)
   }
 }

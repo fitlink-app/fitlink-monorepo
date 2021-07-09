@@ -39,6 +39,7 @@ import { AddParticipantsCountLeagues1624549177792 } from '../database/migrations
 import { RewardsUpdates1625057321096 } from '../database/migrations/1625057321096-RewardsUpdates'
 import { RewardsRedemptionsUpdates1625572472206 } from '../database/migrations/1625572472206-RewardsRedemptionsUpdates'
 import { LeaguesStartEndDates1625649869427 } from '../database/migrations/1625649869427-LeaguesStartEndDates'
+import { AuthProvider1625759364689 } from '../database/migrations/1625759364689-AuthProvider'
 
 export default [
   InitializeSchema1614887523112,
@@ -76,5 +77,6 @@ export default [
   AddParticipantsCountLeagues1624549177792,
   RewardsUpdates1625057321096,
   RewardsRedemptionsUpdates1625572472206,
-  LeaguesStartEndDates1625649869427
+  LeaguesStartEndDates1625649869427,
+  AuthProvider1625759364689
 ]

@@ -7,6 +7,7 @@ import FormData = require('form-data')
 import { Connection } from 'typeorm'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import { useSeeding } from 'typeorm-seeding'
+import { AuthModule } from '../src/modules/auth/auth.module'
 
 /**
  * Images are tested using s3rver running inside docker
@@ -24,7 +25,7 @@ describe('Image', () => {
 
   beforeAll(async () => {
     app = await mockApp({
-      imports: [ImagesModule]
+      imports: [AuthModule, ImagesModule]
     })
 
     await useSeeding()

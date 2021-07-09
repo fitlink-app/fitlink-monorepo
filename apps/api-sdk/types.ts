@@ -9,12 +9,14 @@ import { Organisation } from '@fitlink/api/src/modules/organisations/entities/or
 import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 import {
   AuthLoginDto,
+  AuthConnectDto,
   AuthRefreshDto
 } from '@fitlink/api/src/modules/auth/dto/auth-login'
 import { CreateUserDto } from '@fitlink/api/src/modules/users/dto/create-user.dto'
 import {
   AuthResultDto,
-  AuthLogoutDto
+  AuthLogoutDto,
+  AuthSignupDto
 } from '@fitlink/api/src/modules/auth/dto/auth-result'
 import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 import {
@@ -28,11 +30,18 @@ export type {
   AuthResultDto,
   AuthLogoutDto,
   AuthLoginDto,
+  AuthSignupDto,
+  AuthConnectDto,
   CreateUserDto,
   UpdateUserDto,
   UpdateUserEmailDto,
   UpdateUserPasswordDto,
   UpdateUserAvatarDto
+}
+
+export enum AuthProviderType {
+  Google = 'google.com',
+  Apple = 'apple.com'
 }
 
 type Payload<T> = NodeJS.Dict<any> & {
@@ -47,11 +56,14 @@ export type AuthLogin = '/auth/login'
 export type AuthLogout = '/auth/logout'
 export type AuthRefresh = '/auth/refresh'
 export type AuthSignUp = '/auth/signup'
+export type AuthConnect = '/auth/connect'
+
 export type CreatableResource =
   | AuthLogin
   | AuthLogout
   | AuthRefresh
   | AuthSignUp
+  | AuthConnect
 
 export type ListResource =
   | '/organisations'
@@ -139,6 +151,8 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<CreateUserDto>
   : T extends AuthLogin
   ? Payload<AuthLoginDto>
+  : T extends AuthConnect
+  ? Payload<AuthConnectDto>
   : T extends AuthRefresh
   ? Payload<AuthRefreshDto>
   : T extends AuthLogout
@@ -153,6 +167,8 @@ export type CreatableResourceResponse<T> = T extends AuthSignUp
   ? AuthResultDto
   : T extends AuthRefresh
   ? AuthResultDto
+  : T extends AuthConnect
+  ? AuthSignupDto
   : T extends AuthLogout
   ? { success: true }
   : never
