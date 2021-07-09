@@ -27,6 +27,8 @@ export class AuthConnectDto {
     enum: AuthProviderType
   })
   @IsNotEmpty()
-  @IsEnum(AuthProviderType)
+  @IsEnum(AuthProviderType, {
+    message: 'Must be one of google.com, apple.com'
+  })
   provider: AuthProviderType
 }

@@ -7,9 +7,13 @@ import { useSeeding } from 'typeorm-seeding'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import { emailHasContent, timeout } from './helpers/mocking'
 import { createTokenFromPayload } from './helpers/auth'
+import { AuthService } from '../src/modules/auth/auth.service'
+import { AuthProviderType } from '../src/modules/auth/entities/auth-provider.entity'
 
 // Inspect this token at https://jwt.io/
 const expiredToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJmaXRsaW5rLmNvbSIsImlzcyI6ImZpdGxpbmsuY29tIiwic3ViIjoiMTFhOWYxNzQtMDg2NS00MGU1LThmM2UtMWI2NDQwNTIwMGM4IiwiaWF0IjoxNjE1NTgwMTExNjU1LCJyb2xlcyI6eyJvX2EiOlsiMzk4NzIzODcyMzk4NTcyNDAiXSwidF9hIjpbIjM5ODcyMzg3MjM5ODU3MjM5Il0sInNfYSI6dHJ1ZX0sImV4cCI6MTAxNTU4MDExNTI1NX0.eNJIV7D6NFE8s3uOa5No3XgQmXBEMB9QNybE97qkTnk`
+
+const providerEmail = Date.now() + '@fitlinkapp.com'
 
 describe('Auth', () => {
   let app: NestFastifyApplication
@@ -17,6 +21,7 @@ describe('Auth', () => {
   // Credentials
   let userId = ''
   let email = ''
+  let name = ''
   const password = 'password'
   let passwordToken
 
@@ -34,6 +39,7 @@ describe('Auth', () => {
     // Set credentials
     userId = users[0].id
     email = users[0].email
+    name = users[0].name
 
     // Create password reset token
     passwordToken = createTokenFromPayload({
@@ -269,6 +275,111 @@ describe('Auth', () => {
 
     expect(result.statusCode).toEqual(401)
     expect(result.statusMessage).toEqual('Unauthorized')
+  })
+
+  it(`POST /auth/connect 400 Does not proceed with invalid auth provider`, async () => {
+    const result = await app.inject({
+      method: 'POST',
+      url: `/auth/connect`,
+      payload: {
+        token: 'google_token',
+        provider: 'facebook.com'
+      }
+    })
+
+    expect(result.statusCode).toEqual(400)
+    expect(result.json().message).toContain('Validation failed')
+    expect(result.json().errors.provider).toContain('google.com')
+  })
+
+  it(`POST /auth/connect 201 Allows a new signup with the provider`, async () => {
+    const authService = app.get(AuthService)
+
+    authService.verifyProviderGoogle = jest.fn(() => {
+      return Promise.resolve({
+        email: providerEmail,
+        display_name: 'Test Google Provider',
+        photo_url: 'https://example.com/image',
+        raw_id: '123',
+        type: AuthProviderType.Google
+      })
+    })
+
+    const result = await app.inject({
+      method: 'POST',
+      url: `/auth/connect`,
+      payload: {
+        token: 'google_token',
+        provider: 'google.com'
+      }
+    })
+
+    expect(result.statusCode).toEqual(201)
+    expect(result.json().me).toBeDefined()
+    expect(result.json().me.email).toEqual(providerEmail)
+    expect(result.json().me.name).toEqual('Test Google Provider')
+    expect(result.json().me.avatar.url).toEqual('https://example.com/image')
+    expect(result.json().auth).toBeDefined()
+  })
+
+  it(`POST /auth/connect 201 Allows an association with the provider`, async () => {
+    const authService = app.get(AuthService)
+
+    authService.verifyProviderGoogle = jest.fn(() => {
+      return Promise.resolve({
+        email: providerEmail,
+        display_name: 'Test Apple Provider',
+        raw_id: '123',
+        type: AuthProviderType.Apple
+      })
+    })
+
+    const result = await app.inject({
+      method: 'POST',
+      url: `/auth/connect`,
+      payload: {
+        token: 'google_token',
+        provider: 'google.com'
+      }
+    })
+
+    expect(result.statusCode).toEqual(201)
+    expect(result.json().me).toBeDefined()
+    expect(result.json().me.email).toEqual(providerEmail)
+
+    // Still uses the first provider name and image
+    expect(result.json().me.name).toEqual('Test Google Provider')
+    expect(result.json().me.avatar.url).toEqual('https://example.com/image')
+    expect(result.json().auth).toBeDefined()
+  })
+
+  it(`POST /auth/connect 201 Allows an association with the provider from a password-based user`, async () => {
+    const authService = app.get(AuthService)
+
+    authService.verifyProviderGoogle = jest.fn(() => {
+      return Promise.resolve({
+        email: email,
+        display_name: 'Test Apple Provider',
+        raw_id: '123',
+        type: AuthProviderType.Apple
+      })
+    })
+
+    const result = await app.inject({
+      method: 'POST',
+      url: `/auth/connect`,
+      payload: {
+        token: 'google_token',
+        provider: 'google.com'
+      }
+    })
+
+    expect(result.statusCode).toEqual(201)
+    expect(result.json().me).toBeDefined()
+    expect(result.json().me.email).toEqual(email)
+    expect(result.json().me.name).toEqual(name)
+    expect(result.json().me.avatar).toBe(null)
+    expect(result.json().auth).toBeDefined()
   })
 })
 

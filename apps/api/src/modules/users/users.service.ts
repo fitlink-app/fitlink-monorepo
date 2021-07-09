@@ -87,8 +87,10 @@ export class UsersService {
       await this.userRepository
         .createQueryBuilder()
         .relation(User, 'avatar')
-        .of(User)
+        .of(user)
         .set(image)
+
+      user.avatar = image
     }
 
     return user
