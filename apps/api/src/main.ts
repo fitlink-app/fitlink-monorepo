@@ -12,11 +12,10 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { UploadGuard } from './guards/upload.guard'
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard'
 import { IamGuard } from './guards/iam.guard'
-import { EmailService } from './modules/common/email.service'
-import { sendTemplatedEmail } from '../test/helpers/mocking'
 import { validationExceptionFactory } from './exceptions/validation.exception.factory'
 import { bgMagenta, bold } from 'chalk'
 import { UploadGuardV2 } from './guards/upload-v2.guard'
+import { readFileSync } from 'fs'
 
 declare const module: any
 

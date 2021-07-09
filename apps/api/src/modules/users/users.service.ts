@@ -8,23 +8,29 @@ import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { User, UserPublic } from './entities/user.entity'
-import { Image } from '../images/entities/image.entity'
+import { Image, ImageType } from '../images/entities/image.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { plainToClass } from 'class-transformer'
 import { JwtService } from '@nestjs/jwt'
 import { EmailService } from '../common/email.service'
 import { EmailResetJWT } from '../../models/email-reset.jwt.model'
 import { ConfigService } from '@nestjs/config'
+import { FirebaseScrypt } from './helpers/firebase-scrypt'
+import { AuthProvider } from '../auth/entities/auth-provider.entity'
+import { ImagesService } from '../images/images.service'
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(AuthProvider)
+    private authProviderRepository: Repository<AuthProvider>,
     private userRolesService: UserRolesService,
     private jwtService: JwtService,
     private emailService: EmailService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private imageService: ImagesService
   ) {}
 
   async getRolesForToken(user: User): Promise<JWTRoles> {
@@ -35,6 +41,124 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const user = this.userRepository.create(createUserDto)
     return this.userRepository.save(user)
+  }
+
+  /**
+   * Creates a user along with its provider
+   * Also attempts to set the avatar, usually provided by Google
+   *
+   * @param createUserDto
+   * @param authProvider
+   * @returns
+   */
+  async createWithProvider(
+    createUserDto: CreateUserDto,
+    authProvider: Partial<AuthProvider>
+  ) {
+    const user = await this.userRepository.manager.transaction(
+      async (manager) => {
+        const userRepository = manager.getRepository(User)
+        const authProviderRepository = manager.getRepository(AuthProvider)
+        const user = await userRepository.save(
+          this.userRepository.create({
+            ...createUserDto
+          })
+        )
+
+        const provider = authProviderRepository.create(authProvider)
+        provider.user = user
+
+        await authProviderRepository.save(provider)
+
+        return user
+      }
+    )
+
+    // Attempt to attach photo_url as avatar
+    if (authProvider.photo_url) {
+      const image = await this.imageService.createProxy(
+        authProvider.photo_url,
+        {
+          type: ImageType.Avatar
+        }
+      )
+
+      // Set the avatar
+      await this.userRepository
+        .createQueryBuilder()
+        .relation(User, 'avatar')
+        .of(User)
+        .set(image)
+    }
+
+    return user
+  }
+
+  /**
+   * Associates an existing user with a provider
+   *
+   * @param user
+   * @param authProvider
+   * @returns
+   */
+  async associateWithProvider(user: User, authProvider: Partial<AuthProvider>) {
+    const provider = this.authProviderRepository.create(authProvider)
+    provider.user = user
+
+    const result = await this.authProviderRepository.save(provider)
+
+    // Update the associated profile image if it exists
+    await this.updateAvatarFromProvider(user.id, authProvider)
+
+    return result
+  }
+
+  /**
+   * Updates an existing user with the provider's avatar
+   * @param userId
+   * @param authProvider
+   * @returns
+   */
+  async updateAvatarFromProvider(
+    userId: string,
+    authProvider: Partial<AuthProvider>
+  ) {
+    // Attempt to attach photo_url as avatar
+    if (authProvider.photo_url) {
+      const userWithAvatar = await this.userRepository.findOne(userId, {
+        relations: ['avatar']
+      })
+
+      // If the avatar hasn't changed, ignore this.
+      if (
+        userWithAvatar.avatar &&
+        userWithAvatar.avatar.url === authProvider.photo_url
+      ) {
+        return false
+      }
+
+      const image = await this.imageService.createProxy(
+        authProvider.photo_url,
+        {
+          type: ImageType.Avatar,
+          id: userWithAvatar.avatar ? userWithAvatar.avatar.id : undefined,
+          alt: userWithAvatar.name
+        }
+      )
+
+      // Set the avatar if it's not already set
+      if (!userWithAvatar.avatar) {
+        await this.userRepository
+          .createQueryBuilder()
+          .relation(User, 'avatar')
+          .of(userId)
+          .set(image)
+      }
+
+      return image
+    }
+
+    return false
   }
 
   async findAllUsers({
@@ -80,11 +204,12 @@ export class UsersService {
     })
   }
 
-  async findByEmail(email: string) {
+  async findByEmail(email: string, relations: string[] = []) {
     const user = await this.userRepository.findOne({
       where: {
         email
-      }
+      },
+      relations
     })
     return user
   }
@@ -128,12 +253,17 @@ export class UsersService {
     return this.userRepository.update(id, updateUserDto)
   }
 
+  updateEntity(id: string, entity: Partial<User>) {
+    return this.userRepository.update(id, entity)
+  }
+
   async verifyAndUpdatePassword(
     userId: string,
     oldPassword: string,
     newPassword: string
   ) {
     const user = await this.userRepository.findOne(userId)
+
     if (await this.verifyPassword(oldPassword, user.password)) {
       const hashedPassword = await this.hashPassword(newPassword)
       return this.userRepository.update(userId, {
@@ -286,5 +416,37 @@ export class UsersService {
   async verifyPassword(password: string, hash: string) {
     const isMatch = await bcrypt.compare(password, hash)
     return isMatch
+  }
+
+  /**
+   * hash_config {
+      algorithm: SCRYPT,
+      base64_signer_key: jdxuhzY2965aDqZSZffPwjd397Mm2oEmkyAm2TQlIy3bJqwFRLlOsc1yzboGqSMSRisHV3LPmXQ3gGnX/3iZ1g==,
+      base64_salt_separator: Bw==,
+      rounds: 8,
+      mem_cost: 14,
+    }
+   *
+   *
+   *
+   *
+   * @param password
+   * @param hash
+   * @returns
+   */
+
+  async verifyFirebasePassword(password: string, hash: string) {
+    const scrypt = new FirebaseScrypt({
+      memCost: 14,
+      rounds: 8,
+      saltSeparator: 'Bw==',
+      signerKey:
+        'jdxuhzY2965aDqZSZffPwjd397Mm2oEmkyAm2TQlIy3bJqwFRLlOsc1yzboGqSMSRisHV3LPmXQ3gGnX/3iZ1g=='
+    })
+
+    const [hashed, salt] = hash.split('__FIREBASE__')
+    console.log(hashed, salt)
+
+    return scrypt.verify(password, salt, hashed)
   }
 }

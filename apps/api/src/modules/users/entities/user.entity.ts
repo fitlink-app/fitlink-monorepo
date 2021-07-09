@@ -25,6 +25,7 @@ import { UserRole } from '../../user-roles/entities/user-role.entity'
 import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
 import { TeamsInvitation } from '../../teams-invitations/entities/teams-invitation.entity'
 import { Activity } from '../../activities/entities/activity.entity'
+import { AuthProvider } from '../../auth/entities/auth-provider.entity'
 import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, Expose } from 'class-transformer'
 
@@ -47,6 +48,9 @@ export class User extends CreatableEntity {
   @Column()
   @Exclude()
   password: string
+
+  @OneToMany(() => AuthProvider, (provider) => provider.user)
+  auth_providers: AuthProvider[]
 
   // JoinTable / Cascade is on League entity
   @ManyToMany(() => League, (league) => league.users)
@@ -136,6 +140,7 @@ export class User extends CreatableEntity {
   })
   email_reset_requested_at: Date
 
+  @ApiProperty({ type: Image })
   @OneToOne(() => Image, {
     cascade: ['remove'],
     onDelete: 'CASCADE'
