@@ -291,7 +291,7 @@ describe('Auth', () => {
     expect(result.statusMessage).toContain('provider is not valid')
   })
 
-  it.only(`/user/:id 400 Allows a new signup with the provider`, async () => {
+  it(`/user/:id 400 Allows a new signup with the provider`, async () => {
     const authService = app.get(AuthService)
 
     authService.verifyProviderGoogle = jest.fn(() => {
@@ -321,7 +321,7 @@ describe('Auth', () => {
     expect(result.json().auth).toBeDefined()
   })
 
-  it.only(`/user/:id 400 Allows an association with the provider`, async () => {
+  it(`/user/:id 400 Allows an association with the provider`, async () => {
     const authService = app.get(AuthService)
 
     authService.verifyProviderGoogle = jest.fn(() => {
@@ -352,7 +352,7 @@ describe('Auth', () => {
     expect(result.json().auth).toBeDefined()
   })
 
-  it.only(`/user/:id 400 Allows an association with the provider from a password-based user`, async () => {
+  it(`/user/:id 400 Allows an association with the provider from a password-based user`, async () => {
     const authService = app.get(AuthService)
 
     authService.verifyProviderGoogle = jest.fn(() => {
