@@ -41,12 +41,7 @@ export const Search = () => {
   const renderItem = ({item}: {item: UserPublic}) => {
     return (
       <ProfileRow
-        isFollowed={false}
-        actions={{
-          onFollow: async () => {},
-          onUnfollow: async () => {},
-          onPress: () => {},
-        }}
+        isFollowed={!!item.following}
         userId={item.id}
         name={item.name}
         avatarUrl={item.avatar?.url}

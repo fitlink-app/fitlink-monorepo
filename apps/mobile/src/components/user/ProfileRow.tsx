@@ -1,3 +1,4 @@
+import {useFollowUser, useUnfollowUser} from '@hooks';
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {Avatar, Label, Icon, TouchHandler} from '../common';
@@ -57,15 +58,6 @@ const League = styled(Team).attrs(() => ({
 
 const UserIconButton = styled(Icon)({marginLeft: 45});
 
-/** ProfileRow */
-type UserAction = (userId: string) => void;
-
-type ProfileRowActions = {
-  onFollow: UserAction;
-  onUnfollow: UserAction;
-  onPress: () => void;
-};
-
 interface ProfileRowProps {
   userId: string;
 
@@ -75,27 +67,27 @@ interface ProfileRowProps {
 
   /** Is this user being followed by us? */
   isFollowed: boolean;
-
-  /** ProfileRow action callbacks */
-  actions: ProfileRowActions;
 }
 
 const _ProfileRow = (props: ProfileRowProps) => {
-  const {isFollowed, actions, userId, name, avatarUrl} = props;
+  const {isFollowed, userId, name, avatarUrl} = props;
 
-  const {onFollow, onUnfollow, onPress} = actions;
+  const {mutate: followUser} = useFollowUser();
+  const {mutate: unfollowUser} = useUnfollowUser();
 
   const {colors} = useTheme();
 
   const handleUserIconPress = () => {
-    isFollowed ? onUnfollow(userId as string) : onFollow(userId as string);
+    isFollowed ? unfollowUser(userId as string) : followUser(userId as string);
   };
 
   const avatar =
     avatarUrl && avatarUrl.length !== 0 ? {uri: avatarUrl} : undefined;
 
+  const handleOnPress = () => {};
+
   return (
-    <TouchHandler onPress={onPress}>
+    <TouchHandler onPress={handleOnPress}>
       <Wrapper>
         <ContentContainer>
           <ContentRow>
