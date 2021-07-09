@@ -23,7 +23,9 @@ export class AuthConnectDto {
   @IsNotEmpty()
   token: string
 
-  @ApiProperty()
+  @ApiProperty({
+    enum: AuthProviderType
+  })
   @IsNotEmpty()
   @IsEnum(AuthProviderType)
   provider: AuthProviderType

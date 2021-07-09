@@ -140,6 +140,7 @@ export class User extends CreatableEntity {
   })
   email_reset_requested_at: Date
 
+  @ApiProperty({ type: Image })
   @OneToOne(() => Image, {
     cascade: ['remove'],
     onDelete: 'CASCADE'
