@@ -48,3 +48,7 @@ terraform
 /email-debug.log
 .next
 /serverless/node_*
+/root.key
+/root.crt
+fitlink-rn*.json
+/apps/api/database/firebase

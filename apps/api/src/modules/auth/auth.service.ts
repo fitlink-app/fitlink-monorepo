@@ -1,7 +1,12 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import {
+  HttpException,
+  HttpService,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException
+} from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
-import * as bcrypt from 'bcrypt'
 import { plainToClass } from 'class-transformer'
 import { Connection, Repository } from 'typeorm'
 import { AuthenticatedUser } from '../../models'
@@ -10,13 +15,22 @@ import { User } from '../users/entities/user.entity'
 import { UsersService } from '../users/users.service'
 import { AuthResultDto } from './dto/auth-result'
 import { RefreshToken } from './entities/auth.entity'
+import { AuthConnectDto } from './dto/auth-login'
 import { EmailService } from '../common/email.service'
 import { ConfigService } from '@nestjs/config'
 import { AuthResetPasswordDto } from './dto/auth-reset-password'
+import { AuthProvider, AuthProviderType } from './entities/auth-provider.entity'
+import { OAuth2Client } from 'google-auth-library'
+import { v4 as uuid } from 'uuid'
 
 type PasswordResetToken = {
   sub: string
   iat: string
+}
+
+export enum AuthServiceError {
+  Provider = 'The provider is not valid',
+  Email = 'An email is required'
 }
 
 @Injectable()
@@ -26,9 +40,14 @@ export class AuthService {
     private jwtService: JwtService,
     private emailService: EmailService,
     private configService: ConfigService,
-    @InjectRepository(User)
+
+    @InjectRepository(RefreshToken)
     private refreshTokenRepository: Repository<RefreshToken>,
-    private connection: Connection
+
+    @InjectRepository(AuthProvider)
+    private authProviderRepository: Repository<AuthProvider>,
+    private connection: Connection,
+    private httpService: HttpService
   ) {}
 
   /**
@@ -48,6 +67,24 @@ export class AuthService {
   ): Promise<User | false> {
     const user = await this.usersService.findByEmail(email)
     if (user) {
+      // Legacy Firebase password check
+      if (user.password.indexOf('__FIREBASE__') > 0) {
+        const valid = await this.usersService.verifyFirebasePassword(
+          password,
+          user.password
+        )
+        if (valid) {
+          // Here we update the password so we no longer need to use
+          // firebase authentication
+          const hashed = await this.usersService.hashPassword(password)
+          await this.usersService.updatePassword(user.id, hashed)
+          return user
+        } else {
+          return false
+        }
+      }
+
+      // Standard password check
       const valid = await this.usersService.verifyPassword(
         password,
         user.password
@@ -72,6 +109,10 @@ export class AuthService {
     const userEntity = await this.usersService.findOne(user.id)
     const refreshToken = await this.createRefreshToken(userEntity)
 
+    await this.usersService.updateEntity(user.id, {
+      last_login_at: new Date()
+    })
+
     return {
       access_token: await this.createAccessToken(userEntity),
       id_token: await this.createIdToken(userEntity),
@@ -82,6 +123,9 @@ export class AuthService {
   /**
    * Signs up a user and immediately
    * creates tokens
+   *
+   * TODO: This should fail gracefully if a user already exists
+   * (it will fail already with a 500 error due to unique email column)
    *
    * @param user
    * @returns object containing 3 tokens and user object
@@ -96,6 +140,54 @@ export class AuthService {
 
     // Send a verification email
     await this.usersService.sendVerificationEmail(user.id, email)
+
+    return {
+      auth: await this.login(user),
+      me: plainToClass(User, user)
+    }
+  }
+
+  /**
+   * Signs up a user and immediately
+   * creates tokens
+   *
+   * TODO: This should fail gracefully if a user already exists
+   * (it will fail already with a 500 error due to unique email column)
+   *
+   * @param user
+   * @returns object containing 3 tokens and user object
+   */
+  async signupWithProvider(provider: Partial<AuthProvider>) {
+    // The provider is not password-based, but we'll create a strong randomized
+    // password here
+    const randomizedPassword = Date.now() + uuid()
+
+    const user = await this.usersService.createWithProvider(
+      {
+        name: provider.display_name,
+        email: provider.email,
+        password: await this.usersService.hashPassword(randomizedPassword)
+      },
+      provider
+    )
+
+    // Send a verification email
+    await this.usersService.sendVerificationEmail(user.id, provider.email)
+
+    return {
+      auth: await this.login(user),
+      me: plainToClass(User, user)
+    }
+  }
+
+  /**
+   * Associates an existing user with a new provider
+   *
+   * @param user
+   * @returns object containing 3 tokens and user object
+   */
+  async associateWithProvider(user: User, provider: Partial<AuthProvider>) {
+    await this.usersService.associateWithProvider(user, provider)
 
     return {
       auth: await this.login(user),
@@ -305,5 +397,173 @@ export class AuthService {
     return this.jwtService.sign(payload, {
       expiresIn: '30m'
     })
+  }
+
+  async findUserByProvider(provider: Partial<AuthProvider>) {
+    const result = await this.authProviderRepository.findOne({
+      where: {
+        type: provider.type,
+        email: provider.email,
+        raw_id: provider.raw_id
+      },
+      relations: ['user', 'user.avatar']
+    })
+
+    if (result && result.user) {
+      return result.user
+    } else {
+      return false
+    }
+  }
+
+  /**
+   * Retrieves or signs up a user based on token
+   * @param param0
+   * @returns
+   */
+  async connectWithAuthProvider({ provider, token }: AuthConnectDto) {
+    let result: Partial<AuthProvider>
+    switch (provider) {
+      case AuthProviderType.Google:
+        result = await this.verifyProviderGoogle(token)
+        break
+      case AuthProviderType.Apple:
+        result = await this.verifyProviderApple(token)
+        break
+      default:
+        return { error: AuthServiceError.Provider }
+    }
+
+    if (!result.email) {
+      return { error: AuthServiceError.Email }
+    }
+
+    // Search for a user
+    let user = await this.findUserByProvider(result)
+    if (!user) {
+      user = await this.usersService.findByEmail(result.email, ['avatar'])
+
+      // Associates the existing user with the new provider
+      if (user) {
+        return {
+          result: await this.associateWithProvider(user, result)
+        }
+      }
+    }
+
+    if (user) {
+      // Conditionally update the avatar
+      const image = await this.usersService.updateAvatarFromProvider(
+        user.id,
+        result
+      )
+      if (image) {
+        user.avatar = image
+      }
+      return {
+        result: {
+          auth: await this.login(user),
+          me: plainToClass(User, user)
+        }
+      }
+    } else {
+      const signup = await this.signupWithProvider(result)
+      return {
+        result: signup
+      }
+    }
+  }
+
+  async verifyProviderGoogle(idToken: string): Promise<Partial<AuthProvider>> {
+    const clientId = this.configService.get('GOOGLE_CLIENT_ID')
+
+    if (!clientId) {
+      throw new InternalServerErrorException('Google not configured')
+    }
+
+    const googleAuthClient = new OAuth2Client(clientId)
+
+    const ticket = await googleAuthClient.verifyIdToken({
+      idToken: idToken,
+      audience: clientId
+    })
+
+    const payload = ticket.getPayload()
+
+    return {
+      email: payload.email,
+      display_name: payload.name,
+      photo_url: payload.picture,
+      raw_id: payload.sub,
+      type: AuthProviderType.Google
+    }
+  }
+
+  async verifyProviderApple(token: string): Promise<Partial<AuthProvider>> {
+    const clientId = this.configService.get('APPLE_CLIENT_ID')
+    const clientSecret = await this.generateClientSecret()
+
+    if (!clientId) {
+      throw new InternalServerErrorException('Apple not configured')
+    }
+
+    const params = new URLSearchParams()
+    params.append('client_id', clientId)
+    params.append('client_secret', clientSecret)
+    params.append('grant_type', 'authorization_code')
+    params.append('code', token)
+
+    try {
+      const result = await this.httpService
+        .post('https://appleid.apple.com/auth/token', params, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        })
+        .toPromise()
+
+      const payload = this.jwtService.decode(result.data.id_token)
+
+      return {
+        email: payload['email'],
+        raw_id: payload['sub'],
+        type: AuthProviderType.Apple,
+        display_name: payload['name']
+      }
+    } catch (e) {
+      const { error, error_description } = e.response.data
+      throw new InternalServerErrorException(error_description || error)
+    }
+  }
+
+  async generateClientSecret() {
+    const keyId = '667D87STU7'
+    const teamId = '58US58KL26'
+    const clientId = this.configService.get('APPLE_CLIENT_ID')
+    const b64 = this.configService.get('APPLE_PRIVATE_KEY_B64')
+
+    if (!clientId || !b64) {
+      throw new InternalServerErrorException('Apple not configured')
+    }
+
+    const key = Buffer.from(b64, 'base64').toString('utf-8')
+
+    const now = Math.floor(Date.now() / 1000)
+
+    return this.jwtService.sign(
+      {
+        iss: teamId,
+        iat: now,
+        aud: 'https://appleid.apple.com',
+        sub: clientId
+      },
+      {
+        keyid: keyId,
+        expiresIn: 86400 * 2,
+        algorithm: 'ES256',
+        // Note that secret is used, NOT privateKey
+        secret: key
+      }
+    )
   }
 }

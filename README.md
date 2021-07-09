@@ -158,3 +158,10 @@ You can generate a database UML diagram from Typeorm entities using the command
 
 ## S3rver
 S3rver is a local AWS s3 emulator.
+
+## Generate self-signed certificate
+For Apple sign in the redirect_uri must be https, and cannot be localhost. 
+1. Setup hosts file to point 127.0.0.1 to fitlinkapp.test
+2. Generate the certificate using `yarn ssl:generate`
+3. Run `yarn package:admin:ssl` to run the dashboard with the local self-signed certificate.
+4. The app will be available at https://fitlinkapp.test:4000

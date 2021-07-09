@@ -598,8 +598,6 @@ describe('Leagues', () => {
     await joinLeague(authHeaders2)
     await joinLeague(authHeaders3)
 
-    console.log('Leaderboard is ', league.active_leaderboard.id)
-
     // Apply leaderboard points manually
     const repo = app.get(Connection).getRepository(LeaderboardEntry)
 
