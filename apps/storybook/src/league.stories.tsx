@@ -13,7 +13,7 @@ Default.args = {
     'Join this weekly steps league to see if you can get all the steps!',
   members: 1256,
   resetDate: '2021-05-30T07:22:48.220Z',
-  type: 'Steps'
+  sport: 'Steps'
 } as LeagueProps
 
 export default {

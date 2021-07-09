@@ -1,7 +1,7 @@
 import CurrencyInput from 'react-currency-input-field'
 import clsx from 'clsx'
 
-export type InputProps = {
+export type CurrencyProps = {
   label?: string
   placeholder?: string
   name: string
@@ -28,7 +28,7 @@ export default function Currency({
   inline,
   decimals = 2,
   locale = { locale: 'en-US', currency: 'GBP' }
-}: InputProps) {
+}: CurrencyProps) {
   const classes = clsx({
     'input-block': true,
     'input-block--inline': inline,
