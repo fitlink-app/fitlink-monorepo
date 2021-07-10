@@ -51,4 +51,3 @@ terraform
 /root.key
 /root.crt
 fitlink-rn*.json
-/apps/api/database/firebase
