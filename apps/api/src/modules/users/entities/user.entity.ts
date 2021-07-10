@@ -300,6 +300,11 @@ export class User extends CreatableEntity {
     default: 0
   })
   following_total: number
+
+  @Column('json', {
+    nullable: true
+  })
+  fcm_tokens: string[]
 }
 
 export class UserPublic {

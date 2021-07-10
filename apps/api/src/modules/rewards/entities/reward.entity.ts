@@ -80,6 +80,12 @@ export class Reward extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    nullable: true
+  })
+  redeem_instructions: string
+
+  @ApiProperty()
+  @Column({
     default: 0
   })
   units_available: number

@@ -8,6 +8,7 @@ import {
 } from 'typeorm'
 import { User } from '../../users/entities/user.entity'
 import { ApiProperty } from '@nestjs/swagger'
+import { FeedItem } from '../../feed-items/entities/feed-item.entity'
 
 @Entity()
 export class GoalsEntry extends CreatableEntity {
@@ -82,4 +83,7 @@ export class GoalsEntry extends CreatableEntity {
   @ManyToOne(() => User, (user) => user.goals_entries)
   @JoinColumn()
   user: User
+
+  @ManyToOne(() => FeedItem, (item) => item.goal_entry)
+  feed_items: FeedItem
 }
