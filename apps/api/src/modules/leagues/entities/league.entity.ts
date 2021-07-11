@@ -18,6 +18,7 @@ import { User, UserPublic } from '../../users/entities/user.entity'
 import { Image } from '../../images/entities/image.entity'
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
+import { FeedItem } from '../../feed-items/entities/feed-item.entity'
 
 export enum LeagueAccess {
   Private = 'private',
@@ -45,7 +46,7 @@ export class League extends CreatableEntity {
 
   @ApiProperty()
   @Column({
-    default: () => "(CURRENT_TIMESTAMP + INTERVAL '1 day')"
+    nullable: true
   })
   ends_at: Date
 
@@ -83,6 +84,9 @@ export class League extends CreatableEntity {
   @ApiProperty()
   @ManyToOne(() => Organisation, (organisation) => organisation.leagues)
   organisation?: Organisation
+
+  @ManyToOne(() => FeedItem, (item) => item.league)
+  feed_items: FeedItem
 
   @ApiProperty()
   @Column()

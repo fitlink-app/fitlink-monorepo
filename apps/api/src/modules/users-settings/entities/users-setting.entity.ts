@@ -5,8 +5,13 @@ import { CreatableEntity } from '../../../classes/entity/creatable'
 import { User } from '../../users/entities/user.entity'
 
 export enum PrivacySetting {
+  /** Only the self-user can see this */
   Private = 'private',
-  Followers = 'followers',
+
+  /** Only the people the user follows can see this */
+  Following = 'following',
+
+  /** Anyone can see this */
   Public = 'public'
 }
 
@@ -40,7 +45,8 @@ export class UsersSetting extends CreatableEntity {
   })
   @Column({
     type: 'enum',
-    enum: PrivacySetting
+    enum: PrivacySetting,
+    default: PrivacySetting.Public
   })
   privacy_daily_statistics: PrivacySetting
 
@@ -49,7 +55,8 @@ export class UsersSetting extends CreatableEntity {
   })
   @Column({
     type: 'enum',
-    enum: PrivacySetting
+    enum: PrivacySetting,
+    default: PrivacySetting.Public
   })
   privacy_activities: PrivacySetting
 

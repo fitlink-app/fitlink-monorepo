@@ -8,12 +8,21 @@ export default class CreateSports implements Seeder {
     /**
      * Create sports list
      */
-    if (!(await sportRepository.findOne({ name_key: 'running' }))) {
+    if (!(await sportRepository.findOne({ name_key: 'skiing' }))) {
       await factory(Sport)().create({
-        name: 'Running',
-        name_key: 'running',
-        singular: 'run',
-        plural: 'runs'
+        name: 'Skiing',
+        name_key: 'skiing',
+        singular: 'ski',
+        plural: 'skis'
+      })
+    }
+
+    if (!(await sportRepository.findOne({ name_key: 'hiking' }))) {
+      await factory(Sport)().create({
+        name: 'Hiking',
+        name_key: 'hiking',
+        singular: 'hike',
+        plural: 'hikes'
       })
     }
 
@@ -26,20 +35,66 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'hiking' }))) {
+    if (!(await sportRepository.findOne({ name_key: 'crossfitTraining' }))) {
       await factory(Sport)().create({
-        name: 'Hiking',
-        name_key: 'hiking',
-        plural: 'hikings',
-        singular: 'hiking'
+        name: 'Crossfit',
+        name_key: 'crossfitTraining',
+        singular: 'crossfit workout',
+        plural: 'crossfit workouts'
       })
     }
+
+    if (!(await sportRepository.findOne({ name_key: 'rowing' }))) {
+      await factory(Sport)().create({
+        name: 'Rowing',
+        name_key: 'rowing',
+        singular: 'row',
+        plural: 'rows'
+      })
+    }
+
+    if (!(await sportRepository.findOne({ name_key: 'snowboarding' }))) {
+      await factory(Sport)().create({
+        name: 'Snowboarding',
+        name_key: 'snowboarding',
+        singular: 'snowboard',
+        plural: 'snowboards'
+      })
+    }
+
+    if (!(await sportRepository.findOne({ name_key: 'surfing' }))) {
+      await factory(Sport)().create({
+        name: 'Surfing',
+        name_key: 'surfing',
+        singular: 'surf',
+        plural: 'surfs'
+      })
+    }
+
     if (!(await sportRepository.findOne({ name_key: 'walking' }))) {
       await factory(Sport)().create({
         name: 'Walking',
         name_key: 'walking',
-        singular: 'walking',
-        plural: 'walkings'
+        singular: 'walk',
+        plural: 'walks'
+      })
+    }
+
+    if (!(await sportRepository.findOne({ name_key: 'yoga' }))) {
+      await factory(Sport)().create({
+        name: 'Yoga',
+        name_key: 'yoga',
+        singular: 'yoga session',
+        plural: 'yoga sessions'
+      })
+    }
+
+    if (!(await sportRepository.findOne({ name_key: 'running' }))) {
+      await factory(Sport)().create({
+        name: 'Running',
+        name_key: 'running',
+        singular: 'run',
+        plural: 'runs'
       })
     }
   }

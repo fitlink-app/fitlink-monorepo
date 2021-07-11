@@ -1,5 +1,11 @@
 import { CreatableEntity } from '../../../classes/entity/creatable'
-import { ManyToOne, OneToMany, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  ManyToOne,
+  OneToMany,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column
+} from 'typeorm'
 import { League } from '../../leagues/entities/league.entity'
 import { LeaderboardEntry } from '../../leaderboard-entries/entities/leaderboard-entry.entity'
 
@@ -20,4 +26,9 @@ export class Leaderboard extends CreatableEntity {
     }
   )
   entries: LeaderboardEntry[]
+
+  @Column({
+    default: false
+  })
+  completed: boolean
 }
