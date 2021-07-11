@@ -56,36 +56,43 @@ import { Following } from '../../src/modules/followings/entities/following.entit
 import { RewardsRedemption } from '../../src/modules/rewards-redemptions/entities/rewards-redemption.entity'
 import * as chalk from 'chalk'
 import { HealthActivity } from '../../src/modules/health-activities/entities/health-activity.entity'
-import {
-  LegacyFeedItem,
-  LegacyHealthActivity,
-  LegacyHealthActivityDTO
-} from './models'
+import { LegacyFeedItem, LegacyHealthActivity } from './models'
+import { LegacyGoal } from './models/goal'
 import { Sport } from '../../src/modules/sports/entities/sport.entity'
 import { Provider } from '../../src/modules/providers/entities/provider.entity'
 import {
   FeedGoalType,
   FeedItem,
   FeedItemCategory,
-  FeedItemType
+  FeedItemType,
+  UserTier
 } from '../../src/modules/feed-items/entities/feed-item.entity'
 
-type UsersMixed = {
-  user: User
-  data: LegacyUserDocument
-}
-
-// Only 1 team to migrate
+// FITLINK
 const FITLINK_TEAM = 'ZxSZdl3lafZiiWiZnhlw'
 
-const allow = [
-  'fcqUK2Cqy8RNKNILbWCownScCoS2',
-  '244eiWoHCjdbP0afquM0xzNduT32',
-  'KmzEkV4mCchkHByYTOm4xa4SHaG3',
-  '1v3ZEmFz3KPSs6sSUu49Fzy71Vr1',
-  'C82yGkzCBwWY9alMMf0qv1ZhnXo2',
-  'SC5wR3kaO5UzdGaw79CpQgPqAXD3'
-]
+// DATA SANITIZATION
+// Items in the trusted list will not be sanitized
+// This is to prevent accidental push notification sending / email sending during testing
+// Once we are ready to fully migrate production data, it will be done without sanitization
+const allow = Object.values(require('./trusted.json'))
+
+// BEFORE YOU RUN:
+// In testing, all tables should be truncated before running this
+// You can either manually truncate tables using TRUNCATE CASCADE
+// or destroy/recreate the docker containers using:
+// `docker compose down --volumes`
+// `docker compose up -d`
+
+// 1. Make sure you have saved a file credential.json to this folder (Firebase credentials)
+// 2. Updated trusted.json with your user id if it's not there (the user from Firebase)
+// 3. You need the latest export of users from the Firebase repository, saved in this directory as users.json
+// 4. Make sure migrations are up to date: `yarn run migration:run`
+// 5. Make sure sport seed has run (for health activities mapping): `yarn run migration:seed --seed CreateSports`
+// 6. Now you can run: `yarn firebase:migration`
+
+// NOTE! that this interacts with the Firestore production database and reads every single relevant document.
+// Avoid running this script excessively as it may incur additional costs over time.
 
 ;(async function run() {
   const module = await NestFactory.createApplicationContext(MigrationModule)
@@ -94,7 +101,7 @@ const allow = [
 
   const app = initializeApp({
     storageBucket: 'fitlink-rn.appspot.com',
-    credential: credential.cert(require('./fitlink-rn-1e425402b9cf.json'))
+    credential: credential.cert(require('./credential.json'))
   })
 
   const fTeam = (
@@ -126,6 +133,9 @@ const allow = [
      * 1.1. Migrate user settings [x]
      * 1.2. Migrate user provider (e.g. Google / Apple) [x]
      * 1.3. Migrate user avatar [x]
+     * 1.4. Migrate feed items [x]
+     * 1.5. Migrate health activities [x]
+     * 1.6. migrate goal entries [x]
      * 2. Migrate organisations (teams) [x]
      * 2.1. Create teams (default team) [x]
      * 2.2. Create subscriptions (default free for Fitlink) [x]
@@ -136,7 +146,7 @@ const allow = [
      * 4. Migrate activities (already available in codebase)
      * 5. Migrate followers [x]
      * 6. Migrate rewards [x]
-     * 6.1. Migrate rewards redeemed
+     * 6.1. Migrate rewards redeemed [x]
      * 7.
      */
     const firebaseRepository = manager.getRepository(FirebaseMigration)
@@ -176,15 +186,16 @@ const allow = [
     )
 
     console.log(chalk.green('Migrating followings...'))
-    const followings = await migrateFollowings(followingRepository, usersMixed)
+    await migrateFollowings(followingRepository, usersMixed)
 
     console.log(chalk.green('Migrating rewards...'))
-    const rewards = await migrateRewards(rewardsRepository, usersMixed)
+    await migrateRewards(rewardsRepository, usersMixed)
 
     console.log(chalk.green('Migrating leagues...'))
-    const leagues = await migrateLeagues(leaguesRepository)
+    await migrateLeagues(leaguesRepository)
 
-    const feed = await migrateFeed(feedItemRepository, usersMixed)
+    console.log(chalk.green('Migrating feed items...'))
+    await migrateFeed(feedItemRepository, usersMixed)
 
     async function migrateOrganisations(repo: Repository<Organisation>) {
       return await repo.save(
@@ -202,6 +213,14 @@ const allow = [
       )
     }
 
+    /**
+     * No subscriptions existed in the previous
+     * Firestore db, and only one is needed for the default "Fitlink"
+     * team.
+     *
+     * @param repo
+     * @returns
+     */
     async function migrateSubscriptions(repo: Repository<Subscription>) {
       // CREATE DEFAULT SUBSCRIPTION
       return repo.save(
@@ -228,6 +247,13 @@ const allow = [
       )
     }
 
+    /**
+     * Only 1 team is necessary to migrate
+     * which is the "Fitlink" team.
+     *
+     * @param repo
+     * @returns
+     */
     async function migrateTeams(repo: Repository<Team>) {
       return await repo.save(
         repo.create({
@@ -293,6 +319,12 @@ const allow = [
               }
             })
           )
+
+          // Save references to rewards
+          await firebaseRepository.save({
+            firebase_id: reward.id,
+            entity_id: rewardSaved.id
+          })
         })
       )
     }
@@ -306,7 +338,7 @@ const allow = [
 
       return Promise.all(
         fUsers
-          .filter((e) => allow.includes(e.localId))
+          // .filter((e) => allow.includes(e.localId))
           .map(async (userEntry) => {
             const id = userEntry.localId
 
@@ -327,7 +359,6 @@ const allow = [
             let originalEmail = userEntry.email || auth.email
 
             if (!originalEmail) {
-              console.error(userEntry)
               originalEmail = id + '-sanitized@fitlinkapp.com'
             }
 
@@ -499,12 +530,12 @@ const allow = [
                 })[0]
 
                 if (sport && provider) {
-                  return healthRepository.save(
+                  const healthActivity = await healthRepository.save(
                     healthRepository.create({
                       user,
                       sport,
                       provider,
-                      active_time: item.active_time || 0,
+                      active_time: Math.ceil(item.active_time) || 0,
                       calories: item.calories || 0,
                       elevation: item.elevation,
                       polyline: item.polyline,
@@ -518,7 +549,95 @@ const allow = [
                       updated_at: item.updated_at.toDate()
                     })
                   )
+
+                  // Store a reference to the migrated user
+                  await firebaseRepository.save({
+                    firebase_id: each.id,
+                    entity_id: healthActivity.id
+                  })
+
+                  return healthActivity
                 }
+              })
+            )
+
+            // Create the user's goals for the previous days
+            const dailyGoals = (
+              await result.ref.collection('daily_goals').get()
+            ).docs
+
+            await Promise.all(
+              dailyGoals.map(async (goal) => {
+                const item = goal.data() as LegacyGoal
+
+                // Create the user's goals object for the day
+                const goalEntry = await goals.save(
+                  goals.create({
+                    user,
+                    created_at: item.created_at.toDate(),
+                    updated_at: item.last_updated_at.toDate(),
+                    current_floors_climbed: Math.ceil(item.floors_climbed) || 0,
+                    target_floors_climbed: userGoals.floors_climbed.target,
+                    current_mindfulness_minutes:
+                      Math.ceil(item.mindfulness) || 0,
+                    target_mindfulness_minutes: userGoals.mindfulness.target,
+                    current_sleep_hours: item.sleep_hours || 0,
+                    target_sleep_hours: userGoals.sleep_hours.target,
+                    current_steps: Math.ceil(item.steps) || 0,
+                    target_steps: userGoals.steps.target,
+                    current_water_litres: item.water_litres || 0,
+                    target_water_litres: userGoals.water_litres.target
+                  })
+                )
+
+                const feedItems = []
+                if (
+                  goalEntry.current_floors_climbed >=
+                  goalEntry.target_floors_climbed
+                ) {
+                  feedItems.push(FeedGoalType.FloorsClimbed)
+                }
+
+                if (
+                  goalEntry.current_mindfulness_minutes >=
+                  goalEntry.target_mindfulness_minutes
+                ) {
+                  feedItems.push(FeedGoalType.MindfulnessMinutes)
+                }
+
+                if (goalEntry.current_steps >= goalEntry.target_steps) {
+                  feedItems.push(FeedGoalType.Steps)
+                }
+
+                if (
+                  goalEntry.current_water_litres >=
+                  goalEntry.target_water_litres
+                ) {
+                  feedItems.push(FeedGoalType.WaterLitres)
+                }
+
+                if (
+                  goalEntry.current_sleep_hours >= goalEntry.target_sleep_hours
+                ) {
+                  feedItems.push(FeedGoalType.SleepHours)
+                }
+
+                // Add any daily goals reached to the feed
+                await Promise.all(
+                  feedItems.map((type) => {
+                    return feedItemRepository.save(
+                      feedItemRepository.create({
+                        user,
+                        goal_entry: goalEntry,
+                        type: FeedItemType.DailyGoalReached,
+                        category: FeedItemCategory.MyGoals,
+                        goal_type: type,
+                        created_at: goalEntry.created_at,
+                        updated_at: goalEntry.updated_at
+                      })
+                    )
+                  })
+                )
               })
             )
 
@@ -750,7 +869,10 @@ const allow = [
           await Promise.all(
             feed.docs.map(async (each) => {
               const item = each.data() as LegacyFeedItem
-              let league, health_activity, goal_entry
+              let league: League,
+                health_activity: HealthActivity,
+                related_user: User,
+                reward: Reward
 
               if (item.league && item.league.id) {
                 league = await getEntityFromFirebase(
@@ -766,14 +888,37 @@ const allow = [
                 )
               }
 
-              return feedItemRepository.save(
-                feedItemRepository.create({
+              if (item.user && item.user.uid) {
+                related_user = await getEntityFromFirebase(
+                  usersRepository,
+                  item.user.uid
+                )
+              }
+
+              if (item.reward && item.reward.id) {
+                reward = await getEntityFromFirebase(
+                  rewardsRepository,
+                  item.reward.id
+                )
+              }
+
+              // Skip as it's been created already during user creation
+              if (item.goal) {
+                return
+              }
+
+              return repo.save(
+                repo.create({
                   user,
                   league,
                   health_activity,
-                  goal_entry,
-                  group: (item.type as unknown) as FeedItemType,
-                  category: (item.category as unknown) as FeedItemCategory,
+                  reward,
+                  related_user,
+                  tier: (item.tier as unknown) as UserTier,
+                  type: (item.type as unknown) as FeedItemType,
+                  category:
+                    ((item.category as unknown) as FeedItemCategory) ||
+                    FeedItemCategory.MyUpdates,
                   goal_type: (item.goal as unknown) as FeedGoalType,
                   created_at: item.created_at.toDate(),
                   updated_at: item.updated_at.toDate()
@@ -804,53 +949,6 @@ const allow = [
       )
     }
   })
-
-  // CREATES USERS
-
-  // paul@fitlinkapp.com fcqUK2Cqy8RNKNILbWCownScCoS2
-  // luke@fitlinkapp.com 244eiWoHCjdbP0afquM0xzNduT32
-  // dave@fitlinkapp.com KmzEkV4mCchkHByYTOm4xa4SHaG3
-  // brett@lab19.dev 1v3ZEmFz3KPSs6sSUu49Fzy71Vr1
-  // luke@lab19.dev C82yGkzCBwWY9alMMf0qv1ZhnXo2
-
-  // const result = await app.firestore().collection('users').limit(2).get()
-
-  // await Promise.all(result.docs.map( async ( each ) => {
-  //   const user = await app.auth().getUser( each.id )
-  //   console.log( each.data(), user )
-  // }))
-
-  const ids = [
-    // 'fcqUK2Cqy8RNKNILbWCownScCoS2',
-    // '244eiWoHCjdbP0afquM0xzNduT32',
-    // 'KmzEkV4mCchkHByYTOm4xa4SHaG3',
-    // '1v3ZEmFz3KPSs6sSUu49Fzy71Vr1',
-    // 'C82yGkzCBwWY9alMMf0qv1ZhnXo2'
-  ]
-
-  const luke = {
-    localId: 'SC5wR3kaO5UzdGaw79CpQgPqAXD3',
-    email: 'ljsiedle@gmail.com',
-    emailVerified: true,
-    displayName: 'Luke Siedle',
-    photoUrl:
-      'https://lh3.googleusercontent.com/a-/AOh14GhdR5HjFPg6RbZqfHaczgK8wg-VJ3xwqtXkpnMrxw=s96-c',
-    lastSignedInAt: '1622121660149',
-    createdAt: '1602501645009'
-  } as any
-
-  // const luke = {
-  //   "localId": "244eiWoHCjdbP0afquM0xzNduT32",
-  //   "email": "luke@fitlinkapp.com",
-  //   "emailVerified": false,
-  //   "passwordHash": "TnROJ3py7iCjrASASWaOEVEUA5iIPdAXPVedpkdDA8pruYNm+EeAceSMU14UHlKPEggL5W0EXLwu044/oemBnw==",
-  //   "salt": "FkmRtEf1HzcEWw==",
-  //   "lastSignedInAt": "1611062552461",
-  //   "createdAt": "1610991492499",
-  //   "disabled": false,
-  //   "customAttributes": "{\"admin\":\"ZxSZdl3lafZiiWiZnhlw\"}",
-  //   "providerUserInfo": []
-  // }
 })()
 
 function getPrivacySetting(type: any) {
@@ -917,4 +1015,9 @@ declare module 'fastify' {
     incomingFiles: Storage.MultipartFile[]
     incomingFile: Storage.MultipartFile
   }
+}
+
+type UsersMixed = {
+  user: User
+  data: LegacyUserDocument
 }

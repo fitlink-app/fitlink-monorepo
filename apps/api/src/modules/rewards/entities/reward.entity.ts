@@ -13,6 +13,7 @@ import { Organisation } from '../../organisations/entities/organisation.entity'
 import { Image } from '../../images/entities/image.entity'
 import { RewardsRedemption } from '../../rewards-redemptions/entities/rewards-redemption.entity'
 import { ApiProperty } from '@nestjs/swagger'
+import { FeedItem } from '../../feed-items/entities/feed-item.entity'
 
 export enum RewardAccess {
   Public = 'public',
@@ -121,6 +122,9 @@ export class Reward extends CreatableEntity {
 
   @OneToMany(() => RewardsRedemption, (redemption) => redemption.reward)
   redemptions: RewardsRedemption[]
+
+  @OneToMany(() => FeedItem, (item) => item.reward)
+  feed_items: FeedItem[]
 }
 
 export class RewardPublic extends Reward {

@@ -11,6 +11,7 @@ import { User } from '../../users/entities/user.entity'
 import { HealthActivity } from '../../health-activities/entities/health-activity.entity'
 import { GoalsEntry } from '../../goals-entries/entities/goals-entry.entity'
 import { League } from '../../leagues/entities/league.entity'
+import { Reward } from '../../rewards/entities/reward.entity'
 
 export enum FeedItemCategory {
   MyActivities = 'my_activities',
@@ -61,7 +62,14 @@ export class FeedItem extends CreatableEntity {
     type: 'enum',
     enum: FeedItemType
   })
-  group: FeedItemType
+  type: FeedItemType
+
+  @Column({
+    type: 'enum',
+    enum: UserTier,
+    nullable: true
+  })
+  tier?: UserTier
 
   @ManyToOne(() => HealthActivity, (activity) => activity.feed_items)
   @JoinColumn()
@@ -70,6 +78,14 @@ export class FeedItem extends CreatableEntity {
   @ManyToOne(() => League, (league) => league.feed_items)
   @JoinColumn()
   league?: League
+
+  @ManyToOne(() => Reward, (reward) => reward.feed_items)
+  @JoinColumn()
+  reward?: Reward
+
+  @ManyToOne(() => User, (user) => user.related_feed_items)
+  @JoinColumn()
+  related_user?: User
 
   @ManyToOne(() => GoalsEntry, (entry) => entry.feed_items)
   @JoinColumn()

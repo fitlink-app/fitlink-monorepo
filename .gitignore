@@ -50,5 +50,5 @@ terraform
 /serverless/node_*
 /root.key
 /root.crt
-fitlink-rn*.json
+/apps/api/database/firebase/credential.json
 /apps/api/database/firebase/users.json
