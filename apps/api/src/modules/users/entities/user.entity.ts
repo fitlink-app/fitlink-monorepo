@@ -188,11 +188,13 @@ export class User extends CreatableEntity {
   })
   health_activities: HealthActivity[]
 
-  @OneToMany(() => FeedItem, (feedItem) => feedItem.user, {
-    cascade: ['remove'],
-    onDelete: 'CASCADE'
-  })
+  /** Feed items for the user */
+  @OneToMany(() => FeedItem, (feedItem) => feedItem.user)
   feed_items: FeedItem[]
+
+  /** Feed items for other users */
+  @OneToMany(() => FeedItem, (feedItem) => feedItem.related_user)
+  related_feed_items: FeedItem[]
 
   @ManyToOne(() => Subscription, (subscription) => subscription.users)
   subscription: Subscription
@@ -300,6 +302,11 @@ export class User extends CreatableEntity {
     default: 0
   })
   following_total: number
+
+  @Column('json', {
+    nullable: true
+  })
+  fcm_tokens: string[]
 }
 
 export class UserPublic {

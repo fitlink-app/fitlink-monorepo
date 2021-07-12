@@ -33,22 +33,31 @@ export class Provider extends CreatableEntity {
   @ManyToOne(() => User, (user) => user.providers)
   user: User
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   refresh_token: string
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   token: string
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   token_expires_at: Date
 
   @Column({
-    type: 'json'
+    type: 'json',
+    nullable: true
   })
   scopes: string[]
 
   /** External id from the service to map the user if required */
-  @Column()
+  @Column({
+    nullable: true
+  })
   provider_user_id: string
 
   @OneToMany(
