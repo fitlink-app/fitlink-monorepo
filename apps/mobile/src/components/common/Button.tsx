@@ -111,7 +111,8 @@ export const Button = ({
     let color = typography.button.color;
 
     if (disabled) {
-      color = textOnly ? colors.accentSecondary : typography.button.color;
+      color =
+        textOnly || outline ? colors.accentSecondary : typography.button.color;
     } else {
       if (outline) {
         color = buttonMainColor;
@@ -152,7 +153,9 @@ export const Button = ({
       style={[style, buttonBaseStyleModifier]}>
       <ButtonContentContainer style={createContainerStyle()}>
         <Row>
-          {!!icon && <Icon name={icon} size={18} color={textColor} />}
+          {!!icon && !loading && (
+            <Icon name={icon} size={18} color={textColor} />
+          )}
           {loading && (
             <View
               style={{

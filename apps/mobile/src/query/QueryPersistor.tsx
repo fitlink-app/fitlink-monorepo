@@ -1,4 +1,9 @@
-import {AsyncStorageKeys, getPersistedData, persistData} from '@utils';
+import {
+  AsyncStorageKeys,
+  clearData,
+  getPersistedData,
+  persistData,
+} from '@utils';
 import React, {useEffect, Fragment} from 'react';
 import {useQueryClient} from 'react-query';
 import {QueryKeys} from './keys';
@@ -7,6 +12,10 @@ import {QueryKeys} from './keys';
 const queryWhitelist: string[] = [QueryKeys.Me];
 
 type StorableQuery = {queryKey: string; data?: object};
+
+export const flushPersistedQueries = async () => {
+  return clearData(AsyncStorageKeys.QUERY_CACHE);
+};
 
 // Persists react-query cache in AsyncStorage
 export const QueryPersistor: React.FC = ({children}) => {
@@ -40,6 +49,7 @@ export const QueryPersistor: React.FC = ({children}) => {
   }, []);
 
   const hydrate = async () => {
+    console.log('hydrating');
     const queries = await getPersistedData<StorableQuery[]>(
       AsyncStorageKeys.QUERY_CACHE,
     );

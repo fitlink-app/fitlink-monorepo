@@ -13,3 +13,4 @@ export * from './Dropdown';
 export * from './Modal';
 export * from './TabView';
 export * from './SearchBox';
+export * from './Dots';

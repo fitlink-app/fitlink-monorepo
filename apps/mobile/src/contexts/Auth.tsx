@@ -1,24 +1,30 @@
 import React, {createContext} from 'react';
 import api, {getErrors, RequestError} from '@api';
 import {usePersistedState} from '@hooks';
-import {AuthResultDto} from '../../../api-sdk/types';
+import {AuthResultDto, AuthProviderType} from '@fitlink/api-sdk/types';
 import {useEffect} from 'react';
 import {User} from '../../../api/src/modules/users/entities/user.entity';
 import {queryClient, QueryKeys} from '@query';
 import {AsyncStorageKeys} from '@utils';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import appleAuth from '@invertase/react-native-apple-authentication';
+import {flushPersistedQueries} from 'query/QueryPersistor';
 
 type Credentials = {
   email: string;
   password: string;
 };
 
+type ConnectProvider = {
+  token: string;
+  provider: AuthProviderType;
+};
+
 interface AuthContextType {
   isLoggedIn: boolean;
   isAppleSignInSupported: boolean;
-  signInWithGoogle: () => void;
-  signInWithApple: () => void;
+  signInWithGoogle: () => Promise<void>;
+  signInWithApple: () => Promise<void>;
   signIn: (credentials: Credentials) => Promise<RequestError | undefined>;
   signUp: (credentials: Credentials) => Promise<RequestError | undefined>;
   logout: () => Promise<RequestError | undefined>;
@@ -45,6 +51,10 @@ export const AuthProvider: React.FC = ({children}) => {
     if (authResult) api.setTokens(authResult);
   }, [authResult]);
 
+  const isLoggedIn = !!authResult;
+
+  const isAppleSignInSupported = appleAuth.isSupported;
+
   async function signIn(credentials: Credentials) {
     try {
       const auth = await api.login(credentials);
@@ -54,9 +64,15 @@ export const AuthProvider: React.FC = ({children}) => {
     }
   }
 
-  const isLoggedIn = !!authResult;
+  async function connect({token, provider}: ConnectProvider) {
+    const {me, auth} = await api.connect({
+      token,
+      provider,
+    });
 
-  const isAppleSignInSupported = appleAuth.isSupported;
+    queryClient.setQueryData<User>(QueryKeys.Me, me);
+    setAuthResult(auth);
+  }
 
   async function signInWithGoogle() {
     // TODO: Move this to env/config file
@@ -72,9 +88,14 @@ export const AuthProvider: React.FC = ({children}) => {
     // Get the users ID token
     const {idToken} = await GoogleSignin.signIn();
 
-    console.log('Google Token: ' + idToken);
-
-    // TODO: Authenticate token on backend against Google, get back JWT
+    //Authenticate token on backend against Google, get back JWT
+    if (idToken) {
+      try {
+        await connect({token: idToken, provider: AuthProviderType.Google});
+      } catch (e) {
+        throw Error(getErrors(e).message);
+      }
+    }
   }
 
   async function signInWithApple() {
@@ -88,12 +109,21 @@ export const AuthProvider: React.FC = ({children}) => {
     if (!appleAuthRequestResponse.identityToken)
       throw Error('Apple Sign-In failed - no identify token returned');
 
-    const {identityToken, nonce} = appleAuthRequestResponse;
+    const {authorizationCode} = appleAuthRequestResponse;
 
-    console.log('Apple token:');
-    console.log(identityToken);
-    console.log(nonce);
-    // TODO: Authenticate token on backend against Apple, get back JWT
+    if (authorizationCode) {
+      try {
+        await connect({
+          token: authorizationCode,
+          provider: AuthProviderType.Apple,
+        });
+      } catch (e) {
+        console.log('here');
+        console.log(e);
+        console.log(getErrors(e));
+        throw Error(getErrors(e).message);
+      }
+    }
   }
 
   async function signUp(credentials: Credentials) {
@@ -109,9 +139,11 @@ export const AuthProvider: React.FC = ({children}) => {
   async function logout() {
     try {
       setAuthResult(initialState);
-      queryClient.invalidateQueries(QueryKeys.Me);
+      flushPersistedQueries();
+      queryClient.removeQueries();
       await api.logout();
     } catch (e) {
+      console.log('logout error');
       return getErrors(e);
     }
   }

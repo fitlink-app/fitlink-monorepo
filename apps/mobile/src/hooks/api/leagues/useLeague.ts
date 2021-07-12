@@ -1,4 +1,4 @@
-import {useQuery, UseQueryOptions, QueryKey} from 'react-query';
+import {useQuery} from 'react-query';
 import {QueryKeys} from '@query';
 import api from '@api';
 import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';

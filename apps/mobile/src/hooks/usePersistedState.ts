@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getPersistedData, persistData} from '@utils';
 import {useEffect, useReducer, useRef} from 'react';
 

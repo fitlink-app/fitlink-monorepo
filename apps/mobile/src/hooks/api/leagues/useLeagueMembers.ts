@@ -5,7 +5,7 @@ import {ListResponse} from '@fitlink/api-sdk/types';
 import {getNextPageParam} from 'utils/api';
 import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/entities/leaderboard-entry.entity';
 
-const limit = 15;
+export const LEAGUE_MEMBERS_RESULTS_PER_PAGE = 25;
 
 const fetchLeagueMembers = ({
   pageParam = 0,
@@ -16,7 +16,7 @@ const fetchLeagueMembers = ({
 }) =>
   api.list<LeaderboardEntry>(`/leagues/${leagueId}/members`, {
     page: pageParam,
-    limit,
+    limit: LEAGUE_MEMBERS_RESULTS_PER_PAGE,
   });
 
 export function useLeagueMembers(leagueId: string) {
@@ -24,7 +24,7 @@ export function useLeagueMembers(leagueId: string) {
     [QueryKeys.LeagueMembers, leagueId],
     ({pageParam}) => fetchLeagueMembers({pageParam, leagueId}),
     {
-      getNextPageParam: getNextPageParam(limit),
+      getNextPageParam: getNextPageParam(LEAGUE_MEMBERS_RESULTS_PER_PAGE),
     },
   );
 }

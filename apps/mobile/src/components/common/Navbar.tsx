@@ -1,3 +1,4 @@
+import {TouchHandler} from '@components';
 import {useNavigation} from '@react-navigation/core';
 import React from 'react';
 import {Animated, StyleProp, ViewStyle, StyleSheet} from 'react-native';
@@ -30,6 +31,13 @@ const Content = styled.View({
   paddingHorizontal: 5,
 });
 
+const BackButtonRow = styled.View({flexDirection: 'row'});
+
+const BackButtonLabel = styled(Label).attrs({
+  type: 'subheading',
+  appearance: 'primary',
+})({marginLeft: 15});
+
 const Background = styled(Animated.View)({...StyleSheet.absoluteFillObject});
 
 const LeftContent = styled(Content)({flex: 1, alignItems: 'flex-start'});
@@ -56,6 +64,9 @@ interface NavbarProps {
   /** Override back button icon */
   backButtonIcon?: string;
 
+  /** Optional label for back button */
+  backButtonLabel?: string;
+
   /** Animate header BG opacity and title opacity based on ScrolLView content offset */
   scrollAnimatedValue?: Animated.Value;
 
@@ -71,6 +82,7 @@ export const Navbar = ({
   rightComponent,
   centerComponent,
   backButtonIcon = 'arrow-left',
+  backButtonLabel,
   title,
   iconColor,
   overlay,
@@ -111,12 +123,19 @@ export const Navbar = ({
 
   const renderBackButton = () => {
     return (
-      <Icon
-        name={backButtonIcon}
-        size={22}
-        color={iconColor || colors.accent}
-        onPress={handleOnBackPressed}
-      />
+      <TouchHandler onPress={handleOnBackPressed}>
+        <BackButtonRow>
+          <Icon
+            name={backButtonIcon}
+            size={22}
+            color={iconColor || colors.accent}
+          />
+
+          {!!backButtonLabel && (
+            <BackButtonLabel>{backButtonLabel}</BackButtonLabel>
+          )}
+        </BackButtonRow>
+      </TouchHandler>
     );
   };
 

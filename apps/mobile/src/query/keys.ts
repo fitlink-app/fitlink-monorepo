@@ -5,8 +5,10 @@ export enum QueryKeys {
   MyLeagues = 'me/leagues',
   Leagues = 'leagues',
   League = 'league',
+  LeagueRank = 'leagueRank',
   LeagueMembers = 'leagues/members',
   SearchLeagues = 'leagues/search',
   SearchUsers = 'users/search',
+  User = 'user',
   UserGoals = 'user/goals',
 }

@@ -35,11 +35,14 @@ export function useJoinLeague() {
       // Invalidate My Leagues
       queryClient.invalidateQueries(QueryKeys.MyLeagues);
 
-      // Mutate League Invitations
-      // TODO
-
       // Invalidate leaderboard
       queryClient.invalidateQueries([QueryKeys.LeagueMembers, leagueId]);
+
+      // Invalidate Leaderboard Flanks
+      queryClient.invalidateQueries([QueryKeys.LeagueRank, leagueId]);
+
+      // Mutate League Invitations
+      // TODO
     },
   });
 }

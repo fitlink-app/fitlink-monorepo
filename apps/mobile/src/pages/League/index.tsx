@@ -1,7 +1,7 @@
 import {Navbar} from '@components';
-import {useLeague, useLeagueMembers} from '@hooks';
+import {useLeague, useLeagueMembers, useMe, useRank} from '@hooks';
 import {StackScreenProps} from '@react-navigation/stack';
-import React, {useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Animated} from 'react-native';
 import {RootStackParamList} from 'routes/types';
 import styled from 'styled-components/native';
@@ -16,6 +16,10 @@ const Wrapper = styled.View({flex: 1});
 export const League = (
   props: StackScreenProps<RootStackParamList, 'League'>,
 ) => {
+  const {data: user} = useMe({
+    refetchOnMount: false,
+  });
+
   const {league, id} = props.route.params;
 
   const {
@@ -29,8 +33,17 @@ export const League = (
     data: membersData,
     isFetching: isFetchingMembers,
     refetch: refetchMembers,
+    fetchNextPage: fetchMoreMembers,
+    isFetchingNextPage: isFetchingMembersNextPage,
+    hasNextPage: membersHasNextPage,
     isFetchedAfterMount: areMembersFetchedAfterMount,
   } = useLeagueMembers(id);
+
+  const {
+    data: flanksData,
+    refetch: refetchFlanks,
+    isFetchedAfterMount: areFlanksFetchedAfterMound,
+  } = useRank(id);
 
   const members = membersData?.pages.reduce<LeaderboardEntry[]>(
     (acc, current) => {
@@ -44,7 +57,10 @@ export const League = (
   if (!activeLeague) return null;
 
   const scrollValue = useRef(new Animated.Value(0)).current;
-  scrollValue.setValue(-HEADER_HEIGHT);
+
+  useEffect(() => {
+    scrollValue.setValue(-HEADER_HEIGHT);
+  }, []);
 
   const handleScroll = Animated.event(
     [{nativeEvent: {contentOffset: {y: scrollValue}}}],
@@ -67,16 +83,26 @@ export const League = (
       />
 
       <Leaderboard
+        fetchingNextPage={isFetchingMembersNextPage}
         isRepeat={activeLeague.repeat}
         endDate={activeLeague.ends_at}
+        fetchNextPage={() => membersHasNextPage && fetchMoreMembers()}
         isLoaded={areMembersFetchedAfterMount || !!members?.length}
         description={activeLeague.description}
         data={members}
+        flanksData={[...(flanksData?.results || [])].reverse()}
+        userId={user!.id}
         refreshing={
           (isFetchingLeague && isLeagueFetchedAfterMount) ||
-          (isFetchingMembers && areMembersFetchedAfterMount)
+          (isFetchingMembers &&
+            areMembersFetchedAfterMount &&
+            !isFetchingMembersNextPage)
         }
-        onRefresh={refetchLeague}
+        onRefresh={() => {
+          refetchLeague();
+          refetchMembers();
+          refetchFlanks();
+        }}
         contentInset={{top: HEADER_HEIGHT}}
         contentOffset={{x: 0, y: -HEADER_HEIGHT}}
         automaticallyAdjustContentInsets={false}

@@ -77,7 +77,7 @@ const CrownIcon = styled(Icon).attrs(({theme}) => ({
 });
 
 interface LeaderboardItemProps {
-  index: number;
+  rank: string;
   name: string;
   avatarUrl?: string;
   wins: number;
@@ -89,7 +89,7 @@ interface LeaderboardItemProps {
 
 export const LeaderboardItem: React.FC<LeaderboardItemProps & ViewProps> =
   props => {
-    const {index, name, avatarUrl, wins, points, isSelf, isLast, onPress} =
+    const {rank, name, avatarUrl, wins, points, isSelf, isLast, onPress} =
       props;
 
     return (
@@ -98,7 +98,7 @@ export const LeaderboardItem: React.FC<LeaderboardItemProps & ViewProps> =
           <Row style={{flexShrink: 1}}>
             <PlaceTextContainer>
               <PlaceText appearance={isSelf ? 'accent' : undefined}>
-                {index + 1}
+                {rank}
               </PlaceText>
             </PlaceTextContainer>
 
@@ -122,7 +122,7 @@ export const LeaderboardItem: React.FC<LeaderboardItemProps & ViewProps> =
           <Column>
             <PointsText
               appearance={
-                isSelf ? 'accent' : index === 0 ? 'primary' : undefined
+                isSelf ? 'accent' : rank === '1' ? 'primary' : undefined
               }>
               {points}
             </PointsText>

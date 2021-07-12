@@ -14,4 +14,5 @@ export type RootStackParamList = {
   Friends: {tab: number};
   Leagues: {tab: number};
   League: {id: string; league?: League};
+  Profile: {id: string};
 };

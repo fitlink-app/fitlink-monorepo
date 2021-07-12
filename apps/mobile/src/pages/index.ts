@@ -5,3 +5,4 @@ export * from './Webview';
 export * from './Friends';
 export * from './Leagues';
 export * from './League';
+export * from './Profile';

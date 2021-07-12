@@ -27,7 +27,6 @@ interface LeagueStatsProps {
 
 export const LeagueStats = (props: LeagueStatsProps) => {
   const {position, memberCount, invitation} = props;
-  const invitedBy = null;
 
   const {colors} = useTheme();
 

@@ -53,11 +53,14 @@ export function useLeaveLeague() {
           return oldLeagues as InfiniteData<ListResponse<League>>;
         },
       );
-      // Mutate League Invitations
-      // TODO
-
       // Invalidate leaderboard
       queryClient.invalidateQueries([QueryKeys.LeagueMembers, leagueId]);
+
+      // Invalidate Leaderboard Flanks
+      queryClient.invalidateQueries([QueryKeys.LeagueRank, leagueId]);
+
+      // Mutate League Invitations
+      // TODO
     },
   });
 }

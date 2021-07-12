@@ -137,8 +137,8 @@ export const Header = ({
     transform: [
       {
         translateY: scrollAnimatedValue.interpolate({
-          inputRange: [-250, 1000],
-          outputRange: [0, -1250],
+          inputRange: [-250, 0],
+          outputRange: [0, -250],
           extrapolate: 'clamp',
         }),
       },

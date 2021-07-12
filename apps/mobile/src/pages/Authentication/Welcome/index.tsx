@@ -5,7 +5,8 @@ import styled from 'styled-components/native';
 import {Background, GradientUnderlay, WelcomeHeader} from './components';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useAuth} from '@hooks';
-import {Platform} from 'react-native';
+import {Alert, Platform} from 'react-native';
+import {useState} from 'react';
 
 const Wrapper = styled.View({flex: 1, alignItems: 'center'});
 
@@ -31,6 +32,9 @@ export const Welcome = () => {
   const insets = useSafeAreaInsets();
   const {signInWithGoogle, signInWithApple, isAppleSignInSupported} = useAuth();
 
+  const [isGoogleLoading, setGoogleLoading] = useState(false);
+  const [isAppleLoading, setAppleLoading] = useState(false);
+
   const handleOnSignUpPressed = () => {
     navigation.navigate('SignUp');
   };
@@ -39,12 +43,22 @@ export const Welcome = () => {
     navigation.navigate('SignIn');
   };
 
-  const handleOnGooglePressed = () => {
-    signInWithGoogle();
+  const handleOnGooglePressed = async () => {
+    try {
+      setGoogleLoading(true);
+      await signInWithGoogle();
+    } catch (e) {
+      setGoogleLoading(false);
+    }
   };
 
-  const handleOnApplePressed = () => {
-    signInWithApple();
+  const handleOnApplePressed = async () => {
+    try {
+      setAppleLoading(true);
+      await signInWithApple();
+    } catch (e) {
+      setAppleLoading(false);
+    }
   };
 
   return (
@@ -61,6 +75,8 @@ export const Welcome = () => {
       <ButtonContainer>
         <SpacedButton text={'Sign up'} onPress={handleOnSignUpPressed} />
         <SpacedButton
+          disabled={isGoogleLoading}
+          loading={isGoogleLoading}
           text={'Continue with Google'}
           outline
           icon={'google'}
@@ -68,6 +84,8 @@ export const Welcome = () => {
         />
         {Platform.OS === 'ios' && isAppleSignInSupported && (
           <SpacedButton
+            disabled={isAppleLoading}
+            loading={isAppleLoading}
             text={'Continue with Apple'}
             outline
             icon={'apple'}

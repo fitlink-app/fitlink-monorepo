@@ -13,7 +13,7 @@ import {
   createStackNavigator,
 } from '@react-navigation/stack';
 import {RootStackParamList} from './types';
-import {League, Webview} from 'pages';
+import {League, Profile, Webview} from 'pages';
 import {SettingsNavigator} from './Settings';
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -51,6 +51,7 @@ export default function Router() {
               }}
             />
             <Stack.Screen name={'League'} component={League} />
+            <Stack.Screen name={'Profile'} component={Profile} />
             <Stack.Screen name={'Webview'} component={Webview} />
           </>
         ) : (

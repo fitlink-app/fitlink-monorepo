@@ -48,7 +48,7 @@ export const LeagueList = ({
         sport={item.sport.name}
         imageUrl={item.image.url}
         memberCount={item.participants_total}
-        position={999}
+        position={item.rank}
         privateLeague={item.access === ('Private' as LeagueAccess)}
         onPress={() => {
           navigation.navigate('League', {id: item.id, league: item});

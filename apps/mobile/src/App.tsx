@@ -7,6 +7,7 @@ import Router from './routes/router';
 import ThemeProvider from './theme/ThemeProvider';
 import {QueryPersistor} from 'query/QueryPersistor';
 import {Platform, UIManager} from 'react-native';
+import {isJsxOpeningFragment} from 'typescript';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
