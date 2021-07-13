@@ -54,4 +54,27 @@ module.exports = [{
     "migrationsDir": "apps/api/database/migrations",
     "subscribersDir": "apps/api/src/src/subscriber"
   }
+},
+{
+  "name": "firebase_migration",
+  "type": "postgres",
+  "host": process.env.DB_HOST || "localhost",
+  "database": process.env.DB_NAME || "fitlink",
+  "password": process.env.DB_PASSWORD || "fitlink",
+  "username": process.env.DB_USERNAME || "fitlink",
+  "port": process.env.DB_PORT || "5432",
+  "synchronize": false,
+  "logging": false,
+  "entities": [
+    "apps/api/src/modules/*/entities/*.ts"
+  ],
+  "seeds": [
+    "apps/api/database/firebase/**/*.seed.ts"
+  ],
+  "subscribers": [],
+  "cli": {
+    "entitiesDir": "apps/api/src/entities",
+    "migrationsDir": "apps/api/database/migrations",
+    "subscribersDir": "apps/api/src/src/subscriber"
+  }
 }]

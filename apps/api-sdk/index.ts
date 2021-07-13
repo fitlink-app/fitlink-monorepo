@@ -13,13 +13,15 @@ import {
   ListResponse,
   AuthLoginDto,
   AuthResultDto,
+  AuthConnectDto,
   CreateUserDto,
   AuthLogin,
   AuthLogout,
   AuthRefresh,
   DeleteResult,
   UpdateResult,
-  AuthSignUp
+  AuthSignUp,
+  AuthConnect
 } from './types'
 
 const ERR_TOKEN_EXPIRED = 'Token expired'
@@ -315,6 +317,20 @@ export class Api {
   async logout() {
     const result = await this.post<AuthLogout>('/auth/logout')
     this.unsetTokens()
+    return result
+  }
+
+  /**
+   * Connects to a provider
+   *
+   * This may be a signup or login event.
+   *
+   * @param connect An object of `{ token, provider }`
+   * @returns `{auth: AuthResult, me: User}`
+   */
+  async connect(connect: AuthConnectDto) {
+    const result = await this.post<AuthConnect>('/auth/connect', connect)
+    this.setTokens(result.auth)
     return result
   }
 

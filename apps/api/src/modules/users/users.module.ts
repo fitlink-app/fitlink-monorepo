@@ -8,11 +8,12 @@ import { UsersInvitationsModule } from '../users-invitations/users-invitations.m
 import { UserRolesModule } from '../user-roles/user-roles.module'
 import { JwtModule } from '@nestjs/jwt'
 import { CommonModule } from '../common/common.module'
+import { AuthProvider } from '../auth/entities/auth-provider.entity'
 
 @Module({
   imports: [
     CommonModule,
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, AuthProvider]),
     ConfigModule,
     HttpModule,
     UserRolesModule,

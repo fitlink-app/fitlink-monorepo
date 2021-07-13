@@ -35,7 +35,11 @@ const message = "You have pending migrations. Please run these first before gene
           "-n", migrationName
          ].join(" ")
         const { stdout, stderr } = await exec(command)
-        console.log( stdout, stderr )
+        console.log(chalk.greenBright(stdout), chalk.redBright(stderr) )
+        console.log(chalk.bgYellow.white(
+          ["WARNING: Some typeorm migrations will result in columns unintentionally being dropped and recreated ",
+          "leading to the loss of data. Be sure to check that the migration has been created correctly by manually reviewing it."].join('')
+        ))
       } catch( e ){
         console.log( e.stdout, e.stderr );
       }

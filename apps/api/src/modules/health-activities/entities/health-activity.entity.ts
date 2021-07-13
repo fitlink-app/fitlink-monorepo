@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn
 } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
+import { FeedItem } from '../../feed-items/entities/feed-item.entity'
 import { Image } from '../../images/entities/image.entity'
 import { Provider } from '../../providers/entities/provider.entity'
 import { Sport } from '../../sports/entities/sport.entity'
@@ -28,10 +29,13 @@ export class HealthActivity extends CreatableEntity {
   @ManyToOne(() => Provider, (provider) => provider.health_activities)
   provider: Provider
 
+  @ManyToOne(() => FeedItem, (item) => item.health_activity)
+  feed_items: FeedItem
+
   @Column()
   points: number
 
-  @Column({ type: 'float' })
+  @Column({ type: 'float', default: 0 })
   calories: number
 
   @Column({
@@ -55,13 +59,14 @@ export class HealthActivity extends CreatableEntity {
   @Column({ nullable: true, type: 'float' })
   distance: number
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'float' })
   quantity: number
 
   @Column({ nullable: true })
   stairs: number
 
-  @Column({ type: 'text', nullable: true })
+
+  @Column({ nullable: true, type: 'text' })
   polyline: string
 
   @Column({ default: false })

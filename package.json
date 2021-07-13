@@ -32,13 +32,17 @@
     "sls:migrate": "serverless invoke -f migrate",
     "sls:migrate:production": "serverless invoke -f migrate --stage production",
     "package:admin": "yarn workspace @fitlink/admin dev",
+    "package:admin:ssl": "cross-env DEV_SSL=1 yarn workspace @fitlink/admin ssl",
     "package:api": "nest start --watch",
     "package:storybook": "yarn workspace @fitlink/storybook dev",
     "build-package:admin": "yarn workspace @fitlink/admin build",
     "build-package:api": "nest build -c nest-cli.serverless.json --webpack --webpackPath webpack-serverless.config.js",
     "build-package:storybook": "yarn workspace @fitlink/storybook build",
     "docs:generate": "@compodoc/compodoc -p tsconfig.json -s",
-    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\""
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
+    "firebase:migration:jest": "cross-env DB_PASSWORD=jest DB_USERNAME=jest DB_DATABASE_NAME=jest DB_PORT=5433 ts-node ./apps/api/database/firebase/migrate.ts",
+    "firebase:migration": "ts-node ./apps/api/database/firebase/migrate.ts",
+    "ssl:generate": "openssl genrsa -out root.key 4096 && openssl req -x509 -new -nodes -key root.key -sha256 -days 1024 -out root.crt"
   },
   "workspaces": {
     "packages": [

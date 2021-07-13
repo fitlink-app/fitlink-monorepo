@@ -8,11 +8,12 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from '../../modules/users/entities/user.entity'
 import { UserRolesModule } from '../user-roles/user-roles.module'
 import { CommonModule } from '../common/common.module'
+import { AuthProvider } from '../auth/entities/auth-provider.entity'
 
 @Module({
   imports: [
     CommonModule,
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, AuthProvider]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

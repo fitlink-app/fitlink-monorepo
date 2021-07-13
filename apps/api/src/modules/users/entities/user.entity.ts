@@ -25,6 +25,7 @@ import { UserRole } from '../../user-roles/entities/user-role.entity'
 import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
 import { TeamsInvitation } from '../../teams-invitations/entities/teams-invitation.entity'
 import { Activity } from '../../activities/entities/activity.entity'
+import { AuthProvider } from '../../auth/entities/auth-provider.entity'
 import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, Expose } from 'class-transformer'
 
@@ -47,6 +48,9 @@ export class User extends CreatableEntity {
   @Column()
   @Exclude()
   password: string
+
+  @OneToMany(() => AuthProvider, (provider) => provider.user)
+  auth_providers: AuthProvider[]
 
   // JoinTable / Cascade is on League entity
   @ManyToMany(() => League, (league) => league.users)
@@ -136,6 +140,7 @@ export class User extends CreatableEntity {
   })
   email_reset_requested_at: Date
 
+  @ApiProperty({ type: Image })
   @OneToOne(() => Image, {
     cascade: ['remove'],
     onDelete: 'CASCADE'
@@ -183,11 +188,13 @@ export class User extends CreatableEntity {
   })
   health_activities: HealthActivity[]
 
-  @OneToMany(() => FeedItem, (feedItem) => feedItem.user, {
-    cascade: ['remove'],
-    onDelete: 'CASCADE'
-  })
+  /** Feed items for the user */
+  @OneToMany(() => FeedItem, (feedItem) => feedItem.user)
   feed_items: FeedItem[]
+
+  /** Feed items for other users */
+  @OneToMany(() => FeedItem, (feedItem) => feedItem.related_user)
+  related_feed_items: FeedItem[]
 
   @ManyToOne(() => Subscription, (subscription) => subscription.users)
   subscription: Subscription
@@ -295,6 +302,11 @@ export class User extends CreatableEntity {
     default: 0
   })
   following_total: number
+
+  @Column('json', {
+    nullable: true
+  })
+  fcm_tokens: string[]
 }
 
 export class UserPublic {

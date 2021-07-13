@@ -6,6 +6,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter'
 
 // Entities
 import { Activity } from './modules/activities/entities/activity.entity'
+import { AuthProvider } from './modules/auth/entities/auth-provider.entity'
 import { FeedItem } from './modules/feed-items/entities/feed-item.entity'
 import { Following } from './modules/followings/entities/following.entity'
 import { GoalsEntry } from './modules/goals-entries/entities/goals-entry.entity'
@@ -81,6 +82,7 @@ import { UsersInvitationsModule } from './modules/users-invitations/users-invita
           dropSchema: false,
           entities: [
             Activity,
+            AuthProvider,
             Following,
             FeedItem,
             HealthActivity,

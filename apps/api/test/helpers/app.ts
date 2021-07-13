@@ -10,6 +10,7 @@ import { ValidationPipe } from '@nestjs/common'
 import fastifyMultipart from 'fastify-multipart'
 
 import { Activity } from '../../src/modules/activities/entities/activity.entity'
+import { AuthProvider } from '../../src/modules/auth/entities/auth-provider.entity'
 import { HealthActivity } from '../../src/modules/health-activities/entities/health-activity.entity'
 import { FeedItem } from '../../src/modules/feed-items/entities/feed-item.entity'
 import { Following } from '../../src/modules/followings/entities/following.entity'
@@ -48,6 +49,7 @@ import { UploadGuardV2 } from '../../src/guards/upload-v2.guard'
 
 export const entities = [
   Activity,
+  AuthProvider,
   Following,
   FeedItem,
   GoalsEntry,

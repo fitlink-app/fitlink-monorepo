@@ -11,9 +11,16 @@ import { Organisation } from '../../organisations/entities/organisation.entity'
 import { User } from '../../users/entities/user.entity'
 
 export enum SubscriptionType {
+  Trial14day = 'Trial14day',
   Trial30day = 'Trial30day',
   Trial90day = 'Trial90day',
-  Dynamic = 'dynamic'
+  Dynamic = 'dynamic',
+  Free = 'free'
+}
+
+export enum BillingPlanStatus {
+  Active = 'active',
+  Canceled = 'canceled'
 }
 
 @Entity()
@@ -32,7 +39,22 @@ export class Subscription extends CreatableEntity {
   @JoinColumn()
   organisation: Organisation
 
-  @Column()
+  @Column({
+    nullable: true,
+    default: ''
+  })
+  billing_first_name: string
+
+  @Column({
+    nullable: true,
+    default: ''
+  })
+  billing_last_name: string
+
+  @Column({
+    nullable: true,
+    default: ''
+  })
   billing_entity: string
 
   @Column({
@@ -77,9 +99,39 @@ export class Subscription extends CreatableEntity {
   billing_postcode?: string
 
   @Column({
+    default: 'GBP'
+  })
+  billing_currency_code: string
+
+  @Column({
+    nullable: true
+  })
+  /** Used for chargebee */
+  billing_plan_customer_id: string
+
+  @Column({
+    nullable: true,
+    enum: BillingPlanStatus
+  })
+  /** Used for chargebee */
+  billing_plan_status: BillingPlanStatus
+
+  @Column({
+    nullable: true
+  })
+  /** Used for chargebee trials */
+  billing_plan_trial_end_date: Date
+
+  @Column({
+    nullable: true
+  })
+  /** Used for chargebee */
+  billing_plan_last_billed_month: string
+
+  @Column({
     type: 'enum',
     enum: SubscriptionType,
-    default: SubscriptionType.Trial30day
+    default: SubscriptionType.Trial14day
   })
   type: string
 
@@ -88,4 +140,9 @@ export class Subscription extends CreatableEntity {
     type: 'boolean'
   })
   default: boolean
+
+  @Column({
+    default: () => 'CURRENT_TIMESTAMP'
+  })
+  subscription_starts_at: Date
 }

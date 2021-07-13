@@ -82,7 +82,7 @@ describe('User Settings', () => {
 
   it('PUT /users-settings/:userId', async () => {
     const payload: Partial<UsersSetting> = {
-      privacy_activities: PrivacySetting.Followers,
+      privacy_activities: PrivacySetting.Following,
       privacy_daily_statistics: PrivacySetting.Public,
       newsletter_subscriptions_user: true
     }
