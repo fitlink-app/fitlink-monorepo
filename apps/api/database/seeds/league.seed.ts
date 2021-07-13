@@ -15,7 +15,7 @@ export default class CreatePublicLeagues implements Seeder {
   public async run(factory: Factory, connection: Connection): Promise<any> {
     const sportRepository = connection.getRepository(Sport)
 
-    const running = await sportRepository.findOne({ name_key: 'running' })
+    const running = await sportRepository.findOne({ name_key: 'walking' })
     /**
      * Create leagues
      */
