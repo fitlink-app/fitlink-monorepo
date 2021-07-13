@@ -48,5 +48,9 @@ export class HealthActivityCreatedListener {
     }
 
     await Promise.all(incrementEntryPromises)
+    await this.healthActivityRepository.save({
+      ...healthActivity,
+      distributed: true
+    })
   }
 }
