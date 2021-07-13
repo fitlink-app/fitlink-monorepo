@@ -4,6 +4,7 @@ import {ListResponse} from '../../../../../api-sdk/types';
 import api from '@api';
 import {getResultsFromPages} from 'utils/api';
 import {UserPublic} from '../../../../../api/src/modules/users/entities/user.entity';
+import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 
 export function useUnfollowUser() {
   return useMutation((id: string) => api.delete(`/me/following/${id}`), {
@@ -38,6 +39,18 @@ export function useUnfollowUser() {
           return oldFollowers as InfiniteData<ListResponse<UserPublic>>;
         },
       );
+
+      // Mutate User Details
+      queryClient.setQueryData<UserPublic>(
+        [QueryKeys.User, userId],
+        oldUser => ({...oldUser!, following: false}),
+      );
+
+      // Mutate Me
+      queryClient.setQueryData<User>(QueryKeys.Me, oldUser => ({
+        ...oldUser!,
+        following_total: oldUser!.following_total - 1,
+      }));
     },
   });
 }

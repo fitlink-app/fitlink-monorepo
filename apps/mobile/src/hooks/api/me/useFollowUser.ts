@@ -4,6 +4,7 @@ import {ListResponse} from '../../../../../api-sdk/types';
 import api from '@api';
 import {getResultsFromPages} from 'utils/api';
 import {UserPublic} from '../../../../../api/src/modules/users/entities/user.entity';
+import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 
 export function useFollowUser() {
   return useMutation(
@@ -23,6 +24,21 @@ export function useFollowUser() {
           QueryKeys.SearchUsers,
           oldFollowers => mutateUserOnFollow(oldFollowers, userId),
         );
+
+        // Mutate User Details
+        queryClient.setQueryData<UserPublic>(
+          [QueryKeys.User, userId],
+          oldUser => ({...oldUser!, following: true}),
+        );
+
+        // Mutate Me
+        queryClient.setQueryData<User>(QueryKeys.Me, oldUser => {
+          console.log(oldUser);
+          return {
+            ...oldUser!,
+            following_total: oldUser!.following_total + 1,
+          };
+        });
       },
 
       onSuccess: () => {

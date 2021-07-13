@@ -6,7 +6,7 @@ import {
   NAVBAR_HEIGHT,
   UserWidget,
 } from '@components';
-import {useUser} from '@hooks';
+import {useFollowUser, useUnfollowUser, useUser} from '@hooks';
 import {StackScreenProps} from '@react-navigation/stack';
 import React from 'react';
 import {ActivityIndicator, RefreshControl, ScrollView} from 'react-native';
@@ -55,44 +55,52 @@ export const Profile = (
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
 
-  const {data: user, isFetchedAfterMount} = useUser(id);
+  const {
+    data: user,
+    isFetchedAfterMount: isUserFetchedAfterMount,
+    refetch: refetchUser,
+    isFetching: isFetchingUser,
+  } = useUser(id);
 
-  // Temp variables
-  const isFollowed = true;
-  const refreshing = false;
+  const {mutate: followUser} = useFollowUser();
+  const {mutate: unfollowUser} = useUnfollowUser();
 
-  const handleOnFollowPressed = () => {};
+  const handleOnFollowPressed = () => {
+    followUser(id);
+  };
 
-  const handleOnUnfollowPressed = () => {};
+  const handleOnUnfollowPressed = () => {
+    unfollowUser(id);
+  };
 
-  const handleOnRefresh = () => {};
+  const handleOnRefresh = () => {
+    refetchUser();
+  };
 
-  const FollowButton = isFollowed ? (
-    <Icon
-      name={'user-plus'}
-      size={24}
-      color={colors.accent}
-      onPress={handleOnFollowPressed}
-    />
-  ) : (
+  const FollowButton = user?.following ? (
     <Icon
       name={'user-minus'}
       size={24}
       color={colors.accentSecondary}
       onPress={handleOnUnfollowPressed}
     />
+  ) : (
+    <Icon
+      name={'user-plus'}
+      size={24}
+      color={colors.accent}
+      onPress={handleOnFollowPressed}
+    />
   );
-
-  console.log(user);
 
   return (
     <Wrapper>
-      {isFetchedAfterMount ? (
+      {isUserFetchedAfterMount ? (
         <ContentContainer
           refreshControl={
             <RefreshControl
               tintColor={colors.accent}
-              refreshing={refreshing}
+              refreshing={isFetchingUser}
               onRefresh={handleOnRefresh}
             />
           }

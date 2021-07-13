@@ -4,3 +4,4 @@ export * from './common';
 export * from './profile';
 export * from './user';
 export * from './league';
+export * from './feed';

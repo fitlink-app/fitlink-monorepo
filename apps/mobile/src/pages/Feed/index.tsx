@@ -1,4 +1,11 @@
-import {Button, GoalTracker, Icon, RewardTracker} from '@components';
+import {
+  Button,
+  FeedFilter,
+  FeedItem,
+  GoalTracker,
+  Icon,
+  RewardTracker,
+} from '@components';
 import {useAuth, useMe} from '@hooks';
 import {UserWidget} from '@components';
 import React from 'react';
@@ -27,6 +34,8 @@ const HeaderContainer = styled.View({
 
 const HeaderWidgetContainer = styled.View({marginTop: 10});
 
+const FeedContainer = styled.View({});
+
 export const Feed = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
@@ -44,11 +53,15 @@ export const Feed = () => {
 
   if (!user) return null;
 
-  // TODO: Add followed_total count to UserWidget once the API provides it
+  const renderItem = ({item, index}) => {
+    return <FeedItem />;
+  };
 
   return (
     <Wrapper style={{paddingTop: insets.top}}>
       <FlatList
+        {...{renderItem}}
+        data={['fika', 'dsa']}
         style={{overflow: 'visible'}}
         refreshControl={
           <RefreshControl
@@ -64,7 +77,7 @@ export const Feed = () => {
                 <UserWidget
                   name={user.name}
                   rank={'Newbie'}
-                  friendCount={8}
+                  friendCount={user.following_total}
                   followerCount={user.followers_total}
                   pointCount={user.points_total}
                 />
@@ -125,26 +138,13 @@ export const Feed = () => {
                   }}
                 />
               </SettingsButtonContainer>
-
-              <HeaderWidgetContainer>
-                <Button text="Log out" onPress={() => logout()} />
-              </HeaderWidgetContainer>
-
-              <HeaderWidgetContainer>
-                <Button text="Test hook" onPress={() => refetchUser()} />
-              </HeaderWidgetContainer>
-
-              <HeaderWidgetContainer>
-                <Button
-                  text="Test nav"
-                  onPress={() => navigation.navigate('Friends', {tab: 2})}
-                />
-              </HeaderWidgetContainer>
             </HeaderContainer>
+
+            <FeedContainer>
+              <FeedFilter />
+            </FeedContainer>
           </>
         }
-        data={[]}
-        renderItem={() => null}
       />
     </Wrapper>
   );

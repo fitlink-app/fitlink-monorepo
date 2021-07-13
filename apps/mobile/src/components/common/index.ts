@@ -14,3 +14,4 @@ export * from './Modal';
 export * from './TabView';
 export * from './SearchBox';
 export * from './Dots';
+export * from './Chip';
