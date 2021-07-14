@@ -2,12 +2,16 @@ import { Injectable } from '@nestjs/common'
 import { SESClient, SendTemplatedEmailCommand } from '@aws-sdk/client-ses'
 import { ConfigService } from '@nestjs/config'
 import { writeFile, readFile } from 'fs/promises'
+import { GoogleAnalyticsService } from './google-analytics.service'
 
 @Injectable()
 export class EmailService {
   sesClient: SESClient
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService, 
+    private googleAnalyticsService: GoogleAnalyticsService 
+    ) {
     this.sesClient = new SESClient({
       credentials: {
         accessKeyId: this.configService.get('SES_ACCESS_KEY_ID'),
@@ -21,8 +25,10 @@ export class EmailService {
     template: TemplatesType,
     data: NodeJS.Dict<string>,
     toAddresses: string[],
-    fromAddress = this.configService.get('EMAIL_DEFAULT_FROM_ADDRESS')
+    fromAddress = this.configService.get('EMAIL_DEFAULT_FROM_ADDRESS'),
   ) {
+    const GOOGLE_ANALYTICS_OPEN_EMAIL_URL = await this.googleAnalyticsService.sendGoogleAnalitics(template, 'email-is-sent')
+    data['GOOGLE_ANALYTICS_OPEN_EMAIL_URL'] = GOOGLE_ANALYTICS_OPEN_EMAIL_URL
     const templatedEmail = new SendTemplatedEmailCommand({
       Destination: {
         ToAddresses: toAddresses
@@ -38,14 +44,23 @@ export class EmailService {
   }
 }
 
+
 /** Mocks email to a file, also useful for development */
-export class EmailServiceLocal extends EmailService {
+@Injectable()
+export class EmailServiceLocal {
+
+  constructor (private googleAnalyticsService: GoogleAnalyticsService)
+    {}
+
   async sendTemplatedEmail(
     template: TemplatesType,
     data: NodeJS.Dict<string>,
     toAddresses: string[],
-    fromAddress: string
+    fromAddress: string,
+    userId?: string
   ) {
+    const GOOGLE_ANALYTICS_OPEN_EMAIL_URL = await this.googleAnalyticsService.sendGoogleAnalitics(template, 'email-is-sent')
+    data['GOOGLE_ANALYTICS_OPEN_EMAIL_URL'] = GOOGLE_ANALYTICS_OPEN_EMAIL_URL
     const content = await this.appendEmailContent(
       template,
       data,
