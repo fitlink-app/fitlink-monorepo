@@ -1,7 +1,14 @@
 import {UserCounter} from 'components/common/UserCounter';
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
-import {Avatar, Chip, Icon, Label, TouchHandler} from '../common';
+import {
+  Avatar,
+  Chip,
+  Icon,
+  Label,
+  ProgressCircle,
+  TouchHandler,
+} from '../common';
 import {FeedCollage} from './FeedCollage';
 import {FeedStatLabel} from './FeedStatLabel';
 
@@ -56,15 +63,19 @@ export const FeedItem = () => {
 
   // Temp variables
   const isLiked = false;
-  const title = 'Afternoon Run';
+  const name = 'Lana Smith';
+  const title = 'Afternoon Hiking';
   const date = 'today at 2:15pm';
   const points = 5;
   const images = [
-    'https://source.unsplash.com/random/1024x763',
-    'https://source.unsplash.com/random/1024x764',
-    'https://source.unsplash.com/random/1024x765',
-    'https://source.unsplash.com/random/1024x766',
+    'https://source.unsplash.com/random/250%C3%97180/?hiking,woods',
+    'https://source.unsplash.com/random/254%C3%97180/?hiking,woods',
+    'https://source.unsplash.com/random/253%C3%97180/?hiking,woods',
+    'https://source.unsplash.com/random/252%C3%97180/?hiking,woods',
+    'https://source.unsplash.com/random/251%C3%97180/?hiking,woods',
   ];
+
+  const description = `Some pics from our hike at Bear Creek Trail. This is our favourite spot!`;
 
   const LikeButton = isLiked ? (
     <Icon name={'thumb-solid'} color={colors.accent} size={16} />
@@ -75,7 +86,7 @@ export const FeedItem = () => {
   const renderTitleIcon = () => {
     return (
       <Icon
-        name={'run'}
+        name={'hike'}
         size={18}
         style={{marginRight: 5, marginTop: 2}}
         color={colors.accentSecondary}
@@ -102,7 +113,15 @@ export const FeedItem = () => {
   return (
     <Wrapper>
       <Row>
-        <Avatar url={'https://i.pravatar.cc/512'} size={44} />
+        <ProgressCircle
+          progress={0.33}
+          strokeWidth={2.5}
+          backgroundStrokeWidth={2}
+          bloomIntensity={0.5}
+          bloomRadius={5}
+          size={52}>
+          <Avatar url={'https://i.pravatar.cc/512'} size={44} />
+        </ProgressCircle>
 
         <RightContainer>
           <SpacedRow>
@@ -123,7 +142,7 @@ export const FeedItem = () => {
               </Row>
 
               <DateText type="caption" appearance={'secondary'}>
-                {date}
+                {name} · {date}
               </DateText>
             </Col>
 
@@ -132,6 +151,13 @@ export const FeedItem = () => {
           </SpacedRow>
 
           {renderStats()}
+
+          <Label
+            type={'body'}
+            appearance={'accentSecondary'}
+            style={{marginBottom: 10}}>
+            {description}
+          </Label>
 
           <SpacedRow>
             <FeedCollage images={images} />
@@ -146,11 +172,11 @@ export const FeedItem = () => {
             style={{marginLeft: 8}}
             countTotal={29}
             avatars={[
-              'https://i.pravatar.cc/80',
-              'https://i.pravatar.cc/81',
-              'https://i.pravatar.cc/82',
-              'https://i.pravatar.cc/83',
-              'https://i.pravatar.cc/84',
+              'https://i.pravatar.cc/101',
+              'https://i.pravatar.cc/102',
+              'https://i.pravatar.cc/103',
+              'https://i.pravatar.cc/104',
+              'https://i.pravatar.cc/105',
             ]}
           />
         </Button>

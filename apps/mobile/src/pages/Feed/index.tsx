@@ -61,7 +61,7 @@ export const Feed = () => {
     <Wrapper style={{paddingTop: insets.top}}>
       <FlatList
         {...{renderItem}}
-        data={['fika', 'dsa']}
+        data={[1, 1, 1, 1, 1, 1]}
         style={{overflow: 'visible'}}
         refreshControl={
           <RefreshControl
