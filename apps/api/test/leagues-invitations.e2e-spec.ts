@@ -264,5 +264,6 @@ describe('Leagues Invitations', () => {
     expect(list.json().results[0].from_user.email).toBeUndefined()
     expect(list.json().results[0].to_user.email).toBeUndefined()
     expect(list.json().results[0].league.image).toBeDefined()
+    expect(list.json().results[0].league.team).toBeDefined()
   })
 })

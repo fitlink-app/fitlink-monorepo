@@ -217,6 +217,8 @@ export class LeaguesInvitationsService {
       relations: [
         'league',
         'league.image',
+        'league.team',
+        'league.team.avatar',
         'to_user',
         'from_user',
         'from_user.avatar'
