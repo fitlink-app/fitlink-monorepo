@@ -19,7 +19,7 @@ export class GoogleAnalyticsService {
    * @param eventType
    * @param userId
    */
-    async sendGoogleAnalitics(
+    async sendGoogleAnalytics(
         eventType: TemplatesType,
         eventCategory: eventCategory,
         userId?: string
