@@ -228,4 +228,41 @@ describe('Leagues Invitations', () => {
     expect(redeem.statusCode).toEqual(400)
     expect(redeem.json().message).toEqual('Token is invalid')
   })
+
+  it.only(`GET /me/league-invitations 200 A user can see their league invitations`, async () => {
+    const league = (await LeaguesSetup('Leagues Invitations Test', 1))[0]
+
+    // Set the league owner to the auth user
+    await leaguesRepository
+      .createQueryBuilder()
+      .relation(League, 'owner')
+      .of(league)
+      .set(user1)
+
+    const data = await app.inject({
+      method: 'POST',
+      url: `/leagues/${league.id}/invitations`,
+      headers: auth1,
+      payload: {
+        userId: user2.id
+      }
+    })
+
+    expect(data.statusCode).toEqual(201)
+
+    const list = await app.inject({
+      method: 'GET',
+      url: `/me/league-invitations`,
+      headers: auth2
+    })
+
+    expect(list.statusCode).toEqual(200)
+    expect(list.json().results.length).toBeGreaterThanOrEqual(1)
+
+    // Ensure the data is correctly sanitized
+    expect(list.json().results[0].from_user.avatar).toBeDefined()
+    expect(list.json().results[0].from_user.email).toBeUndefined()
+    expect(list.json().results[0].to_user.email).toBeUndefined()
+    expect(list.json().results[0].league.image).toBeDefined()
+  })
 })

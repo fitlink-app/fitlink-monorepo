@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import {
   PrimaryGeneratedColumn,
   Entity,
@@ -7,7 +8,7 @@ import {
 } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { League } from '../../leagues/entities/league.entity'
-import { User } from '../../users/entities/user.entity'
+import { User, UserPublic } from '../../users/entities/user.entity'
 
 @Entity()
 export class LeaguesInvitation extends CreatableEntity {
@@ -16,11 +17,11 @@ export class LeaguesInvitation extends CreatableEntity {
 
   @ManyToOne(() => User)
   @JoinColumn()
-  to_user: User
+  to_user: User | UserPublic
 
   @ManyToOne(() => User)
   @JoinColumn()
-  from_user: User
+  from_user: User | UserPublic
 
   @ManyToOne(() => League)
   @JoinColumn()
@@ -35,4 +36,18 @@ export class LeaguesInvitation extends CreatableEntity {
     default: false
   })
   dismissed: boolean
+}
+
+export class LeagueInvitationPagination {
+  @ApiProperty()
+  page_total: number
+
+  @ApiProperty()
+  total: number
+
+  @ApiProperty({
+    type: LeaguesInvitation,
+    isArray: true
+  })
+  results: LeaguesInvitation[]
 }
