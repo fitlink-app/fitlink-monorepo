@@ -54,7 +54,9 @@ export class LeaguesInvitationsController {
   ) {
     const invitations = await this.leagueInvitationsService.findAll(
       {
-        to_user: { id: authUser.id }
+        to_user: { id: authUser.id },
+        dismissed: false,
+        accepted: false
       },
       pagination
     )

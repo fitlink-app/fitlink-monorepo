@@ -12,26 +12,32 @@ import { User, UserPublic } from '../../users/entities/user.entity'
 
 @Entity()
 export class LeaguesInvitation extends CreatableEntity {
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string
 
+  @ApiProperty()
   @ManyToOne(() => User)
   @JoinColumn()
   to_user: User | UserPublic
 
+  @ApiProperty()
   @ManyToOne(() => User)
   @JoinColumn()
   from_user: User | UserPublic
 
+  @ApiProperty()
   @ManyToOne(() => League)
   @JoinColumn()
   league: League
 
+  @ApiProperty()
   @Column({
     default: false
   })
   accepted: boolean
 
+  @ApiProperty()
   @Column({
     default: false
   })

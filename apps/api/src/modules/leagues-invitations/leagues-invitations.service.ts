@@ -219,6 +219,9 @@ export class LeaguesInvitationsService {
         'league.image',
         'league.team',
         'league.team.avatar',
+        'league.organisation',
+        'league.organisation.avatar',
+        'league.sport',
         'to_user',
         'from_user',
         'from_user.avatar'
