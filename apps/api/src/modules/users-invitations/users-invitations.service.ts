@@ -63,7 +63,7 @@ export class UsersInvitationsService {
   }
 
   /**
-   * Greates a JWT for the user invitation
+   * Creates a JWT for the user invitation
    *
    * @param id The id of the user who created the invitation (the user to follow on signup)
    * @returns string (JWT)
