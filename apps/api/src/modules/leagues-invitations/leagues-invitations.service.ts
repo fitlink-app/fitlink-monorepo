@@ -213,12 +213,45 @@ export class LeaguesInvitationsService {
       where,
       order: { created_at: 'DESC' },
       take: options.limit,
-      skip: options.page * options.limit
+      skip: options.page * options.limit,
+      relations: [
+        'league',
+        'league.image',
+        'league.team',
+        'league.team.avatar',
+        'league.organisation',
+        'league.organisation.avatar',
+        'league.sport',
+        'to_user',
+        'from_user',
+        'from_user.avatar'
+      ]
     })
     return new Pagination<LeaguesInvitation>({
-      results,
+      results: results.map(this.getPublic),
       total
     })
+  }
+
+  /**
+   * Gets the public readable entity
+   *
+   * @param invitation
+   * @returns
+   */
+  getPublic(invitation: LeaguesInvitation) {
+    const from_user = plainToClass(UserPublic, invitation.from_user, {
+      excludeExtraneousValues: true
+    })
+
+    const to_user = plainToClass(UserPublic, invitation.to_user, {
+      excludeExtraneousValues: true
+    })
+
+    invitation.from_user = from_user
+    invitation.to_user = to_user
+
+    return invitation
   }
 
   /**
