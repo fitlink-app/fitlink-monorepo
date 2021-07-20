@@ -1,6 +1,9 @@
 import { Factory, runSeeder, Seeder } from 'typeorm-seeding'
 import { Connection, Repository } from 'typeorm'
-import { League } from '../../src/modules/leagues/entities/league.entity'
+import {
+  League,
+  LeagueAccess
+} from '../../src/modules/leagues/entities/league.entity'
 import { Team } from '../../src/modules/teams/entities/team.entity'
 import { TeamsSetup, TeamsTeardown } from './teams.seed'
 import { OrganisationsSetup, OrganisationsTeardown } from './organisations.seed'
@@ -87,7 +90,8 @@ export function TeamAssignedLeagueSetup(name: string): Promise<League> {
       return factory(League)().create({
         name,
         description: `${name} description`,
-        team
+        team,
+        access: LeagueAccess.Team
       })
     }
 
@@ -134,7 +138,8 @@ export function OrganisationAssignedLeagueSetup(name: string): Promise<League> {
       return factory(League)().create({
         name,
         description: `${name} description`,
-        organisation
+        organisation,
+        access: LeagueAccess.Organisation
       })
     }
 

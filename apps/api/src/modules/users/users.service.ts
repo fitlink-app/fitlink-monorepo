@@ -178,12 +178,12 @@ export class UsersService {
     })
   }
 
-  async searchByName(
+  async searchByNameOrEmail(
     keyword: string,
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    const query = this.userRepository
+    let query = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.following', 'f1', 'f1.follower.id = :userId', {
         userId
@@ -193,10 +193,16 @@ export class UsersService {
       })
       .take(limit)
       .skip(page * limit)
-      .where('name ILIKE :keyword AND user.id != :userId', {
+
+    // Precision search by email
+    if (keyword.indexOf('@') > 0) {
+      query = query.where('email = :keyword', { keyword })
+    } else if (keyword) {
+      query = query.where('name ILIKE :keyword AND user.id != :userId', {
         keyword: `%${keyword}%`,
         userId
       })
+    }
 
     const [results, total] = await query.getManyAndCount()
 
