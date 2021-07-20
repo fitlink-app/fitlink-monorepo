@@ -551,6 +551,83 @@ export class LeaguesService {
   }
 
   /**
+   * 1. User must not already be in the league
+   * 2. If public, any user can be invited
+   * 3. If team, only team members can be invited
+   * 4. If org, only org members can be invited
+   *
+   * @param leagueId
+   * @param options
+   */
+  async searchUsersWithJoinAccess(
+    leagueId: string,
+    options: PaginationOptionsInterface,
+    keyword: string = ''
+  ): Promise<Pagination<UserPublic>> {
+    const league = await this.leaguesRepository.findOne(leagueId, {
+      relations: ['team']
+    })
+
+    let query = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoin('user.teams', 'userTeam')
+      .leftJoin('user.avatar', 'avatar')
+      .leftJoin('userTeam.organisation', 'userOrganisation')
+      .leftJoin('league', 'league', 'league.id = :leagueId', { leagueId })
+      .leftJoin('league.users', 'leagueUser', 'leagueUser.id = user.id')
+      .where(
+        new Brackets((qb) => {
+          // The league is public
+          return (
+            qb
+              .where('league.access = :accessPublic')
+
+              // The league is 'team'
+              // The user belongs to the team that the league belongs to
+              .orWhere(
+                `(league.access = :accessTeam AND league.team.id = userTeam.id)`
+              )
+
+              // The league is 'organisation'
+              // The user belongs to the organisation that the league belongs to
+              .orWhere(
+                `(league.access = :accessOrganisation AND userOrganisation.id = league.organisation.id)`
+              )
+          )
+        }),
+        {
+          accessTeam: LeagueAccess.Team,
+          accessPublic: LeagueAccess.Public,
+          accessOrganisation: LeagueAccess.Organisation
+        }
+      )
+      // The user is not already a member of the league
+      .andWhere('leagueUser.id IS NULL')
+      .take(options.limit)
+      .skip(options.page * options.limit)
+
+    // Precision email search
+    if (keyword.indexOf('@') > 0) {
+      query = query.andWhere('user.email = :keyword', { keyword })
+    } else if (keyword) {
+      query = query.andWhere('user.name ILIKE :keyword', {
+        keyword: `%${keyword}%`
+      })
+    }
+
+    const [results, total] = await query.getManyAndCount()
+
+    return new Pagination<UserPublic>({
+      results: results.map((r) =>
+        plainToClass(UserPublic, r, {
+          excludeExtraneousValues: true
+        })
+      ),
+      total
+    })
+  }
+
+  /**
    * Gets the leaderboard rank and 2 flanking participants (above and below in ranking)
    *
    * TODO: Uses some legacy code from the previous (Firebase) build, and this can be improved
