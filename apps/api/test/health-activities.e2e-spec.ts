@@ -1,5 +1,5 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { Connection } from 'typeorm'
+import { Connection, getConnection } from 'typeorm'
 import { runSeeder, useSeeding } from 'typeorm-seeding'
 import { HealthActivitiesModule } from '../src/modules/health-activities/health-activities.module'
 import { ProvidersModule } from '../src/modules/providers/providers.module'
@@ -13,33 +13,47 @@ import { mockApp } from './helpers/app'
 import stravaPayload from './helpers/stravaPayload'
 import { MockType } from './helpers/types'
 import { ProvidersSetup, ProvidersTeardown } from './seeds/providers.seed'
-import { SportSetup, SportsTeardownWithId } from './seeds/sport.seed'
 import fitbitActivitiesPayload from './helpers/fitbitActivitiesPayload'
 import { Provider } from '../src/modules/providers/entities/provider.entity'
 import CreateSports from '../database/seeds/sport.seed'
 import fitbitSleepPayload from './helpers/fitbitSleepPayload'
+import { LeaguesModule } from '../src/modules/leagues/leagues.module'
+import {
+  LeaguesSetup,
+  LeaguesWithUsersAndEntriesSetup
+} from './seeds/leagues.seed'
+import { UsersSetup } from './seeds/users.seed'
+
+import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
   let stravaService: MockType<StravaService>
   let fitbitService: MockType<FitbitService>
   let providerService: MockType<ProvidersService>
+  let connection: Connection
   let userForStrava: User
   let userForFitbit: User
+  let userForEventEmitterTesting: User
   let spyConsole
+  let users: User[]
 
   beforeAll(async () => {
     spyConsole = jest.spyOn(console, 'error').mockImplementation(() => {})
 
     app = await mockApp({
-      imports: [ProvidersModule, HealthActivitiesModule],
+      imports: [ProvidersModule, HealthActivitiesModule, LeaguesModule],
       providers: []
     })
+    connection = getConnection()
     await useSeeding()
     await runSeeder(CreateSports)
+    users = await UsersSetup('Test Users', 3)
+    await LeaguesWithUsersAndEntriesSetup('Test Leagues', 2, users)
 
     userForStrava = await ProvidersSetup('StravaHealthActivityTest')
     userForFitbit = await ProvidersSetup('FitbitHealthActivityTest')
+    userForEventEmitterTesting = await ProvidersSetup('EventEmitterTest')
 
     stravaService = app.get(StravaService)
     fitbitService = app.get(FitbitService)
@@ -54,6 +68,7 @@ describe('Health Activities', () => {
     await app.close()
     spyConsole.mockRestore()
   })
+
   it('POST /providers/fitbit/webhook', async () => {
     const mockPayload: FitbitEventData[] = [
       {
@@ -276,5 +291,49 @@ describe('Health Activities', () => {
 
     expect(data.json().healthActivity).toBe(null)
     expect(console.error).toHaveBeenCalled()
+  })
+
+  it('Create a new healthActivity to test the Event Emitter', async (done) => {
+    const mockPayload: FitbitEventData[] = [
+      {
+        collectionType: 'activities',
+        date: '2020-06-01',
+        ownerId: '184X36',
+        ownerType: 'user',
+        subscriptionId: users[0].id
+      },
+      {
+        collectionType: 'activities',
+        date: '2020-06-01',
+        ownerId: '184X36',
+        ownerType: 'user',
+        subscriptionId: users[0].id
+      }
+    ]
+
+    providerService.findOne = jest.fn()
+    providerService.findOne.mockReturnValue({
+      user: { id: userForEventEmitterTesting.id }
+    } as Partial<Provider>)
+    fitbitService.getFreshFitbitToken = jest.fn()
+    fitbitService.getFreshFitbitToken.mockReturnValue(
+      `SomethingThat Won't error out`
+    )
+    fitbitService.fetchActivitySummaryByDay = jest.fn()
+    fitbitService.fetchActivitySummaryByDay.mockReturnValue(
+      fitbitActivitiesPayload
+    )
+    await app.inject({
+      method: 'POST',
+      payload: mockPayload,
+      url: '/providers/fitbit/webhook'
+    })
+    setTimeout(async () => {
+      const entry = await connection
+        .getRepository(LeaderboardEntry)
+        .findOne({ where: { user: { id: users[0].id } } })
+      expect(entry.points).toBe(8301)
+      done()
+    }, 500)
   })
 })

@@ -8,8 +8,56 @@ import { Team } from '../../src/modules/teams/entities/team.entity'
 import { TeamsSetup, TeamsTeardown } from './teams.seed'
 import { OrganisationsSetup, OrganisationsTeardown } from './organisations.seed'
 import { Leaderboard } from '../../src/modules/leaderboards/entities/leaderboard.entity'
+import { User } from '../../src/modules/users/entities/user.entity'
+import { LeaderboardEntry } from '../../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
+import { Sport } from '../../src/modules/sports/entities/sport.entity'
 
 const COUNT_LEAGUES = 2
+
+export function LeaguesWithUsersAndEntriesSetup(
+  name: string,
+  count = COUNT_LEAGUES,
+  users?: User[]
+): Promise<League[]> {
+  class TestingLeagueSeed implements Seeder {
+    public async run(factory: Factory, connection: Connection): Promise<any> {
+      /**
+       * This seeded data lives only to be tested on die and then be reborn.
+       */
+      const leagues = await factory(League)().createMany(count, {
+        name
+      })
+      const leaderboards = await Promise.all(
+        leagues.map((league) => {
+          return factory(Leaderboard)({ league }).create()
+        })
+      )
+      const sport = await connection
+        .getRepository(Sport)
+        .findOne({ where: { name_key: 'cycling' } })
+
+      await Promise.all(
+        leagues.map(async (league, index: number) => {
+          league.leaderboards = [leaderboards[index]]
+          league.active_leaderboard = leaderboards[index]
+          league.users = [users[index]]
+          league.sport = sport
+          await Promise.all(
+            users.map((user) => {
+              return factory(LeaderboardEntry)({
+                user,
+                leaderboard: league.active_leaderboard
+              }).create({ points: 8300 })
+            })
+          )
+          return connection.getRepository(League).save(league)
+        })
+      )
+      return leagues
+    }
+  }
+  return runSeeder(TestingLeagueSeed)
+}
 
 export function LeaguesSetup(
   name: string,
