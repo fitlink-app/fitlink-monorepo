@@ -13,6 +13,7 @@ import {
 import { LeaguesModule } from '../src/modules/leagues/leagues.module'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { Team } from '../src/modules/teams/entities/team.entity'
+import { User } from '../src/modules/users/entities/user.entity'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
 import { ImagesSetup } from './seeds/images.seed'
@@ -45,6 +46,8 @@ describe('Leagues', () => {
   let user1: string
   let user2: string
   let user3: string
+  let user4: string
+  let userData4: User
 
   beforeAll(async () => {
     app = await mockApp({
@@ -74,10 +77,13 @@ describe('Leagues', () => {
       'Test Organisation League'
     )
 
-    const users = await UsersSetup('Test League', 3)
+    const users = await UsersSetup('Test League', 4)
     user1 = users[0].id
     user2 = users[1].id
     user3 = users[2].id
+    user4 = users[3].id
+    userData4 = users[3]
+
     authHeaders = getAuthHeaders({}, user1)
     authHeaders2 = getAuthHeaders({}, user2)
     authHeaders3 = getAuthHeaders({}, user3)
@@ -114,7 +120,7 @@ describe('Leagues', () => {
       .createQueryBuilder()
       .relation(Team, 'users')
       .of(seeded_team.id)
-      .add(user3)
+      .add([user3, user4])
 
     // Add a user to the team underneath the organisation
     await app
@@ -440,6 +446,33 @@ describe('Leagues', () => {
 
     expect(data.statusCode).toEqual(200)
     expect(data.json().results.length).toBeGreaterThan(0)
+  })
+
+  it.only('GET /leagues/:leagueId/inviteable A user can appear in search if they qualify to be invited to a league', async () => {
+    const data = await app.inject({
+      method: 'GET',
+      url: `/leagues/${team_assigned_league.id}/inviteable`,
+      headers: authHeaders3,
+      query: {
+        q: userData4.email
+      }
+    })
+
+    expect(data.json().results.length).toBe(1)
+    expect(data.json().results[0].id).toBe(userData4.id)
+
+    const data2 = await app.inject({
+      method: 'GET',
+      url: `/leagues/${team_assigned_league.id}/inviteable`,
+      headers: authHeaders3,
+      query: {
+        limit: '1000',
+        q: 'test'
+      }
+    })
+
+    expect(data2.json().results.filter((e) => e.id === user1).length).toBe(0)
+    expect(data2.json().results.filter((e) => e.id === user2).length).toBe(0)
   })
 
   it('GET /leagues A user can retrieve all leagues including for teams/organisations they belong to or private leagues (i.e. "explore feature")', async () => {

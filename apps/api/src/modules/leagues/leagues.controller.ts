@@ -41,6 +41,8 @@ import {
 import { LeaguesService } from './leagues.service'
 import { LeaguesInvitationsService } from '../leagues-invitations/leagues-invitations.service'
 import { Pagination } from '../../decorators/pagination.decorator'
+import { UserPublicPagination } from '../users/entities/user.entity'
+import { SearchUserDto } from '../users/dto/search-user.dto'
 
 @ApiTags('leagues')
 @ApiBaseResponses()
@@ -252,6 +254,41 @@ export class LeaguesController {
     } else {
       return this.leaguesService.findOne(leagueId)
     }
+  }
+
+  /**
+   * Get a list of users that be invited to the league
+   *
+   * @param id
+   * @returns
+   */
+  @Get('/leagues/:leagueId/inviteable')
+  @ApiTags('leagues')
+  @ApiQuery({ type: SearchUserDto })
+  @ApiResponse({ type: UserPublicPagination, status: 200 })
+  async searchInviteableUsers(
+    @Param('leagueId') leagueId: string,
+    @Pagination() pagination: PaginationQuery,
+    @User() authUser: AuthenticatedUser,
+    @Query() query: SearchUserDto
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      const result = await this.leaguesService.findOneAccessibleToUser(
+        leagueId,
+        authUser.id
+      )
+      if (!result) {
+        throw new ForbiddenException(
+          'You do not have permission to view this league'
+        )
+      }
+    }
+
+    return this.leaguesService.searchUsersWithJoinAccess(
+      leagueId,
+      pagination,
+      query.q
+    )
   }
 
   /**

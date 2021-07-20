@@ -344,3 +344,17 @@ export class UserPublic {
   /** Whether the authenticated user is following the entity user */
   following?: boolean
 }
+
+export class UserPublicPagination {
+  @ApiProperty()
+  page_total: number
+
+  @ApiProperty()
+  total: number
+
+  @ApiProperty({
+    type: UserPublic,
+    isArray: true
+  })
+  results: UserPublic[]
+}
