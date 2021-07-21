@@ -38,7 +38,7 @@ export default function Modal({
     return ReactDOM.createPortal(
       <div className={classes}>
         <div className="modal__content">
-          <IconClose onClick={handleClick} />
+          <IconClose className="modal__close" onClick={handleClick} />
           { children }
         </div>
       </div>, 

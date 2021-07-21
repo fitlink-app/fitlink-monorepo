@@ -1,35 +1,94 @@
+import { useState } from 'react'
+import clsx from 'clsx'
+import Gallery from 'react-photo-gallery'
+import arrayMove from 'array-move'
+import { SortableContainer, SortableElement } from 'react-sortable-hoc'
+import Photo from './Photo'
 import IconImage from '../icons/IconImage'
+import Modal from './Modal'
+import ImageUploadDropper from './ImageUploadDropper'
 
 export type ImageStackProps = {
   files: {
     url: string
+    width: number
+    height: number
   }[],
   label?: string
-  onClick?: () => void
+  readOnly?: boolean
 }
 
 export default function ImageStack({
   files,
   label,
-  onClick
+  readOnly = false
 }:ImageStackProps) {
+  
+  const [items, setItems] = useState(files.map(e => { return {src: e.url, width: e.width, height: e.height} }))
+  const [showModal, setShowModal] = useState(false)
+  const iconClasses = clsx({
+    icon: true,
+    'always-visible': files.length === 0
+  })
+
+  const onSortEnd = ({ oldIndex, newIndex }) => {
+    setItems(arrayMove(items, oldIndex, newIndex))
+  }
+
+  const handleClick = () => {
+    if (!readOnly) setShowModal(true)
+  }
+
+  const remove = (photo) => {
+    const index = items.findIndex(e => JSON.stringify(photo) === JSON.stringify(e))
+    const arr = [...items]
+    arr.splice(index, 1)
+    setItems(arr)
+  }
+
+  const appendFiles = (files) => {
+    setItems(items => [...items, ...files])
+  }
+
+  const SortablePhoto = SortableElement(item => <Photo {...item} remove={ (i) => remove(i) } />)
+  const SortableGallery = SortableContainer(({ items }) => (
+    <Gallery photos={items} renderImage={props => <SortablePhoto {...props} />} />
+  ))
+
   return (
     <>
       { label && <label className="block">{label}</label> }
-      <div className={`image-stack image-count-${files.length > 4 ? 4 : files.length}`}>
-        { files.slice(0, 4).map((f, i) => (
+      <div className={`image-stack image-count-${items.length > 4 ? 4 : items.length}`} onClick={ handleClick }>
+        { items.slice(0, 4).map((f, i) => (
           <div
             key={`img_${i}`}
-            style={{backgroundImage: `url(${f.url})`}}
+            style={{backgroundImage: `url(${f.src})`}}
           />
         ))}
-        { files.length > 4 &&
+        { items.length > 4 &&
           <div className="more">
-            +{files.length-4} more
+            +{items.length-4} more
           </div>
         }
-        <IconImage className={files.length === 0 ? 'always-visible' : ''} />
+        <span className={iconClasses}>
+          <IconImage />
+        </span>
       </div>
+
+      { showModal &&
+        <Modal
+          close={ () => setShowModal(false) }
+          size="large"
+          >
+          <h4 className="h5 light">Select Images</h4>
+          <ImageUploadDropper
+            onChange={ appendFiles }
+          />
+          <div className="sortable">
+            <SortableGallery items={items} onSortEnd={onSortEnd} axis={"xy"} helperClass="sortableHelper" />
+          </div>
+        </Modal>
+      }
     </>
   )
 }

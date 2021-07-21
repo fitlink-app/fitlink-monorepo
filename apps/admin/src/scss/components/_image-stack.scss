@@ -96,18 +96,6 @@
     }
   }
 
-  svg {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 2.5rem;
-    height: 2.5rem;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    z-index: 3;
-    color: $white;
-    transition: opacity 0.2s;
-  }
   
   &:after {
     position: absolute;
@@ -127,15 +115,58 @@
     opacity: 0.3;
   }
   
-  svg.always-visible {
+  .icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    z-index: 3;
+    color: $white;
+    transition: all 0.2s;
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: block;
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+  
+  .icon.always-visible {
     color: #ccc;
   }
   
-  &:hover svg, svg.always-visible {
+  &:hover .icon, .icon.always-visible {
     opacity: 1;
   }
-  &:hover svg {
+  &:hover .icon {
     color: $white;
+    background: rgba($darkGrey, 0.8);
   }
   
+}
+
+.sortable {
+  width: 100%;
+  width: 60vw;
+}
+
+.sortableHelper {
+  z-index: 200;
+}
+
+.remove {
+  position: absolute;
+  right: 0.8rem;
+  top: 0.8rem;
+  /* background: $red;
+  color: $white;
+  border: 0;
+  padding: 0;
+  display: block; */
 }

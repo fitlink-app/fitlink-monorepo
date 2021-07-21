@@ -10,6 +10,12 @@ export type DrawerProps = {
   remove: () => void
 }
 
+const parentHasClass = (element, classname) => {
+  if (element.id === '__next') return false
+  if (element.classList.contains(classname)) return true
+  return element.parentNode && parentHasClass(element.parentNode, classname)
+}
+
 export default function Drawer({
   children,
   warnBeforeClose = false,
@@ -21,6 +27,9 @@ export default function Drawer({
 
   const handleClickOutside = (e) => {
     const ref = node.current || null
+    if (parentHasClass(e.target, 'modal')) {
+      return
+    }
     if (ref.contains(e.target)) {
       return
     }

@@ -1,0 +1,29 @@
+.image-upload {
+  display: block;
+  width: 100%;
+  height: 8rem;
+  border: 1px solid $grey-300;
+  background: $grey-100;
+  border-radius: 0.5rem;
+  display: flex;
+  margin: 1rem 0;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: $lightGrey;
+  
+  svg {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  span {
+    margin-top: 0.5rem;
+  }
+
+  &--hover {
+    border: 1px solid $primary;
+    background: rgba($primary, 0.15);
+    color: $primary;
+  }
+}

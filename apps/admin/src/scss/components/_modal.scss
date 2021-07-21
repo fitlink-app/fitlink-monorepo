@@ -2,12 +2,14 @@
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 999;
+  z-index: 100;
   padding: 1.5rem;
-  background: rgba($white,0.6);
+  background: rgba($darkGrey,0.6);
   display: flex;
   width: 100vw;
   height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
   
   &__content {
     background: $white;
@@ -16,18 +18,22 @@
     box-shadow: 0 10px 20px 0 rgba(0,0,0,0.1);
     border-radius: 0.5rem;
     position: relative;
-    overflow-x: hidden;
-    overflow-y: auto;
     max-width: 100%;
   }
 
   &__close {
     position: absolute;
-    right: 0.5rem;
-    top: 0.5rem;
+    right: 1rem;
+    top: 1rem;
     width: 1.5rem;
     height: 1.5rem;
     cursor: pointer;
+    color: $lightGrey;
+    transition: color 0.15s;
+
+    &:hover {
+      color: $darkGrey;
+    }
   }
 
   &--full &__content {
