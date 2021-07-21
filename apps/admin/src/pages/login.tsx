@@ -29,9 +29,8 @@ const Login = () => {
   return (
     <>
       <form method="post" onSubmit={(e) => e.preventDefault()}>
-        {user && JSON.stringify(user)}
         {isError && getErrorMessage(error)}
-        {isSuccess && JSON.stringify(jwtDecode<JwtPayload>(data.access_token))}
+        {isSuccess && <div>You have been logged in.</div>}
         <h1>Login</h1>
         <div>
           <label>Email</label>
@@ -146,14 +145,17 @@ function AppleLogin() {
 
   useEffect(() => {
     if (typeof window != 'undefined') {
-      ;(window as any).AppleID.auth.init({
-        clientId: 'com.fitlinkapp-services',
-        scope: 'name email',
-        redirectURI: location.origin + '/login',
-        state: '[STATE]',
-        nonce: '[NONCE]',
-        usePopup: true //or false defaults to false
-      })
+      const appleId = (window as any).AppleID
+      if (appleId) {
+        appleId.auth.init({
+          clientId: appleClientId,
+          scope: 'name email',
+          redirectURI: location.origin + '/login',
+          state: '[STATE]',
+          nonce: '[NONCE]',
+          usePopup: true //or false defaults to false
+        })
+      }
     }
   }, [])
 
@@ -162,13 +164,13 @@ function AppleLogin() {
     mutate(data.authorization.code)
   }
 
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+  const appleClientId = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID
 
   // Gracefully fail and show message
   // In case of configuration issues, other login methods
   // are still rendered
-  if (!googleClientId) {
-    return <div>Google client not available</div>
+  if (!appleClientId) {
+    return <div>Apple client not available</div>
   }
 
   return (
