@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "next dev -p 4000",
     "ssl": "node server.js",
-    "build": "next build"
+    "build": "next build",
+    "test": "jest"
   },
   "peerDependencies": {
     "@fitlink/common": "*"
@@ -31,13 +32,20 @@
     "react-table": "^7.7.0"
   },
   "devDependencies": {
+    "@testing-library/dom": "^8.1.0",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.0.0",
     "@types/react": "^17.0.4",
     "@types/react-table": "^7.7.0",
+    "babel-jest": "^27.0.6",
     "babel-loader": "^8.2.2",
     "css-loader": "^5.2.4",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^27.0.6",
     "sass": "^1.32.13",
     "sass-loader": "^10.1.1",
     "start-server-webpack-plugin": "2.2.5",
-    "style-loader": "^2.0.0"
+    "style-loader": "^2.0.0",
+    "ts-jest": "^27.0.0-next.12"
   }
 }
