@@ -59,12 +59,14 @@ export default function ImageUploadDropper({
     e.stopPropagation()
     setHover(false)
 
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+    const list = e.dataTransfer ? e.dataTransfer.files : e.target.files
 
-      setTotal(total + Array.from(e.dataTransfer.files).filter((f:any) => f.type.startsWith('image')).length)
+    if (list.length > 0) {
+
+      setTotal(total + Array.from(list).filter((f:any) => f.type.startsWith('image')).length)
       
-      for (let i=0; i < e.dataTransfer.files.length; i++) {
-        const file = e.dataTransfer.files[i]
+      for (let i=0; i < list.length; i++) {
+        const file = list[i]
         if (file.type.startsWith('image')) {
           const img = new Image()
           img.onload = function() {
@@ -78,6 +80,13 @@ export default function ImageUploadDropper({
 
   return (
     <div className={classes} ref={ref}>
+      <input
+        type="file"
+        id="image"
+        onChange={handleDrop}
+        multiple={true}
+        accept="image/*"
+        />
       <IconUpload />
       <span>Drop or select images to upload</span>
     </div>
