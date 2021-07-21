@@ -5,4 +5,6 @@ export * from './Webview';
 export * from './Friends';
 export * from './Leagues';
 export * from './League';
+export * from './Rewards';
 export * from './Profile';
+export * from './LeagueInviteFriends';

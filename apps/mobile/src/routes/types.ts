@@ -15,4 +15,9 @@ export type RootStackParamList = {
   Leagues: {tab: number};
   League: {id: string; league?: League};
   Profile: {id: string};
+  LeagueInviteFriends: {
+    leagueId: string;
+  };
+  Rewards: undefined;
+  Reward: {id: string};
 };

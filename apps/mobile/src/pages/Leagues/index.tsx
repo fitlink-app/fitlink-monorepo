@@ -9,7 +9,7 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import {RootStackParamList} from 'routes/types';
-import {ExploreLeagues, MyLeagues} from './tabs';
+import {ExploreLeagues, Invitations, MyLeagues} from './tabs';
 import {TabView} from '@components';
 
 const Wrapper = styled.View({
@@ -17,7 +17,7 @@ const Wrapper = styled.View({
 });
 
 export const Leagues = (
-  props: StackScreenProps<RootStackParamList, 'Friends'>,
+  props: StackScreenProps<RootStackParamList, 'Leagues'>,
 ) => {
   const tab = props?.route?.params?.tab;
 
@@ -45,7 +45,7 @@ export const Leagues = (
         return <ExploreLeagues {...(rest as any)} />;
 
       case 'invitations':
-        return <MyLeagues {...(rest as any)} />;
+        return <Invitations {...(rest as any)} />;
       default:
         return null;
     }

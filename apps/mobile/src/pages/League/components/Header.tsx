@@ -1,5 +1,6 @@
 import {Button, Icon, Label} from '@components';
 import {useJoinLeague} from '@hooks';
+import {useNavigation} from '@react-navigation/native';
 import {useLeaveLeague} from 'hooks/api/leagues/useLeaveLeague';
 import React from 'react';
 import {Animated, Image, StyleSheet} from 'react-native';
@@ -66,10 +67,14 @@ export const Header = ({
   membership = 'none',
   scrollAnimatedValue,
 }: HeaderProps) => {
+  const navigation = useNavigation();
+
   const {mutateAsync: joinLeague, isLoading: isJoining} = useJoinLeague();
   const {mutateAsync: leaveLeague, isLoading: isLeaving} = useLeaveLeague();
 
-  const handleOnInvitePressed = () => {};
+  const handleOnInvitePressed = () => {
+    navigation.navigate('LeagueInviteFriends', {leagueId});
+  };
 
   const handleOnJoinPressed = () => {
     joinLeague(leagueId);

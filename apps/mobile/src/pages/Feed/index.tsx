@@ -125,9 +125,7 @@ export const Feed = () => {
                   points={177}
                   targetPoints={250}
                   claimableRewardsCount={0}
-                  onPress={() => {
-                    // TODO: Navigate to Rewards
-                  }}
+                  onPress={() => navigation.navigate('Rewards')}
                 />
               </HeaderWidgetContainer>
 
