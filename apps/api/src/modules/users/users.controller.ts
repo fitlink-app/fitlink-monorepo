@@ -177,7 +177,7 @@ export class UsersController {
     @Pagination() pagination: PaginationQuery,
     @AuthUser() user: AuthenticatedUser
   ) {
-    return this.usersService.searchByName(query.q, user.id, pagination)
+    return this.usersService.searchByNameOrEmail(query.q, user.id, pagination)
   }
 
   @Get('users/:userId')

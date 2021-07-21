@@ -10,6 +10,9 @@ import { Organisation } from '../organisations/entities/organisation.entity'
 import { LeaguesInvitationModule } from '../leagues-invitations/leagues-invitations.module'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
+import { HealthActivity } from '../health-activities/entities/health-activity.entity'
+import { HealthActivityCreatedListener } from './listeners/HealthActivityCreatedListener'
+import { User } from '../users/entities/user.entity'
 
 @Module({
   imports: [
@@ -18,13 +21,19 @@ import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-en
       Leaderboard,
       LeaderboardEntry,
       Team,
-      Organisation
+      Organisation,
+      HealthActivity,
+      User
     ]),
     AuthModule,
     LeaguesInvitationModule
   ],
   controllers: [LeaguesController],
-  providers: [LeaguesService, LeaderboardEntriesService],
+  providers: [
+    LeaguesService,
+    LeaderboardEntriesService,
+    HealthActivityCreatedListener
+  ],
   exports: []
 })
 export class LeaguesModule {}

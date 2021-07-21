@@ -13,7 +13,10 @@ import { CreateLeaguesInvitationDto } from './dto/create-leagues-invitation.dto'
 import { AuthenticatedUser } from '../../models'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { ApiBaseResponses } from '../../decorators/swagger.decorator'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { PaginationQuery } from '../../helpers/paginate'
+import { Pagination } from '../../decorators/pagination.decorator'
+import { LeagueInvitationPagination } from './entities/leagues-invitation.entity'
 
 @Controller()
 @ApiTags('leagues')
@@ -40,5 +43,24 @@ export class LeaguesInvitationsController {
     }
 
     return this.leagueInvitationsService.create(league, authUser.id, { userId })
+  }
+
+  @ApiTags('me')
+  @Get('/me/league-invitations')
+  @ApiResponse({ type: LeagueInvitationPagination, status: 200 })
+  async myInvitations(
+    @User() authUser: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    const invitations = await this.leagueInvitationsService.findAll(
+      {
+        to_user: { id: authUser.id },
+        dismissed: false,
+        accepted: false
+      },
+      pagination
+    )
+
+    return invitations
   }
 }
