@@ -58,14 +58,16 @@ export function Table({
     usePagination
   )
 
-  useEffect(() => {
-    if (pageIndex !== pagination.page || pageSize !== pagination.limit) {
-      setPagination({
-        page: pageIndex,
-        limit: pageSize
-      })
-    }
-  }, [pageIndex, pageSize])
+  console.log('page', pagination)
+
+  // useEffect(() => {
+  //   if (pageIndex !== pagination.page || pageSize !== pagination.limit) {
+  //     setPagination({
+  //       page: pageIndex,
+  //       limit: pageSize
+  //     })
+  //   }
+  // }, [pageIndex, pageSize])
 
   // Render the UI for your table
   return (
