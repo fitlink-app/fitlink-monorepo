@@ -7,6 +7,7 @@ export type CheckboxProps = {
   checked?: boolean
   showSwitch?: boolean
   onChange?: (e:any) => void
+  error?: string
 }
 
 export default function Checkbox({
@@ -14,9 +15,15 @@ export default function Checkbox({
   name,
   checked = false,
   onChange,
-  showSwitch = true
+  showSwitch = true,
+  error = ''
 }: CheckboxProps) {
   const [internal, setInternal] = useState(checked)
+
+  const blockClasses = clsx({
+    'input-block': true,
+    'input-block--error': error !== ''
+  })
 
   const classes = clsx({
     'toggle-switch': showSwitch
@@ -28,7 +35,7 @@ export default function Checkbox({
   }
 
   return (
-    <div className="input-block">
+    <div className={blockClasses}>
       <input
         type="checkbox"
         name={name}
@@ -42,6 +49,7 @@ export default function Checkbox({
         >
         {label}
       </label>
+      { error !== '' && <span>{error}</span> }
     </div>
   )
 }

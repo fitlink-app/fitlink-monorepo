@@ -15,6 +15,7 @@ export type DateInputProps = {
   minDate?: Date
   maxDate?: Date
   onChange?: (e: any) => void
+  error?: string
 }
 
 export default function DateInput({
@@ -25,12 +26,14 @@ export default function DateInput({
   startDate = new Date(),
   minDate,
   maxDate,
-  onChange
+  onChange,
+  error = ''
 }: DateInputProps) {
   const [currDate, setCurrDate] = useState(startDate)
   const classes = clsx({
     'input-block': true,
     'input-block--inline': inline,
+    'input-block--error': error !== '',
     [className]: className
   })
 
