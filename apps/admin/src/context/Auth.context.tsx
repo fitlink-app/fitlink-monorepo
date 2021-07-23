@@ -9,7 +9,7 @@ import {
 } from '@fitlink/api-sdk/types'
 
 const axios = Axios.create({
-  baseURL: 'http://localhost:3001/api/v1'
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL
 })
 
 export const api = makeApi(axios)
