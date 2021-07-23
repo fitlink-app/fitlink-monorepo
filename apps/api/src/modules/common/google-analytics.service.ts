@@ -14,14 +14,15 @@ export class GoogleAnalyticsService {
   ) {}
 
   /**
-   * Track email is sent
+   * Track email is sent and return 
    * 
    * @param eventType
    * @param userId
+   * @returns google analytics link for tracking of  emails opening
    */
     async sendGoogleAnalytics(
         eventType: TemplatesType,
-        eventCategory: eventCategory,
+        eventCategory: EventCategory,
         userId?: string
     ) {
         const uuid = uuidv4();
@@ -35,7 +36,7 @@ export class GoogleAnalyticsService {
         }
         const [response, responseErr] = await tryAndCatch(
           this.httpService
-            .get(`${this.configService.get('GOOGLE_ANALYTICS_EMAIL_URL')}tid=${params.tid}&cid=${params.cid}&t=event&ec=email&ea=${params.ea}&v=${params.v}`, {
+            .get(`${this.configService.get('GOOGLE_ANALYTICS_EMAIL_URL')}v=${params.v}&tid=${params.tid}&cid=${params.cid}&t=event&ec=${params.ec}&ea=${params.ea}`, {
               headers: {
                 'User-Agent': 'fitlink',
                 accept: 'application/json'
@@ -46,12 +47,12 @@ export class GoogleAnalyticsService {
             .toPromise()
           )
           responseErr && console.error(responseErr.message)
-        return `${this.configService.get('GOOGLE_ANALYTICS_EMAIL_URL')}tid=${params.tid}&cid=${params.cid}&t=${params.t}&ec=${params.ec}&ea=${params.ea}&v=${params.v}`
+        return `${this.configService.get('GOOGLE_ANALYTICS_EMAIL_URL')}v=${params.v}&tid=${params.tid}&cid=${params.cid}&t=${params.t}&ec=${params.ec}&ea=email-is-opened`
     }
 }
 
-export type eventCategory =
+export type  EventCategory =
   | 'email-is-sent'
-  | 'email-is-sent'
+  | 'email-is-opened'
   | 'link-is-followed'
   | 'action-is-taken'
