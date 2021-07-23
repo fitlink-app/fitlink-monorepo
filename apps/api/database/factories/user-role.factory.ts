@@ -10,14 +10,14 @@ import { Subscription } from '../../src/modules/subscriptions/entities/subscript
 import { User } from '../../src/modules/users/entities/user.entity'
 
 interface Context {
-  user: User
+  user?: User
   organisation?: Organisation
   subscription?: Subscription
   team?: Team
-  role: Roles
+  role?: Roles
 }
 
-define(UserRole, (_faker: typeof Faker, context: Context) => {
+define(UserRole, (_faker: typeof Faker, context: Context = {}) => {
   const role = new UserRole()
   role.user = context.user
   role.role = context.role
