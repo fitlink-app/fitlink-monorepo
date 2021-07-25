@@ -17,6 +17,7 @@ import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-en
 import { plainToClass } from 'class-transformer'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
 import { addDays } from 'date-fns'
+import { CommonService } from '../common/services/common.service'
 
 type LeagueOptions = {
   teamId?: string
@@ -45,7 +46,8 @@ export class LeaguesService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
 
-    private leaderboardEntriesService: LeaderboardEntriesService
+    private leaderboardEntriesService: LeaderboardEntriesService,
+    private commonService: CommonService
   ) {}
 
   async create(
@@ -561,13 +563,10 @@ export class LeaguesService {
    */
   async searchUsersWithJoinAccess(
     leagueId: string,
+    userId: string,
     options: PaginationOptionsInterface,
     keyword: string = ''
   ): Promise<Pagination<UserPublic>> {
-    const league = await this.leaguesRepository.findOne(leagueId, {
-      relations: ['team']
-    })
-
     let query = this.userRepository
       .createQueryBuilder('user')
       .leftJoin('user.teams', 'userTeam')
@@ -575,21 +574,39 @@ export class LeaguesService {
       .leftJoin('userTeam.organisation', 'userOrganisation')
       .leftJoin('league', 'league', 'league.id = :leagueId', { leagueId })
       .leftJoin('league.users', 'leagueUser', 'leagueUser.id = user.id')
+      .leftJoinAndSelect(
+        'user.following',
+        'following',
+        'following.follower.id = :userId',
+        { userId }
+      )
+      .leftJoinAndSelect(
+        'user.followers',
+        'followers',
+        'following.following.id = :userId',
+        { userId }
+      )
       .where(
         new Brackets((qb) => {
           // The league is public
           return (
             qb
-              .where('league.access = :accessPublic')
+
+              // Where it is a public league, only show friends
+              .where(
+                '(league.access = :accessPublic AND following.id IS NOT NULL)'
+              )
 
               // The league is 'team'
               // The user belongs to the team that the league belongs to
+              // Show any user within that team
               .orWhere(
                 `(league.access = :accessTeam AND league.team.id = userTeam.id)`
               )
 
               // The league is 'organisation'
               // The user belongs to the organisation that the league belongs to
+              // Show any user within that organisation
               .orWhere(
                 `(league.access = :accessOrganisation AND userOrganisation.id = league.organisation.id)`
               )
@@ -603,8 +620,9 @@ export class LeaguesService {
       )
       // The user is not already a member of the league
       .andWhere('leagueUser.id IS NULL')
-      .take(options.limit)
+      .limit(options.limit)
       .skip(options.page * options.limit)
+      .orderBy('following.id', 'DESC', 'NULLS LAST')
 
     // Precision email search
     if (keyword.indexOf('@') > 0) {
@@ -618,11 +636,7 @@ export class LeaguesService {
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<UserPublic>({
-      results: results.map((r) =>
-        plainToClass(UserPublic, r, {
-          excludeExtraneousValues: true
-        })
-      ),
+      results: results.map((user) => this.commonService.getUserPublic(user)),
       total
     })
   }
