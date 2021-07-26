@@ -4,6 +4,7 @@ import {FlatList, FlatListProps, Dimensions} from 'react-native';
 import styled from 'styled-components/native';
 import {RewardPublic} from '@fitlink/api/src/modules/rewards/entities/reward.entity';
 import {RewardCard} from '.';
+import {useNavigation} from '@react-navigation/native';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 const HORIZONTAL_PADDING = 20;
@@ -29,6 +30,8 @@ interface RewardSliderProps
 }
 
 export const RewardSlider = ({title, ...rest}: RewardSliderProps) => {
+  const navigation = useNavigation();
+
   const renderItem = ({item}: {item: RewardPublic}) => {
     return (
       <RewardCard
@@ -39,7 +42,7 @@ export const RewardSlider = ({title, ...rest}: RewardSliderProps) => {
         expiryDate={new Date(item.reward_expires_at)}
         currentPoints={88}
         requiredPoints={150}
-        onPress={() => {}}
+        onPress={() => navigation.navigate('Reward', {id: item.id})}
         isClaimed={false}
         organisation={{
           name: 'Fitlink',

@@ -6,5 +6,6 @@ export * from './Friends';
 export * from './Leagues';
 export * from './League';
 export * from './Rewards';
+export * from './Reward';
 export * from './Profile';
 export * from './LeagueInviteFriends';

@@ -4,7 +4,6 @@ import {
   Animated,
   Image,
   Linking,
-  RefreshControl,
   StyleSheet,
   View,
 } from 'react-native';
@@ -16,8 +15,9 @@ import styled, {useTheme} from 'styled-components/native';
 import {StackScreenProps} from '@react-navigation/stack';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from 'routes/types';
-import {NAVBAR_HEIGHT} from '@components';
+import {Card, Chip, Label, NAVBAR_HEIGHT, TouchHandler} from '@components';
 import {useReward} from '@hooks';
+import {format} from 'date-fns';
 
 const HEADER_HEIGHT = 250;
 
@@ -92,6 +92,8 @@ export const Reward = (
     isFetching: isFetchingReward,
   } = useReward(id);
 
+  console.log(reward);
+
   // TODO: Remove
   // TEMP VARIABLES
   const currentPoints = 0;
@@ -124,6 +126,11 @@ export const Reward = (
 
   const isExpired = new Date() > reward.reward_expires_at;
 
+  const expiryDateFormatted = format(
+    new Date(reward.reward_expires_at),
+    'do MMMM yyyy',
+  );
+
   const scrollAnimInterpolated = scrollAnim.interpolate({
     inputRange: [-500, 0],
     outputRange: [-500, 0],
@@ -154,46 +161,45 @@ export const Reward = (
 
   const renderContent = () => {
     if (!isExpired) {
-      if (isRewardRedeemed()) {
+      if (reward.redeemed) {
         return (
           <>
-            {code && redeem_url && (
+            {reward.code && reward.redeem_url && (
               <InstructionsContainer>
-                <Text appearance={'primary'} type={'body'}>
+                <Label appearance={'primary'} type={'body'}>
                   Redeem this code at{' '}
-                  <TouchableText onPress={() => openUrl(redeem_url)}>
-                    {redeem_url}
-                  </TouchableText>
-                </Text>
+                  <Label onPress={() => openUrl(reward.redeem_url)}>
+                    {reward.redeem_url}
+                  </Label>
+                </Label>
               </InstructionsContainer>
             )}
 
-            {code && (
+            {reward.code && (
               <Card>
                 <TouchHandler
-                  animationType={'opacityWithScale'}
                   style={{
                     alignItems: 'center',
                     justifyContent: 'center',
                     paddingVertical: 22,
                   }}
-                  onPress={() => copyToClipboard('FITBUCKS10')}
-                  disabled={!code}>
-                  <Text appearance={'primary'} bold style={{fontSize: 22}}>
-                    {code}
-                  </Text>
+                  onPress={() => copyToClipboard(reward.code)}
+                  disabled={!reward.code}>
+                  <Label appearance={'primary'} bold style={{fontSize: 22}}>
+                    {reward.code}
+                  </Label>
                 </TouchHandler>
               </Card>
             )}
 
             <View style={{alignItems: 'center'}}>
-              <Text type={'caption'} style={{marginTop: 10}}>
-                {redeem_instructions
-                  ? redeem_instructions
-                  : code
+              <Label type={'caption'} style={{marginTop: 10}}>
+                {reward.redeem_instructions
+                  ? reward.redeem_instructions
+                  : reward.code
                   ? 'Tap code to copy to clipboard'
                   : ''}
-              </Text>
+              </Label>
             </View>
           </>
         );
@@ -202,24 +208,27 @@ export const Reward = (
       if (isRewardUnclaimed()) {
         return (
           <>
-            <Button onPress={handleClaim} disabled={isClaiming}>
+            {/* // TODO: Button */}
+
+            {/* <Button onPress={handleClaim} disabled={isClaiming}>
               {isClaiming ? (
                 <ActivityIndicator color={typography.button.color} />
               ) : (
-                <Text
+                <Label
                   type={'subheading'}
                   bold
                   style={{color: typography.button.color}}>
                   Claim This Reward
-                </Text>
+                </Label>
               )}
-            </Button>
+            </Button> */}
 
             <View style={{alignItems: 'center'}}>
-              <Text type={'caption'} style={{marginTop: 10}}>
-                Your points balance will be {currentPoints - points_required}{' '}
-                after claiming this reward
-              </Text>
+              <Label type={'caption'} style={{marginTop: 10}}>
+                Your points balance will be{' '}
+                {currentPoints - reward.points_required} after claiming this
+                reward
+              </Label>
             </View>
           </>
         );
@@ -234,28 +243,28 @@ export const Reward = (
               paddingVertical: 22,
               paddingHorizontal: 10,
             }}>
-            <Text appearance={'secondary'} style={{textAlign: 'center'}}>
+            <Label appearance={'secondary'} style={{textAlign: 'center'}}>
               You need{' '}
-              <Text appearance={'accent'}>
-                {points_required - currentPoints}
-              </Text>{' '}
+              <Label appearance={'accent'}>
+                {reward.points_required - currentPoints}
+              </Label>{' '}
               more points to claim this reward
-            </Text>
+            </Label>
           </View>
         </Card>
       );
     } else {
       return (
-        <Text appearance={'primary'} style={{textAlign: 'center'}}>
-          This code expired on {expires.format('Do MMMM YYYY')}
-        </Text>
+        <Label appearance={'primary'} style={{textAlign: 'center'}}>
+          This code expired on {expiryDateFormatted}
+        </Label>
       );
     }
   };
 
   return (
     <>
-      <AnimatedHeader {...{scrollAnim, title: title_short}} />
+      {/* // TODO: Navbar */}
 
       <Animated.ScrollView
         onScroll={Animated.event(
@@ -270,7 +279,7 @@ export const Reward = (
             <HeaderImage
               resizeMode={'cover'}
               source={{
-                uri: photo_url,
+                uri: reward.image.url_640x360,
               }}
             />
             <ImageOverlay />
@@ -290,30 +299,34 @@ export const Reward = (
                       }}
                       style={{backgroundColor: 'rgba(255,255,255,.5)'}}
                       progress={
-                        isRewardUnclaimed() || isRewardRedeemed() || isExpired
+                        isRewardUnclaimed() || reward.redeemed || isExpired
                           ? 1
-                          : currentPoints / points_required
+                          : currentPoints / reward.points_required
                       }
-                      text={`${points_required} points`}
+                      text={`${reward.points_required} points`}
                       disabled={true}
                     />
 
-                    {!isRewardRedeemed() && !isRewardUnclaimed() && !isExpired && (
-                      <Text
+                    {!reward.redeemed && !isRewardUnclaimed() && !isExpired && (
+                      <Label
                         style={{marginLeft: 5, fontSize: 10}}
                         type={'caption'}
                         appearance={'primary'}
                         bold>
-                        {points_required - currentPoints} points remaining
-                      </Text>
+                        {reward.points_required - currentPoints} points
+                        remaining
+                      </Label>
                     )}
                   </Row>
-                  <Text type={'body'} appearance={'primary'} bold>
-                    {brand}
-                  </Text>
-                  <Text type={'title'} appearance={'primary'} numberOfLines={2}>
-                    {title_short}
-                  </Text>
+                  <Label type={'body'} appearance={'primary'} bold>
+                    {reward.brand}
+                  </Label>
+                  <Label
+                    type={'title'}
+                    appearance={'primary'}
+                    numberOfLines={2}>
+                    {reward.name_short}
+                  </Label>
                 </View>
                 <View
                   style={{
@@ -321,14 +334,14 @@ export const Reward = (
                     marginLeft: 10,
                     flex: 1,
                   }}>
-                  <Text
+                  <Label
                     type={'caption'}
                     appearance={'primary'}
                     style={{textAlign: 'right'}}>
                     {isExpired
-                      ? `Expired on ${expires.format('Do MMMM YYYY')}`
-                      : `Expires at ${expires.format('Do MMMM YYYY')}`}
-                  </Text>
+                      ? `Expired on ${expiryDateFormatted}`
+                      : `Expires at ${expiryDateFormatted}`}
+                  </Label>
                 </View>
               </Row>
             </HeaderContent>
@@ -336,21 +349,25 @@ export const Reward = (
         </Animated.View>
 
         <ContentContainer>
-          <Text type={'subheading'}>{title}</Text>
-          <Text style={{marginTop: 10, marginBottom: 20}}>{description}</Text>
+          <Label type={'subheading'}>{reward.name}</Label>
+          <Label style={{marginTop: 10, marginBottom: 20}}>
+            {reward.description}
+          </Label>
 
           {renderContent()}
         </ContentContainer>
       </Animated.ScrollView>
+
+      {/* // TODO: Fix snackbar props */}
       <SnackBar
         visible={snackbarVisible}
         textMessage={`Code was copied to your clipboard`}
-        containerStyle={{
-          paddingBottom: insets.bottom,
-        }}
+        // containerStyle={{
+        //   paddingBottom: insets.bottom,
+        // }}
         backgroundColor={colors.accent}
         messageColor={colors.chartUnfilled}
-        messageStyle={{fontFamily: fonts.bold}}
+        // messageStyle={{fontFamily: fonts.bold}}
       />
     </>
   );
