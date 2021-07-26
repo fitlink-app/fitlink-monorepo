@@ -229,7 +229,7 @@ describe('Leagues Invitations', () => {
     expect(redeem.json().message).toEqual('Token is invalid')
   })
 
-  it.only(`GET /me/league-invitations 200 A user can see their league invitations`, async () => {
+  it(`GET /me/league-invitations 200 A user can see their league invitations`, async () => {
     const league = (await LeaguesSetup('Leagues Invitations Test', 1))[0]
 
     // Set the league owner to the auth user
