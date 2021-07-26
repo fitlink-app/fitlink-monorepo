@@ -4498,12 +4498,12 @@
     tslib "2.1.0"
     uuid "8.3.2"
 
-"@nestjs/event-emitter@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@nestjs/event-emitter/-/event-emitter-0.0.3.tgz#c8f88351564c0ecd87fb8f70cfba9dddd3da12db"
-  integrity sha512-ggVMXdu80VN62rXMtfbQ7XTu3k4t0UUFn4DNQyQee5NTRCcRpT1ZmYR/qt0Exh9JiNvzYDR9TYRr20GU40n6fg==
+"@nestjs/event-emitter@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@nestjs/event-emitter/-/event-emitter-1.0.0.tgz#aac176e70ca683cec4e9516a0a2985e173e29464"
+  integrity sha512-dRAou6G89KKYI2iyYfqSVGE6ZTC4WmHkQkFfgh88GLQg8dBqRk92ZY8CRtL2SK32SSelh9bwEDNQn9561uoypA==
   dependencies:
-    eventemitter2 "6.4.3"
+    eventemitter2 "6.4.4"
 
 "@nestjs/jwt@^7.2.0":
   version "7.2.0"
@@ -6611,9 +6611,9 @@
     "@types/react" "^16"
 
 "@types/react@*", "@types/react@^16", "@types/react@^17", "@types/react@^17.0.4":
-  version "17.0.14"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.14.tgz#f0629761ca02945c4e8fea99b8177f4c5c61fb0f"
-  integrity sha512-0WwKHUbWuQWOce61UexYuWTGuGY/8JvtUe/dtQ6lR4sZ3UiylHotJeWpf3ArP9+DSGUoLY3wbU59VyMrJps5VQ==
+  version "17.0.15"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.15.tgz#c7533dc38025677e312606502df7656a6ea626d0"
+  integrity sha512-uTKHDK9STXFHLaKv6IMnwp52fm0hwU+N89w/p9grdUqcFA6WuqDyPhaWopbNyE1k/VhgzmHl8pu1L4wITtmlLw==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -12494,10 +12494,10 @@ event-target-shim@^5.0.0, event-target-shim@^5.0.1:
   resolved "https://registry.yarnpkg.com/event-target-shim/-/event-target-shim-5.0.1.tgz#5d4d3ebdf9583d63a5333ce2deb7480ab2b05789"
   integrity sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==
 
-eventemitter2@6.4.3:
-  version "6.4.3"
-  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-6.4.3.tgz#35c563619b13f3681e7eb05cbdaf50f56ba58820"
-  integrity sha512-t0A2msp6BzOf+QAcI6z9XMktLj52OjGQg+8SJH6v5+3uxNpWYRR3wQmfA+6xtMU9kOC59qk9licus5dYcrYkMQ==
+eventemitter2@6.4.4:
+  version "6.4.4"
+  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-6.4.4.tgz#aa96e8275c4dbeb017a5d0e03780c65612a1202b"
+  integrity sha512-HLU3NDY6wARrLCEwyGKRBvuWYyvW6mHYv72SJJAH3iJN3a6eVUvkjFkcxah1bcTgGVBBrFdIopBJPhCQFMLyXw==
 
 eventemitter3@^3.1.0:
   version "3.1.2"
@@ -21022,6 +21022,11 @@ react-native-get-random-values@^1.4.0:
   integrity sha512-sPTRTJk4bpuZeTBf6d7DldQGAOCi0GZh5NxzNI3eHXzxwHbNkV13Q22TehiSb3bsaVqwLC4UAa6QvYIucyyc+A==
   dependencies:
     fast-base64-decode "^1.0.0"
+
+react-native-image-picker@^4.0.6:
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/react-native-image-picker/-/react-native-image-picker-4.0.6.tgz#0dfa5bb83bcf6ff58635ebb9201a185c2271e8cc"
+  integrity sha512-Pp3UWKUADuMG1mz12m6dSO/R2KnvXVEd77bldrfTMFpz4PFc4iVKo+bHeS79It0mUBezfzDMgfesg/OPLSugvQ==
 
 react-native-iphone-x-helper@^1.3.0:
   version "1.3.1"

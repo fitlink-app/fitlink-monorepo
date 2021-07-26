@@ -24,8 +24,8 @@ axios.interceptors.response.use(response => {
   return response;
 });
 
-axios.interceptors.request.use(
-  config => new Promise(resolve => setTimeout(() => resolve(config), 600)),
-);
+// axios.interceptors.request.use(
+//   config => new Promise(resolve => setTimeout(() => resolve(config), 600)),
+// );
 
 export default makeApi(axios);

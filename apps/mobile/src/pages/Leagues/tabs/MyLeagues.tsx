@@ -1,10 +1,11 @@
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
-import {Label} from '@components';
+import {Icon, Label, TouchHandler} from '@components';
 import {useMyLeagues} from '@hooks';
 import {ActivityIndicator} from 'react-native';
 import {getResultsFromPages} from 'utils/api';
 import {LeagueList} from './components';
+import {useNavigation} from '@react-navigation/native';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -17,7 +18,14 @@ const EmptyContainer = styled.View({
   alignItems: 'center',
 });
 
+const ButtonContentContainer = styled.View({
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
 export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
+  const navigation = useNavigation();
   const {colors} = useTheme();
 
   const {
@@ -31,6 +39,10 @@ export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
   } = useMyLeagues();
 
   const results = getResultsFromPages(data);
+
+  const onCreateLeaguePressed = () => {
+    navigation.navigate('LeagueForm');
+  };
 
   const ListEmptyComponent = isFetchingNextPage ? null : (
     <EmptyContainer
@@ -63,6 +75,22 @@ export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
     </EmptyContainer>
   );
 
+  const ListHeaderComponent = (
+    <TouchHandler style={{paddingBottom: 20}} onPress={onCreateLeaguePressed}>
+      <ButtonContentContainer>
+        <Icon
+          name={'plus'}
+          size={16}
+          color={colors.accentSecondary}
+          style={{marginRight: 5}}
+        />
+        <Label type={'body'} appearance={'secondary'} bold>
+          Create a new league
+        </Label>
+      </ButtonContentContainer>
+    </TouchHandler>
+  );
+
   return (
     <Wrapper>
       <LeagueList
@@ -71,6 +99,7 @@ export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
           isFetchingNextPage,
           isFetchedAfterMount,
           ListEmptyComponent,
+          ListHeaderComponent,
         }}
         data={results}
         onEndReached={() => fetchNextPage()}

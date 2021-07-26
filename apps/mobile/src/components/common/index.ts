@@ -15,3 +15,5 @@ export * from './TabView';
 export * from './SearchBox';
 export * from './Dots';
 export * from './Chip';
+export * from './Checkbox';
+export * from './ImagePicker';

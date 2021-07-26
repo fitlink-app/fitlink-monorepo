@@ -2,14 +2,26 @@ import React, {useEffect} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {RootStackParamList} from 'routes/types';
 import {StackScreenProps} from '@react-navigation/stack';
-import {FlatList, InteractionManager, RefreshControl} from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  InteractionManager,
+  RefreshControl,
+} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Label, Navbar, NAVBAR_HEIGHT} from '@components';
 import {InviteRow} from './components';
-import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
+import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useLeagueInvitables} from '@hooks';
+import {getResultsFromPages} from 'utils/api';
 
 const Wrapper = styled.View({flex: 1});
+
+const EmptyContainer = styled.View({
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+});
 
 export const LeagueInviteFriends = (
   props: StackScreenProps<RootStackParamList, 'LeagueInviteFriends'>,
@@ -27,7 +39,10 @@ export const LeagueInviteFriends = (
     refetch,
     fetchNextPage,
     error,
+    isStale,
   } = useLeagueInvitables(leagueId);
+
+  const results = getResultsFromPages(data);
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -44,20 +59,20 @@ export const LeagueInviteFriends = (
     refetch();
   };
 
-  const renderItem = ({item}: {item: User}) => {
+  const renderItem = ({item}: {item: UserPublic}) => {
     return (
       <InviteRow
         userId={item.id as string}
         name={item.name as string}
         isInvited={false}
         onInvitePressed={handleInvitePressed}
-        avatarSource={item.avatar.url_128x128}
+        avatarSource={item.avatar?.url_128x128}
         isLoading={false}
       />
     );
   };
 
-  const keyExtractor = (item: User, index: number) =>
+  const keyExtractor = (item: UserPublic, index: number) =>
     item.id + index.toString();
 
   const ListEmptyComponent = (
@@ -69,16 +84,28 @@ export const LeagueInviteFriends = (
   return (
     <Wrapper>
       <Navbar backButtonIcon={'times'} title="Invite Friends" overlay />
-      <FlatList
-        {...{keyExtractor, renderItem, ListEmptyComponent, data}}
-        refreshControl={
-          <RefreshControl
-            tintColor={colors.accent}
-            refreshing={isFetching}
-            onRefresh={handleOnRefresh}
-          />
-        }
-      />
+      {isFetchedAfterMount ? (
+        <FlatList
+          {...{keyExtractor, renderItem, ListEmptyComponent}}
+          data={results}
+          contentContainerStyle={{paddingBottom: 20, flexGrow: 1}}
+          contentInset={{top: paddingTop, left: 0, bottom: 0, right: 0}}
+          contentOffset={{x: 0, y: -paddingTop}}
+          automaticallyAdjustContentInsets={false}
+          contentInsetAdjustmentBehavior={'never'}
+          refreshControl={
+            <RefreshControl
+              tintColor={colors.accent}
+              refreshing={isFetching && isFetchedAfterMount}
+              onRefresh={handleOnRefresh}
+            />
+          }
+        />
+      ) : (
+        <EmptyContainer>
+          <ActivityIndicator color={colors.accent} />
+        </EmptyContainer>
+      )}
     </Wrapper>
   );
 };

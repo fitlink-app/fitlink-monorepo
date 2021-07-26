@@ -25,6 +25,7 @@ export function useLeagueInvitables(leagueId: string) {
     ({pageParam}) => fetchInvitableUsers({pageParam, leagueId}),
     {
       getNextPageParam: getNextPageParam(RESULTS_PER_PAGE),
+      // refetchOnMount: true,
     },
   );
 }

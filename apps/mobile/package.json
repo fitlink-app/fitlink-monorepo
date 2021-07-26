@@ -19,7 +19,7 @@
       "react-native-tab-view",
       "react-native-linear-gradient",
       "@react-native-google-signin/google-signin",
-      "@invertase/react-native-apple-authentication"
+      "@invertase/react-native-apple-authentication",
       "patch-package"
     ]
   },
@@ -51,6 +51,7 @@
     "react": "17.0.1",
     "react-native": "0.64.1",
     "react-native-gesture-handler": "^1.10.3",
+    "react-native-image-picker": "^4.0.6",
     "react-native-linear-gradient": "^2.5.6",
     "react-native-reanimated": "^2.2.0",
     "react-native-safe-area-context": "^3.2.0",

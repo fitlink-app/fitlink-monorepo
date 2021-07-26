@@ -164,13 +164,15 @@ export const Header = ({
 
           <HorizontalSpacer />
 
-          <Icon
-            style={{bottom: -10}}
-            name={'user-plus'}
-            size={24}
-            color={'white'}
-            onPress={handleOnInvitePressed}
-          />
+          {membership !== 'none' && (
+            <Icon
+              style={{bottom: -10}}
+              name={'user-plus'}
+              size={24}
+              color={'white'}
+              onPress={handleOnInvitePressed}
+            />
+          )}
         </ContentRow>
 
         <VerticalSpacer />
