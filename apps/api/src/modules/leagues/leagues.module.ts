@@ -13,6 +13,7 @@ import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-en
 import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 import { HealthActivityCreatedListener } from './listeners/HealthActivityCreatedListener'
 import { User } from '../users/entities/user.entity'
+import { CommonModule } from '../common/common.module'
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { User } from '../users/entities/user.entity'
       HealthActivity,
       User
     ]),
+    CommonModule,
     AuthModule,
     LeaguesInvitationModule
   ],

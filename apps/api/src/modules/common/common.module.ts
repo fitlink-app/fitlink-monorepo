@@ -7,15 +7,17 @@ import { Queueable } from '../queue/entities/queueable.entity'
 import { QueueService } from '../queue/queue.service'
 import { EmailService, EmailServiceLocal } from './email.service'
 import { GoogleAnalyticsService } from './google-analytics.service'
+import { CommonService } from './services/common.service'
 
 @Module({
   imports: [
     HttpModule,
     ConfigModule,
     TypeOrmModule.forFeature([Queueable]),
-    ImagesModule,
+    ImagesModule
   ],
   providers: [
+    CommonService,
     QueueService,
     ImagesService,
     ConfigService,
@@ -24,7 +26,10 @@ import { GoogleAnalyticsService } from './google-analytics.service'
       provide: EmailService,
 
       // Mocks the email service for development / testing
-      useFactory: (configService: ConfigService, googleAnalyticsService: GoogleAnalyticsService ) => {
+      useFactory: (
+        configService: ConfigService,
+        googleAnalyticsService: GoogleAnalyticsService
+      ) => {
         if (configService.get('EMAIL_DEBUG') === '1') {
           return new EmailServiceLocal(googleAnalyticsService)
         } else {
@@ -34,6 +39,12 @@ import { GoogleAnalyticsService } from './google-analytics.service'
       inject: [ConfigService, GoogleAnalyticsService]
     }
   ],
-  exports: [EmailService, QueueService, ConfigService, ImagesService]
+  exports: [
+    CommonService,
+    EmailService,
+    QueueService,
+    ConfigService,
+    ImagesService
+  ]
 })
 export class CommonModule {}
