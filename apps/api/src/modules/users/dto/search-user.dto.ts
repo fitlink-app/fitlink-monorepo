@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, IsOptional } from 'class-validator'
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator'
 
 export class SearchUserDto {
   @ApiProperty()
@@ -10,7 +10,17 @@ export class SearchUserDto {
 }
 
 export class SearchUserForLeaguesDto {
-  @ApiProperty()
+  @ApiProperty({
+    nullable: true,
+    required: false
+  })
   @IsOptional()
   q?: string
+
+  @ApiProperty({
+    nullable: true,
+    required: false
+  })
+  @IsOptional()
+  page?: number = 0
 }
