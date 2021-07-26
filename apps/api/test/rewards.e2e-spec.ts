@@ -17,6 +17,7 @@ import {
   RewardAccess
 } from '../src/modules/rewards/entities/reward.entity'
 import { RewardsSetup, RewardsTeardown } from './seeds/rewards.seed'
+import { startOfDay } from 'date-fns'
 
 describe('Rewards', () => {
   let app: NestFastifyApplication
@@ -626,6 +627,51 @@ describe('Rewards', () => {
     expect(
       result.json().results.filter((e) => e.redeemed === false).length
     ).toBeGreaterThan(0)
+  })
+
+  it(`GET /rewards (200) Rewards can be filtered (by expired)`, async () => {
+    await RewardsSetup('Test Rewards', 1, {
+      reward_expires_at: new Date(Date.now() - 24 * 60 * 60 * 1000)
+    })
+
+    const result = await app.inject({
+      method: 'GET',
+      url: `/rewards`,
+      headers: authHeaders,
+      query: {
+        expired: 'true'
+      }
+    })
+
+    const results = result.json().results
+    expect(results.length).toBeGreaterThan(0)
+    expect(
+      results.filter(
+        (e) => new Date(e.reward_expires_at) < startOfDay(new Date())
+      ).length
+    ).toBe(results.length)
+  })
+
+  it(`GET /rewards (200) Rewards can be filtered (by locked)`, async () => {
+    await RewardsSetup('Test Rewards', 1, {
+      points_required: 1000000
+    })
+
+    const result = await app.inject({
+      method: 'GET',
+      url: `/rewards`,
+      headers: authHeaders,
+      query: {
+        locked: 'true'
+      }
+    })
+
+    const results = result.json().results
+
+    expect(results.length).toBeGreaterThan(0)
+    expect(
+      results.filter((e) => e.points_required > users[0].points_total).length
+    ).toBe(results.length)
   })
 
   it('GET /rewards (200) A user can see all their redeemed rewards', async () => {

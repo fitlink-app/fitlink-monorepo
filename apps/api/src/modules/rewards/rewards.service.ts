@@ -11,10 +11,16 @@ import { CreateRewardDto } from './dto/create-reward.dto'
 import { UpdateRewardDto } from './dto/update-reward.dto'
 import { Reward, RewardAccess, RewardPublic } from './entities/reward.entity'
 import { startOfDay } from 'date-fns'
+import { RewardFiltersDto } from './dto/reward-filters.dto'
 
 type ParentIds = {
   organisationId?: string
   teamId?: string
+}
+
+type QueryOptions = {
+  checkExpiry?: boolean
+  checkAvailability?: boolean
 }
 
 @Injectable()
@@ -65,18 +71,40 @@ export class RewardsService {
    */
   async findManyAccessibleToUser(
     userId: string,
-    { limit = 10, page = 0 }: PaginationOptionsInterface
+    { limit = 10, page = 0 }: PaginationOptionsInterface,
+    filters: RewardFiltersDto
   ) {
-    const [results, total] = await this.queryFindAccessibleToUser(userId)
-      .andWhere('reward.reward_expires_at > :date', {
+    let query = this.queryFindAccessibleToUser(userId)
+
+    // Where rewards are not available (not enough points) and not redeemed
+    if (filters.locked) {
+      query = query
+        .andWhere('redemptions.id IS NULL')
+        .andWhere('reward.points_required > user.points_total')
+    }
+
+    // Where rewards are available (enough points) but not redeemed
+    if (filters.available) {
+      query = query
+        .andWhere('redemptions.id IS NULL')
+        .andWhere('reward.points_required <= user.points_total')
+    }
+
+    // Where rewards are expired
+    if (filters.expired) {
+      // Do not check for expiry
+      query = this.queryFindAccessibleToUser(userId, {
+        checkExpiry: false
+      })
+
+      query = query.andWhere('reward.reward_expires_at < :date', {
         date: startOfDay(new Date())
       })
-      .andWhere(
-        '(reward.limit_units = false OR reward.units_available > reward.redeemed_count)'
-      )
-      .take(limit)
-      .skip(page * limit)
-      .getManyAndCount()
+    }
+
+    query = query.take(limit).skip(page * limit)
+
+    const [results, total] = await query.getManyAndCount()
 
     return new Pagination<RewardPublic>({
       results: results.map(this.getRewardPublic),
@@ -118,7 +146,13 @@ export class RewardsService {
    * @param userId
    * @returns
    */
-  queryFindAccessibleToUser(userId: string, skipExpiryChecks = false) {
+  queryFindAccessibleToUser(
+    userId: string,
+    options: QueryOptions = {
+      checkExpiry: true,
+      checkAvailability: true
+    }
+  ) {
     let query = this.rewardsRepository
       .createQueryBuilder('reward')
       .leftJoinAndSelect('reward.image', 'image')
@@ -138,6 +172,7 @@ export class RewardsService {
       )
       .leftJoin('rewardOrganisation.teams', 'organisationTeam')
       .leftJoin('organisationTeam.users', 'organisationUser')
+      .leftJoin('user', 'user', 'user.id = :userId', { userId })
 
       .where(
         new Brackets((qb) => {
@@ -166,14 +201,18 @@ export class RewardsService {
       )
       .orderBy('reward.reward_expires_at', 'ASC')
 
-    if (skipExpiryChecks === false) {
-      query = query
-        .andWhere('reward.reward_expires_at > :date', {
-          date: startOfDay(new Date())
-        })
-        .andWhere(
-          '(reward.limit_units = false OR reward.units_available > reward.redeemed_count)'
-        )
+    // Check that the reward has not expired
+    if (options.checkExpiry === true) {
+      query = query.andWhere('reward.reward_expires_at > :date', {
+        date: startOfDay(new Date())
+      })
+    }
+
+    // Check that there's still "stock" available
+    if (options.checkAvailability === true) {
+      query = query.andWhere(
+        '(reward.limit_units = false OR reward.units_available > reward.redeemed_count)'
+      )
     }
 
     return query
@@ -190,11 +229,11 @@ export class RewardsService {
   async findOneAccessibleToUser(
     rewardId: string,
     userId: string,
-    skipExpiryChecks = false
+    options: QueryOptions = {}
   ) {
     let query = this.queryFindAccessibleToUser(
       userId,
-      skipExpiryChecks
+      options
     ).andWhere('reward.id = :rewardId', { rewardId })
 
     const result = await query.getOne()
@@ -406,11 +445,11 @@ export class RewardsService {
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    const [results, total] = await this.queryFindAccessibleToUser(userId, true)
+    const [results, total] = await this.queryFindAccessibleToUser(userId, {
+      checkExpiry: true,
+      checkAvailability: false
+    })
       .where('redemptions.user.id = :userId', { userId })
-      .andWhere('reward.reward_expires_at > :date', {
-        date: startOfDay(new Date())
-      })
       .take(limit)
       .skip(page * limit)
       .getManyAndCount()
