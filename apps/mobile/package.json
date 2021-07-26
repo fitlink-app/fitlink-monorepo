@@ -20,6 +20,7 @@
       "react-native-linear-gradient",
       "@react-native-google-signin/google-signin",
       "@invertase/react-native-apple-authentication"
+      "patch-package"
     ]
   },
   "scripts": {

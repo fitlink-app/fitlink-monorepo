@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm'
 import { tryAndCatch } from '../../helpers/tryAndCatch'
@@ -7,6 +8,7 @@ import { Sport } from '../sports/entities/sport.entity'
 import { CreateHealthActivityDto } from './dto/create-health-activity.dto'
 import { UpdateHealthActivityDto } from './dto/update-health-activity.dto'
 import { HealthActivity } from './entities/health-activity.entity'
+import { HealthActivityCreatedEvent } from './events/health-activity-created.event'
 
 @Injectable()
 export class HealthActivitiesService {
@@ -16,7 +18,8 @@ export class HealthActivitiesService {
 
     @InjectRepository(Sport)
     private sportsRepository: Repository<Sport>,
-    private providersService: ProvidersService
+    private providersService: ProvidersService,
+    private eventEmitter: EventEmitter2
   ) {}
 
   async create(activity: CreateHealthActivityDto, userId: string) {
@@ -79,6 +82,12 @@ export class HealthActivitiesService {
         )
       )
       newHealthActivityErr && console.error(newHealthActivityErr.message)
+      const healthActivityCreatedEvent = new HealthActivityCreatedEvent()
+      healthActivityCreatedEvent.health_activity_id = newHealthActivity.id
+      this.eventEmitter.emit(
+        'health_activity.created',
+        healthActivityCreatedEvent
+      )
       return newHealthActivity
     } else {
       return { healthActivity: null }

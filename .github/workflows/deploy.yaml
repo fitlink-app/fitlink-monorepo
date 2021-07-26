@@ -97,6 +97,9 @@ jobs:
       - name: Test sdk
         run: yarn run test:sdk
 
+      - name: Test admin
+        run: yarn run test:admin
+
       - name: Stop docker
         run: docker-compose down
 

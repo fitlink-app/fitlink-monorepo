@@ -13,6 +13,7 @@ export type InputProps = {
   inline?: boolean
   min?: number
   max?: number
+  error?: string
 }
 
 export default function Input({
@@ -26,12 +27,14 @@ export default function Input({
   rows = 5,
   inline,
   min,
-  max
+  max,
+  error = ''
 }: InputProps) {
   const [val, setVal] = useState(value)
   const classes = clsx({
     'input-block': true,
     'input-block--inline': inline,
+    'input-block--error': error !== '',
     [className]: className
   })
 
@@ -106,6 +109,7 @@ export default function Input({
     <div className={classes}>
       {label && <label htmlFor={name}>{label}</label>}
       {output()}
+      { error !== '' && <span>{error}</span> }
     </div>
   )
 }

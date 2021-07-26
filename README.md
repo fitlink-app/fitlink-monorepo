@@ -1,19 +1,6 @@
 # Fitlink Monorepo
 
-This is the Fitlink monorepo initialized using Nest's monorepo project structure. In future this repo will also contain the React Native app.
-
-## Quick links
-1. [Git Hook](#git-hook-prettier)
-2. [Testing](#testing)
-3. [Development](#development)
-4. [Docker](#run-docker)
-5. [Migration and seeding](#migrate-and-seed-database)
-6. [Jest](#run-jest-tests)
-7. [Testing emails](#testing-emails)
-
-## Leaderboard Entries
-
-At this time, only leaderboard entries are available, in order to make querying the leaderboard in real time performant. 
+This is the Fitlink monorepo initialized using Nest's monorepo project structure and combined with yarn workspaces. This repo also contains the React Native app, admin dashboard app, Storybook, and API SDK. 
 
 ## Get started
 
@@ -26,142 +13,24 @@ Make sure to setup the git hooks for the project. The hook is currently used for
 
 ```yarn install```
 
-### TLDR; (quick start)
-> Please read past this section to understand the different environments better.
+### Quick start
 
-#### Testing
-```
-  docker-compose up -d
-  yarn migration:run -c jest
-  yarn migration:seed -c jest
-  yarn test
-  // Optionally start a nest server against jest db:
-  // yarn start:jest 
-```
-> Note that the test database runs on port 5433, and the test nest server runs on port 3001
-
-#### Development
-```
-  docker-compose up -d
-  yarn migration:run 
-  yarn migration:seed
-  yarn start
-```
-> Note that the dev database runs on (default) port 5432, and the test nest server runs on (default) port 3000
-
-### Run docker
-A docker-compose file is available to run postgres and s3rver (s3 emulator) for development and jest testing. 
-
-For testing (ephemeral database):
-
-```docker-compose up -d postgres-jest s3rver```
-> Starts only the jest database service (port 5433) and s3rver (port 9191)
-
-For development (persistent database):
-```docker-compose up -d postgres s3rver```
-> Starts only the development database service (5432) and s3rver (port 9191)
-
-For running both databases:
-```docker-compose up -d```
-> Starts all services, bear in mind this will be two separate databases not sharing the same migrations or seeds until they are run on each.
-
-To stop services:
-```docker-compose down```
-
-To stop services and delete volumnes (lose all data)
-```docker-compose down --volumes```
-
-### Migrate and seed database
-To run migrations and seed on jest's database (prior to running tests):
-```
-  yarn migration:run -c jest
-  yarn migration:seed -c jest
-```
-
-To run migrations and seed on the development database (prior to running application):
-```
-  yarn migration:run
-  yarn migration:seed
-```
-
-To generate a new migration based on entity changes (with custom name to describe changes):
-```
-  yarn migration:generate -c jest -n UpdateUsers
-```
-> Note that this will attempt to check if migrations are not up to date. You should not create a new migration on an unmigrated database or there will be conflicts as a result. 
-
-### Run jest tests
-> Run migration and seeding first before running jest
+> Note you must have the datasets obtained from [https://github.com/fitlink-app/fitlink-test-data](https://github.com/fitlink-app/fitlink-test-data) copied to this project, & the database should be empty for import process. Run `docker compose down --volumes` to empty the database.
 
 ```
-  yarn test
-  // OR
-  yarn test:watch
+docker compose up -d
+yarn migration:run
+yarn db:import
+yarn start
+yarn package:admin
 ```
 
-If other tests are failing, you can run only your own tests
-```
-  yarn test apps/api/test/my.e2e-spec.ts
-  yarn test:watch apps/api/test/my.e2e-spec.ts
-```
+After running the commands navigate to [http://localhost:4000/login](http://localhost:4000/login), and you should be able to login with the credentials available in the test dataset.
 
-### Testing emails
-In Jest, emails are written to email-debug.log in the root. This allows you to perform tests on the output during a test run. 
-
-```
-  import { emailHasContent } from './helpers/mocking'
-  // later... //
-  expect(await emailHasContent(payload.email)).toEqual(true)
-```
-
-In the local development environment, this is also enabled by default in .env, but could be override in .env.local
-
-### Run nest server
-
-You may want to run a nest server while writing jest tests. In this scenario, you can run nest against the ephemeral jest database:
-
-```
-  yarn start:jest
-```
-
-The api will be available at http://localhost:3001/api/v1/*
-
-For running the app against the development database, run:
-
-```
-  yarn start
-```
-
-The api will be available at http://localhost:3000/api/v1/*
-
-### Bearer authentication
-
-Simple bearer authentication is in place for the temporary API (leaderboard, activities) to connect to Firebase. 
-
-## Nest-cli
-
-Scaffold new CRUD routes using nest cli, under the modules folder (omits tests because we're using e2e tests only). 
-
-```nest g resource modules/fishes --no-spec```
-
-## Swagger
-
-Swagger documentation is provided at http://localhost:3000/api/v1
-
-## Generate database UML
-
-You can generate a database UML diagram from Typeorm entities using the command
-
-```yarn db:diagram```
-
-<img src="./docs/uml.svg" />
-
-## S3rver
-S3rver is a local AWS s3 emulator.
-
-## Generate self-signed certificate
-For Apple sign in the redirect_uri must be https, and cannot be localhost. 
-1. Setup hosts file to point 127.0.0.1 to fitlinkapp.test
-2. Generate the certificate using `yarn ssl:generate`
-3. Run `yarn package:admin:ssl` to run the dashboard with the local self-signed certificate.
-4. The app will be available at https://fitlinkapp.test:4000
+## Application-specific documentation
+1. [Admin Development Documentation](./apps/admin/README.md)
+2. [API Development Documentation](./apps/api/README.md)
+3. [API SDK Documentation](./apps/api-sdk/README.md)
+4. [Common](./apps/common/README.md)
+5. [Mobile](./apps/mobile/README.md)
+6. [Storybook](./apps/storybook/README.md)

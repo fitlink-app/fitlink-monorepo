@@ -14,11 +14,6 @@ input:not([type="checkbox"]):not([type="file"]), textarea, select {
     border-color: $primary;
     box-shadow: 0 0 0 3px rgba($primary, 0.25), 0 10px 10px 0 rgba($primary, 0.1);
   }
-
-  &.is-invalid {
-    border-color: $red;
-    box-shadow: 0 0 0 3px rgba($red, 0.25);
-  }
 }
 
 input:not([type="checkbox"]):not([type="file"]), select {
@@ -75,6 +70,22 @@ select[multiple] {
     }
   }
 
+  &--error {
+    input:not([type="checkbox"]):not([type="file"]), textarea, label, select {
+      border-color: $red;
+      &:focus, &:active {
+        box-shadow: 0 0 0 3px rgba($red, 0.25);
+      }
+    }
+
+    span {
+      float: right;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: $red;
+    }
+  }
+
   input[type="checkbox"] {
     width: 0px;
     height: 0px;
@@ -86,7 +97,6 @@ select[multiple] {
   input[type="checkbox"] + label {
     padding-left: 1.5rem;
     position: relative;
-    //z-index: 2;
 
     &:before {
       content: "";
@@ -110,6 +120,14 @@ select[multiple] {
       background-size: 10px 10px;
       background-position: center center;
       background-repeat: no-repeat;
+    }
+  }
+
+  &--error {
+    input[type="checkbox"] + label {
+      &:before {
+        border: 1px solid $red;
+      }
     }
   }
 
@@ -150,6 +168,15 @@ select[multiple] {
 
       @media screen and (min-width: $medium) {
         top: calc(-0.1875rem + 2px);
+      }
+    }
+  }
+
+  &--error {
+    input[type="checkbox"].toggle-switch + label {
+
+      &:before {
+        box-shadow: 0 0 0 3px rgba($red, 0.25), 0px 0px 0px 1px $red;
       }
     }
   }

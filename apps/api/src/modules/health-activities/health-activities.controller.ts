@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common'
 import { ApiExcludeEndpoint } from '@nestjs/swagger'
-import { Public } from '../../decorators/public.decorator'
 import { UpdateHealthActivityDto } from './dto/update-health-activity.dto'
 import { HealthActivitiesService } from './health-activities.service'
 
@@ -17,7 +16,6 @@ export class HealthActivitiesController {
   }
 
   @ApiExcludeEndpoint()
-  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.healthActivitiesService.findOne(+id)

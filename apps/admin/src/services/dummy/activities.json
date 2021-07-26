@@ -233,8 +233,8 @@
           "id": "547d68ca-8b90-4817-b227-16ff87022771",
           "alt": "Forest Trials ",
           "url": "https://d3642p7out83uo.cloudfront.net/820be35e-1383-4735-97a9-127a12682600-standard.jpg",
-          "width": 1920,
-          "height": 0,
+          "width": 1698,
+          "height": 1274,
           "url_128x128": "https://d3642p7out83uo.cloudfront.net/820be35e-1383-4735-97a9-127a12682600-avatar.jpg",
           "url_512x512": "https://d3642p7out83uo.cloudfront.net/820be35e-1383-4735-97a9-127a12682600-tile.jpg",
           "url_640x360": "https://d3642p7out83uo.cloudfront.net/820be35e-1383-4735-97a9-127a12682600-cover.jpg",
@@ -246,8 +246,8 @@
           "id": "016e64ac-0203-4954-ac3e-dc6e7b8cc2c5",
           "alt": "Roman Camp - Hill Work",
           "url": "https://d3642p7out83uo.cloudfront.net/f3d11f1f-82b4-41e6-af4e-a6485878c0dc-standard.jpg",
-          "width": 1920,
-          "height": 0,
+          "width": 1698,
+          "height": 1274,
           "url_128x128": "https://d3642p7out83uo.cloudfront.net/f3d11f1f-82b4-41e6-af4e-a6485878c0dc-avatar.jpg",
           "url_512x512": "https://d3642p7out83uo.cloudfront.net/f3d11f1f-82b4-41e6-af4e-a6485878c0dc-tile.jpg",
           "url_640x360": "https://d3642p7out83uo.cloudfront.net/f3d11f1f-82b4-41e6-af4e-a6485878c0dc-cover.jpg",
@@ -259,8 +259,8 @@
           "id": "d43a6558-b142-4d3c-98f1-3c234bb14934",
           "alt": "Ketts Park for walks, runs, and tennis ",
           "url": "https://d3642p7out83uo.cloudfront.net/35e84f89-9c7b-4932-9422-eb5aa3bee090-standard.jpg",
-          "width": 1920,
-          "height": 0,
+          "width": 1799,
+          "height": 1274,
           "url_128x128": "https://d3642p7out83uo.cloudfront.net/35e84f89-9c7b-4932-9422-eb5aa3bee090-avatar.jpg",
           "url_512x512": "https://d3642p7out83uo.cloudfront.net/35e84f89-9c7b-4932-9422-eb5aa3bee090-tile.jpg",
           "url_640x360": "https://d3642p7out83uo.cloudfront.net/35e84f89-9c7b-4932-9422-eb5aa3bee090-cover.jpg",
@@ -280,7 +280,9 @@
           "type": "standard"
         },
         {
-          "url": "https://picsum.photos/id/10/600/400"
+          "url": "https://picsum.photos/id/10/600/400",
+          "width": 600,
+          "height": 400
         }
       ]
     }
