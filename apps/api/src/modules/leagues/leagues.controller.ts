@@ -267,7 +267,7 @@ export class LeaguesController {
    */
   @Get('/leagues/:leagueId/inviteable')
   @ApiTags('leagues')
-  @ApiQuery({ type: SearchUserDto })
+  // @ApiQuery({ type: SearchUserForLeaguesDto })
   @ApiResponse({ type: UserPublicPagination, status: 200 })
   async searchInviteableUsers(
     @Param('leagueId') leagueId: string,
