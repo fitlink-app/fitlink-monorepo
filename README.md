@@ -19,7 +19,10 @@ Make sure to setup the git hooks for the project. The hook is currently used for
 
 ```
 docker compose up -d
-yarn migration:run
+
+// When importing the test dataset, this step should be skipped
+// yarn migration:run
+
 yarn db:import
 yarn start
 yarn package:admin
