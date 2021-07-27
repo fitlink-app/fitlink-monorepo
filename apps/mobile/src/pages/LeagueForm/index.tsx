@@ -7,11 +7,13 @@ import {
   ImagePicker,
   NAVBAR_HEIGHT,
 } from '@components';
-import {ImagePickerDialogResponse, useForm} from '@hooks';
+import {ImagePickerDialogResponse, useForm, useUploadImage} from '@hooks';
 import React, {useState} from 'react';
 import {Platform, ScrollView} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
+import {ImageType} from '@fitlink/api/src/modules/images/entities/image.entity';
+import {getErrors} from '@api';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -64,19 +66,33 @@ export const LeagueForm = () => {
   } = useForm(initialValues);
 
   // TODO: Upload image hook
+  const {mutateAsync: uploadImage} = useUploadImage();
 
   const [image, setImage] = useState<ImagePickerDialogResponse>();
-
-  const onSubmit = async () => {
-    // Upload image
-    // Submit form with image ID
-    // Return requestError if any
-  };
 
   // TEMP VARIABLES
   const mode: LeagueFormMode = 'create';
 
-  const handleOnSubmit = () => {};
+  const handleOnSubmit = async () => {
+    // Upload image
+    try {
+      if (!image) return;
+
+      console.log(image);
+
+      const imgResult = await uploadImage({
+        image,
+        type: 'cover' as ImageType,
+      });
+      console.log(imgResult);
+    } catch (e) {
+      const errs = getErrors(e);
+      console.log(errs);
+    }
+
+    // Submit form with image ID
+    // Return requestError if any
+  };
 
   return (
     <Wrapper>
