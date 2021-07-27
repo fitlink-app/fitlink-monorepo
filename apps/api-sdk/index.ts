@@ -354,7 +354,7 @@ export class Api {
   async uploadFile<T>(url: UploadResource, params: UploadResourceParams) {
     const response = await this.axios.post(
       this.applyParams(url, params),
-      params.formData,
+      params.payload,
       {
         headers: { 'Content-Type': 'multipart/form-data' }
       }
