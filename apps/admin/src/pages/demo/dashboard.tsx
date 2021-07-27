@@ -15,7 +15,7 @@ import IconDownload from '../../components/icons/IconDownload'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 let rewards = require('../../services/dummy/stats-rewards.json')
 
-export default function components() {
+export default function page() {
   rewards = rewards.sort(
     (a, b) => parseFloat(b['redeemed']) - parseFloat(a['redeemed'])
   )

@@ -46,7 +46,7 @@ export async function getServerSideProps(context: any) {
   }
 }
 
-export default function components({post}: PostProp) {
+export default function page({post}: PostProp) {
   
   if (post.id === undefined) return (
     <Dashboard title="Knowledge base">

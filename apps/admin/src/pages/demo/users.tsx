@@ -21,7 +21,7 @@ import { AnimatePresence } from 'framer-motion'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dummy = require('../../services/dummy/users.json')
 
-export default function users() {
+export default function page() {
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)

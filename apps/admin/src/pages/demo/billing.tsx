@@ -50,7 +50,7 @@ const invoices = {
   page_total: 1
 }
 
-export default function components() {
+export default function page() {
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)

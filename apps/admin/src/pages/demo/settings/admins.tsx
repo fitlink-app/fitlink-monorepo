@@ -8,7 +8,7 @@ import TableContainer from '../../../components/Table/TableContainer'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dummy = require('../../../services/dummy/team-admins.json')
 
-export default function components() {
+export default function page() {
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)
