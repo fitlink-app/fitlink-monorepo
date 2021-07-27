@@ -69,15 +69,15 @@ export default function page() {
   ]
 
   const prepareDownload = () => {
-    return new Promise(function(resolve, reject) {
-      setTimeout(resolve, 2000);
-    }).then(function() {
-      console.log('success');
+    return new Promise(function (resolve, reject) {
+      setTimeout(resolve, 2000)
+    }).then(function () {
+      console.log('success')
     })
   }
 
   return (
-    <Dashboard title="Dashboard">
+    <Dashboard title="Dashboard" linkPrefix="/demo">
       <h1 className="light">Your team at a glance</h1>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">
@@ -93,14 +93,12 @@ export default function page() {
                   width="24px"
                   height="24px"
                   className="mr-1 color-light-grey hover-dark-grey"
-                  onClick={
-                    () => toast.promise(
-                      prepareDownload(), {
-                         loading: 'Preparing download...',
-                         success: <b>Download starting</b>,
-                         error: <b>Download failed</b>,
-                       }
-                     )
+                  onClick={() =>
+                    toast.promise(prepareDownload(), {
+                      loading: 'Preparing download...',
+                      success: <b>Download starting</b>,
+                      error: <b>Download failed</b>
+                    })
                   }
                 />
                 <Select
@@ -131,14 +129,12 @@ export default function page() {
                   width="24px"
                   height="24px"
                   className="mr-1 color-light-grey hover-dark-grey"
-                  onClick={
-                    () => toast.promise(
-                      prepareDownload(), {
-                         loading: 'Preparing download...',
-                         success: <b>Download starting</b>,
-                         error: <b>Download failed</b>,
-                       }
-                     )
+                  onClick={() =>
+                    toast.promise(prepareDownload(), {
+                      loading: 'Preparing download...',
+                      success: <b>Download starting</b>,
+                      error: <b>Download failed</b>
+                    })
                   }
                 />
                 <Select
@@ -229,14 +225,12 @@ export default function page() {
                   width="24px"
                   height="24px"
                   className="mr-1 color-light-grey hover-dark-grey"
-                  onClick={
-                    () => toast.promise(
-                      prepareDownload(), {
-                         loading: 'Preparing download...',
-                         success: <b>Download starting</b>,
-                         error: <b>Download failed</b>,
-                       }
-                     )
+                  onClick={() =>
+                    toast.promise(prepareDownload(), {
+                      loading: 'Preparing download...',
+                      success: <b>Download starting</b>,
+                      error: <b>Download failed</b>
+                    })
                   }
                 />
                 <Select
@@ -337,7 +331,10 @@ export default function page() {
                 <img src="/temp/ecologi.svg" alt="" />
                 <h5>Give back with Ecologi 🌱</h5>
                 <p>
-                  We've partnered with Ecologi to offer all Fitlink teams the opportunity to reward their users with carbon offsetting and planting trees. Spend your points on making the world a better place.
+                  We've partnered with Ecologi to offer all Fitlink teams the
+                  opportunity to reward their users with carbon offsetting and
+                  planting trees. Spend your points on making the world a better
+                  place.
                 </p>
               </li>
             </ul>

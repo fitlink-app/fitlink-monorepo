@@ -20,30 +20,25 @@ export default function page() {
       setLoading(true)
       setMessage('')
       setLoading(false)
-      setMessage('If the e-mail address is registered, instructions will be sent to reset your password')
+      setMessage(
+        'If the e-mail address is registered, instructions will be sent to reset your password'
+      )
     }
   }
 
   return (
     <Login title="Forgot Password">
       <div className="text-center">
-        <Logo
-          height={32}
-        />
-        <h1 className="h6 mt-2 color-grey">Enter your email address to reset your password</h1>
+        <Logo height={32} />
+        <h1 className="h6 mt-2 color-grey">
+          Enter your email address to reset your password
+        </h1>
       </div>
-      <form onSubmit={ handleLogin } className="mt-2">
-        <Input
-          label="E-mail address"
-          name="email"
-          type="email"
-          />
-        { message !== '' &&
-          <Feedback
-            type="success"
-            className="mt-2"
-            message={message} />
-        }
+      <form onSubmit={handleLogin} className="mt-2">
+        <Input label="E-mail address" name="email" type="email" />
+        {message !== '' && (
+          <Feedback type="success" className="mt-2" message={message} />
+        )}
         <div className="row ai-c mt-2">
           <div className="col">
             <Link href="/demo/login">
@@ -54,7 +49,9 @@ export default function page() {
             </Link>
           </div>
           <div className="col text-right">
-            <button className="button" disabled={loading}>Send reset e-mail</button>
+            <button className="button" disabled={loading}>
+              Send reset e-mail
+            </button>
           </div>
         </div>
       </form>

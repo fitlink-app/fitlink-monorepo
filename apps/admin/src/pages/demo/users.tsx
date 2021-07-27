@@ -84,7 +84,7 @@ export default function page() {
   }
 
   return (
-    <Dashboard title="Users">
+    <Dashboard title="Users" linkPrefix="/demo">
       <div className="row ai-c">
         <div className="col">
           <h1 className="light mb-0">User performance</h1>

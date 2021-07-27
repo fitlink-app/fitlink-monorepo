@@ -1,26 +1,33 @@
 import React, { useMemo, useCallback, useState, useEffect } from 'react'
 import { Table, TablePagination } from './Table'
 import { Column } from 'react-table'
+import { ApiResult } from '@fitlink/common/react-query/types'
+import { getErrorMessage } from '@fitlink/api-sdk'
+import { useQuery } from 'react-query'
+import { timeout } from '../../helpers/timeout'
 
 export type TableContainerProps = {
   columns: Column<any>[]
-  fetch: (
-    limit: number,
-    page: number,
-    params: NodeJS.Dict<any>
-  ) => Promise<{
-    results: any[]
-    total: number
-    page_total: number
-  }>
+  fetch: (limit: number, page: number) => Promise<ListData>
+  fetchName?: string
+}
+
+type ListData = {
+  results: any[]
+  page_total: number
+  total: number
 }
 
 const noop = () => {}
 
-export function TableContainer({ columns, fetch }: TableContainerProps) {
-  const [data, setData] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [refresh, setRefresh] = useState(0)
+export function TableContainer({
+  columns,
+  fetch,
+  fetchName
+}: TableContainerProps) {
+  // const [refresh, setRefresh] = useState(0)
+  const [results, setResults] = useState([])
+  const [errorMessage, setError] = useState('')
 
   const [pagination, setPagination] = useState<TablePagination>({
     page: 0,
@@ -31,46 +38,70 @@ export function TableContainer({ columns, fetch }: TableContainerProps) {
   })
 
   const memoizedColumns = useMemo(() => columns, [])
-  const memoizedData = useMemo(() => data, [data])
 
-  const fetchData = useCallback(() => {
-    ;(async function () {
-      setLoading(true)
+  const { limit, page } = pagination
+  const {
+    data,
+    isError,
+    error,
+    isFetching,
+    isPreviousData
+  }: ApiResult<ListData> = useQuery(
+    [fetchName || 'fetch-' + Date.now(), limit, page],
+    async () => {
+      return fetch(limit, page)
+    },
+    {
+      retry: false,
+      keepPreviousData: true,
 
-      const { limit, page } = pagination
-      const { results, total, page_total } = await fetch(limit, page, {})
+      // NOTE: This causes the behaviour of duplicate ajax queries in network inspector
+      // It can be re-enabled but having dev console open produces this behaviour by default
+      // due to window focusing in / out.
+      refetchOnWindowFocus: false
+    }
+  )
 
+  useEffect(() => {
+    if (data && !isError) {
+      const { total, page_total, results } = data as ListData
       setPagination({
         ...pagination,
         pageCount: Math.ceil(total / limit),
         pageTotal: page_total,
         total
       })
-      setData(results)
-      setLoading(false)
-    })()
-  }, [refresh])
+      setResults(results)
+    }
+  }, [data, page])
 
   useEffect(() => {
-    fetchData()
-  }, [refresh])
+    if (isError) {
+      setError(getErrorMessage(error))
+    }
+  }, [isError])
 
-  return (
-    <Table
-      columns={memoizedColumns}
-      data={memoizedData}
-      loading={loading}
-      pagination={{
-        pagination,
-        setPagination: (state) => {
-          setPagination({
-            ...pagination,
-            ...state
-          })
-          setRefresh(refresh + 1)
-        }
-      }}
-    />
+  // TODO: show better UI
+  return errorMessage ? (
+    <>ERROR: {errorMessage}</>
+  ) : (
+    <>
+      <Table
+        columns={memoizedColumns}
+        data={results}
+        loading={isFetching}
+        pagination={{
+          pagination,
+          setPagination: (state) => {
+            console
+            setPagination({
+              ...pagination,
+              ...state
+            })
+          }
+        }}
+      />
+    </>
   )
 }
 

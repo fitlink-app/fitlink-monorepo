@@ -40,9 +40,9 @@ export default function page() {
       case 'members':
         setSorted(
           orig.results.sort((a, b) =>
-          sort === 'asc'
-          ? parseFloat(a[sortOn]) - parseFloat(b[sortOn])
-          : parseFloat(b[sortOn]) - parseFloat(a[sortOn])
+            sort === 'asc'
+              ? parseFloat(a[sortOn]) - parseFloat(b[sortOn])
+              : parseFloat(b[sortOn]) - parseFloat(a[sortOn])
           )
         )
         break
@@ -59,30 +59,21 @@ export default function page() {
 
   const loadLeague = (league: any) => {
     setWarning(true)
-    setDrawContent(
-      <LeagueForm current={league} />
-    )
+    setDrawContent(<LeagueForm current={league} />)
   }
 
   const NewLeagueForm = () => {
     setWarning(true)
-    setDrawContent(
-      <LeagueForm />
-    )
+    setDrawContent(<LeagueForm />)
   }
 
   return (
-    <Dashboard
-      title="Leagues"
-      >
+    <Dashboard title="Leagues" linkPrefix="/demo">
       <div className="row ai-c mb-2">
         <div className="col-12 col-lg-8">
           <div className="flex ai-c">
             <h1 className="light mb-0 mr-2">Your leagues</h1>
-            <button
-              className="button alt small mt-1"
-              onClick={NewLeagueForm}
-              >
+            <button className="button alt small mt-1" onClick={NewLeagueForm}>
               Add new
             </button>
           </div>
@@ -101,14 +92,14 @@ export default function page() {
         </div>
       </div>
       <div className="rewards flex mb-4">
-      <div className="p-1">
+        <div className="p-1">
           <div className="rewards__add" onClick={NewLeagueForm}>
             <IconPlus />
           </div>
         </div>
-        { sorted.map((r:LeagueProps, i) => (
+        {sorted.map((r: LeagueProps, i) => (
           <div className="rewards__wrap" key={`fl-r-${i}`}>
-            <League {...r} onClick={ () => loadLeague(r)} />
+            <League {...r} onClick={() => loadLeague(r)} />
           </div>
         ))}
       </div>

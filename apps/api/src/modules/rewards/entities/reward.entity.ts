@@ -14,16 +14,7 @@ import { Image } from '../../images/entities/image.entity'
 import { RewardsRedemption } from '../../rewards-redemptions/entities/rewards-redemption.entity'
 import { ApiProperty } from '@nestjs/swagger'
 import { FeedItem } from '../../feed-items/entities/feed-item.entity'
-
-export enum RewardAccess {
-  Public = 'public',
-  Team = 'team',
-  Organisation = 'organisation'
-}
-
-export enum RewardPlatform {
-  Fitlink = 'fitlink'
-}
+import { RewardAccess, RewardPlatform } from '../rewards.constants'
 
 @Entity()
 export class Reward extends CreatableEntity {

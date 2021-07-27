@@ -34,7 +34,7 @@ export default function page() {
   const [currenct, setCurrency] = useState(currencies[0])
 
   return (
-    <Dashboard title="Settings">
+    <Dashboard title="Settings" linkPrefix="/demo">
       <h1 className="light">Settings</h1>
       <div className="row mt-2 ai-s">
         <div className="col-12 col-md-6 col-xl-5 col-hd-4 mt-2">
@@ -62,7 +62,7 @@ export default function page() {
               label="Company logo"
               backgroundSize="80%"
               className="mb-0"
-              />
+            />
           </Card>
         </div>
         <div className="col-12 col-md-6 col-xl-5 col-hd-4 mt-2">

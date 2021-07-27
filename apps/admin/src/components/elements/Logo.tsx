@@ -9,7 +9,6 @@ export default function Logo({
   whiteDot = false,
   height = 30
 }: LogoProps) {
-
   const width = 5.2 * height // 156
 
   return (

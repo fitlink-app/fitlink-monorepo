@@ -1,6 +1,5 @@
 import { Seeder, Factory, runSeeder } from 'typeorm-seeding'
 import { Connection } from 'typeorm'
-import { Organisation } from '../../src/modules/organisations/entities/organisation.entity'
 import { Subscription } from '../../src/modules/subscriptions/entities/subscription.entity'
 import { User } from '../../src/modules/users/entities/user.entity'
 import { OrganisationsSetup, OrganisationsTeardown } from './organisations.seed'

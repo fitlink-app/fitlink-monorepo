@@ -22,7 +22,8 @@ import { Uploads, UploadOptions } from '../../decorators/uploads.decorator'
 import { Public } from '../../decorators/public.decorator'
 import { AuthGuard } from '../../guards/auth.guard'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { Image, ImageType } from '../images/entities/image.entity'
+import { Image } from '../images/entities/image.entity'
+import { ImageType } from '../images/images.constants'
 import { IminServiceParams } from './types/imin'
 
 @Public()

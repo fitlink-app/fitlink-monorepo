@@ -11,7 +11,7 @@ import {
   MaxLength,
   MinLength
 } from 'class-validator'
-import { RewardAccess } from '../entities/reward.entity'
+import { RewardAccess } from '../rewards.constants'
 
 export class CreateRewardDto {
   @ApiProperty()

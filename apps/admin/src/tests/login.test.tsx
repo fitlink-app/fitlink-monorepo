@@ -1,9 +1,11 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import * as moxios from 'moxios'
 import Page from '../pages/login'
 import App from './mock/app'
 import { api } from '../context/Auth.context'
+
+const useRouter = jest.spyOn(require('next/router'), 'useRouter')
 
 const mockJwt = `eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSm9obiBEb2UifQ.K1lVDxQYcBTPnWMTGeUa3gYAgdEhMFFv38VmOyl95bA`
 
@@ -26,7 +28,7 @@ describe('Login', () => {
     moxios.stubRequest('/auth/login', {
       status: 403,
       response: {
-        message: 'Unauthorized'
+        message: 'Invalid email or password'
       }
     })
 
@@ -38,11 +40,11 @@ describe('Login', () => {
 
     screen
       .getByRole('button', {
-        name: /Login/i
+        name: /Login with e-mail/i
       })
       .click()
 
-    const items = await screen.findAllByText(/Unauthorized/)
+    const items = await screen.findAllByText(/Invalid/)
 
     expect(items).toHaveLength(1)
     expect(console.error).toHaveBeenCalled()
@@ -65,6 +67,17 @@ describe('Login', () => {
       }
     })
 
+    moxios.stubRequest('/me/roles', {
+      status: 200,
+      response: []
+    })
+
+    const push = jest.fn()
+    useRouter.mockImplementation(() => ({
+      push,
+      prefetch: jest.fn(() => Promise.resolve())
+    }))
+
     render(
       <App>
         <Page />
@@ -73,13 +86,11 @@ describe('Login', () => {
 
     screen
       .getByRole('button', {
-        name: /Login/i
+        name: /Login with e-mail/i
       })
       .click()
 
-    const items = await screen.findAllByText(/logged in/)
-
-    expect(items).toHaveLength(1)
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/dashboard'))
     expect(console.error).not.toHaveBeenCalled()
   })
 })

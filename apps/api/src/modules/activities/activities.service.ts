@@ -4,7 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { CreateActivityDto } from './dto/create-activity.dto'
 import { UpdateActivityDto } from './dto/update-activity.dto'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
-import { Activity, ActivityType } from './entities/activity.entity'
+import { Activity } from './entities/activity.entity'
+import { ActivityType } from './activities.constants'
 import { Image } from '../images/entities/image.entity'
 
 @Injectable()

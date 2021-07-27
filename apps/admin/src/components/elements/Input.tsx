@@ -109,7 +109,7 @@ export default function Input({
     <div className={classes}>
       {label && <label htmlFor={name}>{label}</label>}
       {output()}
-      { error !== '' && <span>{error}</span> }
+      {error !== '' && <span>{error}</span>}
     </div>
   )
 }

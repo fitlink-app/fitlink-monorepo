@@ -1,39 +1,28 @@
 import { Connection, Repository } from 'typeorm'
-import {
-  UnitSystem,
-  User,
-  UserRank
-} from '../../src/modules/users/entities/user.entity'
+import { User } from '../../src/modules/users/entities/user.entity'
+import { UnitSystem, UserRank } from '../../src/modules/users/users.constants'
 import { initializeApp, credential, firestore } from 'firebase-admin'
 import { NestFactory } from '@nestjs/core'
-import {
-  Image,
-  ImageType
-} from '../../src/modules/images/entities/image.entity'
+import { Image } from '../../src/modules/images/entities/image.entity'
+import { ImageType } from '../../src/modules/images/images.constants'
 import { MigrationModule } from './migration.module'
 import { ImagesService } from '../../src/modules/images/images.service'
 import { readFile } from 'fs/promises'
 import { UsersService } from '../../src/modules/users/users.service'
 import { v4 as uuid } from 'uuid'
-import {
-  PrivacySetting,
-  UsersSetting
-} from '../../src/modules/users-settings/entities/users-setting.entity'
-import {
-  AuthProvider,
-  AuthProviderType
-} from '../../src/modules/auth/entities/auth-provider.entity'
+import { UsersSetting } from '../../src/modules/users-settings/entities/users-setting.entity'
+import { PrivacySetting } from '../../src/modules/users-settings/users-settings.constants'
+import { AuthProvider } from '../../src/modules/auth/entities/auth-provider.entity'
+import { AuthProviderType } from '../../src/modules/auth/auth.constants'
 import { Team } from '../../src/modules/teams/entities/team.entity'
 import { Organisation } from '../../src/modules/organisations/entities/organisation.entity'
+import { Subscription } from '../../src/modules/subscriptions/entities/subscription.entity'
 import {
   BillingPlanStatus,
-  Subscription,
   SubscriptionType
-} from '../../src/modules/subscriptions/entities/subscription.entity'
-import {
-  Reward,
-  RewardAccess
-} from '../../src/modules/rewards/entities/reward.entity'
+} from '../../src/modules/subscriptions/subscriptions.constants'
+import { Reward } from '../../src/modules/rewards/entities/reward.entity'
+import { RewardAccess } from '../../src/modules/rewards/rewards.constants'
 import { LegacyReward, LegacyTeam, LegacyUser } from './types'
 import { Goals, LegacyUserDocument } from './models/user'
 import {
@@ -44,11 +33,11 @@ import {
 import { HttpService } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { GoalsEntry } from '../../src/modules/goals-entries/entities/goals-entry.entity'
+import { League } from '../../src/modules/leagues/entities/league.entity'
 import {
-  League,
   LeagueAccess,
   LeagueInvitePermission
-} from '../../src/modules/leagues/entities/league.entity'
+} from '../../src/modules/leagues/leagues.constants'
 import { FirebaseMigration } from '../../src/modules/firebase/entities/firebase.entity'
 import { Leaderboard } from '../../src/modules/leaderboards/entities/leaderboard.entity'
 import { LeaderboardEntry } from '../../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
@@ -60,13 +49,13 @@ import { LegacyFeedItem, LegacyHealthActivity } from './models'
 import { LegacyGoal } from './models/goal'
 import { Sport } from '../../src/modules/sports/entities/sport.entity'
 import { Provider } from '../../src/modules/providers/entities/provider.entity'
+import { FeedItem } from '../../src/modules/feed-items/entities/feed-item.entity'
 import {
   FeedGoalType,
-  FeedItem,
   FeedItemCategory,
   FeedItemType,
   UserTier
-} from '../../src/modules/feed-items/entities/feed-item.entity'
+} from '../../src/modules/feed-items/feed-items.constants'
 
 // FITLINK
 const FITLINK_TEAM = 'ZxSZdl3lafZiiWiZnhlw'

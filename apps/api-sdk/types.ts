@@ -129,6 +129,7 @@ export type ReadResource =
   | '/subscriptions/:subscriptionId'
   | '/users-invitations/:invitationId'
   | '/me'
+  | '/me/roles'
   | '/me/feed/:feedItemId'
   | '/me/avatar'
   | '/me/email'

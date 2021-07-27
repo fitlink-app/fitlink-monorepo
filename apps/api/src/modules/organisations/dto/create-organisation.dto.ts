@@ -2,7 +2,8 @@ import { ApiProperty } from '@nestjs/swagger'
 import { MaxLength, IsEnum, IsOptional, IsEmail } from 'class-validator'
 import { Image } from '../../images/entities/image.entity'
 import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
-import { Organisation, OrganisationType } from '../entities/organisation.entity'
+import { Organisation } from '../entities/organisation.entity'
+import { OrganisationType } from '../organisations.constants'
 
 export class CreateOrganisationDto {
   @ApiProperty()

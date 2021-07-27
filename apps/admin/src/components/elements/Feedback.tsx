@@ -1,5 +1,5 @@
-import clsx from "clsx"
-import IconClose from "../icons/IconClose"
+import clsx from 'clsx'
+import IconClose from '../icons/IconClose'
 
 export type FeedbackProps = {
   type?: 'success' | 'error' | 'default'
@@ -15,8 +15,7 @@ export default function Feedback({
   dismissable = false,
   remove = () => {},
   className
-}:FeedbackProps) {
-
+}: FeedbackProps) {
   const classes = clsx({
     feedback: true,
     [`feedback--${type}`]: true,
@@ -25,9 +24,7 @@ export default function Feedback({
 
   return (
     <div className={classes}>
-      { dismissable &&
-        <IconClose onClick={remove} />
-      }
+      {dismissable && <IconClose onClick={remove} />}
       {message}
     </div>
   )

@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { formatRoles } from '../../helpers/formatRoles'
-import { ILike, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 import { JWTRoles } from '../../models'
 import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { User, UserPublic } from './entities/user.entity'
-import { Image, ImageType } from '../images/entities/image.entity'
+import { Image } from '../images/entities/image.entity'
+import { ImageType } from '../images/images.constants'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { plainToClass } from 'class-transformer'
 import { JwtService } from '@nestjs/jwt'
@@ -170,7 +171,7 @@ export class UsersService {
     const [results, total] = await this.userRepository.findAndCount({
       take: limit,
       skip: page * limit,
-      relations: ['settings']
+      relations: ['settings', 'avatar']
     })
     return new Pagination<User>({
       results,

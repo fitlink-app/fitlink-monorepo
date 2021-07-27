@@ -1,15 +1,11 @@
-import {
-  BadRequestException,
-  forwardRef,
-  Inject,
-  Injectable
-} from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
 import { CreateUserRoleDto } from './dto/create-user-role.dto'
 import { UpdateUserRoleDto } from './dto/update-user-role.dto'
 import { UserRole } from './entities/user-role.entity'
+import { Roles } from './user-roles.constants'
 
 @Injectable()
 export class UserRolesService {
@@ -93,7 +89,7 @@ export class UserRolesService {
     user.id = userId
     return this.userRoleRepository.save({
       user,
-      role: 'superadmin'
+      role: Roles.SuperAdmin
     })
   }
 

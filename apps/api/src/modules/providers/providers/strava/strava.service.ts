@@ -1,7 +1,9 @@
 import {
   BadRequestException,
   HttpService,
-  Injectable, NotFoundException } from '@nestjs/common'
+  Injectable,
+  NotFoundException
+} from '@nestjs/common'
 import {
   STRAVA_ACTIVITY_TYPE_MAP,
   STRAVA_AUTHORIZE_URL,
@@ -10,7 +12,7 @@ import {
 } from '../constants'
 import { map } from 'rxjs/operators'
 import { ProvidersService } from '../../providers.service'
-import { ProviderType } from '../../entities/provider.entity'
+import { ProviderType } from '../../providers.constants'
 import { ConfigService } from '@nestjs/config'
 import {
   StravaEventData,

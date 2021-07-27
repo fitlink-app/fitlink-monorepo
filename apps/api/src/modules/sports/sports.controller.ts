@@ -14,7 +14,7 @@ import { CreateSportDto } from './dto/create-sport.dto'
 import { UpdateSportDto } from './dto/update-sport.dto'
 import { Sport } from './entities/sport.entity'
 import { Iam } from '../../decorators/iam.decorator'
-import { Roles } from '../user-roles/entities/user-role.entity'
+import { Roles } from '../user-roles/user-roles.constants'
 import {
   ApiBaseResponses,
   DeleteResponse,
@@ -46,7 +46,6 @@ export class SportsController {
    * Gets all sports
    * @returns
    */
-  @Iam(Roles.SuperAdmin)
   @Get()
   @ApiResponse({ type: Sport, isArray: true, status: 200 })
   findAll(@Pagination() pagination: PaginationQuery) {

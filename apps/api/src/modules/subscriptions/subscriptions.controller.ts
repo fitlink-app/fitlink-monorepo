@@ -12,7 +12,7 @@ import { SubscriptionsService } from './subscriptions.service'
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto'
 import { CreateDefaultSubscriptionDto } from './dto/create-default-subscription.dto'
 import { Iam } from '../../decorators/iam.decorator'
-import { Roles } from '../user-roles/entities/user-role.entity'
+import { Roles } from '../user-roles/user-roles.constants'
 import { ApiTags } from '@nestjs/swagger'
 
 @Controller()

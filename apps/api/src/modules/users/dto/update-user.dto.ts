@@ -9,7 +9,7 @@ import {
   IsUUID,
   MinLength
 } from 'class-validator'
-import { UnitSystem } from '../entities/user.entity'
+import { UnitSystem } from '../users.constants'
 import { IsTimezone } from '../../../decorators/class-validator/IsTimezone'
 
 export class UpdateUserDto {

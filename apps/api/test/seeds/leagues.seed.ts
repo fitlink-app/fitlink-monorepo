@@ -1,9 +1,7 @@
 import { Factory, runSeeder, Seeder } from 'typeorm-seeding'
 import { Connection, Repository } from 'typeorm'
-import {
-  League,
-  LeagueAccess
-} from '../../src/modules/leagues/entities/league.entity'
+import { League } from '../../src/modules/leagues/entities/league.entity'
+import { LeagueAccess } from '../../src/modules/leagues/leagues.constants'
 import { Team } from '../../src/modules/teams/entities/team.entity'
 import { TeamsSetup, TeamsTeardown } from './teams.seed'
 import { OrganisationsSetup, OrganisationsTeardown } from './organisations.seed'

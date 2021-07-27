@@ -5,7 +5,8 @@ import {
   Injectable,
   InternalServerErrorException
 } from '@nestjs/common'
-import { Image, ImageType, uploadVariants } from './entities/image.entity'
+import { Image, uploadVariants } from './entities/image.entity'
+import { ImageType } from './images.constants'
 import {
   S3Client,
   PutObjectCommand,

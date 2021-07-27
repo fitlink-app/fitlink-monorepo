@@ -1,4 +1,4 @@
-import { Roles } from '../modules/user-roles/entities/user-role.entity'
+import { Roles } from '../modules/user-roles/user-roles.constants'
 
 export type AuthenticatedUserRoles = {
   [Roles.OrganisationAdmin]: string[]

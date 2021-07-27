@@ -3,6 +3,7 @@ import { Connection, Repository } from 'typeorm'
 import { Factory, runSeeder, Seeder } from 'typeorm-seeding'
 import { OrganisationsSetup, OrganisationsTeardown } from './organisations.seed'
 import { UsersSetup, UsersTeardown } from './users.seed'
+import { Roles } from '../../src/modules/user-roles/user-roles.constants'
 
 export async function UserRolesSetup(name: string): Promise<UserRole> {
   class Setup implements Seeder {
@@ -13,7 +14,7 @@ export async function UserRolesSetup(name: string): Promise<UserRole> {
       )
       const userRole = await userRoleRepository.save(
         userRoleRepository.create({
-          role: 'organisation_admin',
+          role: Roles.OrganisationAdmin,
           user,
           organisation
         })

@@ -31,31 +31,16 @@ export default function page() {
   return (
     <Login title="Login">
       <div className="text-center">
-        <Logo
-          height={32}
-        />
+        <Logo height={32} />
         <h1 className="h6 mt-2 color-grey">Manage your Fitlink team</h1>
       </div>
-      <form onSubmit={ handleLogin } className="mt-2">
-        <Input
-          label="E-mail address"
-          name="email"
-          type="email"
-          inline={true}
-          />   
-        <Input
-          label="Password"
-          name="password"
-          type="password"
-          inline={true}
-          />
-        
-        { error !== '' &&
-          <Feedback
-            type="error"
-            className="mt-2 text-center"
-            message={error} />
-        }
+      <form onSubmit={handleLogin} className="mt-2">
+        <Input label="E-mail address" name="email" type="email" inline={true} />
+        <Input label="Password" name="password" type="password" inline={true} />
+
+        {error !== '' && (
+          <Feedback type="error" className="mt-2 text-center" message={error} />
+        )}
         <div className="row ai-c mt-2">
           <div className="col">
             <Link href="/demo/forgot-password">
@@ -66,7 +51,9 @@ export default function page() {
             </Link>
           </div>
           <div className="col text-right">
-            <button className="button" disabled={loading}>Login with e-mail</button>
+            <button className="button" disabled={loading}>
+              Login with e-mail
+            </button>
           </div>
         </div>
       </form>

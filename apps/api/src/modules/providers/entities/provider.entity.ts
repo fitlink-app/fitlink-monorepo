@@ -6,18 +6,9 @@ import {
   OneToMany
 } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
-import { HealthActivityDto } from '../../health-activities/dto/create-health-activity.dto'
-import { healthActivityType } from '../../health-activities/dto/healthActivityType'
 import { HealthActivity } from '../../health-activities/entities/health-activity.entity'
-import { HealthActivitiesService } from '../../health-activities/health-activities.service'
 import { User } from '../../users/entities/user.entity'
-
-export enum ProviderType {
-  Strava = 'strava',
-  Fitbit = 'fitbit',
-  GoogleFit = 'google_fit',
-  AppleHealthkit = 'apple_healthkit'
-}
+import { ProviderType } from '../providers.constants'
 
 @Entity()
 export class Provider extends CreatableEntity {

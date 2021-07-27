@@ -1,9 +1,7 @@
 import { define } from 'typeorm-seeding'
 import Faker from 'faker'
-import {
-  Image,
-  ImageType
-} from '../../src/modules/images/entities/image.entity'
+import { Image } from '../../src/modules/images/entities/image.entity'
+import { ImageType } from '../../src/modules/images/images.constants'
 
 define(Image, (faker: typeof Faker) => {
   const image = new Image()

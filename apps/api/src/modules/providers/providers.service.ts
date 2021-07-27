@@ -4,7 +4,8 @@ import { Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
 import { CreateProviderDto } from './dto/create-provider.dto'
 import { UpdateProviderDto } from './dto/update-provider.dto'
-import { Provider, ProviderType } from './entities/provider.entity'
+import { Provider } from './entities/provider.entity'
+import { ProviderType } from './providers.constants'
 
 @Injectable()
 export class ProvidersService {

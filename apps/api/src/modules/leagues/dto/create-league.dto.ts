@@ -7,7 +7,7 @@ import {
   IsBoolean,
   IsUUID
 } from 'class-validator'
-import { LeagueAccess, LeagueInvitePermission } from '../entities/league.entity'
+import { LeagueAccess, LeagueInvitePermission } from '../leagues.constants'
 
 export class CreateLeagueDto {
   @ApiProperty()

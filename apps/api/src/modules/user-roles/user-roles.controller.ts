@@ -3,7 +3,8 @@ import { UserRolesService } from './user-roles.service'
 import { CreateUserRoleDto } from './dto/create-user-role.dto'
 import { UpdateUserRoleDto } from './dto/update-user-role.dto'
 import { Iam } from '../../decorators/iam.decorator'
-import { Roles, UserRole } from './entities/user-role.entity'
+import { UserRole } from './entities/user-role.entity'
+import { Roles } from './user-roles.constants'
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
 import {
   ApiBaseResponses,
