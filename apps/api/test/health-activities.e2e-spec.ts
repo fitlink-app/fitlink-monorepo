@@ -18,13 +18,11 @@ import { Provider } from '../src/modules/providers/entities/provider.entity'
 import CreateSports from '../database/seeds/sport.seed'
 import fitbitSleepPayload from './helpers/fitbitSleepPayload'
 import { LeaguesModule } from '../src/modules/leagues/leagues.module'
-import {
-  LeaguesSetup,
-  LeaguesWithUsersAndEntriesSetup
-} from './seeds/leagues.seed'
+import { LeaguesWithUsersAndEntriesSetup } from './seeds/leagues.seed'
 import { UsersSetup } from './seeds/users.seed'
 
 import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
+import { FeedItem } from '../src/modules/feed-items/entities/feed-item.entity'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -333,6 +331,12 @@ describe('Health Activities', () => {
         .getRepository(LeaderboardEntry)
         .findOne({ where: { user: { id: users[0].id } } })
       const user = await connection.getRepository(User).findOne(users[0].id)
+      const feedItem = await connection.getRepository(FeedItem).findOne({
+        user: { id: users[0].id }
+      })
+      expect(feedItem.id).toBeDefined()
+      expect(feedItem.category).toBeDefined()
+      expect(feedItem.type).toBeDefined()
       expect(user.points_total).toBeGreaterThan(users[0].points_total)
       expect(entry.points).toBe(8301)
       done()
