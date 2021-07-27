@@ -42,7 +42,10 @@ import { LeaguesService } from './leagues.service'
 import { LeaguesInvitationsService } from '../leagues-invitations/leagues-invitations.service'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { UserPublicPagination } from '../users/entities/user.entity'
-import { SearchUserDto } from '../users/dto/search-user.dto'
+import {
+  SearchUserDto,
+  SearchUserForLeaguesDto
+} from '../users/dto/search-user.dto'
 
 @ApiTags('leagues')
 @ApiBaseResponses()
@@ -264,13 +267,13 @@ export class LeaguesController {
    */
   @Get('/leagues/:leagueId/inviteable')
   @ApiTags('leagues')
-  @ApiQuery({ type: SearchUserDto })
+  // @ApiQuery({ type: SearchUserForLeaguesDto })
   @ApiResponse({ type: UserPublicPagination, status: 200 })
   async searchInviteableUsers(
     @Param('leagueId') leagueId: string,
     @Pagination() pagination: PaginationQuery,
     @User() authUser: AuthenticatedUser,
-    @Query() query: SearchUserDto
+    @Query() query: SearchUserForLeaguesDto
   ) {
     if (!authUser.isSuperAdmin()) {
       const result = await this.leaguesService.findOneAccessibleToUser(
@@ -286,6 +289,7 @@ export class LeaguesController {
 
     return this.leaguesService.searchUsersWithJoinAccess(
       leagueId,
+      authUser.id,
       pagination,
       query.q
     )

@@ -21,7 +21,7 @@ export const formatRoles = (rolesFromDb: UserRole[]): JWTRoles => {
       userRoles.s_a.push(value.subscription.id)
     }
 
-    if (value.role === 'superadmin') {
+    if (value.role === 'super_admin') {
       userRoles.spr = true
     }
   }

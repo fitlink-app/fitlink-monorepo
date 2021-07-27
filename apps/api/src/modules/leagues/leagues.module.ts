@@ -14,6 +14,7 @@ import { HealthActivity } from '../health-activities/entities/health-activity.en
 import { HealthActivityCreatedListener } from './listeners/HealthActivityCreatedListener'
 import { User } from '../users/entities/user.entity'
 import { FeedItemsModule } from '../feed-items/feed-items.module'
+import { CommonModule } from '../common/common.module'
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { FeedItemsModule } from '../feed-items/feed-items.module'
       HealthActivity,
       User
     ]),
+    CommonModule,
     AuthModule,
     LeaguesInvitationModule,
     FeedItemsModule
