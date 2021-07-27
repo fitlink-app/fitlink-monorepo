@@ -1,13 +1,22 @@
 export type LogoProps = {
   white?: boolean
   whiteDot?: boolean
+  height?: number
 }
 
-export default function Logo({ white = false, whiteDot = false }: LogoProps) {
+export default function Logo({
+  white = false,
+  whiteDot = false,
+  height = 30
+}: LogoProps) {
+
+  const width = 5.2 * height // 156
+
   return (
     <svg
       className="fitlink-logo"
-      height="30"
+      width={width}
+      height={height}
       viewBox="0 0 156 30"
       xmlns="http://www.w3.org/2000/svg">
       <circle
