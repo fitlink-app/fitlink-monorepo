@@ -1,5 +1,6 @@
-import Card from '../../components/elements/Card'
 import Link from 'next/link'
+import toast from 'react-hot-toast'
+import Card from '../../components/elements/Card'
 import Dashboard from '../../components/layouts/Dashboard'
 import VerticalBarChart from '../../components/charts/VerticalBarChart'
 import IconFriends from '../../components/icons/IconFriends'
@@ -67,6 +68,14 @@ export default function components() {
     '#D0FA7F'
   ]
 
+  const prepareDownload = () => {
+    return new Promise(function(resolve, reject) {
+      setTimeout(resolve, 2000);
+    }).then(function() {
+      console.log('success');
+    })
+  }
+
   return (
     <Dashboard title="Dashboard">
       <h1 className="light">Your team at a glance</h1>
@@ -84,6 +93,15 @@ export default function components() {
                   width="24px"
                   height="24px"
                   className="mr-1 color-light-grey hover-dark-grey"
+                  onClick={
+                    () => toast.promise(
+                      prepareDownload(), {
+                         loading: 'Preparing download...',
+                         success: <b>Download starting</b>,
+                         error: <b>Download failed</b>,
+                       }
+                     )
+                  }
                 />
                 <Select
                   id="activities"
@@ -113,6 +131,15 @@ export default function components() {
                   width="24px"
                   height="24px"
                   className="mr-1 color-light-grey hover-dark-grey"
+                  onClick={
+                    () => toast.promise(
+                      prepareDownload(), {
+                         loading: 'Preparing download...',
+                         success: <b>Download starting</b>,
+                         error: <b>Download failed</b>,
+                       }
+                     )
+                  }
                 />
                 <Select
                   id="team"
@@ -202,6 +229,15 @@ export default function components() {
                   width="24px"
                   height="24px"
                   className="mr-1 color-light-grey hover-dark-grey"
+                  onClick={
+                    () => toast.promise(
+                      prepareDownload(), {
+                         loading: 'Preparing download...',
+                         success: <b>Download starting</b>,
+                         error: <b>Download failed</b>,
+                       }
+                     )
+                  }
                 />
                 <Select
                   id="activities"

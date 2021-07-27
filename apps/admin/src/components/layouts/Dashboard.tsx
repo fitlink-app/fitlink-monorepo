@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import Head from 'next/head'
 import Sidebar from '../elements/Sidebar'
+import { Toaster } from 'react-hot-toast'
 
 type DashboardProps = {
   children: React.ReactNode
@@ -61,7 +62,9 @@ export default function Dashboard({
         <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap"></link>
         <link rel="stylesheet" media={!hydrated ? "print" : "all"} href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" />
       </Head>
-      
+      <Toaster
+        position="top-right"
+        />
       <div className="layout-dashboard">
         <Sidebar />
         <div className="content">
