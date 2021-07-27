@@ -9,7 +9,8 @@ import {
   IminConvertedImage
 } from './types/imin'
 import { addDays, getISODay, setHours, setMinutes } from 'date-fns'
-import { Activity, ActivityType } from './entities/activity.entity'
+import { Activity } from './entities/activity.entity'
+import { ActivityType } from './activities.constants'
 import { Pagination } from '../../helpers/paginate'
 import { Image } from '../images/entities/image.entity'
 

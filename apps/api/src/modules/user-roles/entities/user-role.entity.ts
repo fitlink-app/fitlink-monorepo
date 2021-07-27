@@ -5,14 +5,7 @@ import { Organisation } from '../../organisations/entities/organisation.entity'
 import { Subscription } from '../../subscriptions/entities/subscription.entity'
 import { Team } from '../../teams/entities/team.entity'
 import { User } from '../../users/entities/user.entity'
-
-export enum Roles {
-  OrganisationAdmin = 'organisation_admin',
-  SubscriptionAdmin = 'subscription_admin',
-  TeamAdmin = 'team_admin',
-  SuperAdmin = 'super_admin',
-  Self = 'self'
-}
+import { Roles } from '../user-roles.constants'
 
 @Entity()
 export class UserRole extends CreatableEntity {
@@ -29,7 +22,7 @@ export class UserRole extends CreatableEntity {
   @Column({
     enum: Roles
   })
-  role: string
+  role: Roles
 
   @ApiProperty()
   @ManyToOne(() => Organisation)

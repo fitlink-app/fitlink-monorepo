@@ -15,14 +15,7 @@ import { OrganisationsInvitation } from '../../organisations-invitations/entitie
 import { ApiProperty } from '@nestjs/swagger'
 import { League } from '../../leagues/entities/league.entity'
 import { Reward } from '../../rewards/entities/reward.entity'
-
-export enum OrganisationType {
-  Company = 'company',
-  Government = 'government',
-  School = 'school',
-  Institution = 'institution',
-  Other = 'other'
-}
+import { OrganisationType } from '../organisations.constants'
 
 @Entity()
 export class Organisation extends CreatableEntity {

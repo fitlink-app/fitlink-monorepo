@@ -12,10 +12,8 @@ import { Image } from '../src/modules/images/entities/image.entity'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import { User } from '../src/modules/users/entities/user.entity'
 import { Connection } from 'typeorm'
-import {
-  Reward,
-  RewardAccess
-} from '../src/modules/rewards/entities/reward.entity'
+import { Reward } from '../src/modules/rewards/entities/reward.entity'
+import { RewardAccess } from '../src/modules/rewards/rewards.constants'
 import { RewardsSetup, RewardsTeardown } from './seeds/rewards.seed'
 import { startOfDay } from 'date-fns'
 

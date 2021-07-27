@@ -1,15 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Param,
-  Delete,
-  Body,
-  UseGuards
-} from '@nestjs/common'
+import { Controller, Get, Post, Param, Delete, Body } from '@nestjs/common'
 import { ImagesService } from './images.service'
-import { File, Files } from '../../decorators/files.decorator'
-import { Image, ImageType } from '../images/entities/image.entity'
+import { File } from '../../decorators/files.decorator'
+import { Image } from '../images/entities/image.entity'
+import { ImageType } from '../images/images.constants'
 import { UploadImageDto } from '../images/dto/create-image.dto'
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
 import {
@@ -17,7 +10,7 @@ import {
   DeleteResponse
 } from '../../decorators/swagger.decorator'
 import { Iam } from '../../decorators/iam.decorator'
-import { Roles } from '../user-roles/entities/user-role.entity'
+import { Roles } from '../user-roles/user-roles.constants'
 import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
 import { AuthenticatedUser } from '../../models/authenticated-user.model'
 import { User } from '../../modules/users/entities/user.entity'

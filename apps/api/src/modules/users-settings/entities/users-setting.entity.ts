@@ -3,17 +3,7 @@ import { PrimaryGeneratedColumn, Column, Entity, OneToOne } from 'typeorm'
 
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { User } from '../../users/entities/user.entity'
-
-export enum PrivacySetting {
-  /** Only the self-user can see this */
-  Private = 'private',
-
-  /** Only the people the user follows can see this */
-  Following = 'following',
-
-  /** Anyone can see this */
-  Public = 'public'
-}
+import { PrivacySetting } from '../users-settings.constants'
 
 @Entity()
 export class UsersSetting extends CreatableEntity {

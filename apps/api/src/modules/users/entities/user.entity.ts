@@ -28,15 +28,7 @@ import { Activity } from '../../activities/entities/activity.entity'
 import { AuthProvider } from '../../auth/entities/auth-provider.entity'
 import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, Expose } from 'class-transformer'
-
-export enum UnitSystem {
-  Metric = 'metric',
-  Imperial = 'imperial'
-}
-
-export enum UserRank {
-  Newbie = 'Fitlink Newbie'
-}
+import { UnitSystem, UserRank } from '../users.constants'
 
 @Entity()
 export class User extends CreatableEntity {

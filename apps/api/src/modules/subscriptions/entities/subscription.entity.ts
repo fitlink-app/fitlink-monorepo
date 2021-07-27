@@ -9,19 +9,7 @@ import {
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { Organisation } from '../../organisations/entities/organisation.entity'
 import { User } from '../../users/entities/user.entity'
-
-export enum SubscriptionType {
-  Trial14day = 'Trial14day',
-  Trial30day = 'Trial30day',
-  Trial90day = 'Trial90day',
-  Dynamic = 'dynamic',
-  Free = 'free'
-}
-
-export enum BillingPlanStatus {
-  Active = 'active',
-  Canceled = 'canceled'
-}
+import { BillingPlanStatus, SubscriptionType } from '../subscriptions.constants'
 
 @Entity()
 export class Subscription extends CreatableEntity {

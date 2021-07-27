@@ -19,18 +19,7 @@ import { Image } from '../../images/entities/image.entity'
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
 import { FeedItem } from '../../feed-items/entities/feed-item.entity'
-
-export enum LeagueAccess {
-  Private = 'private',
-  Public = 'public',
-  Team = 'team',
-  Organisation = 'organisation'
-}
-
-export enum LeagueInvitePermission {
-  Owner = 'owner',
-  Participant = 'participant'
-}
+import { LeagueAccess, LeagueInvitePermission } from '../leagues.constants'
 
 @Entity()
 export class League extends CreatableEntity {

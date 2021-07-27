@@ -6,10 +6,8 @@ import { Image } from '../src/modules/images/entities/image.entity'
 import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
 import { CreateLeagueDto } from '../src/modules/leagues/dto/create-league.dto'
 import { UpdateLeagueDto } from '../src/modules/leagues/dto/update-league.dto'
-import {
-  League,
-  LeagueAccess
-} from '../src/modules/leagues/entities/league.entity'
+import { League } from '../src/modules/leagues/entities/league.entity'
+import { LeagueAccess } from '../src/modules/leagues/leagues.constants'
 import { LeaguesModule } from '../src/modules/leagues/leagues.module'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { Team } from '../src/modules/teams/entities/team.entity'

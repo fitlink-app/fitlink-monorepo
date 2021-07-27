@@ -15,7 +15,7 @@ import {
 } from './dto/create-organisation.dto'
 import { UpdateOrganisationDto } from './dto/update-organisation.dto'
 import { Iam } from '../../decorators/iam.decorator'
-import { Roles } from '../user-roles/entities/user-role.entity'
+import { Roles } from '../user-roles/user-roles.constants'
 import { Files } from '../../decorators/files.decorator'
 import { ImagesService } from '../images/images.service'
 import { Uploads, UploadOptions } from '../../decorators/uploads.decorator'

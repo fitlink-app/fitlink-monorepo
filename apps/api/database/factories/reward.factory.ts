@@ -1,7 +1,5 @@
-import {
-  Reward,
-  RewardAccess
-} from '../../src/modules/rewards/entities/reward.entity'
+import { Reward } from '../../src/modules/rewards/entities/reward.entity'
+import { RewardAccess } from '../../src/modules/rewards/rewards.constants'
 import { define } from 'typeorm-seeding'
 import Faker from 'faker'
 import { addDays } from 'date-fns'

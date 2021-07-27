@@ -20,7 +20,7 @@ import {
   VerifyUserEmailDto
 } from './dto/update-user.dto'
 import { Iam } from '../../decorators/iam.decorator'
-import { Roles } from '../user-roles/entities/user-role.entity'
+import { Roles } from '../user-roles/user-roles.constants'
 import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
 import { User, UserPublic } from '../users/entities/user.entity'
 import { AuthenticatedUser } from '../../models'

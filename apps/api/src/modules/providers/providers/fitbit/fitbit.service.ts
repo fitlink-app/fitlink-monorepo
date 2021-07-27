@@ -12,7 +12,7 @@ import { HealthActivityDto } from '../../../health-activities/dto/create-health-
 import { healthActivityType } from '../../../health-activities/dto/healthActivityType'
 import { lifestyleActivityType } from '../../../health-activities/dto/lifestyleActivityType'
 import { HealthActivitiesService } from '../../../health-activities/health-activities.service'
-import { ProviderType } from '../../entities/provider.entity'
+import { ProviderType } from '../../providers.constants'
 import { ProvidersService } from '../../providers.service'
 import {
   FitbitActivity,

@@ -7,6 +7,11 @@ import {
   AuthSignupDto,
   AuthProviderType
 } from '@fitlink/api-sdk/types'
+import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
+import { Roles } from '@fitlink/api/src/modules/user-roles/user-roles.constants'
+import { Organisation } from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
+import { Subscription } from '@fitlink/api/src/modules/subscriptions/entities/subscription.entity'
+import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 
 const axios = Axios.create({
   baseURL:
@@ -14,6 +19,13 @@ const axios = Axios.create({
 })
 
 export const api = makeApi(axios)
+
+type Permissions = {
+  superAdmin: boolean
+  organisations: Organisation[]
+  subscriptions: Subscription[]
+  teams: Team[]
+}
 
 type Credentials = {
   email: string
@@ -27,10 +39,12 @@ type ConnectProvider = {
 
 export type AuthContext = {
   user?: User
+  roles?: Permissions
   api: Api
   login: (credentials: Credentials) => Promise<AuthResultDto>
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
   logout: () => void
+  isRole: (role: Roles, id?: string) => boolean
 }
 
 export const AuthContext = React.createContext({} as AuthContext)
@@ -70,12 +84,45 @@ export function AuthProvider({ children }) {
 
     const user = await api.get<User>('/me')
 
+    const roles = await api.get<UserRole[]>('/me/roles')
+
     setState({
       ...state,
-      user
+      user,
+      roles: formatRoles(roles)
     })
 
     return result
+  }
+
+  function formatRoles(roles: UserRole[]) {
+    let permissions: Permissions = {
+      superAdmin: false,
+      organisations: [],
+      subscriptions: [],
+      teams: []
+    }
+    roles.forEach((role) => {
+      if (role.role === Roles.SuperAdmin) {
+        permissions.superAdmin = true
+      }
+
+      if (role.role === Roles.OrganisationAdmin) {
+        permissions.organisations.push(role.organisation)
+      }
+
+      if (role.role === Roles.SubscriptionAdmin) {
+        permissions.subscriptions.push(role.subscription)
+      }
+
+      if (role.role === Roles.TeamAdmin) {
+        permissions.teams.push(role.team)
+      }
+    })
+
+    console.log(permissions)
+
+    return permissions
   }
 
   /**
@@ -113,6 +160,13 @@ export function AuthProvider({ children }) {
    * in NPM libraries or browser extensions (that would have access
    * to localStorage)
    *
+   * For now this is a workaround for development purposes,
+   * but will need to change for launch ASAP.
+   *
+   * Alternatively, we can store these in-memory only
+   * and prevent a user from hard-reloading a page with prompts, however
+   * this may not prevent malicious code listening to network requests.
+   *
    * @param tokens
    */
   async function storeTokens(tokens: AuthResultDto) {
@@ -129,14 +183,48 @@ export function AuthProvider({ children }) {
     })
   }
 
+  function isRole(role: Roles, id?: string): boolean {
+    if (role === Roles.SuperAdmin) {
+      return state.roles.superAdmin
+    }
+
+    if (role === Roles.OrganisationAdmin) {
+      if (id) {
+        return !!state.roles.organisations.filter((e) => e.id === id).length
+      }
+      return !!state.roles.organisations.length
+    }
+
+    if (role === Roles.SubscriptionAdmin) {
+      if (id) {
+        return !!state.roles.subscriptions.filter((e) => e.id === id).length
+      }
+      return !!state.roles.subscriptions.length
+    }
+
+    if (role === Roles.TeamAdmin) {
+      if (id) {
+        return !!state.roles.teams.filter((e) => e.id === id).length
+      }
+      return !!state.roles.teams.length
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
         api,
         user: state.user,
+        roles: state.roles || {
+          superAdmin: false,
+          organisations: [],
+          subscriptions: [],
+          teams: []
+        },
         login,
         logout,
-        connect
+        connect,
+        isRole
       }}>
       {children}
     </AuthContext.Provider>

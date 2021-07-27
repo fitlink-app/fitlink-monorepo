@@ -14,7 +14,7 @@ import { CreateSportDto } from './dto/create-sport.dto'
 import { UpdateSportDto } from './dto/update-sport.dto'
 import { Sport } from './entities/sport.entity'
 import { Iam } from '../../decorators/iam.decorator'
-import { Roles } from '../user-roles/entities/user-role.entity'
+import { Roles } from '../user-roles/user-roles.constants'
 import {
   ApiBaseResponses,
   DeleteResponse,

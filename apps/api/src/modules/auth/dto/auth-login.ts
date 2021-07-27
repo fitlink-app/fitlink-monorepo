@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsEmail, IsNotEmpty, MinLength, IsEnum } from 'class-validator'
-import { AuthProviderType } from '../../auth/entities/auth-provider.entity'
+import { AuthProviderType } from '../../auth/auth.constants'
 
 export class AuthLoginDto {
   @ApiProperty()

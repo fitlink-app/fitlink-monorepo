@@ -18,10 +18,7 @@ import { Provider } from '../src/modules/providers/entities/provider.entity'
 import CreateSports from '../database/seeds/sport.seed'
 import fitbitSleepPayload from './helpers/fitbitSleepPayload'
 import { LeaguesModule } from '../src/modules/leagues/leagues.module'
-import {
-  LeaguesSetup,
-  LeaguesWithUsersAndEntriesSetup
-} from './seeds/leagues.seed'
+import { LeaguesWithUsersAndEntriesSetup } from './seeds/leagues.seed'
 import { UsersSetup } from './seeds/users.seed'
 
 import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'

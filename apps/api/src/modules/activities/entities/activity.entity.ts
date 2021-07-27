@@ -15,12 +15,7 @@ import { Image } from '../../images/entities/image.entity'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { League } from '../../leagues/entities/league.entity'
 import { User } from '../../users/entities/user.entity'
-
-export enum ActivityType {
-  Class = 'class',
-  Group = 'group',
-  Route = 'route'
-}
+import { ActivityType } from '../activities.constants'
 
 @Entity()
 export class Activity extends CreatableEntity {

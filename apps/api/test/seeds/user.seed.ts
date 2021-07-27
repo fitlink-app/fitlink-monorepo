@@ -4,10 +4,8 @@ import { Factory, Seeder } from 'typeorm-seeding'
 import { Organisation } from '../../src/modules/organisations/entities/organisation.entity'
 import { TeamsInvitation } from '../../src/modules/teams-invitations/entities/teams-invitation.entity'
 import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity'
-import {
-  PrivacySetting,
-  UsersSetting
-} from '../../src/modules/users-settings/entities/users-setting.entity'
+import { UsersSetting } from '../../src/modules/users-settings/entities/users-setting.entity'
+import { PrivacySetting } from '../../src/modules/users-settings/users-settings.constants'
 import { User } from '../../src/modules/users/entities/user.entity'
 import { SubscriptionsSetup } from './subscriptions.seed'
 const username = 'TestUser4'
