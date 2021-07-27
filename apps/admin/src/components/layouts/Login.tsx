@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 import Head from 'next/head'
+import { motion } from 'framer-motion'
 
 type LoginProps = {
   children: React.ReactNode
@@ -49,6 +50,28 @@ export default function Login({
         <div className="content">
           {children}
         </div>
+        <i className="circle">
+          <motion.b
+            animate={{
+              y: 20
+            }}
+            transition={{
+              repeat: Infinity,
+              repeatType: 'reverse',
+              duration: 2
+            }}
+          />
+          <motion.b
+            animate={{
+              y: -10
+            }}
+            transition={{
+              repeat: Infinity,
+              repeatType: 'reverse',
+              duration: 3
+            }}
+          />
+        </i>
       </div>
     </>
   )

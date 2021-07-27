@@ -53,7 +53,7 @@ export default function page() {
         { error !== '' &&
           <Feedback
             type="error"
-            className="mt-2"
+            className="mt-2 text-center"
             message={error} />
         }
         <div className="row ai-c mt-2">
@@ -66,7 +66,7 @@ export default function page() {
             </Link>
           </div>
           <div className="col text-right">
-            <button className="button" disabled={loading}>Login</button>
+            <button className="button" disabled={loading}>Login with e-mail</button>
           </div>
         </div>
       </form>
