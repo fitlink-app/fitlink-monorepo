@@ -28,7 +28,7 @@ describe('Login', () => {
     moxios.stubRequest('/auth/login', {
       status: 403,
       response: {
-        message: 'Unauthorized'
+        message: 'Invalid email or password'
       }
     })
 
@@ -40,11 +40,11 @@ describe('Login', () => {
 
     screen
       .getByRole('button', {
-        name: /Login/i
+        name: /Login with e-mail/i
       })
       .click()
 
-    const items = await screen.findAllByText(/Unauthorized/)
+    const items = await screen.findAllByText(/Invalid/)
 
     expect(items).toHaveLength(1)
     expect(console.error).toHaveBeenCalled()
@@ -73,7 +73,10 @@ describe('Login', () => {
     })
 
     const push = jest.fn()
-    useRouter.mockImplementation(() => ({ push }))
+    useRouter.mockImplementation(() => ({
+      push,
+      prefetch: jest.fn(() => Promise.resolve())
+    }))
 
     render(
       <App>
@@ -83,7 +86,7 @@ describe('Login', () => {
 
     screen
       .getByRole('button', {
-        name: /Login/i
+        name: /Login with e-mail/i
       })
       .click()
 
