@@ -52,6 +52,7 @@ export class AuthProvider extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    type: 'enum',
     enum: AuthProviderType
   })
   type: AuthProviderType

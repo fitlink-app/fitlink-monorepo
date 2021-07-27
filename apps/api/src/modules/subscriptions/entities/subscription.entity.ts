@@ -98,6 +98,7 @@ export class Subscription extends CreatableEntity {
   billing_plan_customer_id: string
 
   @Column({
+    type: 'enum',
     nullable: true,
     enum: BillingPlanStatus
   })

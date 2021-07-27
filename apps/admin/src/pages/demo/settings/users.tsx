@@ -95,6 +95,7 @@ export default function page() {
             { Header: ' ', Cell: cellActions }
           ]}
           fetch={() => Promise.resolve(dummy)}
+          fetchName="manage_users"
         />
       </div>
 
