@@ -170,7 +170,7 @@ export class UsersService {
     const [results, total] = await this.userRepository.findAndCount({
       take: limit,
       skip: page * limit,
-      relations: ['settings']
+      relations: ['settings', 'avatar']
     })
     return new Pagination<User>({
       results,

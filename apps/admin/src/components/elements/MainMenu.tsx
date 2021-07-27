@@ -10,85 +10,89 @@ import IconRewards from '../icons/IconRewards'
 import IconSignOut from '../icons/IconSignOut'
 import IconYoga from '../icons/IconYoga'
 
-export default function MainMenu() {
+export default function MainMenu({ prefix = '' }) {
   const router = useRouter()
   const current = router.pathname
   return (
     <>
       <MenuItem
-        to="/demo/dashboard"
+        to={`${prefix}/dashboard`}
         label="Overview"
-        current={current.startsWith('/demo/dashboard')}
+        current={current.startsWith(`${prefix}/dashboard`)}
         icon={<IconGraph />}
       />
       <MenuItem
-        to="/demo/users"
+        to={`${prefix}/users`}
         label="User stats"
-        current={current.startsWith('/demo/users')}
+        current={current.startsWith(`${prefix}/users`)}
         icon={<IconFriends />}
       />
       <MenuItem
-        to="/demo/rewards"
+        to={`${prefix}/rewards`}
         label="Rewards"
-        current={current.startsWith('/demo/rewards')}
+        current={current.startsWith(`${prefix}/rewards`)}
         icon={<IconRewards />}
       />
       <MenuItem
-        to="/demo/leagues"
+        to={`${prefix}/leagues`}
         label="Leagues"
-        current={current.startsWith('/demo/leagues')}
+        current={current.startsWith(`${prefix}/leagues`)}
         icon={<IconLeagues />}
       />
       <MenuItem
-        to="/demo/activities"
+        to={`${prefix}/activities`}
         label="Activities"
-        current={current.startsWith('/demo/activities')}
+        current={current.startsWith(`${prefix}/activities`)}
         icon={<IconActivities />}
       />
       <hr />
       <MenuItem
-        to="/demo/knowledge-base"
+        to={`${prefix}/knowledge-base`}
         label="Knowledge base"
-        current={current.startsWith('/demo/knowledge-base')}
+        current={current.startsWith(`${prefix}/knowledge-base`)}
         icon={<IconYoga />}
       />
       <MenuItem
-        to="/demo/settings"
+        to={`${prefix}/settings`}
         label="Account settings"
-        current={current.startsWith('/demo/settings')}
+        current={current.startsWith(`${prefix}/settings`)}
         icon={<IconGear />}
       />
-      {current.startsWith('/demo/settings') &&
+      {current.startsWith(`${prefix}/settings`) && (
         <div className="sub-menu">
           <MenuItem
-            to="/demo/settings/users"
+            to={`${prefix}/settings/users`}
             label="Manage users"
-            current={current.startsWith('/demo/settings/users')}
+            current={current.startsWith(`${prefix}/settings/users`)}
             icon={<></>}
           />
           {/* <MenuItem
-            to="/demo/settings/page"
+            to={`${prefix}/settings/page`}
             label="Manage my page"
-            current={current.startsWith('/demo/settings/page')}
+            current={current.startsWith(`${prefix}/settings/page`)}
             icon={<></>}
           /> */}
           <MenuItem
-            to="/demo/settings/admins"
+            to={`${prefix}/settings/admins`}
             label="Admin access"
-            current={current.startsWith('/demo/settings/admins')}
+            current={current.startsWith(`${prefix}/settings/admins`)}
             icon={<></>}
           />
           <hr />
         </div>
-      }
+      )}
       <MenuItem
-        to="/demo/billing"
+        to={`${prefix}/billing`}
         label="Billing"
-        current={current.startsWith('/demo/billing')}
+        current={current.startsWith(`${prefix}/billing`)}
         icon={<IconCreditCard />}
       />
       <hr />
-      <MenuItem to="/demo/logout" label="Sign out" icon={<IconSignOut />} />
+      <MenuItem
+        to={`${prefix}/logout`}
+        label="Sign out"
+        icon={<IconSignOut />}
+      />
     </>
   )
 }

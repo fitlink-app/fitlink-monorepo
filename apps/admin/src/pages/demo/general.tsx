@@ -11,7 +11,7 @@ export default function components() {
   ]
 
   return (
-    <Dashboard title="General">
+    <Dashboard title="General" linkPrefix="/demo">
       <p className="h6 color-light-grey">Typography</p>
       <div className="row ai-c">
         <div className="col-2">

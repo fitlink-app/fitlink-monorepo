@@ -47,7 +47,7 @@ export default function components() {
   }, [page])
 
   return (
-    <Dashboard title="Knowledge base">
+    <Dashboard title="Knowledge base" linkPrefix="/demo">
       <h1 className="light mb-1">Knowledge base</h1>
       {!loading && (
         <div className="row">

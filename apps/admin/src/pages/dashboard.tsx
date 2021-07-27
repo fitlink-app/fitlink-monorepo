@@ -1,18 +1,18 @@
-import Card from '../../components/elements/Card'
+import Card from '../components/elements/Card'
 import Link from 'next/link'
-import Dashboard from '../../components/layouts/Dashboard'
-import VerticalBarChart from '../../components/charts/VerticalBarChart'
-import IconFriends from '../../components/icons/IconFriends'
-import IconSteps from '../../components/icons/IconSteps'
-import IconSleep from '../../components/icons/IconSleep'
-import IconStairs from '../../components/icons/IconStairs'
-import IconYoga from '../../components/icons/IconYoga'
-import ProgressChart from '../../components/charts/ProgressChart'
-import IconWater from '../../components/icons/IconWater'
-import Select from '../../components/elements/Select'
-import IconDownload from '../../components/icons/IconDownload'
+import Dashboard from '../components/layouts/Dashboard'
+import VerticalBarChart from '../components/charts/VerticalBarChart'
+import IconFriends from '../components/icons/IconFriends'
+import IconSteps from '../components/icons/IconSteps'
+import IconSleep from '../components/icons/IconSleep'
+import IconStairs from '../components/icons/IconStairs'
+import IconYoga from '../components/icons/IconYoga'
+import ProgressChart from '../components/charts/ProgressChart'
+import IconWater from '../components/icons/IconWater'
+import Select from '../components/elements/Select'
+import IconDownload from '../components/icons/IconDownload'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-let rewards = require('../../services/dummy/stats-rewards.json')
+let rewards = require('../services/dummy/stats-rewards.json')
 
 export default function components() {
   rewards = rewards.sort(
@@ -68,7 +68,7 @@ export default function components() {
   ]
 
   return (
-    <Dashboard title="Dashboard" linkPrefix="/demo">
+    <Dashboard title="Dashboard">
       <h1 className="light">Your team at a glance</h1>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">

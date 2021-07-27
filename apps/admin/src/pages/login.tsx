@@ -11,8 +11,10 @@ import {
 import { getErrorMessage } from '@fitlink/api-sdk'
 import { ApiMutationResult } from '@fitlink/common/react-query/types'
 import jwtDecode, { JwtPayload } from 'jwt-decode'
+import { useRouter } from 'next/router'
 
 const Login = () => {
+  const router = useRouter()
   const { user, login } = useContext(AuthContext)
   const [password, setPassword] = useState('')
   const [email, setEmail] = useState('')
@@ -25,6 +27,12 @@ const Login = () => {
   }: ApiMutationResult<AuthResultDto> = useMutation((emailPass: AuthLoginDto) =>
     login(emailPass)
   )
+
+  useEffect(() => {
+    if (isSuccess) {
+      router.push('/dashboard')
+    }
+  }, [isSuccess])
 
   return (
     <>

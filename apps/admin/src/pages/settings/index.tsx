@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import Card from '../../../components/elements/Card'
-import Input from '../../../components/elements/Input'
-import Select from '../../../components/elements/Select'
-import Checkbox from '../../../components/elements/Checkbox'
-import Dashboard from '../../../components/layouts/Dashboard'
-import ImageSelect from '../../../components/elements/ImageSelect'
+import Card from '../../components/elements/Card'
+import Input from '../../components/elements/Input'
+import Select from '../../components/elements/Select'
+import Checkbox from '../../components/elements/Checkbox'
+import Dashboard from '../../components/layouts/Dashboard'
+import ImageSelect from '../../components/elements/ImageSelect'
 
 const currencies = [
   {
@@ -34,7 +34,7 @@ export default function components() {
   const [currenct, setCurrency] = useState(currencies[0])
 
   return (
-    <Dashboard title="Settings" linkPrefix="/demo">
+    <Dashboard title="Settings">
       <h1 className="light">Settings</h1>
       <div className="row mt-2 ai-s">
         <div className="col-12 col-md-6 col-xl-5 col-hd-4 mt-2">
