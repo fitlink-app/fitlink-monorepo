@@ -53,6 +53,7 @@ const Index = () => {
         }
         return Promise.resolve(data)
       }}
+      fetchName="example"
     />
   )
 }

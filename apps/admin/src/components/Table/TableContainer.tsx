@@ -9,7 +9,7 @@ import { timeout } from '../../helpers/timeout'
 export type TableContainerProps = {
   columns: Column<any>[]
   fetch: (limit: number, page: number) => Promise<ListData>
-  fetchName?: string
+  fetchName: string
 }
 
 type ListData = {
@@ -47,7 +47,7 @@ export function TableContainer({
     isFetching,
     isPreviousData
   }: ApiResult<ListData> = useQuery(
-    [fetchName || 'fetch-' + Date.now(), limit, page],
+    [fetchName, limit, page],
     async () => {
       return fetch(limit, page)
     },

@@ -110,6 +110,7 @@ export default function page() {
             { Header: ' ', Cell: viewDetails }
           ]}
           fetch={() => Promise.resolve(dummy)}
+          fetchName="activities"
         />
       </div>
       <AnimatePresence initial={false}>

@@ -122,6 +122,7 @@ export default function page() {
                   { Header: ' ', Cell: Download }
                 ]}
                 fetch={() => Promise.resolve(invoices)}
+                fetchName="billing"
               />
             </div>
           </Card>
