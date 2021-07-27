@@ -6,18 +6,21 @@ export type FeedbackProps = {
   message: string
   dismissable?: boolean
   remove?: () => void
+  className?: string
 }
 
 export default function Feedback({
   type = 'default',
   message,
   dismissable = false,
-  remove = () => {}
+  remove = () => {},
+  className
 }:FeedbackProps) {
 
   const classes = clsx({
     feedback: true,
-    [`feedback--${type}`]: true
+    [`feedback--${type}`]: true,
+    [className]: className
   })
 
   return (
