@@ -88,7 +88,7 @@ export default function MainMenu() {
         icon={<IconCreditCard />}
       />
       <hr />
-      <MenuItem to="/demo/logout" label="Sign out" icon={<IconSignOut />} />
+      <MenuItem to="/demo/login" label="Sign out" icon={<IconSignOut />} />
     </>
   )
 }
