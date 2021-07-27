@@ -101,8 +101,12 @@ export class HealthActivityCreatedListener {
       payload.health_activity_id
     )
     const { sport, user, points } = healthActivity
-    await this.updateUserPoints(points, user.id)
-    await this.updateLeaguePoints(sport, user.id, points)
-    await this.addFeedItem(user, healthActivity)
+
+    const promises = [
+      this.updateUserPoints(points, user.id),
+      this.updateLeaguePoints(sport, user.id, points),
+      this.addFeedItem(user, healthActivity)
+    ]
+    await Promise.all(promises)
   }
 }
