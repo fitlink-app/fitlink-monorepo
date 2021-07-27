@@ -70,6 +70,35 @@ hr {
   padding: 1rem;
 }
 
+.small-link {
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: $grey;
+  transition: all 0.15s;
+  
+  svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    display: inline-block;
+    vertical-align: middle;
+    transition: transform 0.15s;
+    margin-left: 0.25rem;
+  }
+
+  &:hover {
+    color: $primary;
+    text-decoration: underline;
+
+    svg {
+      transform: translateX(0.25rem);
+    }
+  }
+
+
+
+}
+
 /* .link {
   color: $darkGrey;
   text-decoration: none;

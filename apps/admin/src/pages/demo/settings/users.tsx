@@ -9,7 +9,7 @@ import { boolToIcon } from '../../../components/Table/helpers'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dummy = require('../../../services/dummy/team-users.json')
 
-export default function components() {
+export default function page() {
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)

@@ -19,7 +19,7 @@ const fitlinkRewards = require('../../services/dummy/rewards-fitlink.json')
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const charityRewards = require('../../services/dummy/rewards-charity.json')
 
-export default function components() {
+export default function page() {
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)

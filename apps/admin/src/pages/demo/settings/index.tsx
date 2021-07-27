@@ -29,7 +29,7 @@ const currencies = [
   }
 ]
 
-export default function components() {
+export default function page() {
   const [company, setCompany] = useState('My Company LTD')
   const [currenct, setCurrency] = useState(currencies[0])
 

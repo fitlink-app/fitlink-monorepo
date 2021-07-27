@@ -1,24 +1,21 @@
 import { useRef, useState, useEffect } from 'react'
 import Head from 'next/head'
-import Sidebar from '../elements/Sidebar'
-import { Toaster } from 'react-hot-toast'
+import { motion } from 'framer-motion'
 
-type DashboardProps = {
+type LoginProps = {
   children: React.ReactNode
   title?: string
   description?: string
   image?: string
-  linkPrefix?: string
 }
 
 let hydrated = false
 
-export default function Dashboard({
+export default function Login({
   children,
   title = 'Fitlink',
-  description = '',
-  linkPrefix = ''
-}: DashboardProps) {
+  description = ''
+}: LoginProps) {
   const hydratedRef = useRef(false)
   const [, rerender] = useState(false)
 
@@ -65,12 +62,31 @@ export default function Dashboard({
           href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap"
         />
       </Head>
-      <Toaster position="top-right" />
-      <div className="layout-dashboard">
-        <Sidebar prefix={linkPrefix} />
+      <div className="layout-login">
         <div className="content">{children}</div>
+        <i className="circle">
+          <motion.b
+            animate={{
+              y: 20
+            }}
+            transition={{
+              repeat: Infinity,
+              repeatType: 'reverse',
+              duration: 2
+            }}
+          />
+          <motion.b
+            animate={{
+              y: -10
+            }}
+            transition={{
+              repeat: Infinity,
+              repeatType: 'reverse',
+              duration: 3
+            }}
+          />
+        </i>
       </div>
-      <div id="modal-root"></div>
     </>
   )
 }

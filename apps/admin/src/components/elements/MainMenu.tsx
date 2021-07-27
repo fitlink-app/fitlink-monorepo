@@ -89,7 +89,7 @@ export default function MainMenu({ prefix = '' }) {
       />
       <hr />
       <MenuItem
-        to={`${prefix}/logout`}
+        to={`${prefix}/login`}
         label="Sign out"
         icon={<IconSignOut />}
       />

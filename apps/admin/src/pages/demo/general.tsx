@@ -1,6 +1,6 @@
 import Dashboard from '../../components/layouts/Dashboard'
 
-export default function components() {
+export default function page() {
   const grid = [
     [1],
     [1, 2],

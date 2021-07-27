@@ -5,7 +5,7 @@ import Loader from '../../../components/elements/Loader'
 import Dashboard from '../../../components/layouts/Dashboard'
 import { PostType } from './[id]'
 
-export default function components() {
+export default function page() {
   const [posts, setPosts] = useState<PostType[]>([])
   const [page, setPage] = useState(1)
   const [pages, setPages] = useState(1)
