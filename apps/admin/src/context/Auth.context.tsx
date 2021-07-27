@@ -120,8 +120,6 @@ export function AuthProvider({ children }) {
       }
     })
 
-    console.log(permissions)
-
     return permissions
   }
 

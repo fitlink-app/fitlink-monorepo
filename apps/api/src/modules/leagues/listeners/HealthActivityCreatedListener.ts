@@ -13,7 +13,7 @@ import { FeedItemsService } from '../../feed-items/feed-items.service'
 import {
   FeedItemCategory,
   FeedItemType
-} from '../../feed-items/entities/feed-item.entity'
+} from '../../feed-items/feed-items.constants'
 
 @Injectable()
 export class HealthActivityCreatedListener {
