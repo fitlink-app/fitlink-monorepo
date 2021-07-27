@@ -326,20 +326,19 @@ describe('Health Activities', () => {
       payload: mockPayload,
       url: '/providers/fitbit/webhook'
     })
-    setTimeout(async () => {
-      const entry = await connection
-        .getRepository(LeaderboardEntry)
-        .findOne({ where: { user: { id: users[0].id } } })
-      const user = await connection.getRepository(User).findOne(users[0].id)
-      const feedItem = await connection.getRepository(FeedItem).findOne({
-        user: { id: users[0].id }
-      })
-      expect(feedItem.id).toBeDefined()
-      expect(feedItem.category).toBeDefined()
-      expect(feedItem.type).toBeDefined()
-      expect(user.points_total).toBeGreaterThan(users[0].points_total)
-      expect(entry.points).toBe(8301)
-      done()
-    }, 500)
+
+    const entry = await connection
+      .getRepository(LeaderboardEntry)
+      .findOne({ where: { user: { id: users[0].id } } })
+    const user = await connection.getRepository(User).findOne(users[0].id)
+    const feedItem = await connection.getRepository(FeedItem).findOne({
+      user: { id: users[0].id }
+    })
+    expect(feedItem.id).toBeDefined()
+    expect(feedItem.category).toBeDefined()
+    expect(feedItem.type).toBeDefined()
+    expect(user.points_total).toBeGreaterThan(users[0].points_total)
+    expect(entry.points).toBe(8301)
+    done()
   })
 })

@@ -84,7 +84,7 @@ export class HealthActivitiesService {
       newHealthActivityErr && console.error(newHealthActivityErr.message)
       const healthActivityCreatedEvent = new HealthActivityCreatedEvent()
       healthActivityCreatedEvent.health_activity_id = newHealthActivity.id
-      this.eventEmitter.emit(
+      await this.eventEmitter.emitAsync(
         'health_activity.created',
         healthActivityCreatedEvent
       )
