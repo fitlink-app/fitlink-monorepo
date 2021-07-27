@@ -52,3 +52,5 @@ terraform
 /root.crt
 /apps/api/database/firebase/credential.json
 /apps/api/database/firebase/users.json
+/fitlink.sql
+/jest.sql

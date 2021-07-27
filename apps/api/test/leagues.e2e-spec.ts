@@ -448,7 +448,7 @@ describe('Leagues', () => {
     expect(data.json().results.length).toBeGreaterThan(0)
   })
 
-  it.only('GET /leagues/:leagueId/inviteable A user can appear in search if they qualify to be invited to a league', async () => {
+  it('GET /leagues/:leagueId/inviteable A user can appear in search if they qualify to be invited to a league', async () => {
     const data = await app.inject({
       method: 'GET',
       url: `/leagues/${team_assigned_league.id}/inviteable`,
@@ -460,6 +460,8 @@ describe('Leagues', () => {
 
     expect(data.json().results.length).toBe(1)
     expect(data.json().results[0].id).toBe(userData4.id)
+    expect(data.json().results[0].following).toBeDefined()
+    expect(data.json().results[0].follower).toBeDefined()
 
     const data2 = await app.inject({
       method: 'GET',

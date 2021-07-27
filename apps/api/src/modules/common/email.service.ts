@@ -28,6 +28,7 @@ export class EmailService {
     fromAddress = this.configService.get('EMAIL_DEFAULT_FROM_ADDRESS'),
   ) {
     const GOOGLE_ANALYTICS_OPEN_EMAIL_URL = await this.googleAnalyticsService.sendGoogleAnalytics(template, 'email-is-sent')
+    console.log(GOOGLE_ANALYTICS_OPEN_EMAIL_URL)
     data['GOOGLE_ANALYTICS_OPEN_EMAIL_URL'] = GOOGLE_ANALYTICS_OPEN_EMAIL_URL
     const templatedEmail = new SendTemplatedEmailCommand({
       Destination: {

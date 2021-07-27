@@ -1,0 +1,33 @@
+.feedback {
+  display: block;
+  border: 1px solid $primary;
+  background-color: rgba($primary, 0.2);
+  box-shadow: 5px 5px 10px 0 rgba($primary, 0.1);
+  padding: 1rem;
+  line-height: 1.25em;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  color: $dark;
+
+  &--success {
+    border: 1px solid $success;
+    background-color: rgba($success, 0.2);
+    box-shadow: 5px 5px 10px 0 rgba($success, 0.1);
+    color: #1b5e20;
+  }
+
+  &--error {
+    border: 1px solid $red;
+    background-color: rgba($red, 0.2);
+    box-shadow: 5px 5px 10px 0 rgba($red, 0.1);
+    color: #b71c1c;
+  }
+
+  svg {
+    float: right;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0 0 1rem 1rem;
+    cursor: pointer;
+  }
+}

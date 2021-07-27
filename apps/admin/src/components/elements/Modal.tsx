@@ -7,6 +7,7 @@ export type ModalProps = {
   children?: React.ReactNode
   className?: string
   size?: 'full' | 'large' | 'message'
+  hideCloseButton?: boolean
   close: () => void
 }
 
@@ -14,6 +15,7 @@ export default function Modal({
   children,
   className,
   size,
+  hideCloseButton = false,
   close = () => {}
 }:ModalProps) {
   const [isBrowser, setIsBrowser] = useState(false)
@@ -38,7 +40,7 @@ export default function Modal({
     return ReactDOM.createPortal(
       <div className={classes}>
         <div className="modal__content">
-          <IconClose className="modal__close" onClick={handleClick} />
+          { !hideCloseButton && <IconClose className="modal__close" onClick={handleClick} /> }
           { children }
         </div>
       </div>, 

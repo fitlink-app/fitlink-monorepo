@@ -15,6 +15,7 @@ export type CurrencyProps = {
     locale: string
     currency: string
   }
+  error?: string
 }
 
 export default function Currency({
@@ -27,11 +28,13 @@ export default function Currency({
   rows = 5,
   inline,
   decimals = 2,
-  locale = { locale: 'en-US', currency: 'GBP' }
+  locale = { locale: 'en-US', currency: 'GBP' },
+  error = ''
 }: CurrencyProps) {
   const classes = clsx({
     'input-block': true,
     'input-block--inline': inline,
+    'input-block--error': error !== '',
     [className]: className
   })
 
@@ -52,6 +55,7 @@ export default function Currency({
         onValueChange={(value) => handleChange(value)}
         placeholder={placeholder}
       />
+      { error !== '' && <span>{error}</span> }
     </div>
   )
 }
