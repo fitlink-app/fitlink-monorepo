@@ -226,9 +226,11 @@ export class UsersService {
     const userPublic = (user as unknown) as UserPublic
 
     userPublic.following = Boolean(
-      user.following && user.following.length === 1
+      user.following && user.following.length
     )
-    userPublic.follower = Boolean(user.followers && user.followers.length === 1)
+    userPublic.follower = Boolean(
+      user.followers && user.followers.length
+    )
 
     return plainToClass(UserPublic, userPublic, {
       excludeExtraneousValues: true
@@ -243,7 +245,7 @@ export class UsersService {
    */
   findOne(id: string) {
     return this.userRepository.findOne(id, {
-      relations: ['settings', 'avatar']
+      relations: ['settings', 'avatar', 'followers', 'following']
     })
   }
 

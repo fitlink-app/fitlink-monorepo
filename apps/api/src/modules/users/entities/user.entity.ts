@@ -168,12 +168,14 @@ export class User extends CreatableEntity {
     cascade: ['remove'],
     onDelete: 'CASCADE'
   })
+  @JoinColumn()
   followers: Following[]
 
   @OneToMany(() => Following, (following) => following.following, {
     cascade: ['remove'],
     onDelete: 'CASCADE'
   })
+  @JoinColumn()
   following: Following[]
 
   @OneToMany(() => GoalsEntry, (goalsEntry) => goalsEntry.user, {
