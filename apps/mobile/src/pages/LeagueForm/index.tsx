@@ -7,12 +7,18 @@ import {
   ImagePicker,
   NAVBAR_HEIGHT,
 } from '@components';
-import {ImagePickerDialogResponse, useForm, useUploadImage} from '@hooks';
+import {
+  ImagePickerDialogResponse,
+  useCreateLeague,
+  useForm,
+  useUploadImage,
+} from '@hooks';
 import React, {useState} from 'react';
 import {Platform, ScrollView} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import {ImageType} from '@fitlink/api/src/modules/images/entities/image.entity';
+import {CreateLeagueDto} from '@fitlink/api/src/modules/leagues/dto/create-league.dto';
 import {getErrors} from '@api';
 
 const Wrapper = styled.View({flex: 1});
@@ -34,22 +40,12 @@ const DropdownContainer = styled.View({
 
 export type LeagueFormMode = 'edit' | 'create';
 
-export interface LeagueFormValues {
-  name: string;
-  description: string;
-  duration: number;
-  repeat: boolean;
-  sportId: string | null;
-  imageId: string | null;
-}
-
-const initialValues: LeagueFormValues = {
+const initialValues: Partial<CreateLeagueDto> = {
   name: '',
   description: '',
   duration: 7,
   repeat: true,
-  sportId: 'sportIdValue',
-  imageId: null,
+  sportId: 'f76b204a-d152-406b-be2a-cf1865bf2408',
 };
 
 export const LeagueForm = () => {
@@ -65,7 +61,8 @@ export const LeagueForm = () => {
     isSubmitted,
   } = useForm(initialValues);
 
-  // TODO: Upload image hook
+  const {mutateAsync: createLeague} = useCreateLeague();
+
   const {mutateAsync: uploadImage} = useUploadImage();
 
   const [image, setImage] = useState<ImagePickerDialogResponse>();
@@ -74,24 +71,29 @@ export const LeagueForm = () => {
   const mode: LeagueFormMode = 'create';
 
   const handleOnSubmit = async () => {
-    // Upload image
+    let imgResult: any;
+
     try {
-      if (!image) return;
+      if (image) {
+        imgResult = await uploadImage({
+          image,
+          type: 'cover' as ImageType,
+        });
+      }
 
-      console.log(image);
-
-      const imgResult = await uploadImage({
-        image,
-        type: 'cover' as ImageType,
-      });
-      console.log(imgResult);
+      handleSubmit(async () => submitForm(imgResult?.id));
     } catch (e) {
-      const errs = getErrors(e);
-      console.log(errs);
+      console.log(e);
     }
+  };
 
-    // Submit form with image ID
-    // Return requestError if any
+  const submitForm = async (imageId?: string) => {
+    try {
+      await createLeague({...values, imageId} as CreateLeagueDto);
+    } catch (e) {
+      const requestErrors = getErrors(e);
+      return requestErrors;
+    }
   };
 
   return (
@@ -113,7 +115,7 @@ export const LeagueForm = () => {
             imageSrc={image ? image.uri : undefined}
             label={'Select an image for your league'}
             onImagePicked={setImage}
-            // error={'Some error'}
+            error={fieldErrors.imageId}
           />
 
           <StyledInputField
@@ -163,7 +165,7 @@ export const LeagueForm = () => {
 
           <Checkbox
             onPress={() => handleChange('repeat')(!values.repeat)}
-            checked={values.repeat}
+            checked={values.repeat!}
             text={'Repeat this league'}
           />
         </FormContentWrapper>

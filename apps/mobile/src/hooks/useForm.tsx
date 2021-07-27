@@ -26,35 +26,33 @@ export function useForm<T, K extends keyof T>(initialValues: T) {
    * @param callback
    * @returns
    */
-  const handleSubmit =
-    (
-      callback: (data: T) => Promise<RequestError | undefined> | Promise<void>,
-    ) =>
-    async () => {
-      setSubmitting(true);
-      setFieldErrors({});
-      setErrorMessage(null);
+  const handleSubmit = async (
+    callback: (data: T) => Promise<RequestError | undefined> | Promise<void>,
+  ) => {
+    setSubmitting(true);
+    setFieldErrors({});
+    setErrorMessage(null);
 
-      try {
-        const requestError = await callback(values);
+    try {
+      const requestError = await callback(values);
 
-        // Process request error (if provided) and store values in state
-        if (requestError) {
-          const {message, fields} = requestError;
-          if (message) setErrorMessage(message);
-          if (fields) setFieldErrors(fields as unknown as Partial<T>);
-        } else {
-          setSubmitted(true);
-        }
-      } catch (e) {
-        console.warn(
-          'Something went wrong, we should not throw here at all: ',
-          e.message,
-        );
+      // Process request error (if provided) and store values in state
+      if (requestError) {
+        const {message, fields} = requestError;
+        if (message) setErrorMessage(message);
+        if (fields) setFieldErrors(fields as unknown as Partial<T>);
+      } else {
+        setSubmitted(true);
       }
+    } catch (e) {
+      console.warn(
+        'Something went wrong, we should not throw here at all: ',
+        e.message,
+      );
+    }
 
-      setSubmitting(false);
-    };
+    setSubmitting(false);
+  };
 
   return {
     handleChange,

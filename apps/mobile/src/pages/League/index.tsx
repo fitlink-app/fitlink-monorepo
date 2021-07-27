@@ -114,6 +114,7 @@ export const League = (
       <Header
         height={HEADER_HEIGHT}
         leagueId={id}
+        headerImage={league?.image.url_640x360}
         title={activeLeague.name}
         memberCount={activeLeague.participants_total}
         membership={

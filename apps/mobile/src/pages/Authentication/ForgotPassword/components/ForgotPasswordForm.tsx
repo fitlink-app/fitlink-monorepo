@@ -64,7 +64,7 @@ export const ForgotPasswordForm = ({email = ''}: ForgotPasswordFormProps) => {
 
       <SubmitButton
         text="Send reset instructions"
-        onPress={handleSubmit(onSubmit)}
+        onPress={() => handleSubmit(onSubmit)}
         loading={isSubmitting}
         disabled={isSubmitting || !values.email?.length}
       />

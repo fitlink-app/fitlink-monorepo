@@ -87,7 +87,7 @@ export const SignInForm = ({onEmailChanged}: SignInFormProps) => {
 
       <SignInButton
         text="Sign in"
-        onPress={handleSubmit(onSubmit)}
+        onPress={() => handleSubmit(onSubmit)}
         loading={isSubmitting}
         disabled={
           isSubmitting ||

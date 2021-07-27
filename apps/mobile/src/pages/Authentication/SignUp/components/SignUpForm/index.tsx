@@ -89,7 +89,7 @@ export const SignUpForm = () => {
 
       <SignUpButton
         text="Agree and Sign up"
-        onPress={handleSubmit(onSubmit)}
+        onPress={() => handleSubmit(onSubmit)}
         loading={isSubmitting}
         disabled={
           isSubmitting ||

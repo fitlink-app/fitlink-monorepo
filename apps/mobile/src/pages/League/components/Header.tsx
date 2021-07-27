@@ -55,6 +55,7 @@ interface HeaderProps {
   height: number;
   leagueId: string;
   title: string;
+  headerImage: string;
   memberCount: number;
   scrollAnimatedValue: Animated.Value;
 }
@@ -64,6 +65,7 @@ export const Header = ({
   leagueId,
   title,
   memberCount,
+  headerImage,
   membership = 'none',
   scrollAnimatedValue,
 }: HeaderProps) => {
@@ -154,7 +156,7 @@ export const Header = ({
     <Wrapper style={{...wrapperPosition, height}}>
       <HeaderImage
         source={{
-          uri: 'https://images.unsplash.com/photo-1499871435582-a1d4ff236842?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
+          uri: headerImage,
         }}
       />
       <ImageOverlay />
