@@ -9,6 +9,8 @@ import ImageStack from '../elements/ImageStack'
 
 export type ImageProps = {
   url: string
+  width: number
+  height: number
 }
 
 export type ActivityFormProps = {
@@ -78,7 +80,7 @@ export default function ActivityForm({
   const [organizer_image, setOrganizer_image] = useState(
     current?.organizer_email || ''
     )
-  const [images, setImages] = useState(current?.images || [])
+  const [images, setImages] = useState<ImageProps[]>(current?.images || [])
 
   return (
     <form onSubmit={(e) => e.preventDefault()}>
