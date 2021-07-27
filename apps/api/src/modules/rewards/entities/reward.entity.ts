@@ -94,6 +94,7 @@ export class Reward extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    type: 'enum',
     enum: RewardPlatform,
     default: RewardPlatform.Fitlink
   })
@@ -101,6 +102,7 @@ export class Reward extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    type: 'enum',
     enum: RewardAccess,
     default: RewardAccess.Public
   })

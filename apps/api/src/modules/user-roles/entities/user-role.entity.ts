@@ -20,6 +20,7 @@ export class UserRole extends CreatableEntity {
     enum: Roles
   })
   @Column({
+    type: 'enum',
     enum: Roles
   })
   role: Roles

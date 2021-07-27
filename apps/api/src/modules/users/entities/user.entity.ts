@@ -235,6 +235,8 @@ export class User extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    type: 'enum',
+    enum: UserRank,
     default: UserRank.Newbie
   })
   rank: UserRank

@@ -12,6 +12,7 @@ import { Roles } from '@fitlink/api/src/modules/user-roles/user-roles.constants'
 import { Organisation } from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
 import { Subscription } from '@fitlink/api/src/modules/subscriptions/entities/subscription.entity'
 import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
+import { useQuery } from 'react-query'
 
 const axios = Axios.create({
   baseURL:
@@ -51,10 +52,25 @@ export const AuthContext = React.createContext({} as AuthContext)
 
 export function AuthProvider({ children }) {
   const [state, setState] = useState<AuthContext>({} as AuthContext)
+  const me = useQuery('me', () => api.get<User>('/me'), {
+    enabled: false
+  })
+
+  const roles = useQuery('me/roles', () => api.get<UserRole[]>('/me/roles'), {
+    enabled: false
+  })
 
   useEffect(() => {
     resume()
   }, [])
+
+  useEffect(() => {
+    setState({
+      ...state,
+      user: me.data,
+      roles: formatRoles(roles.data || [])
+    })
+  }, [me.data, roles.data])
 
   async function resume() {
     const { access_token, id_token, refresh_token } = localStorage
@@ -65,12 +81,8 @@ export function AuthProvider({ children }) {
         refresh_token
       })
 
-      const user = await api.get<User>('/me')
-
-      setState({
-        ...state,
-        user
-      })
+      me.refetch()
+      roles.refetch()
     }
   }
 
@@ -82,15 +94,8 @@ export function AuthProvider({ children }) {
 
     storeTokens(api.getTokens())
 
-    const user = await api.get<User>('/me')
-
-    const roles = await api.get<UserRole[]>('/me/roles')
-
-    setState({
-      ...state,
-      user,
-      roles: formatRoles(roles)
-    })
+    me.refetch()
+    roles.refetch()
 
     return result
   }

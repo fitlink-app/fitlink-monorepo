@@ -99,6 +99,7 @@ export class League extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    type: 'enum',
     enum: LeagueAccess,
     default: LeagueAccess.Private
   })
@@ -106,6 +107,7 @@ export class League extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    type: 'enum',
     enum: LeagueInvitePermission,
     default: LeagueInvitePermission.Participant
   })
