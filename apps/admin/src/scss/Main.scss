@@ -16,7 +16,6 @@
 @import 'components/image-select';
 @import 'components/image-stack';
 @import 'components/image-upload';
-@import 'components/layout-dashboard';
 @import 'components/league';
 @import 'components/loader';
 @import 'components/location-select';
@@ -29,6 +28,9 @@
 @import 'components/sidebar';
 @import 'components/sort-on';
 @import 'components/static-table';
+
+@import 'layout/layout-dashboard';
+@import 'layout/layout-login';
 
 @import 'base/important';
 @import 'base/helpers';
