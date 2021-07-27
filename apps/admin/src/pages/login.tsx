@@ -1,4 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react'
+import Link from 'next/link'
+import Input from '../components/elements/Input'
+import Logo from '../components/elements/Logo'
+import Login from '../components/layouts/Login'
+import Feedback from '../components/elements/Feedback'
+import IconArrowRight from '../components/icons/IconArrowRight'
+import IconApple from '../components/icons/IconApple'
+import IconGoogle from '../components/icons/IconGoogle'
 import Head from 'next/head'
 import { AuthContext } from '../context/Auth.context'
 import { useMutation } from 'react-query'
@@ -10,14 +18,15 @@ import {
 } from '@fitlink/api-sdk/types'
 import { getErrorMessage } from '@fitlink/api-sdk'
 import { ApiMutationResult } from '@fitlink/common/react-query/types'
-import jwtDecode, { JwtPayload } from 'jwt-decode'
 import { useRouter } from 'next/router'
 
-const Login = () => {
+const LoginPage = () => {
+  const [loading, setLoading] = useState(false)
+  const [errorMessage, setError] = useState('')
   const router = useRouter()
+
   const { user, login } = useContext(AuthContext)
-  const [password, setPassword] = useState('')
-  const [email, setEmail] = useState('')
+
   const {
     mutate,
     isError,
@@ -28,47 +37,68 @@ const Login = () => {
     login(emailPass)
   )
 
+  const handleLogin = (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    mutate({
+      email: e.target.elements.email.value,
+      password: e.target.elements.password.defaultValue
+    })
+  }
+
   useEffect(() => {
+    if (error) {
+      setLoading(false)
+      setError(getErrorMessage(error))
+    }
+
     if (isSuccess) {
       router.push('/dashboard')
     }
-  }, [isSuccess])
+  }, [error, isSuccess])
 
   return (
-    <>
-      <form method="post" onSubmit={(e) => e.preventDefault()}>
-        {isError && getErrorMessage(error)}
-        {isSuccess && <div>You have been logged in.</div>}
-        <h1>Login</h1>
-        <div>
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            onChange={(e) => setEmail(e.currentTarget.value)}
+    <Login title="Login">
+      <div className="text-center">
+        <Logo height={32} />
+        <h1 className="h6 mt-2 color-grey">Manage your Fitlink team</h1>
+      </div>
+      <form onSubmit={handleLogin} className="mt-2">
+        <Input label="E-mail address" name="email" type="email" inline={true} />
+        <Input label="Password" name="password" type="password" inline={true} />
+
+        {errorMessage !== '' && (
+          <Feedback
+            type="error"
+            className="mt-2 text-center"
+            message={errorMessage}
           />
+        )}
+        <div className="row ai-c mt-2">
+          <div className="col">
+            <Link href="/demo/forgot-password">
+              <a className="small-link inline-block">
+                Forgot password
+                <IconArrowRight />
+              </a>
+            </Link>
+          </div>
+          <div className="col text-right">
+            <button className="button" disabled={loading}>
+              Login with e-mail
+            </button>
+          </div>
         </div>
-
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            onChange={(e) => setPassword(e.currentTarget.value)}
-          />
-        </div>
-
-        <button
-          onClick={() => {
-            mutate({ email, password })
-          }}>
-          Login
-        </button>
-
-        <GoogleLogin />
-        <AppleLogin />
       </form>
-    </>
+
+      <div className="text-center">
+        <div className="or">Or</div>
+        <AppleLogin />
+        <GoogleLogin />
+      </div>
+    </Login>
   )
 }
 
@@ -129,9 +159,10 @@ function GoogleLogin() {
       {data ? (
         JSON.stringify(data.me)
       ) : (
-        <a href="#" onClick={signIn}>
-          Google Sign In
-        </a>
+        <button className="button alt block" onClick={signIn}>
+          <IconGoogle className="mr-1" />
+          Login with Google
+        </button>
       )}
     </>
   )
@@ -192,12 +223,13 @@ function AppleLogin() {
       {data ? (
         JSON.stringify(data.me)
       ) : (
-        <a href="#" onClick={signIn}>
-          Apple Sign in
-        </a>
+        <button className="button alt block mb-1" onClick={signIn}>
+          <IconApple className="mr-1" />
+          Login with Apple
+        </button>
       )}
     </>
   )
 }
 
-export default Login
+export default LoginPage

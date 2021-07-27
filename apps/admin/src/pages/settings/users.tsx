@@ -9,6 +9,7 @@ import { boolToIcon, toDateCell } from '../../components/Table/helpers'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import { AuthContext } from '../../context/Auth.context'
 import { User } from '../../../../api/src/modules/users/entities/user.entity'
+import { useQuery } from 'react-query'
 const dummy = require('../../services/dummy/team-users.json')
 
 export default function components() {
@@ -105,13 +106,13 @@ export default function components() {
             { Header: 'Joined', accessor: 'created_at', Cell: toDateCell },
             { Header: ' ', Cell: cellActions }
           ]}
-          fetch={(limit, page, params) => {
-            return api.list<User>('/users', {
+          fetch={(limit, page) =>
+            api.list<User>('/users', {
               limit,
-              page,
-              params
+              page
             })
-          }}
+          }
+          fetchName="users"
         />
       </div>
 
