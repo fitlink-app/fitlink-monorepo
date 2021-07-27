@@ -30,13 +30,6 @@ yarn package:admin
 
 After running the commands navigate to [http://localhost:4000/login](http://localhost:4000/login), and you should be able to login with the credentials available in the test dataset.
 
-## Generating types
-Some types need to be generated due to compatibility and performance issues with using code from different codebases in clients. This command will generate .d.ts files for *.entity.ts and *.dto.js files in the `api` project. These can then be imported in files. 
-
-```
-yarn types:generate
-```
-
 ## Application-specific documentation
 1. [Admin Development Documentation](./apps/admin/README.md)
 2. [API Development Documentation](./apps/api/README.md)

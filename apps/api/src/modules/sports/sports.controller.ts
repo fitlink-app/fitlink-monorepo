@@ -46,7 +46,6 @@ export class SportsController {
    * Gets all sports
    * @returns
    */
-  @Iam(Roles.SuperAdmin)
   @Get()
   @ApiResponse({ type: Sport, isArray: true, status: 200 })
   findAll(@Pagination() pagination: PaginationQuery) {

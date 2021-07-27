@@ -1,5 +1,4 @@
-import { ProviderType } from '../../providers/entities/provider.entity'
-import { Sport } from '../../sports/entities/sport.entity'
+import { ProviderType } from '../../providers/providers.constants'
 import { healthActivityType } from './healthActivityType'
 import { lifestyleActivityType } from './lifestyleActivityType'
 

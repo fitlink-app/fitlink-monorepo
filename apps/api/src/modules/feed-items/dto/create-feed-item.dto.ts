@@ -8,7 +8,7 @@ import {
   FeedItemCategory,
   FeedItemType,
   UserTier
-} from '../entities/feed-item.entity'
+} from '../feed-items.constants'
 
 export class CreateFeedItemDto {
   category: FeedItemCategory

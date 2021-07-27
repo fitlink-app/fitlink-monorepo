@@ -4,6 +4,7 @@ import { useSeeding } from 'typeorm-seeding'
 import { AuthModule } from '../src/modules/auth/auth.module'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { UserRole } from '../src/modules/user-roles/entities/user-role.entity'
+import { Roles } from '../src/modules/user-roles/user-roles.constants'
 import { UserRolesModule } from '../src/modules/user-roles/user-roles.module'
 import { User } from '../src/modules/users/entities/user.entity'
 import { UsersModule } from '../src/modules/users/users.module'
@@ -233,7 +234,7 @@ describe('User Roles', () => {
      */
     const userRole = await userRoleRepository.save(
       userRoleRepository.create({
-        role: 'team_admin',
+        role: Roles.TeamAdmin,
         user: seededUser,
         team: seededOrganisation.teams[0]
       })

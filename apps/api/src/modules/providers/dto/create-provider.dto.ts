@@ -1,4 +1,4 @@
-import { ProviderType } from '../entities/provider.entity'
+import { ProviderType } from '../providers.constants'
 
 export class CreateProviderDto {
   type: ProviderType
