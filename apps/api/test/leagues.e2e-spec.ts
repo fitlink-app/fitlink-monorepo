@@ -250,6 +250,26 @@ describe('Leagues', () => {
     expect(
       myLeagues.json().results.filter((e) => e.id === post.json().id).length
     ).toBe(1)
+
+    // Ensure original image is preserved
+    const putNoImage = await app.inject({
+      method: 'PUT',
+      url: `/leagues/${post.json().id}`,
+      headers: authHeaders,
+      payload: { ...payload, sportId: undefined }
+    })
+
+    expect(putNoImage.statusCode).toEqual(200)
+
+    const getPutNoImage = await app.inject({
+      method: 'GET',
+      url: `/leagues/${post.json().id}`,
+      headers: authHeaders,
+      payload
+    })
+
+    // Expect original image to be there
+    expect(getPutNoImage.json().image.id).toEqual(imageId2)
   })
 
   it("PUT /leagues 403 Another user cannot read or edit another user' private league", async () => {
@@ -323,7 +343,7 @@ describe('Leagues', () => {
         description: 'A league for test deletion',
         sportId: sportId,
         duration: 7,
-        repeat: true,
+        repeat: false,
         imageId
       }
     })
@@ -331,6 +351,7 @@ describe('Leagues', () => {
     const league = post.json()
 
     expect(league.owner.id).toBe(user1)
+    expect(league.image.id).toBeDefined()
 
     const data = await app.inject({
       method: 'DELETE',

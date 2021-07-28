@@ -479,26 +479,22 @@ export class LeaguesService {
     { teamId, organisationId }: LeagueOptions = {}
   ) {
     const { imageId, ...rest } = updateLeagueDto
+    const update: Partial<League> = { ...rest }
 
     // Only the image is allowed to change
-    let image: Image
     if (imageId) {
-      image = new Image()
-      image.id = imageId
+      update.image = new Image()
+      update.image.id = imageId
     }
 
     if (teamId) {
       return await this.leaguesRepository.update(id, {
         team: { id: teamId },
-        ...rest,
-        image
+        ...update
       })
     } else {
       // This Method supports partial updating since all undefined properties are skipped
-      return await this.leaguesRepository.update(id, {
-        ...rest,
-        image
-      })
+      return await this.leaguesRepository.update(id, update)
     }
   }
 
