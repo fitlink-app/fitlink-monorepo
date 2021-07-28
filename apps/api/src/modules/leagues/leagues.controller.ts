@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -246,9 +247,14 @@ export class LeaguesController {
         authUser.id
       )
       if (!result) {
-        throw new ForbiddenException(
-          'You do not have permission to view this league'
-        )
+        const exists = await this.leaguesService.findOne(leagueId)
+        if (exists) {
+          throw new ForbiddenException(
+            'You do not have permission to view this league'
+          )
+        } else {
+          throw new NotFoundException('The league does not exist')
+        }
       }
       return result
     } else {

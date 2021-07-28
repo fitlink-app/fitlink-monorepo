@@ -511,12 +511,18 @@ export class LeaguesService {
       league = await this.leaguesRepository.findOne(id)
     }
     const result = await getManager().transaction(async (entityManager) => {
-      // Delete leaderboard entries for league
-      await entityManager.getRepository(LeaderboardEntry).delete({
-        leaderboard: {
-          league: { id: league.id }
-        }
+      const leaderboards = await entityManager.getRepository(Leaderboard).find({
+        where: { league: { id: league.id } }
       })
+
+      // Delete all leaderboard entries for each leaderboard
+      await Promise.all(
+        leaderboards.map((each) => {
+          return entityManager.getRepository(LeaderboardEntry).delete({
+            leaderboard: { id: each.id }
+          })
+        })
+      )
 
       // Remove active leaderboard
       await entityManager
@@ -531,7 +537,7 @@ export class LeaguesService {
         league: { id: league.id }
       })
 
-      return await entityManager.delete(League, league.id)
+      return entityManager.delete(League, league.id)
     })
     return result
   }

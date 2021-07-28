@@ -331,7 +331,7 @@ describe('Leagues', () => {
     expect(data.statusCode).toBe(403)
   })
 
-  it('DELETE /leagues/:id A user can delete a private league that they own', async () => {
+  it('DELETE /leagues/:id A user can delete a private league that they own and have joined', async () => {
     const imageId = images.pop().id
 
     const post = await app.inject({
@@ -353,6 +353,14 @@ describe('Leagues', () => {
     expect(league.owner.id).toBe(user1)
     expect(league.image.id).toBeDefined()
 
+    const join = await app.inject({
+      method: 'POST',
+      url: `/leagues/${league.id}/join`,
+      headers: authHeaders
+    })
+
+    expect(join.statusCode).toBe(201)
+
     const data = await app.inject({
       method: 'DELETE',
       url: `/leagues/${league.id}`,
@@ -360,6 +368,14 @@ describe('Leagues', () => {
     })
 
     expect(data.statusCode).toBe(200)
+
+    const get = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders
+    })
+
+    expect(get.statusCode).toBe(404)
   })
 
   it('POST /leagues 201 A superadmin can create a fully public league', async () => {
