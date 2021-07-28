@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from '../../users/entities/user.entity'
@@ -7,6 +7,13 @@ import { HealthActivity } from '../../health-activities/entities/health-activity
 import { HealthActivityCreatedEvent } from '../../health-activities/events/health-activity-created.event'
 import { LeaderboardEntry } from '../../leaderboard-entries/entities/leaderboard-entry.entity'
 import { League } from '../entities/league.entity'
+import { tryAndCatch } from '../../../helpers/tryAndCatch'
+import { Sport } from '../../sports/entities/sport.entity'
+import { FeedItemsService } from '../../feed-items/feed-items.service'
+import {
+  FeedItemCategory,
+  FeedItemType
+} from '../../feed-items/feed-items.constants'
 
 @Injectable()
 export class HealthActivityCreatedListener {
@@ -21,49 +28,85 @@ export class HealthActivityCreatedListener {
     private leaguesRepository: Repository<League>,
 
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private userRepository: Repository<User>,
+    private feedItemService: FeedItemsService
   ) {}
 
-  @OnEvent('health_activity.created')
-  async updateUserPointsInLeague(payload: HealthActivityCreatedEvent) {
-    const healthActivity = await this.healthActivityRepository.findOne(
-      payload.health_activity_id,
-      { relations: ['sport', 'user'] }
+  async updateUserPoints(points: number, userId: string) {
+    const [_, resultErr] = await tryAndCatch(
+      this.userRepository.increment({ id: userId }, 'points_total', points)
     )
+    resultErr && console.error(resultErr)
+  }
 
-    // Update User
-    await this.userRepository.increment(
-      { id: healthActivity.user.id },
-      'points_total',
-      healthActivity.points
+  async updateLeaguePoints(sport: Sport, userId: string, points: number) {
+    const [leagues, leaguesErr] = await tryAndCatch(
+      this.leaguesRepository.find({
+        where: { sport },
+        relations: ['active_leaderboard', 'users']
+      })
     )
-
-    // Update Leagues
-    const leagues = await this.leaguesRepository.find({
-      where: { sport: healthActivity.sport },
-      relations: ['active_leaderboard', 'users']
-    })
-
+    leaguesErr && console.error(leaguesErr)
     const incrementEntryPromises = []
-
     for (const league of leagues) {
       incrementEntryPromises.push(
         this.leaderboardEntriesRepository.increment(
           {
             leaderboard: { id: league.active_leaderboard.id },
-            user: { id: healthActivity.user.id }
+            user: { id: userId }
           },
 
           'points',
-          healthActivity.points
+          points
         )
       )
     }
 
     await Promise.all(incrementEntryPromises)
-    await this.healthActivityRepository.save({
-      ...healthActivity,
-      distributed: true
+  }
+
+  async findHealthActivity(id: string): Promise<HealthActivity> {
+    const [healthActivity, healthActivityErr] = await tryAndCatch(
+      this.healthActivityRepository.findOne(id, {
+        relations: ['sport', 'user']
+      })
+    )
+    if (healthActivityErr) {
+      throw new NotFoundException(`Health Activity With That ID Not Found`)
+    }
+    return healthActivity
+  }
+  async updateHealthActivityStatus(healthActivity: HealthActivity) {
+    const [_, resultErr] = await tryAndCatch(
+      this.healthActivityRepository.save({
+        ...healthActivity,
+        distributed: true
+      })
+    )
+    resultErr && console.error(resultErr)
+  }
+
+  async addFeedItem(user: User, health_activity: HealthActivity) {
+    await this.feedItemService.create({
+      category: FeedItemCategory.MyActivities,
+      type: FeedItemType.HealthActivity,
+      user,
+      health_activity
     })
+  }
+
+  @OnEvent('health_activity.created')
+  async updateUserPointsInLeague(payload: HealthActivityCreatedEvent) {
+    const healthActivity = await this.findHealthActivity(
+      payload.health_activity_id
+    )
+    const { sport, user, points } = healthActivity
+
+    const promises = [
+      this.updateUserPoints(points, user.id),
+      this.updateLeaguePoints(sport, user.id, points),
+      this.addFeedItem(user, healthActivity)
+    ]
+    await Promise.all(promises)
   }
 }

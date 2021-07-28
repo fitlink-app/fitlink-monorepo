@@ -9,7 +9,7 @@ import ActivityForm from '../../components/forms/ActivityForm'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dummy = require('../../services/dummy/activities.json')
 
-export default function components() {
+export default function page() {
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)
@@ -86,7 +86,7 @@ export default function components() {
   }
 
   return (
-    <Dashboard title="Activities">
+    <Dashboard title="Activities" linkPrefix="/demo">
       <div>
         <div className="flex ai-c">
           <h1 className="light mb-0 mr-2">Your activities</h1>
@@ -110,6 +110,7 @@ export default function components() {
             { Header: ' ', Cell: viewDetails }
           ]}
           fetch={() => Promise.resolve(dummy)}
+          fetchName="activities"
         />
       </div>
       <AnimatePresence initial={false}>

@@ -4,7 +4,6 @@ import { Module, HttpModule, forwardRef } from '@nestjs/common'
 import { ImagesService } from './images.service'
 import { ImagesController } from './images.controller'
 import { Image } from './entities/image.entity'
-import { AuthModule } from '../auth/auth.module'
 
 @Module({
   imports: [HttpModule, TypeOrmModule.forFeature([Image]), ConfigModule],

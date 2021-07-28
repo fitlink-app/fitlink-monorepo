@@ -9,11 +9,7 @@ import {
 
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { User } from '../../users/entities/user.entity'
-
-export enum AuthProviderType {
-  Google = 'google.com',
-  Apple = 'apple.com'
-}
+import { AuthProviderType } from '../auth.constants'
 
 /*
 
@@ -56,6 +52,7 @@ export class AuthProvider extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    type: 'enum',
     enum: AuthProviderType
   })
   type: AuthProviderType

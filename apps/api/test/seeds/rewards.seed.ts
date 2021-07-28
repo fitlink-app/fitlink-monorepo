@@ -1,7 +1,6 @@
 import { Seeder, Factory, runSeeder } from 'typeorm-seeding'
 import { Connection } from 'typeorm'
 import { Reward } from '../../src/modules/rewards/entities/reward.entity'
-import { Image } from '../../src/modules/images/entities/image.entity'
 import { ImagesSetup, ImagesTeardown } from './images.seed'
 
 const COUNT_REWARDS = 10

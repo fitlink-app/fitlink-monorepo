@@ -1,9 +1,9 @@
 import Card from '../../../components/elements/Card'
 import Dashboard from '../../../components/layouts/Dashboard'
 
-export default function components() {
+export default function page() {
   return (
-    <Dashboard title="Settings Page">
+    <Dashboard title="Settings Page" linkPrefix="/demo">
       <h1 className="light">Manage my page</h1>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">

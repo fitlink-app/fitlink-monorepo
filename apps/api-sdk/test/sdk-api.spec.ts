@@ -1,6 +1,5 @@
 import { ApiParameterError, AuthorizationRefreshError, makeApi } from '../index'
 import {
-  ImageUpload,
   UpdateUserPasswordDto,
   UpdateUserEmailDto,
   UpdateUserAvatarDto
@@ -8,10 +7,8 @@ import {
 import axios from 'axios'
 import * as moxios from 'moxios'
 import { readFile } from 'fs/promises'
-import {
-  Organisation,
-  OrganisationType
-} from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
+import { Organisation } from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
+import { OrganisationType } from '@fitlink/api/src/modules/organisations/organisations.constants'
 import { Activity } from '@fitlink/api/src/modules/activities/entities/activity.entity'
 import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 import { League } from '@fitlink/api/src/modules/leagues/entities/league.entity'

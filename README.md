@@ -15,11 +15,14 @@ Make sure to setup the git hooks for the project. The hook is currently used for
 
 ### Quick start
 
-> Note you must have the datasets obtained from [https://github.com/fitlink-app/fitlink-test-data](https://github.com/fitlink-app/fitlink-test-data) copied to this project, & the database should be empty for import process. Run `docker compose down --volumes` to empty the database.
+> Note you must have the datasets obtained from [https://github.com/fitlink-app/fitlink-test-data](https://github.com/fitlink-app/fitlink-test-data) copied to this project, & the database should be empty for import process. Run `docker compose down --volumes` to empty the database. If this doesn't work, update to the latest Docker desktop or try `docker-compose down --volumes`, which is the older CLI for docker-compose.
 
 ```
 docker compose up -d
-yarn migration:run
+
+// When importing the test dataset, this step should be skipped
+// yarn migration:run
+
 yarn db:import
 yarn start
 yarn package:admin

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import clsx from 'clsx'
 
 export type InputProps = {
-  type?: 'text' | 'number' | 'email' | 'tel' | 'textarea'
+  type?: 'text' | 'number' | 'email' | 'tel' | 'textarea' | 'password'
   label?: string
   placeholder?: string
   name: string
@@ -109,7 +109,7 @@ export default function Input({
     <div className={classes}>
       {label && <label htmlFor={name}>{label}</label>}
       {output()}
-      { error !== '' && <span>{error}</span> }
+      {error !== '' && <span>{error}</span>}
     </div>
   )
 }

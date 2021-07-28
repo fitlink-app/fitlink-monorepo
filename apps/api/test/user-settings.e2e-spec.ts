@@ -1,10 +1,8 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Connection, getConnection, Repository } from 'typeorm'
 import { useSeeding, runSeeder } from 'typeorm-seeding'
-import {
-  PrivacySetting,
-  UsersSetting
-} from '../src/modules/users-settings/entities/users-setting.entity'
+import { UsersSetting } from '../src/modules/users-settings/entities/users-setting.entity'
+import { PrivacySetting } from '../src/modules/users-settings/users-settings.constants'
 import { UsersSettingsModule } from '../src/modules/users-settings/users-settings.module'
 import { User } from '../src/modules/users/entities/user.entity'
 import { mockApp } from './helpers/app'

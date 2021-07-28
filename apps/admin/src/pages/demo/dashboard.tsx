@@ -1,5 +1,6 @@
-import Card from '../../components/elements/Card'
 import Link from 'next/link'
+import toast from 'react-hot-toast'
+import Card from '../../components/elements/Card'
 import Dashboard from '../../components/layouts/Dashboard'
 import VerticalBarChart from '../../components/charts/VerticalBarChart'
 import IconFriends from '../../components/icons/IconFriends'
@@ -14,7 +15,7 @@ import IconDownload from '../../components/icons/IconDownload'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 let rewards = require('../../services/dummy/stats-rewards.json')
 
-export default function components() {
+export default function page() {
   rewards = rewards.sort(
     (a, b) => parseFloat(b['redeemed']) - parseFloat(a['redeemed'])
   )
@@ -67,8 +68,16 @@ export default function components() {
     '#D0FA7F'
   ]
 
+  const prepareDownload = () => {
+    return new Promise(function (resolve, reject) {
+      setTimeout(resolve, 2000)
+    }).then(function () {
+      console.log('success')
+    })
+  }
+
   return (
-    <Dashboard title="Dashboard">
+    <Dashboard title="Dashboard" linkPrefix="/demo">
       <h1 className="light">Your team at a glance</h1>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">
@@ -84,6 +93,13 @@ export default function components() {
                   width="24px"
                   height="24px"
                   className="mr-1 color-light-grey hover-dark-grey"
+                  onClick={() =>
+                    toast.promise(prepareDownload(), {
+                      loading: 'Preparing download...',
+                      success: <b>Download starting</b>,
+                      error: <b>Download failed</b>
+                    })
+                  }
                 />
                 <Select
                   id="activities"
@@ -113,6 +129,13 @@ export default function components() {
                   width="24px"
                   height="24px"
                   className="mr-1 color-light-grey hover-dark-grey"
+                  onClick={() =>
+                    toast.promise(prepareDownload(), {
+                      loading: 'Preparing download...',
+                      success: <b>Download starting</b>,
+                      error: <b>Download failed</b>
+                    })
+                  }
                 />
                 <Select
                   id="team"
@@ -202,6 +225,13 @@ export default function components() {
                   width="24px"
                   height="24px"
                   className="mr-1 color-light-grey hover-dark-grey"
+                  onClick={() =>
+                    toast.promise(prepareDownload(), {
+                      loading: 'Preparing download...',
+                      success: <b>Download starting</b>,
+                      error: <b>Download failed</b>
+                    })
+                  }
                 />
                 <Select
                   id="activities"
@@ -301,7 +331,10 @@ export default function components() {
                 <img src="/temp/ecologi.svg" alt="" />
                 <h5>Give back with Ecologi 🌱</h5>
                 <p>
-                  We've partnered with Ecologi to offer all Fitlink teams the opportunity to reward their users with carbon offsetting and planting trees. Spend your points on making the world a better place.
+                  We've partnered with Ecologi to offer all Fitlink teams the
+                  opportunity to reward their users with carbon offsetting and
+                  planting trees. Spend your points on making the world a better
+                  place.
                 </p>
               </li>
             </ul>

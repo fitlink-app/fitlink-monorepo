@@ -21,7 +21,7 @@ import { AnimatePresence } from 'framer-motion'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dummy = require('../../services/dummy/users.json')
 
-export default function users() {
+export default function page() {
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)
@@ -84,7 +84,7 @@ export default function users() {
   }
 
   return (
-    <Dashboard title="Users">
+    <Dashboard title="Users" linkPrefix="/demo">
       <div className="row ai-c">
         <div className="col">
           <h1 className="light mb-0">User performance</h1>
@@ -121,6 +121,7 @@ export default function users() {
             { Header: ' ', Cell: viewDetails }
           ]}
           fetch={() => Promise.resolve(dummy)}
+          fetchName="users"
         />
       </div>
       <AnimatePresence initial={false}>

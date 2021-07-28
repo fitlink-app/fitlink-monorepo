@@ -8,7 +8,7 @@ import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import { emailHasContent, timeout } from './helpers/mocking'
 import { createTokenFromPayload } from './helpers/auth'
 import { AuthService } from '../src/modules/auth/auth.service'
-import { AuthProviderType } from '../src/modules/auth/entities/auth-provider.entity'
+import { AuthProviderType } from '../src/modules/auth/auth.constants'
 
 // Inspect this token at https://jwt.io/
 const expiredToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJmaXRsaW5rLmNvbSIsImlzcyI6ImZpdGxpbmsuY29tIiwic3ViIjoiMTFhOWYxNzQtMDg2NS00MGU1LThmM2UtMWI2NDQwNTIwMGM4IiwiaWF0IjoxNjE1NTgwMTExNjU1LCJyb2xlcyI6eyJvX2EiOlsiMzk4NzIzODcyMzk4NTcyNDAiXSwidF9hIjpbIjM5ODcyMzg3MjM5ODU3MjM5Il0sInNfYSI6dHJ1ZX0sImV4cCI6MTAxNTU4MDExNTI1NX0.eNJIV7D6NFE8s3uOa5No3XgQmXBEMB9QNybE97qkTnk`

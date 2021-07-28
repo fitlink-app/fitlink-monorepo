@@ -10,7 +10,8 @@ import { Team } from '../teams/entities/team.entity'
 import { Organisation } from '../organisations/entities/organisation.entity'
 import { CreateLeagueDto } from './dto/create-league.dto'
 import { UpdateLeagueDto } from './dto/update-league.dto'
-import { League, LeagueAccess, LeaguePublic } from './entities/league.entity'
+import { League, LeaguePublic } from './entities/league.entity'
+import { LeagueAccess } from './leagues.constants'
 import { User, UserPublic } from '../users/entities/user.entity'
 import { Image } from '../images/entities/image.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
@@ -574,16 +575,18 @@ export class LeaguesService {
       .leftJoin('userTeam.organisation', 'userOrganisation')
       .leftJoin('league', 'league', 'league.id = :leagueId', { leagueId })
       .leftJoin('league.users', 'leagueUser', 'leagueUser.id = user.id')
+      .leftJoin('user.following', 'f1')
+      .leftJoin('user.followers', 'f2')
       .leftJoinAndSelect(
         'user.following',
         'following',
-        'following.follower.id = :userId',
+        'f1.id = following.id AND f1.follower.id = :userId',
         { userId }
       )
       .leftJoinAndSelect(
         'user.followers',
-        'followers',
-        'following.following.id = :userId',
+        'follower',
+        'f2.id = follower.id AND f2.following.id = :userId',
         { userId }
       )
       .where(
@@ -615,14 +618,14 @@ export class LeaguesService {
         {
           accessTeam: LeagueAccess.Team,
           accessPublic: LeagueAccess.Public,
-          accessOrganisation: LeagueAccess.Organisation
+          accessOrganisation: LeagueAccess.Organisation,
+          userId
         }
       )
       // The user is not already a member of the league
       .andWhere('leagueUser.id IS NULL')
-      .limit(options.limit)
+      .take(options.limit)
       .skip(options.page * options.limit)
-      .orderBy('following.id', 'DESC', 'NULLS LAST')
 
     // Precision email search
     if (keyword.indexOf('@') > 0) {

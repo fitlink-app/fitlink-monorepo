@@ -8,7 +8,8 @@ import {
   Delete,
   ForbiddenException,
   HttpCode,
-  BadRequestException
+  BadRequestException,
+  Query
 } from '@nestjs/common'
 import { RewardsService } from './rewards.service'
 import { CreateRewardDto } from './dto/create-reward.dto'
@@ -16,7 +17,7 @@ import { UpdateRewardDto } from './dto/update-reward.dto'
 import { Iam } from '../../decorators/iam.decorator'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { Pagination } from '../../decorators/pagination.decorator'
-import { Roles } from '../user-roles/entities/user-role.entity'
+import { Roles } from '../user-roles/user-roles.constants'
 import { AuthenticatedUser } from '../../models'
 import { PaginationQuery } from '../../helpers/paginate'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
@@ -30,6 +31,7 @@ import {
   RewardPublic,
   RewardPublicPagination
 } from './entities/reward.entity'
+import { RewardFiltersDto } from './dto/reward-filters.dto'
 
 @ApiBaseResponses()
 @Controller()
@@ -67,13 +69,18 @@ export class RewardsController {
   @Get('/rewards')
   findAll(
     @User() authUser: AuthenticatedUser,
-    @Pagination() pagination: PaginationQuery
+    @Pagination() pagination: PaginationQuery,
+    @Query() filters: RewardFiltersDto
   ) {
     if (authUser.isSuperAdmin()) {
       return this.rewardsService.findAll(pagination)
     }
 
-    return this.rewardsService.findManyAccessibleToUser(authUser.id, pagination)
+    return this.rewardsService.findManyAccessibleToUser(
+      authUser.id,
+      pagination,
+      filters
+    )
   }
 
   @ApiTags('me')
@@ -189,7 +196,10 @@ export class RewardsController {
     const reward = await this.rewardsService.findOneAccessibleToUser(
       rewardId,
       authUser.id,
-      true // skip expiry checks
+      {
+        checkExpiry: false,
+        checkAvailability: false
+      }
     )
 
     if (!reward) {

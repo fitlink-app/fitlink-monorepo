@@ -1,6 +1,6 @@
 import Dashboard from '../../components/layouts/Dashboard'
 
-export default function components() {
+export default function page() {
   const grid = [
     [1],
     [1, 2],
@@ -11,7 +11,7 @@ export default function components() {
   ]
 
   return (
-    <Dashboard title="General">
+    <Dashboard title="General" linkPrefix="/demo">
       <p className="h6 color-light-grey">Typography</p>
       <div className="row ai-c">
         <div className="col-2">

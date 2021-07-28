@@ -9,6 +9,8 @@ import ImageStack from '../elements/ImageStack'
 
 export type ImageProps = {
   url: string
+  width: number
+  height: number
 }
 
 export type ActivityFormProps = {
@@ -28,7 +30,7 @@ export type ActivityFormProps = {
     type: {
       value: string
       label: string
-    },
+    }
     images: ImageProps[]
   }
 }
@@ -48,10 +50,7 @@ const types = [
   }
 ]
 
-export default function ActivityForm({
-  current
-}:ActivityFormProps) {
-
+export default function ActivityForm({ current }: ActivityFormProps) {
   const [name, setName] = useState(current?.name || '')
   const [description, setDescription] = useState(current?.description || '')
   const [type, setType] = useState(current?.type || types[0])
@@ -77,8 +76,8 @@ export default function ActivityForm({
   )
   const [organizer_image, setOrganizer_image] = useState(
     current?.organizer_email || ''
-    )
-  const [images, setImages] = useState(current?.images || [])
+  )
+  const [images, setImages] = useState<ImageProps[]>(current?.images || [])
 
   return (
     <form onSubmit={(e) => e.preventDefault()}>
@@ -130,10 +129,7 @@ export default function ActivityForm({
         type="textarea"
         onChange={(v) => setMeeting_point_text(v)}
       />
-      <ImageStack
-        label="Images"
-        files={images}
-      />
+      <ImageStack label="Images" files={images} />
       <LocationSelect
         lng={lng}
         lat={lat}
@@ -185,7 +181,7 @@ export default function ActivityForm({
             label="Organisers image"
             src={organizer_image}
             onChange={(v) => setOrganizer_image(v)}
-            />
+          />
         </>
       )}
 

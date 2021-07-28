@@ -6,7 +6,7 @@ import BillingForm from '../../components/forms/BillingForm'
 import IconCheck from '../../components/icons/IconCheck'
 import IconVisa from '../../components/icons/IconVisa'
 import Dashboard from '../../components/layouts/Dashboard'
-import {format, endOfMonth} from 'date-fns'
+import { format, endOfMonth } from 'date-fns'
 import TableContainer from '../../components/Table/TableContainer'
 import { toChipCell, toDateCell } from '../../components/Table/helpers'
 import IconDownload from '../../components/icons/IconDownload'
@@ -26,7 +26,7 @@ const billingInfo = {
 }
 
 const invoices = {
-  results:[
+  results: [
     {
       id: 'fitlink-202106-87',
       status: 'paid',
@@ -36,7 +36,7 @@ const invoices = {
     {
       id: 'fitlink-202105-87',
       status: 'paid',
-      amount: 20.00,
+      amount: 20.0,
       due_date: '2021-05-01T00:00:00.220Z'
     },
     {
@@ -50,7 +50,7 @@ const invoices = {
   page_total: 1
 }
 
-export default function components() {
+export default function page() {
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)
@@ -58,15 +58,11 @@ export default function components() {
 
   const EditBilling = () => {
     setWarning(true)
-    setDrawContent(
-      <BillingForm
-        {...billingInfo}
-       />
-    )
+    setDrawContent(<BillingForm {...billingInfo} />)
   }
 
   const toCurrency = ({ value }) => {
-    return '£'+value.toLocaleString(undefined, {minimumFractionDigits: 2})
+    return '£' + value.toLocaleString(undefined, { minimumFractionDigits: 2 })
   }
 
   const Download = () => {
@@ -74,7 +70,7 @@ export default function components() {
   }
 
   return (
-    <Dashboard title="Billing">
+    <Dashboard title="Billing" linkPrefix="/demo">
       <h1 className="light">Billing</h1>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">
@@ -82,12 +78,11 @@ export default function components() {
             <div className="flex ai-c mt-1">
               <p className="mb-0 mr-2">
                 <small>
-                  Current billing period ending { format(endOfMonth(new Date()), 'do MMMM, yyyy')}
+                  Current billing period ending{' '}
+                  {format(endOfMonth(new Date()), 'do MMMM, yyyy')}
                 </small>
               </p>
-              <h2 className="h1 light mb-0 ml-a unbilled-amount">
-                £34.89
-              </h2>
+              <h2 className="h1 light mb-0 ml-a unbilled-amount">£34.89</h2>
             </div>
             <table className="static-table static-table--invoice">
               <tbody>
@@ -127,6 +122,7 @@ export default function components() {
                   { Header: ' ', Cell: Download }
                 ]}
                 fetch={() => Promise.resolve(invoices)}
+                fetchName="billing"
               />
             </div>
           </Card>
@@ -191,7 +187,9 @@ export default function components() {
               </tbody>
             </table>
             <div className="mt-2">
-              <button className="button" onClick={EditBilling}>Update billing address</button>
+              <button className="button" onClick={EditBilling}>
+                Update billing address
+              </button>
             </div>
           </Card>
         </div>
@@ -201,8 +199,7 @@ export default function components() {
           <Drawer
             remove={() => setDrawContent(null)}
             key="drawer"
-            warnBeforeClose={warning}
-            >
+            warnBeforeClose={warning}>
             {drawContent}
           </Drawer>
         )}

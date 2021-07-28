@@ -1,12 +1,10 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
   ForbiddenException,
   Get,
   HttpCode,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -24,7 +22,7 @@ import {
 } from '../../decorators/swagger.decorator'
 import { PaginationQuery } from '../../helpers/paginate'
 import { AuthenticatedUser } from '../../models'
-import { Roles } from '../user-roles/entities/user-role.entity'
+import { Roles } from '../user-roles/user-roles.constants'
 import { CreateLeagueDto } from './dto/create-league.dto'
 import { UpdateLeagueDto } from './dto/update-league.dto'
 import { SearchLeagueDto } from './dto/search-league.dto'
@@ -34,18 +32,16 @@ import {
 } from './dto/join-private-league.dto'
 import {
   League,
-  LeagueAccess,
   LeaguePublic,
   LeaguePublicPagination
 } from './entities/league.entity'
+import { LeagueAccess } from './leagues.constants'
+
 import { LeaguesService } from './leagues.service'
 import { LeaguesInvitationsService } from '../leagues-invitations/leagues-invitations.service'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { UserPublicPagination } from '../users/entities/user.entity'
-import {
-  SearchUserDto,
-  SearchUserForLeaguesDto
-} from '../users/dto/search-user.dto'
+import { SearchUserForLeaguesDto } from '../users/dto/search-user.dto'
 
 @ApiTags('leagues')
 @ApiBaseResponses()
@@ -267,7 +263,7 @@ export class LeaguesController {
    */
   @Get('/leagues/:leagueId/inviteable')
   @ApiTags('leagues')
-  @ApiQuery({ type: SearchUserDto })
+  // @ApiQuery({ type: SearchUserForLeaguesDto })
   @ApiResponse({ type: UserPublicPagination, status: 200 })
   async searchInviteableUsers(
     @Param('leagueId') leagueId: string,

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsEnum, IsOptional } from 'class-validator'
-import { ImageType } from '../entities/image.entity'
+import { ImageType } from '../images.constants'
 
 export class CreateImageDto {
   image: File
