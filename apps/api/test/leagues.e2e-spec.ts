@@ -86,7 +86,7 @@ describe('Leagues', () => {
     authHeaders2 = getAuthHeaders({}, user2)
     authHeaders3 = getAuthHeaders({}, user3)
 
-    images = await ImagesSetup('Test League', 10)
+    images = await ImagesSetup('Test League', 20)
 
     // Get Currently Seeded Data.
     seeded_league = leagues[0]
@@ -174,7 +174,7 @@ describe('Leagues', () => {
     expect(get.json().participating).toEqual(false)
   })
 
-  it('PUT /leagues 200 A user can edit their own private league', async () => {
+  it('PUT /leagues 200 A user can edit their own private league & sport cannot be changed, & they can join it', async () => {
     const imageId = images.pop().id
 
     const post = await app.inject({
@@ -193,7 +193,8 @@ describe('Leagues', () => {
 
     const payload: UpdateLeagueDto = {
       name: 'Test League 2',
-      description: 'An updated league'
+      description: 'An updated league',
+      sportId: sportId
     }
 
     const put = await app.inject({
@@ -203,7 +204,19 @@ describe('Leagues', () => {
       payload
     })
 
-    expect(put.statusCode).toEqual(200)
+    expect(put.statusCode).toEqual(400)
+    expect(put.json().errors.sportId).toContain('cannot be changed')
+
+    // Allow images to be updated
+    const imageId2 = images.pop().id
+    const putOk = await app.inject({
+      method: 'PUT',
+      url: `/leagues/${post.json().id}`,
+      headers: authHeaders,
+      payload: { ...payload, imageId: imageId2, sportId: undefined }
+    })
+
+    expect(putOk.statusCode).toEqual(200)
 
     const data = await app.inject({
       method: 'GET',
@@ -215,6 +228,28 @@ describe('Leagues', () => {
     expect(data.statusCode).toEqual(200)
     expect(data.json().name).toEqual('Test League 2')
     expect(data.json().description).toEqual('An updated league')
+    expect(data.json().image.id).toEqual(imageId2)
+
+    const join = await app.inject({
+      method: 'POST',
+      url: `/leagues/${post.json().id}/join`,
+      headers: authHeaders
+    })
+
+    expect(join.statusCode).toEqual(201)
+
+    const myLeagues = await app.inject({
+      method: 'GET',
+      url: `/me/leagues`,
+      headers: authHeaders,
+      query: {
+        limit: '1000'
+      }
+    })
+
+    expect(
+      myLeagues.json().results.filter((e) => e.id === post.json().id).length
+    ).toBe(1)
   })
 
   it("PUT /leagues 403 Another user cannot read or edit another user' private league", async () => {
@@ -229,7 +264,7 @@ describe('Leagues', () => {
         description: 'A league for testers',
         sportId: sportId,
         duration: 7,
-        repeat: true,
+        repeat: false,
         imageId
       }
     })
@@ -256,6 +291,14 @@ describe('Leagues', () => {
     expect(get.statusCode).toEqual(403)
     expect(put.json().message).toContain('not have permission')
     expect(get.json().message).toContain('not have permission')
+
+    const get2 = await app.inject({
+      method: 'GET',
+      url: `/leagues/${post.json().id}`,
+      headers: authHeaders
+    })
+
+    expect(get2.json().id).toBe(post.json().id)
   })
 
   it('DELETE /leagues/:id A user cannot delete a league they do not own', async () => {

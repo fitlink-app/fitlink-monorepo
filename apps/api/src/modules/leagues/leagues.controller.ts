@@ -151,6 +151,7 @@ export class LeaguesController {
    * 1. Superadmin can retrieve all leagues
    * 2. Ordinary users retrieve all public leagues
    * 3. Users belonging to teams and organisations can retrieve these leagues
+   * 4. Owners of private leagues can also see their leagues (even if not participating)
    * @returns
    */
   @Get('/leagues')
