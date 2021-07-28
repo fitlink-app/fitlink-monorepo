@@ -80,19 +80,19 @@ const sports = [
 const durations = [
   {
     label: '1 week',
-    value: 7
+    value: '7'
   },
   {
     label: '2 weeks',
-    value: 14
+    value: '14'
   },
   {
     label: '3 weeks',
-    value: 21
+    value: '21'
   },
   {
     label: '4 weeks',
-    value: 28
+    value: '28'
   }
 ]
 
@@ -163,12 +163,14 @@ export default function LeagueForm({ current }: LeagueFormProps) {
       <Select
         id="duration"
         defaultValue={
-          durations[durations.findIndex((x) => x.value === duration)]
+          durations[
+            durations.findIndex((x) => Number(x.value) === Number(duration))
+          ]
         }
         isSearchable={false}
         options={durations}
         label="Duration"
-        onChange={(v) => setDuration(v.value)}
+        onChange={(v) => setDuration(Number(v.value))}
       />
       <Select
         id="sport"
