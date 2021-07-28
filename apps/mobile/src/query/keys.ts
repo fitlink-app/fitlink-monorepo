@@ -15,4 +15,5 @@ export enum QueryKeys {
   UserGoals = 'user/goals',
   Rewards = 'rewards',
   Reward = 'reward',
+  Sports = 'sports',
 }

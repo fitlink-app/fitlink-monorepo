@@ -63,5 +63,6 @@ export function useForm<T, K extends keyof T>(initialValues: T) {
     setErrorMessage,
     fieldErrors,
     values,
+    setValues,
   };
 }

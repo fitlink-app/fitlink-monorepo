@@ -1,9 +1,7 @@
 import {useMutation} from 'react-query';
 import api from '@api';
-import {
-  Image,
-  ImageType,
-} from '@fitlink/api/src/modules/images/entities/image.entity';
+import {ImageType} from '@fitlink/api/src/modules/images/images.constants';
+import {Image} from '@fitlink/api/src/modules/images/entities/image.entity';
 import {ImagePickerDialogResponse} from '@hooks';
 
 export function useUploadImage() {

@@ -1,5 +1,4 @@
 import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
-import {LeagueFormMode} from 'pages';
 
 export type RootStackParamList = {
   AuthenticationNavigator: undefined;
@@ -19,7 +18,7 @@ export type RootStackParamList = {
   LeagueInviteFriends: {
     leagueId: string;
   };
-  LeagueForm: {mode: LeagueFormMode};
+  LeagueForm: {id?: string};
   Rewards: undefined;
   Reward: {id: string};
 };

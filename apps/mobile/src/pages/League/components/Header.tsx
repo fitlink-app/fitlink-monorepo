@@ -86,7 +86,9 @@ export const Header = ({
     leaveLeague(leagueId);
   };
 
-  const handleOnEditPressed = () => {};
+  const handleOnEditPressed = () => {
+    navigation.navigate('LeagueForm', {id: leagueId});
+  };
 
   const renderLeftButton = () => {
     switch (membership) {

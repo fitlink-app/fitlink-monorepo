@@ -8,3 +8,5 @@ export * from './useRank';
 export * from './useLeagueInvitations';
 export * from './useLeagueInvitables';
 export * from './useCreateLeague';
+export * from './useEditLeague';
+export * from './useDeleteLeague';
