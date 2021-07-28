@@ -1,4 +1,4 @@
-import ReactSelect, { Props } from 'react-select'
+import ReactSelect, { Props, Theme } from 'react-select'
 import clsx from 'clsx'
 
 export type SelectProps = Props & {
@@ -13,11 +13,11 @@ const Select: React.FC<SelectProps> = (props) => {
     'input-block--inline': props.inline
   })
 
-  const theme = {
+  const theme = ({
     colors: {
       primary: '#00E9D7'
     }
-  }
+  } as unknown) as Theme
 
   const customStyles = {
     control: (provided, state) => ({

@@ -17,7 +17,36 @@ export const toChipCell = ({ value }) => {
 
 export const boolToIcon = ({ value }) => {
   if (value)
-    return <div className="confirmed"><IconCheck /></div>
+    return (
+      <div className="confirmed">
+        <IconCheck />
+      </div>
+    )
   else
-    return <div className="unconfirmed"><IconClose /></div>
+    return (
+      <div className="unconfirmed">
+        <IconClose />
+      </div>
+    )
+}
+
+/**
+ * Falls back the value to a different cell
+ * if the primary value is falsy
+ *
+ * @param column
+ * @returns
+ */
+export const toOtherCell = (column: string) => {
+  return ({
+    cell: {
+      row: { original }
+    },
+    value
+  }) => {
+    if (!value && original[column]) {
+      return original[column]
+    }
+    return value
+  }
 }

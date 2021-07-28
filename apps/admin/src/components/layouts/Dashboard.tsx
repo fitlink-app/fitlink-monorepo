@@ -1,7 +1,8 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useContext } from 'react'
 import Head from 'next/head'
 import Sidebar from '../elements/Sidebar'
 import { Toaster } from 'react-hot-toast'
+import { AuthContext } from '../../context/Auth.context'
 
 type DashboardProps = {
   children: React.ReactNode
@@ -21,6 +22,7 @@ export default function Dashboard({
 }: DashboardProps) {
   const hydratedRef = useRef(false)
   const [, rerender] = useState(false)
+  const { menu } = useContext(AuthContext)
 
   const url = process.env.URL
 
@@ -67,7 +69,7 @@ export default function Dashboard({
       </Head>
       <Toaster position="top-right" />
       <div className="layout-dashboard">
-        <Sidebar prefix={linkPrefix} />
+        <Sidebar prefix={linkPrefix} menu={menu} />
         <div className="content">{children}</div>
       </div>
       <div id="modal-root"></div>

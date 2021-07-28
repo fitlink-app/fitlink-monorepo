@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import clsx from 'clsx'
+import { UseFormRegisterReturn } from 'react-hook-form'
 
 export type InputProps = {
   type?: 'text' | 'number' | 'email' | 'tel' | 'textarea' | 'password'
@@ -14,6 +15,7 @@ export type InputProps = {
   min?: number
   max?: number
   error?: string
+  register?: UseFormRegisterReturn
 }
 
 export default function Input({
@@ -28,7 +30,8 @@ export default function Input({
   inline,
   min,
   max,
-  error = ''
+  error = '',
+  register
 }: InputProps) {
   const [val, setVal] = useState(value)
   const classes = clsx({
@@ -72,10 +75,11 @@ export default function Input({
       return (
         <textarea
           name={name}
-          value={val}
+          value={register ? undefined : val}
           onChange={(e) => handleChange(e)}
           placeholder={placeholder}
           rows={rows}
+          {...register}
         />
       )
     }
@@ -84,12 +88,13 @@ export default function Input({
         <input
           type={type}
           name={name}
-          value={val}
+          value={register ? undefined : val}
           onChange={(e) => handleChange(e)}
           placeholder={placeholder}
           onKeyDown={(e) => handleKeyDown(e)}
           min={min || -9999999999}
           max={max || 9999999999}
+          {...register}
         />
       )
     }
@@ -97,10 +102,11 @@ export default function Input({
       <input
         type={type}
         name={name}
-        value={val}
+        value={register ? undefined : val}
         onChange={(e) => handleChange(e)}
         placeholder={placeholder}
         onKeyDown={(e) => handleKeyDown(e)}
+        {...register}
       />
     )
   }
