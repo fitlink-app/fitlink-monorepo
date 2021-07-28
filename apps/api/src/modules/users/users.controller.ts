@@ -183,8 +183,11 @@ export class UsersController {
   @Get('users/:userId')
   @ApiTags('users')
   @ApiResponse({ type: UserPublic, status: 200 })
-  async findOne(@Param('userId') id: string) {
-    return this.usersService.findPublic(id)
+  async findOne(
+    @Param('userId') id: string,
+    @AuthUser() user: AuthenticatedUser
+  ) {
+    return this.usersService.findPublic(id, user.id)
   }
 
   @Iam(Roles.SuperAdmin)
