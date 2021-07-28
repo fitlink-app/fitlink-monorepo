@@ -109,7 +109,9 @@ describe('Users', () => {
           followers_total: 1,
           id: 1,
           name: 1,
-          points_total: 1
+          points_total: 1,
+          following: 1,
+          follower: 1
         })
       )
     )

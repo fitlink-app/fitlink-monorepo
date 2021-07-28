@@ -11,24 +11,26 @@ export type CharityFormProps = {
   current?: RewardProps
 }
 
-export default function CharityForm({
-  current
-}:CharityFormProps) {
+export default function CharityForm({ current }: CharityFormProps) {
   const [purchased, setPurchased] = useState(current?.admin?.purchased || false)
   const [image, setImage] = useState(current?.image || '')
   const [brand, setBrand] = useState(current?.brand || '')
   const [shortTitle, setShortTitle] = useState(current?.shortTitle || '')
   const [title, setTitle] = useState(current?.title || '')
   const [points, setPoints] = useState(current?.points || 0)
-  const [expires, setExpires] = useState(current?.expires ? new Date(current?.expires) : add(new Date(), { months: 2 }))
+  const [expires, setExpires] = useState(
+    current?.expires
+      ? new Date(current?.expires)
+      : add(new Date(), { months: 2 })
+  )
   const [code, setCode] = useState(current?.code || '')
   const [instructions, setInstructions] = useState(current?.instructions || '')
   const [url, setUrl] = useState(current?.url || '')
   const [description, setDescription] = useState(current?.description || '')
-  
+
   // admin
   const [purchaseAmount, setPurchaseAmount] = useState(
-    current.admin.options ? current.admin.options[0].value : 1
+    current.admin.options ? Number(current.admin.options[0].value) : 1
   )
 
   const previewImage = (e) => {
@@ -40,17 +42,20 @@ export default function CharityForm({
   }
 
   return (
-    <form onSubmit={ (e) => e.preventDefault() }>
-      { !purchased ?
+    <form onSubmit={(e) => e.preventDefault()}>
+      {!purchased ? (
         <>
           <h3 className="light">{current.admin.title}</h3>
           <h4 className="unbilled-amount light inline-block">
-            {current.admin.currency.symbol}{current.admin.cost.toLocaleString(undefined, {minimumFractionDigits: 2})}
-            &nbsp;<small>per reward</small> 
+            {current.admin.currency.symbol}
+            {current.admin.cost.toLocaleString(undefined, {
+              minimumFractionDigits: 2
+            })}
+            &nbsp;<small>per reward</small>
           </h4>
           {parse(current.admin.description)}
           <hr />
-          { !current.admin.options ?
+          {!current.admin.options ? (
             <Input
               name="purchase_amount"
               placeholder="1"
@@ -61,20 +66,23 @@ export default function CharityForm({
               max={100000}
               onChange={(v) => setPurchaseAmount(v)}
             />
-          :
+          ) : (
             <Select
               id="purchase_amount"
               defaultValue={current.admin.options[0]}
               isSearchable={false}
               options={current.admin.options}
               label="Select package to purchase"
-              onChange={(v) => setPurchaseAmount(v.value)}
+              onChange={(v) => setPurchaseAmount(Number(v.value))}
             />
-          }
+          )}
           <div className="flex ai-c jc-c my-2">
             <p className="my-0 mr-1">A total of</p>
             <span className="h1 light my-0 mr-1 block">
-              {current.admin?.currency.symbol}{ (purchaseAmount*current.admin.cost).toLocaleString(undefined, {minimumFractionDigits: 2}) }
+              {current.admin?.currency.symbol}
+              {(purchaseAmount * current.admin.cost).toLocaleString(undefined, {
+                minimumFractionDigits: 2
+              })}
             </span>
             <p className="my-0">will be added to your next invoice</p>
           </div>
@@ -84,7 +92,7 @@ export default function CharityForm({
             </button>
           </div>
         </>
-      :
+      ) : (
         <>
           <h4 className="light mb-3">Edit reward</h4>
           <Reward
@@ -182,11 +190,11 @@ export default function CharityForm({
           />
           <div className="text-right mt-2">
             <button className="button">
-            { current ? 'Update' : 'Create reward' }
+              {current ? 'Update' : 'Create reward'}
             </button>
           </div>
         </>
-      }
+      )}
     </form>
   )
 }

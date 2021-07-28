@@ -17,7 +17,7 @@ import { Image } from '../images/entities/image.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
 import { plainToClass } from 'class-transformer'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
-import { addDays } from 'date-fns'
+import { addDays, formatISO } from 'date-fns'
 import { CommonService } from '../common/services/common.service'
 
 type LeagueOptions = {
@@ -56,9 +56,9 @@ export class LeaguesService {
     { teamId, organisationId, userId }: LeagueOptions = {}
   ) {
     // Get a sport ID;
-    const { sportId, imageId } = createLeagueDto
+    const { sportId, imageId, ...rest } = createLeagueDto
     const league = new League()
-    Object.assign(league, createLeagueDto)
+    Object.assign(league, rest)
 
     // Assign the league sport
     league.sport = new Sport()
@@ -99,6 +99,13 @@ export class LeaguesService {
       league.access = LeagueAccess.Organisation
     }
 
+    // League starts immediately
+    league.starts_at = new Date()
+
+    // Set the end date based on duration
+    // It will restart if `repeat` is set to true
+    league.ends_at = addDays(new Date(), league.duration)
+
     const createdLeague = await this.leaguesRepository.save(league)
 
     const leaderboard = await this.leaderboardRepository.save(
@@ -114,13 +121,6 @@ export class LeaguesService {
       .set(leaderboard)
 
     league.active_leaderboard = leaderboard
-
-    // League starts immediately
-    league.starts_at = new Date()
-
-    // Set the end date based on duration
-    // It will restart if `repeat` is set to true
-    league.ends_at = addDays(new Date(), league.duration)
 
     return league
   }
@@ -278,6 +278,13 @@ export class LeaguesService {
     return leaguePublic
   }
 
+  /**
+   * Find a league the user can join
+   * Alternatively, the owner of the league can also join
+   * @param leagueId
+   * @param userId
+   * @returns
+   */
   async findOneAccessibleToUser(leagueId: string, userId: string) {
     const query = this.queryFindAccessibleToUser(userId)
     const { entities, raw } = await query
@@ -359,7 +366,7 @@ export class LeaguesService {
 
                 // The league is private & owned by the user
                 .orWhere(
-                  '(league.access = :accessPrivate AND league.ownerId = :userId)'
+                  '(league.access = :accessPrivate AND owner.id = :userId)'
                 )
 
                 // The league is private & user is a participant of the league
@@ -471,14 +478,27 @@ export class LeaguesService {
     updateLeagueDto: UpdateLeagueDto,
     { teamId, organisationId }: LeagueOptions = {}
   ) {
+    const { imageId, ...rest } = updateLeagueDto
+
+    // Only the image is allowed to change
+    let image: Image
+    if (imageId) {
+      image = new Image()
+      image.id = imageId
+    }
+
     if (teamId) {
       return await this.leaguesRepository.update(id, {
         team: { id: teamId },
-        ...updateLeagueDto
+        ...rest,
+        image
       })
     } else {
       // This Method supports partial updating since all undefined properties are skipped
-      return await this.leaguesRepository.update(id, updateLeagueDto)
+      return await this.leaguesRepository.update(id, {
+        ...rest,
+        image
+      })
     }
   }
 

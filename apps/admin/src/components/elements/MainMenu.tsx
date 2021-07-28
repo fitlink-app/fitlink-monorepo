@@ -10,9 +10,52 @@ import IconRewards from '../icons/IconRewards'
 import IconSignOut from '../icons/IconSignOut'
 import IconYoga from '../icons/IconYoga'
 
-export default function MainMenu({ prefix = '' }) {
+const icons = {
+  IconActivities,
+  IconCreditCard,
+  IconFriends,
+  IconGear,
+  IconGraph,
+  IconLeagues,
+  IconRewards,
+  IconSignOut,
+  IconYoga
+}
+
+export type MenuProps = {
+  label: string
+  link: string
+  icon?: string
+}
+
+export type MainMenuProps = {
+  prefix: string
+  menu: MenuProps[]
+}
+
+export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
   const router = useRouter()
   const current = router.pathname
+
+  if (menu.length && !prefix) {
+    return (
+      <>
+        {menu.map(({ label, link, icon }) => {
+          const Icon = icons[icon]
+          return (
+            <MenuItem
+              to={link}
+              label={label}
+              key={label}
+              current={current.startsWith(link)}
+              icon={Icon ? <Icon /> : null}
+            />
+          )
+        })}
+      </>
+    )
+  }
+
   return (
     <>
       <MenuItem

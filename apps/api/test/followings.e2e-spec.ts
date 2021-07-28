@@ -122,6 +122,14 @@ describe('Followings', () => {
     })
 
     expect(me.json().following_total).toBeGreaterThanOrEqual(1)
+
+    const target = await app.inject({
+      method: 'GET',
+      url: `/users/${userData.target.id}`,
+      headers: userAuthHeaders
+    })
+
+    expect(target.json().following).toBe(true)
   })
 
   it(`POST /me/following 201 A user can be followed by another user`, async () => {
@@ -148,6 +156,14 @@ describe('Followings', () => {
     })
 
     expect(me.json().followers_total).toBe(1)
+
+    const target = await app.inject({
+      method: 'GET',
+      url: `/users/${userData.target.id}`,
+      headers: userAuthHeaders
+    })
+
+    expect(target.json().follower).toBe(true)
   })
 
   it(`POST /me/following 400 A user cannot follow themselves`, async () => {

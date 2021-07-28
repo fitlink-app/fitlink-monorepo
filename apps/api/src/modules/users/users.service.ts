@@ -223,14 +223,28 @@ export class UsersService {
     return user
   }
 
+  /**
+   * Formats the user entity as UserPublic
+   * to prevent leaked sensitive data.
+   *
+   * @param user
+   * @returns UserPublic
+   */
   getUserPublic(user: User) {
     const userPublic = (user as unknown) as UserPublic
 
-    userPublic.following = Boolean(
-      user.following && user.following.length === 1
-    )
-    userPublic.follower = Boolean(user.followers && user.followers.length === 1)
+    /**
+     * NOTE: in this scenario, following is used to determine
+     * if the authenticated user is following the given user entity.
+     */
+    userPublic.following = Boolean(user.following && user.following.length)
 
+    /**
+     * NOTE: in this scenario, follower is used to determine
+     * if the authenticated user is being followed by the
+     * given user entity.
+     */
+    userPublic.follower = Boolean(user.followers && user.followers.length)
     return plainToClass(UserPublic, userPublic, {
       excludeExtraneousValues: true
     })
@@ -249,12 +263,38 @@ export class UsersService {
   }
 
   /**
-   * Searches for a user and returns its interface
+   * Finds a user for a particular viewer user
+   * which provides following/follower booleans
+   *
+   * @param userId The user to lookup
+   * @param viewerId The user that is viewing (typically authenticated user)
+   * @returns User
+   */
+  findForViewer(userId: string, viewerId: string) {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.settings', 'settings')
+      .leftJoinAndSelect('user.avatar', 'avatar')
+      .leftJoinAndSelect('user.following', 'f1', 'f1.follower.id = :viewerId', {
+        viewerId
+      })
+      .leftJoinAndSelect(
+        'user.followers',
+        'f2',
+        'f2.following.id = :viewerId',
+        { viewerId }
+      )
+      .where('user.id = :userId', { userId })
+      .getOne()
+  }
+
+  /**
+   * Finds the public user
    * @param id
    * @returns public user
    */
-  async findPublic(id: string) {
-    const user = await this.findOne(id)
+  async findPublic(userId: string, viewerId: string) {
+    const user = await this.findForViewer(userId, viewerId)
     return this.getUserPublic(user)
   }
 
