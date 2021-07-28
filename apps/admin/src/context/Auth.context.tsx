@@ -13,6 +13,7 @@ import { Organisation } from '@fitlink/api/src/modules/organisations/entities/or
 import { Subscription } from '@fitlink/api/src/modules/subscriptions/entities/subscription.entity'
 import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 import { useQuery } from 'react-query'
+import { MenuProps } from '../components/elements/MainMenu'
 
 const axios = Axios.create({
   baseURL:
@@ -42,6 +43,7 @@ export type AuthContext = {
   user?: User
   roles?: Permissions
   api: Api
+  menu: MenuProps[]
   login: (credentials: Credentials) => Promise<AuthResultDto>
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
   logout: () => void
@@ -65,10 +67,12 @@ export function AuthProvider({ children }) {
   }, [])
 
   useEffect(() => {
+    const myRoles = formatRoles(roles.data || [])
     setState({
       ...state,
       user: me.data,
-      roles: formatRoles(roles.data || [])
+      roles: myRoles,
+      menu: setMenu(myRoles)
     })
   }, [me.data, roles.data])
 
@@ -213,6 +217,37 @@ export function AuthProvider({ children }) {
     }
   }
 
+  function setMenu(roles: Permissions): MenuProps[] {
+    let items = []
+    if (roles.superAdmin) {
+      items = [
+        {
+          label: 'Organisations',
+          link: '/organisations',
+          icon: 'IconGear'
+        },
+        {
+          label: 'Teams',
+          link: '/teams',
+          icon: 'IconGear'
+        },
+        {
+          label: 'Users',
+          link: '/users',
+          icon: 'IconFriends'
+        }
+      ]
+    }
+
+    return items.concat([
+      {
+        label: 'Sign out',
+        link: '/logout',
+        icon: 'IconSignOut'
+      }
+    ])
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -224,6 +259,7 @@ export function AuthProvider({ children }) {
           subscriptions: [],
           teams: []
         },
+        menu: state.menu,
         login,
         logout,
         connect,

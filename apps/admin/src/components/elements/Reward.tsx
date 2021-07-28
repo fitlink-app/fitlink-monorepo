@@ -22,7 +22,7 @@ export type RewardProps = {
       symbol?: string
       value?: string
     }
-    options?: { value: number, label: string}[],
+    options?: { value: string; label: string }[]
     purchased?: boolean
     available?: number
     image?: string
@@ -51,7 +51,7 @@ export default function Reward({
   return (
     <>
       <Card className={`reward ${className}`} onClick={onClick}>
-        { (admin?.purchased || !admin) ? // none charity, or purchased
+        {admin?.purchased || !admin ? ( // none charity, or purchased
           <>
             <div
               className="card__background"
@@ -64,26 +64,29 @@ export default function Reward({
               </h3>
             </div>
             <div className="card__top">
-              { points > 0 &&
-                <div className="card__chip">{points.toLocaleString()} points</div>
-              }
+              {points > 0 && (
+                <div className="card__chip">
+                  {points.toLocaleString()} points
+                </div>
+              )}
               {redeemed > 0 && (
                 <h4 className="p">{redeemed.toLocaleString()} redeemed</h4>
               )}
-              { admin?.purchased !== undefined ?
+              {admin?.purchased !== undefined ? (
                 <div className="reward__expires">
                   <small>Remaining</small>
-                  { admin?.available || '' }
+                  {admin?.available || ''}
                 </div>
-              :
+              ) : (
                 <div className="reward__expires">
                   <small>Expires</small>
                   {format(new Date(expires), 'do MMM, yyyy')}
                 </div>
-              }
+              )}
             </div>
           </>
-        : // charity, unpurchased
+        ) : (
+          // charity, unpurchased
           <>
             <div
               className="card__background"
@@ -97,23 +100,28 @@ export default function Reward({
             </div>
             <div className="card__top">
               <div className="card__chip">
-                {admin?.currency.symbol}{admin?.cost.toLocaleString()} each
+                {admin?.currency.symbol}
+                {admin?.cost.toLocaleString()} each
               </div>
               <div className="reward__expires">
-                <div className={ `button small` }>Purchase</div>
+                <div className={`button small`}>Purchase</div>
               </div>
             </div>
           </>
-        }
+        )}
       </Card>
-      { showExtra &&
+      {showExtra && (
         <div className="reward-extra">
           <h4>{title}</h4>
           <p>{description}</p>
-          { code && <h5>{code}</h5> }
-          { instructions && <p><small>{instructions}</small></p> }
+          {code && <h5>{code}</h5>}
+          {instructions && (
+            <p>
+              <small>{instructions}</small>
+            </p>
+          )}
         </div>
-      }
+      )}
     </>
   )
 }
