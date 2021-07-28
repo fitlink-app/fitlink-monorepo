@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { UseFormRegisterReturn } from 'react-hook-form'
 import clsx from 'clsx'
 
 export type CheckboxProps = {
@@ -6,8 +7,9 @@ export type CheckboxProps = {
   name: string
   checked?: boolean
   showSwitch?: boolean
-  onChange?: (e:any) => void
+  onChange?: (e: any) => void
   error?: string
+  register?: UseFormRegisterReturn
 }
 
 export default function Checkbox({
@@ -16,7 +18,8 @@ export default function Checkbox({
   checked = false,
   onChange,
   showSwitch = true,
-  error = ''
+  error = '',
+  register
 }: CheckboxProps) {
   const [internal, setInternal] = useState(checked)
 
@@ -40,16 +43,13 @@ export default function Checkbox({
         type="checkbox"
         name={name}
         id={name}
-        checked={internal}
+        checked={register ? undefined : internal}
         className={classes}
-        onChange={ () => handleChange() }
-        />
-      <label
-        htmlFor={name}
-        >
-        {label}
-      </label>
-      { error !== '' && <span>{error}</span> }
+        onChange={() => handleChange()}
+        {...register}
+      />
+      <label htmlFor={name}>{label}</label>
+      {error !== '' && <span>{error}</span>}
     </div>
   )
 }

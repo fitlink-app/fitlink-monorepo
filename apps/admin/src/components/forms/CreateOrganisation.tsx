@@ -4,6 +4,7 @@ import Select from '../elements/Select'
 import { Controller, useForm } from 'react-hook-form'
 import { CreateOrganisationDto } from '@fitlink/api/src/modules/organisations/dto/create-organisation.dto'
 import { OrganisationType } from '@fitlink/api/src/modules/organisations/organisations.constants'
+import Checkbox from '../elements/Checkbox'
 
 export type CreateOrganisationProps = {
   current?: Partial<CreateOrganisationDto>
@@ -26,7 +27,8 @@ export default function CreateOrganisation({
           timezone: current.timezone,
           type: current.type,
           type_other: current.type_other,
-          invitee: current.invitee,
+          invite_user: false,
+          invitee: '',
           email: ''
         }
       : {}
@@ -37,6 +39,7 @@ export default function CreateOrganisation({
   }
 
   const other = watch('type')
+  const inviteUser = watch('invite_user')
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -91,13 +94,29 @@ export default function CreateOrganisation({
       )}
 
       {!current && (
-        <Input
-          register={register('email')}
-          name="email"
-          placeholder="Email address"
-          label="Email address"
-          type="email"
+        <Checkbox
+          register={register('invite_user')}
+          label="Invite user by email"
+          name="invite_user"
         />
+      )}
+
+      {inviteUser && (
+        <>
+          <Input
+            register={register('invitee')}
+            name="invitee"
+            placeholder="Name"
+            label="Name"
+          />
+          <Input
+            register={register('email')}
+            name="email"
+            placeholder="Email address"
+            label="Email address"
+            type="email"
+          />
+        </>
       )}
 
       <div className="text-right mt-2">

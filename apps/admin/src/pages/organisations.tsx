@@ -67,7 +67,7 @@ export default function OrganisationsPage() {
         <button
           className="button alt small mt-1"
           onClick={CreateOrganisationForm}>
-          Invite New Organisation
+          Create New Organisation
         </button>
       </div>
 
