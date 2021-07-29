@@ -619,6 +619,13 @@ export class LeaguesService {
       .leftJoin('userTeam.organisation', 'userOrganisation')
       .leftJoin('league', 'league', 'league.id = :leagueId', { leagueId })
       .leftJoin('league.users', 'leagueUser', 'leagueUser.id = user.id')
+      .leftJoin('user.leagues_invitations', 'i1')
+      .leftJoinAndSelect(
+        'user.leagues_invitations',
+        'invitation',
+        'i1.id = invitation.id AND invitation.from_user.id = :userId',
+        { userId }
+      )
       .leftJoin('user.following', 'f1')
       .leftJoin('user.followers', 'f2')
       .leftJoinAndSelect(
@@ -645,9 +652,9 @@ export class LeaguesService {
               )
 
               // Where it is a private league, only show friends
-              // .where(
-              //   '(league.access = :accessPrivate AND following.id IS NOT NULL)'
-              // )
+              .where(
+                '(league.access = :accessPrivate AND following.id IS NOT NULL)'
+              )
 
               // The league is 'team'
               // The user belongs to the team that the league belongs to
