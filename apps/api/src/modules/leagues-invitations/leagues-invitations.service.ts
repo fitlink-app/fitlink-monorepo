@@ -84,10 +84,14 @@ export class LeaguesInvitationsService {
       inviterId
     )
 
+    if (!league) {
+      return false
+    }
+
     // If the league is owned by the inviter, proceed.
     // Otherwise, check invite permissions.
     if (
-      league.owner.id === inviterId ||
+      (league.owner && league.owner.id === inviterId) ||
       league.invite_permission === LeagueInvitePermission.Participant
     ) {
       return league
