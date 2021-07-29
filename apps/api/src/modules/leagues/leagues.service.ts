@@ -479,26 +479,22 @@ export class LeaguesService {
     { teamId, organisationId }: LeagueOptions = {}
   ) {
     const { imageId, ...rest } = updateLeagueDto
+    const update: Partial<League> = { ...rest }
 
     // Only the image is allowed to change
-    let image: Image
     if (imageId) {
-      image = new Image()
-      image.id = imageId
+      update.image = new Image()
+      update.image.id = imageId
     }
 
     if (teamId) {
       return await this.leaguesRepository.update(id, {
         team: { id: teamId },
-        ...rest,
-        image
+        ...update
       })
     } else {
       // This Method supports partial updating since all undefined properties are skipped
-      return await this.leaguesRepository.update(id, {
-        ...rest,
-        image
-      })
+      return await this.leaguesRepository.update(id, update)
     }
   }
 
@@ -515,12 +511,18 @@ export class LeaguesService {
       league = await this.leaguesRepository.findOne(id)
     }
     const result = await getManager().transaction(async (entityManager) => {
-      // Delete leaderboard entries for league
-      await entityManager.getRepository(LeaderboardEntry).delete({
-        leaderboard: {
-          league: { id: league.id }
-        }
+      const leaderboards = await entityManager.getRepository(Leaderboard).find({
+        where: { league: { id: league.id } }
       })
+
+      // Delete all leaderboard entries for each leaderboard
+      await Promise.all(
+        leaderboards.map((each) => {
+          return entityManager.getRepository(LeaderboardEntry).delete({
+            leaderboard: { id: each.id }
+          })
+        })
+      )
 
       // Remove active leaderboard
       await entityManager
@@ -535,7 +537,7 @@ export class LeaguesService {
         league: { id: league.id }
       })
 
-      return await entityManager.delete(League, league.id)
+      return entityManager.delete(League, league.id)
     })
     return result
   }

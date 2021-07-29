@@ -250,6 +250,26 @@ describe('Leagues', () => {
     expect(
       myLeagues.json().results.filter((e) => e.id === post.json().id).length
     ).toBe(1)
+
+    // Ensure original image is preserved
+    const putNoImage = await app.inject({
+      method: 'PUT',
+      url: `/leagues/${post.json().id}`,
+      headers: authHeaders,
+      payload: { ...payload, sportId: undefined }
+    })
+
+    expect(putNoImage.statusCode).toEqual(200)
+
+    const getPutNoImage = await app.inject({
+      method: 'GET',
+      url: `/leagues/${post.json().id}`,
+      headers: authHeaders,
+      payload
+    })
+
+    // Expect original image to be there
+    expect(getPutNoImage.json().image.id).toEqual(imageId2)
   })
 
   it("PUT /leagues 403 Another user cannot read or edit another user' private league", async () => {
@@ -311,7 +331,7 @@ describe('Leagues', () => {
     expect(data.statusCode).toBe(403)
   })
 
-  it('DELETE /leagues/:id A user can delete a private league that they own', async () => {
+  it('DELETE /leagues/:id A user can delete a private league that they own and have joined', async () => {
     const imageId = images.pop().id
 
     const post = await app.inject({
@@ -323,7 +343,7 @@ describe('Leagues', () => {
         description: 'A league for test deletion',
         sportId: sportId,
         duration: 7,
-        repeat: true,
+        repeat: false,
         imageId
       }
     })
@@ -331,6 +351,15 @@ describe('Leagues', () => {
     const league = post.json()
 
     expect(league.owner.id).toBe(user1)
+    expect(league.image.id).toBeDefined()
+
+    const join = await app.inject({
+      method: 'POST',
+      url: `/leagues/${league.id}/join`,
+      headers: authHeaders
+    })
+
+    expect(join.statusCode).toBe(201)
 
     const data = await app.inject({
       method: 'DELETE',
@@ -339,6 +368,14 @@ describe('Leagues', () => {
     })
 
     expect(data.statusCode).toBe(200)
+
+    const get = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders
+    })
+
+    expect(get.statusCode).toBe(404)
   })
 
   it('POST /leagues 201 A superadmin can create a fully public league', async () => {
