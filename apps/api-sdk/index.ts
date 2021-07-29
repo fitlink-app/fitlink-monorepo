@@ -240,9 +240,10 @@ export class Api {
     url: ListResource | CreatableResource,
     params?: CreateResourceParams<T>
   ) {
+    const payload = params ? params.payload : {}
     const response = await this.axios.post(
       this.applyParams(url, params),
-      params
+      this.sanitizeInput(payload)
     )
     return response.data as T extends CreatableResource
       ? CreatableResourceResponse<T>
@@ -257,7 +258,11 @@ export class Api {
    * @returns Promise (fields that were updated)
    */
   async put<T>(url: ReadResource, params: UpdateResourceParams<T>) {
-    const response = await this.axios.put(this.applyParams(url, params), params)
+    const payload = params ? params.payload : {}
+    const response = await this.axios.put(
+      this.applyParams(url, params),
+      this.sanitizeInput(payload)
+    )
     return response.data as UpdateResult
   }
 
@@ -290,8 +295,10 @@ export class Api {
    * @param dto An object of `{ email, password, name (optional) }`
    * @returns `{auth: AuthResult, me: User}`
    */
-  async signUp(dto: CreateUserDto) {
-    const result = await this.post<AuthSignUp>('/auth/signup', dto)
+  async signUp(payload: CreateUserDto) {
+    const result = await this.post<AuthSignUp>('/auth/signup', {
+      payload
+    })
     this.setTokens(result.auth)
     return result
   }
@@ -303,7 +310,9 @@ export class Api {
    * @returns `{ id_token, access_token, refresh_token }`
    */
   async login(emailPass: AuthLoginDto) {
-    const result = await this.post<AuthLogin>('/auth/login', emailPass)
+    const result = await this.post<AuthLogin>('/auth/login', {
+      payload: emailPass
+    })
     this.setTokens(result)
     return result
   }
@@ -329,7 +338,9 @@ export class Api {
    * @returns `{auth: AuthResult, me: User}`
    */
   async connect(connect: AuthConnectDto) {
-    const result = await this.post<AuthConnect>('/auth/connect', connect)
+    const result = await this.post<AuthConnect>('/auth/connect', {
+      payload: connect
+    })
     this.setTokens(result.auth)
     return result
   }
@@ -408,6 +419,21 @@ export class Api {
    */
   getTokens() {
     return this.tokens
+  }
+
+  /**
+   * Sanitize an object's values
+   * by removing empty strings.
+   *
+   */
+  sanitizeInput(payload: NodeJS.Dict<any> = {}) {
+    let sanitized = { ...payload }
+    Object.keys(payload).forEach((key) => {
+      if (sanitized[key] === '') {
+        delete sanitized[key]
+      }
+    })
+    return sanitized
   }
 }
 
