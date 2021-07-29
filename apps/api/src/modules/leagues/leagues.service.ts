@@ -122,6 +122,11 @@ export class LeaguesService {
     // It will restart if `repeat` is set to true
     league.ends_at = addDays(new Date(), league.duration)
 
+    // Join the user to the league if it was privately created
+    if (league.access === LeagueAccess.Private) {
+      await this.joinLeague(league.id, league.owner.id)
+    }
+
     return league
   }
 
@@ -600,6 +605,11 @@ export class LeaguesService {
                 '(league.access = :accessPublic AND following.id IS NOT NULL)'
               )
 
+              // Where it is a private league, only show friends
+              // .where(
+              //   '(league.access = :accessPrivate AND following.id IS NOT NULL)'
+              // )
+
               // The league is 'team'
               // The user belongs to the team that the league belongs to
               // Show any user within that team
@@ -616,6 +626,7 @@ export class LeaguesService {
           )
         }),
         {
+          accessPrivate: LeagueAccess.Private,
           accessTeam: LeagueAccess.Team,
           accessPublic: LeagueAccess.Public,
           accessOrganisation: LeagueAccess.Organisation,

@@ -56,7 +56,8 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      exceptionFactory: validationExceptionFactory
+      exceptionFactory: validationExceptionFactory,
+      whitelist: true
     })
   )
   app.useGlobalGuards(new UploadGuardV2(app.get(Reflector)))

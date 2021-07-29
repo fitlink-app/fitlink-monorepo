@@ -12,6 +12,7 @@ import { OrganisationsInvitation } from './entities/organisations-invitation.ent
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { JwtService } from '@nestjs/jwt'
 import { OrganisationInvitationJWT } from '../../models/organisation-invitation.jwt.model'
+import { Organisation } from '../organisations/entities/organisation.entity'
 
 @Injectable()
 export class OrganisationsInvitationsService {
@@ -23,8 +24,14 @@ export class OrganisationsInvitationsService {
     private readonly invitationsRepository: Repository<OrganisationsInvitation>
   ) {}
 
-  async create(createDto: CreateOrganisationsInvitationDto) {
-    const { email, organisation, invitee } = createDto
+  async create(
+    organisationId: string,
+    createDto: CreateOrganisationsInvitationDto
+  ) {
+    const organisation = new Organisation()
+    organisation.id = organisationId
+
+    const { email, invitee } = createDto
     const invitation = await this.invitationsRepository.save(
       this.invitationsRepository.create({
         email,

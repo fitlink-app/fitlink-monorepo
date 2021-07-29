@@ -171,7 +171,9 @@ describe('Leagues', () => {
     })
 
     expect(get.json().is_owner).toEqual(true)
-    expect(get.json().participating).toEqual(false)
+
+    // A user is always joined automatically to a private league
+    expect(get.json().participating).toEqual(true)
   })
 
   it('PUT /leagues 200 A user can edit their own private league', async () => {

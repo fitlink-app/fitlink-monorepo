@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsOptional } from 'class-validator'
+import { IsOptional, IsString } from 'class-validator'
 import { IsGeoRadial } from '../../../decorators/class-validator/IsGeoRadial'
 import { IsIn } from 'class-validator'
 
@@ -34,12 +34,13 @@ export class FindActivitiesDto {
     required: false,
     default: '0'
   })
+  @IsOptional()
   page: string
 
   @ApiProperty({
     required: false,
     default: '50'
   })
-  @ApiProperty()
+  @IsOptional()
   limit: string
 }
