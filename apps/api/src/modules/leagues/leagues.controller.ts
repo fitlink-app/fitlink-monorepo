@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -151,6 +152,7 @@ export class LeaguesController {
    * 1. Superadmin can retrieve all leagues
    * 2. Ordinary users retrieve all public leagues
    * 3. Users belonging to teams and organisations can retrieve these leagues
+   * 4. Owners of private leagues can also see their leagues (even if not participating)
    * @returns
    */
   @Get('/leagues')
@@ -245,9 +247,14 @@ export class LeaguesController {
         authUser.id
       )
       if (!result) {
-        throw new ForbiddenException(
-          'You do not have permission to view this league'
-        )
+        const exists = await this.leaguesService.findOne(leagueId)
+        if (exists) {
+          throw new ForbiddenException(
+            'You do not have permission to view this league'
+          )
+        } else {
+          throw new NotFoundException('The league does not exist')
+        }
       }
       return result
     } else {

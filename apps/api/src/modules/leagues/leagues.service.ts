@@ -17,7 +17,7 @@ import { Image } from '../images/entities/image.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
 import { plainToClass } from 'class-transformer'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
-import { addDays } from 'date-fns'
+import { addDays, formatISO } from 'date-fns'
 import { CommonService } from '../common/services/common.service'
 
 type LeagueOptions = {
@@ -56,9 +56,9 @@ export class LeaguesService {
     { teamId, organisationId, userId }: LeagueOptions = {}
   ) {
     // Get a sport ID;
-    const { sportId, imageId } = createLeagueDto
+    const { sportId, imageId, ...rest } = createLeagueDto
     const league = new League()
-    Object.assign(league, createLeagueDto)
+    Object.assign(league, rest)
 
     // Assign the league sport
     league.sport = new Sport()
@@ -99,6 +99,13 @@ export class LeaguesService {
       league.access = LeagueAccess.Organisation
     }
 
+    // League starts immediately
+    league.starts_at = new Date()
+
+    // Set the end date based on duration
+    // It will restart if `repeat` is set to true
+    league.ends_at = addDays(new Date(), league.duration)
+
     const createdLeague = await this.leaguesRepository.save(league)
 
     const leaderboard = await this.leaderboardRepository.save(
@@ -114,13 +121,6 @@ export class LeaguesService {
       .set(leaderboard)
 
     league.active_leaderboard = leaderboard
-
-    // League starts immediately
-    league.starts_at = new Date()
-
-    // Set the end date based on duration
-    // It will restart if `repeat` is set to true
-    league.ends_at = addDays(new Date(), league.duration)
 
     // Join the user to the league if it was privately created
     if (league.access === LeagueAccess.Private) {
@@ -283,6 +283,13 @@ export class LeaguesService {
     return leaguePublic
   }
 
+  /**
+   * Find a league the user can join
+   * Alternatively, the owner of the league can also join
+   * @param leagueId
+   * @param userId
+   * @returns
+   */
   async findOneAccessibleToUser(leagueId: string, userId: string) {
     const query = this.queryFindAccessibleToUser(userId)
     const { entities, raw } = await query
@@ -364,7 +371,7 @@ export class LeaguesService {
 
                 // The league is private & owned by the user
                 .orWhere(
-                  '(league.access = :accessPrivate AND league.ownerId = :userId)'
+                  '(league.access = :accessPrivate AND owner.id = :userId)'
                 )
 
                 // The league is private & user is a participant of the league
@@ -476,14 +483,23 @@ export class LeaguesService {
     updateLeagueDto: UpdateLeagueDto,
     { teamId, organisationId }: LeagueOptions = {}
   ) {
+    const { imageId, ...rest } = updateLeagueDto
+    const update: Partial<League> = { ...rest }
+
+    // Only the image is allowed to change
+    if (imageId) {
+      update.image = new Image()
+      update.image.id = imageId
+    }
+
     if (teamId) {
       return await this.leaguesRepository.update(id, {
         team: { id: teamId },
-        ...updateLeagueDto
+        ...update
       })
     } else {
       // This Method supports partial updating since all undefined properties are skipped
-      return await this.leaguesRepository.update(id, updateLeagueDto)
+      return await this.leaguesRepository.update(id, update)
     }
   }
 
@@ -500,12 +516,18 @@ export class LeaguesService {
       league = await this.leaguesRepository.findOne(id)
     }
     const result = await getManager().transaction(async (entityManager) => {
-      // Delete leaderboard entries for league
-      await entityManager.getRepository(LeaderboardEntry).delete({
-        leaderboard: {
-          league: { id: league.id }
-        }
+      const leaderboards = await entityManager.getRepository(Leaderboard).find({
+        where: { league: { id: league.id } }
       })
+
+      // Delete all leaderboard entries for each leaderboard
+      await Promise.all(
+        leaderboards.map((each) => {
+          return entityManager.getRepository(LeaderboardEntry).delete({
+            leaderboard: { id: each.id }
+          })
+        })
+      )
 
       // Remove active leaderboard
       await entityManager
@@ -520,7 +542,7 @@ export class LeaguesService {
         league: { id: league.id }
       })
 
-      return await entityManager.delete(League, league.id)
+      return entityManager.delete(League, league.id)
     })
     return result
   }
