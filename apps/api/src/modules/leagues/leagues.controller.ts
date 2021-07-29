@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -382,13 +383,20 @@ export class LeaguesController {
       leagueId,
       authUser.id
     )
+
     if (!league) {
       throw new ForbiddenException(
         'You do not have permission to join this league'
       )
     }
 
-    return this.leaguesService.joinLeague(leagueId, authUser.id)
+    const result = await this.leaguesService.joinLeague(leagueId, authUser.id)
+
+    if (result === 'already joined') {
+      throw new BadRequestException('You have already joined this league')
+    }
+
+    return result
   }
 
   /**

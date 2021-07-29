@@ -176,7 +176,36 @@ describe('Leagues', () => {
     expect(get.json().participating).toEqual(true)
   })
 
-  it('PUT /leagues 200 A user can edit their own private league & sport cannot be changed, & they can join it', async () => {
+  it('POST /leagues 400 A user cannot join a league twice', async () => {
+    const imageId = images.pop().id
+    const payload: CreateLeagueDto = {
+      name: 'Test League',
+      description: 'A league for testers',
+      sportId: sportId,
+      duration: 7,
+      repeat: true,
+      imageId
+    }
+    const data = await app.inject({
+      method: 'POST',
+      url: '/leagues',
+      headers: authHeaders,
+      payload
+    })
+
+    expect(data.statusCode).toEqual(201)
+
+    const join = await app.inject({
+      method: 'POST',
+      url: `/leagues/${data.json().id}/join`,
+      headers: authHeaders
+    })
+
+    expect(join.statusCode).toEqual(400)
+    expect(join.json().message).toContain('already joined this league')
+  })
+
+  it('PUT /leagues 200 A user can edit their own private league & sport cannot be changed', async () => {
     const imageId = images.pop().id
 
     const post = await app.inject({
@@ -231,14 +260,6 @@ describe('Leagues', () => {
     expect(data.json().name).toEqual('Test League 2')
     expect(data.json().description).toEqual('An updated league')
     expect(data.json().image.id).toEqual(imageId2)
-
-    const join = await app.inject({
-      method: 'POST',
-      url: `/leagues/${post.json().id}/join`,
-      headers: authHeaders
-    })
-
-    expect(join.statusCode).toEqual(201)
 
     const myLeagues = await app.inject({
       method: 'GET',
@@ -354,14 +375,6 @@ describe('Leagues', () => {
 
     expect(league.owner.id).toBe(user1)
     expect(league.image.id).toBeDefined()
-
-    const join = await app.inject({
-      method: 'POST',
-      url: `/leagues/${league.id}/join`,
-      headers: authHeaders
-    })
-
-    expect(join.statusCode).toBe(201)
 
     const data = await app.inject({
       method: 'DELETE',

@@ -401,6 +401,19 @@ export class LeaguesService {
     )
   }
 
+  async isParticipant(leagueId: string, userId: string) {
+    const count = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .innerJoin('league.users', 'user')
+      .where('user.id = :userId AND league.id = :leagueId', {
+        userId,
+        leagueId
+      })
+      .getCount()
+
+    return count > 0
+  }
+
   /**
    * Uses a transaction to
    * 1. Join the league
@@ -416,6 +429,10 @@ export class LeaguesService {
 
     const league = new League()
     league.id = leagueId
+
+    if (await this.isParticipant(leagueId, userId)) {
+      return 'already joined'
+    }
 
     const leaderboardEntry = await this.leaguesRepository.manager.transaction(
       async (manager) => {
