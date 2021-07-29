@@ -62,7 +62,13 @@ export default function Router() {
               name={'LeagueInviteFriends'}
               component={LeagueInviteFriends}
             />
-            <Stack.Screen name={'LeagueForm'} component={LeagueForm} />
+            <Stack.Screen
+              name={'LeagueForm'}
+              component={LeagueForm}
+              options={{
+                cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+              }}
+            />
             <Stack.Screen name={'Profile'} component={Profile} />
             <Stack.Screen name={'Reward'} component={Reward} />
             <Stack.Screen name={'Webview'} component={Webview} />

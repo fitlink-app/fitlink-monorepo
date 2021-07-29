@@ -58,6 +58,7 @@ interface HeaderProps {
   headerImage: string;
   memberCount: number;
   scrollAnimatedValue: Animated.Value;
+  onEditPressed: () => void;
 }
 
 export const Header = ({
@@ -66,6 +67,7 @@ export const Header = ({
   title,
   memberCount,
   headerImage,
+  onEditPressed,
   membership = 'none',
   scrollAnimatedValue,
 }: HeaderProps) => {
@@ -87,7 +89,7 @@ export const Header = ({
   };
 
   const handleOnEditPressed = () => {
-    navigation.navigate('LeagueForm', {id: leagueId});
+    onEditPressed();
   };
 
   const renderLeftButton = () => {

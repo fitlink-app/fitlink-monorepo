@@ -8,6 +8,7 @@ import styled from 'styled-components/native';
 import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/entities/leaderboard-entry.entity';
 import {Header, Leaderboard} from './components';
 import {League as LeagueType} from '@fitlink/api/src/modules/leagues/entities/league.entity';
+import {useNavigation} from '@react-navigation/native';
 
 const HEADER_HEIGHT = 250;
 
@@ -21,6 +22,8 @@ export const League = (
   });
 
   const {league, id} = props.route.params;
+
+  const navigation = useNavigation();
 
   const {
     data: fetchedLeague,
@@ -73,7 +76,7 @@ export const League = (
     <Wrapper>
       <Navbar
         scrollAnimatedValue={scrollValue}
-        title={league?.name}
+        title={activeLeague?.name}
         iconColor={'white'}
         overlay
         titleProps={{
@@ -114,8 +117,23 @@ export const League = (
       <Header
         height={HEADER_HEIGHT}
         leagueId={id}
-        headerImage={league?.image.url_640x360}
+        headerImage={activeLeague?.image.url_640x360}
         title={activeLeague.name}
+        onEditPressed={() => {
+          navigation.navigate('LeagueForm', {
+            data: {
+              id,
+              dto: {
+                name: activeLeague.name,
+                description: activeLeague.description,
+                duration: activeLeague.duration,
+                repeat: activeLeague.repeat,
+                sportId: activeLeague.sport.id,
+              },
+              imageUrl: activeLeague.image.url_640x360,
+            },
+          });
+        }}
         memberCount={activeLeague.participants_total}
         membership={
           activeLeague.participating

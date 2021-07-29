@@ -7,6 +7,7 @@ import {
   ImagePicker,
   NAVBAR_HEIGHT,
   FormError,
+  Modal,
 } from '@components';
 import {
   ImagePickerDialogResponse,
@@ -14,18 +15,18 @@ import {
   useDeleteLeague,
   useEditLeague,
   useForm,
-  useLeague,
+  useModal,
   useSports,
   useUploadImage,
 } from '@hooks';
 import React, {useState} from 'react';
-import {ActivityIndicator, Platform, ScrollView} from 'react-native';
+import {ActivityIndicator, Alert, Platform, ScrollView} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {ImageType} from '@fitlink/api/src/modules/images/images.constants';
 import {CreateLeagueDto} from '@fitlink/api/src/modules/leagues/dto/create-league.dto';
 import {getErrors} from '@api';
-import {useNavigation} from '@react-navigation/native';
+import {StackActions, useNavigation} from '@react-navigation/native';
 import {useEffect} from 'react';
 import {RootStackParamList} from 'routes/types';
 import {StackScreenProps} from '@react-navigation/stack';
@@ -74,37 +75,37 @@ const Center = styled.View({
   justifyContent: 'center',
 });
 
-const initialValues: Partial<CreateLeagueDto> = {
-  name: '',
-  description: '',
-  duration: leagueDurations[0].value,
-  repeat: true,
-  sportId: undefined,
-};
-
 export const LeagueForm = (
   props: StackScreenProps<RootStackParamList, 'LeagueForm'>,
 ) => {
-  const id = props.route.params?.id;
+  const editLeagueData = props.route.params?.data;
 
-  const mode: LeagueFormMode = !id ? 'create' : 'edit';
+  const initialValues: Partial<CreateLeagueDto> = {
+    name: editLeagueData?.dto.name || '',
+    description: editLeagueData?.dto.description || '',
+    duration: editLeagueData?.dto.duration || 7,
+    repeat: editLeagueData ? editLeagueData.dto.repeat : true,
+    sportId: editLeagueData?.dto.sportId || undefined,
+  };
+
+  const mode: LeagueFormMode = !editLeagueData ? 'create' : 'edit';
 
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const {colors} = useTheme();
 
+  const [image, setImage] = useState<ImagePickerDialogResponse>();
+
   const {
     handleChange,
     handleSubmit,
     values,
-    setValues,
     fieldErrors,
     isSubmitting,
     errorMessage,
   } = useForm(initialValues);
 
-  // Use league data if editing league
-  const {data: league, isFetchedAfterMount: isLeagueFetched} = useLeague(id);
+  const {openModal, closeModal} = useModal();
 
   const {data: sportsData, isFetchedAfterMount: isSportsFetched} = useSports();
 
@@ -124,24 +125,10 @@ export const LeagueForm = (
 
   const isCreatingLeague = isImageUploading || isSubmitting;
 
-  const [image, setImage] = useState<ImagePickerDialogResponse>();
-
   useEffect(() => {
     if (!values.sportId && sportsMapped.length)
       handleChange('sportId')(sportsMapped[0].value);
   }, [sportsData]);
-
-  useEffect(() => {
-    if (id && league) {
-      setValues({
-        name: league.name,
-        description: league.description,
-        duration: league.duration,
-        repeat: league.repeat,
-        sportId: league.sport.id,
-      });
-    }
-  }, [league]);
 
   const handleOnSubmitPressed = async () => {
     let imgResult: any;
@@ -165,27 +152,61 @@ export const LeagueForm = (
       const baseDto = {...values};
       if (imageId) baseDto.imageId = imageId;
 
-      console.log(baseDto);
-
-      const result = !id
-        ? await createLeague(baseDto as CreateLeagueDto)
-        : await editLeague({
-            id,
-            dto: {...baseDto, sportId: undefined},
-          });
+      const result =
+        mode === 'create'
+          ? await createLeague(baseDto as CreateLeagueDto)
+          : await editLeague({
+              id: editLeagueData!.id,
+              dto: {...baseDto, sportId: undefined},
+            });
 
       if (result) navigation.goBack();
     } catch (e) {
       const requestErrors = getErrors(e);
-      console.log(requestErrors);
       return requestErrors;
     }
   };
 
   const handleOnDeletePressed = async () => {
-    if (!id) return;
-    const result = await deleteLeague(id);
-    console.log(result);
+    if (!editLeagueData?.id) return;
+
+    openModal(id => {
+      return (
+        <Modal
+          title={'Delete League?'}
+          description={'Are you sure you want to delete this league?'}
+          buttons={[
+            {
+              text: 'Delete League',
+              type: 'danger',
+              onPress: async () => {
+                try {
+                  closeModal(id);
+
+                  const result = await deleteLeague(editLeagueData.id);
+
+                  if (result.affected) {
+                    navigation.dispatch(StackActions.pop(2));
+                  }
+                } catch (e) {
+                  Alert.alert(
+                    'Something went wrong',
+                    'Please try again later.',
+                  );
+                }
+              },
+            },
+            {
+              text: 'Back',
+              textOnly: true,
+              style: {marginBottom: -10},
+              disabled: isDeleting,
+              onPress: () => closeModal(id),
+            },
+          ]}
+        />
+      );
+    });
   };
 
   return (
@@ -195,7 +216,7 @@ export const LeagueForm = (
         title={mode === 'create' ? 'Create League' : 'Edit League'}
       />
 
-      {isSportsFetched && (isLeagueFetched || mode === 'create') ? (
+      {isSportsFetched ? (
         <ScrollView
           contentContainerStyle={{
             marginTop: NAVBAR_HEIGHT + insets.top + 20,
@@ -208,8 +229,8 @@ export const LeagueForm = (
               imageSrc={
                 image
                   ? image.uri
-                  : league
-                  ? league.image.url_640x360
+                  : editLeagueData
+                  ? editLeagueData.imageUrl
                   : undefined
               }
               label={'Select an image for your league'}
@@ -271,7 +292,7 @@ export const LeagueForm = (
             text={mode === 'create' ? 'Create League' : 'Save Changes'}
             onPress={handleOnSubmitPressed}
             loading={isCreatingLeague}
-            disabled={isCreatingLeague}
+            disabled={isCreatingLeague || isDeleting}
           />
 
           {mode === 'edit' && (
@@ -282,7 +303,7 @@ export const LeagueForm = (
               type={'danger'}
               onPress={handleOnDeletePressed}
               loading={isDeleting}
-              disabled={isDeleting}
+              disabled={isDeleting || isCreatingLeague}
             />
           )}
         </ScrollView>

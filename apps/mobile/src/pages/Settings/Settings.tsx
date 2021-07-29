@@ -367,6 +367,7 @@ export const Settings = () => {
                       {
                         text: 'Back',
                         textOnly: true,
+                        style: {marginBottom: -10},
                         onPress: () => closeModal(id),
                       },
                     ]}

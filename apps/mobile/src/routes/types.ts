@@ -1,4 +1,5 @@
 import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
+import {UpdateLeagueDto} from '@fitlink/api/src/modules/leagues/dto/update-league.dto';
 
 export type RootStackParamList = {
   AuthenticationNavigator: undefined;
@@ -18,7 +19,7 @@ export type RootStackParamList = {
   LeagueInviteFriends: {
     leagueId: string;
   };
-  LeagueForm: {id?: string};
+  LeagueForm: {data?: {id: string; dto: UpdateLeagueDto; imageUrl: string}};
   Rewards: undefined;
   Reward: {id: string};
 };
