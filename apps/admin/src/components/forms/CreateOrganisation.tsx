@@ -141,11 +141,11 @@ export default function CreateOrganisation({
       <AvatarSelect
         label={`Upload organisation logo`}
         src={current && current.avatar ? current.avatar.url : undefined}
-        onChange={async (result) => {
-          if (current && current.avatar && !result) {
+        onChange={async (result, file) => {
+          if (current && current.avatar && !file) {
             setValue('image', 'DELETE')
           } else {
-            setValue('image', result)
+            setValue('image', file)
           }
         }}
       />

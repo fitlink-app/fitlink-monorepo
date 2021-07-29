@@ -2,8 +2,10 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import * as faker from 'faker'
 import { Connection } from 'typeorm'
 import { useSeeding } from 'typeorm-seeding'
+import { FollowingsModule } from '../src/modules/followings/followings.module'
 import { Image } from '../src/modules/images/entities/image.entity'
 import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
+import { LeaguesInvitationModule } from '../src/modules/leagues-invitations/leagues-invitations.module'
 import { CreateLeagueDto } from '../src/modules/leagues/dto/create-league.dto'
 import { UpdateLeagueDto } from '../src/modules/leagues/dto/update-league.dto'
 import { League } from '../src/modules/leagues/entities/league.entity'
@@ -49,7 +51,7 @@ describe('Leagues', () => {
 
   beforeAll(async () => {
     app = await mockApp({
-      imports: [LeaguesModule],
+      imports: [LeaguesModule, FollowingsModule, LeaguesInvitationModule],
       providers: [],
       controllers: []
     })
@@ -174,6 +176,74 @@ describe('Leagues', () => {
 
     // A user is always joined automatically to a private league
     expect(get.json().participating).toEqual(true)
+  })
+
+  it('POST /leagues 201 A user can invite friends to a private league', async () => {
+    const imageId = images.pop().id
+    const payload: CreateLeagueDto = {
+      name: 'Test League',
+      description: 'A league for people I follow',
+      sportId: sportId,
+      duration: 7,
+      repeat: true,
+      imageId
+    }
+    const data = await app.inject({
+      method: 'POST',
+      url: '/leagues',
+      headers: authHeaders,
+      payload
+    })
+
+    const leagueId = data.json().id
+
+    expect(data.statusCode).toEqual(201)
+
+    const inviteables = await app.inject({
+      method: 'GET',
+      url: `/leagues/${leagueId}/inviteable`,
+      headers: authHeaders
+    })
+
+    expect(inviteables.json().results.length).toBe(0)
+
+    // Follow the other users
+    const follow1 = await followUser(user2, authHeaders)
+    const follow2 = await followUser(user3, authHeaders)
+    const follow3 = await followUser(user4, authHeaders)
+
+    expect(follow1.statusCode).toBe(201)
+    expect(follow2.statusCode).toBe(201)
+    expect(follow3.statusCode).toBe(201)
+
+    const inviteables2 = await app.inject({
+      method: 'GET',
+      url: `/leagues/${leagueId}/inviteable`,
+      headers: authHeaders
+    })
+
+    expect(inviteables2.json().results.length).toBe(3)
+    expect(inviteables2.json().results.filter((e) => e.invited).length).toBe(0)
+
+    const invite = await app.inject({
+      method: 'POST',
+      url: `/leagues/${leagueId}/invitations`,
+      headers: authHeaders,
+      payload: {
+        userId: user2
+      }
+    })
+
+    expect(invite.statusCode).toBe(201)
+
+    const inviteables3 = await app.inject({
+      method: 'GET',
+      url: `/leagues/${leagueId}/inviteable`,
+      headers: authHeaders
+    })
+
+    expect(inviteables3.json().results.length).toBe(3)
+    expect(inviteables3.json().results.filter((e) => e.invited).length).toBe(1)
   })
 
   it('POST /leagues 400 A user cannot join a league twice', async () => {
@@ -1018,5 +1088,16 @@ describe('Leagues', () => {
     })
 
     return post.json()
+  }
+
+  async function followUser(userId: string, authHeaders: NodeJS.Dict<string>) {
+    return app.inject({
+      method: 'POST',
+      url: `/me/following`,
+      headers: authHeaders,
+      payload: {
+        targetId: userId
+      }
+    })
   }
 })

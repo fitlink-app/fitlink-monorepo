@@ -20,6 +20,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Expose } from 'class-transformer'
 import { FeedItem } from '../../feed-items/entities/feed-item.entity'
 import { LeagueAccess, LeagueInvitePermission } from '../leagues.constants'
+import { LeaguesInvitation } from '../../leagues-invitations/entities/leagues-invitation.entity'
 
 @Entity()
 export class League extends CreatableEntity {
@@ -76,6 +77,9 @@ export class League extends CreatableEntity {
 
   @ManyToOne(() => FeedItem, (item) => item.league)
   feed_items: FeedItem
+
+  @OneToMany(() => LeaguesInvitation, (invitation) => invitation.league)
+  invitations: LeaguesInvitation[]
 
   @ApiProperty()
   @Column()

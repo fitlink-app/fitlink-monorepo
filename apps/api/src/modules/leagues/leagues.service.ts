@@ -141,7 +141,7 @@ export class LeaguesService {
     return this.leaguesRepository
       .createQueryBuilder('league')
       .leftJoin('league.users', 'user')
-      .leftJoin('league.owner', 'owner')
+      .leftJoinAndSelect('league.owner', 'owner')
       .innerJoinAndSelect('league.active_leaderboard', 'leaderboard')
       .where('league.id = :leagueId', { leagueId })
       .andWhere('(user.id = :userId OR owner.id = :userId)', { userId })
@@ -619,6 +619,13 @@ export class LeaguesService {
       .leftJoin('userTeam.organisation', 'userOrganisation')
       .leftJoin('league', 'league', 'league.id = :leagueId', { leagueId })
       .leftJoin('league.users', 'leagueUser', 'leagueUser.id = user.id')
+      .leftJoin('user.leagues_invitations', 'i1')
+      .leftJoinAndSelect(
+        'user.leagues_invitations',
+        'invitation',
+        'i1.id = invitation.id AND invitation.from_user.id = :userId',
+        { userId }
+      )
       .leftJoin('user.following', 'f1')
       .leftJoin('user.followers', 'f2')
       .leftJoinAndSelect(
@@ -645,22 +652,22 @@ export class LeaguesService {
               )
 
               // Where it is a private league, only show friends
-              // .where(
-              //   '(league.access = :accessPrivate AND following.id IS NOT NULL)'
-              // )
+              .orWhere(
+                '(league.access = :accessPrivate AND following.id IS NOT NULL)'
+              )
 
               // The league is 'team'
               // The user belongs to the team that the league belongs to
               // Show any user within that team
               .orWhere(
-                `(league.access = :accessTeam AND league.team.id = userTeam.id)`
+                '(league.access = :accessTeam AND league.team.id = userTeam.id)'
               )
 
               // The league is 'organisation'
               // The user belongs to the organisation that the league belongs to
               // Show any user within that organisation
               .orWhere(
-                `(league.access = :accessOrganisation AND userOrganisation.id = league.organisation.id)`
+                '(league.access = :accessOrganisation AND userOrganisation.id = league.organisation.id)'
               )
           )
         }),
