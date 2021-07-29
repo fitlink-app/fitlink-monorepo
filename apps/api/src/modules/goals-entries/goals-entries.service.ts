@@ -6,7 +6,9 @@ import { MoreThanOrEqual, Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { zonedStartOfDay } from '../../../../common/date/helpers'
-import { plainToClass } from 'class-transformer'
+import { EventEmitter2 } from '@nestjs/event-emitter'
+import { DialyGoalsReachedEvent as GoalEntryReachedEvent } from './events/daily-goals-reached.event'
+import { FeedGoalType } from '../feed-items/feed-items.constants'
 
 @Injectable()
 export class GoalsEntriesService {
@@ -15,7 +17,8 @@ export class GoalsEntriesService {
     private goalsEntryRepository: Repository<GoalsEntry>,
 
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private userRepository: Repository<User>,
+    private eventEmitter: EventEmitter2
   ) {}
 
   /**
@@ -55,13 +58,99 @@ export class GoalsEntriesService {
     } else if (goalsEntryDto) {
       goalsEntry = Object.assign(goalsEntry, { ...goalsEntryDto })
     }
+    const goalEntryReachedEvent = new GoalEntryReachedEvent()
+    goalEntryReachedEvent.goal_entry = goalsEntry
+    goalEntryReachedEvent.userId = user.id
 
+    let goalsArr = Object.entries(FeedGoalType)
+    let promises = []
+    for (let goal of goalsArr) {
+      const {
+        current,
+        prev,
+        target,
+        feedGoalType
+      } = this.genTriggerEventParams(goalsEntry, user, goalsEntry, goal[1])
+
+      promises.push(
+        this.triggerEvent(
+          current,
+          prev,
+          target,
+          goalEntryReachedEvent,
+          feedGoalType
+        )
+      )
+    }
+
+    await Promise.all(promises)
     return await this.goalsEntryRepository.save({
       ...result,
       ...goalsEntry
     })
   }
 
+  genTriggerEventParams(
+    currentObj: GoalsEntry,
+    prevObj: User,
+    targetObj: GoalsEntry,
+    type:
+      | 'water_litres'
+      | 'sleep_hours'
+      | 'mindfulness_minutes'
+      | 'floors_climbed'
+      | 'steps'
+  ) {
+    let current = currentObj[`current_${type}`]
+    let prev = prevObj[`goal_${type}`]
+    let target = targetObj[`target_${type}`]
+    let feedGoalType = FeedGoalType[this.capitalize(type).replace('_', '')]
+
+    return { current, prev, target, feedGoalType }
+  }
+  capitalize(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1)
+  }
+
+  async triggerEvent(
+    current: number,
+    prevCurrent: number,
+    target: number,
+    goalEntryReachedEvent: GoalEntryReachedEvent,
+    goal_type: FeedGoalType
+  ) {
+    console.log(`TRIGGER FUNCTION BEING RUN`)
+    const shouldTrigger = this.shouldTriggerFeedItem(
+      current,
+      prevCurrent,
+      target,
+      1
+    )
+    if (shouldTrigger) {
+      console.log(`SHOULD TRIGGERED BEING TRIGGERED`)
+      goalEntryReachedEvent.goal_type = goal_type
+      await this.eventEmitter.emitAsync(
+        'daily_goal.reached',
+        goalEntryReachedEvent
+      )
+    }
+  }
+
+  shouldTriggerFeedItem(
+    newCurrent: number,
+    prevCurrent: number,
+    target: number,
+    triggerRatio: number
+  ) {
+    const didChange = newCurrent !== prevCurrent
+    const didReachTriggerRatio = newCurrent >= target * triggerRatio
+    const didTriggerBefore = prevCurrent >= target * triggerRatio
+
+    console.log('didChange -->', didChange)
+    console.log('didReachTriggerRatio -->', didReachTriggerRatio)
+    console.log('didTriggerBefore -->', didTriggerBefore)
+    return didChange && didReachTriggerRatio && !didTriggerBefore
+  }
   /**
    * Find a specific goals entry
    */

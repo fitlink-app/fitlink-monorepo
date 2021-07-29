@@ -6,17 +6,21 @@ import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { GoalsEntry } from './entities/goals-entry.entity'
 import { UsersModule } from '../users/users.module'
+import { FeedItemsModule } from '../feed-items/feed-items.module'
+import { User } from '../users/entities/user.entity'
+import { DailyGoalReachedListener } from './listeners/DailyGoalsReachedListener'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([GoalsEntry]),
+    TypeOrmModule.forFeature([GoalsEntry, User]),
     UsersModule,
     AuthModule,
     ConfigModule,
-    HttpModule
+    HttpModule,
+    FeedItemsModule
   ],
   controllers: [GoalsEntriesController],
-  providers: [GoalsEntriesService],
+  providers: [GoalsEntriesService, DailyGoalReachedListener],
   exports: [TypeOrmModule.forFeature([GoalsEntry]), GoalsEntriesService]
 })
 export class GoalsEntriesModule {}
