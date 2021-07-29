@@ -94,7 +94,9 @@ export const Following = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
         data={results}
         refreshControl={
           <RefreshControl
-            refreshing={isFetching && isFetchedAfterMount}
+            refreshing={
+              isFetching && isFetchedAfterMount && !isFetchingNextPage
+            }
             onRefresh={refetch}
             tintColor={colors.accent}
             colors={[colors.accent]}

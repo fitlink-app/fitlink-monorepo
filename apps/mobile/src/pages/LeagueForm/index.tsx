@@ -30,6 +30,7 @@ import {StackActions, useNavigation} from '@react-navigation/native';
 import {useEffect} from 'react';
 import {RootStackParamList} from 'routes/types';
 import {StackScreenProps} from '@react-navigation/stack';
+import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 
 type LeagueFormMode = 'edit' | 'create';
 
@@ -103,6 +104,7 @@ export const LeagueForm = (
     fieldErrors,
     isSubmitting,
     errorMessage,
+    isSubmitted,
   } = useForm(initialValues);
 
   const {openModal, closeModal} = useModal();
@@ -160,7 +162,19 @@ export const LeagueForm = (
               dto: {...baseDto, sportId: undefined},
             });
 
-      if (result) navigation.goBack();
+      if (result) {
+        if (mode === 'create') {
+          setTimeout(() => {
+            navigation.goBack();
+            navigation.navigate('League', {
+              id: (result as LeaguePublic).id,
+              league: result,
+            });
+          }, 0);
+        } else {
+          navigation.goBack();
+        }
+      }
     } catch (e) {
       const requestErrors = getErrors(e);
       return requestErrors;
@@ -200,7 +214,6 @@ export const LeagueForm = (
               text: 'Back',
               textOnly: true,
               style: {marginBottom: -10},
-              disabled: isDeleting,
               onPress: () => closeModal(id),
             },
           ]}
@@ -292,7 +305,7 @@ export const LeagueForm = (
             text={mode === 'create' ? 'Create League' : 'Save Changes'}
             onPress={handleOnSubmitPressed}
             loading={isCreatingLeague}
-            disabled={isCreatingLeague || isDeleting}
+            disabled={isCreatingLeague || isDeleting || isSubmitted}
           />
 
           {mode === 'edit' && (
@@ -303,7 +316,7 @@ export const LeagueForm = (
               type={'danger'}
               onPress={handleOnDeletePressed}
               loading={isDeleting}
-              disabled={isDeleting || isCreatingLeague}
+              disabled={isDeleting || isCreatingLeague || isSubmitted}
             />
           )}
         </ScrollView>

@@ -10,3 +10,4 @@ export * from './useLeagueInvitables';
 export * from './useCreateLeague';
 export * from './useEditLeague';
 export * from './useDeleteLeague';
+export * from './useInviteToLeague';
