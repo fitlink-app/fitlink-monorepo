@@ -178,7 +178,7 @@ describe('Leagues', () => {
     expect(get.json().participating).toEqual(true)
   })
 
-  it.only('POST /leagues 201 A user can invite friends to a private league', async () => {
+  it('POST /leagues 201 A user can invite friends to a private league', async () => {
     const imageId = images.pop().id
     const payload: CreateLeagueDto = {
       name: 'Test League',
