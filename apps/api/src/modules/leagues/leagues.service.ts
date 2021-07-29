@@ -141,7 +141,7 @@ export class LeaguesService {
     return this.leaguesRepository
       .createQueryBuilder('league')
       .leftJoin('league.users', 'user')
-      .leftJoin('league.owner', 'owner')
+      .leftJoinAndSelect('league.owner', 'owner')
       .innerJoinAndSelect('league.active_leaderboard', 'leaderboard')
       .where('league.id = :leagueId', { leagueId })
       .andWhere('(user.id = :userId OR owner.id = :userId)', { userId })
@@ -652,7 +652,7 @@ export class LeaguesService {
               )
 
               // Where it is a private league, only show friends
-              .where(
+              .orWhere(
                 '(league.access = :accessPrivate AND following.id IS NOT NULL)'
               )
 
@@ -660,14 +660,14 @@ export class LeaguesService {
               // The user belongs to the team that the league belongs to
               // Show any user within that team
               .orWhere(
-                `(league.access = :accessTeam AND league.team.id = userTeam.id)`
+                '(league.access = :accessTeam AND league.team.id = userTeam.id)'
               )
 
               // The league is 'organisation'
               // The user belongs to the organisation that the league belongs to
               // Show any user within that organisation
               .orWhere(
-                `(league.access = :accessOrganisation AND userOrganisation.id = league.organisation.id)`
+                '(league.access = :accessOrganisation AND userOrganisation.id = league.organisation.id)'
               )
           )
         }),
