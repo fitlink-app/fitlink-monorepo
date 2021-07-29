@@ -122,6 +122,11 @@ export class LeaguesService {
 
     league.active_leaderboard = leaderboard
 
+    // Join the user to the league if it was privately created
+    if (league.access === LeagueAccess.Private) {
+      await this.joinLeague(league.id, league.owner.id)
+    }
+
     return league
   }
 
@@ -396,6 +401,19 @@ export class LeaguesService {
     )
   }
 
+  async isParticipant(leagueId: string, userId: string) {
+    const count = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .innerJoin('league.users', 'user')
+      .where('user.id = :userId AND league.id = :leagueId', {
+        userId,
+        leagueId
+      })
+      .getCount()
+
+    return count > 0
+  }
+
   /**
    * Uses a transaction to
    * 1. Join the league
@@ -411,6 +429,10 @@ export class LeaguesService {
 
     const league = new League()
     league.id = leagueId
+
+    if (await this.isParticipant(leagueId, userId)) {
+      return 'already joined'
+    }
 
     const leaderboardEntry = await this.leaguesRepository.manager.transaction(
       async (manager) => {
@@ -622,6 +644,11 @@ export class LeaguesService {
                 '(league.access = :accessPublic AND following.id IS NOT NULL)'
               )
 
+              // Where it is a private league, only show friends
+              // .where(
+              //   '(league.access = :accessPrivate AND following.id IS NOT NULL)'
+              // )
+
               // The league is 'team'
               // The user belongs to the team that the league belongs to
               // Show any user within that team
@@ -638,6 +665,7 @@ export class LeaguesService {
           )
         }),
         {
+          accessPrivate: LeagueAccess.Private,
           accessTeam: LeagueAccess.Team,
           accessPublic: LeagueAccess.Public,
           accessOrganisation: LeagueAccess.Organisation,

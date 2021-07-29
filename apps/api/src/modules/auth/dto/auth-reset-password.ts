@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsEmail, MinLength } from 'class-validator'
+import { IsEmail, IsString, MinLength } from 'class-validator'
 
 export class AuthRequestResetPasswordDto {
   @ApiProperty()
@@ -15,5 +15,6 @@ export class AuthResetPasswordDto {
   password: string
 
   @ApiProperty()
+  @IsString()
   token: string
 }

@@ -94,6 +94,7 @@ export class UsersController {
     try {
       return this.usersService.updateEmail(user.id, body.email)
     } catch (e) {
+      console.error(e)
       throw new BadRequestException(e)
     }
   }

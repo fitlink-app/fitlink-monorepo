@@ -14,8 +14,4 @@ export class UpdateOrganisationsInvitationDto extends PartialType(
   @ApiProperty()
   @IsBoolean()
   accepted: boolean
-
-  @ApiProperty()
-  @IsOptional()
-  resolved_user?: User
 }

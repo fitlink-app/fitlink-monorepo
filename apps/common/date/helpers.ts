@@ -36,7 +36,7 @@ export function zonedEndOfDay(tz = 'Etc/UTC', date = new Date()) {
  */
 export function isValidTimezone(tz: string) {
   try {
-    return !!getTimezoneOffset(tz)
+    return isNaN(getTimezoneOffset(tz)) === false
   } catch (e) {
     return false
   }

@@ -10,7 +10,4 @@ export class CreateOrganisationsInvitationDto {
   @ApiProperty()
   @IsOptional()
   invitee: string
-
-  @ApiProperty()
-  organisation: Organisation
 }

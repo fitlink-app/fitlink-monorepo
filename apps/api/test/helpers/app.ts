@@ -125,7 +125,8 @@ export async function mockApp({
 
   app.useGlobalPipes(
     new ValidationPipe({
-      exceptionFactory: validationExceptionFactory
+      exceptionFactory: validationExceptionFactory,
+      whitelist: true
     })
   )
 

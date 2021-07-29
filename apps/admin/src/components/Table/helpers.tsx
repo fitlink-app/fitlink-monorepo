@@ -32,19 +32,21 @@ export const boolToIcon = ({ value }) => {
 
 /**
  * Falls back the value to a different cell
- * if the primary value is falsy
+ * if the primary value is falsy or equal
+ * to the provided value (1st argument).
  *
- * @param column
+ * @param ifValue The value to compare
+ * @param column Alternative column to use
  * @returns
  */
-export const toOtherCell = (column: string) => {
+export const toOtherCell = (ifValue: string, column: string) => {
   return ({
     cell: {
       row: { original }
     },
     value
   }) => {
-    if (!value && original[column]) {
+    if ((value === ifValue || !value) && original[column]) {
       return original[column]
     }
     return value

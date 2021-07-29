@@ -6,6 +6,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsString,
   IsUUID,
   MinLength
 } from 'class-validator'
@@ -90,13 +91,16 @@ export class UpdateUserEmailDto {
 
 export class VerifyUserEmailDto {
   @ApiProperty()
+  @IsString()
   token: string
 }
 
 export class UpdateUserPasswordDto {
   @ApiProperty()
+  @IsString()
   current_password: string
 
   @ApiProperty()
+  @IsString()
   new_password: string
 }

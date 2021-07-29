@@ -494,7 +494,6 @@ export class UsersService {
     })
 
     const [hashed, salt] = hash.split('__FIREBASE__')
-    console.log(hashed, salt)
 
     return scrypt.verify(password, salt, hashed)
   }

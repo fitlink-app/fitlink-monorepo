@@ -8,6 +8,8 @@ import { toDateCell, toOtherCell } from '../components/Table/helpers'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import { AuthContext } from '../context/Auth.context'
 import { Organisation } from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
+import { timeout } from '../helpers/timeout'
+import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 
 export default function OrganisationsPage() {
   const [drawContent, setDrawContent] = useState<
@@ -15,17 +17,46 @@ export default function OrganisationsPage() {
   >(false)
   const [warning, setWarning] = useState(false)
   const [wide, setWide] = useState(false)
+  const [refresh, setRefresh] = useState(0)
+
+  const closeDrawer = (ms = 0) => async () => {
+    if (ms) {
+      await timeout(ms)
+    }
+    setRefresh(Date.now())
+    setDrawContent(null)
+  }
 
   const CreateOrganisationForm = () => {
     setWarning(true)
     setWide(false)
-    setDrawContent(<CreateOrganisation />)
+    setDrawContent(<CreateOrganisation onSave={closeDrawer(1000)} />)
   }
 
   const EditOrganisationForm = (fields) => {
     setWarning(true)
     setWide(false)
-    setDrawContent(<CreateOrganisation current={fields} />)
+    setDrawContent(
+      <CreateOrganisation onSave={closeDrawer(1000)} current={fields} />
+    )
+  }
+
+  const DeleteForm = (fields) => {
+    setWarning(true)
+    setWide(false)
+    setDrawContent(
+      <ConfirmDeleteForm
+        onDelete={closeDrawer(1000)}
+        onCancel={closeDrawer()}
+        current={fields}
+        title="Delete organisation"
+        requireConfirmText="DELETE"
+        message={`
+          Are you sure you want to delete this organisation?
+          This will permanently remove all associated teams, subscriptions, leagues, activities & more.
+        `}
+      />
+    )
   }
 
   const showAvatar = ({
@@ -49,7 +80,9 @@ export default function OrganisationsPage() {
     }
   }) => (
     <div className="text-right">
-      <button className="button alt small">Delete</button>
+      <button className="button alt small" onClick={() => DeleteForm(original)}>
+        Delete
+      </button>
       <button
         className="button small ml-1"
         onClick={() => EditOrganisationForm(original)}>
@@ -67,7 +100,7 @@ export default function OrganisationsPage() {
         <button
           className="button alt small mt-1"
           onClick={CreateOrganisationForm}>
-          Invite New Organisation
+          Create New Organisation
         </button>
       </div>
 
@@ -80,7 +113,7 @@ export default function OrganisationsPage() {
             {
               Header: 'Type',
               accessor: 'type',
-              Cell: toOtherCell('type_other')
+              Cell: toOtherCell('other', 'type_other')
             },
             { Header: 'Created', accessor: 'created_at', Cell: toDateCell },
             { Header: 'Updated', accessor: 'updated_at', Cell: toDateCell },
@@ -93,6 +126,7 @@ export default function OrganisationsPage() {
             })
           }
           fetchName="organisations"
+          refresh={refresh}
         />
       </div>
 

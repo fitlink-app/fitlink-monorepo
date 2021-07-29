@@ -10,6 +10,7 @@ export type TableContainerProps = {
   columns: Column<any>[]
   fetch: (limit: number, page: number) => Promise<ListData>
   fetchName: string
+  refresh?: number
 }
 
 type ListData = {
@@ -23,7 +24,8 @@ const noop = () => {}
 export function TableContainer({
   columns,
   fetch,
-  fetchName
+  fetchName,
+  refresh
 }: TableContainerProps) {
   // const [refresh, setRefresh] = useState(0)
   const [results, setResults] = useState([])
@@ -45,7 +47,8 @@ export function TableContainer({
     isError,
     error,
     isFetching,
-    isPreviousData
+    isPreviousData,
+    refetch
   }: ApiResult<ListData> = useQuery(
     [fetchName, limit, page],
     async () => {
@@ -80,6 +83,10 @@ export function TableContainer({
       setError(getErrorMessage(error))
     }
   }, [isError])
+
+  useEffect(() => {
+    refresh && refetch()
+  }, [refresh])
 
   // TODO: show better UI
   return errorMessage ? (
