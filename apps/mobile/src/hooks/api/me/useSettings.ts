@@ -97,7 +97,8 @@ export function useSettings() {
 
   // React-query
   const {mutateAsync, reset, error, isLoading} = useMutation(
-    (updatedSettings: UpdateUserDto) => api.put<User>('/me', updatedSettings),
+    (updatedSettings: UpdateUserDto) =>
+      api.put<User>('/me', {payload: updatedSettings}),
     {
       onSuccess: (data, variables) => {
         queryClient.setQueryData<User>(

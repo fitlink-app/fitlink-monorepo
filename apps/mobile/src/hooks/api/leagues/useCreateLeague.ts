@@ -6,7 +6,8 @@ import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.ent
 
 export function useCreateLeague() {
   return useMutation(
-    (dto: CreateLeagueDto) => api.post<LeaguePublic>(`/leagues`, dto as any),
+    (dto: CreateLeagueDto) =>
+      api.post<LeaguePublic>(`/leagues`, {payload: dto} as any),
     {
       onSuccess: () => {
         // Invalidate Leagues

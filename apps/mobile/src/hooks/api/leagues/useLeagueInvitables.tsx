@@ -5,7 +5,7 @@ import {ListResponse} from '@fitlink/api-sdk/types';
 import {getNextPageParam} from 'utils/api';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 
-export const RESULTS_PER_PAGE = 5;
+export const RESULTS_PER_PAGE = 25;
 
 const fetchInvitableUsers = ({
   pageParam = 0,

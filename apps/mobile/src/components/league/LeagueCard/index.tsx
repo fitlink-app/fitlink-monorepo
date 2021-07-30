@@ -57,12 +57,23 @@ export interface LeagueCardInterface {
   memberCount: number;
   position?: number;
   privateLeague?: boolean;
+  invitedBy?: {image: string; name: string};
+  organisation?: {name: string; image: string};
   onPress?: () => void;
 }
 
 export const LeagueCard = (props: LeagueCardInterface) => {
-  const {name, sport, imageUrl, privateLeague, position, memberCount, onPress} =
-    props;
+  const {
+    name,
+    sport,
+    imageUrl,
+    privateLeague,
+    position,
+    memberCount,
+    invitedBy,
+    organisation,
+    onPress,
+  } = props;
 
   return (
     <TouchWrapper {...{onPress}}>
@@ -86,12 +97,21 @@ export const LeagueCard = (props: LeagueCardInterface) => {
                 </PrivateLabel>
               )}
             </Col>
-            {/* 
+
             <Col>
-              {companyImageSource && (
-                <Avatar source={companyImageSource} size={28} />
+              {organisation && (
+                <Row style={{alignItems: 'center'}}>
+                  <Label
+                    bold
+                    type={'caption'}
+                    style={{marginRight: 5, maxWidth: 140}}
+                    numberOfLines={1}>
+                    {organisation.name}
+                  </Label>
+                  <Avatar url={organisation.image} size={28} />
+                </Row>
               )}
-            </Col> */}
+            </Col>
           </Row>
 
           <Row
@@ -116,7 +136,24 @@ export const LeagueCard = (props: LeagueCardInterface) => {
               </Label>
             </Col>
 
-            <LeagueStats {...{position, memberCount}} />
+            <Col>
+              {!!invitedBy && (
+                <Row style={{marginBottom: 5}}>
+                  <Avatar url={invitedBy.image} size={28} />
+
+                  <Col style={{marginLeft: 5}}>
+                    <Label appearance={'primary'} type={'caption'}>
+                      invited by
+                    </Label>
+                    <Label appearance={'accent'} type={'caption'}>
+                      {invitedBy.name}
+                    </Label>
+                  </Col>
+                </Row>
+              )}
+
+              <LeagueStats {...{position, memberCount}} />
+            </Col>
           </Row>
         </ContentContainer>
       </Wrapper>

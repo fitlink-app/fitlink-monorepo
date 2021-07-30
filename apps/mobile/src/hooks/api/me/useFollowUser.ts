@@ -8,7 +8,7 @@ import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 
 export function useFollowUser() {
   return useMutation(
-    (id: string) => api.post<any>(`/me/following`, {targetId: id}),
+    (id: string) => api.post<any>(`/me/following`, {payload: {targetId: id}}),
     {
       onMutate: async userId => {
         // TODO: Mutate user itself

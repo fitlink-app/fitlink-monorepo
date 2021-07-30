@@ -53,7 +53,10 @@ export const LeagueInviteFriends = (
 
     // Handle invite
     try {
+      console.log(userId);
       await inviteToLeague({leagueId, userId});
+    } catch (e) {
+      console.log(getErrors(e));
     } finally {
       // Remove user from loading array
       setLoadingUsers(value => {
@@ -76,7 +79,7 @@ export const LeagueInviteFriends = (
       <InviteRow
         userId={item.id as string}
         name={item.name as string}
-        isInvited={false}
+        isInvited={!!item.invited}
         onInvitePressed={handleInvitePressed}
         avatarSource={item.avatar?.url_128x128}
         isLoading={isUserLoading(item.id)}

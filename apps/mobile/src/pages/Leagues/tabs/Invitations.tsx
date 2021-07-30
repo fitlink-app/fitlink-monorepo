@@ -1,10 +1,12 @@
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
-import {Label} from '@components';
+import {Label, LeagueCard} from '@components';
 import {useLeagueInvitations} from '@hooks';
-import {ActivityIndicator} from 'react-native';
+import {ActivityIndicator, FlatList, RefreshControl} from 'react-native';
 import {getResultsFromPages} from 'utils/api';
-import {LeagueList} from './components';
+import {useNavigation} from '@react-navigation/native';
+import {LeaguesInvitation} from '../../../../../api/src/modules/leagues-invitations/entities/leagues-invitation.entity';
+import {LeagueAccess} from '../../../../../api/src/modules/leagues/leagues.constants';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -18,6 +20,7 @@ const EmptyContainer = styled.View({
 });
 
 export const Invitations = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
+  const navigation = useNavigation();
   const {colors} = useTheme();
 
   const {
@@ -59,22 +62,69 @@ export const Invitations = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
     </EmptyContainer>
   );
 
-  // TODO: Format results for the list, create an union type for the LeagueList to support invite data
-  console.log(results);
+  const keyExtractor = (item: LeaguesInvitation) => item.id as string;
+
+  const renderItem = ({item}: {item: LeaguesInvitation}) => {
+    const {league, from_user} = item;
+
+    const organisation = league.organisation
+      ? {
+          name: league.organisation?.name,
+          image: league.organisation?.avatar.url_128x128,
+        }
+      : undefined;
+
+    const invitedBy = {
+      name: from_user.name,
+      image: from_user.avatar?.url_128x128,
+    };
+
+    return (
+      <LeagueCard
+        {...{organisation, invitedBy}}
+        name={league.name}
+        sport={league.sport.name}
+        imageUrl={league.image.url}
+        memberCount={league.participants_total}
+        position={league.rank}
+        privateLeague={league.access === ('Private' as LeagueAccess)}
+        onPress={() => {
+          navigation.navigate('League', {id: league.id, league});
+        }}
+      />
+    );
+  };
+
+  const ListFooterComponent = isFetchingNextPage ? (
+    <EmptyContainer style={{height: 72}}>
+      <ActivityIndicator color={colors.accent} />
+    </EmptyContainer>
+  ) : null;
 
   return (
     <Wrapper>
-      {/* <LeagueList
+      <FlatList
         {...{
-          isFetching,
-          isFetchingNextPage,
-          isFetchedAfterMount,
-          ListEmptyComponent,
+          ListFooterComponent,
+          renderItem,
+          keyExtractor,
         }}
         data={results}
         onEndReached={() => fetchNextPage()}
-        onRefresh={refetch}
-      /> */}
+        ListEmptyComponent={
+          <EmptyContainer>{ListEmptyComponent}</EmptyContainer>
+        }
+        contentContainerStyle={{padding: 20}}
+        onEndReachedThreshold={0.2}
+        refreshControl={
+          <RefreshControl
+            onRefresh={refetch}
+            refreshing={isFetching && isFetchedAfterMount}
+            tintColor={colors.accent}
+            colors={[colors.accent]}
+          />
+        }
+      />
     </Wrapper>
   );
 };

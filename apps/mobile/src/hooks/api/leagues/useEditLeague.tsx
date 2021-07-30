@@ -13,7 +13,9 @@ type EditLeagueParams = {
 export function useEditLeague() {
   return useMutation(
     (params: EditLeagueParams) =>
-      api.put<LeaguePublic>(`/leagues/${params.id}`, params.dto as any),
+      api.put<LeaguePublic>(`/leagues/${params.id}`, {
+        payload: params.dto,
+      } as any),
     {
       onMutate: params => {
         // Mutate League

@@ -5,13 +5,11 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import {
-  League,
-  LeagueAccess,
-} from '@fitlink/api/src/modules/leagues/entities/league.entity';
+import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import styled, {useTheme} from 'styled-components/native';
 import {LeagueCard} from '@components';
 import {useNavigation} from '@react-navigation/core';
+import {LeagueAccess} from '../../../../../../api/src/modules/leagues/leagues.constants';
 
 const EmptyContainer = styled.View({
   flex: 1,
@@ -42,10 +40,18 @@ export const LeagueList = ({
   const keyExtractor = (item: League) => item.id as string;
 
   const renderItem = ({item}: {item: League}) => {
+    const organisation = item.organisation
+      ? {
+          name: item.organisation?.name,
+          image: item.organisation?.avatar.url_128x128,
+        }
+      : undefined;
+
     return (
       <LeagueCard
         name={item.name}
         sport={item.sport.name}
+        organisation={organisation}
         imageUrl={item.image.url}
         memberCount={item.participants_total}
         position={item.rank}
