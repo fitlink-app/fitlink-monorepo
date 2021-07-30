@@ -16,6 +16,7 @@ import { LeaguesService } from '../leagues/leagues.service'
 import { League } from '../leagues/entities/league.entity'
 import { User, UserPublic } from '../users/entities/user.entity'
 import { plainToClass } from 'class-transformer'
+import { LeagueInvitePermission } from '../leagues/leagues.constants'
 
 @Injectable()
 export class LeaguesInvitationsService {
@@ -78,10 +79,25 @@ export class LeaguesInvitationsService {
   }
 
   async getInvitableLeague(leagueId: string, inviterId: string) {
-    return await this.leaguesService.findOneOwnedByOrParticipatingIn(
+    const league = await this.leaguesService.findOneOwnedByOrParticipatingIn(
       leagueId,
       inviterId
     )
+
+    if (!league) {
+      return false
+    }
+
+    // If the league is owned by the inviter, proceed.
+    // Otherwise, check invite permissions.
+    if (
+      (league.owner && league.owner.id === inviterId) ||
+      league.invite_permission === LeagueInvitePermission.Participant
+    ) {
+      return league
+    }
+
+    return false
 
     // TODO: We should also check
     // 1. That the user being invited belongs to the team of the league (in case of team league)

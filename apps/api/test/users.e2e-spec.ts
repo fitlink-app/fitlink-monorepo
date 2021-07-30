@@ -12,7 +12,6 @@ import FormData = require('form-data')
 import { ImagesModule } from '../src/modules/images/images.module'
 import { FollowingsSetup } from './seeds/followings.seed'
 import { emailHasContent, getEmailContent } from './helpers/mocking'
-import { parseQuery } from './helpers/parseQuery'
 
 describe('Users', () => {
   let app: NestFastifyApplication

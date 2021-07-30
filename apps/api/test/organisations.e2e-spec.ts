@@ -12,6 +12,7 @@ import {
   OrganisationsSetup,
   OrganisationsTeardown
 } from './seeds/organisations.seed'
+import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 
 describe('Activities', () => {
   let app: NestFastifyApplication
@@ -24,19 +25,22 @@ describe('Activities', () => {
       providers: []
     })
 
-    // Superadmin
-    superadminHeaders = getAuthHeaders({ spr: true })
-
-    // Normal user
-    authHeaders = getAuthHeaders()
-
     // Run seed
     await useSeeding()
     await OrganisationsSetup('Test organisations')
+
+    const users = await UsersSetup('Test organisations', 1)
+
+    // Superadmin
+    superadminHeaders = getAuthHeaders({ spr: true }, users[0].id)
+
+    // Normal user
+    authHeaders = getAuthHeaders({}, users[0].id)
   })
 
   afterAll(async () => {
     await OrganisationsTeardown('Test organisations')
+    await UsersTeardown('Test organisations')
     await app.close()
   })
 
@@ -64,15 +68,12 @@ describe('Activities', () => {
     const form = new FormData()
     const file1 = await readFile(__dirname + '/assets/1200x1200.png')
 
-    form.append('avatar', file1)
+    form.append('image', file1)
+    form.append('type', 'avatar')
 
-    Object.keys(payload).map((key: string) => {
-      form.append(key, payload[key])
-    })
-
-    const data = await app.inject({
+    const upload = await app.inject({
       method: 'POST',
-      url: '/organisations',
+      url: '/images',
       headers: {
         ...form.getHeaders(),
         ...superadminHeaders
@@ -80,9 +81,18 @@ describe('Activities', () => {
       payload: form
     })
 
+    expect(upload.statusCode).toBe(201)
+
+    const data = await app.inject({
+      method: 'POST',
+      url: '/organisations',
+      headers: superadminHeaders,
+      payload: { ...payload, imageId: upload.json().id }
+    })
+
     const result = data.json()
     expect(data.statusCode).toEqual(201)
-    expect(result.organisation.avatar.url_128x128).toBeDefined()
+    expect(result.organisation.avatar.id).toBe(upload.json().id)
   })
 
   it(`POST /organisations 201 Allows a superadmin to delete an organisation`, async () => {
@@ -115,6 +125,25 @@ describe('Activities', () => {
     const result = data.json()
     expect(data.statusCode).toEqual(400)
     expect(result.errors['type']).toContain('must be a valid enum value')
+  })
+
+  it(`POST /organisations 400 Fails with validation errors if payload contains bad timezone`, async () => {
+    const payload = {
+      name: 'Test Organisation',
+      timezone: 'Etc/GMT+UTC',
+      type: 'company'
+    } as CreateOrganisationDto
+
+    const data = await app.inject({
+      method: 'POST',
+      url: '/organisations',
+      headers: superadminHeaders,
+      payload
+    })
+
+    const result = data.json()
+    expect(data.statusCode).toEqual(400)
+    expect(result.errors['timezone']).toContain('must be a valid timezone')
   })
 
   it(`POST /organisations 403 Does not allow an ordinary authenticated user to create an organisation`, async () => {

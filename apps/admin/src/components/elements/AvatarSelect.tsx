@@ -3,7 +3,7 @@ import { useState } from 'react'
 export type AvatarSelectProps = {
   src?: string
   label?: string
-  onChange?: (file) => void
+  onChange?: (url: string, file: File | null) => void
 }
 
 export default function AvatarSelect({
@@ -15,14 +15,16 @@ export default function AvatarSelect({
 
   const [image, setImage] = useState(src || '')
 
-  const previewImage = (e) => {
-    setImage(URL.createObjectURL(e.target.files[0]))
-    if (onChange) onChange(e.target.files[0])
+  const previewImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const str = URL.createObjectURL(e.target.files[0])
+    setImage(str)
+    if (onChange) onChange(str, e.target.files[0])
   }
 
   const reset = (e) => {
-    (document.getElementById(id) as HTMLInputElement).value = null
+    ;(document.getElementById(id) as HTMLInputElement).value = null
     setImage('')
+    onChange('', null)
   }
 
   return (
@@ -32,7 +34,7 @@ export default function AvatarSelect({
         style={{ backgroundImage: `url(${image})` }}
       />
       <input type="file" id={id} onChange={previewImage} accept="image/*" />
-      <label htmlFor={id}>
+      <label htmlFor={id} className="pointer">
         {label}
       </label>
       {image !== '' && (

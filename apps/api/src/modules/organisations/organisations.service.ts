@@ -3,6 +3,7 @@ import { Repository } from 'typeorm'
 import { CreateOrganisationDto } from './dto/create-organisation.dto'
 import { UpdateOrganisationDto } from './dto/update-organisation.dto'
 import { Organisation } from './entities/organisation.entity'
+import { Image } from '../images/entities/image.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { OrganisationsInvitationsService } from '../organisations-invitations/organisations-invitations.service'
 import { OrganisationsInvitation } from '../organisations-invitations/entities/organisations-invitation.entity'
@@ -18,9 +19,17 @@ export class OrganisationsService {
   ) {}
 
   async create(createOrganisationDto: CreateOrganisationDto) {
-    const { email, invitee, ...rest } = createOrganisationDto
+    const { email, invitee, imageId, ...rest } = createOrganisationDto
+
+    let create: Partial<Organisation> = { ...rest }
+
+    if (imageId) {
+      create.avatar = new Image()
+      create.avatar.id = imageId
+    }
+
     const organisation = await this.organisationRepository.save(
-      this.organisationRepository.create(rest)
+      this.organisationRepository.create(create)
     )
 
     // Optionally invite a user by email
@@ -28,9 +37,8 @@ export class OrganisationsService {
     let inviteLink: string
 
     if (email) {
-      const result = await this.invitationsService.create({
+      const result = await this.invitationsService.create(organisation.id, {
         email,
-        organisation,
         invitee
       })
       invitation = result.invitation
@@ -50,7 +58,8 @@ export class OrganisationsService {
     const [results, total] = await this.organisationRepository.findAndCount({
       order: { created_at: 'DESC' },
       take: options.limit,
-      skip: options.page * options.limit
+      skip: options.page * options.limit,
+      relations: ['avatar']
     })
 
     return new Pagination<Organisation>({
@@ -63,8 +72,19 @@ export class OrganisationsService {
     return this.organisationRepository.findOne(id)
   }
 
-  update(id: string, updateOrganisationDto: UpdateOrganisationDto) {
-    return this.organisationRepository.update(id, updateOrganisationDto)
+  update(id: string, { imageId, ...rest }: UpdateOrganisationDto) {
+    let update: Partial<Organisation> = { ...rest }
+
+    if (imageId) {
+      update.avatar = new Image()
+      update.avatar.id = imageId
+
+      // Explict removal of image
+    } else if (imageId === null) {
+      update.avatar = null
+    }
+
+    return this.organisationRepository.update(id, update)
   }
 
   async remove(id: string) {
@@ -73,12 +93,15 @@ export class OrganisationsService {
     })
 
     const result = await getManager().transaction(async (entityManager) => {
+      // TODO delete teams, subscriptions, leagues, activities, etc.
 
       // Delete invitations
-      await entityManager.delete(
-        OrganisationsInvitation,
-        organisation.invitations.map((entity) => entity.id)
-      )
+      if (organisation.invitations.length) {
+        await entityManager.delete(
+          OrganisationsInvitation,
+          organisation.invitations.map((entity) => entity.id)
+        )
+      }
 
       // Finally, delete the organisation
       return await entityManager.delete(Organisation, organisation.id)
