@@ -81,6 +81,25 @@ export class SubscriptionsService {
 
   /**
    * Update the subscription
+   * Used for superadmin access
+   *
+   * @param subId
+   */
+  async updateOne(
+    { organisationId, ...dto }: UpdateSubscriptionDto,
+    subId: string
+  ) {
+    const organisation = new Organisation()
+    organisation.id = organisationId
+
+    return await this.subscriptionsRepository.update(subId, {
+      organisation,
+      ...dto
+    })
+  }
+
+  /**
+   * Update the subscription
    * @param orgId
    * @param subId
    */
@@ -200,6 +219,27 @@ export class SubscriptionsService {
     return await this.subscriptionsRepository.save({
       ...subscription,
       ...subscriptionUsers
+    })
+  }
+
+  /**
+   * Find all subscriptions
+   * @param orgId,
+   * @param subId
+   */
+  async findAll({
+    limit,
+    page
+  }: PaginationOptionsInterface): Promise<Pagination<Subscription>> {
+    const [results, total] = await this.subscriptionsRepository.findAndCount({
+      relations: ['organisation'],
+      take: limit,
+      skip: limit * page
+    })
+
+    return new Pagination<Subscription>({
+      results,
+      total
     })
   }
 

@@ -113,22 +113,20 @@ export default function CreateOrganisation({
 
   const other = watch('type')
   const inviteUser = watch('invite_user')
-  const name = watch('name')
 
-  const { errors, isError, errorMessage, clearErrors } = useApiErrors({
-    ...create.error,
-    ...update.error
-  })
+  const { errors, isError, errorMessage, clearErrors } = useApiErrors(
+    create.isError || update.isError,
+    {
+      ...create.error,
+      ...update.error
+    }
+  )
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <h4 className="light mb-3">
         {isUpdate ? 'Edit organisation' : 'Create an organisation'}
       </h4>
-
-      {isError && <Feedback message={errorMessage} type="error" />}
-
-      {errors.timezone}
 
       <Input
         register={register('name')}
@@ -220,6 +218,10 @@ export default function CreateOrganisation({
             error={errors.email}
           />
         </>
+      )}
+
+      {isError && (
+        <Feedback message={errorMessage} type="error" className="mt-2" />
       )}
 
       <div className="text-right mt-2">

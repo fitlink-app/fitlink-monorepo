@@ -13,10 +13,20 @@ import { UpdateSubscriptionDto } from './dto/update-subscription.dto'
 import { CreateDefaultSubscriptionDto } from './dto/create-default-subscription.dto'
 import { Iam } from '../../decorators/iam.decorator'
 import { Roles } from '../user-roles/user-roles.constants'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBaseResponses,
+  PaginationBody,
+  UpdateResponse
+} from '../../decorators/swagger.decorator'
+import { Pagination } from '../../decorators/pagination.decorator'
+import { PaginationQuery } from '../../helpers/paginate'
+import { SubscriptionPagination } from './entities/subscription.entity'
+import { CreateSubscriptionDto } from './dto/create-subscription.dto'
 
 @Controller()
 @ApiTags('subscriptions')
+@ApiBaseResponses()
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
@@ -30,6 +40,30 @@ export class SubscriptionsController {
       createDefaultSubscriptionDto,
       organisationId
     )
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Post('/subscriptions')
+  createOne(@Body() { organisationId, ...dto }: CreateSubscriptionDto) {
+    return this.subscriptionsService.createDefault(dto, organisationId)
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Get('/subscriptions')
+  @PaginationBody()
+  @ApiResponse({ type: SubscriptionPagination, status: 200 })
+  findAll(@Pagination() pagination: PaginationQuery) {
+    return this.subscriptionsService.findAll(pagination)
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Put('/subscriptions/:subscriptionId')
+  @UpdateResponse()
+  updateOne(
+    @Body() updateSubscriptionDto: UpdateSubscriptionDto,
+    @Param('subscriptionId') subId: string
+  ) {
+    return this.subscriptionsService.updateOne(updateSubscriptionDto, subId)
   }
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)

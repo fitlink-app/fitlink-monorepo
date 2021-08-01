@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Repository } from 'typeorm'
+import { ILike, Repository } from 'typeorm'
 import { CreateOrganisationDto } from './dto/create-organisation.dto'
 import { UpdateOrganisationDto } from './dto/update-organisation.dto'
 import { Organisation } from './entities/organisation.entity'
@@ -9,6 +9,7 @@ import { OrganisationsInvitationsService } from '../organisations-invitations/or
 import { OrganisationsInvitation } from '../organisations-invitations/entities/organisations-invitation.entity'
 import { getManager } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
+import { SearchOrganisationDto } from './dto/search-organisation.dto'
 
 @Injectable()
 export class OrganisationsService {
@@ -53,12 +54,18 @@ export class OrganisationsService {
   }
 
   async findAll(
-    options: PaginationOptionsInterface
+    options: PaginationOptionsInterface,
+    query: SearchOrganisationDto
   ): Promise<Pagination<Organisation>> {
     const [results, total] = await this.organisationRepository.findAndCount({
       order: { created_at: 'DESC' },
       take: options.limit,
       skip: options.page * options.limit,
+      where: query.q
+        ? {
+            name: ILike(query.q)
+          }
+        : undefined,
       relations: ['avatar']
     })
 

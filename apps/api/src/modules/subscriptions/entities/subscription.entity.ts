@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import {
   PrimaryGeneratedColumn,
   Entity,
@@ -134,4 +135,18 @@ export class Subscription extends CreatableEntity {
     default: () => 'CURRENT_TIMESTAMP'
   })
   subscription_starts_at: Date
+}
+
+export class SubscriptionPagination {
+  @ApiProperty()
+  page_total: number
+
+  @ApiProperty()
+  total: number
+
+  @ApiProperty({
+    type: Subscription,
+    isArray: true
+  })
+  results: Subscription[]
 }

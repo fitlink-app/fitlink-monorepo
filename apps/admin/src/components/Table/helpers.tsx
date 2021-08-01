@@ -52,3 +52,23 @@ export const toOtherCell = (ifValue: string, column: string) => {
     return value
   }
 }
+
+/**
+ * Join two or more cells together
+ * using a separator
+ *
+ */
+export const toJoinCells = (accessors: string[], separator = ' ') => {
+  return ({
+    cell: {
+      row: { original }
+    },
+    value
+  }) => {
+    return accessors
+      .map((name) => {
+        return original[name]
+      })
+      .join(separator)
+  }
+}

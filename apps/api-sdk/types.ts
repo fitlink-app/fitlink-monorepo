@@ -6,6 +6,7 @@ import { Activity } from '@fitlink/api/src/modules/activities/entities/activity.
 import { CreateActivityDto } from '@fitlink/api/src/modules/activities/dto/create-activity.dto'
 import { UpdateActivityDto } from '@fitlink/api/src/modules/activities/dto/update-activity.dto'
 import { Organisation } from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
+import { Subscription } from '@fitlink/api/src/modules/subscriptions/entities/subscription.entity'
 import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 import {
   AuthLoginDto,
@@ -25,6 +26,8 @@ import {
   UpdateUserEmailDto,
   UpdateUserPasswordDto
 } from '@fitlink/api/src/modules/users/dto/update-user.dto'
+import { CreateDefaultSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/create-default-subscription.dto'
+import { UpdateSubscriptionDto } from 'apps/api/src/modules/subscriptions/dto/update-subscription.dto'
 
 export type {
   AuthResultDto,
@@ -144,6 +147,8 @@ export type CreateUserResult = {
 
 export type CreateResourceParams<T> = T extends Organisation
   ? Payload<CreateOrganisationDto>
+  : T extends Subscription
+  ? Payload<CreateDefaultSubscriptionDto>
   : T extends Team
   ? Payload<CreateTeamDto>
   : T extends Activity
@@ -176,6 +181,8 @@ export type CreatableResourceResponse<T> = T extends AuthSignUp
 
 export type UpdateResourceParams<T> = T extends Organisation
   ? Payload<UpdateOrganisationDto>
+  : T extends Subscription
+  ? Payload<UpdateSubscriptionDto>
   : T extends Team
   ? Payload<UpdateTeamDto>
   : T extends Activity
