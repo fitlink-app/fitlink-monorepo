@@ -7,17 +7,46 @@ import {RewardPublic} from '@fitlink/api/src/modules/rewards/entities/reward.ent
 
 export const REWARD_RESULTS_PER_PAGE = 10;
 
-const fetchRewards = ({pageParam = 0}: {pageParam?: number | undefined}) =>
-  api.list<RewardPublic>(`/rewards`, {
-    page: pageParam,
-    limit: REWARD_RESULTS_PER_PAGE,
-  });
+interface RewardsParams {
+  locked?: boolean;
+  expired?: boolean;
+  available?: boolean;
+}
 
-// TODO: Implement params
-export function useRewards(params: string[]) {
+const fetchRewards = ({
+  pageParam = 0,
+  params,
+}: {
+  pageParam?: number | undefined;
+  params: RewardsParams;
+}) => {
+  const searchParams = new URLSearchParams();
+
+  if (params.locked) {
+    searchParams.append('locked', String(!!params.locked));
+  }
+
+  if (params.expired) {
+    searchParams.append('expired', String(!!params.expired));
+  }
+
+  if (params.available) {
+    searchParams.append('available', String(!!params.available));
+  }
+
+  return api.list<RewardPublic>(
+    `/rewards${Array.from(searchParams).length ? `?${searchParams}` : ''}`,
+    {
+      page: pageParam,
+      limit: REWARD_RESULTS_PER_PAGE,
+    },
+  );
+};
+
+export function useRewards(params: RewardsParams) {
   return useInfiniteQuery<ListResponse<RewardPublic>, Error>(
-    [QueryKeys.Rewards, params.toString()],
-    ({pageParam}) => fetchRewards({pageParam}),
+    [QueryKeys.Rewards, JSON.stringify(params)],
+    ({pageParam}) => fetchRewards({pageParam, params}),
     {
       getNextPageParam: getNextPageParam(REWARD_RESULTS_PER_PAGE),
     },

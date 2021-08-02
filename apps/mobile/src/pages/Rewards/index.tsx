@@ -2,7 +2,7 @@ import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Label, RewardTracker} from '@components';
-import {useRewards} from '@hooks';
+import {useMe, useMyRewards, useRewards} from '@hooks';
 import {RewardSlider} from './components';
 import {getResultsFromPages} from 'utils/api';
 import {ActivityIndicator, RefreshControl} from 'react-native';
@@ -32,32 +32,81 @@ export const Rewards = () => {
   const insets = useSafeAreaInsets();
   const {colors} = useTheme();
 
-  const {
-    data: rewardsData,
-    isFetching: isFetchingRewards,
-    isFetchingNextPage: isFetchingRewardsNextPage,
-    isFetchedAfterMount: isRewardsFetchedAfterMount,
-    fetchNextPage: fetchNextRewardsPage,
-    refetch: refetchRewards,
-  } = useRewards(['placeholder_param']);
+  const {data: user, isFetched: userIsFetched} = useMe({
+    refetchOnMount: false,
+  });
 
-  const rewards = getResultsFromPages(rewardsData);
+  const {
+    data: myRewards,
+    isFetching: isFetchingMyRewards,
+    isFetchingNextPage: isFetchingMyRewardsNextPage,
+    isFetchedAfterMount: isMyRewardsFetchedAfterMount,
+    fetchNextPage: fetchMyRewardsNextPage,
+    refetch: refetchMyRewards,
+  } = useMyRewards();
+
+  const {
+    data: unclaimedRewards,
+    isFetching: isFetchingUnclaimedRewards,
+    isFetchingNextPage: isFetchingUnclaimedRewardsNextPage,
+    isFetchedAfterMount: isUnclaimedRewardsFetchedAfterMount,
+    fetchNextPage: fetchUnclaimedRewardsNextPage,
+    refetch: refetchUnclaimedRewards,
+  } = useRewards({available: true});
+
+  const {
+    data: lockedRewards,
+    isFetching: isFetchingLockedRewards,
+    isFetchingNextPage: isFetchingLockedRewardsNextPage,
+    isFetchedAfterMount: isLockedRewardsFetchedAfterMount,
+    fetchNextPage: fetchLockedRewardsNextPage,
+    refetch: refetchLockedRewards,
+  } = useRewards({locked: true});
+
+  const {
+    data: expiredRewards,
+    isFetching: isFetchingExpiredRewards,
+    isFetchingNextPage: isFetchingExpiredRewardsNextPage,
+    isFetchedAfterMount: isExpiredRewardsFetchedAfterMount,
+    fetchNextPage: fetchExpiredRewardsNextPage,
+    refetch: refetchExpiredRewards,
+  } = useRewards({expired: true});
+
+  const myRewardsEntries = getResultsFromPages(myRewards);
+  const unclaimedRewardEntries = getResultsFromPages(unclaimedRewards);
+  const lockedRewardsEntries = getResultsFromPages(lockedRewards);
+  const expiredRewardsEntries = getResultsFromPages(expiredRewards);
 
   // Count of all rewards (owned, unlocked, locked, expired)
   // TODO: Add other reward types once API supports it
-  const totalRewardsCount = [...rewards].length;
+  const totalRewardsCount = [
+    ...myRewardsEntries,
+    ...unclaimedRewardEntries,
+    ...lockedRewardsEntries,
+    ...expiredRewardsEntries,
+  ].length;
 
   // Whether any of the reward list calls are loading
-  const isLoading = isFetchingRewards;
-  const isFetchedAfterMount = isRewardsFetchedAfterMount;
+  const isLoading =
+    isFetchingUnclaimedRewards ||
+    isFetchingLockedRewards ||
+    isFetchingExpiredRewards ||
+    isFetchingMyRewards;
 
-  const pointsTotal = 127;
-  const claimableRewardsCount = 0;
-  const nextRewardPoint = 150;
+  const isFetchedAfterMount =
+    isUnclaimedRewardsFetchedAfterMount &&
+    isLockedRewardsFetchedAfterMount &&
+    isExpiredRewardsFetchedAfterMount &&
+    isMyRewardsFetchedAfterMount &&
+    userIsFetched;
+
+  const pointsTotal = user?.points_total;
+  const claimableRewardsCount = unclaimedRewards?.pages[0]?.total || 0;
+  const nextRewardPoint = 500;
 
   // Refetch all reward lists
   const handleRefresh = () => {
-    refetchRewards();
+    refetchUnclaimedRewards();
   };
 
   const renderEmpty = () => {
@@ -111,10 +160,16 @@ export const Rewards = () => {
         renderEmpty()
       ) : (
         <>
-          <RewardSlider data={rewards} title={'My Rewards'} />
-          <RewardSlider data={rewards} title={'Unclaimed Rewards'} />
-          <RewardSlider data={rewards} title={'Locked Rewards'} />
-          <RewardSlider data={[]} title={'Expired Rewards'} />
+          <RewardSlider data={myRewardsEntries} title={'My Rewards'} />
+          <RewardSlider
+            data={unclaimedRewardEntries}
+            title={'Unclaimed Rewards'}
+          />
+          <RewardSlider data={lockedRewardsEntries} title={'Locked Rewards'} />
+          <RewardSlider
+            data={expiredRewardsEntries}
+            title={'Expired Rewards'}
+          />
         </>
       )}
     </Wrapper>

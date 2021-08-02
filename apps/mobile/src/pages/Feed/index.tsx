@@ -49,6 +49,7 @@ export const Feed = () => {
     refetch: refetchUser,
   } = useMe({
     refetchOnMount: false,
+    refetchInterval: 10000,
   });
 
   if (!user) return null;
@@ -66,7 +67,7 @@ export const Feed = () => {
         refreshControl={
           <RefreshControl
             tintColor={colors.accent}
-            refreshing={isFetchingUser}
+            refreshing={false}
             onRefresh={refetchUser}
           />
         }
