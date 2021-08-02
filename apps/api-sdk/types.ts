@@ -133,6 +133,7 @@ export type ReadResource =
   | '/users-invitations/:invitationId'
   | '/me'
   | '/me/roles'
+  | '/me/next-reward'
   | '/me/feed/:feedItemId'
   | '/me/avatar'
   | '/me/email'
