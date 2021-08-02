@@ -29,6 +29,7 @@ import {
 import {
   Reward,
   RewardPublic,
+  RewardNext,
   RewardPublicPagination
 } from './entities/reward.entity'
 import { RewardFiltersDto } from './dto/reward-filters.dto'
@@ -81,6 +82,13 @@ export class RewardsController {
       pagination,
       filters
     )
+  }
+
+  @ApiTags('me')
+  @Get('/me/next-reward')
+  @ApiResponse({ type: RewardNext, status: 200 })
+  nextReward(@User() authUser: AuthenticatedUser) {
+    return this.rewardsService.getPointsUntilNextReward(authUser.id)
   }
 
   @ApiTags('me')
