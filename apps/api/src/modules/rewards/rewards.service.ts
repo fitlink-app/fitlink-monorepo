@@ -9,7 +9,7 @@ import { Team } from '../teams/entities/team.entity'
 import { User } from '../users/entities/user.entity'
 import { CreateRewardDto } from './dto/create-reward.dto'
 import { UpdateRewardDto } from './dto/update-reward.dto'
-import { Reward, RewardPublic } from './entities/reward.entity'
+import { Reward, RewardPublic, RewardNext } from './entities/reward.entity'
 import { RewardAccess } from './rewards.constants'
 import { startOfDay } from 'date-fns'
 import { RewardFiltersDto } from './dto/reward-filters.dto'
@@ -103,7 +103,10 @@ export class RewardsService {
       })
     }
 
-    query = query.take(limit).skip(page * limit)
+    query = query
+      .take(limit)
+      .skip(page * limit)
+      .orderBy('reward.points_required', 'ASC')
 
     const [results, total] = await query.getManyAndCount()
 
@@ -111,6 +114,36 @@ export class RewardsService {
       results: results.map(this.getRewardPublic),
       total
     })
+  }
+
+  /**
+   * Points to next reward
+   *
+   * Where a reward is available, points are 0
+   * Where no rewards are available, points are equivalent to lowest available reward
+   * When no reward exists, points are 0 and reward is returned as null
+   *
+   * @param param0
+   * @returns
+   */
+  async getPointsUntilNextReward(userId: string): Promise<RewardNext> {
+    const user = await this.userRepository.findOne(userId)
+
+    const query = this.queryFindAccessibleToUser(userId)
+      .andWhere('redemptions.id IS NULL')
+      .orderBy('reward.points_required', 'ASC')
+
+    const reward = await query.getOne()
+
+    let points = 0
+    if (reward && reward.points_required > user.points_total) {
+      points = reward.points_required - user.points_total
+    }
+
+    return {
+      reward,
+      points_until_reward: points
+    }
   }
 
   /**
