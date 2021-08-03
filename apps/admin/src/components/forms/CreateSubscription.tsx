@@ -271,7 +271,9 @@ export default function CreateSubscription({
           />
           {current.billing_plan_customer_id && (
             <>
-              <PaymentSources subscriptionId={current.id} />
+              <span className="small">
+                <PaymentSources subscriptionId={current.id} />
+              </span>
               <button
                 className="button small ml-1"
                 onClick={(event) => {
@@ -387,7 +389,7 @@ const PaymentSources = ({ subscriptionId }) => {
     data
   }: ApiResult<{
     results: any
-  }> = useQuery('organisations_search', () =>
+  }> = useQuery('payment_sources', () =>
     api.list<PaymentSource>(
       '/subscriptions/:subscriptionId/chargebee/payment-sources',
       {
@@ -397,7 +399,9 @@ const PaymentSources = ({ subscriptionId }) => {
   )
 
   if (data) {
-    return <>{JSON.stringify(data.results)}</>
+    return <>{data.results.length} valid payment sources available.</>
+  } else {
+    return <>No payment sources available yet.</>
   }
 
   return null
