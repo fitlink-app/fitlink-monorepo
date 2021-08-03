@@ -1,25 +1,22 @@
-import { useContext, useState, useEffect } from 'react'
+import { useContext, useState, useEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
 import Input from '../elements/Input'
 import Select from '../elements/Select'
 import { Controller, useForm } from 'react-hook-form'
 import { CreateDefaultSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/create-default-subscription.dto'
 import { Organisation } from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
-import { OrganisationType } from '@fitlink/api/src/modules/organisations/organisations.constants'
-import Checkbox from '../elements/Checkbox'
 import { AuthContext } from '../../context/Auth.context'
 import { useMutation, useQuery } from 'react-query'
 import { ApiMutationResult, ApiResult } from '@fitlink/common/react-query/types'
 import { UpdateResult } from '@fitlink/api-sdk/types'
 import Feedback from '../elements/Feedback'
 import useApiErrors from '../../hooks/useApiErrors'
-import AvatarSelect from '../elements/AvatarSelect'
-import { Image } from '@fitlink/api/src/modules/images/entities/image.entity'
 import { Subscription } from '@fitlink/api/src/modules/subscriptions/entities/subscription.entity'
 import {
   BillingPlanStatus,
   SubscriptionType
 } from '@fitlink/api/src/modules/subscriptions/subscriptions.constants'
+import { PaymentSource } from 'chargebee-typescript/lib/resources'
 
 export type CreateSubscriptionProps = {
   current?: Partial<Subscription>
@@ -58,6 +55,7 @@ const getFields = (current: Partial<Subscription> = {}) => ({
   billing_postcode: current.billing_postcode,
   billing_plan_trial_end_date: current.billing_plan_trial_end_date,
   billing_plan_status: current.billing_plan_status,
+  billing_plan_customer_id: current.billing_plan_customer_id,
   organisationId: current.organisation ? current.organisation.id : undefined,
   organisationName: current.organisation
     ? current.organisation.name
@@ -130,6 +128,42 @@ export default function CreateSubscription({
 
   const type = watch('type')
 
+  const chargeBee = useRef(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const chargebee = (window as any).Chargebee
+      if (chargebee) {
+        chargebee.init({
+          site: 'fitlinkapp-test',
+          publishableKey: 'test_tr8k30RHmt46JzSZUElKcu17FgA67OOl7'
+        })
+        chargeBee.current = chargebee.getInstance()
+      }
+    }
+  }, [])
+
+  const openChargebeeCheckout = ({ id }: Partial<Subscription>) => {
+    if (chargeBee && chargeBee.current) {
+      chargeBee.current.openCheckout({
+        hostedPage: async () => {
+          try {
+            const data = await api.get(
+              '/subscriptions/:subscriptionId/chargebee/hosted-page',
+              {
+                subscriptionId: id
+              }
+            )
+
+            return data
+          } catch (error) {
+            console.error(error)
+          }
+        }
+      })
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <h4 className="light mb-3">
@@ -199,32 +233,56 @@ export default function CreateSubscription({
       />
 
       {type === SubscriptionType.Dynamic && (
-        <Controller
-          name="billing_plan_status"
-          control={control}
-          render={({ field }) => {
-            return (
-              <Select
-                classNamePrefix="addl-class"
-                options={planStatus}
-                label="Billing Plan Status"
-                inline={false}
-                id="plan_status"
-                defaultValue={
-                  planStatus.filter(
-                    (e) => e.value === current.billing_plan_status
-                  )[0]
-                }
-                onChange={(option) => {
-                  if (option) {
-                    field.onChange(option.value)
+        <>
+          <Controller
+            name="billing_plan_status"
+            control={control}
+            render={({ field }) => {
+              return (
+                <Select
+                  classNamePrefix="addl-class"
+                  options={planStatus}
+                  label="Billing Plan Status"
+                  inline={false}
+                  id="plan_status"
+                  defaultValue={
+                    planStatus.filter(
+                      (e) => e.value === current.billing_plan_status
+                    )[0]
                   }
-                }}
-                onBlur={field.onBlur}
-              />
-            )
-          }}
-        />
+                  onChange={(option) => {
+                    if (option) {
+                      field.onChange(option.value)
+                    }
+                  }}
+                  onBlur={field.onBlur}
+                />
+              )
+            }}
+          />
+          <Input
+            register={register('billing_plan_customer_id')}
+            name="billing_plan_customer_id"
+            placeholder="Chargebee Customer ID"
+            label="Chargebee Customer ID"
+            readOnly={true}
+            disabled={true}
+            error={errors.billing_plan_customer_id}
+          />
+          {current.billing_plan_customer_id && (
+            <>
+              <PaymentSources subscriptionId={current.id} />
+              <button
+                className="button small ml-1"
+                onClick={(event) => {
+                  event.preventDefault()
+                  openChargebeeCheckout(current)
+                }}>
+                Manage Payment Methods
+              </button>
+            </>
+          )}
+        </>
       )}
 
       <Input
@@ -320,4 +378,27 @@ export default function CreateSubscription({
       </div>
     </form>
   )
+}
+
+const PaymentSources = ({ subscriptionId }) => {
+  const { api } = useContext(AuthContext)
+
+  const {
+    data
+  }: ApiResult<{
+    results: any
+  }> = useQuery('organisations_search', () =>
+    api.list<PaymentSource>(
+      '/subscriptions/:subscriptionId/chargebee/payment-sources',
+      {
+        subscriptionId
+      }
+    )
+  )
+
+  if (data) {
+    return <>{JSON.stringify(data.results)}</>
+  }
+
+  return null
 }

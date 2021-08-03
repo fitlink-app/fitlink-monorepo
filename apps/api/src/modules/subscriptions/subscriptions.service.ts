@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { Not, Repository } from 'typeorm'
 import { CreateDefaultSubscriptionDto } from './dto/create-default-subscription.dto'
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto'
 import { Subscription } from './entities/subscription.entity'
@@ -9,6 +9,24 @@ import { Team } from '../teams/entities/team.entity'
 import { User } from '../users/entities/user.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { ChargeBee } from 'chargebee-typescript'
+import {
+  Customer,
+  CustomerBillingAddress,
+  HostedPage,
+  PaymentSource
+} from 'chargebee-typescript/lib/resources'
+import { SubscriptionType } from './subscriptions.constants'
+
+interface ChargebeeError {
+  api_error_code: string
+  message: string
+  type?: string
+  param?: string
+}
+
+export enum HostedPageError {
+  CustomerNotFound = 'customer_not_found'
+}
 
 const chargebee = new ChargeBee()
 
@@ -63,6 +81,20 @@ export class SubscriptionsService {
    * @param orgId
    * @param subId
    */
+  async findOneSubscription(
+    subId: string,
+    relations: Array<string> = ['organisation']
+  ) {
+    return await this.subscriptionsRepository.findOne(subId, {
+      relations: relations
+    })
+  }
+
+  /**
+   * Find the subscription
+   * @param orgId
+   * @param subId
+   */
   async findOne(
     orgId: string,
     subId: string,
@@ -89,13 +121,47 @@ export class SubscriptionsService {
     { organisationId, ...dto }: UpdateSubscriptionDto,
     subId: string
   ) {
-    const organisation = new Organisation()
-    organisation.id = organisationId
+    let update: Partial<Subscription> = dto
 
-    return await this.subscriptionsRepository.update(subId, {
-      organisation,
-      ...dto
+    const subscription = await this.subscriptionsRepository.findOne(subId, {
+      relations: ['organisation']
     })
+
+    if (organisationId) {
+      update.organisation = new Organisation()
+      update.organisation.id = organisationId
+    }
+
+    const setToDefault = dto.default === true
+
+    if (setToDefault && subscription.organisation) {
+      // Remove default setting on all other subscriptions
+      await this.subscriptionsRepository
+        .createQueryBuilder()
+        .update(Subscription)
+        .set({
+          default: false
+        })
+        .where('id != :subId AND organisation.id = :orgId', {
+          subId,
+          orgId: subscription.organisation.id
+        })
+        .execute()
+    }
+
+    // The subscription is not yet connected to a ChargeBee billing plan
+    if (
+      !subscription.billing_plan_customer_id &&
+      subscription.type === SubscriptionType.Dynamic
+    ) {
+      const customer = await this.updateChargeBeeCustomer(subscription)
+      update.billing_plan_customer_id = customer.id
+    } else {
+      // Update the ChargeBee customer
+      await this.updateChargeBeeCustomer(subscription)
+    }
+
+    return await this.subscriptionsRepository.update(subId, update)
   }
 
   /**
@@ -224,7 +290,7 @@ export class SubscriptionsService {
 
   /**
    * Find all subscriptions
-   * @param orgId,
+   * @param orgId
    * @param subId
    */
   async findAll({
@@ -234,7 +300,10 @@ export class SubscriptionsService {
     const [results, total] = await this.subscriptionsRepository.findAndCount({
       relations: ['organisation'],
       take: limit,
-      skip: limit * page
+      skip: limit * page,
+      order: {
+        updated_at: 'DESC'
+      }
     })
 
     return new Pagination<Subscription>({
@@ -312,6 +381,76 @@ export class SubscriptionsService {
       .set(null)
 
     return await this.findOne(orgId, subId, ['organisation', 'users'])
+  }
+
+  async updateChargeBeeCustomer(subscription: Subscription): Promise<Customer> {
+    const chargebeeCustomer: Partial<Customer> = {
+      company: subscription.billing_entity,
+      first_name: subscription.billing_first_name,
+      last_name: subscription.billing_last_name,
+      preferred_currency_code: subscription.billing_currency_code
+    }
+
+    const address: Partial<CustomerBillingAddress> = {
+      company: subscription.billing_entity,
+      line1: subscription.billing_address_1,
+      line2: subscription.billing_address_2,
+      city: subscription.billing_city,
+      state: subscription.billing_state,
+      country: subscription.billing_country_code,
+      zip: subscription.billing_postcode
+    }
+
+    if (subscription.billing_plan_customer_id) {
+      if (subscription.type === SubscriptionType.Dynamic) {
+        const customer = await getPromise(
+          chargebee.customer.update(subscription.billing_plan_customer_id, {
+            allow_direct_debit: true,
+            ...chargebeeCustomer
+          })
+        )
+
+        await getPromise(
+          chargebee.customer.update_billing_info(
+            subscription.billing_plan_customer_id,
+            {
+              billing_address: address
+            }
+          )
+        )
+
+        return customer
+      } else {
+        // The plan type has changed which means we need to delete the customer
+        return getPromise(
+          chargebee.customer.update(subscription.billing_plan_customer_id, {
+            allow_direct_debit: true,
+            ...chargebeeCustomer
+          })
+        )
+      }
+    } else if (subscription.type === SubscriptionType.Dynamic) {
+      return getPromise(
+        chargebee.customer.create({
+          allow_direct_debit: true,
+          billing_address: address,
+          ...chargebeeCustomer
+        })
+      )
+    }
+
+    function getPromise(request: any): Promise<Customer> {
+      return new Promise((resolve, reject) => {
+        request.request((error, result) => {
+          if (error) {
+            reject(error)
+          } else {
+            const customer = result.customer as Customer
+            resolve(customer)
+          }
+        })
+      })
+    }
   }
 
   /**
@@ -449,5 +588,84 @@ export class SubscriptionsService {
       })
     })
     return await chargebeeCustomer
+  }
+
+  /**
+   * Gets the hosted page response for a subscription
+   * with an associated chargebee customer id
+   *
+   * @param subId
+   * @returns
+   */
+  async getChargebeeHostedPage(
+    subId: string
+  ): Promise<HostedPageError | HostedPage> {
+    const subscription = await this.findOneSubscription(subId)
+
+    if (!subscription.billing_plan_customer_id) {
+      return HostedPageError.CustomerNotFound
+    }
+
+    return new Promise((resolve, reject) => {
+      chargebee.hosted_page
+        .manage_payment_sources({
+          customer: {
+            id: subscription.billing_plan_customer_id
+          }
+        })
+        .request((error: ChargebeeError, result: any) => {
+          if (error) {
+            reject(error)
+          } else {
+            const hostedPage: HostedPage = result.hosted_page
+
+            resolve(hostedPage)
+          }
+        })
+    })
+  }
+
+  /**
+   * Get chargebee payment sources
+   *
+   * @param subId
+   * @returns
+   */
+  async getChargebeePaymentSources(
+    subId: string
+  ): Promise<
+    | {
+        results: PaymentSource[]
+        pageTotal: number
+        total: number
+      }
+    | HostedPageError
+  > {
+    const subscription = await this.findOneSubscription(subId)
+
+    if (!subscription.billing_plan_customer_id) {
+      return HostedPageError.CustomerNotFound
+    }
+
+    return new Promise((resolve, reject) => {
+      chargebee.payment_source
+        .list({
+          customer_id: {
+            is: subscription.billing_plan_customer_id
+          },
+          status: { is: 'valid' }
+        })
+        .request((error: ChargebeeError, result: { list: PaymentSource[] }) => {
+          if (error) {
+            reject(error)
+          } else {
+            resolve({
+              results: result.list,
+              pageTotal: result.list.length,
+              total: result.list.length
+            })
+          }
+        })
+    })
   }
 }

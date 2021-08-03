@@ -20,11 +20,10 @@ export type ConfirmProps = {
   message: string
   current?: Partial<Organisation>
   requireConfirmText?: string
-  mutation: ( current ) => Promise<UpdateResult>
+  mutation: (current) => Promise<UpdateResult>
   onUpdate?: () => void
   onCancel?: () => void
   onError?: () => void
-
 }
 
 const noop = () => {}
@@ -32,16 +31,18 @@ const noop = () => {}
 export default function ConfirmForm({
   title = 'Confirm action',
   message,
-  current:,
+  current,
   requireConfirmText = '',
   mutation,
   onUpdate = noop,
   onError = noop,
-  onCancel = noop,
+  onCancel = noop
 }: ConfirmProps) {
   const { api } = useContext(AuthContext)
 
-  const update: ApiMutationResult<UpdateResult> = useMutation(() => mutation( current ))
+  const update: ApiMutationResult<UpdateResult> = useMutation(() =>
+    mutation(current)
+  )
 
   async function onSubmit(data: { confirm_text: string }) {
     if (requireConfirmText && requireConfirmText !== data.confirm_text) {

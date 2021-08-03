@@ -27,7 +27,7 @@ import {
   UpdateUserPasswordDto
 } from '@fitlink/api/src/modules/users/dto/update-user.dto'
 import { CreateDefaultSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/create-default-subscription.dto'
-import { UpdateSubscriptionDto } from 'apps/api/src/modules/subscriptions/dto/update-subscription.dto'
+import { UpdateSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/update-subscription.dto'
 
 export type {
   AuthResultDto,
@@ -93,6 +93,7 @@ export type ListResource =
   | '/queue'
   | '/sports'
   | '/subscriptions'
+  | '/subscriptions/:subscriptionId/chargebee/payment-sources'
   | '/users-invitations'
   | '/leagues'
   | '/me'
@@ -130,6 +131,7 @@ export type ReadResource =
   | '/queue/:queueId'
   | '/sports/:sportId'
   | '/subscriptions/:subscriptionId'
+  | '/subscriptions/:subscriptionId/chargebee/hosted-page'
   | '/users-invitations/:invitationId'
   | '/me'
   | '/me/roles'

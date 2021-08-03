@@ -1,8 +1,9 @@
 import { PartialType } from '@nestjs/mapped-types'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsUUID } from 'class-validator'
+import { IsEnum, IsUUID } from 'class-validator'
 import { CreateDefaultSubscriptionDto } from './create-default-subscription.dto'
 import { IsOptional } from 'class-validator'
+import { SubscriptionType } from '../subscriptions.constants'
 
 export class UpdateSubscriptionDto extends PartialType(
   CreateDefaultSubscriptionDto
@@ -12,8 +13,9 @@ export class UpdateSubscriptionDto extends PartialType(
   usersIdsList?: Array<string>
 
   @ApiProperty()
+  @IsOptional()
   @IsUUID(4, {
     message: 'A valid organisation is required'
   })
-  organisationId: string
+  organisationId?: string
 }

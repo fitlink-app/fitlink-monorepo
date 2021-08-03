@@ -12,7 +12,9 @@ const COUNT_SUBSCRIPTIONS = 2
 const COUNT_USERS = 10
 
 export async function SubscriptionsSetup(
-  billing_entity: string
+  billing_entity: string,
+  count = COUNT_SUBSCRIPTIONS,
+  override: Partial<Subscription> = {}
 ): Promise<Subscription[]> {
   const countUsers = COUNT_SUBSCRIPTIONS * COUNT_USERS
   const name = billing_entity
@@ -27,8 +29,9 @@ export async function SubscriptionsSetup(
 
       const subscriptions = await factory(Subscription)({
         organisation
-      }).createMany(COUNT_SUBSCRIPTIONS, {
-        billing_entity
+      }).createMany(count, {
+        billing_entity,
+        ...override
       })
 
       await Promise.all(

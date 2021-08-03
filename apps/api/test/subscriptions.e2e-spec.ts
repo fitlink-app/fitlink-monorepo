@@ -71,6 +71,7 @@ describe('Subscriptions', () => {
   let subscriptionAdminHeaders
   let authHeaders
   let subscription: Subscription
+  let subscription2: Subscription
 
   beforeAll(async () => {
     app = await mockApp({
@@ -83,9 +84,12 @@ describe('Subscriptions', () => {
 
     connection = app.get(Connection)
 
-    const seed = await SubscriptionsSetup('Test Subscription')
+    const seed = await SubscriptionsSetup('Test Subscription', 2, {
+      default: true
+    })
 
     subscription = seed[0]
+    subscription2 = seed[1]
     // Superadmin
     superadminHeaders = getAuthHeaders({ spr: true })
     // Org admin
@@ -317,6 +321,49 @@ describe('Subscriptions', () => {
     })
     expect(result.statusCode).toEqual(400)
     expect(result.json().message).toContain("the subscription doesn't exist")
+  })
+
+  it('POST /subscriptions/:subscriptionId A default subscription can be set, which unsets others as default', async () => {
+    const [subscription1, subscription2] = await SubscriptionsSetup(
+      'Test Subscription',
+      2,
+      {
+        default: true
+      }
+    )
+
+    console.log(subscription2.id)
+
+    let other = await getSubscription(subscription2.id)
+    expect(other.statusCode).toBe(200)
+    expect(other.json().default).toBe(true)
+
+    const result = await app.inject({
+      method: 'PUT',
+      url: `/subscriptions/${subscription1.id}`,
+      headers: superadminHeaders,
+      payload: {
+        default: true
+      }
+    })
+
+    expect(result.statusCode).toBe(200)
+
+    other = await getSubscription(subscription2.id)
+    expect(other.statusCode).toBe(200)
+    expect(other.json().default).toBe(false)
+
+    const sub = await getSubscription(subscription1.id)
+    expect(sub.statusCode).toBe(200)
+    expect(sub.json().default).toBe(true)
+
+    async function getSubscription(id: string) {
+      return await app.inject({
+        method: 'GET',
+        url: `/subscriptions/${id}`,
+        headers: superadminHeaders
+      })
+    }
   })
 })
 

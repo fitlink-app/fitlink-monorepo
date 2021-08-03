@@ -6,9 +6,10 @@ import {
   Put,
   Param,
   Delete,
-  Request
+  Request,
+  BadRequestException
 } from '@nestjs/common'
-import { SubscriptionsService } from './subscriptions.service'
+import { SubscriptionsService, HostedPageError } from './subscriptions.service'
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto'
 import { CreateDefaultSubscriptionDto } from './dto/create-default-subscription.dto'
 import { Iam } from '../../decorators/iam.decorator'
@@ -21,7 +22,10 @@ import {
 } from '../../decorators/swagger.decorator'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { PaginationQuery } from '../../helpers/paginate'
-import { SubscriptionPagination } from './entities/subscription.entity'
+import {
+  Subscription,
+  SubscriptionPagination
+} from './entities/subscription.entity'
 import { CreateSubscriptionDto } from './dto/create-subscription.dto'
 
 @Controller()
@@ -54,6 +58,46 @@ export class SubscriptionsController {
   @ApiResponse({ type: SubscriptionPagination, status: 200 })
   findAll(@Pagination() pagination: PaginationQuery) {
     return this.subscriptionsService.findAll(pagination)
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Get('/subscriptions/:subscriptionId')
+  @PaginationBody()
+  @ApiResponse({ type: Subscription, status: 200 })
+  findOneSubscription(@Param('subscriptionId') subId: string) {
+    return this.subscriptionsService.findOneSubscription(subId)
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Get('/subscriptions/:subscriptionId/chargebee/hosted-page')
+  @PaginationBody()
+  @ApiResponse({ type: Subscription, status: 200 })
+  async chargebeeHostedPage(@Param('subscriptionId') subId: string) {
+    const result = await this.subscriptionsService.getChargebeeHostedPage(subId)
+    if (result === HostedPageError.CustomerNotFound) {
+      throw new BadRequestException(
+        'The customer does not have a payment plan yet'
+      )
+    }
+
+    return result
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Get('/subscriptions/:subscriptionId/chargebee/payment-sources')
+  @PaginationBody()
+  @ApiResponse({ type: Subscription, status: 200 })
+  async chargebeePaymentSources(@Param('subscriptionId') subId: string) {
+    const result = await this.subscriptionsService.getChargebeePaymentSources(
+      subId
+    )
+    if (result === HostedPageError.CustomerNotFound) {
+      throw new BadRequestException(
+        'The customer does not have a payment plan yet'
+      )
+    }
+
+    return result
   }
 
   @Iam(Roles.SuperAdmin)

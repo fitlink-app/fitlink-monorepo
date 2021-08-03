@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect, useRef } from 'react'
 import Drawer from '../components/elements/Drawer'
 import CreateSubscription from '../components/forms/CreateSubscription'
 import Dashboard from '../components/layouts/Dashboard'
@@ -15,6 +15,7 @@ import { Subscription } from '@fitlink/api/src/modules/subscriptions/entities/su
 import { timeout } from '../helpers/timeout'
 import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 import ConfirmForm from '../components/forms/ConfirmForm'
+import Head from 'next/head'
 
 export default function SubscriptionsPage() {
   const [drawContent, setDrawContent] = useState<
@@ -64,6 +65,31 @@ export default function SubscriptionsPage() {
     )
   }
 
+  const ConfirmSubscriptionForm = (fields) => {
+    setWarning(true)
+    setWide(false)
+    setDrawContent(
+      <ConfirmForm
+        onUpdate={closeDrawer(1000)}
+        onCancel={closeDrawer()}
+        current={fields}
+        title="Set default subscription"
+        message={`
+          Are you sure you want to set this subscription to default?
+          New users to this organisation will be allocated to this subscription in future.
+        `}
+        mutation={(current) =>
+          api.put<Subscription>('/subscriptions/:subscriptionId', {
+            subscriptionId: current.id,
+            payload: {
+              default: true
+            }
+          })
+        }
+      />
+    )
+  }
+
   const showAvatar = ({
     cell: {
       row: {
@@ -90,17 +116,7 @@ export default function SubscriptionsPage() {
       </button>
       <button
         className="button small ml-1"
-        onClick={() =>
-          ConfirmForm({
-            message:
-              'Are you sure you want to make this the default subscription?',
-            mutation: (current) =>
-              api.put<Subscription>('/subscriptions/:subscriptionId', {
-                subscriptionId: current.id,
-                payload: {}
-              })
-          })
-        }>
+        onClick={() => ConfirmSubscriptionForm(original)}>
         Make Default
       </button>
       <button
@@ -115,6 +131,10 @@ export default function SubscriptionsPage() {
 
   return (
     <Dashboard title="Settings Users">
+      <Head>
+        <script src="https://js.chargebee.com/v2/chargebee.js"></script>
+      </Head>
+
       <div className="flex ai-c">
         <h1 className="light mb-0 mr-2">Manage subscriptions</h1>
         <button

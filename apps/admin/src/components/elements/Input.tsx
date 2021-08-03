@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, InputHTMLAttributes } from 'react'
 import clsx from 'clsx'
 import { UseFormRegisterReturn } from 'react-hook-form'
 
-export type InputProps = {
+export type InputProps = InputHTMLAttributes<
+  HTMLInputElement | HTMLTextAreaElement
+> & {
   type?: 'text' | 'number' | 'email' | 'tel' | 'textarea' | 'password'
   label?: string
   placeholder?: string
@@ -31,7 +33,8 @@ export default function Input({
   min,
   max,
   error = '',
-  register
+  register,
+  ...rest
 }: InputProps) {
   const [val, setVal] = useState(value)
   const classes = clsx({
@@ -79,6 +82,7 @@ export default function Input({
           onChange={(e) => handleChange(e)}
           placeholder={placeholder}
           rows={rows}
+          {...rest}
           {...register}
         />
       )
@@ -94,6 +98,7 @@ export default function Input({
           onKeyDown={(e) => handleKeyDown(e)}
           min={min || -9999999999}
           max={max || 9999999999}
+          {...rest}
           {...register}
         />
       )
@@ -106,6 +111,7 @@ export default function Input({
         onChange={(e) => handleChange(e)}
         placeholder={placeholder}
         onKeyDown={(e) => handleKeyDown(e)}
+        {...rest}
         {...register}
       />
     )
