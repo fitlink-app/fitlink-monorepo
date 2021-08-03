@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { RecreateGoalsEntryDto } from './dto/update-goals-entry.dto'
-import { GoalsEntry } from './entities/goals-entry.entity'
+import {
+  GoalsEntry,
+  GoalsEntryCurrent,
+  GoalsEntryTarget
+} from './entities/goals-entry.entity'
 import { InjectRepository } from '@nestjs/typeorm'
 import { MoreThanOrEqual, Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
@@ -9,6 +13,18 @@ import { zonedStartOfDay } from '../../../../common/date/helpers'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { DialyGoalsReachedEvent as GoalEntryReachedEvent } from './events/daily-goals-reached.event'
 import { FeedGoalType } from '../feed-items/feed-items.constants'
+
+interface GoalField {
+  field:
+    | 'current_floors_climbed'
+    | 'current_mindfulness_minutes'
+    | 'current_sleep_hours'
+    | 'current_steps'
+    | 'current_water_litres'
+  current?: number
+  target: number
+  feedType: FeedGoalType
+}
 
 @Injectable()
 export class GoalsEntriesService {
@@ -21,6 +37,44 @@ export class GoalsEntriesService {
     private eventEmitter: EventEmitter2
   ) {}
 
+  formatFields(
+    current: GoalsEntryCurrent,
+    target: GoalsEntryTarget
+  ): GoalField[] {
+    return [
+      {
+        field: 'current_floors_climbed',
+        current: current.current_floors_climbed || 0,
+        target: target.target_floors_climbed,
+        feedType: FeedGoalType.FloorsClimbed
+      },
+      {
+        field: 'current_mindfulness_minutes',
+        current: current.current_mindfulness_minutes || 0,
+        target: target.target_mindfulness_minutes,
+        feedType: FeedGoalType.MindfulnessMinutes
+      },
+      {
+        field: 'current_sleep_hours',
+        current: current.current_sleep_hours || 0,
+        target: target.target_sleep_hours,
+        feedType: FeedGoalType.SleepHours
+      },
+      {
+        field: 'current_steps',
+        current: current.current_steps || 0,
+        target: target.target_steps,
+        feedType: FeedGoalType.Steps
+      },
+      {
+        field: 'current_water_litres',
+        current: current.current_water_litres || 0,
+        target: target.target_water_litres,
+        feedType: FeedGoalType.WaterLitres
+      }
+    ]
+  }
+
   /**
    * Creates goals entry
    * @param userId
@@ -28,66 +82,66 @@ export class GoalsEntriesService {
    */
   async createOrUpdate(
     userId: string,
-    goalsEntryDto: RecreateGoalsEntryDto,
-    newEntry = false
+    goalsEntryDto: RecreateGoalsEntryDto
   ): Promise<GoalsEntry> {
     const user = await this.userRepository.findOne(userId)
+    let goalsEntry = await this.getLatest(userId)
 
-    let goalsEntry = new GoalsEntry()
-    goalsEntry.user = user
-
-    // Attach user's current goals to the goal entry
+    // Attach the latest user's current goals to the goal entry
     goalsEntry.target_mindfulness_minutes = user.goal_mindfulness_minutes
     goalsEntry.target_floors_climbed = user.goal_floors_climbed
     goalsEntry.target_sleep_hours = user.goal_sleep_hours
     goalsEntry.target_steps = user.goal_steps
     goalsEntry.target_water_litres = user.goal_water_litres
 
-    let result: GoalsEntry
-    if (!newEntry) {
-      result = await this.getCurrentEntry(user)
-    }
-
     // Only update values that are greater than previously stored
-    if (result && goalsEntryDto) {
-      Object.keys(goalsEntryDto).map((field) => {
-        if (goalsEntryDto[field] > goalsEntry[field]) {
-          goalsEntry[field] = goalsEntryDto[field]
+    let targetReached: GoalField[] = []
+    const entries = this.formatFields(goalsEntryDto || {}, goalsEntry)
+
+    entries.forEach((each) => {
+      // Only update if the incoming entry exceeds the previous entry value
+      if (each.current >= each.target) {
+        // Check if the current value was previously lower than target and is now "reached"
+        if (goalsEntry[each.field] < each.target) {
+          targetReached.push(each)
         }
-      })
-    } else if (goalsEntryDto) {
-      goalsEntry = Object.assign(goalsEntry, { ...goalsEntryDto })
-    }
-    const goalEntryReachedEvent = new GoalEntryReachedEvent()
-    goalEntryReachedEvent.goal_entry = goalsEntry
-    goalEntryReachedEvent.userId = user.id
 
-    let goalsArr = Object.entries(FeedGoalType)
-    let promises = []
-    for (let goal of goalsArr) {
-      const {
-        current,
-        prev,
-        target,
-        feedGoalType
-      } = this.genTriggerEventParams(goalsEntry, user, goalsEntry, goal[1])
-
-      promises.push(
-        this.triggerEvent(
-          current,
-          prev,
-          target,
-          goalEntryReachedEvent,
-          feedGoalType
-        )
-      )
-    }
-
-    await Promise.all(promises)
-    return await this.goalsEntryRepository.save({
-      ...result,
-      ...goalsEntry
+        goalsEntry[each.field] = each.current
+      }
     })
+
+    targetReached.forEach((each) => {
+      // console.log( each.feedType )
+    })
+
+    // const goalEntryReachedEvent = new GoalEntryReachedEvent()
+    // goalEntryReachedEvent.goal_entry = goalsEntry
+    // goalEntryReachedEvent.userId = user.id
+
+    // let goalsArr = Object.entries(FeedGoalType)
+    // let promises = []
+    // for (let goal of goalsArr) {
+    //   const {
+    //     current,
+    //     prev,
+    //     target,
+    //     feedGoalType
+    //   } = this.genTriggerEventParams(goalsEntry, user, goalsEntry, goal[1])
+
+    //   promises.push(
+    //     this.triggerEvent(
+    //       current,
+    //       prev,
+    //       target,
+    //       goalEntryReachedEvent,
+    //       feedGoalType
+    //     )
+    //   )
+    // }
+
+    // await Promise.all(promises)
+
+    return await this.goalsEntryRepository.save(goalsEntry)
   }
 
   genTriggerEventParams(
@@ -181,7 +235,7 @@ export class GoalsEntriesService {
     })
   }
 
-  async getCurrentEntry(user: User) {
+  async getExistingEntry(user: User) {
     return this.goalsEntryRepository.findOne({
       where: {
         created_at: MoreThanOrEqual(zonedStartOfDay(user.timezone)),
@@ -197,7 +251,7 @@ export class GoalsEntriesService {
    */
   async getLatest(userId: string): Promise<GoalsEntry> {
     const user = await this.userRepository.findOne(userId)
-    const result = await this.getCurrentEntry(user)
+    const result = await this.getExistingEntry(user)
 
     if (!result) {
       return this.getEmptyEntry(user)
