@@ -62,7 +62,8 @@ async function bootstrapServer(): Promise<NestApp> {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      exceptionFactory: validationExceptionFactory
+      exceptionFactory: validationExceptionFactory,
+      whitelist: true
     })
   )
   app.useGlobalGuards(new UploadGuard(app.get(Reflector)))

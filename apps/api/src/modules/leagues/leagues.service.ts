@@ -122,6 +122,11 @@ export class LeaguesService {
 
     league.active_leaderboard = leaderboard
 
+    // Join the user to the league if it was privately created
+    if (league.access === LeagueAccess.Private) {
+      await this.joinLeague(league.id, league.owner.id)
+    }
+
     return league
   }
 
@@ -136,7 +141,7 @@ export class LeaguesService {
     return this.leaguesRepository
       .createQueryBuilder('league')
       .leftJoin('league.users', 'user')
-      .leftJoin('league.owner', 'owner')
+      .leftJoinAndSelect('league.owner', 'owner')
       .innerJoinAndSelect('league.active_leaderboard', 'leaderboard')
       .where('league.id = :leagueId', { leagueId })
       .andWhere('(user.id = :userId OR owner.id = :userId)', { userId })
@@ -396,6 +401,19 @@ export class LeaguesService {
     )
   }
 
+  async isParticipant(leagueId: string, userId: string) {
+    const count = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .innerJoin('league.users', 'user')
+      .where('user.id = :userId AND league.id = :leagueId', {
+        userId,
+        leagueId
+      })
+      .getCount()
+
+    return count > 0
+  }
+
   /**
    * Uses a transaction to
    * 1. Join the league
@@ -411,6 +429,10 @@ export class LeaguesService {
 
     const league = new League()
     league.id = leagueId
+
+    if (await this.isParticipant(leagueId, userId)) {
+      return 'already joined'
+    }
 
     const leaderboardEntry = await this.leaguesRepository.manager.transaction(
       async (manager) => {
@@ -597,6 +619,13 @@ export class LeaguesService {
       .leftJoin('userTeam.organisation', 'userOrganisation')
       .leftJoin('league', 'league', 'league.id = :leagueId', { leagueId })
       .leftJoin('league.users', 'leagueUser', 'leagueUser.id = user.id')
+      .leftJoin('user.leagues_invitations', 'i1')
+      .leftJoinAndSelect(
+        'user.leagues_invitations',
+        'invitation',
+        'i1.id = invitation.id AND invitation.from_user.id = :userId',
+        { userId }
+      )
       .leftJoin('user.following', 'f1')
       .leftJoin('user.followers', 'f2')
       .leftJoinAndSelect(
@@ -622,22 +651,28 @@ export class LeaguesService {
                 '(league.access = :accessPublic AND following.id IS NOT NULL)'
               )
 
+              // Where it is a private league, only show friends
+              .orWhere(
+                '(league.access = :accessPrivate AND following.id IS NOT NULL)'
+              )
+
               // The league is 'team'
               // The user belongs to the team that the league belongs to
               // Show any user within that team
               .orWhere(
-                `(league.access = :accessTeam AND league.team.id = userTeam.id)`
+                '(league.access = :accessTeam AND league.team.id = userTeam.id)'
               )
 
               // The league is 'organisation'
               // The user belongs to the organisation that the league belongs to
               // Show any user within that organisation
               .orWhere(
-                `(league.access = :accessOrganisation AND userOrganisation.id = league.organisation.id)`
+                '(league.access = :accessOrganisation AND userOrganisation.id = league.organisation.id)'
               )
           )
         }),
         {
+          accessPrivate: LeagueAccess.Private,
           accessTeam: LeagueAccess.Team,
           accessPublic: LeagueAccess.Public,
           accessOrganisation: LeagueAccess.Organisation,

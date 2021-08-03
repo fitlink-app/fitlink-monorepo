@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { MaxLength, IsEnum, IsOptional, IsEmail } from 'class-validator'
+import { IsTimezone } from '../../../decorators/class-validator/IsTimezone'
+import { MaxLength, IsEnum, IsOptional, IsEmail, IsUUID } from 'class-validator'
 import { Image } from '../../images/entities/image.entity'
 import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
 import { Organisation } from '../entities/organisation.entity'
@@ -20,11 +21,15 @@ export class CreateOrganisationDto {
 
   @ApiProperty()
   @IsOptional()
+  @IsTimezone()
   timezone?: string
 
   @ApiProperty()
+  @IsUUID(4, {
+    message: 'Must be a valid image id'
+  })
   @IsOptional()
-  avatar?: Image
+  imageId?: string
 
   @ApiProperty()
   @IsOptional()

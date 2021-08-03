@@ -40,17 +40,11 @@ export class OrganisationsInvitationsController {
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin)
   @Post('organisations/:organisationId/invitations')
   create(
-    @Param('organisationId') id,
+    @Param('organisationId') organisationId,
     @Body() createOrganisationsInvitationDto: CreateOrganisationsInvitationDto
   ) {
-    const organisation = new Organisation()
-    organisation.id = id
-
-    return this.organisationsInvitationsService.create({
-      ...createOrganisationsInvitationDto,
-      ...{
-        organisation
-      }
+    return this.organisationsInvitationsService.create(organisationId, {
+      ...createOrganisationsInvitationDto
     })
   }
 

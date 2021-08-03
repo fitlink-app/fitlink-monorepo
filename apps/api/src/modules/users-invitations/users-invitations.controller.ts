@@ -28,11 +28,10 @@ export class UsersInvitationsController {
     @Body() createUsersInvitationDto: CreateUsersInvitationDto,
     @User() user: AuthenticatedUser
   ) {
-    const inviter = await this.usersService.findOne(user.id)
-    return this.usersInvitationsService.create({
-      ...createUsersInvitationDto,
-      ...{ inviter }
-    })
+    return this.usersInvitationsService.create(
+      user.id,
+      createUsersInvitationDto
+    )
   }
 
   /**

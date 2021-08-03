@@ -17,7 +17,7 @@ export class LeaguesInvitation extends CreatableEntity {
   id: string
 
   @ApiProperty()
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (user) => user.leagues_invitations)
   @JoinColumn()
   to_user: User | UserPublic
 
@@ -27,7 +27,7 @@ export class LeaguesInvitation extends CreatableEntity {
   from_user: User | UserPublic
 
   @ApiProperty()
-  @ManyToOne(() => League)
+  @ManyToOne(() => League, (league) => league.invitations)
   @JoinColumn()
   league: League
 

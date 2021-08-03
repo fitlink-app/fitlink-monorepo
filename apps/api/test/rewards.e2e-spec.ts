@@ -685,4 +685,27 @@ describe('Rewards', () => {
     expect(result.statusCode).toBe(200)
     expect(result.json().results.length).toBeGreaterThan(0)
   })
+
+  it('GET /me/next-reward (200) A user can see their next unlockable reward', async () => {
+    ;(
+      await RewardsSetup('Test Rewards', 1, {
+        points_required: 7
+      })
+    )[0]
+
+    // Set points on user
+    await app.get(Connection).getRepository(User).update(users[0].id, {
+      points_total: 5
+    })
+
+    const result = await app.inject({
+      method: 'GET',
+      url: `/me/next-reward`,
+      headers: authHeaders
+    })
+
+    expect(result.statusCode).toBe(200)
+    expect(result.json().reward.points_required).toBe(7)
+    expect(result.json().points_until_reward).toBe(2)
+  })
 })

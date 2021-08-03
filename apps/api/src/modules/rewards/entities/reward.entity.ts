@@ -138,3 +138,11 @@ export class RewardPublicPagination {
   })
   results: RewardPublic[]
 }
+
+export class RewardNext {
+  @ApiProperty()
+  reward: Reward
+
+  @ApiProperty()
+  points_until_reward: number
+}

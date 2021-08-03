@@ -29,6 +29,7 @@ import { AuthProvider } from '../../auth/entities/auth-provider.entity'
 import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, Expose } from 'class-transformer'
 import { UnitSystem, UserRank } from '../users.constants'
+import { LeaguesInvitation } from '../../leagues-invitations/entities/leagues-invitation.entity'
 
 @Entity()
 export class User extends CreatableEntity {
@@ -203,6 +204,9 @@ export class User extends CreatableEntity {
   @OneToMany(() => TeamsInvitation, (invitation) => invitation.resolved_user)
   teams_invitations: TeamsInvitation[]
 
+  @OneToMany(() => LeaguesInvitation, (invitation) => invitation.to_user)
+  leagues_invitations: LeaguesInvitation[]
+
   @OneToMany(() => Activity, (activity) => activity.user)
   activities: Activity[]
 
@@ -337,6 +341,11 @@ export class UserPublic {
   @Expose()
   /** Whether the authenticated user is following the entity user */
   following?: boolean
+
+  @ApiProperty()
+  @Expose()
+  /** Whether the authenticated user is invited (depends on API request) */
+  invited?: boolean
 }
 
 export class UserPublicPagination {
