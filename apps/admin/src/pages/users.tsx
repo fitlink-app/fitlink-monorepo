@@ -7,6 +7,7 @@ import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 import { AnimatePresence } from 'framer-motion'
 import Drawer from '../components/elements/Drawer'
 import EditUser from '../components/forms/EditUser'
+import { timeout } from '../helpers/timeout'
 
 export default function UsersPage() {
   const [drawContent, setDrawContent] = useState<
@@ -14,11 +15,22 @@ export default function UsersPage() {
   >(false)
   const [warning, setWarning] = useState(false)
   const [wide, setWide] = useState(false)
+  const [refresh, setRefresh] = useState(0)
+
+  const closeDrawer = (ms = 0) => async () => {
+    if (ms) {
+      await timeout(ms)
+    }
+    setRefresh(Date.now())
+    setDrawContent(null)
+  }
 
   const EditUserForm = (fields) => {
     setWarning(true)
     setWide(false)
-    setDrawContent(<EditUser current={fields} />)
+    setDrawContent(
+      <EditUser onSave={closeDrawer(1000)} current={fields} />
+    )
   }
 
   const showAvatar = ({
@@ -83,13 +95,7 @@ export default function UsersPage() {
             })
           }
           fetchName="users"
-          // fetch={(limit = 10, page = 0, params = {}) => {
-          //   if (page !== currentPage) {
-          //     setCurrentPage(page)
-          //   }
-          //   return Promise.resolve(data)
-          // }}
-          // fetchName="example"
+          refresh={refresh}
         />
       </div>
 

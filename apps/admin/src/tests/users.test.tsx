@@ -55,6 +55,7 @@ describe('Users', () => {
     // Show and test the edit modal
     screen.getByRole('button', { name: /edit/i }).click()
     expect(screen.getAllByText(/save user/i)).toHaveLength(1)
+    expect(screen.getAllByText(/generate a password reset email/i)).toHaveLength(1)
     const modalItems = screen.getAllByDisplayValue(/Jodie|8mzFJNaZajNTQUcZd45I5zXFFl72\-sanitized\@fitlinkapp\.com/)
     expect(modalItems).toHaveLength(2)
   })
