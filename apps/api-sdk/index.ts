@@ -208,7 +208,7 @@ export class Api {
       params: {
         limit,
         page,
-        query,
+        ...query,
         ...rest
       }
     })
