@@ -7,15 +7,16 @@ import { Organisation } from './entities/organisation.entity'
 import { ImagesModule } from '../images/images.module'
 import { AuthModule } from '../auth/auth.module'
 import { OrganisationsInvitationsModule } from '../organisations-invitations/organisations-invitations.module'
+import { User } from '../users/entities/user.entity'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Organisation]),
+    TypeOrmModule.forFeature([Organisation, User]),
     AuthModule,
     ConfigModule,
     HttpModule,
     ImagesModule,
-    OrganisationsInvitationsModule,
+    OrganisationsInvitationsModule
   ],
   controllers: [OrganisationsController],
   providers: [OrganisationsService],

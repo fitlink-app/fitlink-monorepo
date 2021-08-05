@@ -29,6 +29,7 @@ import { Organisation } from './entities/organisation.entity'
 import { PaginationQuery } from '../../helpers/paginate'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { SearchOrganisationDto } from './dto/search-organisation.dto'
+import { User } from '../users/entities/user.entity'
 
 @ApiTags('organisations')
 @ApiBaseResponses()
@@ -116,5 +117,21 @@ export class OrganisationsController {
   @DeleteResponse()
   remove(@Param('organisationId') id: string) {
     return this.organisationsService.remove(id)
+  }
+
+  /**
+   * Gets all users within organisation
+   * @param request
+   * @returns
+   */
+  @Iam(Roles.SuperAdmin)
+  @Get(':organisationId/users')
+  @ApiResponse({ type: User, isArray: true, status: 200 })
+  findAllUsers(
+    @Pagination() pagination: PaginationQuery,
+    @Query() query,
+    @Param('organisationId') id: string
+  ) {
+    return this.organisationsService.findAllUsers(id, query, pagination)
   }
 }
