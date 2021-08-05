@@ -16,6 +16,7 @@ import {
   PaymentSource
 } from 'chargebee-typescript/lib/resources'
 import { SubscriptionType } from './subscriptions.constants'
+import { SuccessResultDto } from '../../classes/dto/success'
 
 interface ChargebeeError {
   api_error_code: string
@@ -24,8 +25,10 @@ interface ChargebeeError {
   param?: string
 }
 
-export enum HostedPageError {
-  CustomerNotFound = 'customer_not_found'
+export enum SubscriptionServiceError {
+  CustomerNotFound = 'customer_not_found',
+  CannotDeleteDefault = 'cannot_delete_default',
+  NoDefaultAvailable = 'no_default_subscription_available'
 }
 
 const chargebee = new ChargeBee()
@@ -38,7 +41,7 @@ chargebee.configure({
 export class SubscriptionsService {
   constructor(
     @InjectRepository(Subscription)
-    private readonly subscriptionsRepository: Repository<Subscription>,
+    private readonly subscriptionRepository: Repository<Subscription>,
 
     @InjectRepository(Organisation)
     private organisationRepository: Repository<Organisation>,
@@ -69,8 +72,8 @@ export class SubscriptionsService {
       subscription = Object.assign(subscription, { ...rest })
     }
 
-    const result = await this.subscriptionsRepository.findOne(subscription)
-    return await this.subscriptionsRepository.save({
+    const result = await this.subscriptionRepository.findOne(subscription)
+    return await this.subscriptionRepository.save({
       ...result,
       ...subscription
     })
@@ -85,7 +88,7 @@ export class SubscriptionsService {
     subId: string,
     relations: Array<string> = ['organisation']
   ) {
-    return await this.subscriptionsRepository.findOne(subId, {
+    return await this.subscriptionRepository.findOne(subId, {
       relations: relations
     })
   }
@@ -106,8 +109,29 @@ export class SubscriptionsService {
     const subscription = new Subscription()
     subscription.id = subId
     subscription.organisation = organisation
-    return await this.subscriptionsRepository.findOne(subscription, {
+    return await this.subscriptionRepository.findOne(subscription, {
       relations: relations
+    })
+  }
+
+  async findSubscriptionUsers(
+    subId: string,
+    options: PaginationOptionsInterface
+  ): Promise<Pagination<User>> {
+    const query = this.userRepository
+      .createQueryBuilder('user')
+      .innerJoinAndSelect('user.subscription', 'subscription')
+      .innerJoinAndSelect('subscription.organisation', 'organisation')
+      .leftJoinAndSelect('user.avatar', 'avatar')
+      .where('subscription.id = :subId', { subId })
+      .take(options.limit)
+      .skip(options.page * options.limit)
+
+    const [results, total] = await query.getManyAndCount()
+
+    return new Pagination<User>({
+      results,
+      total
     })
   }
 
@@ -123,7 +147,7 @@ export class SubscriptionsService {
   ) {
     let update: Partial<Subscription> = dto
 
-    const subscription = await this.subscriptionsRepository.findOne(subId, {
+    const subscription = await this.subscriptionRepository.findOne(subId, {
       relations: ['organisation']
     })
 
@@ -136,7 +160,7 @@ export class SubscriptionsService {
 
     if (setToDefault && subscription.organisation) {
       // Remove default setting on all other subscriptions
-      await this.subscriptionsRepository
+      await this.subscriptionRepository
         .createQueryBuilder()
         .update(Subscription)
         .set({
@@ -161,7 +185,7 @@ export class SubscriptionsService {
       await this.updateChargeBeeCustomer(subscription)
     }
 
-    return await this.subscriptionsRepository.update(subId, update)
+    return await this.subscriptionRepository.update(subId, update)
   }
 
   /**
@@ -181,10 +205,24 @@ export class SubscriptionsService {
         "the subscription doesn't exist for this organisation"
       )
     }
-    return await this.subscriptionsRepository.update(
+    return await this.subscriptionRepository.update(
       subId,
       updateSubscriptionDto
     )
+  }
+
+  /**
+   * Deletes the subscription
+   * @param orgId
+   * @param subId
+   */
+  async deleteSubscription(subId: string) {
+    const subscription = await this.findOneSubscription(subId)
+    if (subscription.default) {
+      return SubscriptionServiceError.CannotDeleteDefault
+    }
+
+    return this.subscriptionRepository.delete(subscription.id)
   }
 
   /**
@@ -204,11 +242,11 @@ export class SubscriptionsService {
     try {
       await subscription.users
     } catch {
-      await this.subscriptionsRepository.delete(subscription)
+      await this.subscriptionRepository.delete(subscription)
       return 'subscription is deleted'
     }
 
-    await this.subscriptionsRepository
+    await this.subscriptionRepository
       .createQueryBuilder()
       .relation('users')
       .of(subscription)
@@ -216,6 +254,143 @@ export class SubscriptionsService {
 
     //console.log('subscription after: ', await this.findOne(orgId, subId, ['users']))
     return 'subscription is deleted'
+  }
+
+  /**
+   * Transaction to add the specific user to the subscription
+   * @param userId
+   * @param subscriptionId
+   * @returns
+   */
+  async addUser(
+    userId: string,
+    subscriptionId: string
+  ): Promise<SuccessResultDto> {
+    return this.subscriptionRepository.manager.transaction(async (manager) => {
+      const repo = manager.getRepository(Subscription)
+      await repo
+        .createQueryBuilder()
+        .relation(Subscription, 'users')
+        .of(subscriptionId)
+        .add(userId)
+
+      // Remove the user from any other subscription
+      const others = await repo
+        .createQueryBuilder('subscription')
+        .innerJoin('subscription.users', 'user')
+        .where('subscription.id != :subscriptionId AND user.id = :userId', {
+          subscriptionId,
+          userId
+        })
+        .getMany()
+
+      await Promise.all(
+        others.map((subscription) => {
+          return repo
+            .createQueryBuilder()
+            .relation(Subscription, 'users')
+            .of(subscription.id)
+            .remove(userId)
+        })
+      )
+
+      await manager.getRepository(User).update(userId, {
+        subscription: { id: subscriptionId }
+      })
+
+      return { success: true }
+    })
+  }
+
+  /**
+   * Find the default subscription by organisation
+   *
+   * @param organisation
+   * @returns Subscription
+   */
+  async getDefault(
+    organisation: Organisation,
+    repository?: Repository<Subscription>
+  ) {
+    return (repository || this.subscriptionRepository).findOne({
+      where: {
+        organisation: {
+          id: organisation.id
+        },
+        default: true
+      }
+    })
+  }
+
+  /**
+   * Transaction to remove a specific user from the subscription
+   * @param userId
+   * @param subscriptionId
+   * @returns
+   */
+  async removeUserFromSubscription(userId: string, subscriptionId: string) {
+    return this.subscriptionRepository.manager.transaction(async (manager) => {
+      const subscriptionRepository = manager.getRepository(Subscription)
+      const userRepository = manager.getRepository(User)
+      const subscription = await subscriptionRepository.findOne(
+        subscriptionId,
+        {
+          relations: ['organisation']
+        }
+      )
+      const user = await userRepository.findOne(userId, {
+        relations: ['teams', 'teams.organisation']
+      })
+
+      // A user cannot be removed from the default subscription
+      // They must be moved instead
+      if (subscription.default) {
+        return SubscriptionServiceError.CannotDeleteDefault
+      }
+
+      // Check if a user belongs to any teams within this organisation
+      const teams = user.teams.filter(
+        (team) => team.organisation.id === subscription.organisation.id
+      )
+
+      // If a user belongs to any teams, they cannot be deleted
+      // They will be moved to the default subscription
+      if (teams.length) {
+        const defaultSubscription = await this.getDefault(
+          subscription.organisation,
+          subscriptionRepository
+        )
+        if (defaultSubscription) {
+          await subscriptionRepository
+            .createQueryBuilder()
+            .relation(Subscription, 'users')
+            .of(defaultSubscription)
+            .add(userId)
+
+          await userRepository.update(userId, {
+            subscription: { id: defaultSubscription.id }
+          })
+        } else {
+          return SubscriptionServiceError.NoDefaultAvailable
+        }
+
+        // The user belongs to no teams within the subscription's organisation
+        // therefore they can be completely removed from the subscription
+      } else {
+        await userRepository.update(userId, {
+          subscription: null
+        })
+      }
+
+      // Remove the user from the original subscription
+      await subscriptionRepository
+        .createQueryBuilder()
+        .relation(Subscription, 'users')
+        .of(subscriptionId)
+        .remove(userId)
+
+      return { success: true }
+    })
   }
 
   /**
@@ -282,7 +457,7 @@ export class SubscriptionsService {
 
     subscriptionUsers.users = users
 
-    return await this.subscriptionsRepository.save({
+    return await this.subscriptionRepository.save({
       ...subscription,
       ...subscriptionUsers
     })
@@ -297,7 +472,7 @@ export class SubscriptionsService {
     limit,
     page
   }: PaginationOptionsInterface): Promise<Pagination<Subscription>> {
-    const [results, total] = await this.subscriptionsRepository.findAndCount({
+    const [results, total] = await this.subscriptionRepository.findAndCount({
       relations: ['organisation'],
       take: limit,
       skip: limit * page,
@@ -599,11 +774,11 @@ export class SubscriptionsService {
    */
   async getChargebeeHostedPage(
     subId: string
-  ): Promise<HostedPageError | HostedPage> {
+  ): Promise<SubscriptionServiceError | HostedPage> {
     const subscription = await this.findOneSubscription(subId)
 
     if (!subscription.billing_plan_customer_id) {
-      return HostedPageError.CustomerNotFound
+      return SubscriptionServiceError.CustomerNotFound
     }
 
     return new Promise((resolve, reject) => {
@@ -639,12 +814,12 @@ export class SubscriptionsService {
         pageTotal: number
         total: number
       }
-    | HostedPageError
+    | SubscriptionServiceError
   > {
     const subscription = await this.findOneSubscription(subId)
 
     if (!subscription.billing_plan_customer_id) {
-      return HostedPageError.CustomerNotFound
+      return SubscriptionServiceError.CustomerNotFound
     }
 
     return new Promise((resolve, reject) => {

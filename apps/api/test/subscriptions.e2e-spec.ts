@@ -14,6 +14,7 @@ import {
   SubscriptionsTeardown
 } from './seeds/subscriptions.seed'
 import { useSeeding } from 'typeorm-seeding'
+import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 
 let connection: Connection
 
@@ -72,6 +73,7 @@ describe('Subscriptions', () => {
   let authHeaders
   let subscription: Subscription
   let subscription2: Subscription
+  let users: User[]
 
   beforeAll(async () => {
     app = await mockApp({
@@ -87,6 +89,8 @@ describe('Subscriptions', () => {
     const seed = await SubscriptionsSetup('Test Subscription', 2, {
       default: true
     })
+
+    users = await UsersSetup('Test Subscription', 2)
 
     subscription = seed[0]
     subscription2 = seed[1]
@@ -104,6 +108,7 @@ describe('Subscriptions', () => {
 
   afterAll(async () => {
     await SubscriptionsTeardown('Test Subscription')
+    await UsersTeardown('Test Subscription')
     await app.close()
   })
 
@@ -332,8 +337,6 @@ describe('Subscriptions', () => {
       }
     )
 
-    console.log(subscription2.id)
-
     let other = await getSubscription(subscription2.id)
     expect(other.statusCode).toBe(200)
     expect(other.json().default).toBe(true)
@@ -364,6 +367,127 @@ describe('Subscriptions', () => {
         headers: superadminHeaders
       })
     }
+  })
+
+  it.only('GET /subscriptions/:subscriptionId/users The superadmin can list the users of a subscription', async () => {
+    const sub = (await SubscriptionsSetup('Test Subscription', 1))[0]
+
+    // Add user to subscription
+    await connection
+      .getRepository(Subscription)
+      .createQueryBuilder()
+      .relation(Subscription, 'users')
+      .of(sub.id)
+      .add(users[0].id)
+
+    const result = await app.inject({
+      method: 'GET',
+      url: `/subscriptions/${sub.id}/users`,
+      headers: superadminHeaders,
+      query: {
+        limit: '20'
+      }
+    })
+
+    expect(
+      result.json().results.filter((e) => e.id === users[0].id).length
+    ).toBe(1)
+  })
+
+  it.only('POST /subscriptions/:subscriptionId/users Add the user to the subscription', async () => {
+    const sub = (await SubscriptionsSetup('Test Subscription', 1))[0]
+
+    const result = await app.inject({
+      method: 'POST',
+      url: `/subscriptions/${sub.id}/users`,
+      headers: superadminHeaders,
+      payload: {
+        id: users[0].id
+      }
+    })
+
+    expect(result.statusCode).toBe(201)
+
+    const list = await app.inject({
+      method: 'GET',
+      url: `/subscriptions/${sub.id}/users`,
+      headers: superadminHeaders,
+      query: {
+        limit: '100'
+      }
+    })
+
+    expect(list.json().results.filter((e) => e.id === users[0].id).length).toBe(
+      1
+    )
+  })
+
+  it.only('DELETE /subscriptions/:subscriptionId/users Can remove the user from the subscription and auto reassigns to default', async () => {
+    const subs = await SubscriptionsSetup('Test Subscription', 2, {
+      default: false
+    })
+
+    const sub = subs[0]
+    const subDefault = subs[1]
+
+    // Find one user within subscription
+    const user = await connection.getRepository(User).findOne({
+      where: {
+        subscription: sub.id
+      }
+    })
+
+    // Make the other subscription the default
+    await connection.getRepository(Subscription).update(subDefault.id, {
+      default: true
+    })
+
+    const result = await app.inject({
+      method: 'DELETE',
+      url: `/subscriptions/${sub.id}/users/${user.id}`,
+      headers: superadminHeaders
+    })
+
+    expect(result.json().message).toBeUndefined()
+    expect(result.statusCode).toBe(200)
+
+    const list = await app.inject({
+      method: 'GET',
+      url: `/subscriptions/${sub.id}/users`,
+      headers: superadminHeaders
+    })
+
+    expect(list.json().results.filter((e) => e.id === user.id).length).toBe(0)
+
+    const listDefault = await app.inject({
+      method: 'GET',
+      url: `/subscriptions/${subDefault.id}/users`,
+      headers: superadminHeaders,
+      query: {
+        limit: '1000'
+      }
+    })
+
+    expect(
+      listDefault.json().results.filter((e) => e.id === user.id).length
+    ).toBe(1)
+  })
+
+  it.only('GET /subscriptions/:subscriptionId/users Cannot delete the default subscription', async () => {
+    const sub = (
+      await SubscriptionsSetup('Test Subscription', 1, {
+        default: true
+      })
+    )[0]
+
+    const result = await app.inject({
+      method: 'DELETE',
+      url: `/subscriptions/${sub.id}`,
+      headers: superadminHeaders
+    })
+
+    expect(result.statusCode).toBe(400)
+    expect(result.json().message).toContain('cannot delete')
   })
 })
 

@@ -150,3 +150,8 @@ export class SubscriptionPagination {
   })
   results: Subscription[]
 }
+
+export class SubscriptionUser {
+  @ApiProperty()
+  userId: string
+}

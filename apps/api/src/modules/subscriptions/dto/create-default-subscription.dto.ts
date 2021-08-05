@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsEnum, IsOptional, IsString } from 'class-validator'
-import { SubscriptionType } from '../subscriptions.constants'
+import { BillingPlanStatus, SubscriptionType } from '../subscriptions.constants'
 export class CreateDefaultSubscriptionDto {
   @ApiProperty()
   @IsString()
@@ -45,6 +45,11 @@ export class CreateDefaultSubscriptionDto {
   @ApiProperty()
   @IsOptional()
   default?: boolean
+
+  @ApiProperty()
+  @IsEnum(BillingPlanStatus)
+  @IsOptional()
+  billing_plan_status?: BillingPlanStatus
 
   @ApiProperty()
   @IsEnum(SubscriptionType)

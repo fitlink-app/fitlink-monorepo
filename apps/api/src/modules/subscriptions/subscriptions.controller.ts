@@ -9,7 +9,10 @@ import {
   Request,
   BadRequestException
 } from '@nestjs/common'
-import { SubscriptionsService, HostedPageError } from './subscriptions.service'
+import {
+  SubscriptionsService,
+  SubscriptionServiceError
+} from './subscriptions.service'
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto'
 import { CreateDefaultSubscriptionDto } from './dto/create-default-subscription.dto'
 import { Iam } from '../../decorators/iam.decorator'
@@ -27,6 +30,8 @@ import {
   SubscriptionPagination
 } from './entities/subscription.entity'
 import { CreateSubscriptionDto } from './dto/create-subscription.dto'
+import { User } from '../users/entities/user.entity'
+import { AddUserToSubscriptionDto } from './dto/add-user-to-subscription.dto'
 
 @Controller()
 @ApiTags('subscriptions')
@@ -69,12 +74,36 @@ export class SubscriptionsController {
   }
 
   @Iam(Roles.SuperAdmin)
+  @Get('/subscriptions/:subscriptionId/users')
+  @PaginationBody()
+  @ApiResponse({ type: User, status: 200 })
+  findOneSubscriptionUsers(
+    @Param('subscriptionId') subId: string,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.subscriptionsService.findSubscriptionUsers(subId, pagination)
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Delete('/subscriptions/:subscriptionId')
+  @PaginationBody()
+  @ApiResponse({ type: Subscription, status: 200 })
+  async deleteOneSubscription(@Param('subscriptionId') subId: string) {
+    const result = await this.subscriptionsService.deleteSubscription(subId)
+    if (result === SubscriptionServiceError.CannotDeleteDefault) {
+      throw new BadRequestException(
+        'You cannot delete the default subscription'
+      )
+    }
+  }
+
+  @Iam(Roles.SuperAdmin)
   @Get('/subscriptions/:subscriptionId/chargebee/hosted-page')
   @PaginationBody()
   @ApiResponse({ type: Subscription, status: 200 })
   async chargebeeHostedPage(@Param('subscriptionId') subId: string) {
     const result = await this.subscriptionsService.getChargebeeHostedPage(subId)
-    if (result === HostedPageError.CustomerNotFound) {
+    if (result === SubscriptionServiceError.CustomerNotFound) {
       throw new BadRequestException(
         'The customer does not have a payment plan yet'
       )
@@ -91,7 +120,7 @@ export class SubscriptionsController {
     const result = await this.subscriptionsService.getChargebeePaymentSources(
       subId
     )
-    if (result === HostedPageError.CustomerNotFound) {
+    if (result === SubscriptionServiceError.CustomerNotFound) {
       throw new BadRequestException(
         'The customer does not have a payment plan yet'
       )
@@ -108,6 +137,40 @@ export class SubscriptionsController {
     @Param('subscriptionId') subId: string
   ) {
     return this.subscriptionsService.updateOne(updateSubscriptionDto, subId)
+  }
+
+  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
+  @Post('/subscriptions/:subscriptionId/users')
+  addUserToSubscription(
+    @Body() addUserDto: AddUserToSubscriptionDto,
+    @Param('subscriptionId') subId: string
+  ) {
+    return this.subscriptionsService.addUser(addUserDto.id, subId)
+  }
+
+  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
+  @Delete('/subscriptions/:subscriptionId/users/:userId')
+  async removeFromSubscription(
+    @Param('subscriptionId') subId: string,
+    @Param('userId') userId: string
+  ) {
+    const result = await this.subscriptionsService.removeUserFromSubscription(
+      userId,
+      subId
+    )
+    if (result === SubscriptionServiceError.CannotDeleteDefault) {
+      throw new BadRequestException(
+        'This user still belongs to one or more teams and cannot be removed yet. Delete them from teams first.'
+      )
+    }
+
+    if (result === SubscriptionServiceError.NoDefaultAvailable) {
+      throw new BadRequestException(
+        'This user still belongs to one or more teams and cannot be removed yet. You must set a default subscription.'
+      )
+    }
+
+    return result
   }
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
