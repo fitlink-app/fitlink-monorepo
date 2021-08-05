@@ -58,32 +58,44 @@ export class GoalsEntriesService {
     } else if (goalsEntryDto) {
       goalsEntry = Object.assign(goalsEntry, { ...goalsEntryDto })
     }
+
+    console.log('The Goal Entry Created -->', goalsEntry)
+    console.log('The So called Prev User', user)
     const goalEntryReachedEvent = new GoalEntryReachedEvent()
     goalEntryReachedEvent.goal_entry = goalsEntry
     goalEntryReachedEvent.userId = user.id
 
-    let goalsArr = Object.entries(FeedGoalType)
-    let promises = []
-    for (let goal of goalsArr) {
-      const {
-        current,
-        prev,
-        target,
-        feedGoalType
-      } = this.genTriggerEventParams(goalsEntry, user, goalsEntry, goal[1])
+    // let goalsArr = Object.entries(FeedGoalType)
+    // let promises = []
+    // for (let goal of goalsArr) {
+    //   const {
+    //     current,
+    //     prev,
+    //     target,
+    //     feedGoalType
+    //   } = this.genTriggerEventParams(goalsEntry, user, goalsEntry, goal[1])
 
-      promises.push(
-        this.triggerEvent(
-          current,
-          prev,
-          target,
-          goalEntryReachedEvent,
-          feedGoalType
-        )
-      )
-    }
+    //   promises.push(
+    //     this.triggerEvent(
+    //       current,
+    //       prev,
+    //       target,
+    //       goalEntryReachedEvent,
+    //       feedGoalType
+    //     )
+    //   )
+    // }
+    //
 
-    await Promise.all(promises)
+    await this.triggerEvent(
+      goalsEntry.current_sleep_hours,
+      user.goal_sleep_hours,
+      goalsEntry.target_sleep_hours,
+      goalEntryReachedEvent,
+      FeedGoalType.SleepHours
+    )
+
+    // await Promise.all(promises)
     return await this.goalsEntryRepository.save({
       ...result,
       ...goalsEntry
@@ -126,6 +138,7 @@ export class GoalsEntriesService {
       target,
       1
     )
+    console.log('Should Trigger -->', shouldTrigger)
     if (shouldTrigger) {
       console.log(`SHOULD TRIGGERED BEING TRIGGERED`)
       goalEntryReachedEvent.goal_type = goal_type
@@ -144,11 +157,11 @@ export class GoalsEntriesService {
   ) {
     const didChange = newCurrent !== prevCurrent
     const didReachTriggerRatio = newCurrent >= target * triggerRatio
+    // How to manage did trigger Before?
+    console.log('prevCurrent -->', prevCurrent)
+    console.log('target -->', target)
     const didTriggerBefore = prevCurrent >= target * triggerRatio
 
-    console.log('didChange -->', didChange)
-    console.log('didReachTriggerRatio -->', didReachTriggerRatio)
-    console.log('didTriggerBefore -->', didTriggerBefore)
     return didChange && didReachTriggerRatio && !didTriggerBefore
   }
   /**
