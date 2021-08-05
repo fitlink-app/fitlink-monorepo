@@ -16,6 +16,14 @@ import { timeout } from '../helpers/timeout'
 import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 import ConfirmForm from '../components/forms/ConfirmForm'
 import Head from 'next/head'
+import { BillingPlanStatus } from '../../../api/src/modules/subscriptions/subscriptions.constants'
+import { useRouter } from 'next/router'
+
+const enumToBool = ({ value }) => {
+  return boolToIcon({
+    value: value === BillingPlanStatus.Active
+  })
+}
 
 export default function SubscriptionsPage() {
   const [drawContent, setDrawContent] = useState<
@@ -24,6 +32,7 @@ export default function SubscriptionsPage() {
   const [warning, setWarning] = useState(false)
   const [wide, setWide] = useState(false)
   const [refresh, setRefresh] = useState(0)
+  const router = useRouter()
 
   const closeDrawer = (ms = 0) => async () => {
     if (ms) {
@@ -55,6 +64,9 @@ export default function SubscriptionsPage() {
         onDelete={closeDrawer(1000)}
         onCancel={closeDrawer()}
         current={fields}
+        mutation={(id) =>
+          api.delete('/subscriptions/:subscriptionId', { subscriptionId: id })
+        }
         title="Delete subscription"
         requireConfirmText="DELETE"
         message={`
@@ -116,6 +128,13 @@ export default function SubscriptionsPage() {
       </button>
       <button
         className="button small ml-1"
+        onClick={() => {
+          router.push(`/subscriptions/${original.id}/users`)
+        }}>
+        Manage Seats
+      </button>
+      <button
+        className="button small ml-1"
         onClick={() => ConfirmSubscriptionForm(original)}>
         Make Default
       </button>
@@ -158,6 +177,11 @@ export default function SubscriptionsPage() {
               Header: 'Default Subscription',
               accessor: 'default',
               Cell: boolToIcon
+            },
+            {
+              Header: 'Billing active',
+              accessor: 'billing_plan_status',
+              Cell: enumToBool
             },
             { Header: 'Plan Type', accessor: 'type' },
             { Header: 'Created', accessor: 'created_at', Cell: toDateCell },

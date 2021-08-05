@@ -19,6 +19,7 @@ export type ConfirmDeleteProps = {
   title?: string
   message: string
   current?: Partial<Organisation>
+  mutation?: (id: string) => Promise<DeleteResult>
   onDelete?: () => void
   onCancel?: () => void
   onError?: () => void
@@ -31,16 +32,14 @@ export default function ConfirmDeleteForm({
   title = 'Confirm delete action',
   message,
   current,
+  mutation,
   onDelete = noop,
   onError = noop,
   onCancel = noop,
   requireConfirmText = ''
 }: ConfirmDeleteProps) {
-  const { api } = useContext(AuthContext)
-
-  const remove: ApiMutationResult<DeleteResult> = useMutation(
-    (organisationId: string) =>
-      api.delete('/organisations/:organisationId', { organisationId })
+  const remove: ApiMutationResult<DeleteResult> = useMutation((id: string) =>
+    mutation(id)
   )
 
   async function onSubmit(data: { confirm_text: string }) {
@@ -51,7 +50,7 @@ export default function ConfirmDeleteForm({
     try {
       await toast.promise(remove.mutateAsync(current.id), {
         loading: <b>Deleting...</b>,
-        success: <b>Organisation deleted</b>,
+        success: <b>Item deleted</b>,
         error: <b>Error</b>
       })
       if (!remove.isError) {

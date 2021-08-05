@@ -263,8 +263,8 @@ export default function CreateSubscription({
           <Input
             register={register('billing_plan_customer_id')}
             name="billing_plan_customer_id"
-            placeholder="Chargebee Customer ID"
-            label="Chargebee Customer ID"
+            placeholder="Billing Customer ID"
+            label="Billing Customer ID"
             readOnly={true}
             disabled={true}
             error={errors.billing_plan_customer_id}
@@ -386,7 +386,8 @@ const PaymentSources = ({ subscriptionId }) => {
   const { api } = useContext(AuthContext)
 
   const {
-    data
+    data,
+    isFetching
   }: ApiResult<{
     results: any
   }> = useQuery('payment_sources', () =>
@@ -398,11 +399,13 @@ const PaymentSources = ({ subscriptionId }) => {
     )
   )
 
+  if (isFetching) {
+    return <>Loading...</>
+  }
+
   if (data) {
     return <>{data.results.length} valid payment sources available.</>
   } else {
     return <>No payment sources available yet.</>
   }
-
-  return null
 }

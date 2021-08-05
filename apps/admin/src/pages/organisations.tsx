@@ -49,6 +49,9 @@ export default function OrganisationsPage() {
         onDelete={closeDrawer(1000)}
         onCancel={closeDrawer()}
         current={fields}
+        mutation={(id) =>
+          api.delete('/organisations/:organisationId', { organisationId: id })
+        }
         title="Delete organisation"
         requireConfirmText="DELETE"
         message={`

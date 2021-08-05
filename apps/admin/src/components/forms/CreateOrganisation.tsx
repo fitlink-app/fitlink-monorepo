@@ -11,7 +11,7 @@ import { AuthContext } from '../../context/Auth.context'
 import { useMutation } from 'react-query'
 import { ApiMutationResult } from '@fitlink/common/react-query/types'
 import { UpdateResult } from '@fitlink/api-sdk/types'
-import { getErrorMessage } from '../../../../api-sdk'
+import { getErrorMessage, stripBlankFields } from '../../../../api-sdk'
 import Feedback from '../elements/Feedback'
 import useApiErrors from '../../hooks/useApiErrors'
 import AvatarSelect from '../elements/AvatarSelect'
@@ -76,7 +76,8 @@ export default function CreateOrganisation({
   async function onSubmit(
     data: CreateOrganisationDto & { image?: File | 'DELETE' }
   ) {
-    const { image, ...payload } = data
+    const { image, ...rest } = data
+    const payload = stripBlankFields(rest)
 
     clearErrors()
 
