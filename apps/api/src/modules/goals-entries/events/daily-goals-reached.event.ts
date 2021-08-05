@@ -1,8 +1,7 @@
 import { FeedGoalType } from '../../feed-items/feed-items.constants'
-import { GoalsEntry } from '../entities/goals-entry.entity'
 
-export class DialyGoalsReachedEvent {
+export class DailyGoalsReachedEvent {
   userId: string
-  goal_entry: GoalsEntry
+  goalEntryId: string
   goal_type: FeedGoalType
 }

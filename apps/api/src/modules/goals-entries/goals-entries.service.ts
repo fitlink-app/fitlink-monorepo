@@ -11,7 +11,7 @@ import { User } from '../users/entities/user.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { zonedStartOfDay } from '../../../../common/date/helpers'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { DialyGoalsReachedEvent as GoalEntryReachedEvent } from './events/daily-goals-reached.event'
+import { DailyGoalsReachedEvent } from './events/daily-goals-reached.event'
 import { FeedGoalType } from '../feed-items/feed-items.constants'
 
 interface GoalField {
@@ -41,7 +41,6 @@ export class GoalsEntriesService {
     current: GoalsEntryCurrent,
     target: GoalsEntryTarget
   ): GoalField[] {
-    console.log(current)
     return [
       {
         field: 'current_floors_climbed',
@@ -110,100 +109,31 @@ export class GoalsEntriesService {
         goalsEntry[each.field] = each.current
       }
     })
+    const goalEntryReachedEvent = new DailyGoalsReachedEvent()
+    goalEntryReachedEvent.goalEntryId = goalsEntry.id
+    goalEntryReachedEvent.userId = user.id
 
-    targetReached.forEach((each) => {})
+    const triggerEventPromises = []
+    targetReached.forEach((each) => {
+      triggerEventPromises.push(
+        this.triggerEvent(goalEntryReachedEvent, each.feedType)
+      )
+    })
 
-    // const goalEntryReachedEvent = new GoalEntryReachedEvent()
-    // goalEntryReachedEvent.goal_entry = goalsEntry
-    // goalEntryReachedEvent.userId = user.id
-
-    // let goalsArr = Object.entries(FeedGoalType)
-    // let promises = []
-    // for (let goal of goalsArr) {
-    //   const {
-    //     current,
-    //     prev,
-    //     target,
-    //     feedGoalType
-    //   } = this.genTriggerEventParams(goalsEntry, user, goalsEntry, goal[1])
-
-    //   promises.push(
-    //     this.triggerEvent(
-    //       current,
-    //       prev,
-    //       target,
-    //       goalEntryReachedEvent,
-    //       feedGoalType
-    //     )
-    //   )
-    // }
-
-    // await Promise.all(promises)
+    await Promise.all(triggerEventPromises)
 
     return await this.goalsEntryRepository.save(goalsEntry)
   }
 
-  genTriggerEventParams(
-    currentObj: GoalsEntry,
-    prevObj: User,
-    targetObj: GoalsEntry,
-    type:
-      | 'water_litres'
-      | 'sleep_hours'
-      | 'mindfulness_minutes'
-      | 'floors_climbed'
-      | 'steps'
-  ) {
-    let current = currentObj[`current_${type}`]
-    let prev = prevObj[`goal_${type}`]
-    let target = targetObj[`target_${type}`]
-    let feedGoalType = FeedGoalType[this.capitalize(type).replace('_', '')]
-
-    return { current, prev, target, feedGoalType }
-  }
-  capitalize(string: string) {
-    return string.charAt(0).toUpperCase() + string.slice(1)
-  }
-
   async triggerEvent(
-    current: number,
-    prevCurrent: number,
-    target: number,
-    goalEntryReachedEvent: GoalEntryReachedEvent,
+    goalEntryReachedEvent: DailyGoalsReachedEvent,
     goal_type: FeedGoalType
   ) {
-    console.log(`TRIGGER FUNCTION BEING RUN`)
-    const shouldTrigger = this.shouldTriggerFeedItem(
-      current,
-      prevCurrent,
-      target,
-      1
+    goalEntryReachedEvent.goal_type = goal_type
+    await this.eventEmitter.emitAsync(
+      'daily_goal.reached',
+      goalEntryReachedEvent
     )
-    console.log('Should Trigger -->', shouldTrigger)
-    if (shouldTrigger) {
-      console.log(`SHOULD TRIGGERED BEING TRIGGERED`)
-      goalEntryReachedEvent.goal_type = goal_type
-      await this.eventEmitter.emitAsync(
-        'daily_goal.reached',
-        goalEntryReachedEvent
-      )
-    }
-  }
-
-  shouldTriggerFeedItem(
-    newCurrent: number,
-    prevCurrent: number,
-    target: number,
-    triggerRatio: number
-  ) {
-    const didChange = newCurrent !== prevCurrent
-    const didReachTriggerRatio = newCurrent >= target * triggerRatio
-    // How to manage did trigger Before?
-    console.log('prevCurrent -->', prevCurrent)
-    console.log('target -->', target)
-    const didTriggerBefore = prevCurrent >= target * triggerRatio
-
-    return didChange && didReachTriggerRatio && !didTriggerBefore
   }
   /**
    * Find a specific goals entry

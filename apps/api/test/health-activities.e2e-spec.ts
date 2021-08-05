@@ -23,6 +23,7 @@ import { UsersSetup } from './seeds/users.seed'
 
 import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
 import { FeedItem } from '../src/modules/feed-items/entities/feed-item.entity'
+import { FeedGoalType } from '../src/modules/feed-items/feed-items.constants'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -339,5 +340,50 @@ describe('Health Activities', () => {
     expect(user.points_total).toBeGreaterThan(users[0].points_total)
     expect(entry.points).toBe(8301)
     done()
+  })
+
+  it('Creates a new sleep entry that has reached the target', async () => {
+    const mockPayload: FitbitEventData[] = [
+      {
+        collectionType: 'sleep',
+        date: '2020-06-01',
+        ownerId: '184X36',
+        ownerType: 'user',
+        subscriptionId: users[2].id
+      }
+    ]
+
+    providerService.findOne = jest.fn()
+    providerService.findOne.mockReturnValue({
+      user: { id: users[2].id }
+    } as Partial<Provider>)
+
+    fitbitService.datesAreOnSameDay = jest.fn()
+    fitbitService.datesAreOnSameDay.mockReturnValue(true)
+    fitbitService.getFreshFitbitToken = jest.fn()
+    fitbitService.getFreshFitbitToken.mockReturnValue(
+      `SomethingThat Won't error out`
+    )
+
+    fitbitService.fetchSleepLogByDay = jest.fn()
+    fitbitService.fetchSleepLogByDay.mockReturnValue(fitbitSleepPayload)
+
+    await app.inject({
+      method: 'POST',
+      payload: mockPayload,
+      url: '/providers/fitbit/webhook'
+    })
+
+    // Expect a feed item to be created.
+    const feedItem = await connection.getRepository(FeedItem).findOne({
+      where: {
+        goal_type: FeedGoalType.SleepHours,
+        user: { id: users[2].id }
+      }
+    })
+    expect(feedItem.id).toBeDefined()
+    expect(feedItem.goal_type).toBe('sleep_hours')
+    expect(feedItem.category).toBe('my_goals')
+    expect(feedItem.type).toBe('daily_goal_reached')
   })
 })
