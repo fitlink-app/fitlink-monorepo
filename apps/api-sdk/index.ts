@@ -208,7 +208,7 @@ export class Api {
       params: {
         limit,
         page,
-        query,
+        ...query,
         ...rest
       }
     })
@@ -422,18 +422,18 @@ export class Api {
   }
 
   /**
-   * Sanitize an object's values
-   * by removing empty strings.
+   * Sanitize an object's values.
+   * Currently this method does nothing
+   * but return current values.
+   *
+   * Anything added here in future should be handled
+   * with extreme care or debugging will become
+   * difficult for the developer implementing
+   * the SDK.
    *
    */
   sanitizeInput(payload: NodeJS.Dict<any> = {}) {
-    let sanitized = { ...payload }
-    Object.keys(payload).forEach((key) => {
-      if (sanitized[key] === '') {
-        delete sanitized[key]
-      }
-    })
-    return sanitized
+    return payload
   }
 }
 

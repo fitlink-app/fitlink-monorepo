@@ -6,17 +6,36 @@ import {
   Put,
   Param,
   Delete,
-  Request
+  Request,
+  BadRequestException
 } from '@nestjs/common'
-import { SubscriptionsService } from './subscriptions.service'
+import {
+  SubscriptionsService,
+  SubscriptionServiceError
+} from './subscriptions.service'
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto'
 import { CreateDefaultSubscriptionDto } from './dto/create-default-subscription.dto'
 import { Iam } from '../../decorators/iam.decorator'
 import { Roles } from '../user-roles/user-roles.constants'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBaseResponses,
+  PaginationBody,
+  UpdateResponse
+} from '../../decorators/swagger.decorator'
+import { Pagination } from '../../decorators/pagination.decorator'
+import { PaginationQuery } from '../../helpers/paginate'
+import {
+  Subscription,
+  SubscriptionPagination
+} from './entities/subscription.entity'
+import { CreateSubscriptionDto } from './dto/create-subscription.dto'
+import { User } from '../users/entities/user.entity'
+import { AddUserToSubscriptionDto } from './dto/add-user-to-subscription.dto'
 
 @Controller()
 @ApiTags('subscriptions')
+@ApiBaseResponses()
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
@@ -30,6 +49,128 @@ export class SubscriptionsController {
       createDefaultSubscriptionDto,
       organisationId
     )
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Post('/subscriptions')
+  createOne(@Body() { organisationId, ...dto }: CreateSubscriptionDto) {
+    return this.subscriptionsService.createDefault(dto, organisationId)
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Get('/subscriptions')
+  @PaginationBody()
+  @ApiResponse({ type: SubscriptionPagination, status: 200 })
+  findAll(@Pagination() pagination: PaginationQuery) {
+    return this.subscriptionsService.findAll(pagination)
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Get('/subscriptions/:subscriptionId')
+  @PaginationBody()
+  @ApiResponse({ type: Subscription, status: 200 })
+  findOneSubscription(@Param('subscriptionId') subId: string) {
+    return this.subscriptionsService.findOneSubscription(subId)
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Get('/subscriptions/:subscriptionId/users')
+  @PaginationBody()
+  @ApiResponse({ type: User, status: 200 })
+  findOneSubscriptionUsers(
+    @Param('subscriptionId') subId: string,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.subscriptionsService.findSubscriptionUsers(subId, pagination)
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Delete('/subscriptions/:subscriptionId')
+  @PaginationBody()
+  @ApiResponse({ type: Subscription, status: 200 })
+  async deleteOneSubscription(@Param('subscriptionId') subId: string) {
+    const result = await this.subscriptionsService.deleteSubscription(subId)
+    if (result === SubscriptionServiceError.CannotDeleteDefault) {
+      throw new BadRequestException(
+        'You cannot delete the default subscription'
+      )
+    }
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Get('/subscriptions/:subscriptionId/chargebee/hosted-page')
+  @PaginationBody()
+  @ApiResponse({ type: Subscription, status: 200 })
+  async chargebeeHostedPage(@Param('subscriptionId') subId: string) {
+    const result = await this.subscriptionsService.getChargebeeHostedPage(subId)
+    if (result === SubscriptionServiceError.CustomerNotFound) {
+      throw new BadRequestException(
+        'The customer does not have a payment plan yet'
+      )
+    }
+
+    return result
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Get('/subscriptions/:subscriptionId/chargebee/payment-sources')
+  @PaginationBody()
+  @ApiResponse({ type: Subscription, status: 200 })
+  async chargebeePaymentSources(@Param('subscriptionId') subId: string) {
+    const result = await this.subscriptionsService.getChargebeePaymentSources(
+      subId
+    )
+    if (result === SubscriptionServiceError.CustomerNotFound) {
+      throw new BadRequestException(
+        'The customer does not have a payment plan yet'
+      )
+    }
+
+    return result
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Put('/subscriptions/:subscriptionId')
+  @UpdateResponse()
+  updateOne(
+    @Body() updateSubscriptionDto: UpdateSubscriptionDto,
+    @Param('subscriptionId') subId: string
+  ) {
+    return this.subscriptionsService.updateOne(updateSubscriptionDto, subId)
+  }
+
+  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
+  @Post('/subscriptions/:subscriptionId/users')
+  addUserToSubscription(
+    @Body() addUserDto: AddUserToSubscriptionDto,
+    @Param('subscriptionId') subId: string
+  ) {
+    return this.subscriptionsService.addUser(addUserDto.id, subId)
+  }
+
+  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
+  @Delete('/subscriptions/:subscriptionId/users/:userId')
+  async removeFromSubscription(
+    @Param('subscriptionId') subId: string,
+    @Param('userId') userId: string
+  ) {
+    const result = await this.subscriptionsService.removeUserFromSubscription(
+      userId,
+      subId
+    )
+    if (result === SubscriptionServiceError.CannotDeleteDefault) {
+      throw new BadRequestException(
+        'This user still belongs to one or more teams and cannot be removed yet. Delete them from teams first.'
+      )
+    }
+
+    if (result === SubscriptionServiceError.NoDefaultAvailable) {
+      throw new BadRequestException(
+        'This user still belongs to one or more teams and cannot be removed yet. You must set a default subscription.'
+      )
+    }
+
+    return result
   }
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)

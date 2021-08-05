@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsEnum, IsOptional, IsString } from 'class-validator'
-import { BillingPlanStatus, SubscriptionType } from '../subscriptions.constants'
-export class CreateDefaultSubscriptionDto {
+import { IsOptional, IsString, IsUUID } from 'class-validator'
+export class CreateSubscriptionDto {
   @ApiProperty()
   @IsString()
   billing_entity: string
@@ -43,16 +42,12 @@ export class CreateDefaultSubscriptionDto {
   billing_postcode?: string
 
   @ApiProperty()
+  @IsUUID(4, {
+    message: 'A valid organisation is required'
+  })
+  organisationId: string
+
+  @ApiProperty()
   @IsOptional()
   default?: boolean
-
-  @ApiProperty()
-  @IsEnum(BillingPlanStatus)
-  @IsOptional()
-  billing_plan_status?: BillingPlanStatus
-
-  @ApiProperty()
-  @IsEnum(SubscriptionType)
-  @IsOptional()
-  type?: string
 }

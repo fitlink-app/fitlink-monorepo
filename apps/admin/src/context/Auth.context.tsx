@@ -227,6 +227,11 @@ export function AuthProvider({ children }) {
           icon: 'IconGear'
         },
         {
+          label: 'Subscriptions',
+          link: '/subscriptions',
+          icon: 'IconGear'
+        },
+        {
           label: 'Teams',
           link: '/teams',
           icon: 'IconGear'

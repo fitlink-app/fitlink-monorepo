@@ -13,11 +13,14 @@ import {
   OrganisationsTeardown
 } from './seeds/organisations.seed'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
+import { TeamsSetup } from './seeds/teams.seed'
+import { Team } from '../src/modules/teams/entities/team.entity'
 
 describe('Activities', () => {
   let app: NestFastifyApplication
   let superadminHeaders
   let authHeaders
+  let teams: Team[]
 
   beforeAll(async () => {
     app = await mockApp({
@@ -30,6 +33,8 @@ describe('Activities', () => {
     await OrganisationsSetup('Test organisations')
 
     const users = await UsersSetup('Test organisations', 1)
+
+    teams = await TeamsSetup('Test organisations', 1)
 
     // Superadmin
     superadminHeaders = getAuthHeaders({ spr: true }, users[0].id)
@@ -107,6 +112,22 @@ describe('Activities', () => {
 
     expect(data.statusCode).toEqual(200)
     expect(data.json().affected).toEqual(1)
+  })
+
+  it(`GET /organisations/:organisationId/users 201 Allows a superadmin to get the users within an organisation`, async () => {
+    const organisationId = teams[0].organisation.id
+
+    const data = await app.inject({
+      method: 'GET',
+      url: `/organisations/${organisationId}/users`,
+      headers: superadminHeaders
+    })
+
+    expect(data.statusCode).toEqual(200)
+    expect(data.json().results.length).toBeGreaterThan(0)
+    expect(data.json().results[0].id).toBeDefined()
+    expect(data.json().results[0].name).toBeDefined()
+    expect(data.json().results[0].email).toBeUndefined()
   })
 
   it(`POST /organisations 400 Fails with validation errors if payload is not complete`, async () => {

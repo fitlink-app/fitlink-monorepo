@@ -6,6 +6,10 @@ import { Activity } from '@fitlink/api/src/modules/activities/entities/activity.
 import { CreateActivityDto } from '@fitlink/api/src/modules/activities/dto/create-activity.dto'
 import { UpdateActivityDto } from '@fitlink/api/src/modules/activities/dto/update-activity.dto'
 import { Organisation } from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
+import {
+  Subscription,
+  SubscriptionUser
+} from '@fitlink/api/src/modules/subscriptions/entities/subscription.entity'
 import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 import {
   AuthLoginDto,
@@ -25,6 +29,9 @@ import {
   UpdateUserEmailDto,
   UpdateUserPasswordDto
 } from '@fitlink/api/src/modules/users/dto/update-user.dto'
+import { CreateDefaultSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/create-default-subscription.dto'
+import { UpdateSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/update-subscription.dto'
+import { AddUserToSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/add-user-to-subscription.dto'
 
 export type {
   AuthResultDto,
@@ -68,6 +75,7 @@ export type CreatableResource =
 export type ListResource =
   | '/organisations'
   | '/organisations/:organisationId/activities'
+  | '/organisations/:organisationId/users'
   | '/organisations/:organisationId/teams'
   | '/organisations/:organisationId/subscriptions'
   | '/organisations/:organisationId/invitations'
@@ -90,6 +98,8 @@ export type ListResource =
   | '/queue'
   | '/sports'
   | '/subscriptions'
+  | '/subscriptions/:subscriptionId/users'
+  | '/subscriptions/:subscriptionId/chargebee/payment-sources'
   | '/users-invitations'
   | '/leagues'
   | '/me'
@@ -127,6 +137,8 @@ export type ReadResource =
   | '/queue/:queueId'
   | '/sports/:sportId'
   | '/subscriptions/:subscriptionId'
+  | '/subscriptions/:subscriptionId/users/:userId'
+  | '/subscriptions/:subscriptionId/chargebee/hosted-page'
   | '/users-invitations/:invitationId'
   | '/me'
   | '/me/roles'
@@ -145,6 +157,10 @@ export type CreateUserResult = {
 
 export type CreateResourceParams<T> = T extends Organisation
   ? Payload<CreateOrganisationDto>
+  : T extends Subscription
+  ? Payload<CreateDefaultSubscriptionDto>
+  : T extends SubscriptionUser
+  ? Payload<AddUserToSubscriptionDto>
   : T extends Team
   ? Payload<CreateTeamDto>
   : T extends Activity
@@ -173,10 +189,14 @@ export type CreatableResourceResponse<T> = T extends AuthSignUp
   ? AuthSignupDto
   : T extends AuthLogout
   ? { success: true }
+  : T extends SubscriptionUser
+  ? { success: boolean }
   : never
 
 export type UpdateResourceParams<T> = T extends Organisation
   ? Payload<UpdateOrganisationDto>
+  : T extends Subscription
+  ? Payload<UpdateSubscriptionDto>
   : T extends Team
   ? Payload<UpdateTeamDto>
   : T extends Activity
@@ -218,6 +238,10 @@ export type DeleteResult = {
 
 export type UpdateResult = {
   affected: number
+}
+
+export type BooleanResult = {
+  success: boolean
 }
 
 export type ResponseError = {

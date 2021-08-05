@@ -28,6 +28,8 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Organisation } from './entities/organisation.entity'
 import { PaginationQuery } from '../../helpers/paginate'
 import { Pagination } from '../../decorators/pagination.decorator'
+import { SearchOrganisationDto } from './dto/search-organisation.dto'
+import { User, UserPublicPagination } from '../users/entities/user.entity'
 
 @ApiTags('organisations')
 @ApiBaseResponses()
@@ -70,8 +72,11 @@ export class OrganisationsController {
   @Iam(Roles.SuperAdmin)
   @Get()
   @ApiResponse({ type: Organisation, isArray: true, status: 200 })
-  findAll(@Pagination() pagination: PaginationQuery) {
-    return this.organisationsService.findAll(pagination)
+  findAll(
+    @Pagination() pagination: PaginationQuery,
+    @Query() query: SearchOrganisationDto
+  ) {
+    return this.organisationsService.findAll(pagination, query)
   }
 
   /**
@@ -112,5 +117,21 @@ export class OrganisationsController {
   @DeleteResponse()
   remove(@Param('organisationId') id: string) {
     return this.organisationsService.remove(id)
+  }
+
+  /**
+   * Gets all users within organisation
+   * @param request
+   * @returns
+   */
+  @Iam(Roles.SuperAdmin)
+  @Get(':organisationId/users')
+  @ApiResponse({ type: UserPublicPagination, status: 200 })
+  findAllUsers(
+    @Pagination() pagination: PaginationQuery,
+    @Query() query,
+    @Param('organisationId') id: string
+  ) {
+    return this.organisationsService.findAllUsers(id, query, pagination)
   }
 }

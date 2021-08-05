@@ -9801,10 +9801,10 @@ chardet@^0.7.0:
   resolved "https://registry.yarnpkg.com/chardet/-/chardet-0.7.0.tgz#90094849f0937f2eedc2425d0d28a9e5f0cbad9e"
   integrity sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==
 
-chargebee-typescript@^2.0.9:
-  version "2.0.9"
-  resolved "https://registry.yarnpkg.com/chargebee-typescript/-/chargebee-typescript-2.0.9.tgz#4686900abbc4049402ffb82feafcc5e63df7fedc"
-  integrity sha512-kNyNI0zhSjC80sXGVBrWVIXMWRORQAEOR+PeHFsoiVza66L56WteYgFhBS8cUNoqPTYZuuQC5v8pKIvfTzH2vA==
+chargebee-typescript@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/chargebee-typescript/-/chargebee-typescript-2.1.0.tgz#c13424152ddeff9e833e9fd3ea339a8b5df21561"
+  integrity sha512-Js83UYoqoYDuFFeZzLpkK0UPT1yJszoSslqDTXqLNUtrytx7UpD9bZa77zAUaKLkQywLIeY/rZWQQelHMtoJYQ==
   dependencies:
     "@types/node" "^13.13.4"
     "@types/q" "^1.5.2"
