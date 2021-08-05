@@ -219,7 +219,6 @@ describe('Health Activities', () => {
     })
 
     const result = data.json()
-    expect(result.user).toBeDefined()
     expect(result.current_sleep_hours).toBeDefined()
     expect(result.current_steps).toBeDefined()
     expect(result.current_floors_climbed).toBeDefined()
