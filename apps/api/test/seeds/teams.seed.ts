@@ -27,6 +27,10 @@ export async function TeamsSetup(
         users.map((user, index) => {
           const team = Math.floor(index / COUNT_USERS)
           user.teams = [teams[team]]
+          if (teams[team]) {
+            teams[team].users = teams[team].users || []
+            teams[team].users.push(user)
+          }
           return connection.getRepository(User).save(user)
         })
       )

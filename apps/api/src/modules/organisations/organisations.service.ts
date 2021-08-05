@@ -10,7 +10,8 @@ import { OrganisationsInvitation } from '../organisations-invitations/entities/o
 import { getManager } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 import { SearchOrganisationDto } from './dto/search-organisation.dto'
-import { User } from '../users/entities/user.entity'
+import { User, UserPublic } from '../users/entities/user.entity'
+import { CommonService } from '../common/services/common.service'
 
 @Injectable()
 export class OrganisationsService {
@@ -18,6 +19,7 @@ export class OrganisationsService {
     @InjectRepository(Organisation)
     private readonly organisationRepository: Repository<Organisation>,
     private readonly invitationsService: OrganisationsInvitationsService,
+    private readonly commonService: CommonService,
     @InjectRepository(User)
     private userRepository: Repository<User>
   ) {}
@@ -82,7 +84,7 @@ export class OrganisationsService {
     id: string,
     search: SearchOrganisationDto,
     options: PaginationOptionsInterface
-  ): Promise<Pagination<User>> {
+  ): Promise<Pagination<UserPublic>> {
     let query = this.userRepository
       .createQueryBuilder('user')
       .innerJoin('user.teams', 'team')
@@ -104,8 +106,8 @@ export class OrganisationsService {
 
     const [results, total] = await query.getManyAndCount()
 
-    return new Pagination<User>({
-      results,
+    return new Pagination<UserPublic>({
+      results: this.commonService.mapUserPublic(results),
       total
     })
   }

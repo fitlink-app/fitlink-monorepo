@@ -29,7 +29,7 @@ import { Organisation } from './entities/organisation.entity'
 import { PaginationQuery } from '../../helpers/paginate'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { SearchOrganisationDto } from './dto/search-organisation.dto'
-import { User } from '../users/entities/user.entity'
+import { User, UserPublicPagination } from '../users/entities/user.entity'
 
 @ApiTags('organisations')
 @ApiBaseResponses()
@@ -126,7 +126,7 @@ export class OrganisationsController {
    */
   @Iam(Roles.SuperAdmin)
   @Get(':organisationId/users')
-  @ApiResponse({ type: User, isArray: true, status: 200 })
+  @ApiResponse({ type: UserPublicPagination, status: 200 })
   findAllUsers(
     @Pagination() pagination: PaginationQuery,
     @Query() query,
