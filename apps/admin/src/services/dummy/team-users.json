@@ -5,101 +5,131 @@
       "firstName":"Daryl",
       "lastName":"Owens",
       "email":"d.owens@myco.com",
-      "registered": true
+      "registered": true,
+      "mobile_os": "android",
+      "tracker": ["strava"]
     },
     {
       "avatar": "https://randomuser.me/api/portraits/men/51.jpg",
       "firstName":"Derek",
       "lastName":"Clark",
       "email":"d.clark@myco.com",
-      "registered": true
+      "registered": true,
+      "mobile_os": "ios",
+      "tracker": ["strava"]
     },
     {
       "avatar": "https://randomuser.me/api/portraits/women/21.jpg",
       "firstName":"Miley",
       "lastName":"Edwards",
       "email":"m.edwards@myco.com",
-      "registered": true
+      "registered": true,
+      "mobile_os": "ios",
+      "tracker": ["strava", "applehealth"]
     },
     {
       "avatar": "https://randomuser.me/api/portraits/women/11.jpg",
       "firstName":"Heather",
       "lastName":"Perkins",
       "email":"h.perkins@myco.com",
-      "registered": true
+      "registered": true,
+      "mobile_os": "android",
+      "tracker": ["googlefit"]
     },
     {
       "avatar": "https://randomuser.me/api/portraits/men/66.jpg",
       "firstName":"Haris",
       "lastName":"Campbell",
       "email":"h.campbell@myco.com",
-      "registered": true
+      "registered": true,
+      "mobile_os": "android",
+      "tracker": ["googlefit"]
     },
     {
       "avatar": "https://randomuser.me/api/portraits/men/12.jpg",
       "firstName":"Kelvin",
       "lastName":"Walker",
       "email":"k.walker@myco.com",
-      "registered": true
+      "registered": true,
+      "mobile_os": "android",
+      "tracker": ["googlefit"]
     },
     {
       "avatar": "https://randomuser.me/api/portraits/women/66.jpg",
       "firstName":"Lilianna",
       "lastName":"Brown",
       "email":"l.brown@myco.com",
-      "registered": true
+      "registered": true,
+      "mobile_os": "android",
+      "tracker": ["googlefit", "fitbit"]
     },
     {
       "avatar": "https://randomuser.me/api/portraits/men/14.jpg",
       "firstName":"Kelvin",
       "lastName":"Wells",
       "email":"k.wells@myco.com",
-      "registered": true
+      "registered": true,
+      "mobile_os": "ios",
+      "tracker": ["strava", "applehealth"]
     },
     {
       "avatar": "https://randomuser.me/api/portraits/men/19.jpg",
       "firstName":"Adrian",
       "lastName":"Harper",
       "email":"a.harper@myco.com",
-      "registered": true
+      "registered": true,
+      "mobile_os": "ios",
+      "tracker": ["strava", "fitbit", "applehealth"]
     },
     {
       "avatar": "https://randomuser.me/api/portraits/women/14.jpg",
       "firstName":"Fiona",
       "lastName":"Hall",
       "email":"f.hall@myco.com",
-      "registered": true
+      "registered": true,
+      "mobile_os": "android",
+      "tracker": ["googlefit"]
     },
     {
       "avatar": "https://randomuser.me/api/portraits/women/37.jpg",
       "firstName":"Stella",
       "lastName":"Rogers",
       "email":"s.rogers@myco.com",
-      "registered": true
+      "registered": true,
+      "mobile_os": "android",
+      "tracker": ["googlefit"]
     },
     {
       "firstName":"Lana",
       "lastName":"Kelly",
       "email":"l.kelly@myco.com",
-      "registered": false
+      "registered": false,
+      "mobile_os": "",
+      "tracker": []
     },
     {
       "firstName":"Naomi",
       "lastName":"Hill",
       "email":"n.hill@myco.com",
-      "registered": false
+      "registered": false,
+      "mobile_os": "",
+      "tracker": []
     },
     {
       "firstName":"Arthur",
       "lastName":"Martin",
       "email":"a.martin@myco.com",
-      "registered": false
+      "registered": false,
+      "mobile_os": "",
+      "tracker": []
     },
     {
       "firstName":"Melissa",
       "lastName":"Davis",
       "email":"m.davis@myco.com",
-      "registered": false
+      "registered": false,
+      "mobile_os": "",
+      "tracker": []
     }
   ],
   "total": 15,

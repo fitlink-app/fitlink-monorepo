@@ -82,21 +82,15 @@ export default function page() {
                   {format(endOfMonth(new Date()), 'do MMMM, yyyy')}
                 </small>
               </p>
-              <h2 className="h1 light mb-0 ml-a unbilled-amount">£34.89</h2>
+              <h2 className="h1 light mb-0 ml-a unbilled-amount">£35.01</h2>
             </div>
             <table className="static-table static-table--invoice">
               <tbody>
                 <tr>
                   <td>Active users</td>
                   <td>11</td>
-                  <td className="text-right">$2.00</td>
-                  <td className="text-right pr-1">£22</td>
-                </tr>
-                <tr>
-                  <td>User discount</td>
-                  <td>0.55%</td>
-                  <td className="text-right"></td>
-                  <td className="text-right pr-1">-£0.12</td>
+                  <td className="text-right">£2.00</td>
+                  <td className="text-right pr-1">£22.00</td>
                 </tr>
                 <tr>
                   <td>Ecologi, Tree planting reward</td>
