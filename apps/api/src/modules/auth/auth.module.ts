@@ -13,11 +13,12 @@ import { RefreshToken } from './entities/auth.entity'
 import { UserRolesModule } from '../user-roles/user-roles.module'
 import { CommonModule } from '../common/common.module'
 import { AuthProvider } from './entities/auth-provider.entity'
+import { Team } from '../teams/entities/team.entity'
 
 @Module({
   imports: [
     HttpModule,
-    TypeOrmModule.forFeature([RefreshToken, AuthProvider]),
+    TypeOrmModule.forFeature([RefreshToken, AuthProvider, Team]),
     ConfigModule,
     UsersModule,
     PassportModule,

@@ -327,7 +327,7 @@ const allow = Object.values(require('./trusted.json'))
 
       return Promise.all(
         fUsers
-          // .filter((e) => allow.includes(e.localId))
+          .filter((e) => allow.includes(e.localId))
           .map(async (userEntry) => {
             const id = userEntry.localId
 
@@ -741,6 +741,13 @@ const allow = Object.values(require('./trusted.json'))
             )
           }
 
+          // There is only one team during this migration
+          // The "Fitlink" team
+          let leagueTeam: Team
+          if (leagueData.team || leagueData.team_id) {
+            leagueTeam = team
+          }
+
           const league = await repo.save(
             repo.create({
               access:
@@ -755,7 +762,8 @@ const allow = Object.values(require('./trusted.json'))
               participants_total: leagueData.members_count,
               repeat: leagueData.repeat,
               image,
-              owner: creator
+              owner: creator,
+              team: leagueTeam
             })
           )
 
@@ -770,7 +778,7 @@ const allow = Object.values(require('./trusted.json'))
             await app
               .firestore()
               .collection('users')
-              .where('leagueIds', 'in', [leagueData.id])
+              .where('leagueIds', 'array-contains', leagueData.id)
               .get()
           ).docs.map((doc) => {
             return {
@@ -782,9 +790,12 @@ const allow = Object.values(require('./trusted.json'))
           // Attach those users to the league
           await Promise.all(
             fLeagueUsers.map(async (leagueUser) => {
-              const user = await getEntityFromFirebase(repo, leagueUser.id)
+              const user = await getEntityFromFirebase(
+                usersRepository,
+                leagueUser.id
+              )
               if (user) {
-                await repo
+                return repo
                   .createQueryBuilder()
                   .relation(League, 'users')
                   .of(league)

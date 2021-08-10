@@ -1,7 +1,5 @@
-import {
-  League,
-  LeagueAccess
-} from '../../src/modules/leagues/entities/league.entity'
+import { League } from '../../src/modules/leagues/entities/league.entity'
+import { LeagueAccess } from '../../src/modules/leagues/leagues.constants'
 import { Leaderboard } from '../../src/modules/leaderboards/entities/leaderboard.entity'
 import { Image } from '../../src/modules/images/entities/image.entity'
 import { Seeder, Factory } from 'typeorm-seeding'

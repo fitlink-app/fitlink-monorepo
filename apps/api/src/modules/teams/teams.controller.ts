@@ -12,6 +12,9 @@ import { Roles } from '../user-roles/user-roles.constants'
 import { CreateTeamDto } from './dto/create-team.dto'
 import { UpdateTeamDto } from './dto/update-team.dto'
 import { TeamsService } from './teams.service'
+import { Pagination } from '../../decorators/pagination.decorator'
+import { PaginationQuery } from '../../helpers/paginate'
+import { Team } from './entities/team.entity'
 
 @Controller()
 @ApiTags('teams')
@@ -21,34 +24,36 @@ export class TeamsController {
     private readonly imagesService: ImagesService
   ) {}
 
+  /**
+   * Only organisation admins can create new teams
+   *
+   * @param createTeamDto
+   * @param organisationId
+   * @returns
+   */
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
   @Post('/organisations/:organisationId/teams')
-  @Uploads('avatar', UploadOptions.Nullable)
   async teamCreate(
     @Body() createTeamDto: CreateTeamDto,
-    @Files('avatar') file: Storage.MultipartFile,
     @Param('organisationId') organisationId: string
   ) {
-    const alt = createTeamDto.name
-    let avatar: Image
-    if (file) {
-      avatar = await this.imagesService.createOne(file, ImageType.Avatar, {
-        alt
-      })
+    const create: Partial<Team> = createTeamDto
+
+    if (createTeamDto.imageId) {
+      create.avatar = new Image()
+      create.avatar.id = createTeamDto.imageId
     }
-    return this.teamsService.create(
-      {
-        ...createTeamDto,
-        avatar
-      },
-      organisationId
-    )
+
+    return this.teamsService.create(create, organisationId)
   }
 
   @Iam(Roles.OrganisationAdmin)
   @Get('/organisations/:organisationId/teams')
-  teamFindAll(@Param('organisationId') organisationId: string) {
-    return this.teamsService.findAll(organisationId)
+  teamFindAll(
+    @Param('organisationId') organisationId: string,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.teamsService.findAll(pagination, organisationId)
   }
 
   @Iam(Roles.OrganisationAdmin)
@@ -62,32 +67,21 @@ export class TeamsController {
 
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
   @Put('/organisations/:organisationId/teams/:id')
-  @Uploads('avatar', UploadOptions.Nullable)
   async teamUpdate(
     @Param('id') id: string,
     @Param('organisationId') organisationId: string,
-    @Files('avatar') file: Storage.MultipartFile,
     @Body() updateTeamDto: UpdateTeamDto
   ) {
-    const alt = updateTeamDto.name || ''
-    let avatar: Image
+    const update: Partial<Team> = updateTeamDto
 
-    if (file) {
-      avatar = await this.imagesService.createOne(file, ImageType.Avatar, {
-        alt
-      })
+    if (updateTeamDto.imageId) {
+      update.avatar = new Image()
+      update.avatar.id = updateTeamDto.imageId
+    } else if (updateTeamDto.imageId === null) {
+      update.avatar = null
     }
-    if (file === null) {
-      return this.teamsService.removeAvatar(id)
-    }
-    return this.teamsService.update(
-      id,
-      {
-        ...updateTeamDto,
-        avatar
-      },
-      organisationId
-    )
+
+    return this.teamsService.update(id, update, organisationId)
   }
 
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
@@ -116,6 +110,15 @@ export class TeamsController {
     @Param('userId') userId: string
   ) {
     return this.teamsService.deleteUserFromTeam(organisationId, teamId, userId)
+  }
+
+  @Iam(Roles.TeamAdmin)
+  @Get('/teams/:teamId/stats')
+  findAllUsersAndStats(
+    @Param('teamId') teamId: string,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.teamsService.queryUserTeamStats(teamId, pagination)
   }
 
   @Post('/teams/join')

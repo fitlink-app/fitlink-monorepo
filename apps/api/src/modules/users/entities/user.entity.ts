@@ -361,3 +361,35 @@ export class UserPublicPagination {
   })
   results: UserPublic[]
 }
+
+export class UserStat {
+  @ApiProperty()
+  created_at: string
+
+  @ApiProperty()
+  updated_at: string
+
+  @ApiProperty()
+  id: string
+
+  @ApiProperty()
+  latest_health_activity: Partial<HealthActivity>
+
+  @ApiProperty()
+  league_count: number
+
+  @ApiProperty()
+  initials: string
+
+  @ApiProperty()
+  points_total: number
+
+  @ApiProperty()
+  provider_types: string[]
+
+  @ApiProperty()
+  rank: UserRank
+
+  @ApiProperty()
+  reward_count: number
+}

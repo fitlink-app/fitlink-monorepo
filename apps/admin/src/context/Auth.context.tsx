@@ -5,7 +5,8 @@ import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 import {
   AuthResultDto,
   AuthSignupDto,
-  AuthProviderType
+  AuthProviderType,
+  AuthSwitchDto
 } from '@fitlink/api-sdk/types'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 import { Roles } from '@fitlink/api/src/modules/user-roles/user-roles.constants'
@@ -14,19 +15,22 @@ import { Subscription } from '@fitlink/api/src/modules/subscriptions/entities/su
 import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 import { useQuery } from 'react-query'
 import { MenuProps } from '../components/elements/MainMenu'
+import { useRouter } from 'next/router'
 
 const axios = Axios.create({
   baseURL:
     process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1'
 })
 
+let roleSwitchPathname = ''
+
 export const api = makeApi(axios)
 
 type Permissions = {
   superAdmin: boolean
-  organisations: Organisation[]
-  subscriptions: Subscription[]
-  teams: Team[]
+  organisations: Partial<Organisation>[]
+  subscriptions: Partial<Subscription>[]
+  teams: Partial<Team>[]
 }
 
 type Credentials = {
@@ -39,21 +43,41 @@ type ConnectProvider = {
   provider: AuthProviderType
 }
 
+type AuthSwitchTree = AuthSwitchDto & {
+  pathname: string
+}
+
+type RolePrimary = {
+  subscription?: string
+  organisation?: string
+  team?: string
+  superAdmin?: boolean
+}
+
 export type AuthContext = {
   user?: User
   roles?: Permissions
   api: Api
   menu: MenuProps[]
+  switchMode: boolean
+  primary: RolePrimary
   login: (credentials: Credentials) => Promise<AuthResultDto>
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
   logout: () => void
+  switchRole: (params: AuthSwitchDto) => Promise<AuthResultDto>
+  restoreRole: () => void
   isRole: (role: Roles, id?: string) => boolean
 }
 
 export const AuthContext = React.createContext({} as AuthContext)
 
 export function AuthProvider({ children }) {
-  const [state, setState] = useState<AuthContext>({} as AuthContext)
+  const [state, setState] = useState<AuthContext>({
+    primary: {}
+  } as AuthContext)
+  const [childRole, setChildRole] = useState<AuthSwitchDto>()
+  const [roleTree, setRoleTree] = useState<AuthSwitchTree[]>([])
+  const router = useRouter()
   const me = useQuery('me', () => api.get<User>('/me'), {
     enabled: false
   })
@@ -67,14 +91,16 @@ export function AuthProvider({ children }) {
   }, [])
 
   useEffect(() => {
-    const myRoles = formatRoles(roles.data || [])
+    const myRoles = formatRoles(roles.data || [], childRole)
+    const primary = setPrimaryRoles(myRoles)
     setState({
       ...state,
       user: me.data,
       roles: myRoles,
-      menu: setMenu(myRoles)
+      menu: setMenu(primary),
+      primary
     })
-  }, [me.data, roles.data])
+  }, [me.data, roles.data, childRole])
 
   async function resume() {
     const { access_token, id_token, refresh_token } = localStorage
@@ -91,6 +117,9 @@ export function AuthProvider({ children }) {
   }
 
   async function login({ email, password }) {
+    setRoleTree([])
+    setChildRole(null)
+
     const result = await api.login({
       email,
       password
@@ -104,13 +133,70 @@ export function AuthProvider({ children }) {
     return result
   }
 
-  function formatRoles(roles: UserRole[]) {
+  async function switchRole(params: AuthSwitchDto) {
+    storePreviousTokens(api.getTokens(), params.role)
+    const result = await api.loginWithRole(params)
+    setState({
+      ...state,
+      switchMode: true
+    })
+
+    roles.refetch()
+    router.push('/dashboard')
+    setChildRole(params)
+    setRoleTree([
+      ...roleTree,
+      {
+        ...params,
+        pathname: router.pathname
+      }
+    ])
+    return result
+  }
+
+  async function restoreRole() {
+    const prev = getPreviousTokens(childRole.role)
+    api.setTokens(prev)
+    roles.refetch()
+
+    // Set the previous role in the tree
+    const tree = [...roleTree]
+    const last = tree.pop()
+    setRoleTree(tree)
+    setChildRole(tree[tree.length - 1])
+    setState({
+      ...state,
+      switchMode: tree.length > 0
+    })
+
+    router.push(last.pathname)
+  }
+
+  function formatRoles(roles: UserRole[], childRole?: AuthSwitchDto) {
     let permissions: Permissions = {
       superAdmin: false,
       organisations: [],
       subscriptions: [],
       teams: []
     }
+
+    // If a child role is enabled, actual roles are ignored
+    if (childRole) {
+      if (childRole.role === Roles.OrganisationAdmin) {
+        permissions.organisations.push({
+          id: childRole.id
+        })
+        return permissions
+      }
+
+      if (childRole.role === Roles.TeamAdmin) {
+        permissions.teams.push({
+          id: childRole.id
+        })
+        return permissions
+      }
+    }
+
     roles.forEach((role) => {
       if (role.role === Roles.SuperAdmin) {
         permissions.superAdmin = true
@@ -182,6 +268,26 @@ export function AuthProvider({ children }) {
     })
   }
 
+  async function storePreviousTokens(tokens: AuthResultDto, role: Roles) {
+    Object.keys(tokens).map((key) => {
+      localStorage.setItem(key + '_previous_' + role, tokens[key])
+    })
+  }
+
+  function getPreviousTokens(role: Roles) {
+    const tokens: AuthResultDto = {
+      id_token: '',
+      access_token: '',
+      refresh_token: ''
+    }
+
+    Object.keys(tokens).map((key) => {
+      tokens[key] = localStorage.getItem(key + '_previous_' + role)
+    })
+
+    return tokens
+  }
+
   async function logout() {
     await api.logout()
     setState({
@@ -217,9 +323,30 @@ export function AuthProvider({ children }) {
     }
   }
 
-  function setMenu(roles: Permissions): MenuProps[] {
+  function setPrimaryRoles(roles: Permissions): RolePrimary {
+    const primary: RolePrimary = {
+      organisation: roles.organisations[0]
+        ? roles.organisations[0].id
+        : undefined,
+      team: roles.teams[0] ? roles.teams[0].id : undefined,
+      subscription: roles.subscriptions[0]
+        ? roles.subscriptions[0].id
+        : undefined
+    }
+
+    if (!primary.organisation && !primary.team && !primary.subscription) {
+      if (roles.superAdmin) {
+        primary.superAdmin = true
+      }
+    }
+
+    return primary
+  }
+
+  function setMenu(primary: RolePrimary): MenuProps[] {
     let items = []
-    if (roles.superAdmin) {
+    console.log(primary)
+    if (primary.superAdmin) {
       items = [
         {
           label: 'Organisations',
@@ -232,16 +359,51 @@ export function AuthProvider({ children }) {
           icon: 'IconGear'
         },
         {
-          label: 'Teams',
-          link: '/teams',
-          icon: 'IconGear'
-        },
-        {
           label: 'Users',
           link: '/users',
           icon: 'IconFriends'
         }
       ]
+    }
+
+    if (primary.organisation) {
+      items = items.concat([
+        {
+          label: 'Teams',
+          link: '/teams',
+          icon: 'IconGear'
+        }
+      ])
+    }
+
+    if (primary.team) {
+      items = items.concat([
+        {
+          label: 'Overview',
+          link: '/overview',
+          icon: 'IconGear'
+        },
+        {
+          label: 'User stats',
+          link: '/stats',
+          icon: 'IconFriends'
+        },
+        {
+          label: 'Rewards',
+          link: '/rewards',
+          icon: 'IconRewards'
+        },
+        {
+          label: 'Leagues',
+          link: '/leagues',
+          icon: 'IconLeagues'
+        },
+        {
+          label: 'Activities',
+          link: '/activities',
+          icon: 'IconActivities'
+        }
+      ])
     }
 
     return items.concat([
@@ -265,9 +427,13 @@ export function AuthProvider({ children }) {
           teams: []
         },
         menu: state.menu,
+        switchMode: state.switchMode,
+        primary: state.primary,
         login,
         logout,
         connect,
+        switchRole,
+        restoreRole,
         isRole
       }}>
       {children}

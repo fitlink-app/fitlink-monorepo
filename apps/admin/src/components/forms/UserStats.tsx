@@ -12,7 +12,7 @@ export type UserStatsProps = {
   total_leagues: number
   rewards: number
   last_session: string
-  created_leagues: string
+  created_leagues?: string
 }
 
 export default function UserStats({
@@ -67,7 +67,11 @@ export default function UserStats({
       <p>{tracker}</p>
       <hr className="tight" />
       <h6>Last app session</h6>
-      <p>{format(new Date(last_session), 'yyyy-MM-dd H:m:s OOOO')}</p>
+      {last_session ? (
+        <p>{format(new Date(last_session), 'yyyy-MM-dd H:m:s OOOO')}</p>
+      ) : (
+        'No data available'
+      )}
       <hr className="tight" />
       <h6>Total points</h6>
       <p>{points.toLocaleString()}</p>
@@ -81,8 +85,8 @@ export default function UserStats({
       <h6>Leagues joined</h6>
       <p>{total_leagues.toLocaleString()}</p>
       <hr className="tight" />
-      <h6>Leagues created</h6>
-      <p>{created_leagues.toLocaleString()}</p>
+      {/* <h6>Leagues created</h6>
+      <p>{created_leagues.toLocaleString()}</p> */}
       <hr className="tight" />
       <h6>Rewards redeemed</h6>
       <p>{rewards.toLocaleString()}</p>
