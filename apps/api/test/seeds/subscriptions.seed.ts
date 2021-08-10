@@ -12,7 +12,9 @@ const COUNT_SUBSCRIPTIONS = 2
 const COUNT_USERS = 10
 
 export async function SubscriptionsSetup(
-  billing_entity: string
+  billing_entity: string,
+  count = COUNT_SUBSCRIPTIONS,
+  override: Partial<Subscription> = {}
 ): Promise<Subscription[]> {
   const countUsers = COUNT_SUBSCRIPTIONS * COUNT_USERS
   const name = billing_entity
@@ -27,10 +29,28 @@ export async function SubscriptionsSetup(
 
       const subscriptions = await factory(Subscription)({
         organisation
-      }).createMany(COUNT_SUBSCRIPTIONS, {
-        billing_entity
+      }).createMany(count, {
+        billing_entity,
+        ...override
       })
 
+      // Add all users to the subscriptions
+      await Promise.all(
+        subscriptions.map((sub) => {
+          Promise.all(
+            users.map((user) => {
+              return connection
+                .getRepository(User)
+                .createQueryBuilder()
+                .relation(Subscription, 'users')
+                .of(sub)
+                .add(user)
+            })
+          )
+        })
+      )
+
+      // Add all teams to the created organisation
       await Promise.all(
         teams.map((team) => {
           team.organisation = organisation
@@ -38,12 +58,27 @@ export async function SubscriptionsSetup(
         })
       )
 
-      // Add COUNT_USERS (.e.g 10 per subscription)
+      // Set the subscription on each user
       await Promise.all(
-        users.map((user, index) => {
-          const sub = Math.floor(index / COUNT_USERS)
-          user.subscription = subscriptions[sub]
+        users.map((user) => {
+          user.subscription = subscriptions[0]
           return connection.getRepository(User).save(user)
+        })
+      )
+
+      // Add all users to all teams
+      await Promise.all(
+        teams.map((team) => {
+          return Promise.all(
+            users.map((user) => {
+              return connection
+                .getRepository(User)
+                .createQueryBuilder()
+                .relation(User, 'teams')
+                .of(user)
+                .add(team)
+            })
+          )
         })
       )
 

@@ -10,7 +10,7 @@ export async function UsersSetup(
 ): Promise<User[]> {
   class Setup implements Seeder {
     public async run(factory: Factory): Promise<any> {
-      return factory(User)().createMany(count, { name })
+      return factory(User)().createMany(count, { name, goal_sleep_hours: 8 })
     }
   }
 

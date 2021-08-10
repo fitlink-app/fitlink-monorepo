@@ -1,7 +1,7 @@
 export default {
   summary: {
-    totalMinutesAsleep: 800,
+    totalMinutesAsleep: 480,
     totalSleepRecords: 2,
-    totalTimeInBed: 1000
+    totalTimeInBed: 500
   }
 }

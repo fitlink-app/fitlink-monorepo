@@ -10,62 +10,63 @@ import Checkbox from '../elements/Checkbox'
 import { AuthContext } from '../../context/Auth.context'
 import { useMutation } from 'react-query'
 import { ApiMutationResult } from '@fitlink/common/react-query/types'
-import { DeleteResult } from '@fitlink/api-sdk/types'
+import { DeleteResult, UpdateResult } from '@fitlink/api-sdk/types'
 import { getErrorMessage } from '../../../../api-sdk'
 import Feedback from '../elements/Feedback'
 import useApiErrors from '../../hooks/useApiErrors'
 
-export type ConfirmDeleteProps = {
+export type ConfirmProps = {
   title?: string
   message: string
   current?: Partial<Organisation>
-  mutation?: (id: string) => Promise<DeleteResult>
-  onDelete?: () => void
+  requireConfirmText?: string
+  mutation: (current) => Promise<UpdateResult>
+  onUpdate?: () => void
   onCancel?: () => void
   onError?: () => void
-  requireConfirmText?: string
 }
 
 const noop = () => {}
 
-export default function ConfirmDeleteForm({
-  title = 'Confirm delete action',
+export default function ConfirmForm({
+  title = 'Confirm action',
   message,
   current,
+  requireConfirmText = '',
   mutation,
-  onDelete = noop,
+  onUpdate = noop,
   onError = noop,
-  onCancel = noop,
-  requireConfirmText = ''
-}: ConfirmDeleteProps) {
-  const remove: ApiMutationResult<DeleteResult> = useMutation((id: string) =>
-    mutation(id)
+  onCancel = noop
+}: ConfirmProps) {
+  const { api } = useContext(AuthContext)
+
+  const update: ApiMutationResult<UpdateResult> = useMutation(() =>
+    mutation(current)
   )
 
   async function onSubmit(data: { confirm_text: string }) {
     if (requireConfirmText && requireConfirmText !== data.confirm_text) {
       return
     }
-
     try {
-      await toast.promise(remove.mutateAsync(current.id), {
-        loading: <b>Deleting...</b>,
-        success: <b>Item deleted</b>,
+      await toast.promise(update.mutateAsync(current.id), {
+        loading: <b>Updating...</b>,
+        success: <b>Updated</b>,
         error: <b>Error</b>
       })
-      if (!remove.isError) {
-        onDelete()
+      if (!update.isError) {
+        onUpdate()
       }
     } catch (e) {
       onError()
     }
   }
 
-  const { register, handleSubmit, watch } = useForm()
+  const { handleSubmit, watch } = useForm()
 
   const confirmation = watch('confirm_text')
 
-  const { isError, errorMessage } = useApiErrors(remove.isError, remove.error)
+  const { isError, errorMessage } = useApiErrors(update.isError, update.error)
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -73,14 +74,6 @@ export default function ConfirmDeleteForm({
 
       <p>{message}</p>
       <br />
-
-      {requireConfirmText && (
-        <Input
-          name="confirm_text"
-          placeholder={`Type ${requireConfirmText} to proceed`}
-          register={register('confirm_text')}
-        />
-      )}
 
       {isError && <Feedback message={errorMessage} type="error" />}
 
@@ -92,7 +85,7 @@ export default function ConfirmDeleteForm({
           className="button ml-1 pointer"
           disabled={
             (requireConfirmText && confirmation !== requireConfirmText) ||
-            remove.isLoading
+            update.isLoading
           }>
           Confirm
         </button>
