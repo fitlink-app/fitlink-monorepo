@@ -5,7 +5,6 @@ import {
 } from '@react-navigation/native';
 import React from 'react';
 import {useTheme} from 'styled-components/native';
-import {useAuth} from '@hooks';
 import {AuthenticationNavigator} from './Authentication';
 import {HomeNavigator} from './Home';
 import {
@@ -24,6 +23,8 @@ import {
   Webview,
 } from 'pages';
 import {SettingsNavigator} from './Settings';
+import {useSelector} from 'react-redux';
+import {memoSelectIsAuthenticated} from 'redux/auth/authSlice';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -33,7 +34,7 @@ export const navigationRef = React.createRef<NavigationContainerRef | null>();
 export default function Router() {
   const {colors} = useTheme();
 
-  const {isLoggedIn} = useAuth();
+  const isAuthenticated = useSelector(memoSelectIsAuthenticated);
 
   const navigatorOptions = {
     cardShadowEnabled: true,
@@ -49,7 +50,7 @@ export default function Router() {
         colors: {...DefaultTheme.colors, background: colors.background},
       }}>
       <Stack.Navigator screenOptions={navigatorOptions}>
-        {isLoggedIn ? (
+        {isAuthenticated ? (
           <>
             <Stack.Screen name={'HomeNavigator'} component={HomeNavigator} />
             <Stack.Screen

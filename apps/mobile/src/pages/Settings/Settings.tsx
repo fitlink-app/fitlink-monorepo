@@ -8,7 +8,7 @@ import {
   NAVBAR_HEIGHT,
   TouchHandler,
 } from '@components';
-import {useAuth, useModal, UserGoalPreferences, useSettings} from '@hooks';
+import {useModal, UserGoalPreferences, useSettings} from '@hooks';
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {Keyboard, Platform, ScrollView, View} from 'react-native';
@@ -23,6 +23,9 @@ import {
 } from './components';
 import {SettingsItemWrapper} from './components/SettingsItemWrapper';
 import {SettingsItemLabel} from './components/SettingsItemLabel';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from 'redux/store';
+import {logout} from 'redux/auth/authSlice';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -58,9 +61,9 @@ type UserGoalPreferencesString = {
 export const Settings = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const dispatch = useDispatch() as AppDispatch;
 
   const settings = useSettings();
-  const {logout} = useAuth();
   const {openModal, closeModal} = useModal();
 
   // TODO: Hook up with state
@@ -209,7 +212,7 @@ export const Settings = () => {
                           });
                         });
 
-                        logout();
+                        dispatch(logout());
                       },
                     },
                     {

@@ -4,9 +4,12 @@ import {useNavigation} from '@react-navigation/native';
 import styled from 'styled-components/native';
 import {Background, GradientUnderlay, WelcomeHeader} from './components';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useAuth} from '@hooks';
-import {Alert, Platform} from 'react-native';
+import {Platform} from 'react-native';
 import {useState} from 'react';
+import {useDispatch} from 'react-redux';
+import {signInWithApple, signInWithGoogle} from 'redux/auth/authSlice';
+import {AppDispatch} from 'redux/store';
+import appleAuth from '@invertase/react-native-apple-authentication';
 
 const Wrapper = styled.View({flex: 1, alignItems: 'center'});
 
@@ -30,7 +33,7 @@ const SpacedButton = styled(Button)({
 export const Welcome = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const {signInWithGoogle, signInWithApple, isAppleSignInSupported} = useAuth();
+  const dispatch = useDispatch() as AppDispatch;
 
   const [isGoogleLoading, setGoogleLoading] = useState(false);
   const [isAppleLoading, setAppleLoading] = useState(false);
@@ -46,7 +49,7 @@ export const Welcome = () => {
   const handleOnGooglePressed = async () => {
     try {
       setGoogleLoading(true);
-      await signInWithGoogle();
+      await dispatch(signInWithGoogle());
     } catch (e) {
       setGoogleLoading(false);
     }
@@ -55,7 +58,7 @@ export const Welcome = () => {
   const handleOnApplePressed = async () => {
     try {
       setAppleLoading(true);
-      await signInWithApple();
+      await dispatch(signInWithApple());
     } catch (e) {
       setAppleLoading(false);
     }
@@ -82,7 +85,7 @@ export const Welcome = () => {
           icon={'google'}
           onPress={handleOnGooglePressed}
         />
-        {Platform.OS === 'ios' && isAppleSignInSupported && (
+        {Platform.OS === 'ios' && appleAuth.isSupported && (
           <SpacedButton
             disabled={isAppleLoading}
             loading={isAppleLoading}

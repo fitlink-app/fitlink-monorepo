@@ -1,13 +1,13 @@
 import React, {useRef} from 'react';
 import {Button, FormError, InputField, Label} from '@components';
-import {useAuth, useForm} from '@hooks';
+import {useForm} from '@hooks';
 import styled from 'styled-components/native';
 import {TextInput} from 'react-native';
 import {PrivacyPolicyLabel, TermsOfServiceLabel} from './components';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from 'redux/store';
 import {signUp} from 'redux/auth/authSlice';
-import {unwrapResult} from '@reduxjs/toolkit';
+import {RequestError} from '@api';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -53,12 +53,9 @@ export const SignUpForm = () => {
     const credentials = {email: values.email, password: values.password};
 
     const result = await dispatch(signUp(credentials));
-    console.log(result);
-    const unwrap = unwrapResult(result);
-    console.log(unwrap);
-    return undefined;
-    // const requestError = await signUp(credentials);
-    // return requestError;
+    return result.type === signUp.rejected.toString()
+      ? (result.payload as RequestError)
+      : undefined;
   };
 
   return (

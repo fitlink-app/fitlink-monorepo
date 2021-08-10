@@ -1,12 +1,11 @@
 import {
-  Button,
   FeedFilter,
   FeedItem,
   GoalTracker,
   Icon,
   RewardTracker,
 } from '@components';
-import {useAuth, useMe} from '@hooks';
+import {useMe} from '@hooks';
 import {UserWidget} from '@components';
 import React, {useCallback} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -40,8 +39,6 @@ export const Feed = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const {colors} = useTheme();
-
-  const {logout} = useAuth();
 
   const {
     data: user,
