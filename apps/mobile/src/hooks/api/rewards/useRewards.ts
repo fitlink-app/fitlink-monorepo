@@ -49,6 +49,7 @@ export function useRewards(params: RewardsParams) {
     ({pageParam}) => fetchRewards({pageParam, params}),
     {
       getNextPageParam: getNextPageParam(REWARD_RESULTS_PER_PAGE),
+      keepPreviousData: true,
     },
   );
 }

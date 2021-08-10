@@ -14,11 +14,13 @@ import {
 } from '@react-navigation/stack';
 import {RootStackParamList} from './types';
 import {
+  ActivityDetails,
   League,
   LeagueForm,
   LeagueInviteFriends,
   Profile,
   Reward,
+  Route,
   Webview,
 } from 'pages';
 import {SettingsNavigator} from './Settings';
@@ -70,6 +72,11 @@ export default function Router() {
               }}
             />
             <Stack.Screen name={'Profile'} component={Profile} />
+            <Stack.Screen
+              name={'ActivityDetails'}
+              component={ActivityDetails}
+            />
+            <Stack.Screen name={'Route'} component={Route} />
             <Stack.Screen name={'Reward'} component={Reward} />
             <Stack.Screen name={'Webview'} component={Webview} />
           </>

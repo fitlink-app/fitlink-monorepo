@@ -3,11 +3,14 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {AppBackground} from '@components';
 import {withQueryClient} from '@query';
 import {AuthProvider, ModalProvider} from './contexts';
+import {Provider} from 'react-redux';
+import {PersistGate} from 'redux-persist/integration/react';
 import Router from './routes/router';
 import ThemeProvider from './theme/ThemeProvider';
 import {QueryPersistor} from 'query/QueryPersistor';
 import {Platform, UIManager} from 'react-native';
-import {isJsxOpeningFragment} from 'typescript';
+import MapboxGL from '@react-native-mapbox-gl/maps';
+import {persistor, store} from 'redux/store';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -15,17 +18,25 @@ if (Platform.OS === 'android') {
   }
 }
 
+MapboxGL.setAccessToken(
+  'pk.eyJ1IjoibHVrZS1maXRsaW5rYXBwIiwiYSI6ImNrbzBhOHVpeDA5Y2gyd253MncxOGxoZjgifQ.Vyr2eDUhaZgR1VFoLaatbA',
+);
+
 const App = () => {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
         <AppBackground>
           <ModalProvider>
-            <AuthProvider>
-              <QueryPersistor>
-                <Router />
-              </QueryPersistor>
-            </AuthProvider>
+            <Provider store={store}>
+              <PersistGate persistor={persistor}>
+                <AuthProvider>
+                  <QueryPersistor>
+                    <Router />
+                  </QueryPersistor>
+                </AuthProvider>
+              </PersistGate>
+            </Provider>
           </ModalProvider>
         </AppBackground>
       </ThemeProvider>

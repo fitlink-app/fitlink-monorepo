@@ -18,8 +18,6 @@ const Wrapper = styled.View(({theme}) => ({
   borderColor: theme.colors.separator,
 }));
 
-const TopWrapper = styled.View({});
-
 const RightContainer = styled.View({
   marginLeft: 14,
   flex: 1,
@@ -58,7 +56,11 @@ const ButtonSeparator = styled.View(({theme: {colors}}) => ({
   backgroundColor: colors.background,
 }));
 
-export const FeedItem = () => {
+interface FeedItemProps {
+  onContentPress: () => void;
+}
+
+export const _FeedItem = ({onContentPress}: FeedItemProps) => {
   const {colors} = useTheme();
 
   // Temp variables
@@ -124,44 +126,46 @@ export const FeedItem = () => {
         </ProgressCircle>
 
         <RightContainer>
-          <SpacedRow>
-            {/* User name, date column */}
-            <Col style={{flex: 1}}>
-              <Row
-                style={{
-                  alignItems: 'flex-start',
-                  marginRight: 5,
-                }}>
-                {renderTitleIcon()}
-                <Label
-                  type="subheading"
-                  appearance={'primary'}
-                  style={{flexShrink: 1, paddingRight: 5}}>
-                  {title}
-                </Label>
-              </Row>
+          <TouchHandler onPress={onContentPress}>
+            <SpacedRow>
+              {/* User name, date column */}
+              <Col style={{flex: 1}}>
+                <Row
+                  style={{
+                    alignItems: 'flex-start',
+                    marginRight: 5,
+                  }}>
+                  {renderTitleIcon()}
+                  <Label
+                    type="subheading"
+                    appearance={'primary'}
+                    style={{flexShrink: 1, paddingRight: 5}}>
+                    {title}
+                  </Label>
+                </Row>
 
-              <DateText type="caption" appearance={'secondary'}>
-                {name} · {date}
-              </DateText>
-            </Col>
+                <DateText type="caption" appearance={'secondary'}>
+                  {name} · {date}
+                </DateText>
+              </Col>
 
-            {/* Points chip */}
-            {renderPoints()}
-          </SpacedRow>
+              {/* Points chip */}
+              {renderPoints()}
+            </SpacedRow>
 
-          {renderStats()}
+            {renderStats()}
 
-          <Label
-            type={'body'}
-            appearance={'accentSecondary'}
-            style={{marginBottom: 10}}>
-            {description}
-          </Label>
+            <Label
+              type={'body'}
+              appearance={'accentSecondary'}
+              style={{marginBottom: 10}}>
+              {description}
+            </Label>
 
-          <SpacedRow>
-            <FeedCollage images={images} />
-          </SpacedRow>
+            <SpacedRow>
+              <FeedCollage images={images} />
+            </SpacedRow>
+          </TouchHandler>
         </RightContainer>
       </Row>
 
@@ -188,3 +192,5 @@ export const FeedItem = () => {
     </Wrapper>
   );
 };
+
+export const FeedItem = React.memo(_FeedItem);

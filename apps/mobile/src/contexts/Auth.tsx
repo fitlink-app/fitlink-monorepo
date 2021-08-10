@@ -9,6 +9,8 @@ import {AsyncStorageKeys} from '@utils';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import appleAuth from '@invertase/react-native-apple-authentication';
 import {flushPersistedQueries} from 'query/QueryPersistor';
+import {useDispatch, useSelector} from 'react-redux';
+import {selectAuthResult, setAuthResult as hurka} from 'redux/auth/authSlice';
 
 type Credentials = {
   email: string;
@@ -44,6 +46,12 @@ export const AuthProvider: React.FC = ({children}) => {
     AsyncStorageKeys.AUTH_RESULT,
   );
 
+  const dispatch = useDispatch();
+
+  console.log('hi');
+  const authResultRedux = useSelector(selectAuthResult);
+  console.log(authResultRedux);
+
   useEffect(() => {
     if (!authResult || !isRestored) return;
 
@@ -59,6 +67,7 @@ export const AuthProvider: React.FC = ({children}) => {
     try {
       const auth = await api.login(credentials);
       setAuthResult(auth);
+      dispatch(hurka(auth));
     } catch (e) {
       return getErrors(e);
     }

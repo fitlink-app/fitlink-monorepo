@@ -1,6 +1,7 @@
 import {
   Avatar,
   Button,
+  Checkbox,
   Label,
   Modal,
   Navbar,
@@ -13,13 +14,15 @@ import React, {useState} from 'react';
 import {Keyboard, Platform, ScrollView, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
-import {UnitSystem} from '@fitlink/api/src/modules/users/entities/user.entity';
+import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
 import {
   CategoryLabel,
   SettingsButton,
   SettingsInput,
   SettingsDropdown,
 } from './components';
+import {SettingsItemWrapper} from './components/SettingsItemWrapper';
+import {SettingsItemLabel} from './components/SettingsItemLabel';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -27,6 +30,11 @@ const DeleteButtonWrapper = styled.View(() => ({
   paddingHorizontal: 20,
   marginTop: 15,
 }));
+
+const Row = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+});
 
 const PRIVACY_ITEMS = [
   {
@@ -311,6 +319,15 @@ export const Settings = () => {
           value={PRIVACY_ITEMS[0].value}
           prompt={'Select activity privacy'}
         />
+
+        {/* Newsletter */}
+        <CategoryLabel>Newsletter</CategoryLabel>
+        <SettingsItemWrapper>
+          <Row>
+            <SettingsItemLabel children={'Subscribe to newsletter'} />
+            <Checkbox onPress={() => {}} checked={false} />
+          </Row>
+        </SettingsItemWrapper>
 
         {/* Help */}
         <CategoryLabel>Help</CategoryLabel>

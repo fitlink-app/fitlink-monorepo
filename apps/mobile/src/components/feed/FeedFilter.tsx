@@ -1,6 +1,7 @@
+import {useModal} from '@hooks';
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
-import {Icon, Label, TouchHandler} from '../common';
+import {Icon, Label, Modal, TouchHandler} from '../common';
 
 const FeedHeaderWrapper = styled.View(({theme: {colors}}) => ({
   flexDirection: 'row',
@@ -20,8 +21,25 @@ const FilterIconContainer = styled.View({
 
 export const FeedFilter = () => {
   const {colors} = useTheme();
+  const {openModal, closeModal} = useModal();
 
-  const handleFilterPressed = () => {};
+  const handleFilterPressed = () => {
+    openModal(id => {
+      return (
+        <Modal
+          title={'Customize Your Feed'}
+          buttons={[
+            {
+              text: 'Okay',
+              onPress: async () => {
+                closeModal(id);
+              },
+            },
+          ]}
+        />
+      );
+    });
+  };
 
   return (
     <FeedHeaderWrapper>

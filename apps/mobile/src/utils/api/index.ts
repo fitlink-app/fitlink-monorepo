@@ -6,7 +6,6 @@ export const getNextPageParam =
   (lastPage: ListResponse<T>, pages: ListResponse<T>[]) => {
     const allResults = pages.length * limit;
     const moreAvailable = allResults < lastPage.total;
-
     return moreAvailable ? pages.length : undefined;
   };
 

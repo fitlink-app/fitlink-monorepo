@@ -12,6 +12,10 @@ target 'Fitlink' do
     :hermes_enabled => false
   )
 
+  pre_install do |installer|
+    $RNMBGL.pre_install(installer)
+  end
+
   target 'FitlinkTests' do
     inherit! :complete
     # Pods for testing
@@ -24,6 +28,7 @@ target 'Fitlink' do
   use_flipper!()
 
   post_install do |installer|
+    $RNMBGL.post_install(installer)
     react_native_post_install(installer)
   end
 end

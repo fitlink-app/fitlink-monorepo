@@ -10,3 +10,5 @@ export * from './LeagueForm';
 export * from './Rewards';
 export * from './Reward';
 export * from './Profile';
+export * from './ActivityDetails';
+export * from './Route';

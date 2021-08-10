@@ -8,7 +8,7 @@ import {
 } from '@components';
 import {useAuth, useMe} from '@hooks';
 import {UserWidget} from '@components';
-import React from 'react';
+import React, {useCallback} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {FlatList, RefreshControl} from 'react-native';
@@ -52,17 +52,21 @@ export const Feed = () => {
     refetchInterval: 10000,
   });
 
+  const onFeedItemPressed = useCallback(() => {
+    navigation.navigate('ActivityDetails');
+  }, []);
+
   if (!user) return null;
 
   const renderItem = ({item, index}) => {
-    return <FeedItem />;
+    return <FeedItem key={item} onContentPress={onFeedItemPressed} />;
   };
 
   return (
     <Wrapper style={{paddingTop: insets.top}}>
       <FlatList
         {...{renderItem}}
-        data={[1, 1, 1, 1, 1, 1]}
+        data={[1, 2, 3, 4, 5, 6]}
         style={{overflow: 'visible'}}
         refreshControl={
           <RefreshControl

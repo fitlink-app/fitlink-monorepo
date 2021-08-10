@@ -1,7 +1,13 @@
 import {Label} from '@components';
 import React from 'react';
-import {FlatList, FlatListProps, Dimensions} from 'react-native';
-import styled from 'styled-components/native';
+import {
+  FlatList,
+  FlatListProps,
+  Dimensions,
+  View,
+  ActivityIndicator,
+} from 'react-native';
+import styled, {useTheme} from 'styled-components/native';
 import {RewardPublic} from '@fitlink/api/src/modules/rewards/entities/reward.entity';
 import {RewardCard} from '.';
 import {useNavigation} from '@react-navigation/native';
@@ -18,6 +24,15 @@ const Title = styled(Label).attrs({
   paddingLeft: HORIZONTAL_PADDING,
 });
 
+const LoadingContainer = styled.View({height: 170, justifyContent: 'center'});
+
+const NewItemLoadingContainer = styled.View({
+  width: 80,
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: 170,
+});
+
 interface RewardSliderProps
   extends Omit<
     FlatListProps<RewardPublic>,
@@ -25,11 +40,24 @@ interface RewardSliderProps
     | 'renderItem'
     | 'showsHorizontalScrollIndicator'
     | 'contentContainerStyle'
+    | 'ListFooterComponent'
   > {
   title: string;
+  userPoints: number;
+  isLoading?: boolean;
+  isLoadingNextPage?: boolean;
+  fetchNextPage: () => void;
 }
 
-export const RewardSlider = ({title, ...rest}: RewardSliderProps) => {
+export const RewardSlider = ({
+  title,
+  userPoints,
+  isLoading,
+  fetchNextPage,
+  isLoadingNextPage,
+  ...rest
+}: RewardSliderProps) => {
+  const {colors} = useTheme();
   const navigation = useNavigation();
 
   const renderItem = ({item}: {item: RewardPublic}) => {
@@ -40,30 +68,48 @@ export const RewardSlider = ({title, ...rest}: RewardSliderProps) => {
         title={item.name_short}
         image={item.image.url_640x360}
         expiryDate={new Date(item.reward_expires_at)}
-        currentPoints={88}
-        requiredPoints={150}
+        currentPoints={userPoints}
+        requiredPoints={item.points_required}
         onPress={() => navigation.navigate('Reward', {id: item.id})}
-        isClaimed={false}
-        organisation={{
-          name: 'Fitlink',
-          image: undefined,
-        }}
-        code={'FIT10'}
+        isClaimed={item.redeemed}
+        organisation={
+          item.organisation && {
+            name: item.organisation.name,
+            image: item.organisation.avatar?.url_128x128,
+          }
+        }
+        code={item.code}
       />
     );
   };
+
+  const ListFooterComponent = isLoadingNextPage ? (
+    <NewItemLoadingContainer>
+      <ActivityIndicator color={colors.accent} />
+    </NewItemLoadingContainer>
+  ) : null;
 
   if (!rest.data?.length) return null;
 
   return (
     <Wrapper>
       <Title>{title}</Title>
-      <FlatList
-        {...{...rest, renderItem}}
-        contentContainerStyle={{paddingHorizontal: HORIZONTAL_PADDING}}
-        showsHorizontalScrollIndicator={false}
-        horizontal
-      />
+      {isLoading && !isLoadingNextPage ? (
+        <LoadingContainer>
+          <ActivityIndicator color={colors.accent} />
+        </LoadingContainer>
+      ) : (
+        <FlatList
+          {...{...rest, renderItem, ListFooterComponent}}
+          contentContainerStyle={{
+            paddingHorizontal: HORIZONTAL_PADDING,
+          }}
+          showsHorizontalScrollIndicator={false}
+          onEndReachedThreshold={0.2}
+          onEndReached={fetchNextPage}
+          horizontal
+        />
+      )}
     </Wrapper>
   );
 };

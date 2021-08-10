@@ -1,8 +1,8 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Label, RewardTracker} from '@components';
-import {useMe, useMyRewards, useRewards} from '@hooks';
+import {useMe, useMyRewards, useNextReward, useRewards} from '@hooks';
 import {RewardSlider} from './components';
 import {getResultsFromPages} from 'utils/api';
 import {ActivityIndicator, RefreshControl} from 'react-native';
@@ -32,9 +32,24 @@ export const Rewards = () => {
   const insets = useSafeAreaInsets();
   const {colors} = useTheme();
 
-  const {data: user, isFetched: userIsFetched} = useMe({
+  // Whether or not display the pull down refresh indicator
+  const [isManualRefresh, setManualRefresh] = useState(false);
+
+  const {
+    data: user,
+    isFetchedAfterMount: userIsFetchedAfterMount,
+    refetch: refetchUser,
+  } = useMe({
     refetchOnMount: false,
   });
+
+  // TODO: Avoid fetching all the pages when paginated
+
+  const {
+    data: nextReward,
+    isFetchedAfterMount: nextRewardIsFetchedAfterMount,
+    refetch: refetchNextReward,
+  } = useNextReward();
 
   const {
     data: myRewards,
@@ -77,15 +92,6 @@ export const Rewards = () => {
   const lockedRewardsEntries = getResultsFromPages(lockedRewards);
   const expiredRewardsEntries = getResultsFromPages(expiredRewards);
 
-  // Count of all rewards (owned, unlocked, locked, expired)
-  // TODO: Add other reward types once API supports it
-  const totalRewardsCount = [
-    ...myRewardsEntries,
-    ...unclaimedRewardEntries,
-    ...lockedRewardsEntries,
-    ...expiredRewardsEntries,
-  ].length;
-
   // Whether any of the reward list calls are loading
   const isLoading =
     isFetchingUnclaimedRewards ||
@@ -98,24 +104,52 @@ export const Rewards = () => {
     isLockedRewardsFetchedAfterMount &&
     isExpiredRewardsFetchedAfterMount &&
     isMyRewardsFetchedAfterMount &&
-    userIsFetched;
+    userIsFetchedAfterMount &&
+    nextRewardIsFetchedAfterMount;
+
+  const totalRewardsCount = [
+    ...myRewardsEntries,
+    ...unclaimedRewardEntries,
+    ...lockedRewardsEntries,
+    ...expiredRewardsEntries,
+  ].length;
 
   const pointsTotal = user?.points_total;
   const claimableRewardsCount = unclaimedRewards?.pages[0]?.total || 0;
-  const nextRewardPoint = 500;
+
+  useEffect(() => {
+    Promise.all([refetchNextReward(), refetchAllRewards()]);
+  }, [user?.points_total]);
+
+  const refetchAllRewards = () =>
+    Promise.all([
+      refetchMyRewards(),
+      refetchUnclaimedRewards(),
+      refetchLockedRewards(),
+      refetchExpiredRewards(),
+    ]);
 
   // Refetch all reward lists
-  const handleRefresh = () => {
-    refetchUnclaimedRewards();
+  const handleRefresh = async () => {
+    setManualRefresh(true);
+
+    await Promise.all([
+      refetchUser(),
+      refetchNextReward(),
+      refetchAllRewards(),
+    ]);
+
+    setManualRefresh(false);
   };
 
+  const renderLoading = () => (
+    <ActivityIndicatorContainer>
+      <ActivityIndicator color={colors.accent} />
+    </ActivityIndicatorContainer>
+  );
+
   const renderEmpty = () => {
-    if (!isFetchedAfterMount)
-      return (
-        <ActivityIndicatorContainer>
-          <ActivityIndicator color={colors.accent} />
-        </ActivityIndicatorContainer>
-      );
+    if (!isFetchedAfterMount || isLoading) return renderLoading();
 
     return (
       <Label style={{textAlign: 'center'}}>
@@ -136,41 +170,71 @@ export const Rewards = () => {
         <RefreshControl
           // progressViewOffset={insets.top}
           tintColor={colors.accent}
-          refreshing={isLoading && isFetchedAfterMount}
+          refreshing={isLoading && isFetchedAfterMount && isManualRefresh}
           onRefresh={handleRefresh}
         />
       }>
-      <ListHeaderContainer>
-        <PointsLabelContainer>
-          <Label appearance={'primary'}>
-            Your point balance is{' '}
-            <Label appearance={'accent'}>{pointsTotal}</Label>
-          </Label>
-        </PointsLabelContainer>
-
-        <RewardTracker
-          points={pointsTotal}
-          targetPoints={nextRewardPoint}
-          claimableRewardsCount={claimableRewardsCount}
-          showNextReward={true}
-        />
-      </ListHeaderContainer>
-
-      {!totalRewardsCount ? (
-        renderEmpty()
-      ) : (
+      {isFetchedAfterMount ? (
         <>
-          <RewardSlider data={myRewardsEntries} title={'My Rewards'} />
-          <RewardSlider
-            data={unclaimedRewardEntries}
-            title={'Unclaimed Rewards'}
-          />
-          <RewardSlider data={lockedRewardsEntries} title={'Locked Rewards'} />
-          <RewardSlider
-            data={expiredRewardsEntries}
-            title={'Expired Rewards'}
-          />
+          <ListHeaderContainer>
+            <PointsLabelContainer>
+              {userIsFetchedAfterMount && (
+                <Label appearance={'primary'}>
+                  Your point balance is{' '}
+                  <Label appearance={'accent'}>{pointsTotal}</Label>
+                </Label>
+              )}
+            </PointsLabelContainer>
+
+            <RewardTracker
+              points={user?.points_total || 0}
+              targetPoints={nextReward?.reward?.points_required!}
+              claimableRewardsCount={claimableRewardsCount}
+              showNextReward={true}
+            />
+          </ListHeaderContainer>
+
+          {!totalRewardsCount ? (
+            renderEmpty()
+          ) : (
+            <>
+              <RewardSlider
+                data={myRewardsEntries}
+                title={'My Rewards'}
+                isLoading={isFetchingMyRewards && !isManualRefresh}
+                isLoadingNextPage={isFetchingMyRewardsNextPage}
+                userPoints={user!.points_total}
+                fetchNextPage={fetchMyRewardsNextPage}
+              />
+              <RewardSlider
+                data={unclaimedRewardEntries}
+                title={'Unclaimed Rewards'}
+                isLoading={isFetchingUnclaimedRewards && !isManualRefresh}
+                isLoadingNextPage={isFetchingUnclaimedRewardsNextPage}
+                userPoints={user!.points_total}
+                fetchNextPage={fetchUnclaimedRewardsNextPage}
+              />
+              <RewardSlider
+                data={lockedRewardsEntries}
+                title={'Locked Rewards'}
+                isLoading={isFetchingLockedRewards && !isManualRefresh}
+                isLoadingNextPage={isFetchingLockedRewardsNextPage}
+                userPoints={user!.points_total}
+                fetchNextPage={fetchLockedRewardsNextPage}
+              />
+              <RewardSlider
+                data={expiredRewardsEntries}
+                title={'Expired Rewards'}
+                isLoading={isFetchingExpiredRewards && !isManualRefresh}
+                isLoadingNextPage={isFetchingExpiredRewardsNextPage}
+                userPoints={user!.points_total}
+                fetchNextPage={fetchExpiredRewardsNextPage}
+              />
+            </>
+          )}
         </>
+      ) : (
+        renderLoading()
       )}
     </Wrapper>
   );

@@ -1,10 +1,10 @@
 import {useQuery} from 'react-query';
 import {QueryKeys} from '@query';
 import api from '@api';
-import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
+import {RewardNext} from '@fitlink/api/src/modules/rewards/entities/reward.entity';
 
 export function useNextReward() {
-  return useQuery<User, Error>(QueryKeys.NextReward, () =>
-    api.get<User>('/me/next-reward'),
+  return useQuery<RewardNext, Error>(QueryKeys.NextReward, () =>
+    api.get<RewardNext>('/me/next-reward'),
   );
 }

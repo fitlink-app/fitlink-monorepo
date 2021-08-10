@@ -15,8 +15,16 @@ import styled, {useTheme} from 'styled-components/native';
 import {StackScreenProps} from '@react-navigation/stack';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from 'routes/types';
-import {Card, Chip, Label, NAVBAR_HEIGHT, TouchHandler} from '@components';
-import {useReward} from '@hooks';
+import {
+  Button,
+  Card,
+  Chip,
+  Label,
+  Navbar,
+  NAVBAR_HEIGHT,
+  TouchHandler,
+} from '@components';
+import {useClaimReward, useMe, useReward} from '@hooks';
 import {format} from 'date-fns';
 
 const HEADER_HEIGHT = 250;
@@ -78,12 +86,18 @@ export const Reward = (
 ) => {
   const {id} = props.route.params;
 
-  const {colors, fonts, typography} = useTheme();
+  const {colors, fonts} = useTheme();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
   const [snackbarVisible, setSnackbarVisible] = useState(false);
-  const [isClaiming, setIsClaiming] = useState(false);
+
+  const {
+    data: user,
+    isFetched: userIsFetched,
+    isFetchedAfterMount: isUserFetchedAfterMount,
+    refetch: refetchUser,
+  } = useMe();
 
   const {
     data: reward,
@@ -92,11 +106,7 @@ export const Reward = (
     isFetching: isFetchingReward,
   } = useReward(id);
 
-  console.log(reward);
-
-  // TODO: Remove
-  // TEMP VARIABLES
-  const currentPoints = 0;
+  const {mutateAsync: claimReward, isLoading: isClaiming} = useClaimReward();
 
   const scrollAnim = useRef(new Animated.Value(0)).current;
   let snackbarTimer = useRef<NodeJS.Timeout | null>(null);
@@ -116,7 +126,7 @@ export const Reward = (
     };
   }, [navigation]);
 
-  if (!reward) {
+  if (!reward || !user) {
     return (
       <EmptyContainer style={{marginTop: -(NAVBAR_HEIGHT + insets.top)}}>
         <ActivityIndicator color={colors.accent} />
@@ -137,12 +147,6 @@ export const Reward = (
     extrapolate: 'clamp',
   });
 
-  const handleClaim = async () => {
-    setIsClaiming(true);
-    // TODO: Implement claiming reward
-    setIsClaiming(false);
-  };
-
   const copyToClipboard = (code: string) => {
     Clipboard.setString(code);
     if (snackbarTimer.current) clearTimeout(snackbarTimer.current);
@@ -156,8 +160,10 @@ export const Reward = (
 
   /** returns true if the user has more points than the reward's requirement */
   function isRewardUnclaimed() {
-    return reward && reward.points_required <= currentPoints;
+    return reward && reward.points_required <= user!.points_total;
   }
+
+  const renderLoading = () => {};
 
   const renderContent = () => {
     if (!isExpired) {
@@ -210,24 +216,18 @@ export const Reward = (
           <>
             {/* // TODO: Button */}
 
-            {/* <Button onPress={handleClaim} disabled={isClaiming}>
-              {isClaiming ? (
-                <ActivityIndicator color={typography.button.color} />
-              ) : (
-                <Label
-                  type={'subheading'}
-                  bold
-                  style={{color: typography.button.color}}>
-                  Claim This Reward
-                </Label>
-              )}
-            </Button> */}
+            <Button
+              text={'Claim This Reward'}
+              onPress={() => claimReward(id)}
+              disabled={isClaiming}
+              loading={isClaiming}
+            />
 
             <View style={{alignItems: 'center'}}>
               <Label type={'caption'} style={{marginTop: 10}}>
                 Your points balance will be{' '}
-                {currentPoints - reward.points_required} after claiming this
-                reward
+                {user!.points_total - reward.points_required} after claiming
+                this reward
               </Label>
             </View>
           </>
@@ -246,7 +246,7 @@ export const Reward = (
             <Label appearance={'secondary'} style={{textAlign: 'center'}}>
               You need{' '}
               <Label appearance={'accent'}>
-                {reward.points_required - currentPoints}
+                {reward.points_required - user!.points_total}
               </Label>{' '}
               more points to claim this reward
             </Label>
@@ -264,7 +264,16 @@ export const Reward = (
 
   return (
     <>
-      {/* // TODO: Navbar */}
+      <Navbar
+        scrollAnimatedValue={scrollAnim}
+        title={reward.name_short}
+        iconColor={'white'}
+        overlay
+        titleProps={{
+          type: 'title',
+          bold: false,
+        }}
+      />
 
       <Animated.ScrollView
         onScroll={Animated.event(
@@ -301,7 +310,7 @@ export const Reward = (
                       progress={
                         isRewardUnclaimed() || reward.redeemed || isExpired
                           ? 1
-                          : currentPoints / reward.points_required
+                          : user!.points_total / reward.points_required
                       }
                       text={`${reward.points_required} points`}
                       disabled={true}
@@ -313,7 +322,7 @@ export const Reward = (
                         type={'caption'}
                         appearance={'primary'}
                         bold>
-                        {reward.points_required - currentPoints} points
+                        {reward.points_required - user!.points_total} points
                         remaining
                       </Label>
                     )}
@@ -362,12 +371,13 @@ export const Reward = (
       <SnackBar
         visible={snackbarVisible}
         textMessage={`Code was copied to your clipboard`}
-        // containerStyle={{
-        //   paddingBottom: insets.bottom,
-        // }}
+        // @ts-ignore
+        containerStyle={{
+          paddingBottom: insets.bottom,
+        }}
         backgroundColor={colors.accent}
         messageColor={colors.chartUnfilled}
-        // messageStyle={{fontFamily: fonts.bold}}
+        messageStyle={{fontFamily: fonts.bold}}
       />
     </>
   );
