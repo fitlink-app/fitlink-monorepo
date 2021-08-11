@@ -11,10 +11,17 @@ import ProgressChart from '../components/charts/ProgressChart'
 import IconWater from '../components/icons/IconWater'
 import Select from '../components/elements/Select'
 import IconDownload from '../components/icons/IconDownload'
+import { useQuery } from 'react-query'
+import { useContext, useEffect, useState } from 'react'
+import { AuthContext } from '../context/Auth.context'
+import { ApiResult } from '../../../common/react-query/types'
+import { format, formatISO, startOfYear, subYears, subMonths } from 'date-fns'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 let rewards = require('../services/dummy/stats-rewards.json')
 
 export default function components() {
+  const { api, primary } = useContext(AuthContext)
+
   rewards = rewards.sort(
     (a, b) => parseFloat(b['redeemed']) - parseFloat(a['redeemed'])
   )
@@ -42,15 +49,18 @@ export default function components() {
     },
     {
       label: 'Last month',
-      value: 'lastmonth'
+      value: 'lastmonth',
+      date: subMonths(new Date(), 1)
     },
     {
       label: 'This year',
-      value: 'thisyear'
+      value: 'thisyear',
+      date: startOfYear(new Date())
     },
     {
       label: 'All time',
-      value: 'all'
+      value: 'all',
+      date: subYears(new Date(), 10)
     }
   ]
 
@@ -66,6 +76,31 @@ export default function components() {
     '#A6F893',
     '#D0FA7F'
   ]
+
+  const [haTime, setHatTime] = useState()
+
+  const healthActivitiesData: ApiResult<{
+    results: any[]
+    total: number
+  }> = useQuery(`team_${primary.team}_stats_health_activities`, () => {
+    if (primary.team) {
+      return api.list<any>('/teams/:teamId/stats/health-activities', {
+        teamId: primary.team,
+        query: {
+          start_at: formatISO(haTime || new Date())
+        }
+      })
+    } else {
+      return Promise.resolve({
+        results: [],
+        total: 0
+      })
+    }
+  })
+
+  useEffect(() => {
+    healthActivitiesData.refetch()
+  }, [haTime])
 
   return (
     <Dashboard title="Dashboard">
@@ -91,12 +126,25 @@ export default function components() {
                   isSearchable={false}
                   options={options}
                   inline={true}
-                  onChange={(v) => console.log(v.value)}
+                  onChange={(v: any) => {
+                    setHatTime(v.date)
+                  }}
                 />
               </div>
             </div>
             <div style={{ height: '400px' }}>
-              <VerticalBarChart />
+              {healthActivitiesData.isFetched && (
+                <VerticalBarChart
+                  data={{
+                    labels: healthActivitiesData.data.results.map(
+                      (e) => e.name
+                    ),
+                    values: healthActivitiesData.data.results.map(
+                      (e) => e.count
+                    )
+                  }}
+                />
+              )}
             </div>
           </Card>
         </div>

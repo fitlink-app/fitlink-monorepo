@@ -8,6 +8,7 @@ import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.
 import { TeamsInvitationsService } from '../teams-invitations/teams-invitations.service'
 import { User, UserStat } from '../users/entities/user.entity'
 import { CreateTeamDto } from './dto/create-team.dto'
+import { DateQueryDto } from './dto/date-query.dto'
 import { UpdateTeamDto } from './dto/update-team.dto'
 import { Team } from './entities/team.entity'
 
@@ -235,6 +236,43 @@ export class TeamsService {
         } as UserStat
       }),
       total: count || results.length
+    })
+  }
+
+  async queryPopularActivities(
+    teamId: string,
+    { start_at, end_at }: DateQueryDto
+  ) {
+    const params: string[] = [teamId]
+
+    if (start_at) {
+      params.push(start_at)
+    }
+
+    if (end_at) {
+      params.push(end_at)
+    }
+
+    const results = await this.userRepository.manager.query(
+      `
+      SELECT COUNT(*) AS count, sport.*
+      FROM health_activity
+      INNER JOIN "user" "u" ON "u"."id" = health_activity."userId"
+      INNER JOIN "team_users_user" tu ON tu."userId" = u."id"
+      INNER JOIN "team" AS team ON tu."teamId" = team."id"
+      INNER JOIN "sport" ON sport."id" = health_activity."sportId"
+      AND team."id" = $1
+      ${start_at ? ' AND health_activity."created_at" > $2 ' : ''}
+      ${end_at ? ' AND health_activity."created_at" < $2 ' : ''}
+      GROUP BY sport."id"
+      ORDER BY count DESC
+    `,
+      params
+    )
+
+    return new Pagination<any>({
+      total: results.length,
+      results: results
     })
   }
 }

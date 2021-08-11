@@ -92,6 +92,7 @@ export type ListResource =
   | '/teams/:teamId/rewards/:rewardId/redemptions'
   | '/teams/:teamId/users'
   | '/teams/:teamId/stats'
+  | '/teams/:teamId/stats/health-activities'
   | '/teams/:teamId/users/:userId/roles'
   | '/teams/:teamId/leagues'
   | '/teams/:teamId/leagues/:leagueId/leaderboards'

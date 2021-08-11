@@ -70,11 +70,6 @@ export default function Dashboard({
       </Head>
       <Toaster position="top-right" />
       <div className="layout-dashboard">
-        {switchMode ? (
-          <div className="top left">
-            <Button label="Return" onClick={() => restoreRole()}></Button>
-          </div>
-        ) : null}
         <Sidebar prefix={linkPrefix} menu={menu} />
         <div className="content">{children}</div>
       </div>

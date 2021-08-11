@@ -1,3 +1,4 @@
+import { useContext } from 'react'
 import { useRouter } from 'next/dist/client/router'
 import MenuItem from './MenuItem'
 import IconActivities from '../icons/IconActivities'
@@ -9,6 +10,8 @@ import IconLeagues from '../icons/IconLeagues'
 import IconRewards from '../icons/IconRewards'
 import IconSignOut from '../icons/IconSignOut'
 import IconYoga from '../icons/IconYoga'
+import { AuthContext } from '../../context/Auth.context'
+import Button from '../elements/Button'
 
 const icons = {
   IconActivities,
@@ -36,10 +39,18 @@ export type MainMenuProps = {
 export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
   const router = useRouter()
   const current = router.pathname
+  const { switchMode, restoreRole } = useContext(AuthContext)
 
   if (menu.length && !prefix) {
     return (
       <>
+        {switchMode ? (
+          <div className="top left">
+            <a href="#" className="btn small" onClick={() => restoreRole()}>
+              Back
+            </a>
+          </div>
+        ) : null}
         {menu.map(({ label, link, icon }) => {
           const Icon = icons[icon]
           return (

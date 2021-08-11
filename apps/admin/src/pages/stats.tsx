@@ -13,6 +13,7 @@ import {
 import { AuthContext } from '../context/Auth.context'
 import { timeout } from '../helpers/timeout'
 import { UserStat } from '@fitlink/api/src/modules/users/entities/user.entity'
+import { providers as providersMapping } from '@fitlink/common/mapping/providers'
 import UserStats from '../components/forms/UserStats'
 import IconSearch from '../components/icons/IconSearch'
 import Link from 'next/link'
@@ -138,7 +139,7 @@ export default function TeamsPage() {
         original: {
           created_at,
           mobile_os,
-          tracker,
+          provider_types,
           points_total,
           rank,
           last_health_activity,
@@ -157,7 +158,7 @@ export default function TeamsPage() {
             <UserStats
               date_joined={created_at}
               mobile_os={mobile_os}
-              tracker={tracker}
+              tracker={provider_types}
               points={points_total}
               rank={rank}
               last_activity={
@@ -205,11 +206,7 @@ export default function TeamsPage() {
             {
               Header: 'Tracker',
               accessor: 'provider_types',
-              Cell: arrayToDisplayValue({
-                google_fit: 'Google Fit',
-                strava: 'Strava',
-                apple_healthkit: 'Apple Health'
-              })
+              Cell: arrayToDisplayValue(providersMapping)
             },
             {
               Header: 'Total Points',
@@ -227,8 +224,8 @@ export default function TeamsPage() {
               Header: 'Reward redeemed',
               accessor: 'reward_count',
               Cell: toLocaleCell
-            },
-            { Header: ' ', Cell: viewDetails }
+            }
+            // { Header: ' ', Cell: viewDetails }
           ]}
           fetch={(limit, page) => {
             if (primary.team) {

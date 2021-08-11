@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query
+} from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { Files } from '../../decorators/files.decorator'
@@ -15,9 +24,12 @@ import { TeamsService } from './teams.service'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { PaginationQuery } from '../../helpers/paginate'
 import { Team } from './entities/team.entity'
+import { ApiBaseResponses } from '../../decorators/swagger.decorator'
+import { DateQueryDto } from './dto/date-query.dto'
 
 @Controller()
 @ApiTags('teams')
+@ApiBaseResponses()
 export class TeamsController {
   constructor(
     private readonly teamsService: TeamsService,
@@ -119,6 +131,18 @@ export class TeamsController {
     @Pagination() pagination: PaginationQuery
   ) {
     return this.teamsService.queryUserTeamStats(teamId, pagination)
+  }
+
+  @Iam(Roles.TeamAdmin)
+  @Get('/teams/:teamId/stats/health-activities')
+  findTeamHealthActivities(
+    @Param('teamId') teamId: string,
+    @Query() { start_at, end_at }: DateQueryDto
+  ) {
+    return this.teamsService.queryPopularActivities(teamId, {
+      start_at,
+      end_at
+    })
   }
 
   @Post('/teams/join')
