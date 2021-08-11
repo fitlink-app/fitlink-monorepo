@@ -28,9 +28,7 @@ export default function UsersPage() {
   const EditUserForm = (fields) => {
     setWarning(true)
     setWide(false)
-    setDrawContent(
-      <EditUser onSave={closeDrawer(1000)} current={fields} />
-    )
+    setDrawContent(<EditUser onSave={closeDrawer(1000)} current={fields} />)
   }
 
   const showAvatar = ({
@@ -42,15 +40,7 @@ export default function UsersPage() {
   }) => {
     return (
       <div className="avatar">
-        <span>
-          {
-            `${
-              name
-              ? name[0]
-              : ''
-            }`
-          }
-        </span>
+        <span>{`${name ? name[0] : ''}`}</span>
         {avatar && <img src={avatar.url_128x128} alt={name} />}
       </div>
     )
@@ -83,7 +73,11 @@ export default function UsersPage() {
             { Header: ' ', accessor: 'avatar', Cell: showAvatar },
             { Header: 'Name', accessor: 'name' },
             { Header: 'Email', accessor: 'email' },
-            { Header: 'Last login', accessor: 'last_login_at', Cell: toDateCell },
+            {
+              Header: 'Last login',
+              accessor: 'last_login_at',
+              Cell: toDateCell
+            },
             { Header: 'Updated', accessor: 'updated_at', Cell: toDateCell },
             { Header: 'Created', accessor: 'created_at', Cell: toDateCell },
             { Header: ' ', Cell: cellActions }

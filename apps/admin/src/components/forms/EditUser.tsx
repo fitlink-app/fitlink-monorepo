@@ -1,7 +1,11 @@
 import Input from '../elements/Input'
 import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
-import { UpdateUserDto, UpdateUserEmailDto, UpdateUserAvatarDto } from '@fitlink/api/src/modules/users/dto/update-user.dto'
+import {
+  UpdateUserDto,
+  UpdateUserEmailDto,
+  UpdateUserAvatarDto
+} from '@fitlink/api/src/modules/users/dto/update-user.dto'
 import useApiErrors from '../../hooks/useApiErrors'
 import { ApiMutationResult } from '@fitlink/common/react-query/types'
 import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
@@ -15,8 +19,10 @@ import Feedback from '../elements/Feedback'
 import { AuthRequestResetPassword } from '@fitlink/api-sdk/types'
 
 export type CreateUserProps = {
-  current:  Partial<UpdateUserDto> & Partial<UpdateUserEmailDto> & Partial<UpdateUserAvatarDto> & { id: string, avatar?: Image },
-  onSave?: () => void,
+  current: Partial<UpdateUserDto> &
+    Partial<UpdateUserEmailDto> &
+    Partial<UpdateUserAvatarDto> & { id: string; avatar?: Image }
+  onSave?: () => void
   onError?: () => void
 }
 
@@ -27,7 +33,6 @@ export default function EditUser({
   onSave = noop,
   onError = noop
 }: CreateUserProps) {
-
   const { api } = useContext(AuthContext)
   const { register, handleSubmit, control, watch, setValue } = useForm({
     defaultValues: current
@@ -54,7 +59,11 @@ export default function EditUser({
   })
 
   async function onSubmit(
-    data: Partial<UpdateUserDto> & Partial<UpdateUserEmailDto> & Partial<UpdateUserAvatarDto> & { id: string, avatar?: Image } & { image?: File | 'DELETE' }
+    data: Partial<UpdateUserDto> &
+      Partial<UpdateUserEmailDto> &
+      Partial<UpdateUserAvatarDto> & { id: string; avatar?: Image } & {
+        image?: File | 'DELETE'
+      }
   ) {
     const { image, ...payload } = data
 
@@ -69,7 +78,7 @@ export default function EditUser({
 
       // Explicit removal of image
       if (image === 'DELETE') {
-        payload.avatar = null
+        payload.imageId = null
       }
 
       await toast.promise(update.mutateAsync(payload), {
@@ -83,25 +92,30 @@ export default function EditUser({
     }
   }
 
-  const { errors, isError, errorMessage, clearErrors } = useApiErrors(update.isError, {
-    ...update.error
-  })
+  const { errors, isError, errorMessage, clearErrors } = useApiErrors(
+    update.isError,
+    {
+      ...update.error
+    }
+  )
 
-  const sendPasswordResetEmail = async() => {
+  const sendPasswordResetEmail = async () => {
     console.log(current.email)
-        await toast.promise(api.post<AuthRequestResetPassword>('/auth/request-password-reset', { payload: { email: current.email}}), {
-          loading: <b>Sending...</b>,
-          success: <b>Email sent</b>,
-          error: <b>Error</b>
-        })
-        
+    await toast.promise(
+      api.post<AuthRequestResetPassword>('/auth/request-password-reset', {
+        payload: { email: current.email }
+      }),
+      {
+        loading: <b>Sending...</b>,
+        success: <b>Email sent</b>,
+        error: <b>Error</b>
+      }
+    )
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h4 className="light mb-3">
-        Edit user
-      </h4>
+      <h4 className="light mb-3">Edit user</h4>
 
       {isError && <Feedback message={errorMessage} type="error" />}
 
@@ -112,15 +126,14 @@ export default function EditUser({
         label="Name"
         error={errors.name}
       />
-      
+
       <AvatarSelect
         label={`Upload user photo`}
         src={current && current.avatar ? current.avatar.url : undefined}
         onChange={async (result, file) => {
           if (current && current.avatar && !file) {
             setValue('image', 'DELETE')
-          }
-          else {
+          } else {
             setValue('image', file)
           }
         }}
@@ -134,20 +147,19 @@ export default function EditUser({
         type="email"
         error={errors.email}
       />
-      
-      <div className="text-right mt-2">
-        <button 
-          type='button'
 
+      <div className="text-right mt-2">
+        <button
+          type="button"
           className={'button'}
           onClick={sendPasswordResetEmail}>
-            Generate a password reset email
-          </button>
+          Generate a password reset email
+        </button>
       </div>
 
       <div className="text-right mt-2">
-        <button 
-          type='submit'
+        <button
+          type="submit"
           className="button"
           disabled={update.isLoading || upload.isLoading}>
           Save User

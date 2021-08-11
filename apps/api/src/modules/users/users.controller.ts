@@ -13,6 +13,7 @@ import {
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import {
+  UpdateBasicUserDto,
   UpdateUserAvatarDto,
   UpdateUserDto,
   UpdateUserEmailDto,
@@ -195,8 +196,11 @@ export class UsersController {
   @ApiTags('users')
   @UpdateResponse()
   @Put('users/:userId')
-  update(@Param('userId') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto)
+  update(
+    @Param('userId') id: string,
+    @Body() updateUserDto: UpdateBasicUserDto
+  ) {
+    return this.usersService.updateBasic(id, updateUserDto)
   }
 
   @Iam(Roles.SuperAdmin)
