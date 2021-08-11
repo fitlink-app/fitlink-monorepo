@@ -87,3 +87,19 @@ export class GoalsEntry extends CreatableEntity {
   @ManyToOne(() => FeedItem, (item) => item.goal_entry)
   feed_items: FeedItem
 }
+
+export class GoalsEntryCurrent {
+  current_mindfulness_minutes?: number
+  current_steps?: number
+  current_floors_climbed?: number
+  current_water_litres?: number
+  current_sleep_hours?: number
+}
+
+export class GoalsEntryTarget {
+  target_mindfulness_minutes: number
+  target_steps: number
+  target_floors_climbed: number
+  target_water_litres: number
+  target_sleep_hours: number
+}

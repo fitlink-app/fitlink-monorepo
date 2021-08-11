@@ -77,7 +77,7 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
       />
       <MenuItem
         to={`${prefix}/users`}
-        label="User stats"
+        label="Users"
         current={current.startsWith(`${prefix}/users`)}
         icon={<IconFriends />}
       />
@@ -114,13 +114,13 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
       />
       {current.startsWith(`${prefix}/settings`) && (
         <div className="sub-menu">
-          <MenuItem
+          {/* <MenuItem
             to={`${prefix}/settings/users`}
             label="Manage users"
             current={current.startsWith(`${prefix}/settings/users`)}
             icon={<></>}
           />
-          {/* <MenuItem
+          <MenuItem
             to={`${prefix}/settings/page`}
             label="Manage my page"
             current={current.startsWith(`${prefix}/settings/page`)}

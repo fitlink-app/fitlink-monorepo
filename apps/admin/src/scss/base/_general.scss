@@ -99,38 +99,10 @@ hr {
 
 }
 
-/* .link {
-  color: $darkGrey;
-  text-decoration: none;
-  border-bottom: 1px solid $darkGrey;
-
-  &:hover {
-    border-bottom: 3px solid $primary;
-  }
+.tracker-logo {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+  box-shadow: 2px 2px 8px 0 rgba(0,0,0,0.1);
+  margin-right: 0.25rem;
 }
-
-label {
-  font-family: 'Manrope', sans-serif;
-  font-weight: 600;
-  font-size: 0.875rem;
-  margin: 1.5rem 0 0.5rem;
-  color: $lightGrey;
-}
-
-input, textarea {
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  padding: 0.6875rem 0.5rem;
-  line-height: 1em;
-
-  &:focus, &:active {
-    outline: none;
-    border-color: $primary;
-    box-shadow: 0 0 0 3px rgba($primary, 0.25), 0 10px 10px 0 rgba($primary, 0.1);
-  }
-
-  &.is-invalid {
-    border-color: $red;
-    box-shadow: 0 0 0 3px rgba($red, 0.25);
-  }
-} */

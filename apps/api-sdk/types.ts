@@ -33,6 +33,7 @@ import {
 import { CreateDefaultSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/create-default-subscription.dto'
 import { UpdateSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/update-subscription.dto'
 import { AddUserToSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/add-user-to-subscription.dto'
+import { AuthRequestResetPasswordDto } from '@fitlink/api/src/modules/auth/dto/auth-reset-password'
 
 export type {
   AuthResultDto,
@@ -41,6 +42,7 @@ export type {
   AuthSwitchDto,
   AuthSignupDto,
   AuthConnectDto,
+  AuthRequestResetPasswordDto,
   CreateUserDto,
   UpdateUserDto,
   UpdateUserEmailDto,
@@ -67,6 +69,7 @@ export type AuthRefresh = '/auth/refresh'
 export type AuthSignUp = '/auth/signup'
 export type AuthConnect = '/auth/connect'
 export type AuthSwitch = '/auth/switch'
+export type AuthRequestResetPassword = '/auth/request-password-reset'
 
 export type CreatableResource =
   | AuthLogin
@@ -75,6 +78,7 @@ export type CreatableResource =
   | AuthSignUp
   | AuthConnect
   | AuthSwitch
+  | AuthRequestResetPassword
 
 export type ListResource =
   | '/organisations'
@@ -145,6 +149,7 @@ export type ReadResource =
   | '/subscriptions/:subscriptionId'
   | '/subscriptions/:subscriptionId/users/:userId'
   | '/subscriptions/:subscriptionId/chargebee/hosted-page'
+  | '/users/:userId'
   | '/users-invitations/:invitationId'
   | '/me'
   | '/me/roles'
@@ -183,6 +188,8 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<AuthSwitchDto>
   : T extends AuthLogout
   ? Payload<{}>
+  : T extends AuthRequestResetPassword
+  ? Payload<AuthRequestResetPasswordDto>
   : never
 
 export type UploadResourceParams = FilePayload
