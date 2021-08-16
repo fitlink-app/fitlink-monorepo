@@ -23,7 +23,12 @@ import { UsersSetup } from './seeds/users.seed'
 
 import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
 import { FeedItem } from '../src/modules/feed-items/entities/feed-item.entity'
-import { FeedGoalType } from '../src/modules/feed-items/feed-items.constants'
+import {
+  FeedGoalType,
+  FeedItemCategory,
+  FeedItemType
+} from '../src/modules/feed-items/feed-items.constants'
+import { UserReachedReward } from './seeds/rewards.seed'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -385,5 +390,44 @@ describe('Health Activities', () => {
     expect(feedItem.goal_type).toBe('sleep_hours')
     expect(feedItem.category).toBe('my_goals')
     expect(feedItem.type).toBe('daily_goal_reached')
+  })
+
+  it('POST /providers/strava/webhook', async () => {
+    const user = await UserReachedReward('Attainable Reward C-', 1)
+    const mockPayload: StravaEventData = {
+      aspect_type: 'create',
+      event_time: 12039,
+      object_id: 12309,
+      object_type: 'activity',
+      owner_id: 12309,
+      subscription_id: 102938,
+      updates: {}
+    }
+
+    providerService.getUserByOwnerId = jest.fn()
+    providerService.getUserByOwnerId.mockReturnValue({
+      user: { id: user.id }
+    })
+    stravaService.getStravaActivity = jest.fn()
+    stravaService.getStravaActivity.mockReturnValue({
+      ...stravaPayload
+    })
+
+    await app.inject({
+      method: 'POST',
+      payload: mockPayload,
+      url: '/providers/strava/webhook'
+    })
+
+    const feedItem = await connection.getRepository(FeedItem).findOne({
+      where: {
+        category: FeedItemCategory.MyUpdates,
+        type: FeedItemType.RewardUnlocked,
+        user: { id: user.id }
+      }
+    })
+    expect(feedItem.id).toBeDefined()
+    expect(feedItem.category).toBe('my_updates')
+    expect(feedItem.type).toBe('reward_unlocked')
   })
 })

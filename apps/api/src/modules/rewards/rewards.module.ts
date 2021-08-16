@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { RewardsService } from './rewards.service'
 import { RewardsController } from './rewards.controller'
 import { Reward } from './entities/reward.entity'
@@ -10,9 +10,11 @@ import { User } from '../users/entities/user.entity'
 @Module({
   imports: [
     TypeOrmModule.forFeature([Reward, RewardsRedemption, User]),
-    AuthModule
+    // circualr dependency with user module for some reason this fixes it.
+    forwardRef(() => AuthModule)
   ],
   controllers: [RewardsController],
-  providers: [RewardsService]
+  providers: [RewardsService],
+  exports: [RewardsService]
 })
 export class RewardsModule {}
