@@ -227,7 +227,12 @@ export class Api {
    * @returns Promise
    */
   async get<T>(url: ReadResource, params?: ResourceParams) {
-    const response = await this.axios.get(this.applyParams(url, params))
+    const { query, ...rest } = params || {}
+    const response = await this.axios.get(this.applyParams(url, rest), {
+      params: {
+        ...query
+      }
+    })
     return response.data as T
   }
 

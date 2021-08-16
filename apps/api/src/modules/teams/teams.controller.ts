@@ -133,17 +133,17 @@ export class TeamsController {
     return this.teamsService.queryUserTeamStats(teamId, pagination)
   }
 
-  @Iam(Roles.TeamAdmin)
-  @Get('/teams/:teamId/stats/health-activities')
-  findTeamHealthActivities(
-    @Param('teamId') teamId: string,
-    @Query() { start_at, end_at }: DateQueryDto
-  ) {
-    return this.teamsService.queryPopularActivities(teamId, {
-      start_at,
-      end_at
-    })
-  }
+  // @Iam(Roles.TeamAdmin)
+  // @Get('/teams/:teamId/stats/health-activities')
+  // findTeamHealthActivities(
+  //   @Param('teamId') teamId: string,
+  //   @Query() { start_at, end_at }: DateQueryDto
+  // ) {
+  //   return this.teamsService.queryPopularActivities(teamId, {
+  //     start_at,
+  //     end_at
+  //   })
+  // }
 
   @Post('/teams/join')
   userJoinTeam(@Body('token') token: string, @User() user: AuthenticatedUser) {

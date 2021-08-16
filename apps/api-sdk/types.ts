@@ -90,6 +90,8 @@ export type ListResource =
   | '/organisations/:organisationId/rewards'
   | '/organisations/:organisationId/leagues'
   | '/organisations/:organisationId/leagues/:leagueId/leaderboards'
+  | '/organisations/:organisationId/stats'
+  | '/organisations/:organisationId/stats/health-activities'
   | '/teams/:teamId/activities'
   | '/teams/:teamId/invitations'
   | '/teams/:teamId/rewards'
@@ -125,6 +127,7 @@ export type ListResource =
   | '/me/providers'
   | '/me/goals'
   | '/me/feed'
+  | '/stats/health-activities'
 
 export type ReadResource =
   | '/organisations/:organisationId'
@@ -158,6 +161,15 @@ export type ReadResource =
   | '/me/avatar'
   | '/me/email'
   | '/me/password'
+  | '/stats/goals'
+  | '/stats/rewards'
+  | '/stats/leagues'
+  | '/organisations/:organisationId/stats/goals'
+  | '/organisations/:organisationId/stats/rewards'
+  | '/organisations/:organisationId/stats/leagues'
+  | '/teams/:teamId/stats/goals'
+  | '/teams/:teamId/stats/rewards'
+  | '/teams/:teamId/stats/leagues'
 
 export type UploadResource = '/images'
 
@@ -228,7 +240,9 @@ export type UpdateResourceParams<T> = T extends Organisation
   ? Payload<UpdateUserEmailDto>
   : never
 
-export type ResourceParams = NodeJS.Dict<string>
+export type ResourceParams = NodeJS.Dict<any> & {
+  query?: NodeJS.Dict<string>
+}
 
 export type ImageUpload = {
   imageId: string

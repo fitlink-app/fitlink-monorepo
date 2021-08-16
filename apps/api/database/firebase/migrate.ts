@@ -398,9 +398,9 @@ const allow = Object.values(require('./trusted.json'))
 
             user.goal_floors_climbed = userGoals.floors_climbed.target
             user.goal_mindfulness_minutes = userGoals.mindfulness.target
-            user.goal_sleep_hours = userGoals.mindfulness.target
-            user.goal_steps = userGoals.mindfulness.target
-            user.goal_water_litres = userGoals.mindfulness.target
+            user.goal_sleep_hours = userGoals.sleep_hours.target
+            user.goal_steps = userGoals.steps.target
+            user.goal_water_litres = userGoals.water_litres.target
 
             // We may want to reonboard all users at update time?
             user.onboarded = false
@@ -754,6 +754,8 @@ const allow = Object.values(require('./trusted.json'))
                 ((leagueData.access as unknown) as LeagueAccess) ||
                 LeagueAccess.Public,
               created_at: leagueData.created_at.toDate(),
+              starts_at: leagueData.created_at.toDate(),
+              ends_at: leagueData.ends_at.toDate(),
               updated_at: leagueData.updated_at.toDate(),
               duration: leagueData.duration,
               name: leagueData.title,

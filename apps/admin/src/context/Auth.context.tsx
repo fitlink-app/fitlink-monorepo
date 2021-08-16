@@ -54,6 +54,8 @@ type RolePrimary = {
   superAdmin?: boolean
 }
 
+export type FocusRole = 'app' | 'organisation' | 'team'
+
 export type AuthContext = {
   user?: User
   roles?: Permissions
@@ -61,6 +63,7 @@ export type AuthContext = {
   menu: MenuProps[]
   switchMode: boolean
   primary: RolePrimary
+  focusRole: FocusRole
   login: (credentials: Credentials) => Promise<AuthResultDto>
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
   logout: () => void
@@ -98,7 +101,8 @@ export function AuthProvider({ children }) {
       user: me.data,
       roles: myRoles,
       menu: setMenu(primary),
-      primary
+      primary,
+      focusRole: setFocusRole(primary, childRole)
     })
   }, [me.data, roles.data, childRole])
 
@@ -136,13 +140,24 @@ export function AuthProvider({ children }) {
   async function switchRole(params: AuthSwitchDto) {
     storePreviousTokens(api.getTokens(), params.role)
     const result = await api.loginWithRole(params)
+    let focusRole: FocusRole = 'app'
+
+    if (params.role === Roles.OrganisationAdmin) {
+      focusRole = 'organisation'
+    } else if (params.role === Roles.TeamAdmin) {
+      focusRole = 'team'
+    }
+
     setState({
       ...state,
-      switchMode: true
+      switchMode: true,
+      focusRole
     })
 
-    roles.refetch()
     router.push('/dashboard')
+
+    roles.refetch()
+
     setChildRole(params)
     setRoleTree([
       ...roleTree,
@@ -415,6 +430,20 @@ export function AuthProvider({ children }) {
     ])
   }
 
+  function setFocusRole(primary: RolePrimary): FocusRole {
+    if (primary.superAdmin) {
+      return 'app'
+    }
+
+    if (primary.organisation) {
+      return 'organisation'
+    }
+
+    if (primary.team) {
+      return 'team'
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -429,6 +458,7 @@ export function AuthProvider({ children }) {
         menu: state.menu,
         switchMode: state.switchMode,
         primary: state.primary,
+        focusRole: state.focusRole,
         login,
         logout,
         connect,

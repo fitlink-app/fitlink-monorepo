@@ -17,6 +17,7 @@ export default function ProgressChart({
   label,
   color = '#00E9D7'
 }: ProgressChartProps) {
+  console.log(progress)
   return (
     <>
       <CircleProgess
