@@ -164,12 +164,15 @@ export type ReadResource =
   | '/stats/goals'
   | '/stats/rewards'
   | '/stats/leagues'
+  | '/stats/global'
   | '/organisations/:organisationId/stats/goals'
   | '/organisations/:organisationId/stats/rewards'
   | '/organisations/:organisationId/stats/leagues'
+  | '/organisations/:organisationId/stats/global'
   | '/teams/:teamId/stats/goals'
   | '/teams/:teamId/stats/rewards'
   | '/teams/:teamId/stats/leagues'
+  | '/teams/:teamId/stats/global'
 
 export type UploadResource = '/images'
 

@@ -47,6 +47,12 @@ export class StatsController {
     })
   }
 
+  @Iam(Roles.SuperAdmin)
+  @Get('/stats/global')
+  findAppGlobalStats() {
+    return this.statsService.queryGlobalStats('NONE', 'app')
+  }
+
   @Iam(Roles.OrganisationAdmin)
   @Get('/organisations/:organisationId/stats/rewards')
   findAppRewardsInOrganisation(
@@ -63,6 +69,14 @@ export class StatsController {
     )
   }
 
+  @Iam(Roles.OrganisationAdmin)
+  @Get('/organisations/:organisationId/stats/global')
+  findGlobalStatsInOrganisation(
+    @Param('organisationId') organisationId: string
+  ) {
+    return this.statsService.queryGlobalStats(organisationId, 'organisation')
+  }
+
   @Iam(Roles.TeamAdmin)
   @Get('/teams/:teamId/stats/rewards')
   findAppRewardsInTeam(
@@ -73,6 +87,12 @@ export class StatsController {
       start_at,
       end_at
     })
+  }
+
+  @Iam(Roles.TeamAdmin)
+  @Get('/teams/:teamId/stats/global')
+  findGlobalStatsInTeam(@Param('teamId') teamId: string) {
+    return this.statsService.queryGlobalStats(teamId, 'team')
   }
 
   @Iam(Roles.SuperAdmin)

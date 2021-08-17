@@ -16,6 +16,72 @@ export class StatsService {
     private userRepository: Repository<User>
   ) {}
 
+  async queryGlobalStats(
+    entityId: string,
+    type: 'app' | 'organisation' | 'team'
+  ) {
+    const params: string[] = []
+    let leagueJoins = ''
+    let leagueWhere = ''
+    let rewardJoins = ''
+    let rewardWhere = ''
+
+    if (type === 'organisation' || type === 'team') {
+      params.push(entityId)
+      leagueJoins = `
+        INNER JOIN "team" ON league."teamId" = team."id"
+      `
+      rewardJoins = `
+        INNER JOIN "team" ON reward."teamId" = team."id"
+      `
+      leagueWhere = `
+        WHERE team."id" = $1
+      `
+      rewardWhere = `
+        WHERE team."id" = $1
+      `
+      if (type === 'organisation') {
+        leagueJoins = `
+          INNER JOIN "organisation" "org" ON league."organisationId" = org."id"
+        `
+        leagueWhere = `
+          WHERE org."id" = $1
+        `
+        rewardJoins = `
+          INNER JOIN "organisation" "org" ON reward."organisationId" = org."id"
+        `
+        rewardWhere = `
+          WHERE org."id" = $1
+        `
+      }
+    }
+
+    const query = `
+      SELECT (
+        SELECT COUNT (*) AS count
+        FROM "league" "league"
+        ${leagueJoins}
+        ${leagueWhere}
+      ) AS league_count,
+      (
+        SELECT COUNT (*) AS count
+        FROM "reward" "reward"
+        ${rewardJoins}
+        ${rewardWhere}
+      ) AS reward_count
+    `
+
+    const results: any[] = await this.userRepository.manager.query(
+      query,
+      params
+    )
+
+    return {
+      league_count: Number(results[0].league_count),
+      reward_count: Number(results[0].reward_count)
+    }
+  }
+
   async queryPopularLeagues(
     entityId: string,
     type: 'app' | 'organisation' | 'team',
