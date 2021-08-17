@@ -16,6 +16,7 @@ import {
   AuthConnectDto,
   AuthRefreshDto
 } from '@fitlink/api/src/modules/auth/dto/auth-login'
+import { AuthSwitchDto } from '@fitlink/api/src/modules/auth/dto/auth-switch'
 import { CreateUserDto } from '@fitlink/api/src/modules/users/dto/create-user.dto'
 import {
   AuthResultDto,
@@ -38,6 +39,7 @@ export type {
   AuthResultDto,
   AuthLogoutDto,
   AuthLoginDto,
+  AuthSwitchDto,
   AuthSignupDto,
   AuthConnectDto,
   AuthRequestResetPasswordDto,
@@ -66,6 +68,7 @@ export type AuthLogout = '/auth/logout'
 export type AuthRefresh = '/auth/refresh'
 export type AuthSignUp = '/auth/signup'
 export type AuthConnect = '/auth/connect'
+export type AuthSwitch = '/auth/switch'
 export type AuthRequestResetPassword = '/auth/request-password-reset'
 
 export type CreatableResource =
@@ -74,6 +77,7 @@ export type CreatableResource =
   | AuthRefresh
   | AuthSignUp
   | AuthConnect
+  | AuthSwitch
   | AuthRequestResetPassword
 
 export type ListResource =
@@ -86,11 +90,15 @@ export type ListResource =
   | '/organisations/:organisationId/rewards'
   | '/organisations/:organisationId/leagues'
   | '/organisations/:organisationId/leagues/:leagueId/leaderboards'
+  | '/organisations/:organisationId/stats'
+  | '/organisations/:organisationId/stats/health-activities'
   | '/teams/:teamId/activities'
   | '/teams/:teamId/invitations'
   | '/teams/:teamId/rewards'
   | '/teams/:teamId/rewards/:rewardId/redemptions'
   | '/teams/:teamId/users'
+  | '/teams/:teamId/stats'
+  | '/teams/:teamId/stats/health-activities'
   | '/teams/:teamId/users/:userId/roles'
   | '/teams/:teamId/leagues'
   | '/teams/:teamId/leagues/:leagueId/leaderboards'
@@ -119,6 +127,7 @@ export type ListResource =
   | '/me/providers'
   | '/me/goals'
   | '/me/feed'
+  | '/stats/health-activities'
 
 export type ReadResource =
   | '/organisations/:organisationId'
@@ -152,6 +161,18 @@ export type ReadResource =
   | '/me/avatar'
   | '/me/email'
   | '/me/password'
+  | '/stats/goals'
+  | '/stats/rewards'
+  | '/stats/leagues'
+  | '/stats/global'
+  | '/organisations/:organisationId/stats/goals'
+  | '/organisations/:organisationId/stats/rewards'
+  | '/organisations/:organisationId/stats/leagues'
+  | '/organisations/:organisationId/stats/global'
+  | '/teams/:teamId/stats/goals'
+  | '/teams/:teamId/stats/rewards'
+  | '/teams/:teamId/stats/leagues'
+  | '/teams/:teamId/stats/global'
 
 export type UploadResource = '/images'
 
@@ -178,6 +199,8 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<AuthConnectDto>
   : T extends AuthRefresh
   ? Payload<AuthRefreshDto>
+  : T extends AuthSwitch
+  ? Payload<AuthSwitchDto>
   : T extends AuthLogout
   ? Payload<{}>
   : T extends AuthRequestResetPassword
@@ -194,6 +217,8 @@ export type CreatableResourceResponse<T> = T extends AuthSignUp
   ? AuthResultDto
   : T extends AuthConnect
   ? AuthSignupDto
+  : T extends AuthSwitch
+  ? AuthResultDto
   : T extends AuthLogout
   ? { success: true }
   : T extends SubscriptionUser
@@ -218,7 +243,9 @@ export type UpdateResourceParams<T> = T extends Organisation
   ? Payload<UpdateUserEmailDto>
   : never
 
-export type ResourceParams = NodeJS.Dict<string>
+export type ResourceParams = NodeJS.Dict<any> & {
+  query?: NodeJS.Dict<string>
+}
 
 export type ImageUpload = {
   imageId: string

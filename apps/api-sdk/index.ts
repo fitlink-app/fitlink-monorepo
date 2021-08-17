@@ -14,6 +14,7 @@ import {
   AuthLoginDto,
   AuthResultDto,
   AuthConnectDto,
+  AuthSwitchDto,
   CreateUserDto,
   AuthLogin,
   AuthLogout,
@@ -21,7 +22,8 @@ import {
   DeleteResult,
   UpdateResult,
   AuthSignUp,
-  AuthConnect
+  AuthConnect,
+  AuthSwitch
 } from './types'
 
 const ERR_TOKEN_EXPIRED = 'Token expired'
@@ -29,6 +31,7 @@ const ERR_TOKEN_EXPIRED = 'Token expired'
 export class Api {
   private axios: AxiosInstance = null
   private tokens: AuthResultDto
+  private previousTokens: AuthResultDto
   private replay: any[] = []
   private reject: any[] = []
   private reAuthorizing = false
@@ -224,7 +227,12 @@ export class Api {
    * @returns Promise
    */
   async get<T>(url: ReadResource, params?: ResourceParams) {
-    const response = await this.axios.get(this.applyParams(url, params))
+    const { query, ...rest } = params || {}
+    const response = await this.axios.get(this.applyParams(url, rest), {
+      params: {
+        ...query
+      }
+    })
     return response.data as T
   }
 
@@ -312,6 +320,20 @@ export class Api {
   async login(emailPass: AuthLoginDto) {
     const result = await this.post<AuthLogin>('/auth/login', {
       payload: emailPass
+    })
+    this.setTokens(result)
+    return result
+  }
+
+  /**
+   * Logs in and stores tokens
+   *
+   * @param emailPass An object of `{ email, password }`
+   * @returns `{ id_token, access_token, refresh_token }`
+   */
+  async loginWithRole(params: AuthSwitchDto) {
+    const result = await this.post<AuthSwitch>('/auth/switch', {
+      payload: params
     })
     this.setTokens(result)
     return result

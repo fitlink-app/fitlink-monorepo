@@ -12,21 +12,17 @@ import IconAndroid from '../../components/icons/IconAndroid'
 const dummy = require('../../services/dummy/team-users.json')
 
 const deviceIcon = ({ value }) => {
-  if (value === 'ios')
-    return (
-      <IconApple width="24" height="24" />
-    )
-  else if (value === 'android')
-    return (
-      <IconAndroid width="24" height="24" />
-    )
+  if (value === 'ios') return <IconApple width="24" height="24" />
+  else if (value === 'android') return <IconAndroid width="24" height="24" />
   return value
 }
 
-const trackerLogo = ({value}) => {
+const trackerLogo = ({ value }) => {
   return (
     <>
-      {value.map(v => <img src={`/img/${v}.png`} alt={v} title={v} className="tracker-logo" />)}
+      {value.map((v) => (
+        <img src={`/img/${v}.png`} alt={v} title={v} className="tracker-logo" />
+      ))}
     </>
   )
 }
