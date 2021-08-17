@@ -186,12 +186,15 @@ export const Rewards = () => {
               )}
             </PointsLabelContainer>
 
-            <RewardTracker
-              points={user?.points_total || 0}
-              targetPoints={nextReward?.reward?.points_required!}
-              claimableRewardsCount={claimableRewardsCount}
-              showNextReward={true}
-            />
+            {(!!nextReward?.reward?.points_required ||
+              !!claimableRewardsCount) && (
+              <RewardTracker
+                points={user?.points_total || 0}
+                targetPoints={nextReward?.reward?.points_required || 0}
+                claimableRewardsCount={claimableRewardsCount}
+                showNextReward={true}
+              />
+            )}
           </ListHeaderContainer>
 
           {!totalRewardsCount ? (

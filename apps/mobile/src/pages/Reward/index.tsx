@@ -92,19 +92,9 @@ export const Reward = (
 
   const [snackbarVisible, setSnackbarVisible] = useState(false);
 
-  const {
-    data: user,
-    isFetched: userIsFetched,
-    isFetchedAfterMount: isUserFetchedAfterMount,
-    refetch: refetchUser,
-  } = useMe();
+  const {data: user} = useMe();
 
-  const {
-    data: reward,
-    isFetchedAfterMount: isRewardFetchedAfterMount,
-    refetch: refetchReward,
-    isFetching: isFetchingReward,
-  } = useReward(id);
+  const {data: reward} = useReward(id);
 
   const {mutateAsync: claimReward, isLoading: isClaiming} = useClaimReward();
 
@@ -134,7 +124,7 @@ export const Reward = (
     );
   }
 
-  const isExpired = new Date() > reward.reward_expires_at;
+  const isExpired = new Date() > new Date(reward.reward_expires_at);
 
   const expiryDateFormatted = format(
     new Date(reward.reward_expires_at),
@@ -162,8 +152,6 @@ export const Reward = (
   function isRewardUnclaimed() {
     return reward && reward.points_required <= user!.points_total;
   }
-
-  const renderLoading = () => {};
 
   const renderContent = () => {
     if (!isExpired) {
@@ -214,8 +202,6 @@ export const Reward = (
       if (isRewardUnclaimed()) {
         return (
           <>
-            {/* // TODO: Button */}
-
             <Button
               text={'Claim This Reward'}
               onPress={() => claimReward(id)}
@@ -262,6 +248,8 @@ export const Reward = (
     }
   };
 
+  console.log(reward);
+
   return (
     <>
       <Navbar
@@ -276,6 +264,7 @@ export const Reward = (
       />
 
       <Animated.ScrollView
+        bounces={false}
         onScroll={Animated.event(
           [{nativeEvent: {contentOffset: {y: scrollAnim}}}],
           {useNativeDriver: true},

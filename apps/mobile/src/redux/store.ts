@@ -6,7 +6,7 @@ import rootReducer, {RootState} from './reducer';
 const persistConfig = {
   key: 'primary',
   storage: AsyncStorage,
-  whitelist: ['auth'],
+  whitelist: ['auth', 'feedPreferences'],
 };
 
 const persistedReducer = persistReducer<RootState>(

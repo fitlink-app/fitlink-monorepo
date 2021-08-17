@@ -4,3 +4,4 @@ export * from './leagues';
 export * from './rewards';
 export * from './images';
 export * from './sports';
+export * from './activities';

@@ -2,7 +2,7 @@ import React from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {AppBackground} from '@components';
 import {withQueryClient} from '@query';
-import {AuthProvider, ModalProvider} from './contexts';
+import {ModalProvider} from './contexts';
 import {Provider} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
 import Router from './routes/router';
@@ -27,17 +27,15 @@ const App = () => {
     <SafeAreaProvider>
       <ThemeProvider>
         <AppBackground>
-          <ModalProvider>
-            <Provider store={store}>
-              <PersistGate persistor={persistor}>
-                <AuthProvider>
-                  <QueryPersistor>
-                    <Router />
-                  </QueryPersistor>
-                </AuthProvider>
-              </PersistGate>
-            </Provider>
-          </ModalProvider>
+          <Provider store={store}>
+            <PersistGate persistor={persistor}>
+              <ModalProvider>
+                <QueryPersistor>
+                  <Router />
+                </QueryPersistor>
+              </ModalProvider>
+            </PersistGate>
+          </Provider>
         </AppBackground>
       </ThemeProvider>
     </SafeAreaProvider>

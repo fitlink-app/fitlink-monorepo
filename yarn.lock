@@ -3633,6 +3633,24 @@
     stream-events "^1.0.1"
     xdg-basedir "^4.0.0"
 
+"@gorhom/bottom-sheet@^4.0.0-alpha.25":
+  version "4.0.0-alpha.25"
+  resolved "https://registry.yarnpkg.com/@gorhom/bottom-sheet/-/bottom-sheet-4.0.0-alpha.25.tgz#ae85b2b831bf7309f98de6eb339e10500262c826"
+  integrity sha512-OHA5BfypTVQN0lOBkZENJ8xoArgS1zXZ8kUykMcHbqYdnpfeHUN9ZGMkPBfdXiHf4cj6Tqgm8AGceWcj0dn+mA==
+  dependencies:
+    "@gorhom/portal" "^1.0.7"
+    invariant "^2.2.4"
+    nanoid "^3.1.20"
+    react-native-redash "^16.0.10"
+
+"@gorhom/portal@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@gorhom/portal/-/portal-1.0.7.tgz#e27cd40f8e2b6cb742050bcaa00fdcf94f3dfca8"
+  integrity sha512-lDZZ5/cjvg1GHrK6Swljv1EssndiVz0iXsIOpsI8FS6IDyxIDDnzbHQ6ZhLp95jDhDyE0UTUsAjL2PeI2yVKMQ==
+  dependencies:
+    immer "^9.0.3"
+    nanoid "^3.1.23"
+
 "@grpc/grpc-js@~1.3.0":
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/@grpc/grpc-js/-/grpc-js-1.3.4.tgz#5c4f5df717cd10cc5ebbc7523504008d1ff7b322"
@@ -7681,6 +7699,11 @@ abort-controller@^3.0.0:
   integrity sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==
   dependencies:
     event-target-shim "^5.0.0"
+
+abs-svg-path@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/abs-svg-path/-/abs-svg-path-0.1.1.tgz#df601c8e8d2ba10d4a76d625e236a9a39c2723bf"
+  integrity sha1-32Acjo0roQ1KdtYl4japo5wnI78=
 
 absolute-path@^0.0.0:
   version "0.0.0"
@@ -15199,7 +15222,7 @@ immer@8.0.1:
   resolved "https://registry.yarnpkg.com/immer/-/immer-8.0.1.tgz#9c73db683e2b3975c424fb0572af5889877ae656"
   integrity sha512-aqXhGP7//Gui2+UrEtvxZxSquQVXTpZ7KDxfCcKAF3Vysvw0CViVaW9RZ1j1xlIYqaaaipBoqdqeibkc18PNvA==
 
-immer@^9.0.1:
+immer@^9.0.1, immer@^9.0.3:
   version "9.0.5"
   resolved "https://registry.yarnpkg.com/immer/-/immer-9.0.5.tgz#a7154f34fe7064f15f00554cc94c66cc0bf453ec"
   integrity sha512-2WuIehr2y4lmYz9gaQzetPR2ECniCifk4ORaQbU3g5EalLt+0IVTosEPJ5BoYl/75ky2mivzdRzV8wWgQGOSYQ==
@@ -18966,6 +18989,11 @@ nanoid@^3.1.15, nanoid@^3.1.23:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.23.tgz#f744086ce7c2bc47ee0a8472574d5c78e4183a81"
   integrity sha512-FiB0kzdP0FFVGDKlRLEQ1BgDzU87dy5NnzjeW9YZNt+/c3+q82EQDUwniSAUxp/F0gFNI1ZhKU1FqYsMuqZVnw==
 
+nanoid@^3.1.20:
+  version "3.1.24"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.24.tgz#d7ac20215f595c26d314ee5671169a27b609025f"
+  integrity sha512-WNhqqgD4qH7TQdU9ujXfFa/hQI5rOGGnZq+JRmz4JwMZFCgSZVquTq3ORUSv6IC+Y41ACBYV8a8J1kPkqGIiQg==
+
 nanoid@^3.1.22:
   version "3.1.22"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.22.tgz#b35f8fb7d151990a8aebd5aa5015c03cf726f844"
@@ -19285,6 +19313,13 @@ normalize-range@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/normalize-range/-/normalize-range-0.1.2.tgz#2d10c06bdfd312ea9777695a4d28439456b75942"
   integrity sha1-LRDAa9/TEuqXd2laTShDlFa3WUI=
+
+normalize-svg-path@^1.0.1:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/normalize-svg-path/-/normalize-svg-path-1.1.0.tgz#0e614eca23c39f0cffe821d6be6cd17e569a766c"
+  integrity sha512-r9KHKG2UUeB5LoTouwDzBy2VxXlHsiM6fyLQvnJa0S5hrhzqElH/CH7TUGhT1fVvIYBIKf3OpY4YJ4CK+iaqHg==
+  dependencies:
+    svg-arc-to-cubic-bezier "^3.0.0"
 
 normalize-url@2.0.1:
   version "2.0.1"
@@ -19974,6 +20009,11 @@ parse-passwd@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/parse-passwd/-/parse-passwd-1.0.0.tgz#6d5b934a456993b23d37f40a382d6f1666a8e5c6"
   integrity sha1-bVuTSkVpk7I9N/QKOC1vFmao5cY=
+
+parse-svg-path@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/parse-svg-path/-/parse-svg-path-0.1.2.tgz#7a7ec0d1eb06fa5325c7d3e009b859a09b5d49eb"
+  integrity sha1-en7A0esG+lMlx9PgCbhZoJtdSes=
 
 parse5-htmlparser2-tree-adapter@^6.0.0:
   version "6.0.1"
@@ -21391,6 +21431,15 @@ react-native-reanimated@^2.2.0:
     fbjs "^3.0.0"
     mockdate "^3.0.2"
     string-hash-64 "^1.0.3"
+
+react-native-redash@^16.0.10:
+  version "16.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-redash/-/react-native-redash-16.2.0.tgz#72204bdcdc5c48ccd8bd630e3a954ae5174809b3"
+  integrity sha512-4xRWT6sUTjTM7i7Yd6fEiuylzIPmjYl9XlhL7Tz/NJOPBs+ib6ku7ptF5PRgQIshbQ6kIFwXJWoQ9H71zOMwvA==
+  dependencies:
+    abs-svg-path "^0.1.1"
+    normalize-svg-path "^1.0.1"
+    parse-svg-path "^0.1.2"
 
 react-native-safe-area-context@^3.2.0:
   version "3.2.0"
@@ -23981,6 +24030,11 @@ supports-hyperlinks@^2.0.0:
   dependencies:
     has-flag "^4.0.0"
     supports-color "^7.0.0"
+
+svg-arc-to-cubic-bezier@^3.0.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/svg-arc-to-cubic-bezier/-/svg-arc-to-cubic-bezier-3.2.0.tgz#390c450035ae1c4a0104d90650304c3bc814abe6"
+  integrity sha512-djbJ/vZKZO+gPoSDThGNpKDO+o+bAeA4XQKovvkNCqnIS2t+S4qnLAGQhyyrulhCFRl1WWzAp0wUDV8PpTVU3g==
 
 svg-to-pdfkit@^0.1.8:
   version "0.1.8"

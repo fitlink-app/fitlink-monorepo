@@ -40,11 +40,7 @@ export const Feed = () => {
   const navigation = useNavigation();
   const {colors} = useTheme();
 
-  const {
-    data: user,
-    isFetching: isFetchingUser,
-    refetch: refetchUser,
-  } = useMe({
+  const {data: user, refetch: refetchUser} = useMe({
     refetchOnMount: false,
     refetchInterval: 10000,
   });
