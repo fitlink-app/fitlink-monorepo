@@ -126,12 +126,21 @@ export class RewardsService {
    * @param param0
    * @returns
    */
-  async getPointsUntilNextReward(userId: string): Promise<RewardNext> {
+  async getPointsUntilNextReward(
+    userId: string,
+    before_points?: number
+  ): Promise<RewardNext> {
     const user = await this.userRepository.findOne(userId)
 
-    const query = this.queryFindAccessibleToUser(userId)
+    let query = this.queryFindAccessibleToUser(userId)
       .andWhere('redemptions.id IS NULL')
       .orderBy('reward.points_required', 'ASC')
+
+    if (before_points) {
+      query = query.andWhere('reward.points_required >= :points', {
+        points: before_points
+      })
+    }
 
     const reward = await query.getOne()
 

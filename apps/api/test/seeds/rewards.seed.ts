@@ -2,6 +2,8 @@ import { Seeder, Factory, runSeeder } from 'typeorm-seeding'
 import { Connection } from 'typeorm'
 import { Reward } from '../../src/modules/rewards/entities/reward.entity'
 import { ImagesSetup, ImagesTeardown } from './images.seed'
+import { User } from '../../src/modules/users/entities/user.entity'
+import { UsersSetup } from './users.seed'
 
 const COUNT_REWARDS = 10
 
@@ -50,4 +52,23 @@ export function RewardsTeardown(name: string): Promise<void> {
   }
 
   return runSeeder(Teardown)
+}
+
+export function UserReachedReward(name: string, count: number = COUNT_REWARDS) {
+  class Setup implements Seeder {
+    public async run(_factory: Factory, connection: Connection): Promise<any> {
+      const userRepository = connection.getRepository(User)
+      const randomNumber = Math.floor(Math.random() * 137)
+      const rewards = await RewardsSetup(name + randomNumber, count, {
+        points_required: 7
+      })
+      const user = await UsersSetup('UserBoutToBeRewarded C-' + randomNumber, 1)
+      user[0].points_total = rewards[0].points_required - 1
+      await userRepository.save(user)
+
+      return user[0]
+    }
+  }
+
+  return runSeeder(Setup)
 }
