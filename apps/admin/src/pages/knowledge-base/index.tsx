@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
-import BlogThumb from '../../../components/elements/BlogThumb'
-import Loader from '../../../components/elements/Loader'
-import Dashboard from '../../../components/layouts/Dashboard'
+import BlogThumb from '../../components/elements/BlogThumb'
+import Loader from '../../components/elements/Loader'
+import Dashboard from '../../components/layouts/Dashboard'
 import { PostType } from './[id]'
 
 export default function page() {
@@ -47,7 +47,7 @@ export default function page() {
   }, [page])
 
   return (
-    <Dashboard title="Knowledge base" linkPrefix="/demo">
+    <Dashboard title="Knowledge base">
       <h1 className="light mb-1">Knowledge base</h1>
       {!loading && (
         <div className="row">
@@ -58,7 +58,6 @@ export default function page() {
                 title={p.title.rendered}
                 date={p.date}
                 excerpt={p.excerpt.yoast}
-                prefix="/demo"
                 image={
                   p._embedded['wp:featuredmedia'][0].media_details.sizes.large
                     .source_url

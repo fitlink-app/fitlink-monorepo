@@ -102,7 +102,7 @@ export function AuthProvider({ children }) {
       roles: myRoles,
       menu: setMenu(primary),
       primary,
-      focusRole: setFocusRole(primary, childRole)
+      focusRole: setFocusRole(primary)
     })
   }, [me.data, roles.data, childRole])
 
@@ -359,10 +359,16 @@ export function AuthProvider({ children }) {
   }
 
   function setMenu(primary: RolePrimary): MenuProps[] {
-    let items = []
+    let items = [
+      {
+        label: 'Overview',
+        link: '/dashboard',
+        icon: 'IconGear'
+      }
+    ]
     console.log(primary)
     if (primary.superAdmin) {
-      items = [
+      items = items.concat([
         {
           label: 'Organisations',
           link: '/organisations',
@@ -378,7 +384,7 @@ export function AuthProvider({ children }) {
           link: '/users',
           icon: 'IconFriends'
         }
-      ]
+      ])
     }
 
     if (primary.organisation) {
@@ -387,17 +393,17 @@ export function AuthProvider({ children }) {
           label: 'Teams',
           link: '/teams',
           icon: 'IconGear'
+        },
+        {
+          label: 'Knowledge Base',
+          link: '/knowledge-base',
+          icon: 'IconYoga'
         }
       ])
     }
 
     if (primary.team) {
       items = items.concat([
-        {
-          label: 'Overview',
-          link: '/overview',
-          icon: 'IconGear'
-        },
         {
           label: 'User stats',
           link: '/stats',
@@ -417,6 +423,11 @@ export function AuthProvider({ children }) {
           label: 'Activities',
           link: '/activities',
           icon: 'IconActivities'
+        },
+        {
+          label: 'Knowledge Base',
+          link: '/knowledge-base',
+          icon: 'IconYoga'
         }
       ])
     }
