@@ -10,13 +10,9 @@ import {
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { User } from '../../decorators/authenticated-user.decorator'
-import { Files } from '../../decorators/files.decorator'
 import { Iam } from '../../decorators/iam.decorator'
-import { UploadOptions, Uploads } from '../../decorators/uploads.decorator'
 import { AuthenticatedUser } from '../../models'
 import { Image } from '../images/entities/image.entity'
-import { ImageType } from '../images/images.constants'
-import { ImagesService } from '../images/images.service'
 import { Roles } from '../user-roles/user-roles.constants'
 import { CreateTeamDto } from './dto/create-team.dto'
 import { UpdateTeamDto } from './dto/update-team.dto'
@@ -25,16 +21,12 @@ import { Pagination } from '../../decorators/pagination.decorator'
 import { PaginationQuery } from '../../helpers/paginate'
 import { Team } from './entities/team.entity'
 import { ApiBaseResponses } from '../../decorators/swagger.decorator'
-import { DateQueryDto } from './dto/date-query.dto'
 
 @Controller()
 @ApiTags('teams')
 @ApiBaseResponses()
 export class TeamsController {
-  constructor(
-    private readonly teamsService: TeamsService,
-    private readonly imagesService: ImagesService
-  ) {}
+  constructor(private readonly teamsService: TeamsService) {}
 
   /**
    * Only organisation admins can create new teams
@@ -152,8 +144,8 @@ export class TeamsController {
 
   @Iam(Roles.SuperAdmin)
   @Get('/teams')
-  findAll() {
-    return this.teamsService.findAll()
+  findAll(@Pagination() pagination: PaginationQuery) {
+    return this.teamsService.findAll(pagination)
   }
 
   @Iam(Roles.SuperAdmin)
