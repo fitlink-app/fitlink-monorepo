@@ -53,13 +53,19 @@ export class HealthActivityCreatedListener {
       !updatedUserErr &&
       (await this.triggerUserPointsIncrementedEvent(
         updatedUser.points_total,
+        user.points_total,
         user.id
       ))
   }
 
-  async triggerUserPointsIncrementedEvent(points: number, userId: string) {
+  async triggerUserPointsIncrementedEvent(
+    newPoints: number,
+    prevPoints: number,
+    userId: string
+  ) {
     const event = new UserPointsIncrementedEvent()
-    event.total_points = points
+    event.new_points = newPoints
+    event.prev_points = prevPoints
     event.user_id = userId
     await this.eventEmitter.emitAsync('user.points_incremented', event)
   }

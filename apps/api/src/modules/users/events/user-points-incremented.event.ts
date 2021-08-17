@@ -1,4 +1,5 @@
 export class UserPointsIncrementedEvent {
-  total_points: number;
-  user_id: string;
+  prev_points: number
+  new_points: number
+  user_id: string
 }

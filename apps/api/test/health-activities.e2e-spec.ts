@@ -29,6 +29,7 @@ import {
   FeedItemType
 } from '../src/modules/feed-items/feed-items.constants'
 import { UserReachedReward } from './seeds/rewards.seed'
+import { getAuthHeaders } from './helpers/auth'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -392,8 +393,13 @@ describe('Health Activities', () => {
     expect(feedItem.type).toBe('daily_goal_reached')
   })
 
-  it('POST /providers/strava/webhook', async () => {
+  it('Test that feed Item is created when reward is unlocked', async () => {
     const user = await UserReachedReward('Attainable Reward C-', 1)
+    const nextReward = await app.inject({
+      method: 'GET',
+      url: `/me/next-reward`,
+      headers: getAuthHeaders({}, user.id)
+    })
     const mockPayload: StravaEventData = {
       aspect_type: 'create',
       event_time: 12039,
@@ -424,10 +430,14 @@ describe('Health Activities', () => {
         category: FeedItemCategory.MyUpdates,
         type: FeedItemType.RewardUnlocked,
         user: { id: user.id }
-      }
+      },
+      relations: ['reward']
     })
+
     expect(feedItem.id).toBeDefined()
     expect(feedItem.category).toBe('my_updates')
     expect(feedItem.type).toBe('reward_unlocked')
+    expect(feedItem.reward.name).toBe(nextReward.json().reward.name)
+    expect(feedItem.reward.id).toBe(nextReward.json().reward.id)
   })
 })

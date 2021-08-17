@@ -28,14 +28,17 @@ export class UserPointsIncrementedListener {
     const {
       points_until_reward,
       reward
-    } = await this.rewardsService.getPointsUntilNextReward(user.id)
+    } = await this.rewardsService.getPointsUntilNextReward(
+      user.id,
+      payload.prev_points
+    )
     if (!reward) {
       console.log('No reward found, no feed entry required')
       return null
     }
 
-    // if the payload.total_points is greater than or equal to the points until the next reward create a new feed item
-    payload.total_points >= points_until_reward &&
+    // if payload.new_points is bigger or equal to points_until_reward
+    payload.new_points >= points_until_reward &&
       (await this.addFeedItem(user, reward))
   }
 
