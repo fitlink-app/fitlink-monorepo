@@ -13,6 +13,8 @@ import { Reward, RewardPublic, RewardNext } from './entities/reward.entity'
 import { RewardAccess } from './rewards.constants'
 import { startOfDay } from 'date-fns'
 import { RewardFiltersDto } from './dto/reward-filters.dto'
+import { EventEmitter2 } from '@nestjs/event-emitter'
+import { RewardClaimedEvent } from './events/reward-claimed.event'
 
 type ParentIds = {
   organisationId?: string
@@ -32,7 +34,8 @@ export class RewardsService {
     @InjectRepository(RewardsRedemption)
     private rewardsRedemptionRepository: Repository<RewardsRedemption>,
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private userRepository: Repository<User>,
+    private eventEmitter: EventEmitter2
   ) {}
 
   create(createRewardDto: CreateRewardDto) {
@@ -469,7 +472,12 @@ export class RewardsService {
         return result
       }
     )
-
+    if (result) {
+      const event = new RewardClaimedEvent()
+      event.rewardId = result.reward.id
+      event.userId = result.user.id
+      await this.eventEmitter.emitAsync('reward.claimed', event)
+    }
     return result
   }
 
