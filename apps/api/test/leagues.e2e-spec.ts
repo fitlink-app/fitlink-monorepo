@@ -1,7 +1,12 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import * as faker from 'faker'
-import { Connection } from 'typeorm'
+import { Connection, getConnection } from 'typeorm'
 import { useSeeding } from 'typeorm-seeding'
+import { FeedItem } from '../src/modules/feed-items/entities/feed-item.entity'
+import {
+  FeedItemCategory,
+  FeedItemType
+} from '../src/modules/feed-items/feed-items.constants'
 import { FollowingsModule } from '../src/modules/followings/followings.module'
 import { Image } from '../src/modules/images/entities/image.entity'
 import { LeaderboardEntry } from '../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
@@ -1100,4 +1105,31 @@ describe('Leagues', () => {
       }
     })
   }
+
+  it.only('Tests that a feed entry is created when you join a league', async () => {
+    const league = await createPublicLeague()
+
+    await app.inject({
+      method: 'POST',
+      url: `/leagues/${league.id}/join`,
+      headers: authHeaders
+    })
+
+    const feedItem = await getConnection()
+      .getRepository(FeedItem)
+      .findOne({
+        where: {
+          category: FeedItemCategory.MyUpdates,
+          type: FeedItemType.LeagueJoined,
+          league: {
+            id: league.id
+          }
+        },
+        relations: ['league']
+      })
+
+    expect(feedItem.league.id).toBe(league.id)
+    expect(feedItem.category).toBe(FeedItemCategory.MyUpdates)
+    expect(feedItem.type).toBe(FeedItemType.LeagueJoined)
+  })
 })

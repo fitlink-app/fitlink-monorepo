@@ -9,13 +9,19 @@ import { UserRolesModule } from '../user-roles/user-roles.module'
 import { JwtModule } from '@nestjs/jwt'
 import { CommonModule } from '../common/common.module'
 import { AuthProvider } from '../auth/entities/auth-provider.entity'
+import { UserPointsIncrementedListener } from './listeners/UserPointsIncrementedListener'
+import { RewardsModule } from '../rewards/rewards.module'
+import { FeedItemsModule } from '../feed-items/feed-items.module'
 
 @Module({
   imports: [
     CommonModule,
     TypeOrmModule.forFeature([User, AuthProvider]),
     ConfigModule,
+    FeedItemsModule,
     HttpModule,
+    // forward ref rewards module because of the circular dependency
+    forwardRef(() => RewardsModule),
     UserRolesModule,
     UsersInvitationsModule,
     JwtModule.registerAsync({
@@ -30,7 +36,7 @@ import { AuthProvider } from '../auth/entities/auth-provider.entity'
     })
   ],
   controllers: [UsersController],
-  providers: [UsersService, ConfigService],
+  providers: [UsersService, ConfigService, UserPointsIncrementedListener],
   exports: [TypeOrmModule.forFeature([User]), UsersService]
 })
 export class UsersModule {}

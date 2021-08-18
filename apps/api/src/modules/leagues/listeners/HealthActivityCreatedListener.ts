@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
-import { OnEvent } from '@nestjs/event-emitter'
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from '../../users/entities/user.entity'
 import { Repository } from 'typeorm'
@@ -14,10 +14,12 @@ import {
   FeedItemCategory,
   FeedItemType
 } from '../../feed-items/feed-items.constants'
+import { UserPointsIncrementedEvent } from '../../users/events/user-points-incremented.event'
 
 @Injectable()
 export class HealthActivityCreatedListener {
   constructor(
+    private eventEmitter: EventEmitter2,
     @InjectRepository(HealthActivity)
     private healthActivityRepository: Repository<HealthActivity>,
 
@@ -32,11 +34,40 @@ export class HealthActivityCreatedListener {
     private feedItemService: FeedItemsService
   ) {}
 
+  // Updated method to do manual saving instead of using the increment method.
+  // Because then I could give the event emitter an up to date version of the user's points
   async updateUserPoints(points: number, userId: string) {
-    const [_, resultErr] = await tryAndCatch(
-      this.userRepository.increment({ id: userId }, 'points_total', points)
+    const [user, userErr] = await tryAndCatch(
+      this.userRepository.findOne(userId)
     )
-    resultErr && console.error(resultErr)
+
+    const [updatedUser, updatedUserErr] = await tryAndCatch(
+      this.userRepository.save({
+        ...user,
+        points_total: user.points_total + points
+      })
+    )
+    userErr && console.error(userErr)
+    updatedUserErr && console.error(updatedUserErr)
+    !userErr &&
+      !updatedUserErr &&
+      (await this.triggerUserPointsIncrementedEvent(
+        updatedUser.points_total,
+        user.points_total,
+        user.id
+      ))
+  }
+
+  async triggerUserPointsIncrementedEvent(
+    newPoints: number,
+    prevPoints: number,
+    userId: string
+  ) {
+    const event = new UserPointsIncrementedEvent()
+    event.new_points = newPoints
+    event.prev_points = prevPoints
+    event.user_id = userId
+    await this.eventEmitter.emitAsync('user.points_incremented', event)
   }
 
   async updateLeaguePoints(sport: Sport, userId: string, points: number) {
