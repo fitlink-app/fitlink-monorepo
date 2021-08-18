@@ -44,3 +44,11 @@ export class FindActivitiesDto {
   @IsOptional()
   limit: string
 }
+
+export class FindActivitiesForMapDto extends FindActivitiesDto {
+  @ApiProperty({
+    required: true
+  })
+  @IsGeoRadial()
+  geo_radial: string // long, lat, radius
+}

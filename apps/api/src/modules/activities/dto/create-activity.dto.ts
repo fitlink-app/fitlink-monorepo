@@ -2,13 +2,12 @@ import { ApiProperty } from '@nestjs/swagger'
 import {
   IsUrl,
   IsLatLong,
-  IsArray,
   IsOptional,
   IsString,
   IsEmail,
-  IsNotEmpty
+  IsNotEmpty,
+  IsUUID
 } from 'class-validator'
-import { Image } from '../../images/entities/image.entity'
 
 const message = 'This field is required'
 
@@ -68,13 +67,18 @@ export class CreateActivityDto {
   organizer_telephone?: string
 
   @ApiProperty()
+  @IsUUID(4, {
+    message: 'Organizer image must be a valid image'
+  })
   @IsOptional()
-  organizer_image?: Image
+  organizer_image?: string
 
   @ApiProperty()
-  @IsArray()
+  @IsString({
+    message: 'Images must be a comma separated list of UUIDs'
+  })
   @IsOptional()
-  images?: Image[]
+  images?: string
 
   @ApiProperty()
   @IsOptional()

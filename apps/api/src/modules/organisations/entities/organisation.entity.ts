@@ -16,6 +16,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { League } from '../../leagues/entities/league.entity'
 import { Reward } from '../../rewards/entities/reward.entity'
 import { OrganisationType } from '../organisations.constants'
+import { Activity } from '../../activities/entities/activity.entity'
 
 @Entity()
 export class Organisation extends CreatableEntity {
@@ -50,6 +51,9 @@ export class Organisation extends CreatableEntity {
     }
   )
   invitations: OrganisationsInvitation[]
+
+  @OneToMany(() => Activity, (activity) => activity.organisation)
+  activities: Activity[]
 
   @ApiProperty()
   @Column()

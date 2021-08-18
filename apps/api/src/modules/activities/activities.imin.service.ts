@@ -9,7 +9,7 @@ import {
   IminConvertedImage
 } from './types/imin'
 import { addDays, getISODay, setHours, setMinutes } from 'date-fns'
-import { Activity } from './entities/activity.entity'
+import { Activity, ActivityForMap } from './entities/activity.entity'
 import { ActivityType } from './activities.constants'
 import { Pagination } from '../../helpers/paginate'
 import { Image } from '../images/entities/image.entity'
@@ -40,12 +40,27 @@ export class ActivitiesIminService {
     // events-api/v2/event-series?geo[radial]=51.7520131%2C-1.2578499%2C5&mode=upcoming-sessions&page=1&limit=10" -H "accept: application/json" -H "X-API-KEY: "
     const results = await this.makeRequest('events-api/v2/event-series', {
       mode: 'discovery-geo',
-      genderRestriction: 'oa:NoRestriction',
+      // genderRestriction: 'oa:NoRestriction',
       ...params
     })
 
     return results
       .pipe(map((data) => ActivitiesIminService.normalize(data || [])))
+      .toPromise()
+  }
+
+  async findAllMarkers(params: IminServiceParams) {
+    // events-api/v2/event-series?geo[radial]=51.7520131%2C-1.2578499%2C5&mode=upcoming-sessions&page=1&limit=10" -H "accept: application/json" -H "X-API-KEY: "
+    const results = await this.makeRequest('events-api/v2/event-series', {
+      mode: 'discovery-geo',
+      // genderRestriction: 'oa:NoRestriction',
+      ...params
+    })
+
+    return results
+      .pipe(
+        map((data) => ActivitiesIminService.normalizeForMarkers(data || []))
+      )
       .toPromise()
   }
 
@@ -57,9 +72,6 @@ export class ActivitiesIminService {
    * @returns an observable containing the response data
    */
   async makeRequest(endpoint: string, params: IminServiceParams) {
-    console.log(
-      `USING IMIN KEY: ${this.configService.get('IMIN_API_BASE_URL')}`
-    )
     return this.httpService
       .get(this.configService.get('IMIN_API_BASE_URL') + '/' + endpoint, {
         params,
@@ -103,6 +115,30 @@ export class ActivitiesIminService {
     }))
 
     return new Pagination<Activity>({
+      results,
+      total: responseData['imin:totalItems']
+    })
+  }
+
+  /**
+   * Normalizes a set of imin results to a standardised format
+   * for map markers
+   *
+   * @param results
+   * @returns
+   */
+  static normalizeForMarkers(responseData: IminResponseInterface) {
+    const results = (responseData['imin:item'] || []).map((each) => ({
+      id: each.id,
+      name: each.name,
+      date: ActivitiesIminService.itemScheduleToDateString(each),
+      ...ActivitiesIminService.getLocationData(each),
+
+      // Imin activities are presumed to be classes
+      type: ActivityType.Class
+    }))
+
+    return new Pagination<ActivityForMap>({
       results,
       total: responseData['imin:totalItems']
     })

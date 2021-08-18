@@ -1,6 +1,6 @@
 import { mockApp } from './helpers/app'
 import { MockType } from './helpers/types'
-// import { getAuthHeaders } from './helpers/auth'
+import { getAuthHeaders } from './helpers/auth'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { ActivitiesModule } from '../src/modules/activities/activities.module'
 import { ActivitiesIminService } from '../src/modules/activities/activities.imin.service'
@@ -9,6 +9,8 @@ import { CreateActivityDto } from '../src/modules/activities/dto/create-activity
 import { readFile } from 'fs/promises'
 import { Connection } from 'typeorm'
 import { useSeeding } from 'typeorm-seeding'
+import { User } from '../src/modules/users/entities/user.entity'
+import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import FormData = require('form-data')
 import { ActivitiesSetup, ActivitiesTeardown } from './seeds/activities.seed'
 
@@ -18,6 +20,7 @@ const activityColumns = [
   'meeting_point',
   'meeting_point_text',
   'description',
+  'type',
   'date',
   'cost',
   'created_at',
@@ -28,19 +31,15 @@ const activityColumns = [
   'organizer_telephone'
 ]
 
+const activityMapColumns = ['id', 'name', 'meeting_point', 'date', 'type']
+
 describe('Activities', () => {
   let app: NestFastifyApplication
   let activitiesIminService: MockType<ActivitiesIminService>
   let activitiesService: MockType<ActivitiesService>
-
-  // Set auth headers
-  // const headers = getAuthHeaders()
-  // At the moment, activities service is exposed via bearer token
-  // This will change when the app is fully migrated away from Firebase
-  // stack and a JWT will be used instead.
-  const headers = {
-    authorization: 'Bearer fitlinkLeaderboardEntryToken'
-  }
+  let users: User[]
+  let authHeaders: NodeJS.Dict<string>
+  let superAdminHeaders: NodeJS.Dict<string>
 
   beforeAll(async () => {
     app = await mockApp({
@@ -48,18 +47,23 @@ describe('Activities', () => {
       providers: []
     })
 
+    await useSeeding()
+    await ActivitiesSetup('Test activity')
+    users = await UsersSetup('Test activity', 2)
+
+    // User types
+    authHeaders = getAuthHeaders({}, users[0].id)
+    superAdminHeaders = getAuthHeaders({ spr: true })
+
     // Override services to return mock data
     activitiesIminService = app.get(ActivitiesIminService)
     activitiesIminService.findAll = jest.fn()
     activitiesService = app.get(ActivitiesService)
-
-    // Run seed
-    await useSeeding()
-    await ActivitiesSetup('Test activity')
   })
 
   afterAll(async () => {
     await ActivitiesTeardown('Test activity')
+    await UsersTeardown('Test activity')
     await app.get(Connection).close()
     await app.close()
   })
@@ -107,10 +111,11 @@ describe('Activities', () => {
           page,
           limit: '20'
         },
-        headers
+        headers: authHeaders
       })
 
       activitiesService.findAll = cacheFindAll
+
       return data.json().remaining
     }
   })
@@ -125,7 +130,7 @@ describe('Activities', () => {
         limit: '20',
         with_imin: '1'
       },
-      headers
+      headers: authHeaders
     })
 
     const result = data.json()
@@ -150,12 +155,42 @@ describe('Activities', () => {
         page: '0',
         limit: '20'
       },
-      headers
+      headers: authHeaders
     })
 
     const result = Object.keys(data.json().results[0])
 
     expect(result).toEqual(expect.arrayContaining(activityColumns))
+  })
+
+  it(`GET /activities/map 200 Fetches activities from the database for map`, async () => {
+    await ActivitiesSetup('Test activity', 1, {
+      meeting_point: {
+        type: 'Point',
+        coordinates: [51.7520131, -1.2578499]
+      }
+    })
+
+    activitiesIminService.findAll.mockReturnValue({
+      results: [],
+      page_total: 0,
+      total: 0
+    })
+
+    const data = await app.inject({
+      method: 'GET',
+      url: '/activities/map',
+      query: {
+        geo_radial: '51.7520131,-1.2578499,5'
+      },
+      headers: authHeaders
+    })
+
+    console.log(data.json())
+
+    const result = Object.keys(data.json().results[0])
+
+    expect(result).toEqual(expect.arrayContaining(activityMapColumns))
   })
 
   it(`GET /activities 200 Fetches real activities from the database ordered by created date and excludes imin`, async () => {
@@ -167,7 +202,7 @@ describe('Activities', () => {
         limit: '20',
         with_imin: '0'
       },
-      headers
+      headers: authHeaders
     })
 
     const result = Object.keys(data.json().results[0])
@@ -184,7 +219,7 @@ describe('Activities', () => {
         with_imin: '0',
         type: 'group,class'
       },
-      headers
+      headers: authHeaders
     })
 
     data.json().results.map((each) => {
@@ -206,7 +241,7 @@ describe('Activities', () => {
         type: 'group,class',
         keyword: 'extreme extreme'
       },
-      headers
+      headers: authHeaders
     })
 
     expect(data.json().results[0].name).toEqual('EXTREME GYMING')
@@ -222,7 +257,7 @@ describe('Activities', () => {
         with_imin: '0',
         type: 'group,yoga'
       },
-      headers
+      headers: authHeaders
     })
 
     expect(data.statusCode).toEqual(400)
@@ -233,8 +268,8 @@ describe('Activities', () => {
     const data = await createActivityWithImages()
     expect(data.statusCode).toEqual(201)
     expect(data.json().name).toBeDefined()
-    expect(data.json().images[0].url).toBeDefined()
-    expect(data.json().images[1].url).toBeDefined()
+    expect(data.json().images[0].id).toBeDefined()
+    expect(data.json().images[1].id).toBeDefined()
   })
 
   it(`POST /activities 400 Creates a new activity but validation fails`, async () => {
@@ -252,16 +287,18 @@ describe('Activities', () => {
   it(`PUT /activities/:id 201 Updates an new activity with images and replaces existing images`, async () => {
     const data = await createActivityWithImages()
     const json = data.json()
-    const form = await getFormWithFile()
+
+    // Set the images correctly
+    json.images = json.images[0].id
+
+    // Don't update the meeting point
+    delete json.meeting_point
 
     const put = await app.inject({
       method: 'PUT',
       url: `/activities/${json.id}`,
-      headers: {
-        ...headers,
-        ...form.getHeaders()
-      },
-      payload: form
+      headers: authHeaders,
+      payload: json
     })
 
     expect(put.json().images[0].url).toBeDefined()
@@ -272,7 +309,7 @@ describe('Activities', () => {
       method: 'GET',
       url: `/activities/${json.id}`,
       headers: {
-        ...headers
+        ...authHeaders
       }
     })
 
@@ -288,7 +325,7 @@ describe('Activities', () => {
       method: 'PUT',
       url: `/activities/${json.id}`,
       headers: {
-        ...headers
+        ...authHeaders
       },
       payload: {
         name: 'Test activity updated'
@@ -306,22 +343,19 @@ describe('Activities', () => {
 
     expect(data.statusCode).toEqual(201)
     expect(data.json().name).toBeDefined()
-    expect(data.json().images[0].url).toBeDefined()
-    expect(data.json().images[1].url).toBeDefined()
-    expect(data.json().organizer_image.url).toBeDefined()
+    expect(data.json().images[0].id).toBeDefined()
+    expect(data.json().images[1].id).toBeDefined()
+    expect(data.json().organizer_image.id).toBeDefined()
   })
 
   it(`POST /activities 400 Cannot create a new activity with incomplete fields`, async () => {
-    const { form } = await getIncompletePayload()
+    const payload = await getIncompletePayload()
 
     const data = await app.inject({
       method: 'POST',
       url: '/activities',
-      payload: form,
-      headers: {
-        ...form.getHeaders(),
-        ...headers
-      }
+      payload,
+      headers: authHeaders
     })
 
     expect(data.statusCode).toEqual(400)
@@ -334,9 +368,7 @@ describe('Activities', () => {
     const data = await app.inject({
       method: 'DELETE',
       url: `/activities/${id}`,
-      headers: {
-        ...headers
-      }
+      headers: authHeaders
     })
 
     expect(data.statusCode).toEqual(200)
@@ -352,9 +384,7 @@ describe('Activities', () => {
     const data = await app.inject({
       method: 'DELETE',
       url: `/activities/${id}`,
-      headers: {
-        ...headers
-      }
+      headers: authHeaders
     })
     expect(data.statusCode).toEqual(200)
   })
@@ -371,9 +401,7 @@ describe('Activities', () => {
     const deleteOrganizerImage = await app.inject({
       method: 'DELETE',
       url: `/activities/${json.id}/organizer_image`,
-      headers: {
-        ...headers
-      }
+      headers: authHeaders
     })
 
     expect(deleteOrganizerImage.statusCode).toEqual(200)
@@ -381,9 +409,7 @@ describe('Activities', () => {
     const data = await app.inject({
       method: 'GET',
       url: `/activities/${json.id}`,
-      headers: {
-        ...headers
-      }
+      headers: authHeaders
     })
 
     json = data.json()
@@ -393,9 +419,7 @@ describe('Activities', () => {
     const deleteImages = await app.inject({
       method: 'DELETE',
       url: `/activities/${json.id}/images`,
-      headers: {
-        ...headers
-      }
+      headers: authHeaders
     })
 
     expect(deleteImages.statusCode).toEqual(200)
@@ -403,9 +427,7 @@ describe('Activities', () => {
     const data2 = await app.inject({
       method: 'GET',
       url: `/activities/${json.id}`,
-      headers: {
-        ...headers
-      }
+      headers: authHeaders
     })
 
     const json2 = data2.json()
@@ -423,9 +445,7 @@ describe('Activities', () => {
     const data = await app.inject({
       method: 'PUT',
       url: `/activities/${id}`,
-      headers: {
-        ...headers
-      },
+      headers: authHeaders,
       payload: {
         user_id: '12345',
         name: 'User Added Activity'
@@ -443,7 +463,7 @@ describe('Activities', () => {
     const data = await app.inject({
       method: 'GET',
       url: `/activities/user/12345`,
-      headers
+      headers: authHeaders
     })
     expect(data.statusCode).toEqual(200)
     const result = Object.keys(data.json().results[0])
@@ -461,16 +481,13 @@ describe('Activities', () => {
     organizer = false,
     override: NodeJS.Dict<string> = {}
   ) {
-    const { form } = await getPayloadWithImages(organizer, override)
+    const payload = await getPayloadWithImages(organizer, override)
 
     const data = await app.inject({
       method: 'POST',
       url: '/activities',
-      payload: form,
-      headers: {
-        ...form.getHeaders(),
-        ...headers
-      }
+      payload,
+      headers: authHeaders
     })
 
     return data
@@ -493,32 +510,21 @@ describe('Activities', () => {
       ...override
     }
 
-    const form = new FormData()
-    const file1 = await readFile(__dirname + '/assets/1200x1200.png')
-    const file2 = await readFile(__dirname + '/assets/1416x721.png')
+    const image1 = await getImageUploadId()
+    const image2 = await getImageUploadId()
 
-    form.append('images[]', file1)
-    form.append('images[]', file2)
+    payload.images = [image1, image2].join(',')
 
     if (organizer) {
-      const file3 = await readFile(__dirname + '/assets/900x611.png')
-      form.append('organizer_image', file3)
+      payload.organizer_image = await getImageUploadId()
     }
 
-    Object.keys(payload).map((key: string) => {
-      form.append(key, payload[key])
-    })
-
-    return {
-      payload,
-      form
-    }
+    return payload
   }
 
   async function getIncompletePayload() {
-    const { payload } = await getPayloadWithImages()
-    const form = new FormData()
-    Object.keys(payload).map((key: string) => {
+    const payload = await getPayloadWithImages()
+    Object.keys(payload).forEach((key: string) => {
       if (
         key in
         {
@@ -527,24 +533,29 @@ describe('Activities', () => {
           organizer_telephone: ''
         }
       ) {
-        form.append(key, '')
-      } else {
-        form.append(key, payload[key])
+        payload[key] = ''
       }
     })
-    return {
-      payload,
-      form
-    }
+
+    return payload
   }
 
-  async function getFormWithFile(payload: NodeJS.Dict<any> = {}) {
+  async function getImageUploadId(headers = authHeaders) {
     const form = new FormData()
-    const file = await readFile(__dirname + '/assets/1200x1200.png')
-    form.append('images[]', file)
-    Object.keys(payload).map((key: string) => {
-      form.append(key, payload[key])
+    const image = await readFile(__dirname + `/assets/1200x1200.png`)
+    form.append('image', image)
+    form.append('type', 'standard')
+
+    const imageCreate = await app.inject({
+      method: 'POST',
+      url: '/images',
+      payload: form,
+      headers: {
+        ...headers,
+        ...form.getHeaders()
+      }
     })
-    return form
+
+    return imageCreate.json().id
   }
 })

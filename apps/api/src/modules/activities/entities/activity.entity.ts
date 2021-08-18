@@ -16,6 +16,8 @@ import { CreatableEntity } from '../../../classes/entity/creatable'
 import { League } from '../../leagues/entities/league.entity'
 import { User } from '../../users/entities/user.entity'
 import { ActivityType } from '../activities.constants'
+import { ApiProperty } from '@nestjs/swagger'
+import { Organisation } from '../../organisations/entities/organisation.entity'
 
 @Entity()
 export class Activity extends CreatableEntity {
@@ -67,7 +69,7 @@ export class Activity extends CreatableEntity {
     enum: ActivityType,
     default: ActivityType.Class
   })
-  type: string
+  type: ActivityType
 
   @Column({
     type: 'tsvector',
@@ -82,9 +84,29 @@ export class Activity extends CreatableEntity {
   @ManyToOne(() => Team, (team) => team.activities, { nullable: true })
   team?: Team
 
+  @ManyToOne(() => Organisation, (org) => org.activities, { nullable: true })
+  organisation?: Organisation
+
   @ManyToOne(() => League, { nullable: true })
   league?: League
 
   @OneToMany(() => Image, (image) => image.activity)
   images: Image[]
+}
+
+export class ActivityForMap {
+  @ApiProperty()
+  id: string
+
+  @ApiProperty()
+  name: string
+
+  @ApiProperty()
+  type: ActivityType
+
+  @ApiProperty()
+  date: string
+
+  @ApiProperty()
+  meeting_point: Geometry
 }

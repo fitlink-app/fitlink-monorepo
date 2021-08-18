@@ -13,24 +13,22 @@ import { ActivitiesIminService } from './activities.imin.service'
 import { ActivitiesService } from './activities.service'
 import { CreateActivityDto } from './dto/create-activity.dto'
 import { UpdateActivityDto } from './dto/update-activity.dto'
-import { FindActivitiesDto } from './dto/find-activities.dto'
+import {
+  FindActivitiesDto,
+  FindActivitiesForMapDto
+} from './dto/find-activities.dto'
 import { Pagination } from '../../helpers/paginate'
-import { Activity } from './entities/activity.entity'
-import { Files } from '../../decorators/files.decorator'
+import { Activity, ActivityForMap } from './entities/activity.entity'
 import { ImagesService } from '../images/images.service'
-import { Uploads, UploadOptions } from '../../decorators/uploads.decorator'
 import { Public } from '../../decorators/public.decorator'
-import { AuthGuard } from '../../guards/auth.guard'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { Image } from '../images/entities/image.entity'
-import { ImageType } from '../images/images.constants'
+import { ApiTags } from '@nestjs/swagger'
 import { IminServiceParams } from './types/imin'
+import { ApiBaseResponses } from '../../decorators/swagger.decorator'
 
-@Public()
-@UseGuards(AuthGuard)
-@ApiBearerAuth()
+// @Public()
+@ApiBaseResponses()
 @ApiTags('activities')
-@Controller('activities')
+@Controller()
 export class ActivitiesController {
   constructor(
     private readonly activitiesService: ActivitiesService,
@@ -38,40 +36,9 @@ export class ActivitiesController {
     private readonly imagesService: ImagesService
   ) {}
 
-  @Post()
-  @Uploads('images[]', 'organizer_image', UploadOptions.Nullable)
-  async create(
-    @Files('images[]') activityImages: Storage.MultipartFile[],
-    @Files('organizer_image') organizerImage: Storage.MultipartFile,
-    @Body() createActivityDto: CreateActivityDto
-  ) {
-    const alt = createActivityDto.organizer_name || createActivityDto.name
-    const images = await this.imagesService.createMany(
-      activityImages,
-      ImageType.Standard,
-      {
-        alt
-      }
-    )
-
-    let organizer_image: Image
-    if (organizerImage) {
-      organizer_image = await this.imagesService.createOne(
-        organizerImage,
-        ImageType.Standard,
-        {
-          alt
-        }
-      )
-    }
-
-    return this.activitiesService.create({
-      ...createActivityDto,
-      ...{
-        images,
-        organizer_image
-      }
-    })
+  @Post('/activities')
+  async create(@Body() dto: CreateActivityDto) {
+    return this.activitiesService.create(dto)
   }
 
   /**
@@ -80,7 +47,7 @@ export class ActivitiesController {
    * @param queryParams
    * @returns
    */
-  @Get('user/:userId')
+  @Get('/activities/user/:userId')
   async findUserActivities(@Param('userId') userId: string, @Query() query) {
     return this.activitiesService.findUserActivities(userId, {
       limit: parseInt(query.limit) || 10,
@@ -90,12 +57,68 @@ export class ActivitiesController {
 
   /**
    * Finds activities based on coordinates
+   * for the map display.
+   *
+   * @param queryParams
+   * @returns
+   */
+  @Get('/activities/map')
+  async findAllForMap(
+    @Query()
+    {
+      geo_radial,
+      with_imin = '1',
+      type = '',
+      keyword = ''
+    }: FindActivitiesForMapDto
+  ): Promise<Pagination<ActivityForMap>> {
+    // Get local activities
+    const all = await this.activitiesService.findAllMarkers(
+      geo_radial,
+      type,
+      keyword
+    )
+
+    if (
+      with_imin === '1' &&
+      geo_radial &&
+      (type === '' || type.indexOf('class') > -1)
+    ) {
+      // Get Imin activities
+      const params: IminServiceParams = {
+        'geo[radial]': geo_radial,
+        mode: 'discovery-geo',
+        page: 0,
+        limit: 50
+      }
+
+      if (keyword !== '') {
+        params['organizerName[textSearch]'] = keyword
+      }
+
+      const imin = await this.activitiesIminService.findAllMarkers(params)
+
+      const results = all.results.concat(imin.results)
+      const total = all.results.length + imin.results.length
+
+      return {
+        results,
+        total,
+        page_total: total
+      }
+    } else {
+      return all
+    }
+  }
+
+  /**
+   * Finds activities based on coordinates
    * or alternatively returns activities by created date
    *
    * @param queryParams
    * @returns
    */
-  @Get()
+  @Get('/activities')
   async findAll(
     @Query()
     {
@@ -130,7 +153,7 @@ export class ActivitiesController {
       const params: IminServiceParams = {
         'geo[radial]': geo_radial,
         mode: 'discovery-geo',
-        page: intPage + 1,
+        page: intPage,
         limit: intLimit
       }
 
@@ -149,12 +172,12 @@ export class ActivitiesController {
     }
   }
 
-  @Get(':id')
+  @Get('/activities/:id')
   findOne(@Param('id') id: string) {
     return this.activitiesService.findOne(id)
   }
 
-  @Get(':userId/:id')
+  @Get('/activities/:userId/:id')
   findOneUserActivity(
     @Param('id') id: string,
     @Param('userId') userId: string
@@ -162,53 +185,25 @@ export class ActivitiesController {
     return this.activitiesService.findOneUserActivity(id, userId)
   }
 
-  @Uploads('images[]', 'organizer_image', UploadOptions.Nullable)
-  @Put(':id')
+  @Put('/activities/:id')
   async update(
-    @Files('images[]') activityImages: Storage.MultipartFile[],
-    @Files('organizer_image') organizerImage: Storage.MultipartFile,
     @Param('id') id: string,
     @Body() updateActivityDto: UpdateActivityDto
   ) {
-    const alt = updateActivityDto.organizer_name || updateActivityDto.name
-    const images = await this.imagesService.createMany(
-      activityImages,
-      ImageType.Standard,
-      {
-        alt
-      }
-    )
-
-    let organizer_image: Image
-    if (organizerImage) {
-      organizer_image = await this.imagesService.createOne(
-        organizerImage,
-        ImageType.Standard,
-        {
-          alt
-        }
-      )
-      updateActivityDto.organizer_image = organizer_image
-    }
-
-    if (images.length) {
-      updateActivityDto.images = images
-    }
-
     return this.activitiesService.update(id, updateActivityDto)
   }
 
-  @Delete(':id')
+  @Delete('/activities/:id')
   remove(@Param('id') id: string) {
     return this.activitiesService.remove(id)
   }
 
-  @Delete(':id/images')
+  @Delete('/activities/:id/images')
   removeImages(@Param('id') id: string) {
     return this.activitiesService.removeImages(id, 'images')
   }
 
-  @Delete(':id/organizer_image')
+  @Delete('/activities/:id/organizer_image')
   removeOrganizerImage(@Param('id') id: string) {
     return this.activitiesService.removeImages(id, 'organizer_image')
   }

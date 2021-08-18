@@ -1,12 +1,13 @@
-import { In, Repository } from 'typeorm'
+import { In, Not, Repository } from 'typeorm'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { CreateActivityDto } from './dto/create-activity.dto'
 import { UpdateActivityDto } from './dto/update-activity.dto'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
-import { Activity } from './entities/activity.entity'
+import { Activity, ActivityForMap } from './entities/activity.entity'
 import { ActivityType } from './activities.constants'
 import { Image } from '../images/entities/image.entity'
+import { plainToClass } from 'class-transformer'
 
 @Injectable()
 export class ActivitiesService {
@@ -23,11 +24,34 @@ export class ActivitiesService {
    * @returns
    */
   async create(createActivityDto: CreateActivityDto) {
-    const { meeting_point, images, ...rest } = createActivityDto
+    const {
+      meeting_point,
+      images,
+      organizer_image,
+      ...rest
+    } = createActivityDto
+
+    // Images are already uploaded and provided as array of strings
+    let imageEntities: Image[] = []
+    let organizerImage: Image
+    if (images) {
+      imageEntities = images.split(',').map((id) => {
+        const image = new Image()
+        image.id = id
+        return image
+      })
+    }
+
+    if (organizer_image) {
+      const image = new Image()
+      image.id = organizer_image
+      organizerImage = image
+    }
+
     const activity = await this.activityRepository.save(
       this.activityRepository.create({
         ...rest,
-        images,
+        organizer_image: organizerImage,
         meeting_point: {
           type: 'Point',
           coordinates: meeting_point.split(',')
@@ -35,12 +59,15 @@ export class ActivitiesService {
       })
     )
 
-    if (images.length) {
+    if (imageEntities.length) {
       await this.activityRepository
         .createQueryBuilder()
         .relation(Image, 'activity')
-        .of(images)
+        .of(imageEntities)
         .set(activity)
+
+      // Store the images on the object for the response
+      activity.images = imageEntities
     }
 
     return activity
@@ -67,6 +94,52 @@ export class ActivitiesService {
     return new Pagination<Activity>({
       results,
       total
+    })
+  }
+
+  /**
+   * Find all entries by geometry, or alternatively
+   * by date created
+   *
+   * @param geo lat, lon, radius in km (comma separated)
+   * @param options { page, limit }
+   */
+  async findAllMarkers(geoRadial: string, type: string, keyword: string) {
+    const geo = geoRadial.split(',')
+    const query = this.activityRepository
+      .createQueryBuilder('activity')
+      .take(500)
+      .where(
+        'ST_DistanceSphere(activity.meeting_point, ST_MakePoint(:lat,:lng)) <= :rad * 1000',
+        {
+          lat: geo[0],
+          lng: geo[1],
+          rad: parseInt(geo[2]) || 5
+        }
+      )
+
+    // Query by 1 or more types
+    if (type) {
+      const types = this.getTypesFromString(type)
+      const where = geoRadial ? 'andWhere' : 'where'
+      query[where]('activity.type IN (:...types)', { types })
+    }
+
+    // Query by keyword in tsvector
+    if (keyword) {
+      const where = geoRadial || type ? 'andWhere' : 'where'
+      query[where]('activity.tsv @@ plainto_tsquery(:keyword)', {
+        keyword: keyword.toLowerCase()
+      })
+    }
+
+    const results = await query.getMany()
+
+    return new Pagination<ActivityForMap>({
+      results: plainToClass(ActivityForMap, results, {
+        excludeExtraneousValues: true
+      }),
+      total: results.length
     })
   }
 
@@ -144,8 +217,16 @@ export class ActivitiesService {
   }
 
   async update(id: string, updateActivityDto: UpdateActivityDto) {
-    const { meeting_point } = updateActivityDto
-    const updateData = updateActivityDto as any
+    const {
+      meeting_point,
+      images,
+      organizer_image,
+      ...rest
+    } = updateActivityDto
+    const updateData: Partial<Activity> = {
+      ...rest
+    }
+
     if (meeting_point) {
       updateData.meeting_point = {
         type: 'Point',
@@ -153,31 +234,46 @@ export class ActivitiesService {
       }
     }
 
-    // Merge existing images with new images
-    /*
-    TODO: Not currently in use and solution will be refactored
-    if (
-      updateData.images &&
-      updateData.images.length &&
-      !updateData.__replaceImages
-    ) {
-      const activity = await this.findOne(id)
-      const deleteImages = updateData.__deleteImages
-        ? updateData.__deleteImages.split(',')
-        : []
-      updateData.images = [
-        ...activity.images.filter((image) => {
-          return !deleteImages.includes(image.id)
-        }),
-        ...updateData.images
-      ]
+    // Images are already uploaded and provided as array of strings
+    let imageEntities: Image[] = []
+    let organizerImage: Image
+    if (images) {
+      imageEntities = images.split(',').map((id) => {
+        const image = new Image()
+        image.id = id
+        return image
+      })
     }
-    */
 
-    delete updateData.__replaceImages
-    delete updateData.__deleteImages
+    if (organizer_image) {
+      const image = new Image()
+      image.id = organizer_image
+      organizerImage = image
+    }
 
-    await this.activityRepository.save({ id, ...updateData })
+    const activity = await this.activityRepository.save({
+      ...updateData,
+      id,
+      organizer_image: organizerImage
+    })
+
+    if (imageEntities.length) {
+      await this.activityRepository.manager.transaction(async (manager) => {
+        // Remove any images that aren't being used for update
+        await manager.getRepository(Image).delete({
+          activity: { id: activity.id },
+          id: Not(In(imageEntities.map((e) => e.id)))
+        })
+
+        await manager
+          .getRepository(Activity)
+          .createQueryBuilder()
+          .relation(Image, 'activity')
+          .of(imageEntities)
+          .set(activity)
+      })
+    }
+
     return this.findOne(id)
   }
 
