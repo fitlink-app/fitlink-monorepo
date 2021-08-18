@@ -56,6 +56,8 @@ import {
   FeedItemType,
   UserTier
 } from '../../src/modules/feed-items/feed-items.constants'
+import { Activity } from '../../src/modules/activities/entities/activity.entity'
+import { ActivityType } from '../../src/modules/activities/activities.constants'
 
 // FITLINK
 const FITLINK_TEAM = 'ZxSZdl3lafZiiWiZnhlw'
@@ -87,6 +89,7 @@ const allow = Object.values(require('./trusted.json'))
   const module = await NestFactory.createApplicationContext(MigrationModule)
   const connection = module.get(Connection)
   const usersService = module.get(UsersService)
+  const httpService = module.get(HttpService)
 
   const app = initializeApp({
     storageBucket: 'fitlink-rn.appspot.com',
@@ -157,6 +160,9 @@ const allow = Object.values(require('./trusted.json'))
     const feedItemRepository = manager.getRepository(FeedItem)
 
     const imageService = makeImageService()
+
+    console.log(chalk.green('Migrating activities...'))
+    await migrateActivities()
 
     console.log(chalk.green('Migrating organisations...'))
     const organisation = await migrateOrganisations(organisationRepository)
@@ -395,6 +401,11 @@ const allow = Object.values(require('./trusted.json'))
             user.last_login_at =
               toDate(data.last_login_at) ||
               new Date(auth.metadata.lastSignInTime)
+
+            user.created_at = new Date(auth.metadata.creationTime)
+            user.updated_at = data.updated_at
+              ? toDate(data.updated_at)
+              : undefined
 
             user.goal_floors_climbed = userGoals.floors_climbed.target
             user.goal_mindfulness_minutes = userGoals.mindfulness.target
@@ -930,6 +941,51 @@ const allow = Object.values(require('./trusted.json'))
           )
         })
       )
+    }
+
+    async function migrateActivities() {
+      const response = await httpService
+        .get('https://api-sls.fitlinkapp.com/api/v1/activities', {
+          headers: {
+            Authorization: 'Bearer fitlinkLeaderboardEntryToken'
+          }
+        })
+        .toPromise()
+
+      const results = response.data.results as Activity[]
+      const repo = manager.getRepository(Activity)
+      const imageRepo = manager.getRepository(Image)
+
+      const output = await Promise.all(
+        results.map(async ({ images, organizer_image, tsv, ...rest }) => {
+          const migratedImages = await Promise.all(
+            images.map(({ activity, ...rest }) => {
+              return imageRepo.save(rest)
+            })
+          )
+
+          if (organizer_image) {
+            await imageRepo.save(organizer_image)
+          }
+
+          const activity = await repo.save(
+            repo.create({
+              ...rest,
+              ...{ organizer_image }
+            })
+          )
+
+          await Promise.all(
+            migratedImages.map((image) => {
+              return imageRepo.update(image.id, { activity })
+            })
+          )
+
+          return activity
+        })
+      )
+
+      return output
     }
 
     async function getEntityFromFirebase(
