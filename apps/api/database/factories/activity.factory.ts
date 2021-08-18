@@ -2,6 +2,7 @@ import { define } from 'typeorm-seeding'
 import Faker from 'faker'
 import { Activity } from '../../src/modules/activities/entities/activity.entity'
 import { Image } from '../../src/modules/images/entities/image.entity'
+import { ActivityType } from '../../src/modules/activities/activities.constants'
 
 define(Activity, (faker: typeof Faker) => {
   const soon = faker.date.recent(-1)
@@ -30,6 +31,10 @@ define(Activity, (faker: typeof Faker) => {
   activity.organizer_url = faker.internet.url()
   activity.organizer_image = organiserImage
   activity.cost = faker.finance.currencySymbol() + faker.finance.amount(5, 40)
-  activity.type = faker.random.arrayElement(['class', 'group', 'route'])
+  activity.type = faker.random.arrayElement([
+    'class',
+    'group',
+    'route'
+  ]) as ActivityType
   return activity
 })

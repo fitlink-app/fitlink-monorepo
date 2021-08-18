@@ -50,6 +50,9 @@ interface IminOrganizer {
   image?: {
     url: string
   }
+  logo?: {
+    url: string
+  }
 }
 
 interface IminAggregateOffer {
@@ -84,6 +87,7 @@ interface IminEventSchedule {
 
 interface IminSubEvent {
   eventSchedule: IminEventSchedule[]
+  startDate?: string
 }
 
 export interface IminItem {
