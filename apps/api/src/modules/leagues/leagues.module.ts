@@ -15,6 +15,8 @@ import { HealthActivityCreatedListener } from './listeners/HealthActivityCreated
 import { User } from '../users/entities/user.entity'
 import { FeedItemsModule } from '../feed-items/feed-items.module'
 import { CommonModule } from '../common/common.module'
+import { LeagueJoinedListener } from './listeners/LeagueJoinedListener'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 
 @Module({
   imports: [
@@ -30,13 +32,15 @@ import { CommonModule } from '../common/common.module'
     CommonModule,
     AuthModule,
     LeaguesInvitationModule,
-    FeedItemsModule
+    FeedItemsModule,
+    EventEmitter2
   ],
   controllers: [LeaguesController],
   providers: [
     LeaguesService,
     LeaderboardEntriesService,
-    HealthActivityCreatedListener
+    HealthActivityCreatedListener,
+    LeagueJoinedListener
   ],
   exports: []
 })
