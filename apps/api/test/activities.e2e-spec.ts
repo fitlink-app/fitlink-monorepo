@@ -58,6 +58,7 @@ describe('Activities', () => {
     // Override services to return mock data
     activitiesIminService = app.get(ActivitiesIminService)
     activitiesIminService.findAll = jest.fn()
+    activitiesIminService.findAllMarkers = jest.fn()
     activitiesService = app.get(ActivitiesService)
   })
 
@@ -171,7 +172,7 @@ describe('Activities', () => {
       }
     })
 
-    activitiesIminService.findAll.mockReturnValue({
+    activitiesIminService.findAllMarkers.mockReturnValue({
       results: [],
       page_total: 0,
       total: 0
@@ -185,8 +186,6 @@ describe('Activities', () => {
       },
       headers: authHeaders
     })
-
-    console.log(data.json())
 
     const result = Object.keys(data.json().results[0])
 
