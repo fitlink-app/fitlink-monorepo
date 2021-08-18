@@ -19,7 +19,6 @@ import {
 } from './dto/find-activities.dto'
 import { Pagination } from '../../helpers/paginate'
 import { Activity, ActivityForMap } from './entities/activity.entity'
-import { ImagesService } from '../images/images.service'
 import { Public } from '../../decorators/public.decorator'
 import { ApiTags } from '@nestjs/swagger'
 import { IminServiceParams } from './types/imin'
@@ -32,8 +31,7 @@ import { ApiBaseResponses } from '../../decorators/swagger.decorator'
 export class ActivitiesController {
   constructor(
     private readonly activitiesService: ActivitiesService,
-    private readonly activitiesIminService: ActivitiesIminService,
-    private readonly imagesService: ImagesService
+    private readonly activitiesIminService: ActivitiesIminService
   ) {}
 
   @Post('/activities')
@@ -97,7 +95,6 @@ export class ActivitiesController {
       }
 
       const imin = await this.activitiesIminService.findAllMarkers(params)
-
       const results = all.results.concat(imin.results)
       const total = all.results.length + imin.results.length
 
@@ -174,7 +171,11 @@ export class ActivitiesController {
 
   @Get('/activities/:id')
   findOne(@Param('id') id: string) {
-    return this.activitiesService.findOne(id)
+    if (id.length === 36) {
+      return this.activitiesService.findOne(id)
+    } else {
+      return this.activitiesIminService.findOne(id)
+    }
   }
 
   @Get('/activities/:userId/:id')

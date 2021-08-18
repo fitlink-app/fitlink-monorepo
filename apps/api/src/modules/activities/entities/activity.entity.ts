@@ -18,6 +18,7 @@ import { User } from '../../users/entities/user.entity'
 import { ActivityType } from '../activities.constants'
 import { ApiProperty } from '@nestjs/swagger'
 import { Organisation } from '../../organisations/entities/organisation.entity'
+import { Expose } from 'class-transformer'
 
 @Entity()
 export class Activity extends CreatableEntity {
@@ -96,17 +97,22 @@ export class Activity extends CreatableEntity {
 
 export class ActivityForMap {
   @ApiProperty()
+  @Expose()
   id: string
 
   @ApiProperty()
+  @Expose()
   name: string
 
   @ApiProperty()
+  @Expose()
   type: ActivityType
 
   @ApiProperty()
+  @Expose()
   date: string
 
   @ApiProperty()
+  @Expose()
   meeting_point: Geometry
 }
