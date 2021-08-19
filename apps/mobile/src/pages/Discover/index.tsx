@@ -1,8 +1,8 @@
 import React, {useRef} from 'react';
 import {StyleSheet} from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
-import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-import {ListModal} from './components';
+import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import {ActivityDetailsModal, ListModal} from './components';
 import {BottomSheetModalMethods} from '@gorhom/bottom-sheet/lib/typescript/types';
 import {useEffect} from 'react';
 import styled, {useTheme} from 'styled-components/native';
@@ -21,7 +21,9 @@ const {
   CircleLayer,
 } = MapboxGL;
 
-const Overlay = styled.View({
+const Overlay = styled.View.attrs({
+  pointerEvents: 'box-none',
+})({
   ...StyleSheet.absoluteFillObject,
 });
 
@@ -52,9 +54,13 @@ export const Discover = () => {
   const insets = useSafeAreaInsets();
 
   // ref
+  const lastListIndex = useRef(0);
   const mapViewRef = useRef() as React.MutableRefObject<MapboxGL.MapView>;
 
-  const listModalRef = useRef<BottomSheetModalMethods>(null);
+  // modal ref
+  const listModalRef = useRef<BottomSheetModal>(null);
+  const detailsModalRef = useRef<BottomSheetModal>(null);
+  // const bottomSheetModalCRef = useRef<BottomSheetModal>(null);
 
   useEffect(() => {
     listModalRef.current?.present();
@@ -63,6 +69,23 @@ export const Discover = () => {
   const handleOnAddActivityPressed = () => {
     // TODO: Implement method
     console.log('Add activity pressed');
+  };
+
+  /**
+   * Handle pressing an activity on the list or the map
+   * @param id activity id
+   * @param isMarker whether the activity was pressed on the modal list or by a marker on the map
+   */
+  const handleOnActivityPressed = (id: string, isMarker?: boolean) => {
+    lastListIndex.current = isMarker ? 0 : 1;
+
+    listModalRef.current?.collapse();
+    detailsModalRef.current?.present();
+  };
+
+  const handleOnDetailsBackPressed = () => {
+    detailsModalRef.current?.close();
+    listModalRef.current?.snapToIndex(lastListIndex.current);
   };
 
   const renderAddActivityButton = () => {
@@ -123,8 +146,14 @@ export const Discover = () => {
 
       <ListModal
         ref={listModalRef}
-        onActivityPressed={() => {}}
+        onActivityPressed={id => handleOnActivityPressed(id)}
         onExpand={() => {}}
+      />
+
+      <ActivityDetailsModal
+        ref={detailsModalRef}
+        onBack={handleOnDetailsBackPressed}
+        stackBehavior={'push'}
       />
 
       <Overlay style={{top: insets.top, margin: 10}}>

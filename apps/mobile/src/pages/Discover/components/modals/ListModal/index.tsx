@@ -40,11 +40,10 @@ interface ListModalProps
   > {
   onActivityPressed: (id: string) => void;
   onExpand: () => void;
-  aboveSheetComponent?: React.ReactNode;
 }
 
 export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
-  (props, ref) => {
+  ({onActivityPressed, onExpand, ...rest}, ref) => {
     const {colors} = useTheme();
     const dispatch = useDispatch() as AppDispatch;
     const snapPoints = useMemo(() => [HANDLE_HEIGHT, '90%'], []);
@@ -127,8 +126,6 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
       [],
     );
 
-    const onActivityPressed = (id: string) => console.log(id + ' was pressed');
-
     const renderItem = ({item}: {item: Activity}) => {
       // TODO: Use actual user location
       const userLocation = {lat: 51.752022, lng: -1.257677};
@@ -191,9 +188,9 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
 
     return (
       <BottomSheetModal
-        {...{ref, handleComponent}}
+        {...{...rest, ref, handleComponent}}
         index={0}
-        handleHeight={200}
+        handleHeight={HANDLE_HEIGHT}
         snapPoints={snapPoints}
         animatedPosition={animatedPosition}
         animatedIndex={animatedIndex}

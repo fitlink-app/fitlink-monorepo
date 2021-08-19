@@ -17,3 +17,4 @@ export * from './Dots';
 export * from './Chip';
 export * from './Checkbox';
 export * from './ImagePicker';
+export * from './Lightbox';

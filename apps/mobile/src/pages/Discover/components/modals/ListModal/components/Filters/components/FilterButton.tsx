@@ -26,9 +26,13 @@ export const FilterButton = (props: FilterButtonProps & TouchHandlerProps) => {
       <Wrapper
         style={{
           ...(style as {}),
+          flex: 1,
+          justifyContent: 'center',
           backgroundColor: selected ? `${colors.accent}1A` : colors.background,
         }}>
-        <Label appearance={selected ? 'accent' : 'accentSecondary'}>
+        <Label
+          appearance={selected ? 'accent' : 'accentSecondary'}
+          style={{textAlign: 'center', fontSize: 13}}>
           {text}
         </Label>
       </Wrapper>
