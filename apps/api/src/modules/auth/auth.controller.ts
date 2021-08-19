@@ -6,12 +6,14 @@ import {
   UseGuards,
   Get,
   Body,
-  BadRequestException
+  BadRequestException,
+  ForbiddenException
 } from '@nestjs/common'
 import { LocalAuthGuard } from './guards/local-auth.guard'
 import { AuthService } from './auth.service'
 import { Public } from '../../decorators/public.decorator'
 import { AuthLoginDto, AuthConnectDto } from './dto/auth-login'
+import { AuthSwitchDto } from './dto/auth-switch'
 import { AuthResultDto, AuthLogoutDto, AuthSignupDto } from './dto/auth-result'
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
 import {
@@ -25,6 +27,8 @@ import {
   AuthResetPasswordDto,
   AuthRequestResetPasswordDto
 } from './dto/auth-reset-password'
+import { User } from '../../decorators/authenticated-user.decorator'
+import { AuthenticatedUser } from '../../models'
 
 @Controller()
 @ApiBaseResponses()
@@ -100,6 +104,35 @@ export class AuthController {
     )
     if (error) {
       throw new BadRequestException(error)
+    }
+
+    return result
+  }
+
+  /**
+   * Organisation and superadmin users are able to switch
+   * to different "accounts", i.e. they can manage
+   * teams directly as if they were team admins.
+   *
+   * @param authSwitchDto
+   * @returns
+   */
+
+  @ApiTags('auth')
+  @Post('auth/switch')
+  @ValidationResponse()
+  @ApiResponse({ type: AuthResultDto, status: 200 })
+  async authSwitch(
+    @Body() authSwitchDto: AuthSwitchDto,
+    @User() authUser: AuthenticatedUser
+  ) {
+    const result = await this.authService.switchSession(
+      authUser.id,
+      authSwitchDto
+    )
+
+    if (!result) {
+      throw new ForbiddenException('You do not have access to this resource')
     }
 
     return result

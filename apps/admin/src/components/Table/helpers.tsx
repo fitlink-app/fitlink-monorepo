@@ -11,6 +11,12 @@ export const toLocaleCell = ({ value }) => {
   return value.toLocaleString()
 }
 
+export const arrayToDisplayValue = (mapping: NodeJS.Dict<string>) => {
+  return ({ value }) => {
+    return value.map((name: string) => mapping[name]).join(', ')
+  }
+}
+
 export const toChipCell = ({ value }) => {
   return <div className="chip">{value}</div>
 }

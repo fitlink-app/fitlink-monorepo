@@ -6,7 +6,7 @@ import { Repository } from 'typeorm'
 import { JWTRoles } from '../../models'
 import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateUserDto } from './dto/create-user.dto'
-import { UpdateUserDto } from './dto/update-user.dto'
+import { UpdateBasicUserDto, UpdateUserDto } from './dto/update-user.dto'
 import { User, UserPublic } from './entities/user.entity'
 import { Image } from '../images/entities/image.entity'
 import { ImageType } from '../images/images.constants'
@@ -298,8 +298,23 @@ export class UsersService {
     return this.getUserPublic(user)
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return this.userRepository.update(id, updateUserDto)
+  update(id: string, update: UpdateUserDto) {
+    return this.userRepository.update(id, update)
+  }
+
+  updateBasic(id: string, { imageId, ...rest }: UpdateBasicUserDto) {
+    let update: Partial<User> = { ...rest }
+
+    if (imageId) {
+      update.avatar = new Image()
+      update.avatar.id = imageId
+
+      // Explict removal of image
+    } else if (imageId === null) {
+      update.avatar = null
+    }
+
+    return this.userRepository.update(id, update)
   }
 
   updateEntity(id: string, entity: Partial<User>) {

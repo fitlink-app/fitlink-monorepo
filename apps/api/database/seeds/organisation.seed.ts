@@ -9,10 +9,8 @@ import { Following } from '../../src/modules/followings/entities/following.entit
 import { GoalsEntry } from '../../src/modules/goals-entries/entities/goals-entry.entity'
 import { flatten } from 'lodash'
 import * as faker from 'faker'
-import {
-  Roles,
-  UserRole
-} from '../../src/modules/user-roles/entities/user-role.entity'
+import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity'
+import { Roles } from '../../src/modules/user-roles/user-roles.constants'
 import { Connection } from 'typeorm'
 import { Subscription } from '../../src/modules/subscriptions/entities/subscription.entity'
 

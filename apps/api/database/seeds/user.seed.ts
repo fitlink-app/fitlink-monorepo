@@ -91,6 +91,20 @@ export default class CreateTestUsers implements Seeder {
       })
     }
 
+    // Generate test users
+    await Promise.all(
+      Array.from({ length: 10 }).map(async (_, i) => {
+        const email = `user${i + 1}@fitlinkapp.com`
+        let user = await connection.getRepository(User).findOne({ email })
+        if (!user) {
+          return factory(User)().create({
+            name: `Test${i + 1} User`,
+            email
+          })
+        }
+      })
+    )
+
     // Create roles for each
     await factory(UserRole)().create({
       user: superAdmin,

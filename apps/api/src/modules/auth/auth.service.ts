@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { plainToClass } from 'class-transformer'
 import { Connection, Repository } from 'typeorm'
-import { AuthenticatedUser } from '../../models'
+import { AuthenticatedUser, JWTRoles } from '../../models'
 import { CreateUserDto } from '../users/dto/create-user.dto'
 import { User } from '../users/entities/user.entity'
 import { UsersService } from '../users/users.service'
@@ -23,6 +23,9 @@ import { AuthProvider } from './entities/auth-provider.entity'
 import { AuthProviderType } from './auth.constants'
 import { OAuth2Client } from 'google-auth-library'
 import { v4 as uuid } from 'uuid'
+import { AuthSwitchDto } from './dto/auth-switch'
+import { Roles } from '../user-roles/user-roles.constants'
+import { Team } from '../teams/entities/team.entity'
 
 type PasswordResetToken = {
   sub: string
@@ -47,6 +50,9 @@ export class AuthService {
 
     @InjectRepository(AuthProvider)
     private authProviderRepository: Repository<AuthProvider>,
+
+    @InjectRepository(Team)
+    private teamRepository: Repository<Team>,
     private connection: Connection,
     private httpService: HttpService
   ) {}
@@ -203,13 +209,13 @@ export class AuthService {
    * @param user
    * @returns accessToken
    */
-  async createAccessToken(user: User) {
+  async createAccessToken(user: User, roles?: JWTRoles) {
     const payload = {
       aud: 'fitlink.com',
       iss: 'fitlink.com',
       sub: user.id,
       iat: new Date().getTime(),
-      roles: await this.usersService.getRolesForToken(user)
+      roles: roles || (await this.usersService.getRolesForToken(user))
     }
 
     return this.jwtService.sign(payload)
@@ -566,5 +572,71 @@ export class AuthService {
         secret: key
       }
     )
+  }
+
+  /**
+   * Creates a new JWT for a user to have specific
+   * access.
+   *
+   * @param userId
+   * @param switchDto with role and id of targeted object to manage (e.g. a team)
+   * @returns jwt
+   */
+  async switchSession(userId: string, { role, id }: AuthSwitchDto) {
+    const user = await this.usersService.findOne(userId)
+    const roles = await this.usersService.getRolesForToken(user)
+    const base: JWTRoles = {
+      o_a: [],
+      s_a: [],
+      t_a: [],
+      spr: false
+    }
+
+    // Organisation admin can switch to managing a specific team
+    if (role === Roles.TeamAdmin) {
+      let orgId
+      if (!roles.spr) {
+        const team = await this.teamRepository.findOne(id, {
+          relations: ['organisation']
+        })
+        if (!roles.o_a.includes(team.organisation.id)) {
+          return false
+        } else {
+          orgId = team.organisation.id
+        }
+      }
+      return this.loginWithRole(user, {
+        ...base,
+        t_a: [id],
+        o_a: [orgId]
+      })
+    }
+
+    // Super admin can switch to managing a specific organisation
+    if (roles.spr && role === Roles.OrganisationAdmin) {
+      return this.loginWithRole(user, {
+        ...base,
+        o_a: [id]
+      })
+    }
+  }
+
+  /**
+   * Returns tokens for a particular user session
+   * based on a switch session
+   *
+   * Used for the local guard/strategy
+   *
+   * @param user
+   * @returns object containing 3 tokens
+   */
+  async loginWithRole(user: User, roles: JWTRoles): Promise<AuthResultDto> {
+    const refreshToken = await this.createRefreshToken(user)
+
+    return {
+      access_token: await this.createAccessToken(user, roles),
+      id_token: await this.createIdToken(user),
+      refresh_token: refreshToken
+    }
   }
 }

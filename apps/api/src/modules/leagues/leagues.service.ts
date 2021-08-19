@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
-import { OnEvent } from '@nestjs/event-emitter'
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Brackets, FindOneOptions, getManager, In, Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
@@ -19,6 +19,7 @@ import { plainToClass } from 'class-transformer'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
 import { addDays, formatISO } from 'date-fns'
 import { CommonService } from '../common/services/common.service'
+import { LeagueJoinedEvent } from './events/league-joined.event'
 
 type LeagueOptions = {
   teamId?: string
@@ -48,7 +49,8 @@ export class LeaguesService {
     private userRepository: Repository<User>,
 
     private leaderboardEntriesService: LeaderboardEntriesService,
-    private commonService: CommonService
+    private commonService: CommonService,
+    private eventEmitter: EventEmitter2
   ) {}
 
   async create(
@@ -456,6 +458,10 @@ export class LeaguesService {
       }
     )
 
+    const event = new LeagueJoinedEvent()
+    event.leagueId = leagueId
+    event.userId = userId
+    await this.eventEmitter.emitAsync('league.joined', event)
     return { success: true, league, leaderboardEntry }
   }
 

@@ -97,5 +97,41 @@ export default class CreateSports implements Seeder {
         plural: 'runs'
       })
     }
+
+    if (!(await sportRepository.findOne({ name_key: 'golf' }))) {
+      await factory(Sport)().create({
+        name: 'Golf',
+        name_key: 'golf',
+        singular: 'golf game',
+        plural: 'golf games'
+      })
+    }
+
+    if (!(await sportRepository.findOne({ name_key: 'spinning' }))) {
+      await factory(Sport)().create({
+        name: 'Spinning',
+        name_key: 'spinning',
+        singular: 'spinning session',
+        plural: 'spinning sessions'
+      })
+    }
+
+    if (!(await sportRepository.findOne({ name_key: 'spinning' }))) {
+      await factory(Sport)().create({
+        name: 'Weightlifting',
+        name_key: 'weightLifting',
+        singular: 'weightlifting session',
+        plural: 'weightlifting sessions'
+      })
+    }
+
+    if (!(await sportRepository.findOne({ name_key: 'spinning' }))) {
+      await factory(Sport)().create({
+        name: 'Tennis',
+        name_key: 'tennis',
+        singular: 'tennis game',
+        plural: 'tennis games'
+      })
+    }
   }
 }

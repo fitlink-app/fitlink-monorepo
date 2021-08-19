@@ -11,11 +11,16 @@ import { ImagesSetup, ImagesTeardown } from './seeds/images.seed'
 import { Image } from '../src/modules/images/entities/image.entity'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import { User } from '../src/modules/users/entities/user.entity'
-import { Connection } from 'typeorm'
+import { Connection, getConnection } from 'typeorm'
 import { Reward } from '../src/modules/rewards/entities/reward.entity'
 import { RewardAccess } from '../src/modules/rewards/rewards.constants'
 import { RewardsSetup, RewardsTeardown } from './seeds/rewards.seed'
 import { startOfDay } from 'date-fns'
+import { FeedItem } from '../src/modules/feed-items/entities/feed-item.entity'
+import {
+  FeedItemCategory,
+  FeedItemType
+} from '../src/modules/feed-items/feed-items.constants'
 
 describe('Rewards', () => {
   let app: NestFastifyApplication
@@ -47,7 +52,7 @@ describe('Rewards', () => {
 
     images = await ImagesSetup('Test Rewards', 20)
     users = await UsersSetup('Test Rewards', 2)
-    rewards = await RewardsSetup('Test Rewards', 8)
+    rewards = await RewardsSetup('Test Rewards', 10)
 
     // User types
     authHeaders = getAuthHeaders({}, users[0].id)
@@ -707,5 +712,30 @@ describe('Rewards', () => {
     expect(result.statusCode).toBe(200)
     expect(result.json().reward.points_required).toBe(7)
     expect(result.json().points_until_reward).toBe(2)
+  })
+
+  it.only(`Tests that when a reward is claimed a feed entry is created`, async () => {
+    const result = await app.inject({
+      method: 'POST',
+      url: `/rewards/${rewards[8].id}/redeem`,
+      headers: authHeaders
+    })
+
+    const feedItem = await getConnection()
+      .getRepository(FeedItem)
+      .findOne({
+        where: {
+          category: FeedItemCategory.MyUpdates,
+          type: FeedItemType.RewardClaimed,
+          reward: {
+            id: rewards[8].id
+          }
+        },
+        relations: ['reward']
+      })
+    expect(feedItem.id).toBeDefined()
+    expect(feedItem.category).toBe('my_updates')
+    expect(feedItem.type).toBe('reward_claimed')
+    expect(feedItem.reward.name).toBe(rewards[8].name)
   })
 })

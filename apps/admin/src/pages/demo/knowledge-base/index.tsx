@@ -58,6 +58,7 @@ export default function page() {
                 title={p.title.rendered}
                 date={p.date}
                 excerpt={p.excerpt.yoast}
+                prefix="/demo"
                 image={
                   p._embedded['wp:featuredmedia'][0].media_details.sizes.large
                     .source_url

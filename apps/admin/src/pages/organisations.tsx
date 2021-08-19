@@ -10,6 +10,7 @@ import { AuthContext } from '../context/Auth.context'
 import { Organisation } from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
 import { timeout } from '../helpers/timeout'
 import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
+import { Roles } from '../../../api/src/modules/user-roles/user-roles.constants'
 
 export default function OrganisationsPage() {
   const [drawContent, setDrawContent] = useState<
@@ -18,6 +19,7 @@ export default function OrganisationsPage() {
   const [warning, setWarning] = useState(false)
   const [wide, setWide] = useState(false)
   const [refresh, setRefresh] = useState(0)
+  const { switchRole } = useContext(AuthContext)
 
   const closeDrawer = (ms = 0) => async () => {
     if (ms) {
@@ -85,6 +87,16 @@ export default function OrganisationsPage() {
     <div className="text-right">
       <button className="button alt small" onClick={() => DeleteForm(original)}>
         Delete
+      </button>
+      <button
+        className="button small ml-1"
+        onClick={() =>
+          switchRole({
+            id: original.id,
+            role: Roles.OrganisationAdmin
+          })
+        }>
+        Switch
       </button>
       <button
         className="button small ml-1"

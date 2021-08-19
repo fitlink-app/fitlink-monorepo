@@ -70,6 +70,30 @@ export class UpdateUserDto {
   goal_sleep_hours: number
 }
 
+export class UpdateBasicUserDto {
+  @ApiProperty()
+  @IsOptional()
+  @IsUUID(4, {
+    message: 'Invalid image id'
+  })
+  imageId: string
+
+  @ApiProperty()
+  @IsEmail(
+    {},
+    {
+      message: 'Must be a valid email address'
+    }
+  )
+  email: string
+
+  @ApiProperty()
+  @MinLength(2, {
+    message: 'Name must be at least 2 characters long'
+  })
+  name: string
+}
+
 export class UpdateUserAvatarDto {
   @ApiProperty()
   @IsUUID(4, {

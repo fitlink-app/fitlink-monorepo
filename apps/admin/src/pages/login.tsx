@@ -25,7 +25,7 @@ const LoginPage = () => {
   const [errorMessage, setError] = useState('')
   const router = useRouter()
 
-  const { user, login } = useContext(AuthContext)
+  const { user, login, primary } = useContext(AuthContext)
 
   const {
     mutate,

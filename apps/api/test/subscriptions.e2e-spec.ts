@@ -369,7 +369,7 @@ describe('Subscriptions', () => {
     }
   })
 
-  it.only('GET /subscriptions/:subscriptionId/users The superadmin can list the users of a subscription', async () => {
+  it('GET /subscriptions/:subscriptionId/users The superadmin can list the users of a subscription', async () => {
     const sub = (await SubscriptionsSetup('Test Subscription', 1))[0]
 
     // Add user to subscription
@@ -394,7 +394,7 @@ describe('Subscriptions', () => {
     ).toBe(1)
   })
 
-  it.only('POST /subscriptions/:subscriptionId/users Add the user to the subscription', async () => {
+  it('POST /subscriptions/:subscriptionId/users Add the user to the subscription', async () => {
     const sub = (await SubscriptionsSetup('Test Subscription', 1))[0]
 
     const result = await app.inject({
@@ -422,7 +422,7 @@ describe('Subscriptions', () => {
     )
   })
 
-  it.only('DELETE /subscriptions/:subscriptionId/users Can remove the user from the subscription and auto reassigns to default', async () => {
+  it('DELETE /subscriptions/:subscriptionId/users Can remove the user from the subscription and auto reassigns to default', async () => {
     const subs = await SubscriptionsSetup('Test Subscription', 2, {
       default: false
     })
@@ -473,7 +473,7 @@ describe('Subscriptions', () => {
     ).toBe(1)
   })
 
-  it.only('GET /subscriptions/:subscriptionId/users Cannot delete the default subscription', async () => {
+  it('GET /subscriptions/:subscriptionId/users Cannot delete the default subscription', async () => {
     const sub = (
       await SubscriptionsSetup('Test Subscription', 1, {
         default: true
