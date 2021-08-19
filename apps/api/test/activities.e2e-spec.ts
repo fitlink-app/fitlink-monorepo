@@ -39,7 +39,6 @@ describe('Activities', () => {
   let activitiesService: MockType<ActivitiesService>
   let users: User[]
   let authHeaders: NodeJS.Dict<string>
-  let superAdminHeaders: NodeJS.Dict<string>
 
   beforeAll(async () => {
     app = await mockApp({
@@ -53,7 +52,6 @@ describe('Activities', () => {
 
     // User types
     authHeaders = getAuthHeaders({}, users[0].id)
-    superAdminHeaders = getAuthHeaders({ spr: true })
 
     // Override services to return mock data
     activitiesIminService = app.get(ActivitiesIminService)
@@ -389,18 +387,19 @@ describe('Activities', () => {
   })
 
   it(`DELETE /activities 200 An activity image created by a user can be deleted by that user`, async () => {
-    const activityData = await createActivityWithImages(true, {
-      user_id: '12345'
-    })
+    const activityData = await createActivityWithImages(true)
 
     let json = activityData.json()
     expect(json.organizer_image.id).toBeDefined()
     expect(json.images[0].id).toBeDefined()
 
     const deleteOrganizerImage = await app.inject({
-      method: 'DELETE',
-      url: `/activities/${json.id}/organizer_image`,
-      headers: authHeaders
+      method: 'PUT',
+      url: `/activities/${json.id}`,
+      headers: authHeaders,
+      payload: {
+        organizer_image: null
+      }
     })
 
     expect(deleteOrganizerImage.statusCode).toEqual(200)
@@ -416,9 +415,12 @@ describe('Activities', () => {
     expect(json.images[0].id).toBeDefined()
 
     const deleteImages = await app.inject({
-      method: 'DELETE',
-      url: `/activities/${json.id}/images`,
-      headers: authHeaders
+      method: 'PUT',
+      url: `/activities/${json.id}`,
+      headers: authHeaders,
+      payload: {
+        images: ''
+      }
     })
 
     expect(deleteImages.statusCode).toEqual(200)
@@ -435,9 +437,7 @@ describe('Activities', () => {
   })
 
   it(`PUT /activities 201 An activity created by a user can be edited by that user`, async () => {
-    const activityData = await createActivityWithImages(false, {
-      user_id: '12345'
-    })
+    const activityData = await createActivityWithImages(false)
 
     const id = activityData.json().id
 
@@ -446,7 +446,6 @@ describe('Activities', () => {
       url: `/activities/${id}`,
       headers: authHeaders,
       payload: {
-        user_id: '12345',
         name: 'User Added Activity'
       }
     })
@@ -454,16 +453,15 @@ describe('Activities', () => {
     expect(data.statusCode).toEqual(200)
   })
 
-  it(`GET /activities/user/:userId 201 A user can list their own activities`, async () => {
-    await createActivityWithImages(false, {
-      user_id: '12345'
-    })
+  it(`GET /me/activities 201 A user can list their own activities`, async () => {
+    await createActivityWithImages(false)
 
     const data = await app.inject({
       method: 'GET',
-      url: `/activities/user/12345`,
+      url: `/me/activities`,
       headers: authHeaders
     })
+
     expect(data.statusCode).toEqual(200)
     const result = Object.keys(data.json().results[0])
     expect(result).toEqual(
