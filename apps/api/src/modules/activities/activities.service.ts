@@ -1,4 +1,4 @@
-import { In, Not, Repository } from 'typeorm'
+import { In, Not, Repository, Brackets } from 'typeorm'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { CreateActivityDto } from './dto/create-activity.dto'
@@ -8,6 +8,7 @@ import { Activity, ActivityForMap } from './entities/activity.entity'
 import { ActivityType } from './activities.constants'
 import { Image } from '../images/entities/image.entity'
 import { plainToClass } from 'class-transformer'
+import { User } from '../users/entities/user.entity'
 
 @Injectable()
 export class ActivitiesService {
@@ -23,7 +24,7 @@ export class ActivitiesService {
    * @param createActivityDto
    * @returns
    */
-  async create(createActivityDto: CreateActivityDto) {
+  async create(userId: string, createActivityDto: CreateActivityDto) {
     const {
       meeting_point,
       images,
@@ -48,9 +49,16 @@ export class ActivitiesService {
       organizerImage = image
     }
 
+    let owner: User
+    if (userId) {
+      owner = new User()
+      owner.id = userId
+    }
+
     const activity = await this.activityRepository.save(
       this.activityRepository.create({
         ...rest,
+        owner,
         organizer_image: organizerImage,
         meeting_point: {
           type: 'Point',
@@ -80,11 +88,11 @@ export class ActivitiesService {
    * @param options { page, limit }
    */
   async findUserActivities(
-    user_id: string,
+    userId: string,
     { limit, page }: PaginationOptionsInterface
   ): Promise<Pagination<Activity>> {
     const [results, total] = await this.activityRepository.findAndCount({
-      where: { user_id },
+      where: { owner: { id: userId } },
       take: limit,
       skip: page * limit,
       order: { created_at: 'DESC' },
@@ -104,12 +112,15 @@ export class ActivitiesService {
    * @param geo lat, lon, radius in km (comma separated)
    * @param options { page, limit }
    */
-  async findAllMarkers(geoRadial: string, type: string, keyword: string) {
+  async findAllMarkers(
+    userId: string,
+    geoRadial: string,
+    type: string,
+    keyword: string
+  ) {
     const geo = geoRadial.split(',')
-    const query = this.activityRepository
-      .createQueryBuilder('activity')
-      .take(500)
-      .where(
+    const query = this.queryFindAccessibleToUser(userId)
+      .andWhere(
         'ST_DistanceSphere(activity.meeting_point, ST_MakePoint(:lat,:lng)) <= :rad * 1000',
         {
           lat: geo[0],
@@ -117,6 +128,7 @@ export class ActivitiesService {
           rad: parseInt(geo[2]) || 5
         }
       )
+      .take(500)
 
     // Query by 1 or more types
     if (type) {
@@ -151,15 +163,13 @@ export class ActivitiesService {
    * @param options { page, limit }
    */
   async findAll(
+    userId: string,
     geoRadial: string,
     type: string,
     keyword: string,
     options: PaginationOptionsInterface
   ): Promise<Pagination<Activity>> {
-    let query = this.activityRepository
-      .createQueryBuilder('activity')
-      .leftJoinAndSelect('activity.organizer_image', 'organizer_image')
-      .leftJoinAndSelect('activity.images', 'image')
+    let query = this.queryFindAccessibleToUser(userId)
       .take(options.limit)
       .skip(options.page * options.limit)
 
@@ -200,7 +210,12 @@ export class ActivitiesService {
     })
   }
 
-  findOne(id: string) {
+  findOne(id: string, userId?: string) {
+    if (userId) {
+      return this.queryFindAccessibleToUser(userId)
+        .andWhere('activity.id = :id', { id })
+        .getOne()
+    }
     return this.activityRepository.findOne(id, {
       relations: ['organizer_image', 'images']
     })
@@ -251,6 +266,11 @@ export class ActivitiesService {
       organizerImage = image
     }
 
+    // Explicitly remove organizer image
+    if (organizer_image === null) {
+      organizerImage = null
+    }
+
     const activity = await this.activityRepository.save({
       ...updateData,
       id,
@@ -271,6 +291,12 @@ export class ActivitiesService {
           .relation(Image, 'activity')
           .of(imageEntities)
           .set(activity)
+      })
+
+      // If images was explicitly blank, delete all images
+    } else if (images === '') {
+      await this.imageRepository.delete({
+        activity: { id: activity.id }
       })
     }
 
@@ -343,5 +369,41 @@ export class ActivitiesService {
       }
       return each
     })
+  }
+
+  queryFindAccessibleToUser(userId: string) {
+    return this.activityRepository
+      .createQueryBuilder('activity')
+      .leftJoinAndSelect('activity.images', 'images')
+      .leftJoinAndSelect('activity.owner', 'owner')
+      .leftJoin('user', 'user', 'user.id = :userId', { userId })
+      .leftJoin('user.teams', 'team')
+      .leftJoin('team.organisation', 'organisation')
+      .leftJoinAndSelect('activity.organizer_image', 'organizer_image')
+      .where(
+        new Brackets((qb) => {
+          // The league is public
+          return (
+            qb
+
+              // The user owns the activity
+              .where(`(owner.id = :userId)`)
+
+              // The user belongs to the team that the activity belongs to
+              .orWhere(`(activity.teamId = team.id)`)
+
+              // The user belongs to the organisation that the league belongs to
+              .orWhere(`(activity.organisationId = organisation.id)`)
+
+              // The activity belongs to neither
+              .orWhere(
+                `(activity.organisationId IS NULL AND activity.teamId IS NULL)`
+              )
+          )
+        }),
+        {
+          userId
+        }
+      )
   }
 }

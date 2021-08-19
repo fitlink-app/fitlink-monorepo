@@ -207,7 +207,7 @@ export class User extends CreatableEntity {
   @OneToMany(() => LeaguesInvitation, (invitation) => invitation.to_user)
   leagues_invitations: LeaguesInvitation[]
 
-  @OneToMany(() => Activity, (activity) => activity.user)
+  @OneToMany(() => Activity, (activity) => activity.owner)
   activities: Activity[]
 
   @OneToMany(() => Image, (image) => image.owner)
