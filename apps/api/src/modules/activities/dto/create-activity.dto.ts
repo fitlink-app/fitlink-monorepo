@@ -83,8 +83,4 @@ export class CreateActivityDto {
   @ApiProperty()
   @IsOptional()
   cost?: string
-
-  @ApiProperty()
-  @IsOptional()
-  user_id?: string
 }

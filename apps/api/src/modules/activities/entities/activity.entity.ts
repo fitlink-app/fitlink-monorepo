@@ -80,7 +80,7 @@ export class Activity extends CreatableEntity {
   tsv?: string
 
   @ManyToOne(() => User, (user) => user.activities, { nullable: true })
-  user?: User
+  owner?: User
 
   @ManyToOne(() => Team, (team) => team.activities, { nullable: true })
   team?: Team
