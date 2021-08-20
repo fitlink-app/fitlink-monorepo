@@ -8,9 +8,10 @@ import { timeout } from '../../helpers/timeout'
 
 export type TableContainerProps = {
   columns: Column<any>[]
-  fetch: (limit: number, page: number) => Promise<ListData>
+  fetch: (limit: number, page: number, query?: { q: string }) => Promise<ListData>
   fetchName: string
-  refresh?: number
+  refresh?: number,
+  keyword?: string
 }
 
 type ListData = {
@@ -25,7 +26,8 @@ export function TableContainer({
   columns,
   fetch,
   fetchName,
-  refresh
+  refresh,
+  keyword
 }: TableContainerProps) {
   // const [refresh, setRefresh] = useState(0)
   const [results, setResults] = useState([])
@@ -50,9 +52,9 @@ export function TableContainer({
     isPreviousData,
     refetch
   }: ApiResult<ListData> = useQuery(
-    [fetchName, limit, page],
+    [fetchName, limit, page, keyword],
     async () => {
-      return fetch(limit, page)
+      return fetch(limit, page, {q: keyword})
     },
     {
       retry: false,

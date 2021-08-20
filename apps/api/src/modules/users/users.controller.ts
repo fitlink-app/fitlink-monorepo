@@ -156,9 +156,13 @@ export class UsersController {
   @Get('users')
   @ApiTags('users')
   @PaginationBody()
+  @ApiQuery({ type: SearchUserDto })
   @ApiResponse({ type: User, isArray: true, status: 200 })
-  findAll(@Pagination() pagination: PaginationQuery) {
-    return this.usersService.findAllUsers(pagination)
+  findAll(
+    @Pagination() pagination: PaginationQuery,
+    @Query() query?
+  ) {
+    return this.usersService.findAllUsers(pagination, query)
   }
 
   /**

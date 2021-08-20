@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { formatRoles } from '../../helpers/formatRoles'
-import { Repository } from 'typeorm'
+import { Repository, ILike } from 'typeorm'
 import { JWTRoles } from '../../models'
 import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -19,6 +19,7 @@ import { ConfigService } from '@nestjs/config'
 import { FirebaseScrypt } from './helpers/firebase-scrypt'
 import { AuthProvider } from '../auth/entities/auth-provider.entity'
 import { ImagesService } from '../images/images.service'
+import { SearchUserDto } from './dto/search-user.dto'
 
 @Injectable()
 export class UsersService {
@@ -164,13 +165,18 @@ export class UsersService {
     return false
   }
 
-  async findAllUsers({
-    limit = 10,
-    page = 0
-  }: PaginationOptionsInterface): Promise<Pagination<User>> {
+  async findAllUsers(
+    options: PaginationOptionsInterface,
+    query?: SearchUserDto
+  ): Promise<Pagination<User>> {
     const [results, total] = await this.userRepository.findAndCount({
-      take: limit,
-      skip: page * limit,
+      take: options.limit,
+      skip: options.page * options.limit,
+      where: query.q
+      ? {
+          name: ILike(query.q)
+        }
+      : undefined,
       relations: ['settings', 'avatar']
     })
     return new Pagination<User>({
