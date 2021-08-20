@@ -10,6 +10,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { CreateActivityDto } from '@fitlink/api/src/modules/activities/dto/create-activity.dto'
 import { AuthContext } from '../../context/Auth.context'
 import useFormMutations from '../../hooks/api/useFormMutations'
+import { ActivityType } from '@fitlink/api/src/modules/activities/activities.constants'
 
 export type ActivityFormProps = {
   current?: Partial<Activity>
@@ -17,20 +18,12 @@ export type ActivityFormProps = {
   onError?: (err: any) => void
 }
 
-const types = [
-  {
-    label: 'Class',
-    value: 'class'
-  },
-  {
-    label: 'Route',
-    value: 'route'
-  },
-  {
-    label: 'Group',
-    value: 'group'
+const types = Object.keys(ActivityType).map((label) => {
+  return {
+    label,
+    value: ActivityType[label]
   }
-]
+})
 
 const noop = () => {}
 
@@ -52,7 +45,7 @@ const getFields = (activity: Partial<Activity>) => {
     meeting_point_text: activity.meeting_point_text,
     meeting_point: activity.meeting_point
       ? activity.meeting_point.coordinates.join(',')
-      : '37.734063,-119.6418973',
+      : '51.476688,0.000130',
     lat: 0,
     lng: 0,
     type: activity.type
@@ -70,13 +63,13 @@ export default function ActivityForm({
   const isUpdate = !!current.id
 
   const {
-    create,
-    update,
     errors,
     createOrUpdate,
     uploadAndMerge,
     uploadReplaceOrKeep
   } = useFormMutations<CreateActivityDto, Activity>({
+    type: 'Activity',
+    isUpdate,
     create: (payload) =>
       api.post<Activity>(`${endpointPrefix}/activities`, {
         payload,
@@ -122,7 +115,7 @@ export default function ActivityForm({
         payload.organizer_telephone = null
       }
 
-      await createOrUpdate('Activity', isUpdate, payload, update, create)
+      await createOrUpdate(payload)
 
       onSave()
     } catch (e) {

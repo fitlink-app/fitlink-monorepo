@@ -12,6 +12,8 @@ import useUploadImages from './useUploadImages'
  */
 
 export default function useFormMutations<Dto, Result>(props: {
+  type: string
+  isUpdate: boolean
   create: (payload: Dto) => Promise<Result>
   update: (payload: Dto) => Promise<UpdateResult>
 }) {
@@ -25,32 +27,24 @@ export default function useFormMutations<Dto, Result>(props: {
     ...update.error
   })
 
-  async function createOrUpdate(
-    noun: string,
-    isUpdate: boolean,
-    payload: Dto,
-    update: ApiMutationResult<UpdateResult>,
-    create: ApiMutationResult<Result>
-  ) {
-    if (isUpdate) {
+  async function createOrUpdate(payload: Dto) {
+    if (props.isUpdate) {
       return toast.promise(update.mutateAsync(payload), {
         loading: <b>Saving...</b>,
-        success: <b>{noun} updated</b>,
+        success: <b>{props.type} updated</b>,
         error: <b>Error</b>
       })
     }
 
     return toast.promise(create.mutateAsync(payload), {
       loading: <b>Saving...</b>,
-      success: <b>{noun} created</b>,
+      success: <b>{props.type} created</b>,
       error: <b>Error</b>
     })
   }
 
   return {
     createOrUpdate,
-    create,
-    update,
     uploadReplaceOrKeep,
     uploadAndMerge,
     ...errors
