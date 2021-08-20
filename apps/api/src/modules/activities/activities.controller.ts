@@ -27,6 +27,9 @@ import { ApiBaseResponses } from '../../decorators/swagger.decorator'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { Pagination as PaginationParams } from '../../decorators/pagination.decorator'
 import { AuthenticatedUser } from '../../models'
+import { Iam } from '../../decorators/iam.decorator'
+import { Roles } from '../user-roles/user-roles.constants'
+import { ActivityGlobalFilterDto } from './dto/filter-activities.dto'
 
 // @Public()
 @ApiBaseResponses()
@@ -42,7 +45,33 @@ export class ActivitiesController {
     @User() user: AuthenticatedUser,
     @Body() dto: CreateActivityDto
   ) {
-    return this.activitiesService.create(user.id, dto)
+    let userId = user.id
+    if (user.isSuperAdmin()) {
+      userId = null
+    }
+    return this.activitiesService.create(userId, dto)
+  }
+
+  @Iam(Roles.OrganisationAdmin)
+  @Post('/organisations/:organisationId/activities')
+  async createForOrganisation(
+    @Param('organisationId') organisationId: string,
+    @Body() dto: CreateActivityDto
+  ) {
+    return this.activitiesService.create(null, dto, {
+      organisationId
+    })
+  }
+
+  @Iam(Roles.TeamAdmin)
+  @Post('/teams/:teamId/activities')
+  async createForTeam(
+    @Param('teamId') teamId: string,
+    @Body() dto: CreateActivityDto
+  ) {
+    return this.activitiesService.create(null, dto, {
+      teamId
+    })
   }
 
   /**
@@ -115,6 +144,65 @@ export class ActivitiesController {
     } else {
       return all
     }
+  }
+
+  /**
+   * Finds all global activities (for admin dashboard)
+   * Activities that don't belong to a team or organisation
+   * but may be created by a user.
+   *
+   * @param queryParams
+   * @returns
+   */
+  @Iam(Roles.SuperAdmin)
+  @Get('/activities/global')
+  async findAllGlobalActivities(
+    @PaginationParams() pagination: PaginationQuery,
+    @Query() filters: ActivityGlobalFilterDto
+  ) {
+    return this.activitiesService.findAllGlobal(pagination, filters)
+  }
+
+  /**
+   * Finds all activities within an organisation
+   *
+   * @param queryParams
+   * @returns
+   */
+  @Iam(Roles.OrganisationAdmin)
+  @Get('/organisations/:organisationId/activities')
+  async findAllOrganisationActivities(
+    @PaginationParams() pagination: PaginationQuery,
+    @Param('organisationId') organisationId: string
+  ) {
+    return this.activitiesService.findAllGlobal(
+      pagination,
+      {},
+      {
+        organisationId
+      }
+    )
+  }
+
+  /**
+   * Finds all activities within a team
+   *
+   * @param queryParams
+   * @returns
+   */
+  @Iam(Roles.TeamAdmin)
+  @Get('/teams/:teamId/activities')
+  async findAllTeamActivities(
+    @PaginationParams() pagination: PaginationQuery,
+    @Param('teamId') teamId: string
+  ) {
+    return this.activitiesService.findAllGlobal(
+      pagination,
+      {},
+      {
+        teamId
+      }
+    )
   }
 
   /**
@@ -210,6 +298,30 @@ export class ActivitiesController {
         )
       }
     }
+  }
+
+  @Iam(Roles.OrganisationAdmin)
+  @Put('/organisations/:organisationId/activities/:id')
+  async updateForOrganisation(
+    @Param('id') id: string,
+    @Param('organisationId') organisationId: string,
+    @Body() updateActivityDto: UpdateActivityDto
+  ) {
+    return this.activitiesService.update(id, updateActivityDto, {
+      organisationId
+    })
+  }
+
+  @Iam(Roles.TeamAdmin)
+  @Put('/teams/:teamId/activities/:id')
+  async updateForTeam(
+    @Param('id') id: string,
+    @Param('teamId') teamId: string,
+    @Body() updateActivityDto: UpdateActivityDto
+  ) {
+    return this.activitiesService.update(id, updateActivityDto, {
+      teamId
+    })
   }
 
   @Delete('/activities/:id')

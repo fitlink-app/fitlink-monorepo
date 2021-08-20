@@ -47,7 +47,7 @@ type AuthSwitchTree = AuthSwitchDto & {
   pathname: string
 }
 
-type RolePrimary = {
+export type RolePrimary = {
   subscription?: string
   organisation?: string
   team?: string
@@ -64,6 +64,8 @@ export type AuthContext = {
   switchMode: boolean
   primary: RolePrimary
   focusRole: FocusRole
+  fetchKey: string
+  endpointPrefix: '' | '/organisations/:organisationId' | '/teams/:teamId'
   login: (credentials: Credentials) => Promise<AuthResultDto>
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
   logout: () => void
@@ -366,7 +368,7 @@ export function AuthProvider({ children }) {
         icon: 'IconGear'
       }
     ]
-    console.log(primary)
+
     if (primary.superAdmin) {
       items = items.concat([
         {
@@ -383,6 +385,11 @@ export function AuthProvider({ children }) {
           label: 'Users',
           link: '/users',
           icon: 'IconFriends'
+        },
+        {
+          label: 'Activities',
+          link: '/activities',
+          icon: 'IconActivities'
         }
       ])
     }
@@ -398,6 +405,11 @@ export function AuthProvider({ children }) {
           label: 'Knowledge Base',
           link: '/knowledge-base',
           icon: 'IconYoga'
+        },
+        {
+          label: 'Activities',
+          link: '/activities',
+          icon: 'IconActivities'
         }
       ])
     }
@@ -470,6 +482,20 @@ export function AuthProvider({ children }) {
         switchMode: state.switchMode,
         primary: state.primary,
         focusRole: state.focusRole,
+
+        /**
+         * The fetch key is used to change react-query cache
+         * when session changes (e.g. with switching roles)
+         *
+         * */
+        fetchKey: [
+          state.focusRole,
+          state.primary.organisation,
+          state.primary.team,
+          state.primary.subscription,
+          state.primary.superAdmin
+        ].join('_'),
+        endpointPrefix: getEndpointPrefix(state.focusRole, state.primary),
         login,
         logout,
         connect,
@@ -480,4 +506,18 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   )
+}
+
+function getEndpointPrefix(focusRole: FocusRole) {
+  if (focusRole === 'app') {
+    return ''
+  }
+  if (focusRole === 'organisation') {
+    return `/organisations/:organisationId`
+  }
+  if (focusRole === 'team') {
+    return `/teams/:teamId`
+  }
+
+  return ''
 }

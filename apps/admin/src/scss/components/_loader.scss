@@ -33,6 +33,10 @@
     margin-left: 64px;
     animation: anime3 4s 0s forwards ease-in-out infinite;
   }
+
+  &-small {
+    transform: scale(0.5);
+  }
 }
 
 @-webkit-keyframes anime1 {

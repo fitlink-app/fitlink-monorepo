@@ -252,7 +252,7 @@ export class StatsService {
           SELECT FLOOR(AVG(goal_${each})) AS goal_${each}
           FROM "user" "u"
           ${joins}
-          WHERE (u."created_at" > $1 AND u."created_at" < $2)
+          WHERE (u."created_at" < $2)
           ${where}
           ${!exclude_zero_values ? ` AND goal_${each} > 0 ` : ''}
         ) AS goal_${each},
@@ -276,7 +276,13 @@ export class StatsService {
           FROM "user" "u"
           INNER JOIN "goals_entry" "g" ON "g"."userId" = "u"."id"
           ${joins}
-          WHERE "g"."created_at" >= $1 AND "g"."created_at" <= $2
+          WHERE "g"."created_at" >= $1 AND "g"."created_at" <= $2 AND (
+            "g"."current_steps" > 0
+            OR "g"."current_mindfulness_minutes" > 0
+            OR "g"."current_floors_climbed" > 0
+            OR "g"."current_water_litres" > 0
+            OR "g"."current_sleep_hours" > 0
+          )
           ${where}
           GROUP BY "u"."id"
         ) AS count

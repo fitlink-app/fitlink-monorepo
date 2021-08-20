@@ -105,6 +105,7 @@ export type ListResource =
   | '/users'
   | '/users/search'
   | '/activities'
+  | '/activities/global'
   | '/rewards'
   | '/rewards/:rewardId/redemptions'
   | '/queue'

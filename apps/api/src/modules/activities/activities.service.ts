@@ -1,4 +1,4 @@
-import { In, Not, Repository, Brackets } from 'typeorm'
+import { In, Not, Repository, Brackets, IsNull } from 'typeorm'
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { CreateActivityDto } from './dto/create-activity.dto'
@@ -8,7 +8,15 @@ import { Activity, ActivityForMap } from './entities/activity.entity'
 import { ActivityType } from './activities.constants'
 import { Image } from '../images/entities/image.entity'
 import { plainToClass } from 'class-transformer'
-import { User } from '../users/entities/user.entity'
+import { User, UserPublic } from '../users/entities/user.entity'
+import { ActivityGlobalFilterDto } from './dto/filter-activities.dto'
+import { Organisation } from '../organisations/entities/organisation.entity'
+import { Team } from '../teams/entities/team.entity'
+
+type EntityOwner = {
+  organisationId?: string
+  teamId?: string
+}
 
 @Injectable()
 export class ActivitiesService {
@@ -24,7 +32,11 @@ export class ActivitiesService {
    * @param createActivityDto
    * @returns
    */
-  async create(userId: string, createActivityDto: CreateActivityDto) {
+  async create(
+    userId: string,
+    createActivityDto: CreateActivityDto,
+    entityOwner?: EntityOwner
+  ) {
     const {
       meeting_point,
       images,
@@ -55,10 +67,24 @@ export class ActivitiesService {
       owner.id = userId
     }
 
+    let organisation: Organisation
+    if (entityOwner && entityOwner.organisationId) {
+      organisation = new Organisation()
+      organisation.id = entityOwner.organisationId
+    }
+
+    let team: Team
+    if (entityOwner && entityOwner.teamId) {
+      team = new Team()
+      team.id = entityOwner.teamId
+    }
+
     const activity = await this.activityRepository.save(
       this.activityRepository.create({
         ...rest,
         owner,
+        organisation,
+        team,
         organizer_image: organizerImage,
         meeting_point: {
           type: 'Point',
@@ -101,6 +127,57 @@ export class ActivitiesService {
 
     return new Pagination<Activity>({
       results,
+      total
+    })
+  }
+
+  /**
+   * Find all entries that were created by superadmin
+   * or created by a user (but not a team or)
+   *
+   * @param user_id string
+   * @param options { page, limit }
+   */
+  async findAllGlobal(
+    { limit, page }: PaginationOptionsInterface,
+    { exclude_user_activities }: ActivityGlobalFilterDto = {},
+    entityOwner?: EntityOwner
+  ): Promise<Pagination<Activity>> {
+    const filters: NodeJS.Dict<any> = {}
+
+    if (exclude_user_activities === '1') {
+      filters.owner = IsNull()
+    }
+
+    let organisation: Organisation
+    if (entityOwner && entityOwner.organisationId) {
+      organisation = new Organisation()
+      organisation.id = entityOwner.organisationId
+    }
+
+    let team: Team
+    if (entityOwner && entityOwner.teamId) {
+      team = new Team()
+      team.id = entityOwner.teamId
+    }
+
+    const [results, total] = await this.activityRepository.findAndCount({
+      where: {
+        team: team ? team : IsNull(),
+        organisation: organisation ? organisation : IsNull(),
+        ...filters
+      },
+      take: limit,
+      skip: page * limit,
+      order: { created_at: 'DESC' },
+      relations: ['organizer_image', 'images', 'owner', 'team', 'organisation']
+    })
+
+    return new Pagination<Activity>({
+      results: results.map((each) => ({
+        ...each,
+        owner: plainToClass(UserPublic, each.owner)
+      })),
       total
     })
   }
@@ -231,7 +308,11 @@ export class ActivitiesService {
     })
   }
 
-  async update(id: string, updateActivityDto: UpdateActivityDto) {
+  async update(
+    id: string,
+    updateActivityDto: UpdateActivityDto,
+    entityOwner?: EntityOwner
+  ) {
     const {
       meeting_point,
       images,
@@ -245,7 +326,7 @@ export class ActivitiesService {
     if (meeting_point) {
       updateData.meeting_point = {
         type: 'Point',
-        coordinates: meeting_point.split(',')
+        coordinates: meeting_point.split(',').map((e) => parseFloat(e))
       }
     }
 
@@ -271,17 +352,31 @@ export class ActivitiesService {
       organizerImage = null
     }
 
+    let organisation: Organisation
+    if (entityOwner && entityOwner.organisationId) {
+      organisation = new Organisation()
+      organisation.id = entityOwner.organisationId
+    }
+
+    let team: Team
+    if (entityOwner && entityOwner.teamId) {
+      team = new Team()
+      team.id = entityOwner.teamId
+    }
+
     const activity = await this.activityRepository.save({
-      ...updateData,
       id,
-      organizer_image: organizerImage
+      team,
+      organisation,
+      organizer_image: organizerImage,
+      ...updateData
     })
 
     if (imageEntities.length) {
       await this.activityRepository.manager.transaction(async (manager) => {
         // Remove any images that aren't being used for update
         await manager.getRepository(Image).delete({
-          activity: { id: activity.id },
+          activity: { id },
           id: Not(In(imageEntities.map((e) => e.id)))
         })
 
@@ -296,7 +391,7 @@ export class ActivitiesService {
       // If images was explicitly blank, delete all images
     } else if (images === '') {
       await this.imageRepository.delete({
-        activity: { id: activity.id }
+        activity: { id }
       })
     }
 

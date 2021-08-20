@@ -15,9 +15,9 @@ import { Reward } from '../../rewards/entities/reward.entity'
 import {
   FeedItemCategory,
   FeedItemType,
-  FeedGoalType,
-  UserTier
+  FeedGoalType
 } from '../feed-items.constants'
+import { UserRank } from '../../users/users.constants'
 
 @Entity()
 export class FeedItem extends CreatableEntity {
@@ -38,10 +38,10 @@ export class FeedItem extends CreatableEntity {
 
   @Column({
     type: 'enum',
-    enum: UserTier,
+    enum: UserRank,
     nullable: true
   })
-  tier?: UserTier
+  tier?: UserRank
 
   @ManyToOne(() => HealthActivity, (activity) => activity.feed_items)
   @JoinColumn()

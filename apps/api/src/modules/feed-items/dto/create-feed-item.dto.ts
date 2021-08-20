@@ -3,17 +3,17 @@ import { HealthActivity } from '../../health-activities/entities/health-activity
 import { League } from '../../leagues/entities/league.entity'
 import { Reward } from '../../rewards/entities/reward.entity'
 import { User } from '../../users/entities/user.entity'
+import { UserRank } from '../../users/users.constants'
 import {
   FeedGoalType,
   FeedItemCategory,
-  FeedItemType,
-  UserTier
+  FeedItemType
 } from '../feed-items.constants'
 
 export class CreateFeedItemDto {
   category: FeedItemCategory
   type: FeedItemType
-  tier?: UserTier
+  tier?: UserRank
   goal_type?: FeedGoalType
   health_activity?: HealthActivity
   league?: League

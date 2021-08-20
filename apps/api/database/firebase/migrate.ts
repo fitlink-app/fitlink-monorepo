@@ -53,8 +53,7 @@ import { FeedItem } from '../../src/modules/feed-items/entities/feed-item.entity
 import {
   FeedGoalType,
   FeedItemCategory,
-  FeedItemType,
-  UserTier
+  FeedItemType
 } from '../../src/modules/feed-items/feed-items.constants'
 import { Activity } from '../../src/modules/activities/entities/activity.entity'
 import { ActivityType } from '../../src/modules/activities/activities.constants'
@@ -90,6 +89,10 @@ const allow = Object.values(require('./trusted.json'))
   const connection = module.get(Connection)
   const usersService = module.get(UsersService)
   const httpService = module.get(HttpService)
+
+  if ((await connection.getRepository(Sport).count()) === 0) {
+    throw new Error('Sports must be seeded first.')
+  }
 
   const app = initializeApp({
     storageBucket: 'fitlink-rn.appspot.com',
@@ -161,9 +164,6 @@ const allow = Object.values(require('./trusted.json'))
 
     const imageService = makeImageService()
 
-    console.log(chalk.green('Migrating activities...'))
-    await migrateActivities()
-
     console.log(chalk.green('Migrating organisations...'))
     const organisation = await migrateOrganisations(organisationRepository)
 
@@ -191,6 +191,9 @@ const allow = Object.values(require('./trusted.json'))
 
     console.log(chalk.green('Migrating feed items...'))
     await migrateFeed(feedItemRepository, usersMixed)
+
+    console.log(chalk.green('Migrating activities...'))
+    await migrateActivities()
 
     async function migrateOrganisations(repo: Repository<Organisation>) {
       return await repo.save(
@@ -333,7 +336,7 @@ const allow = Object.values(require('./trusted.json'))
 
       return Promise.all(
         fUsers
-          .filter((e) => allow.includes(e.localId))
+          //.filter((e) => allow.includes(e.localId))
           .map(async (userEntry) => {
             const id = userEntry.localId
 
@@ -391,7 +394,7 @@ const allow = Object.values(require('./trusted.json'))
             user.email = userEmail
             user.email_verified = auth.emailVerified
             user.points_total = data.points_total || 0
-            user.rank = (data.rank || 'Fitlink Newbie') as UserRank
+            user.rank = (data.rank || UserRank.Tier1) as UserRank
             user.points_week = data.points_week || 0
             user.last_app_opened_at = toDate(data.last_app_opened_at)
             user.last_health_activity_at = toDate(data.last_health_activity_at)
@@ -402,7 +405,7 @@ const allow = Object.values(require('./trusted.json'))
               toDate(data.last_login_at) ||
               new Date(auth.metadata.lastSignInTime)
 
-            user.created_at = new Date(auth.metadata.creationTime)
+            user.created_at = new Date(parseInt(userEntry.createdAt))
             user.updated_at = data.updated_at
               ? toDate(data.updated_at)
               : undefined
@@ -927,7 +930,7 @@ const allow = Object.values(require('./trusted.json'))
                   health_activity,
                   reward,
                   related_user,
-                  tier: (item.tier as unknown) as UserTier,
+                  tier: (item.tier as unknown) as UserRank,
                   type: (item.type as unknown) as FeedItemType,
                   category:
                     ((item.category as unknown) as FeedItemCategory) ||
@@ -957,32 +960,40 @@ const allow = Object.values(require('./trusted.json'))
       const imageRepo = manager.getRepository(Image)
 
       const output = await Promise.all(
-        results.map(async ({ images, organizer_image, tsv, ...rest }) => {
-          const migratedImages = await Promise.all(
-            images.map(({ activity, ...rest }) => {
-              return imageRepo.save(rest)
-            })
-          )
+        results.map(
+          async ({ images, organizer_image, user_id, tsv, ...rest }) => {
+            const migratedImages = await Promise.all(
+              images.map(({ activity, ...rest }) => {
+                return imageRepo.save(rest)
+              })
+            )
 
-          if (organizer_image) {
-            await imageRepo.save(organizer_image)
+            let owner: User
+            if (user_id) {
+              owner = await getEntityFromFirebase(usersRepository, user_id)
+            }
+
+            if (organizer_image) {
+              await imageRepo.save(organizer_image)
+            }
+
+            const activity = await repo.save(
+              repo.create({
+                ...rest,
+                ...{ organizer_image },
+                owner
+              })
+            )
+
+            await Promise.all(
+              migratedImages.map((image) => {
+                return imageRepo.update(image.id, { activity })
+              })
+            )
+
+            return activity
           }
-
-          const activity = await repo.save(
-            repo.create({
-              ...rest,
-              ...{ organizer_image }
-            })
-          )
-
-          await Promise.all(
-            migratedImages.map((image) => {
-              return imageRepo.update(image.id, { activity })
-            })
-          )
-
-          return activity
-        })
+        )
       )
 
       return output

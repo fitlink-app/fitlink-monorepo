@@ -6,8 +6,10 @@ import {
   IsString,
   IsEmail,
   IsNotEmpty,
-  IsUUID
+  IsUUID,
+  IsEnum
 } from 'class-validator'
+import { ActivityType } from '../activities.constants'
 
 const message = 'This field is required'
 
@@ -72,6 +74,11 @@ export class CreateActivityDto {
   })
   @IsOptional()
   organizer_image?: string
+
+  @ApiProperty()
+  @IsEnum(ActivityType)
+  @IsOptional()
+  type?: ActivityType
 
   @ApiProperty()
   @IsString({

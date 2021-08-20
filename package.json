@@ -31,6 +31,7 @@
     "migration:generate": "node scripts/generate-migration.js",
     "migration:seed": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed",
     "migration:seed:test-users": "cross-env TEST_SEED=1 yarn run migration:seed --seed CreateTestUsers",
+    "migration:seed:sports": "yarn run migration:seed --seed CreateSports",
     "sls:offline:start": "cross-env API_PREFIX=\"api/v1\" && sls offline start",
     "sls:deploy": "cross-env NODE_ENV=production && serverless deploy",
     "sls:deploy:production": "cross-env NODE_ENV=production && serverless deploy --stage production",
