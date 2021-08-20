@@ -495,7 +495,7 @@ export function AuthProvider({ children }) {
           state.primary.subscription,
           state.primary.superAdmin
         ].join('_'),
-        endpointPrefix: getEndpointPrefix(state.focusRole, state.primary),
+        endpointPrefix: getEndpointPrefix(state.focusRole),
         login,
         logout,
         connect,
