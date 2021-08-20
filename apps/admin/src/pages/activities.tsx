@@ -1,8 +1,11 @@
 import { useContext, useState } from 'react'
 import Dashboard from '../components/layouts/Dashboard'
 import TableContainer from '../components/Table/TableContainer'
-import { toChipCell } from '../components/Table/helpers'
-import IconSearch from '../components/icons/IconSearch'
+import {
+  toChipCell,
+  toMapImage,
+  toOwnerCell
+} from '../components/Table/helpers'
 import { AnimatePresence } from 'framer-motion'
 import Drawer from '../components/elements/Drawer'
 import Checkbox from '../components/elements/Checkbox'
@@ -23,39 +26,6 @@ export default function page() {
   const [wide, setWide] = useState(true)
   const [includeUsers, setIncludeUsers] = useState(true)
   const [refresh, setRefresh] = useState(0)
-  const displayImage = ({ value }) => {
-    return (
-      <div className="map-preview">
-        <img
-          src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${value.coordinates[1]},${value.coordinates[0]},15,0,0/400x200?access_token=pk.eyJ1IjoibHVrZS1maXRsaW5rYXBwIiwiYSI6ImNrbzBhNWtweTBkcW8yd29idG9xems4aGIifQ.VfUo8YBLvfuqfMlBMfGn5g`}
-          alt=""
-        />
-      </div>
-    )
-  }
-
-  const ownerCell = ({
-    cell: {
-      row: { original }
-    },
-    value
-  }) => {
-    if (value) {
-      return value
-    }
-
-    let chip = 'Application'
-
-    if (original.team) {
-      chip = original.team.name
-    }
-
-    if (original.organisation) {
-      chip = original.organisation.name
-    }
-
-    return <div className="chip chip-primary">{chip}</div>
-  }
 
   const viewDetails = ({
     cell: {
@@ -148,21 +118,15 @@ export default function page() {
         )}
         <TableContainer
           columns={[
-            {
-              Header: 'Location',
-              accessor: 'meeting_point',
-              Cell: displayImage
-            },
+            { Header: 'Location', accessor: 'meeting_point', Cell: toMapImage },
             { Header: 'Name', accessor: 'name' },
             { Header: 'Description', accessor: 'description' },
-            { Header: 'Creator', accessor: 'owner.name', Cell: ownerCell },
+            { Header: 'Creator', accessor: 'owner.name', Cell: toOwnerCell },
             { Header: 'Date', accessor: 'date', Cell: toChipCell },
             { Header: 'Type', accessor: 'type', Cell: toChipCell },
             { Header: ' ', Cell: viewDetails }
           ]}
           fetch={(limit, page) => {
-            console.log(focusRole, primary)
-
             if (focusRole === 'app') {
               return api.list<Activity>('/activities/global', {
                 limit,

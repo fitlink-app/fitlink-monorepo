@@ -11,6 +11,7 @@ import { CreateActivityDto } from '@fitlink/api/src/modules/activities/dto/creat
 import { AuthContext } from '../../context/Auth.context'
 import useFormMutations from '../../hooks/api/useFormMutations'
 import { ActivityType } from '@fitlink/api/src/modules/activities/activities.constants'
+import { ListResource, ReadResource } from '../../../../api-sdk/types'
 
 export type ActivityFormProps = {
   current?: Partial<Activity>
@@ -71,18 +72,21 @@ export default function ActivityForm({
     type: 'Activity',
     isUpdate,
     create: (payload) =>
-      api.post<Activity>(`${endpointPrefix}/activities`, {
+      api.post<Activity>(`${endpointPrefix}/activities` as ListResource, {
         payload,
         organisationId: primary.organisation,
         teamId: primary.team
       }),
     update: (payload) =>
-      api.put<Activity>(`${endpointPrefix}/activities/:activityId`, {
-        payload,
-        activityId: current.id,
-        organisationId: primary.organisation,
-        teamId: primary.team
-      })
+      api.put<Activity>(
+        `${endpointPrefix}/activities/:activityId` as ReadResource,
+        {
+          payload,
+          activityId: current.id,
+          organisationId: primary.organisation,
+          teamId: primary.team
+        }
+      )
   })
 
   const { register, handleSubmit, control, watch, setValue } = useForm({
