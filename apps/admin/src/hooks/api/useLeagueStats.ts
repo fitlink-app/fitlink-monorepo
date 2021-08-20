@@ -14,42 +14,19 @@ export default function useLeagueStats(
   startAt: Date,
   endAt: Date
 ) {
-  const { api, primary } = useContext(AuthContext)
+  const { api, fetchKey } = useContext(AuthContext)
 
   const statsData: ApiResult<Result[]> = useQuery(
-    `${type}_${primary.team || primary.organisation}_stats_leagues`,
+    `${fetchKey}_stats_leagues`,
     async () => {
       const query = {
         start_at: formatISO(startAt || startOfDay(new Date())),
         end_at: formatISO(endAt || endOfDay(new Date()))
       }
 
-      /**
-       * Superadmin can view all stats
-       */
-      if (type === 'app') {
+      if (type) {
         return api.get<Result[]>('/stats/leagues', {
           query
-        })
-      }
-
-      /**
-       * Org admin can view all the org's stats
-       */
-      if (type === 'organisation') {
-        return api.get<Result>('/organisations/:organisationId/stats/leagues', {
-          query,
-          organisationId: primary.organisation
-        })
-      }
-
-      /**
-       * Team admin can view all the team's stats
-       */
-      if (type === 'team') {
-        return api.get<Result>('/teams/:teamId/stats/leagues', {
-          query,
-          teamId: primary.team
         })
       }
 

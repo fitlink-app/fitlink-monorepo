@@ -17,7 +17,9 @@ export default function ProgressChart({
   label,
   color = '#00E9D7'
 }: ProgressChartProps) {
-  console.log(progress)
+  if (progress > 100) {
+    progress = 100
+  }
   return (
     <>
       <CircleProgess

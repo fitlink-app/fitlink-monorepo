@@ -92,6 +92,7 @@ export type ListResource =
   | '/organisations/:organisationId/leagues/:leagueId/leaderboards'
   | '/organisations/:organisationId/stats'
   | '/organisations/:organisationId/stats/health-activities'
+  | '/teams'
   | '/teams/:teamId/activities'
   | '/teams/:teamId/invitations'
   | '/teams/:teamId/rewards'
@@ -129,6 +130,7 @@ export type ListResource =
   | '/me/goals'
   | '/me/feed'
   | '/stats/health-activities'
+  | '/stats'
 
 export type ReadResource =
   | '/organisations/:organisationId'
@@ -292,3 +294,12 @@ export type ResponseError = {
     }
   }
 }
+
+export type RolePrimary = {
+  subscription?: string
+  organisation?: string
+  team?: string
+  superAdmin?: boolean
+}
+
+export type FocusRole = 'app' | 'organisation' | 'team'

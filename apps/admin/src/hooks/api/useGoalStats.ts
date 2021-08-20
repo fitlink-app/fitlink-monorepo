@@ -44,38 +44,11 @@ export default function useGoalStats(
       }
 
       /**
-       * Superadmin can view all stats
+       * Endpoint is adjusted based on role
        */
-      if (type === 'app') {
+      if (type) {
         const result = await api.get<Result>('/stats/goals', {
           query
-        })
-
-        return formatResults(result)
-      }
-
-      /**
-       * Org admin can view all the org's stats
-       */
-      if (type === 'organisation') {
-        const result = await api.get<Result>(
-          '/organisations/:organisationId/stats/goals',
-          {
-            query,
-            organisationId: primary.organisation
-          }
-        )
-
-        return formatResults(result)
-      }
-
-      /**
-       * Team admin can view all the team's stats
-       */
-      if (type === 'team') {
-        const result = await api.get<Result>('/teams/:teamId/stats/goals', {
-          query,
-          teamId: primary.team
         })
 
         return formatResults(result)

@@ -98,13 +98,18 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const myRoles = formatRoles(roles.data || [], childRole)
     const primary = setPrimaryRoles(myRoles)
+    const focusRole = setFocusRole(primary)
+
+    // Set the role to use for the API
+    api.useRole(focusRole, primary)
+
     setState({
       ...state,
       user: me.data,
       roles: myRoles,
       menu: setMenu(primary),
       primary,
-      focusRole: setFocusRole(primary)
+      focusRole
     })
   }, [me.data, roles.data, childRole])
 
@@ -168,6 +173,7 @@ export function AuthProvider({ children }) {
         pathname: router.pathname
       }
     ])
+
     return result
   }
 

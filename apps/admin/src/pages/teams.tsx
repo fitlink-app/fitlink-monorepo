@@ -4,8 +4,7 @@ import Drawer from '../components/elements/Drawer'
 import CreateTeam from '../components/forms/CreateTeam'
 import Dashboard from '../components/layouts/Dashboard'
 import TableContainer from '../components/Table/TableContainer'
-import { toDateCell, toOtherCell } from '../components/Table/helpers'
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+import { toDateCell } from '../components/Table/helpers'
 import { AuthContext } from '../context/Auth.context'
 import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 import { timeout } from '../helpers/timeout'
@@ -68,8 +67,7 @@ export default function TeamsPage() {
         onCancel={closeDrawer()}
         current={fields}
         mutation={(id) =>
-          api.delete('/organisations/:organisationId/teams/:teamId', {
-            organisationId: organisationId.current,
+          api.delete('/teams/:teamId', {
             teamId: id
           })
         }
@@ -125,7 +123,7 @@ export default function TeamsPage() {
     </div>
   )
 
-  const { api } = useContext(AuthContext)
+  const { api, focusRole, fetchKey } = useContext(AuthContext)
 
   return (
     <Dashboard title="Settings Users">
@@ -147,9 +145,8 @@ export default function TeamsPage() {
             { Header: ' ', Cell: cellActions }
           ]}
           fetch={(limit, page) => {
-            if (primary.organisation) {
-              return api.list<Team>('/organisations/:organisationId/teams', {
-                organisationId: primary.organisation,
+            if (focusRole) {
+              return api.list<Team>('/teams', {
                 limit,
                 page
               })
@@ -161,7 +158,7 @@ export default function TeamsPage() {
               total: 0
             })
           }}
-          fetchName={`teams_${primary.organisation}`}
+          fetchName={`teams_${fetchKey}`}
           refresh={refresh}
         />
       </div>

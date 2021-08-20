@@ -16,9 +16,7 @@ import { AuthContext } from '../context/Auth.context'
 import { timeout } from '../helpers/timeout'
 
 export default function page() {
-  const { api, primary, focusRole, fetchKey, endpointPrefix } = useContext(
-    AuthContext
-  )
+  const { api, primary, focusRole, fetchKey } = useContext(AuthContext)
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)
@@ -76,12 +74,8 @@ export default function page() {
         onDelete={closeDrawer(1000)}
         onCancel={closeDrawer()}
         current={fields}
-        mutation={(id) =>
-          api.delete(`${endpointPrefix}/activities/:activityId`, {
-            activityId: id,
-            teamId: primary.team,
-            organisationId: primary.organisation
-          })
+        mutation={(activityId) =>
+          api.delete(`/activities/:activityId`, { activityId })
         }
         title="Delete activity"
         message={`
@@ -127,29 +121,11 @@ export default function page() {
             { Header: ' ', Cell: viewDetails }
           ]}
           fetch={(limit, page) => {
-            if (focusRole === 'app') {
+            if (focusRole) {
               return api.list<Activity>('/activities/global', {
                 limit,
                 page,
                 exclude_user_activities: includeUsers ? '0' : '1'
-              })
-            }
-            if (focusRole === 'organisation') {
-              return api.list<Activity>(
-                '/organisations/:organisationId/activities',
-                {
-                  organisationId: primary.organisation,
-                  limit,
-                  page
-                }
-              )
-            }
-
-            if (focusRole === 'team') {
-              return api.list<Activity>('/teams/:teamId/activities', {
-                teamId: primary.team,
-                limit,
-                page
               })
             }
 
