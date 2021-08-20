@@ -18,7 +18,7 @@ export class CreateFeedItemDto {
   health_activity?: HealthActivity
   league?: League
   reward?: Reward
-  realted_user?: User
+  related_user?: User
   goal_entry?: GoalsEntry
   user: User
 }
