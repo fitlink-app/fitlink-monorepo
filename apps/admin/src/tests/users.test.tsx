@@ -53,7 +53,7 @@ describe('Users', () => {
       /Jodie|1969\-12\-31|2021\-07\-23|8mzFJNaZajNTQUcZd45I5zXFFl72\-sanitized\@fitlinkapp\.com/
     )
     expect(items).toHaveLength(5)
-    expect(screen.getAllByPlaceholderText(/Enter username\.\.\./)).toHaveLength(1);
+    expect(screen.getAllByPlaceholderText(/Enter name or email\.\.\./)).toHaveLength(1);
     // Show and test the edit modal
     screen.getByRole('button', { name: /edit/i }).click()
     expect(screen.getAllByText(/save user/i)).toHaveLength(1)

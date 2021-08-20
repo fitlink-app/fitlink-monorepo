@@ -169,12 +169,16 @@ export class UsersService {
     options: PaginationOptionsInterface,
     query?: SearchUserDto
   ): Promise<Pagination<User>> {
+    let column = 'name'
+    if (query.q && query.q.indexOf('@') > 0) {
+      column = 'email'
+    } 
     const [results, total] = await this.userRepository.findAndCount({
       take: options.limit,
       skip: options.page * options.limit,
       where: query.q
       ? {
-          name: ILike(query.q)
+          [column]: ILike(query.q)
         }
       : undefined,
       relations: ['settings', 'avatar']

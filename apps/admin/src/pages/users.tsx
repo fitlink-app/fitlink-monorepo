@@ -73,10 +73,11 @@ export default function UsersPage() {
       <div className="flex ai-c jc-sb">
         <h1 className="light mb-0 mr-2">Manage users</h1>
         <Input
+          className="input-large"
           inline={true}
           onChange={handleUsernameSearch}
           name="userSearch"
-          placeholder="Enter username..."
+          placeholder="Enter name or email..."
           value=""
         />
       </div>
