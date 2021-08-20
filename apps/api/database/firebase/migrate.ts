@@ -402,8 +402,9 @@ const allow = Object.values(require('./trusted.json'))
               data.last_lifestyle_activity_at
             )
             user.last_login_at =
-              toDate(data.last_login_at) ||
-              new Date(auth.metadata.lastSignInTime)
+              toDate(data.last_login_at) || auth.metadata.lastSignInTime
+                ? new Date(auth.metadata.lastSignInTime)
+                : null
 
             user.created_at = new Date(parseInt(userEntry.createdAt))
             user.updated_at = data.updated_at

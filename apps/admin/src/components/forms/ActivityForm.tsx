@@ -1,30 +1,15 @@
-import { useContext, useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
-import Currency from '../elements/Currency'
+import { useContext, useState } from 'react'
 import Checkbox from '../elements/Checkbox'
 import Input from '../elements/Input'
 import Select from '../elements/Select'
 import LocationSelect from '../elements/LocationSelect'
 import AvatarSelect from '../elements/AvatarSelect'
-import ImageStack from '../elements/ImageStack'
+import ImageStack, { ImageFile } from '../elements/ImageStack'
 import { Activity } from '@fitlink/api/src/modules/activities/entities/activity.entity'
 import { Controller, useForm } from 'react-hook-form'
 import { CreateActivityDto } from '@fitlink/api/src/modules/activities/dto/create-activity.dto'
-import { useMutation } from 'react-query'
-import { ApiMutationResult } from '@fitlink/common/react-query/types'
-import { Image } from '@fitlink/api/src/modules/images/entities/image.entity'
-import { AuthContext, FocusRole, RolePrimary } from '../../context/Auth.context'
-import { UpdateResult } from '@fitlink/api-sdk/types'
-import { UpdateActivityDto } from '@fitlink/api/src/modules/activities/dto/update-activity.dto'
-import useApiErrors from '../../hooks/useApiErrors'
-
-export type ImageProps = {
-  url: string
-  width: number
-  height: number
-  id?: string
-  file?: File
-}
+import { AuthContext } from '../../context/Auth.context'
+import useFormMutations from '../../hooks/api/useFormMutations'
 
 export type ActivityFormProps = {
   current?: Partial<Activity>
@@ -79,10 +64,33 @@ export default function ActivityForm({
   onSave = noop,
   onError = noop
 }: ActivityFormProps) {
-  const { api, focusRole, primary, endpointPrefix } = useContext(AuthContext)
+  const { api, primary, endpointPrefix } = useContext(AuthContext)
   const [showOrg, setShowOrg] = useState(current?.organizer_name ? true : false)
-  const [images, setImages] = useState<ImageProps[]>(current.images || [])
-  const isUpdate = current.id
+  const [images, setImages] = useState<ImageFile[]>(current.images || [])
+  const isUpdate = !!current.id
+
+  const {
+    create,
+    update,
+    errors,
+    createOrUpdate,
+    uploadAndMerge,
+    uploadReplaceOrKeep
+  } = useFormMutations<CreateActivityDto, Activity>({
+    create: (payload) =>
+      api.post<Activity>(`${endpointPrefix}/activities`, {
+        payload,
+        organisationId: primary.organisation,
+        teamId: primary.team
+      }),
+    update: (payload) =>
+      api.put<Activity>(`${endpointPrefix}/activities/:activityId`, {
+        payload,
+        activityId: current.id,
+        organisationId: primary.organisation,
+        teamId: primary.team
+      })
+  })
 
   const { register, handleSubmit, control, watch, setValue } = useForm({
     defaultValues: getFields(current)
@@ -90,83 +98,20 @@ export default function ActivityForm({
 
   const meetingPoint: string = watch('meeting_point')
 
-  const upload: ApiMutationResult<Image> = useMutation((file: File) => {
-    const payload = new FormData()
-    payload.append('image', file)
-    return api.uploadFile<Image>('/images', { payload })
-  })
-
-  const create: ApiMutationResult<Activity> = useMutation(
-    (payload: CreateActivityDto) =>
-      api.post<Activity>(`${endpointPrefix}/activities`, {
-        payload,
-        organisationId: primary.organisation,
-        teamId: primary.team
-      })
-  )
-
-  const update: ApiMutationResult<UpdateResult> = useMutation(
-    (payload: UpdateActivityDto) =>
-      api.put<Activity>(`${endpointPrefix}/activities/:activityId`, {
-        payload,
-        activityId: current.id,
-        organisationId: primary.organisation,
-        teamId: primary.team
-      })
-  )
-
-  const { errors, isError, errorMessage, clearErrors } = useApiErrors(
-    create.isError || update.isError,
-    {
-      ...create.error,
-      ...update.error
-    }
-  )
-
   async function onSubmit(
     data: CreateActivityDto & {
       organizer_image_upload: File
     }
   ) {
-    const { organizer_image_upload, ...rest } = data
-    const payload: CreateActivityDto = rest
-
-    console.log(data)
+    const { organizer_image_upload, ...payload } = data
 
     try {
-      // Wait for image upload
-      if (organizer_image_upload instanceof File) {
-        const { id } = await upload.mutateAsync(organizer_image_upload)
-        payload.organizer_image = id
-      }
-
-      // Explicitly delete
-      if (organizer_image_upload === null) {
-        payload.organizer_image = null
-      }
-
-      let allImages: string[] = images.filter((e) => e.id).map((e) => e.id)
-
-      // Upload new images
-      if (images.length) {
-        const imagesToUpload = images.filter((each) => each.file)
-        const promise = Promise.all(
-          imagesToUpload.map((each) => {
-            return upload.mutateAsync(each.file)
-          })
-        )
-
-        if (imagesToUpload.length) {
-          const results = await toast.promise(promise, {
-            loading: <b>Uploading images...</b>,
-            success: <b>Added images</b>,
-            error: <b>Error uploading images</b>
-          })
-          allImages = allImages.concat(results.map((e) => e.id))
-        }
-      }
-
-      payload.images = allImages.join(',')
+      // Handle images upload
+      payload.organizer_image = await uploadReplaceOrKeep(
+        organizer_image_upload,
+        data.organizer_image
+      )
+      payload.images = await uploadAndMerge(images)
 
       // Delete organizer info if required
       if (!showOrg) {
@@ -177,19 +122,7 @@ export default function ActivityForm({
         payload.organizer_telephone = null
       }
 
-      if (isUpdate) {
-        await toast.promise(update.mutateAsync(payload), {
-          loading: <b>Saving...</b>,
-          success: <b>Activity updated</b>,
-          error: <b>Error</b>
-        })
-      } else {
-        await toast.promise(create.mutateAsync(payload), {
-          loading: <b>Saving...</b>,
-          success: <b>Activity created</b>,
-          error: <b>Error</b>
-        })
-      }
+      await createOrUpdate('Activity', isUpdate, payload, update, create)
 
       onSave()
     } catch (e) {
@@ -330,7 +263,7 @@ export default function ActivityForm({
             src={
               current.organizer_image ? current.organizer_image.url : undefined
             }
-            onChange={(result, file) => {
+            onChange={(_result, file) => {
               if (current.organizer_image && !file) {
                 setValue('organizer_image', null)
                 setValue('organizer_image_upload', null)

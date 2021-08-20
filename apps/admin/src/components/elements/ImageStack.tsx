@@ -8,7 +8,7 @@ import IconImage from '../icons/IconImage'
 import Modal from './Modal'
 import ImageUploadDropper from './ImageUploadDropper'
 
-type ImageFile = {
+export type ImageFile = {
   url: string
   width: number
   height: number
