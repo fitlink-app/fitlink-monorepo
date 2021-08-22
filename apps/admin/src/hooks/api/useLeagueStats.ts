@@ -14,7 +14,7 @@ export default function useLeagueStats(
   startAt: Date,
   endAt: Date
 ) {
-  const { api, fetchKey } = useContext(AuthContext)
+  const { api, fetchKey, primary, focusRole } = useContext(AuthContext)
 
   const statsData: ApiResult<Result[]> = useQuery(
     `${fetchKey}_stats_leagues`,
@@ -25,9 +25,16 @@ export default function useLeagueStats(
       }
 
       if (type) {
-        return api.get<Result[]>('/stats/leagues', {
-          query
-        })
+        return api.get<Result[]>(
+          '/stats/leagues',
+          {
+            query
+          },
+          {
+            primary,
+            useRole: focusRole
+          }
+        )
       }
 
       return Promise.resolve([])

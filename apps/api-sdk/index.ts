@@ -30,6 +30,11 @@ import {
 
 const ERR_TOKEN_EXPIRED = 'Token expired'
 
+type MethodConfig = {
+  useRole?: FocusRole
+  primary?: RolePrimary
+}
+
 export class Api {
   private axios: AxiosInstance = null
   private tokens: AuthResultDto
@@ -216,20 +221,17 @@ export class Api {
   async list<T>(
     url: ListResource,
     options: ListParams = {},
-    useRolePrefix = true
+    config?: MethodConfig
   ) {
     const { limit = 10, page = 0, query, ...rest } = options
-    const response = await this.axios.get(
-      this.applyParams(url, rest, useRolePrefix),
-      {
-        params: {
-          limit,
-          page,
-          ...query,
-          ...rest
-        }
+    const response = await this.axios.get(this.applyParams(url, rest, config), {
+      params: {
+        limit,
+        page,
+        ...query,
+        ...rest
       }
-    )
+    })
 
     return response.data as ListResponse<T>
   }
@@ -241,9 +243,13 @@ export class Api {
    * @param params used for vars, e.g.: `{ organisationId: "12345" }`
    * @returns Promise
    */
-  async get<T>(url: ReadResource, params?: ResourceParams) {
+  async get<T>(
+    url: ReadResource,
+    params?: ResourceParams,
+    config?: MethodConfig
+  ) {
     const { query, ...rest } = params || {}
-    const response = await this.axios.get(this.applyParams(url, rest, true), {
+    const response = await this.axios.get(this.applyParams(url, rest, config), {
       params: {
         ...query
       }
@@ -262,11 +268,11 @@ export class Api {
   async post<T>(
     url: ListResource | CreatableResource,
     params?: CreateResourceParams<T>,
-    useRolePrefix = true
+    config?: MethodConfig
   ) {
     const payload = params ? params.payload : {}
     const response = await this.axios.post(
-      this.applyParams(url, params, useRolePrefix),
+      this.applyParams(url, params, config),
       this.sanitizeInput(payload)
     )
     return response.data as T extends CreatableResource
@@ -284,11 +290,11 @@ export class Api {
   async put<T>(
     url: ReadResource,
     params: UpdateResourceParams<T>,
-    useRolePrefix = true
+    config?: MethodConfig
   ) {
     const payload = params ? params.payload : {}
     const response = await this.axios.put(
-      this.applyParams(url, params, useRolePrefix),
+      this.applyParams(url, params, config),
       this.sanitizeInput(payload)
     )
     return response.data as UpdateResult
@@ -302,15 +308,11 @@ export class Api {
   async refreshSession() {
     let result: AuthResultDto
     try {
-      result = await this.post<AuthRefresh>(
-        '/auth/refresh',
-        {
-          payload: {
-            refresh_token: this.tokens.refresh_token
-          }
-        },
-        false
-      )
+      result = await this.post<AuthRefresh>('/auth/refresh', {
+        payload: {
+          refresh_token: this.tokens.refresh_token
+        }
+      })
     } catch (e) {
       throw new AuthorizationRefreshError({
         message: 'Session could not be refreshed',
@@ -328,13 +330,9 @@ export class Api {
    * @returns `{auth: AuthResult, me: User}`
    */
   async signUp(payload: CreateUserDto) {
-    const result = await this.post<AuthSignUp>(
-      '/auth/signup',
-      {
-        payload
-      },
-      false
-    )
+    const result = await this.post<AuthSignUp>('/auth/signup', {
+      payload
+    })
     this.setTokens(result.auth)
     return result
   }
@@ -346,13 +344,9 @@ export class Api {
    * @returns `{ id_token, access_token, refresh_token }`
    */
   async login(emailPass: AuthLoginDto) {
-    const result = await this.post<AuthLogin>(
-      '/auth/login',
-      {
-        payload: emailPass
-      },
-      false
-    )
+    const result = await this.post<AuthLogin>('/auth/login', {
+      payload: emailPass
+    })
     this.setTokens(result)
     return result
   }
@@ -364,13 +358,9 @@ export class Api {
    * @returns `{ id_token, access_token, refresh_token }`
    */
   async loginWithRole(params: AuthSwitchDto) {
-    const result = await this.post<AuthSwitch>(
-      '/auth/switch',
-      {
-        payload: params
-      },
-      false
-    )
+    const result = await this.post<AuthSwitch>('/auth/switch', {
+      payload: params
+    })
     this.setTokens(result)
     return result
   }
@@ -382,7 +372,7 @@ export class Api {
    * @returns `{ success }`
    */
   async logout() {
-    const result = await this.post<AuthLogout>('/auth/logout', {}, false)
+    const result = await this.post<AuthLogout>('/auth/logout', {})
     this.unsetTokens()
     return result
   }
@@ -396,13 +386,9 @@ export class Api {
    * @returns `{auth: AuthResult, me: User}`
    */
   async connect(connect: AuthConnectDto) {
-    const result = await this.post<AuthConnect>(
-      '/auth/connect',
-      {
-        payload: connect
-      },
-      false
-    )
+    const result = await this.post<AuthConnect>('/auth/connect', {
+      payload: connect
+    })
     this.setTokens(result.auth)
     return result
   }
@@ -413,8 +399,14 @@ export class Api {
    * @param params used for vars, e.g.: `{ organisationId: "12345" }`
    * @returns
    */
-  async delete(url: ReadResource, params: NodeJS.Dict<string>) {
-    const response = await this.axios.delete(this.applyParams(url, params))
+  async delete(
+    url: ReadResource,
+    params: NodeJS.Dict<string>,
+    config?: MethodConfig
+  ) {
+    const response = await this.axios.delete(
+      this.applyParams(url, params, config)
+    )
     return response.data as DeleteResult
   }
 
@@ -424,9 +416,13 @@ export class Api {
    * @param params
    * @returns the file entity
    */
-  async uploadFile<T>(url: UploadResource, params: UploadResourceParams) {
+  async uploadFile<T>(
+    url: UploadResource,
+    params: UploadResourceParams,
+    config?: MethodConfig
+  ) {
     const response = await this.axios.post(
-      this.applyParams(url, params),
+      this.applyParams(url, params, config),
       params.payload,
       {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -445,11 +441,12 @@ export class Api {
   applyParams(
     url: ListResource | ReadResource | CreatableResource | UploadResource,
     params: NodeJS.Dict<any> = {},
-    useRolePrefix = false
+    config: MethodConfig = {}
   ) {
     const { payload, query, ...rest } = params
-    const search = { ...rest, ...this.extraParams }
-    const replaced = this.getEndpointRolePrefix(url, useRolePrefix)
+    const { extraParams, prefix } = this.useRole(config.useRole, config.primary)
+    const search = { ...rest, ...extraParams }
+    const replaced = (prefix + url)
       .split('/')
       .map((k) => search[k.substr(1)] || k)
       .join('/')
@@ -459,37 +456,6 @@ export class Api {
     }
 
     return replaced
-  }
-
-  /**
-   * Only certain prefixes can be applied
-   * as some endpoints, e.g. /me require
-   * that they be accessed at their apex.
-   *
-   * @param url
-   * @param useRolePrefix
-   * @returns
-   */
-  getEndpointRolePrefix(url: string, useRolePrefix: boolean) {
-    const roleUrls = [
-      '/organisations',
-      '/teams',
-      '/rewards',
-      '/leagues',
-      '/users',
-      '/activities',
-      '/stats',
-      '/subscriptions'
-    ]
-
-    if (useRolePrefix && this.endpointPrefix) {
-      if (roleUrls.filter((e) => url.indexOf(e) > -1).length) {
-        return this.endpointPrefix + url
-      }
-    }
-
-    // Just return whatever URL was provided
-    return url
   }
 
   /**
@@ -540,20 +506,30 @@ export class Api {
    *
    */
   useRole(role: FocusRole, primary: RolePrimary) {
-    this.role = role
-
-    if (this.role === 'organisation') {
-      this.endpointPrefix = '/organisations/:organisationId'
+    if (!role || !primary) {
+      return {
+        prefix: '',
+        extraParams: {}
+      }
     }
 
-    if (this.role === 'team') {
-      this.endpointPrefix = '/teams/:teamId'
+    let prefix = ''
+
+    if (role === 'organisation') {
+      prefix = '/organisations/:organisationId'
     }
 
-    this.extraParams = {
-      organisationId: primary.organisation,
-      teamId: primary.team,
-      subscriptionId: primary.subscription
+    if (role === 'team') {
+      prefix = '/teams/:teamId'
+    }
+
+    return {
+      prefix,
+      extraParams: {
+        organisationId: primary.organisation,
+        teamId: primary.team,
+        subscriptionId: primary.subscription
+      }
     }
   }
 
@@ -565,6 +541,11 @@ export class Api {
     this.endpointPrefix = ''
     this.extraParams = {}
   }
+
+  /**
+   * Get role endpoint
+   */
+  withRole() {}
 }
 
 export function makeApi(axios: AxiosInstance) {

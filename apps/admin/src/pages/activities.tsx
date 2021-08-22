@@ -121,12 +121,43 @@ export default function page() {
             { Header: ' ', Cell: viewDetails }
           ]}
           fetch={(limit, page) => {
-            if (focusRole) {
-              return api.list<Activity>('/activities/global', {
-                limit,
-                page,
-                exclude_user_activities: includeUsers ? '0' : '1'
-              })
+            /**
+             * Note that the organisation or team
+             * is inferred through useRole.
+             *
+             * /activities/global
+             *
+             */
+            if (focusRole === 'app') {
+              return api.list<Activity>(
+                '/activities/global',
+                {
+                  limit,
+                  page,
+                  exclude_user_activities: includeUsers ? '0' : '1'
+                },
+                {
+                  useRole: 'app',
+                  primary
+                }
+              )
+
+              /**
+               * /organisations/:organisationId/activities/global
+               * /teams/:teamId/activities
+               */
+            } else if (focusRole) {
+              return api.list<Activity>(
+                '/activities',
+                {
+                  limit,
+                  page
+                },
+                {
+                  useRole: focusRole,
+                  primary
+                }
+              )
             }
 
             return Promise.resolve({

@@ -58,7 +58,7 @@ export default function ActivityForm({
   onSave = noop,
   onError = noop
 }: ActivityFormProps) {
-  const { api, primary, endpointPrefix } = useContext(AuthContext)
+  const { api, primary, focusRole } = useContext(AuthContext)
   const [showOrg, setShowOrg] = useState(current?.organizer_name ? true : false)
   const [images, setImages] = useState<ImageFile[]>(current.images || [])
   const isUpdate = !!current.id
@@ -72,19 +72,30 @@ export default function ActivityForm({
     type: 'Activity',
     isUpdate,
     create: (payload) =>
-      api.post<Activity>(`${endpointPrefix}/activities` as ListResource, {
-        payload,
-        organisationId: primary.organisation,
-        teamId: primary.team
-      }),
+      api.post<Activity>(
+        `/activities` as ListResource,
+        {
+          payload,
+          organisationId: primary.organisation,
+          teamId: primary.team
+        },
+        {
+          primary,
+          useRole: focusRole
+        }
+      ),
     update: (payload) =>
       api.put<Activity>(
-        `${endpointPrefix}/activities/:activityId` as ReadResource,
+        `/activities/:activityId` as ReadResource,
         {
           payload,
           activityId: current.id,
           organisationId: primary.organisation,
           teamId: primary.team
+        },
+        {
+          primary,
+          useRole: focusRole
         }
       )
   })

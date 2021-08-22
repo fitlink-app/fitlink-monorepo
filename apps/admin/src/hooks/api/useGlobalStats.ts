@@ -9,13 +9,20 @@ type Result = {
 }
 
 export default function useLeagueStats(type: FocusRole) {
-  const { api, fetchKey } = useContext(AuthContext)
+  const { api, fetchKey, primary, focusRole } = useContext(AuthContext)
 
   const statsData: ApiResult<Result> = useQuery(
     `${fetchKey}_stats_global`,
     async () => {
       if (type) {
-        return api.get<Result>('/stats/global')
+        return api.get<Result>(
+          '/stats/global',
+          {},
+          {
+            primary,
+            useRole: focusRole
+          }
+        )
       }
 
       return Promise.resolve({

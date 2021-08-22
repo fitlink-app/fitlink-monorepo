@@ -60,7 +60,7 @@ export default function UsersPage() {
     </div>
   )
 
-  const { api } = useContext(AuthContext)
+  const { api, fetchKey, focusRole, primary } = useContext(AuthContext)
 
   return (
     <Dashboard title="Settings Users">
@@ -83,12 +83,27 @@ export default function UsersPage() {
             { Header: ' ', Cell: cellActions }
           ]}
           fetch={(limit, page) =>
-            api.list<User>('/users', {
-              limit,
-              page
-            })
+            /**
+             * Note that the organisation or team
+             * is inferred using role prefix.
+             *
+             * /users
+             * /organisations/:organisationId/users
+             * /teams/:teamId/users
+             */
+            api.list<User>(
+              '/users',
+              {
+                limit,
+                page
+              },
+              {
+                primary,
+                useRole: focusRole
+              }
+            )
           }
-          fetchName="users"
+          fetchName={`users_${fetchKey}`}
           refresh={refresh}
         />
       </div>

@@ -161,6 +161,34 @@ export class UsersController {
     return this.usersService.findAllUsers(pagination)
   }
 
+  @Iam(Roles.OrganisationAdmin)
+  @Get('/organisations/:organisationId/users')
+  @ApiTags('users')
+  @PaginationBody()
+  @ApiResponse({ type: User, isArray: true, status: 200 })
+  findAllUsersWithinOrganisation(
+    @Pagination() pagination: PaginationQuery,
+    @Param('organisationId') organisationId: string
+  ) {
+    return this.usersService.findAllUsers(pagination, {
+      organisationId
+    })
+  }
+
+  @Iam(Roles.TeamAdmin)
+  @Get('/teams/:teamId/users')
+  @ApiTags('users')
+  @PaginationBody()
+  @ApiResponse({ type: User, isArray: true, status: 200 })
+  findAllUsersWithinTeam(
+    @Pagination() pagination: PaginationQuery,
+    @Param('teamId') teamId: string
+  ) {
+    return this.usersService.findAllUsers(pagination, {
+      teamId
+    })
+  }
+
   /**
    * Searches for users by keyword
    * and associates the search to the auth

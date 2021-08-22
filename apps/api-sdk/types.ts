@@ -5,6 +5,9 @@ import { UpdateTeamDto } from '@fitlink/api/src/modules/teams/dto/update-team.dt
 import { Activity } from '@fitlink/api/src/modules/activities/entities/activity.entity'
 import { CreateActivityDto } from '@fitlink/api/src/modules/activities/dto/create-activity.dto'
 import { UpdateActivityDto } from '@fitlink/api/src/modules/activities/dto/update-activity.dto'
+import { Reward } from '@fitlink/api/src/modules/rewards/entities/reward.entity'
+import { CreateRewardDto } from '@fitlink/api/src/modules/rewards/dto/create-reward.dto'
+import { UpdateRewardDto } from '@fitlink/api/src/modules/rewards/dto/update-reward.dto'
 import { Organisation } from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
 import {
   Subscription,
@@ -194,6 +197,8 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<CreateTeamDto>
   : T extends Activity
   ? Payload<CreateActivityDto>
+  : T extends Reward
+  ? Payload<CreateRewardDto>
   : T extends AuthSignUp
   ? Payload<CreateUserDto>
   : T extends AuthLogin
@@ -236,6 +241,8 @@ export type UpdateResourceParams<T> = T extends Organisation
   ? Payload<UpdateTeamDto>
   : T extends Activity
   ? Payload<UpdateActivityDto>
+  : T extends Reward
+  ? Payload<UpdateRewardDto>
   : T extends User
   ? Payload<UpdateUserDto>
   : T extends ImageUpload

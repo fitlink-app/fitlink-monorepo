@@ -146,10 +146,17 @@ export default function TeamsPage() {
           ]}
           fetch={(limit, page) => {
             if (focusRole) {
-              return api.list<Team>('/teams', {
-                limit,
-                page
-              })
+              return api.list<Team>(
+                '/teams',
+                {
+                  limit,
+                  page
+                },
+                {
+                  primary,
+                  useRole: focusRole
+                }
+              )
             }
 
             return Promise.resolve({

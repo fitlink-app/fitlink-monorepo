@@ -15,7 +15,7 @@ export default function useRewardStats(
   startAt: Date,
   endAt: Date
 ) {
-  const { api, fetchKey } = useContext(AuthContext)
+  const { api, fetchKey, primary, focusRole } = useContext(AuthContext)
 
   const statsData: ApiResult<Result[]> = useQuery(
     `${fetchKey}_stats_rewards`,
@@ -26,9 +26,16 @@ export default function useRewardStats(
       }
 
       if (type) {
-        return api.get<Result[]>('/stats/rewards', {
-          query
-        })
+        return api.get<Result[]>(
+          '/stats/rewards',
+          {
+            query
+          },
+          {
+            primary,
+            useRole: focusRole
+          }
+        )
       }
 
       return Promise.resolve([])

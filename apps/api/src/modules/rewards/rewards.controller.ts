@@ -32,7 +32,10 @@ import {
   RewardNext,
   RewardPublicPagination
 } from './entities/reward.entity'
-import { RewardFiltersDto } from './dto/reward-filters.dto'
+import {
+  RewardFiltersDto,
+  RewardGlobalFilterDto
+} from './dto/reward-filters.dto'
 
 @ApiBaseResponses()
 @Controller()
@@ -71,16 +74,17 @@ export class RewardsController {
   findAll(
     @User() authUser: AuthenticatedUser,
     @Pagination() pagination: PaginationQuery,
-    @Query() filters: RewardFiltersDto
+    @Query() appFilters: RewardFiltersDto,
+    @Query() dashboardFilters: RewardGlobalFilterDto
   ) {
     if (authUser.isSuperAdmin()) {
-      return this.rewardsService.findAll(pagination)
+      return this.rewardsService.findAll(pagination, dashboardFilters)
     }
 
     return this.rewardsService.findManyAccessibleToUser(
       authUser.id,
       pagination,
-      filters
+      appFilters
     )
   }
 

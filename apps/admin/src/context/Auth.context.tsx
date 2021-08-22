@@ -22,8 +22,6 @@ const axios = Axios.create({
     process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1'
 })
 
-let roleSwitchPathname = ''
-
 export const api = makeApi(axios)
 
 type Permissions = {
@@ -65,7 +63,6 @@ export type AuthContext = {
   primary: RolePrimary
   focusRole: FocusRole
   fetchKey: string
-  endpointPrefix: '' | '/organisations/:organisationId' | '/teams/:teamId'
   login: (credentials: Credentials) => Promise<AuthResultDto>
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
   logout: () => void
@@ -99,15 +96,13 @@ export function AuthProvider({ children }) {
     const myRoles = formatRoles(roles.data || [], childRole)
     const primary = setPrimaryRoles(myRoles)
     const focusRole = setFocusRole(primary)
-
-    // Set the role to use for the API
-    api.useRole(focusRole, primary)
+    const menu = setMenu(primary)
 
     setState({
       ...state,
       user: me.data,
       roles: myRoles,
-      menu: setMenu(primary),
+      menu,
       primary,
       focusRole
     })
@@ -408,6 +403,11 @@ export function AuthProvider({ children }) {
           icon: 'IconGear'
         },
         {
+          label: 'Users',
+          link: '/users',
+          icon: 'IconFriends'
+        },
+        {
           label: 'Knowledge Base',
           link: '/knowledge-base',
           icon: 'IconYoga'
@@ -423,7 +423,12 @@ export function AuthProvider({ children }) {
     if (primary.team) {
       items = items.concat([
         {
-          label: 'User stats',
+          label: 'Users',
+          link: '/users',
+          icon: 'IconFriends'
+        },
+        {
+          label: 'Stats',
           link: '/stats',
           icon: 'IconFriends'
         },
@@ -501,7 +506,6 @@ export function AuthProvider({ children }) {
           state.primary.subscription,
           state.primary.superAdmin
         ].join('_'),
-        endpointPrefix: getEndpointPrefix(state.focusRole),
         login,
         logout,
         connect,
@@ -512,18 +516,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   )
-}
-
-function getEndpointPrefix(focusRole: FocusRole) {
-  if (focusRole === 'app') {
-    return ''
-  }
-  if (focusRole === 'organisation') {
-    return `/organisations/:organisationId`
-  }
-  if (focusRole === 'team') {
-    return `/teams/:teamId`
-  }
-
-  return ''
 }

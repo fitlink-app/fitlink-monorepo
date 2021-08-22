@@ -9,7 +9,7 @@ export default function useHealthActivityStats(
   startAt: Date,
   endAt?: Date
 ) {
-  const { api, fetchKey } = useContext(AuthContext)
+  const { api, fetchKey, primary, focusRole } = useContext(AuthContext)
 
   const healthActivitiesData: ApiResult<{
     results: any[]
@@ -26,9 +26,16 @@ export default function useHealthActivityStats(
        * Superadmin can view all stats
        */
       if (type) {
-        return api.list<any>('/stats/health-activities', {
-          query
-        })
+        return api.list<any>(
+          '/stats/health-activities',
+          {
+            query
+          },
+          {
+            primary,
+            useRole: focusRole
+          }
+        )
       }
 
       return Promise.resolve({
