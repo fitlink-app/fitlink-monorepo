@@ -5,11 +5,20 @@ import { ApiResult } from '@fitlink/common/react-query/types'
 import { getErrorMessage } from '@fitlink/api-sdk'
 import { useQuery } from 'react-query'
 
+export type TableContainerQueryParams = {
+  q?: string
+}
+
 export type TableContainerProps = {
   columns: Column<any>[]
+  keyword?: string
   fetchName: string
   refresh?: number
-  fetch: (limit: number, page: number) => Promise<ListData>
+  fetch: (
+    limit: number,
+    page: number,
+    query?: TableContainerQueryParams
+  ) => Promise<ListData>
 }
 
 type ListData = {
@@ -22,6 +31,7 @@ export function TableContainer({
   columns,
   fetchName,
   refresh,
+  keyword,
   fetch
 }: TableContainerProps) {
   const [results, setResults] = useState([])
@@ -47,9 +57,9 @@ export function TableContainer({
     isPreviousData,
     refetch
   }: ApiResult<ListData> = useQuery(
-    [fetchName, limit, page],
+    [fetchName, limit, page, keyword],
     async () => {
-      return fetch(limit, page)
+      return fetch(limit, page, { q: keyword })
     },
     {
       retry: false,

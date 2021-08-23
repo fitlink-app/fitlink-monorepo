@@ -19,6 +19,7 @@ import { ConfigService } from '@nestjs/config'
 import { FirebaseScrypt } from './helpers/firebase-scrypt'
 import { AuthProvider } from '../auth/entities/auth-provider.entity'
 import { ImagesService } from '../images/images.service'
+import { FilterUserDto } from './dto/search-user.dto'
 
 type EntityOwner = {
   organisationId?: string
@@ -171,6 +172,7 @@ export class UsersService {
 
   async findAllUsers(
     { limit = 10, page = 0 }: PaginationOptionsInterface,
+    filters: FilterUserDto = {},
     entityOwner?: EntityOwner
   ): Promise<Pagination<User>> {
     let query = this.userRepository
@@ -196,6 +198,17 @@ export class UsersService {
         .where('team.id = :teamId', {
           teamId: entityOwner.teamId
         })
+    }
+
+    const where = entityOwner ? 'andWhere' : 'where'
+    if (filters.q && filters.q.indexOf('@') > 0) {
+      query = query[where]('user.email ILIKE :email', {
+        email: `${filters.q}%`
+      })
+    } else if (filters.q) {
+      query = query[where]('user.name ILIKE :name', {
+        name: `%${filters.q}%`
+      })
     }
 
     const [results, total] = await query.getManyAndCount()

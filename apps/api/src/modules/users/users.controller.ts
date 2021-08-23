@@ -42,7 +42,7 @@ import {
 import { PaginationQuery } from '../../helpers/paginate'
 import { JWTRoles } from '../../models'
 // import { Public } from '../../decorators/public.decorator'
-import { SearchUserDto } from './dto/search-user.dto'
+import { FilterUserDto, SearchUserDto } from './dto/search-user.dto'
 import { Public } from '../../decorators/public.decorator'
 import { Pagination } from '../../decorators/pagination.decorator'
 
@@ -156,9 +156,13 @@ export class UsersController {
   @Get('users')
   @ApiTags('users')
   @PaginationBody()
+  @ApiQuery({ type: SearchUserDto })
   @ApiResponse({ type: User, isArray: true, status: 200 })
-  findAll(@Pagination() pagination: PaginationQuery) {
-    return this.usersService.findAllUsers(pagination)
+  findAll(
+    @Pagination() pagination: PaginationQuery,
+    @Query() query: FilterUserDto
+  ) {
+    return this.usersService.findAllUsers(pagination, query)
   }
 
   @Iam(Roles.SuperAdmin)
@@ -169,9 +173,10 @@ export class UsersController {
   @ApiResponse({ type: User, isArray: true, status: 200 })
   findAllUsersWithinOrganisation(
     @Pagination() pagination: PaginationQuery,
-    @Param('organisationId') organisationId: string
+    @Param('organisationId') organisationId: string,
+    @Query() query: FilterUserDto
   ) {
-    return this.usersService.findAllUsers(pagination, {
+    return this.usersService.findAllUsers(pagination, query, {
       organisationId
     })
   }
@@ -183,9 +188,10 @@ export class UsersController {
   @ApiResponse({ type: User, isArray: true, status: 200 })
   findAllUsersWithinTeam(
     @Pagination() pagination: PaginationQuery,
-    @Param('teamId') teamId: string
+    @Param('teamId') teamId: string,
+    @Query() query: FilterUserDto
   ) {
-    return this.usersService.findAllUsers(pagination, {
+    return this.usersService.findAllUsers(pagination, query, {
       teamId
     })
   }

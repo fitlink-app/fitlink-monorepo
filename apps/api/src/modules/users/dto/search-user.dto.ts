@@ -9,6 +9,12 @@ export class SearchUserDto {
   q: string
 }
 
+export class FilterUserDto {
+  @ApiProperty()
+  @IsOptional()
+  q?: string
+}
+
 export class SearchUserForLeaguesDto {
   @ApiProperty({
     nullable: true,

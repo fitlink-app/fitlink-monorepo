@@ -8,6 +8,8 @@ import { AnimatePresence } from 'framer-motion'
 import Drawer from '../components/elements/Drawer'
 import EditUser from '../components/forms/EditUser'
 import { timeout } from '../helpers/timeout'
+import Input from '../components/elements/Input'
+import useDebounce from '../hooks/useDebounce'
 
 export default function UsersPage() {
   const [drawContent, setDrawContent] = useState<
@@ -16,6 +18,7 @@ export default function UsersPage() {
   const [warning, setWarning] = useState(false)
   const [wide, setWide] = useState(false)
   const [refresh, setRefresh] = useState(0)
+  const [keyword, setKeyword] = useState('')
 
   const closeDrawer = (ms = 0) => async () => {
     if (ms) {
@@ -60,12 +63,25 @@ export default function UsersPage() {
     </div>
   )
 
+  const handleUsernameSearch = async (search) => {
+    setKeyword(search)
+  }
+
+  const dbSearchTerm = useDebounce(keyword, 500)
   const { api, fetchKey, focusRole, primary } = useContext(AuthContext)
 
   return (
     <Dashboard title="Settings Users">
-      <div className="flex ai-c">
+      <div className="flex ai-c jc-sb">
         <h1 className="light mb-0 mr-2">Manage users</h1>
+        <Input
+          className="input-large"
+          inline={true}
+          onChange={handleUsernameSearch}
+          name="userSearch"
+          placeholder="Enter name or email..."
+          value=""
+        />
       </div>
       <div className="mt-4 overflow-x-auto">
         <TableContainer
@@ -82,7 +98,7 @@ export default function UsersPage() {
             { Header: 'Created', accessor: 'created_at', Cell: toDateCell },
             { Header: ' ', Cell: cellActions }
           ]}
-          fetch={(limit, page) =>
+          fetch={(limit, page, query) =>
             /**
              * Note that the organisation or team
              * is inferred using role prefix.
@@ -95,7 +111,8 @@ export default function UsersPage() {
               '/users',
               {
                 limit,
-                page
+                page,
+                query
               },
               {
                 primary,
@@ -105,6 +122,7 @@ export default function UsersPage() {
           }
           fetchName={`users_${fetchKey}`}
           refresh={refresh}
+          keyword={dbSearchTerm}
         />
       </div>
 
