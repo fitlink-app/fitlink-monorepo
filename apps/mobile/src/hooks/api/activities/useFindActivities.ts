@@ -6,7 +6,7 @@ import {FindActivitiesDto} from '@fitlink/api/src/modules/activities/dto/find-ac
 import {ListResponse} from '@fitlink/api-sdk/types';
 import {getNextPageParam} from 'utils/api';
 
-const limit = 25;
+const limit = 50;
 
 interface FetchActivitiesDto
   extends Omit<FindActivitiesDto, 'page' | 'limit'> {}
@@ -29,7 +29,7 @@ export function useFindActivities(dto: FetchActivitiesDto) {
     [QueryKeys.SearchActivities, JSON.stringify(dto)],
     ({pageParam}) => fetchActivities({pageParam, dto}),
     {
-      getNextPageParam: getNextPageParam(limit),
+      getNextPageParam: (lastPage, pages) => pages.length + 1,
     },
   );
 }

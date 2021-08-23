@@ -63,7 +63,7 @@ export class ActivitiesService {
         meeting_point: {
           type: 'Point',
           coordinates: meeting_point.split(',')
-        }
+        } as any
       })
     )
 
@@ -245,7 +245,7 @@ export class ActivitiesService {
     if (meeting_point) {
       updateData.meeting_point = {
         type: 'Point',
-        coordinates: meeting_point.split(',')
+        coordinates: meeting_point.split(',') as any
       }
     }
 

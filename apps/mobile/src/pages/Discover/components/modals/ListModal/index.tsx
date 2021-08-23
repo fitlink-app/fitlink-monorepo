@@ -16,11 +16,7 @@ import {ActivityItem, Handle, ModalBackground} from '../components';
 import {Search, Filters, ResultsLabel} from './components';
 import {getDistanceFromLatLonInKm} from '@utils';
 import {useDispatch, useSelector} from 'react-redux';
-import {
-  selectQuery,
-  selectTypes,
-  toggleType,
-} from 'redux/discover/discoverSlice';
+import {selectTypes, toggleType} from 'redux/discover/discoverSlice';
 import {AppDispatch} from 'redux/store';
 
 const HANDLE_HEIGHT = 80;
@@ -79,11 +75,13 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
 
     const types = useSelector(selectTypes);
 
-    // Temp
-
-    const isLoading = false;
-    const isLoadingMore = false;
-    const handleLoadMore = () => {};
+    const handleLoadMore = () => {
+      console.log(data.pages[0].total);
+      console.log(activities.length);
+      if (data?.pages && data.pages[0].total > activities.length) {
+        fetchNextPage();
+      }
+    };
 
     const handleComponent = useCallback(
       () => (
@@ -100,17 +98,17 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
             />
             <ResultsLabel
               text={
-                isLoading
+                isFetching
                   ? `Searching for nearby activities...`
                   : !!activities.length
-                  ? `Showing ${activities.length} activities nearby`
+                  ? `${data?.pages[0]?.total} activities found nearby`
                   : 'No nearby activities found'
               }
             />
           </AboveContentContainer>
         </>
       ),
-      [data, types, isLoading],
+      [data, types, isFetching],
     );
 
     const renderModalBackdrop = useCallback(
@@ -126,7 +124,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
       [],
     );
 
-    const renderItem = ({item}: {item: Activity}) => {
+    const renderItem = ({item, index}: {item: Activity; index: number}) => {
       // TODO: Use actual user location
       const userLocation = {lat: 51.752022, lng: -1.257677};
 
@@ -153,6 +151,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
 
       return (
         <ActivityItem
+          key={item.name + index}
           onPress={() => onActivityPressed(item.id)}
           name={item.name}
           activityType={item.activity}
@@ -163,7 +162,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
     };
 
     const renderListEmptyComponent = () => {
-      if (!isLoading) return null;
+      if (!isFetching) return null;
 
       return (
         <View
@@ -176,11 +175,11 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
     };
 
     const renderListFooterComponent = () => {
-      if (!isLoadingMore) return null;
+      if (!isFetchingNextPage) return null;
 
       return (
         <View
-          style={{height: 60, justifyContent: 'center', alignItems: 'center'}}>
+          style={{height: 80, justifyContent: 'center', alignItems: 'center'}}>
           <ActivityIndicator />
         </View>
       );
@@ -199,6 +198,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
         backdropComponent={renderModalBackdrop}>
         <BottomSheetFlatList
           {...{renderItem}}
+          initialNumToRender={75}
           data={activities}
           keyboardDismissMode="none"
           keyboardShouldPersistTaps="always"
@@ -210,7 +210,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
           ListEmptyComponent={renderListEmptyComponent}
           ListFooterComponent={renderListFooterComponent}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.1}
+          onEndReachedThreshold={0.25}
         />
       </BottomSheetModal>
     );

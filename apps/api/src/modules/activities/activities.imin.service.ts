@@ -100,7 +100,7 @@ export class ActivitiesIminService {
   static normalize(responseData: IminResponseInterface) {
     const results = (responseData['imin:item'] || []).map(
       ActivitiesIminService.normalizeOne
-    )
+    ) as Activity[]
 
     return new Pagination<Activity>({
       results,
@@ -149,7 +149,7 @@ export class ActivitiesIminService {
 
       // Imin activities are presumed to be classes
       type: ActivityType.Class
-    }))
+    })) as Activity[]
 
     return new Pagination<ActivityForMap>({
       results,

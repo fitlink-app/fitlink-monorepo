@@ -19,15 +19,15 @@ export function getErrors(e: ResponseError) {
   } as RequestError;
 }
 
-axios.interceptors.request.use(request => {
-  console.log('Request:', request);
-  return request;
-});
+// axios.interceptors.request.use(request => {
+//   console.log('Request:', request);
+//   return request;
+// });
 
-axios.interceptors.response.use(response => {
-  console.log('Response:', response);
-  return response;
-});
+// axios.interceptors.response.use(response => {
+//   console.log('Response:', response);
+//   return response;
+// });
 
 axios.interceptors.request.use(
   config => new Promise(resolve => setTimeout(() => resolve(config), 600)),

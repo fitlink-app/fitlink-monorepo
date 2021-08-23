@@ -48,6 +48,7 @@
     "@react-navigation/native": "^5.9.4",
     "@react-navigation/stack": "^5.14.5",
     "@reduxjs/toolkit": "^1.6.1",
+    "@turf/circle": "^6.5.0",
     "axios": "^0.21.1",
     "numbro": "^2.3.2",
     "patch-package": "^6.4.7",
