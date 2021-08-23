@@ -47,7 +47,7 @@ const Index = () => {
         { Header: 'Created At', accessor: 'created_at', Cell: toDateCell },
         { Header: 'Actions', Cell: cellActions }
       ]}
-      fetch={(limit = 10, page = 0, params = {}) => {
+      fetch={(limit = 10, page = 0) => {
         if (page !== currentPage) {
           setCurrentPage(page)
         }

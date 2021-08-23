@@ -5,6 +5,10 @@ import { ApiResult } from '@fitlink/common/react-query/types'
 import { getErrorMessage } from '@fitlink/api-sdk'
 import { useQuery } from 'react-query'
 
+export type TableContainerQueryParams = {
+  q?: string
+}
+
 export type TableContainerProps = {
   columns: Column<any>[]
   keyword?: string
@@ -13,7 +17,7 @@ export type TableContainerProps = {
   fetch: (
     limit: number,
     page: number,
-    query?: { q: string }
+    query?: TableContainerQueryParams
   ) => Promise<ListData>
 }
 
