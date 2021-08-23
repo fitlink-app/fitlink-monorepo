@@ -18,7 +18,6 @@ import {
 } from './dto/reward-filters.dto'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RewardClaimedEvent } from './events/reward-claimed.event'
-import { where } from 'serverless/node_modules_old/@types/lodash/fp'
 
 type EntityOwner = {
   organisationId?: string

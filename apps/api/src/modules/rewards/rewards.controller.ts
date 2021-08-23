@@ -88,6 +88,22 @@ export class RewardsController {
     )
   }
 
+  @Iam(Roles.OrganisationAdmin, Roles.TeamAdmin)
+  @ApiTags('rewards')
+  @ApiResponse({ type: RewardPublicPagination, status: 200 })
+  @Get(['/organisations/:organisationId/rewards', '/teams/:teamId/rewards'])
+  findAllRewardsForOrganisationsOrTeams(
+    @Param('teamId') teamId: string,
+    @Param('organisationId') organisationId: string,
+    @Pagination() pagination: PaginationQuery,
+    @Query() dashboardFilters: RewardGlobalFilterDto
+  ) {
+    return this.rewardsService.findAll(pagination, dashboardFilters, {
+      organisationId,
+      teamId
+    })
+  }
+
   @ApiTags('me')
   @Get('/me/next-reward')
   @ApiResponse({ type: RewardNext, status: 200 })

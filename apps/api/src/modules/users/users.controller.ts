@@ -161,6 +161,7 @@ export class UsersController {
     return this.usersService.findAllUsers(pagination)
   }
 
+  @Iam(Roles.SuperAdmin)
   @Iam(Roles.OrganisationAdmin)
   @Get('/organisations/:organisationId/users')
   @ApiTags('users')

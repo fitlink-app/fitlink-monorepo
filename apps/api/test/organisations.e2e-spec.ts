@@ -127,7 +127,7 @@ describe('Activities', () => {
     expect(data.json().results.length).toBeGreaterThan(0)
     expect(data.json().results[0].id).toBeDefined()
     expect(data.json().results[0].name).toBeDefined()
-    expect(data.json().results[0].email).toBeUndefined()
+    expect(data.json().results[0].email).toBeDefined()
   })
 
   it(`POST /organisations 400 Fails with validation errors if payload is not complete`, async () => {
