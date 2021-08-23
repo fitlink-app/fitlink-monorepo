@@ -23,15 +23,28 @@ import {
   UpdateResult,
   AuthSignUp,
   AuthConnect,
-  AuthSwitch
+  AuthSwitch,
+  FocusRole,
+  RolePrimary
 } from './types'
 
 const ERR_TOKEN_EXPIRED = 'Token expired'
 
+type MethodConfig = {
+  useRole?: FocusRole
+  primary?: RolePrimary
+}
+
 export class Api {
   private axios: AxiosInstance = null
   private tokens: AuthResultDto
-  private previousTokens: AuthResultDto
+  private role: FocusRole
+  private endpointPrefix:
+    | '/organisations/:organisationId'
+    | '/teams/:teamId'
+    | '' = ''
+  private extraParams: NodeJS.Dict<string> = {}
+  // private previousTokens: AuthResultDto
   private replay: any[] = []
   private reject: any[] = []
   private reAuthorizing = false
@@ -205,9 +218,13 @@ export class Api {
    * @param options { limit: number, page: number, query: {} }
    * @returns Pagination interface
    */
-  async list<T>(url: ListResource, options: ListParams = {}) {
+  async list<T>(
+    url: ListResource,
+    options: ListParams = {},
+    config?: MethodConfig
+  ) {
     const { limit = 10, page = 0, query, ...rest } = options
-    const response = await this.axios.get(this.applyParams(url, rest), {
+    const response = await this.axios.get(this.applyParams(url, rest, config), {
       params: {
         limit,
         page,
@@ -226,9 +243,13 @@ export class Api {
    * @param params used for vars, e.g.: `{ organisationId: "12345" }`
    * @returns Promise
    */
-  async get<T>(url: ReadResource, params?: ResourceParams) {
+  async get<T>(
+    url: ReadResource,
+    params?: ResourceParams,
+    config?: MethodConfig
+  ) {
     const { query, ...rest } = params || {}
-    const response = await this.axios.get(this.applyParams(url, rest), {
+    const response = await this.axios.get(this.applyParams(url, rest, config), {
       params: {
         ...query
       }
@@ -246,11 +267,12 @@ export class Api {
    */
   async post<T>(
     url: ListResource | CreatableResource,
-    params?: CreateResourceParams<T>
+    params?: CreateResourceParams<T>,
+    config?: MethodConfig
   ) {
     const payload = params ? params.payload : {}
     const response = await this.axios.post(
-      this.applyParams(url, params),
+      this.applyParams(url, params, config),
       this.sanitizeInput(payload)
     )
     return response.data as T extends CreatableResource
@@ -265,10 +287,14 @@ export class Api {
    * @param params used for vars, e.g. `{ name: "Company ABCD" }`
    * @returns Promise (fields that were updated)
    */
-  async put<T>(url: ReadResource, params: UpdateResourceParams<T>) {
+  async put<T>(
+    url: ReadResource,
+    params: UpdateResourceParams<T>,
+    config?: MethodConfig
+  ) {
     const payload = params ? params.payload : {}
     const response = await this.axios.put(
-      this.applyParams(url, params),
+      this.applyParams(url, params, config),
       this.sanitizeInput(payload)
     )
     return response.data as UpdateResult
@@ -346,7 +372,7 @@ export class Api {
    * @returns `{ success }`
    */
   async logout() {
-    const result = await this.post<AuthLogout>('/auth/logout')
+    const result = await this.post<AuthLogout>('/auth/logout', {})
     this.unsetTokens()
     return result
   }
@@ -373,8 +399,14 @@ export class Api {
    * @param params used for vars, e.g.: `{ organisationId: "12345" }`
    * @returns
    */
-  async delete(url: ReadResource, params: NodeJS.Dict<string>) {
-    const response = await this.axios.delete(this.applyParams(url, params))
+  async delete(
+    url: ReadResource,
+    params: NodeJS.Dict<string>,
+    config?: MethodConfig
+  ) {
+    const response = await this.axios.delete(
+      this.applyParams(url, params, config)
+    )
     return response.data as DeleteResult
   }
 
@@ -384,9 +416,13 @@ export class Api {
    * @param params
    * @returns the file entity
    */
-  async uploadFile<T>(url: UploadResource, params: UploadResourceParams) {
+  async uploadFile<T>(
+    url: UploadResource,
+    params: UploadResourceParams,
+    config?: MethodConfig
+  ) {
     const response = await this.axios.post(
-      this.applyParams(url, params),
+      this.applyParams(url, params, config),
       params.payload,
       {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -404,13 +440,17 @@ export class Api {
    */
   applyParams(
     url: ListResource | ReadResource | CreatableResource | UploadResource,
-    params: NodeJS.Dict<any> = {}
+    params: NodeJS.Dict<any> = {},
+    config: MethodConfig = {}
   ) {
-    const { payload, ...rest } = params
-    const replaced = url
+    const { payload, query, ...rest } = params
+    const { extraParams, prefix } = this.useRole(config.useRole, config.primary)
+    const search = { ...rest, ...extraParams }
+    const replaced = (prefix + url)
       .split('/')
-      .map((k) => rest[k.substr(1)] || k)
+      .map((k) => search[k.substr(1)] || k)
       .join('/')
+
     if (replaced.indexOf(':') > -1) {
       throw new ApiParameterError(`URL parameter missing in ${replaced}`)
     }
@@ -457,6 +497,55 @@ export class Api {
   sanitizeInput(payload: NodeJS.Dict<any> = {}) {
     return payload
   }
+
+  /**
+   * Set the role to be used
+   *
+   * Only useful for dashboard interface where permissions
+   * are more complex
+   *
+   */
+  useRole(role: FocusRole, primary: RolePrimary) {
+    if (!role || !primary) {
+      return {
+        prefix: '',
+        extraParams: {}
+      }
+    }
+
+    let prefix = ''
+
+    if (role === 'organisation') {
+      prefix = '/organisations/:organisationId'
+    }
+
+    if (role === 'team') {
+      prefix = '/teams/:teamId'
+    }
+
+    return {
+      prefix,
+      extraParams: {
+        organisationId: primary.organisation,
+        teamId: primary.team,
+        subscriptionId: primary.subscription
+      }
+    }
+  }
+
+  /**
+   * Cancel role
+   */
+  cancelRole() {
+    this.role = undefined
+    this.endpointPrefix = ''
+    this.extraParams = {}
+  }
+
+  /**
+   * Get role endpoint
+   */
+  withRole() {}
 }
 
 export function makeApi(axios: AxiosInstance) {

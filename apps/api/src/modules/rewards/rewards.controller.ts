@@ -32,7 +32,10 @@ import {
   RewardNext,
   RewardPublicPagination
 } from './entities/reward.entity'
-import { RewardFiltersDto } from './dto/reward-filters.dto'
+import {
+  RewardFiltersDto,
+  RewardGlobalFilterDto
+} from './dto/reward-filters.dto'
 
 @ApiBaseResponses()
 @Controller()
@@ -71,17 +74,34 @@ export class RewardsController {
   findAll(
     @User() authUser: AuthenticatedUser,
     @Pagination() pagination: PaginationQuery,
-    @Query() filters: RewardFiltersDto
+    @Query() appFilters: RewardFiltersDto,
+    @Query() dashboardFilters: RewardGlobalFilterDto
   ) {
     if (authUser.isSuperAdmin()) {
-      return this.rewardsService.findAll(pagination)
+      return this.rewardsService.findAll(pagination, dashboardFilters)
     }
 
     return this.rewardsService.findManyAccessibleToUser(
       authUser.id,
       pagination,
-      filters
+      appFilters
     )
+  }
+
+  @Iam(Roles.OrganisationAdmin, Roles.TeamAdmin)
+  @ApiTags('rewards')
+  @ApiResponse({ type: RewardPublicPagination, status: 200 })
+  @Get(['/organisations/:organisationId/rewards', '/teams/:teamId/rewards'])
+  findAllRewardsForOrganisationsOrTeams(
+    @Param('teamId') teamId: string,
+    @Param('organisationId') organisationId: string,
+    @Pagination() pagination: PaginationQuery,
+    @Query() dashboardFilters: RewardGlobalFilterDto
+  ) {
+    return this.rewardsService.findAll(pagination, dashboardFilters, {
+      organisationId,
+      teamId
+    })
   }
 
   @ApiTags('me')

@@ -9,13 +9,13 @@ export default function useHealthActivityStats(
   startAt: Date,
   endAt?: Date
 ) {
-  const { api, primary } = useContext(AuthContext)
+  const { api, fetchKey, primary, focusRole } = useContext(AuthContext)
 
   const healthActivitiesData: ApiResult<{
     results: any[]
     total: number
   }> = useQuery(
-    `${type}_${primary.team || primary.organisation}_stats_health_activities`,
+    `${fetchKey}_stats_health_activities`,
     () => {
       const query = {
         start_at: formatISO(startAt || startOfDay(new Date())),
@@ -25,31 +25,15 @@ export default function useHealthActivityStats(
       /**
        * Superadmin can view all stats
        */
-      if (type === 'app') {
-        return api.list<any>('/stats/health-activities', {
-          query
-        })
-      }
-
-      /**
-       * Team admin views stats for their primary team
-       */
-      if (type === 'team' && primary.team) {
-        return api.list<any>('/teams/:teamId/stats/health-activities', {
-          teamId: primary.team,
-          query
-        })
-      }
-
-      /**
-       * Organisation views stats for their primary org
-       */
-      if (type === 'organisation' && primary.organisation) {
+      if (type) {
         return api.list<any>(
-          '/organisations/:organisationId/stats/health-activities',
+          '/stats/health-activities',
           {
-            organisationId: primary.organisation,
             query
+          },
+          {
+            primary,
+            useRole: focusRole
           }
         )
       }

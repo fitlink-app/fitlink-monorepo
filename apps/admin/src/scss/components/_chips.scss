@@ -7,6 +7,10 @@
   background: $grey;
   color: $white;
   text-transform: capitalize;
+
+  &-primary {
+    background: $primary;
+  }
 }
 
 .confirmed {

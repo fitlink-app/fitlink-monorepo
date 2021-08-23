@@ -78,11 +78,11 @@
   .mt-a {
     margin-top: auto;
   }
-  
+
   .mt-#{$i} {
     margin-top: $space;
   }
-  
+
   .mt-sm-#{$i} {
     @media only screen and (min-width: $small) {
       margin-top: $space !important;
@@ -104,11 +104,11 @@
   .mb-a {
     margin-bottom: auto;
   }
-  
+
   .mb-#{$i} {
     margin-bottom: $space;
   }
-  
+
   .mb-sm-#{$i} {
     @media only screen and (min-width: $small) {
       margin-bottom: $space !important;
@@ -130,23 +130,23 @@
   .ml-a {
     margin-left: auto;
   }
-  
+
   .ml-#{$i} {
     margin-left: $space;
   }
-  
+
   .ml-sm-#{$i} {
     @media only screen and (min-width: $small) {
       margin-left: $space !important;
     }
   }
-  
+
   .ml-md-#{$i} {
     @media only screen and (min-width: $medium) {
       margin-left: $space !important;
     }
   }
-  
+
   .ml-lg-#{$i} {
     @media only screen and (min-width: $large) {
       margin-left: $space !important;
@@ -156,23 +156,23 @@
   .mr-a {
     margin-right: auto;
   }
-  
+
   .mr-#{$i} {
     margin-right: $space;
   }
-  
+
   .mr-sm-#{$i} {
     @media only screen and (min-width: $small) {
       margin-right: $space !important;
     }
   }
-  
+
   .mr-md-#{$i} {
     @media only screen and (min-width: $medium) {
       margin-right: $space !important;
     }
   }
-  
+
   .mr-lg-#{$i} {
     @media only screen and (min-width: $large) {
       margin-right: $space !important;
@@ -197,73 +197,73 @@
     padding-left: $space;
     padding-right: $space;
   }
-  
+
   .pt-sm-#{$i} {
     @media only screen and (min-width: $small) {
       padding-top: $space !important;
     }
   }
-  
+
   .pt-md-#{$i} {
     @media only screen and (min-width: $medium) {
       padding-top: $space !important;
     }
   }
-  
+
   .pt-lg-#{$i} {
     @media only screen and (min-width: $large) {
       padding-top: $space !important;
     }
   }
-  
+
   .pb-#{$i} {
     padding-bottom: $space;
   }
-  
+
   .pb-sm-#{$i} {
     @media only screen and (min-width: $small) {
       padding-bottom: $space !important;
     }
   }
-  
+
   .pb-md-#{$i} {
     @media only screen and (min-width: $medium) {
       padding-bottom: $space !important;
     }
   }
-  
+
   .pb-lg-#{$i} {
     @media only screen and (min-width: $large) {
       padding-bottom: $space !important;
     }
   }
-  
+
   .pl-#{$i} {
     padding-left: $space;
   }
-  
+
   .pl-sm-#{$i} {
     @media only screen and (min-width: $small) {
       padding-left: $space !important;
     }
   }
-  
+
   .pl-md-#{$i} {
     @media only screen and (min-width: $medium) {
       padding-left: $space !important;
     }
   }
-  
+
   .pl-lg-#{$i} {
     @media only screen and (min-width: $large) {
       padding-left: $space !important;
     }
   }
-  
+
   .pr-#{$i} {
     padding-right: $space;
   }
-  
+
   .pr-sm-#{$i} {
     @media only screen and (min-width: $small) {
       padding-right: $space !important;
@@ -285,6 +285,11 @@
   // width
   .w-#{$i} {
     width: $space;
+  }
+
+  // height
+  .h-#{$i} {
+    height: $space;
   }
 
   // border radius

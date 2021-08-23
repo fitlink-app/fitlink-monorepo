@@ -229,8 +229,7 @@ export default function TeamsPage() {
           ]}
           fetch={(limit, page) => {
             if (primary.team) {
-              return api.list<UserStat>('/teams/:teamId/stats', {
-                teamId: primary.team,
+              return api.list<UserStat>('/stats', {
                 limit,
                 page
               })

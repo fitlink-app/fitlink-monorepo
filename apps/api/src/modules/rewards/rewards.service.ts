@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, Repository } from 'typeorm'
+import { Brackets, FindOperator, IsNull, MoreThan, Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { Image } from '../images/entities/image.entity'
 import { Organisation } from '../organisations/entities/organisation.entity'
@@ -11,10 +11,18 @@ import { CreateRewardDto } from './dto/create-reward.dto'
 import { UpdateRewardDto } from './dto/update-reward.dto'
 import { Reward, RewardPublic, RewardNext } from './entities/reward.entity'
 import { RewardAccess } from './rewards.constants'
-import { startOfDay } from 'date-fns'
-import { RewardFiltersDto } from './dto/reward-filters.dto'
+import { startOfDay, startOfToday } from 'date-fns'
+import {
+  RewardFiltersDto,
+  RewardGlobalFilterDto
+} from './dto/reward-filters.dto'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RewardClaimedEvent } from './events/reward-claimed.event'
+
+type EntityOwner = {
+  organisationId?: string
+  teamId?: string
+}
 
 type ParentIds = {
   organisationId?: string
@@ -164,8 +172,41 @@ export class RewardsService {
    * @param param0
    * @returns
    */
-  async findAll({ limit = 10, page = 0 }: PaginationOptionsInterface) {
+  async findAll(
+    { limit = 10, page = 0 }: PaginationOptionsInterface,
+    { include_expired_rewards }: RewardGlobalFilterDto = {},
+    entityOwner?: EntityOwner
+  ) {
+    const filters: {
+      reward_expires_at?: FindOperator<Date>
+    } = {
+      reward_expires_at: MoreThan(startOfToday())
+    }
+
+    let organisation: Organisation
+    if (entityOwner && entityOwner.organisationId) {
+      organisation = new Organisation()
+      organisation.id = entityOwner.organisationId
+    }
+
+    let team: Team
+    if (entityOwner && entityOwner.teamId) {
+      team = new Team()
+      team.id = entityOwner.teamId
+    }
+
+    // Include rewards by removing expiry date filtering
+    if (include_expired_rewards === '1') {
+      filters.reward_expires_at = undefined
+    }
+
     const [results, total] = await this.rewardsRepository.findAndCount({
+      where: {
+        team: team ? team : IsNull(),
+        organisation: organisation ? organisation : IsNull(),
+        ...filters
+      },
+      relations: ['image', 'team', 'organisation'],
       take: limit,
       skip: page * limit
     })

@@ -4,5 +4,8 @@ export enum UnitSystem {
 }
 
 export enum UserRank {
-  Newbie = 'Fitlink Newbie'
+  Tier1 = 'Fitlink Newbie',
+  Tier2 = 'Fitlink Sportstar',
+  Tier3 = 'Fitlink Semi-pro',
+  Tier4 = 'Fitlink Pro'
 }

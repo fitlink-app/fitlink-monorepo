@@ -4,11 +4,14 @@ import IconArrowLeft from '../icons/IconArrowLeft'
 import IconArrowLeftDouble from '../icons/IconArrowLeftDouble'
 import IconArrowRight from '../icons/IconArrowRight'
 import IconArrowRightDouble from '../icons/IconArrowRightDouble'
+import Feedback from '../elements/Feedback'
+import Loader from '../elements/Loader'
 
 export type TableProps = {
   columns: Column<any>[]
   data: any[]
   loading: boolean
+  fetched: boolean
   pagination: {
     pagination: TablePagination
     setPagination: (pagination: Partial<TablePagination>) => void
@@ -27,7 +30,8 @@ export function Table({
   columns,
   data,
   loading,
-  pagination: { pagination, setPagination }
+  pagination: { pagination, setPagination },
+  fetched
 }: TableProps) {
   const { pageTotal, limit, total } = pagination
   const offset = pagination.page * limit
@@ -90,6 +94,18 @@ export function Table({
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
+          {page.length === 0 && (
+            <tr>
+              <td colSpan={10000}>
+                <div className="flex row ai-c ji-c p-2">
+                  <div className="col-4 offset-4 h-7">
+                    {fetched && <Feedback message="No data available." />}
+                  </div>
+                </div>
+              </td>
+            </tr>
+          )}
+
           {page.map((row, i) => {
             prepareRow(row)
             return (
@@ -132,7 +148,8 @@ export function Table({
         <span>
           Page{' '}
           <strong>
-            {pageIndex + 1} of {controlledPageCount}
+            {controlledPageCount === 0 ? 0 : pageIndex + 1} of{' '}
+            {controlledPageCount}
           </strong>{' '}
         </span>
         <span>

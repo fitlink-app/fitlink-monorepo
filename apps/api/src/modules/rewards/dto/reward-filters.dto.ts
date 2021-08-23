@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsOptional } from 'class-validator'
+import { IsBoolean, IsInt, IsNumberString, IsOptional } from 'class-validator'
 
 export class RewardFiltersDto {
   @ApiProperty({
@@ -22,4 +22,16 @@ export class RewardFiltersDto {
   })
   @IsOptional()
   available?: boolean = false
+}
+
+export class RewardGlobalFilterDto {
+  @ApiProperty({
+    required: false,
+    nullable: true
+  })
+  @IsOptional()
+  @IsNumberString({
+    no_symbols: true
+  })
+  include_expired_rewards?: '0' | '1'
 }

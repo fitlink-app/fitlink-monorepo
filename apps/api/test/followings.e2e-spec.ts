@@ -1,14 +1,18 @@
-import { Connection } from 'typeorm'
+import { Connection, getConnection } from 'typeorm'
 import { useSeeding } from 'typeorm-seeding'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
 import { Following } from '../src/modules/followings/entities/following.entity'
 import { FollowingsModule } from '../src/modules/followings/followings.module'
-import { UpdateFollowingDto } from '../src/modules/followings/dto/update-following.dto'
 import { CreateFollowingDto } from '../src/modules/followings/dto/create-following.dto'
 import { FollowingsSetup, FollowingsTeardown } from './seeds/followings.seed'
 import { User } from '../src/modules/users/entities/user.entity'
+import { FeedItem } from '../src/modules/feed-items/entities/feed-item.entity'
+import {
+  FeedItemCategory,
+  FeedItemType
+} from '../src/modules/feed-items/feed-items.constants'
 
 describe('Followings', () => {
   let app: NestFastifyApplication
@@ -301,4 +305,36 @@ describe('Followings', () => {
 
     return me.json()
   }
+
+  it(`Testing new follower triggers feed entry creation`, async () => {
+    const userData = data.pop()
+    const userHeaders = getAuthHeaders({}, user)
+    const payload = {
+      targetId: userData.user.id
+    } as CreateFollowingDto
+
+    await app.inject({
+      method: 'POST',
+      url: `/me/following`,
+      headers: userHeaders,
+      payload
+    })
+
+    const feedItem = await getConnection()
+      .getRepository(FeedItem)
+      .findOne({
+        where: {
+          user,
+          type: FeedItemType.NewFollower,
+          category: FeedItemCategory.MyUpdates,
+          related_user: { id: userData.user.id }
+        },
+        relations: ['related_user']
+      })
+
+    expect(feedItem).toBeDefined()
+    expect(feedItem.type).toBe(FeedItemType.NewFollower)
+    expect(feedItem.category).toBe(FeedItemCategory.MyUpdates)
+    expect(feedItem.related_user.id).toBe(userData.user.id)
+  })
 })

@@ -9,6 +9,7 @@ import Drawer from '../components/elements/Drawer'
 import EditUser from '../components/forms/EditUser'
 import { timeout } from '../helpers/timeout'
 import Input from '../components/elements/Input'
+import useDebounce from '../hooks/useDebounce'
 
 export default function UsersPage() {
   const [drawContent, setDrawContent] = useState<
@@ -62,11 +63,12 @@ export default function UsersPage() {
     </div>
   )
 
-  const handleUsernameSearch = async(search) => {
+  const handleUsernameSearch = async (search) => {
     setKeyword(search)
   }
 
-  const { api } = useContext(AuthContext)
+  const dbSearchTerm = useDebounce(keyword, 500)
+  const { api, fetchKey, focusRole, primary } = useContext(AuthContext)
 
   return (
     <Dashboard title="Settings Users">
@@ -97,15 +99,30 @@ export default function UsersPage() {
             { Header: ' ', Cell: cellActions }
           ]}
           fetch={(limit, page, query) =>
-            api.list<User>('/users', {
-              limit,
-              page,
-              query: query.q? { q: query.q } : { q: undefined }
-            })
+            /**
+             * Note that the organisation or team
+             * is inferred using role prefix.
+             *
+             * /users
+             * /organisations/:organisationId/users
+             * /teams/:teamId/users
+             */
+            api.list<User>(
+              '/users',
+              {
+                limit,
+                page,
+                query
+              },
+              {
+                primary,
+                useRole: focusRole
+              }
+            )
           }
-          fetchName="users"
+          fetchName={`users_${fetchKey}`}
           refresh={refresh}
-          keyword={keyword}
+          keyword={dbSearchTerm}
         />
       </div>
 

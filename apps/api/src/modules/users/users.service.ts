@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { formatRoles } from '../../helpers/formatRoles'
-import { Repository, ILike } from 'typeorm'
+import { Repository } from 'typeorm'
 import { JWTRoles } from '../../models'
 import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -19,7 +19,12 @@ import { ConfigService } from '@nestjs/config'
 import { FirebaseScrypt } from './helpers/firebase-scrypt'
 import { AuthProvider } from '../auth/entities/auth-provider.entity'
 import { ImagesService } from '../images/images.service'
-import { SearchUserDto } from './dto/search-user.dto'
+import { FilterUserDto } from './dto/search-user.dto'
+
+type EntityOwner = {
+  organisationId?: string
+  teamId?: string
+}
 
 @Injectable()
 export class UsersService {
@@ -166,23 +171,48 @@ export class UsersService {
   }
 
   async findAllUsers(
-    options: PaginationOptionsInterface,
-    query?: SearchUserDto
+    { limit = 10, page = 0 }: PaginationOptionsInterface,
+    filters: FilterUserDto = {},
+    entityOwner?: EntityOwner
   ): Promise<Pagination<User>> {
-    let column = 'name'
-    if (query.q && query.q.indexOf('@') > 0) {
-      column = 'email'
-    } 
-    const [results, total] = await this.userRepository.findAndCount({
-      take: options.limit,
-      skip: options.page * options.limit,
-      where: query.q
-      ? {
-          [column]: ILike(query.q)
-        }
-      : undefined,
-      relations: ['settings', 'avatar']
-    })
+    let query = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.settings', 'settings')
+      .leftJoinAndSelect('user.avatar', 'avatar')
+      .take(limit)
+      .skip(page * limit)
+
+    if (entityOwner && entityOwner.organisationId) {
+      query = query
+        .innerJoin('user.teams', 'team')
+        .innerJoin('team.organisation', 'organisation')
+        .where('organisation.id = :organisationId', {
+          organisationId: entityOwner.organisationId
+        })
+    }
+
+    if (entityOwner && entityOwner.teamId) {
+      query = query
+        .innerJoin('user.teams', 'team')
+        .innerJoin('team.organisation', 'organisation')
+        .where('team.id = :teamId', {
+          teamId: entityOwner.teamId
+        })
+    }
+
+    const where = entityOwner ? 'andWhere' : 'where'
+    if (filters.q && filters.q.indexOf('@') > 0) {
+      query = query[where]('user.email ILIKE :email', {
+        email: `${filters.q}%`
+      })
+    } else if (filters.q) {
+      query = query[where]('user.name ILIKE :name', {
+        name: `%${filters.q}%`
+      })
+    }
+
+    const [results, total] = await query.getManyAndCount()
+
     return new Pagination<User>({
       results,
       total

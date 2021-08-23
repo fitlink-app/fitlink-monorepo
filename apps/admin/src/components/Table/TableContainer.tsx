@@ -1,17 +1,20 @@
-import React, { useMemo, useCallback, useState, useEffect } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { Table, TablePagination } from './Table'
 import { Column } from 'react-table'
 import { ApiResult } from '@fitlink/common/react-query/types'
 import { getErrorMessage } from '@fitlink/api-sdk'
 import { useQuery } from 'react-query'
-import { timeout } from '../../helpers/timeout'
 
 export type TableContainerProps = {
   columns: Column<any>[]
-  fetch: (limit: number, page: number, query?: { q: string }) => Promise<ListData>
-  fetchName: string
-  refresh?: number,
   keyword?: string
+  fetchName: string
+  refresh?: number
+  fetch: (
+    limit: number,
+    page: number,
+    query?: { q: string }
+  ) => Promise<ListData>
 }
 
 type ListData = {
@@ -20,16 +23,13 @@ type ListData = {
   total: number
 }
 
-const noop = () => {}
-
 export function TableContainer({
   columns,
-  fetch,
   fetchName,
   refresh,
-  keyword
+  keyword,
+  fetch
 }: TableContainerProps) {
-  // const [refresh, setRefresh] = useState(0)
   const [results, setResults] = useState([])
   const [errorMessage, setError] = useState('')
 
@@ -49,12 +49,13 @@ export function TableContainer({
     isError,
     error,
     isFetching,
+    isFetched,
     isPreviousData,
     refetch
   }: ApiResult<ListData> = useQuery(
     [fetchName, limit, page, keyword],
     async () => {
-      return fetch(limit, page, {q: keyword})
+      return fetch(limit, page, { q: keyword })
     },
     {
       retry: false,
@@ -99,10 +100,10 @@ export function TableContainer({
         columns={memoizedColumns}
         data={results}
         loading={isFetching}
+        fetched={isFetched}
         pagination={{
           pagination,
           setPagination: (state) => {
-            console
             setPagination({
               ...pagination,
               ...state

@@ -1,4 +1,5 @@
 import CurrencyInput from 'react-currency-input-field'
+import { UseFormRegisterReturn } from 'react-hook-form'
 import clsx from 'clsx'
 
 export type CurrencyProps = {
@@ -16,6 +17,7 @@ export type CurrencyProps = {
     currency: string
   }
   error?: string
+  register?: UseFormRegisterReturn
 }
 
 export default function Currency({
@@ -29,7 +31,8 @@ export default function Currency({
   inline,
   decimals = 2,
   locale = { locale: 'en-US', currency: 'GBP' },
-  error = ''
+  error = '',
+  register
 }: CurrencyProps) {
   const classes = clsx({
     'input-block': true,
@@ -54,8 +57,9 @@ export default function Currency({
         decimalScale={decimals}
         onValueChange={(value) => handleChange(value)}
         placeholder={placeholder}
+        {...register}
       />
-      { error !== '' && <span>{error}</span> }
+      {error !== '' && <span>{error}</span>}
     </div>
   )
 }

@@ -65,12 +65,8 @@ export default function page() {
                 organizer_email: organizer_email,
                 organizer_image: organizer_image?.url || '',
                 meeting_point_text: meeting_point_text,
-                lat: meeting_point.coordinates[0],
-                lng: meeting_point.coordinates[1],
-                type: {
-                  label: type.charAt(0).toUpperCase() + type.slice(1),
-                  value: type
-                }
+                meeting_point: meeting_point,
+                type: type
               }}
             />
           )

@@ -6,6 +6,8 @@ import { Following } from './entities/following.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { User, UserPublic } from '../users/entities/user.entity'
 import { plainToClass } from 'class-transformer'
+import { EventEmitter2 } from '@nestjs/event-emitter'
+import { NewFollowerEvent } from '../users/events/new-follower.event'
 
 @Injectable()
 export class FollowingsService {
@@ -13,7 +15,8 @@ export class FollowingsService {
     @InjectRepository(Following)
     private followingRepository: Repository<Following>,
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private userRepository: Repository<User>,
+    private eventEmitter: EventEmitter2
   ) {}
 
   /**
@@ -45,6 +48,11 @@ export class FollowingsService {
       ...result,
       ...following
     })
+
+    const event = new NewFollowerEvent()
+    event.userId = userId
+    event.targetId = createFollowingDto.targetId
+    await this.eventEmitter.emitAsync('user.new_follower', event)
 
     return plainToClass(UserPublic, saved.following, {
       excludeExtraneousValues: true

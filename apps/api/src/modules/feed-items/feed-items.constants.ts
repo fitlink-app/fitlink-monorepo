@@ -19,11 +19,6 @@ export enum FeedItemType {
   TierDown = 'tier_down'
 }
 
-export enum UserTier {
-  tier1 = 'Fitlink Newbie',
-  tier2 = 'Fitlink Pro'
-}
-
 export enum FeedGoalType {
   Steps = 'steps',
   FloorsClimbed = 'floors_climbed',

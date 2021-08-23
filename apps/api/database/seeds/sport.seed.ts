@@ -2,14 +2,26 @@ import { Seeder, Factory } from 'typeorm-seeding'
 import { Connection } from 'typeorm'
 import { Sport } from '../../src/modules/sports/entities/sport.entity'
 
+/**
+ * Create sports list
+ *
+ * Run `yarn migration:seed:sports`
+ *
+ * This must be done before migrating from Firebase legacy.
+ *
+ * Sports are required to process health activity events
+ * and must match with keys defined in code when processing
+ * from Strava & Fitbit.
+ */
+
 export default class CreateSports implements Seeder {
   public async run(factory: Factory, connection: Connection): Promise<any> {
     const sportRepository = connection.getRepository(Sport)
-    /**
-     * Create sports list
-     */
-    if (!(await sportRepository.findOne({ name_key: 'skiing' }))) {
-      await factory(Sport)().create({
+    const sports = await sportRepository.find()
+    const create: Partial<Sport>[] = []
+
+    if (!exists('skiing')) {
+      create.push({
         name: 'Skiing',
         name_key: 'skiing',
         singular: 'ski',
@@ -17,8 +29,8 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'hiking' }))) {
-      await factory(Sport)().create({
+    if (!exists('hiking')) {
+      create.push({
         name: 'Hiking',
         name_key: 'hiking',
         singular: 'hike',
@@ -26,8 +38,8 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'cycling' }))) {
-      await factory(Sport)().create({
+    if (!exists('cycling')) {
+      create.push({
         name: 'Cycling',
         name_key: 'cycling',
         singular: 'ride',
@@ -35,8 +47,8 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'crossfitTraining' }))) {
-      await factory(Sport)().create({
+    if (!exists('crossfitTraining')) {
+      create.push({
         name: 'Crossfit',
         name_key: 'crossfitTraining',
         singular: 'crossfit workout',
@@ -44,8 +56,8 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'rowing' }))) {
-      await factory(Sport)().create({
+    if (!exists('rowing')) {
+      create.push({
         name: 'Rowing',
         name_key: 'rowing',
         singular: 'row',
@@ -53,8 +65,8 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'snowboarding' }))) {
-      await factory(Sport)().create({
+    if (!exists('snowboarding')) {
+      create.push({
         name: 'Snowboarding',
         name_key: 'snowboarding',
         singular: 'snowboard',
@@ -62,8 +74,8 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'surfing' }))) {
-      await factory(Sport)().create({
+    if (!exists('surfing')) {
+      create.push({
         name: 'Surfing',
         name_key: 'surfing',
         singular: 'surf',
@@ -71,8 +83,8 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'walking' }))) {
-      await factory(Sport)().create({
+    if (!exists('walking')) {
+      create.push({
         name: 'Walking',
         name_key: 'walking',
         singular: 'walk',
@@ -80,8 +92,8 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'yoga' }))) {
-      await factory(Sport)().create({
+    if (!exists('yoga')) {
+      create.push({
         name: 'Yoga',
         name_key: 'yoga',
         singular: 'yoga session',
@@ -89,8 +101,8 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'running' }))) {
-      await factory(Sport)().create({
+    if (!exists('running')) {
+      create.push({
         name: 'Running',
         name_key: 'running',
         singular: 'run',
@@ -98,8 +110,8 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'golf' }))) {
-      await factory(Sport)().create({
+    if (!exists('golf')) {
+      create.push({
         name: 'Golf',
         name_key: 'golf',
         singular: 'golf game',
@@ -107,8 +119,8 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'spinning' }))) {
-      await factory(Sport)().create({
+    if (!exists('spinning')) {
+      create.push({
         name: 'Spinning',
         name_key: 'spinning',
         singular: 'spinning session',
@@ -116,8 +128,8 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'spinning' }))) {
-      await factory(Sport)().create({
+    if (!exists('weightLifting')) {
+      create.push({
         name: 'Weightlifting',
         name_key: 'weightLifting',
         singular: 'weightlifting session',
@@ -125,13 +137,19 @@ export default class CreateSports implements Seeder {
       })
     }
 
-    if (!(await sportRepository.findOne({ name_key: 'spinning' }))) {
-      await factory(Sport)().create({
+    if (!exists('tennis')) {
+      create.push({
         name: 'Tennis',
         name_key: 'tennis',
         singular: 'tennis game',
         plural: 'tennis games'
       })
+    }
+
+    await Promise.all(create.map((e) => factory(Sport)().create(e)))
+
+    function exists(nameKey: string) {
+      return sports.filter((e) => e.name_key === nameKey).length === 1
     }
   }
 }

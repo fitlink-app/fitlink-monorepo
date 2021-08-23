@@ -14,7 +14,7 @@ import { Team } from '../../teams/entities/team.entity'
 import { Image } from '../../images/entities/image.entity'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { League } from '../../leagues/entities/league.entity'
-import { User } from '../../users/entities/user.entity'
+import { User, UserPublic } from '../../users/entities/user.entity'
 import { ActivityType } from '../activities.constants'
 import { ApiProperty } from '@nestjs/swagger'
 import { Organisation } from '../../organisations/entities/organisation.entity'
@@ -80,7 +80,7 @@ export class Activity extends CreatableEntity {
   tsv?: string
 
   @ManyToOne(() => User, (user) => user.activities, { nullable: true })
-  owner?: User
+  owner?: User | UserPublic
 
   @ManyToOne(() => Team, (team) => team.activities, { nullable: true })
   team?: Team
