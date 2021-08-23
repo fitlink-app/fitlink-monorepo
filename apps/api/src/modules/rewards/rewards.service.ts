@@ -197,7 +197,7 @@ export class RewardsService {
 
     // Include rewards by removing expiry date filtering
     if (include_expired_rewards === '1') {
-      filters.reward_expires_at = undefined
+      delete filters.reward_expires_at
     }
 
     const [results, total] = await this.rewardsRepository.findAndCount({

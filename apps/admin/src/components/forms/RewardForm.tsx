@@ -34,7 +34,7 @@ const getFields = (reward: Partial<RewardEntity>) => {
     limit_units: reward.limit_units,
     units_available: reward.units_available,
     points_required: reward.points_required,
-    image_upload: null
+    image_upload: undefined
   }
 }
 
@@ -106,7 +106,7 @@ export default function RewardForm({
       // Handle images upload
       payload.imageId = await uploadReplaceOrKeep(
         image_upload,
-        (current.image || {}).id
+        current.image ? current.image.id : undefined
       )
 
       // Force integers
@@ -117,7 +117,7 @@ export default function RewardForm({
         payload.units_available = 0
       }
 
-      console.log(payload)
+      console.log(image_upload, payload)
 
       await createOrUpdate(payload)
 

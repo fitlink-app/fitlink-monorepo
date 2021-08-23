@@ -41,7 +41,6 @@ export default function page() {
           className="button small ml-1"
           onClick={() => {
             setWarning(true)
-            setWide(true)
             setDrawContent(
               <ActivityForm current={original} onSave={closeDrawer(1000)} />
             )
@@ -54,7 +53,6 @@ export default function page() {
 
   const NewActivityForm = () => {
     setWarning(true)
-    setWide(true)
     setDrawContent(<ActivityForm current={{}} onSave={closeDrawer(1000)} />)
   }
 
@@ -68,7 +66,6 @@ export default function page() {
 
   const DeleteForm = (fields) => {
     setWarning(true)
-    setWide(false)
     setDrawContent(
       <ConfirmDeleteForm
         onDelete={closeDrawer(1000)}

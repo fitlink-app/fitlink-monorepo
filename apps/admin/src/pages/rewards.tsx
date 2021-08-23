@@ -17,15 +17,16 @@ import { Reward as RewardEntity } from '@fitlink/api/src/modules/rewards/entitie
 import { useQuery } from 'react-query'
 import { timeout } from '../helpers/timeout'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const rewards = require('../services/dummy/rewards.json')
 
 export default function page() {
+  const { api, primary, focusRole, fetchKey } = useContext(AuthContext)
+
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)
   const [warning, setWarning] = useState(false)
 
-  const [sorted, setSorted] = useState([])
+  const [sorted, setSorted] = useState<RewardEntity[]>([])
   const [sort, setSort] = useState<'asc' | 'desc'>('asc')
   const [sortOn, setSortOn] = useState('points_required')
 
@@ -33,10 +34,11 @@ export default function page() {
   const [sortFL, setSortFL] = useState<'asc' | 'desc'>('asc')
   const [sortOnFL, setSortOnFL] = useState('points_required')
 
-  const [showFL, setShowFL] = useState(true)
+  const [showFL, setShowFL] = useState(false)
   const [refresh, setRefresh] = useState(0)
 
   const [fitlinkRewards, setFitlinkRewards] = useState<RewardEntity[]>([])
+  const [rewards, setRewards] = useState<RewardEntity[]>([])
 
   const options = [
     {
@@ -57,37 +59,11 @@ export default function page() {
     }
   ]
 
-  /* useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const Flickity = require('flickity')
-    const flick = new Flickity('.rewards', {
-      prevNextButtons: false,
-      pageDots: false,
-      cellAlign: 'left',
-      contain: true
-    })
-  }, []) */
-
   useEffect(() => {
-    // if (!window.localStorage.getItem('showFLRewards')) {
-    //   setShowFL(true)
-    //   window.localStorage.setItem('showFLRewards', 'true')
-    // } else {
-    //   setShowFL(window.localStorage.getItem('showFLRewards') === 'true')
-    // }
-    // if (!window.localStorage.getItem('showCharityRewards')) {
-    //   setShowCharity(true)
-    //   window.localStorage.setItem('showCharityRewards', 'true')
-    // } else {
-    //   setShowCharity(
-    //     window.localStorage.getItem('showCharityRewards') === 'true'
-    //   )
-    // }
-  }, [])
-
-  useEffect(() => {
-    window.localStorage.setItem('showFLRewards', showFL.toString())
-  }, [showFL])
+    if (focusRole === 'app') {
+      setShowFL(true)
+    }
+  }, [focusRole])
 
   useEffect(() => {
     const rewards = fitlinkRewards
@@ -123,26 +99,25 @@ export default function page() {
   }, [fitlinkRewards, sortOnFL, sortFL])
 
   useEffect(() => {
-    const orig = JSON.parse(JSON.stringify(rewards))
     switch (sortOn) {
       case 'name_short':
       case 'brand':
         setSorted(
-          orig.results.sort((a, b) =>
-            sort === 'asc'
-              ? a[sortOn].toLowerCase() > b[sortOn].toLowerCase()
-              : a[sortOn].toLowerCase() < b[sortOn].toLowerCase()
-          )
+          rewards.sort((a, b) => {
+            if (sortFL === 'asc') {
+              return a[sortOn].toLowerCase() > b[sortOn].toLowerCase() ? 1 : -1
+            } else {
+              return a[sortOn].toLowerCase() < b[sortOn].toLowerCase() ? 1 : -1
+            }
+          })
         )
         break
       case 'points_required':
       case 'redeemed_count':
       default:
         setSorted(
-          orig.results.sort((a, b) =>
-            sort === 'asc'
-              ? parseFloat(a[sortOn]) - parseFloat(b[sortOn])
-              : parseFloat(b[sortOn]) - parseFloat(a[sortOn])
+          rewards.sort((a, b) =>
+            sortFL === 'asc' ? a[sortOn] - b[sortOn] : b[sortOn] - a[sortOn]
           )
         )
         break
@@ -169,17 +144,44 @@ export default function page() {
 
   const NewRewardForm = () => {
     setWarning(true)
-    setDrawContent(<RewardForm current={{}} />)
+    setDrawContent(
+      <RewardForm
+        current={{}}
+        onSave={() => {
+          setRefresh(Date.now())
+          closeDrawer(1000)()
+        }}
+      />
+    )
   }
 
-  const { api, primary, focusRole, fetchKey } = useContext(AuthContext)
+  const rewardsGlobalQuery: ApiResult<{
+    results: RewardEntity[]
+    total: number
+    page_total: number
+  }> = useQuery(`global_rewards`, async () => {
+    if (focusRole) {
+      return api.list<RewardEntity>('/rewards', {
+        query: {
+          limit: 100,
+          include_expired_rewards: 0
+        }
+      })
+    }
 
-  const rewardQuery: ApiResult<{
+    return Promise.resolve({
+      results: [],
+      total: 0,
+      page_total: 0
+    })
+  })
+
+  const rewardsQuery: ApiResult<{
     results: RewardEntity[]
     total: number
     page_total: number
   }> = useQuery(`${fetchKey}_rewards`, async () => {
-    if (focusRole) {
+    if (focusRole === 'organisation' || focusRole === 'team') {
       return api.list<RewardEntity>(
         '/rewards',
         {
@@ -203,14 +205,18 @@ export default function page() {
   })
 
   useEffect(() => {
-    rewardQuery.refetch()
+    rewardsGlobalQuery.refetch()
+    rewardsQuery.refetch()
   }, [refresh])
 
   useEffect(() => {
-    if (rewardQuery.isFetched) {
-      setFitlinkRewards(rewardQuery.data.results)
+    if (rewardsGlobalQuery.isFetched) {
+      setFitlinkRewards(rewardsGlobalQuery.data.results)
     }
-  }, [rewardQuery.data])
+    if (rewardsQuery.isFetched) {
+      setRewards(rewardsQuery.data.results)
+    }
+  }, [rewardsGlobalQuery.data, rewardsQuery.data])
 
   const closeDrawer = (ms = 0) => async () => {
     if (ms) {
@@ -227,7 +233,10 @@ export default function page() {
           <div className="row ai-c mb-2">
             <div className="col-12 col-lg-8">
               <div className="flex ai-c">
-                <h1 className="light mb-0 mr-2">Your rewards</h1>
+                <h1 className="light mb-0 mr-2">
+                  {focusRole === 'organisation' ? 'Organisation' : 'Team'}{' '}
+                  rewards
+                </h1>
                 <button
                   className="button alt small mt-1"
                   onClick={NewRewardForm}>
@@ -254,9 +263,9 @@ export default function page() {
                 <IconPlus />
               </div>
             </div>
-            {sorted.map((r: RewardProps, i) => (
+            {sorted.map((r, i) => (
               <div className="rewards__wrap" key={`fl-r-${i}`}>
-                <Reward {...r} onClick={() => loadReward(r)} />
+                <Reward {...formatReward(r)} onClick={() => loadReward(r)} />
               </div>
             ))}
           </div>
@@ -308,26 +317,21 @@ export default function page() {
               </div>
             )}
 
-            {sortedFL.map((r, i) => (
-              <div className="rewards__wrap" key={`fl-r-${i}`}>
-                <Reward
-                  brand={r.brand}
-                  expires={r.reward_expires_at}
-                  points={r.points_required}
-                  shortTitle={r.name_short}
-                  code={r.code}
-                  description={r.description}
-                  instructions={r.redeem_instructions}
-                  redeemed={r.redeemed_count}
-                  title={r.name}
-                  url={r.redeem_url}
-                  image={r.image ? r.image.url : undefined}
-                  onClick={() =>
-                    focusRole === 'app' ? loadReward(r) : loadReadonlyReward(r)
-                  }
-                />
-              </div>
-            ))}
+            {sortedFL.map((r, i) => {
+              const reward = formatReward(r)
+              return (
+                <div className="rewards__wrap" key={`fl-r-${i}`}>
+                  <Reward
+                    {...reward}
+                    onClick={() =>
+                      focusRole === 'app'
+                        ? loadReward(r)
+                        : loadReadonlyReward(reward)
+                    }
+                  />
+                </div>
+              )
+            })}
           </div>
         </>
       ) : (
@@ -351,4 +355,21 @@ export default function page() {
       </AnimatePresence>
     </Dashboard>
   )
+}
+
+const formatReward = (r: RewardEntity) => {
+  return {
+    brand: r.brand,
+    expires: r.reward_expires_at,
+    points: r.points_required,
+    shortTitle: r.name_short,
+    code: r.code,
+    description: r.description,
+    instructions: r.redeem_instructions,
+    redeemed: r.redeemed_count,
+    title: r.name,
+    url: r.redeem_url,
+    image: r.image ? r.image.url : undefined,
+    created: r.created_at
+  }
 }
