@@ -33,7 +33,7 @@ export default function useGoalStats(
   startAt: Date,
   endAt?: Date
 ) {
-  const { api, primary } = useContext(AuthContext)
+  const { api, primary, focusRole } = useContext(AuthContext)
 
   const goalStatsData: ApiResult<Result & Progress> = useQuery(
     `${type}_${primary.team || primary.organisation}_stats_goals`,
@@ -44,39 +44,19 @@ export default function useGoalStats(
       }
 
       /**
-       * Superadmin can view all stats
+       * Endpoint is adjusted based on role
        */
-      if (type === 'app') {
-        const result = await api.get<Result>('/stats/goals', {
-          query
-        })
-
-        return formatResults(result)
-      }
-
-      /**
-       * Org admin can view all the org's stats
-       */
-      if (type === 'organisation') {
+      if (type) {
         const result = await api.get<Result>(
-          '/organisations/:organisationId/stats/goals',
+          '/stats/goals',
           {
-            query,
-            organisationId: primary.organisation
+            query
+          },
+          {
+            primary,
+            useRole: focusRole
           }
         )
-
-        return formatResults(result)
-      }
-
-      /**
-       * Team admin can view all the team's stats
-       */
-      if (type === 'team') {
-        const result = await api.get<Result>('/teams/:teamId/stats/goals', {
-          query,
-          teamId: primary.team
-        })
 
         return formatResults(result)
       }

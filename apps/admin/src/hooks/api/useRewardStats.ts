@@ -15,43 +15,27 @@ export default function useRewardStats(
   startAt: Date,
   endAt: Date
 ) {
-  const { api, primary } = useContext(AuthContext)
+  const { api, fetchKey, primary, focusRole } = useContext(AuthContext)
 
   const statsData: ApiResult<Result[]> = useQuery(
-    `${type}_${primary.team || primary.organisation}_stats_rewards`,
+    `${fetchKey}_stats_rewards`,
     async () => {
       const query = {
         start_at: formatISO(startAt || startOfDay(new Date())),
         end_at: formatISO(endAt || endOfDay(new Date()))
       }
 
-      /**
-       * Superadmin can view all stats
-       */
-      if (type === 'app') {
-        return api.get<Result[]>('/stats/rewards', {
-          query
-        })
-      }
-
-      /**
-       * Org admin can view all the org's stats
-       */
-      if (type === 'organisation') {
-        return api.get<Result>('/organisations/:organisationId/stats/rewards', {
-          query,
-          organisationId: primary.organisation
-        })
-      }
-
-      /**
-       * Team admin can view all the team's stats
-       */
-      if (type === 'team') {
-        return api.get<Result>('/teams/:teamId/stats/rewards', {
-          query,
-          teamId: primary.team
-        })
+      if (type) {
+        return api.get<Result[]>(
+          '/stats/rewards',
+          {
+            query
+          },
+          {
+            primary,
+            useRole: focusRole
+          }
+        )
       }
 
       return Promise.resolve([])

@@ -112,7 +112,12 @@ export default function page() {
               </div>
             </div>
             <div style={{ height: '400px' }}>
-              <VerticalBarChart />
+              <VerticalBarChart
+                data={{
+                  labels: ['Running', 'Walking', 'Cycling'],
+                  values: [12, 4, 9]
+                }}
+              />
             </div>
           </Card>
         </div>

@@ -1,45 +1,143 @@
-import { useState } from 'react'
-import { add } from 'date-fns'
+import React, { useContext, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import Input from '../elements/Input'
-import Reward, { RewardProps } from '../elements/Reward'
+import Reward from '../elements/Reward'
 import DateInput from '../elements/DateInput'
 import { addYears } from 'date-fns'
 import IconImage from '../icons/IconImage'
+import { Reward as RewardEntity } from '@fitlink/api/src/modules/rewards/entities/reward.entity'
+import { CreateRewardDto } from '@fitlink/api/src/modules/rewards/dto/create-reward.dto'
+import useFormMutations from '../../hooks/api/useFormMutations'
+import { AuthContext } from '../../context/Auth.context'
+import Checkbox from '../elements/Checkbox'
+import Feedback from '../elements/Feedback'
 
 export type RewardFormProps = {
-  current?: RewardProps
+  current?: Partial<RewardEntity>
+  onSave?: () => void
+  onError?: (err: any) => void
 }
 
-export default function RewardForm({
-  current
-}:RewardFormProps) {
-  const [image, setImage] = useState(current?.image || '')
-  const [brand, setBrand] = useState(current?.brand || '')
-  const [shortTitle, setShortTitle] = useState(current?.shortTitle || '')
-  const [title, setTitle] = useState(current?.title || '')
-  const [points, setPoints] = useState(current?.points || 0)
-  const [expires, setExpires] = useState(current?.expires ? new Date(current?.expires) : add(new Date(), { months: 2 }))
-  const [code, setCode] = useState(current?.code || '')
-  const [instructions, setInstructions] = useState(current?.instructions || '')
-  const [url, setUrl] = useState(current?.url || '')
-  const [description, setDescription] = useState(current?.description || '')
+const getFields = (reward: Partial<RewardEntity>) => {
+  return {
+    id: reward.id,
+    name: reward.name,
+    image: reward.image || {},
+    description: reward.description,
+    name_short: reward.name_short,
+    reward_expires_at: reward.reward_expires_at || new Date(),
+    code: reward.code,
+    redeem_url: reward.redeem_url,
+    redeem_instructions: reward.redeem_instructions,
+    platform: reward.platform,
+    brand: reward.brand,
+    limit_units: reward.limit_units,
+    units_available: reward.units_available,
+    points_required: reward.points_required,
+    image_upload: null
+  }
+}
 
-  const previewImage = (e) => {
-    setImage(URL.createObjectURL(e.target.files[0]))
+const noop = () => {}
+
+export default function RewardForm({
+  current,
+  onSave = noop,
+  onError = noop
+}: RewardFormProps) {
+  const { api, focusRole, primary } = useContext(AuthContext)
+  const [image, setImage] = useState(current?.image?.url || '')
+  const isUpdate = !!current.id
+
+  const { register, handleSubmit, watch, setValue } = useForm({
+    defaultValues: getFields(current)
+  })
+
+  const { errors, createOrUpdate, uploadReplaceOrKeep } = useFormMutations<
+    CreateRewardDto,
+    RewardEntity
+  >({
+    type: 'Reward',
+    isUpdate,
+    create: (payload) =>
+      api.post<RewardEntity>(
+        '/rewards',
+        {
+          payload
+        },
+        {
+          primary,
+          useRole: focusRole
+        }
+      ),
+    update: (payload) =>
+      api.put<RewardEntity>(
+        `/rewards/:rewardId`,
+        {
+          payload,
+          rewardId: current.id
+        },
+        {
+          primary,
+          useRole: focusRole
+        }
+      )
+  })
+
+  const brand = watch('brand')
+  const shortTitle = watch('name_short')
+  const points = watch('points_required')
+  const expires = watch('reward_expires_at')
+  const redeemed = current.redeemed_count || 0
+  const title = watch('name')
+  const description = watch('description')
+  const instructions = watch('redeem_instructions')
+  const code = watch('code')
+  const limitUnits = watch('limit_units')
+
+  async function onSubmit(
+    data: CreateRewardDto & {
+      image_upload: File
+    }
+  ) {
+    const { image_upload, ...payload } = data
+
+    try {
+      // Handle images upload
+      payload.imageId = await uploadReplaceOrKeep(
+        image_upload,
+        (current.image || {}).id
+      )
+
+      // Force integers
+      payload.points_required = parseInt(data.points_required as any)
+      if (payload.limit_units) {
+        payload.units_available = parseInt(data.units_available as any)
+      } else {
+        payload.units_available = 0
+      }
+
+      console.log(payload)
+
+      await createOrUpdate(payload)
+
+      onSave()
+    } catch (e) {
+      console.log(e)
+      onError(e)
+    }
   }
 
   return (
-    <form onSubmit={ (e) => e.preventDefault() }>
-      <h4 className="light mb-3">
-        { current ? 'Edit reward' : 'New reward' }
-      </h4>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <h4 className="light mb-3">{current ? 'Edit reward' : 'New reward'}</h4>
       <Reward
         image={image}
         brand={brand}
         shortTitle={shortTitle}
         points={points}
         expires={expires}
-        redeemed={0}
+        redeemed={redeemed}
         title={title}
         description={description}
         code={code}
@@ -51,84 +149,118 @@ export default function RewardForm({
         <input
           type="file"
           id="image"
-          onChange={previewImage}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setImage(URL.createObjectURL(event.target.files[0]))
+            setValue('image_upload', event.target.files[0])
+          }}
           accept="image/*"
         />
         <IconImage />
         <label htmlFor="image">Select an image</label>
       </div>
+      <div>
+        {errors.imageId && (
+          <Feedback type="error" message="An image must be provided" />
+        )}
+      </div>
 
       <Input
-        name="points"
+        name="points_required"
         placeholder="0"
         label="Points required"
-        value={points}
         type="number"
-        onChange={(v) => setPoints(v)}
+        register={register('points_required')}
+        error={errors.points_required}
       />
       <Input
         name="brand"
         placeholder="Brand name"
         label="Brand name"
         value={brand}
-        onChange={(v) => setBrand(v)}
+        register={register('brand')}
+        error={errors.brand}
       />
       <Input
         name="shortTitle"
         placeholder="Short title"
         label="Title (on thumbnail)"
         value={shortTitle}
-        onChange={(v) => setShortTitle(v)}
+        register={register('name_short')}
+        error={errors.name_short}
       />
       <Input
         name="title"
         placeholder="Full title"
         label="Full title (in details page)"
         value={title}
-        onChange={(v) => setTitle(v)}
+        register={register('name')}
+        error={errors.name}
       />
       <Input
         name="description"
         placeholder="Description"
         label="Long description"
-        value={description}
         type="textarea"
-        onChange={(v) => setDescription(v)}
+        register={register('description')}
+        error={errors.description}
       />
       <Input
         name="code"
         placeholder="Code"
         label="Redemption code"
-        value={code}
-        onChange={(v) => setCode(v)}
+        register={register('code')}
+        error={errors.code}
       />
       <Input
-        name="instructions"
+        name="redeem_instructions"
         placeholder="How to redeem"
         label="Redemption instructions"
         value={instructions}
         type="textarea"
         rows={3}
-        onChange={(v) => setInstructions(v)}
+        register={register('redeem_instructions')}
+        error={errors.redeem_instructions}
       />
       <Input
-        name="url"
+        name="redeem_url"
         placeholder="URL"
         label="Redemption URL"
-        value={url}
-        onChange={(v) => setUrl(v)}
+        register={register('redeem_url')}
+        error={errors.redeem_url}
       />
       <DateInput
         label="Expiry date"
         name="expires"
-        startDate={expires}
-        onChange={(v) => setExpires(v)}
+        startDate={expires ? new Date(expires) : new Date()}
+        onChange={(v) => {
+          setValue('reward_expires_at', v)
+        }}
         minDate={new Date()}
         maxDate={addYears(new Date(), 10)}
+        error={errors.reward_expires_at}
       />
+
+      <Checkbox
+        label="Limit units"
+        name="limit_units"
+        register={register('limit_units')}
+        error={errors.limit_units}
+      />
+
+      {limitUnits && (
+        <Input
+          name="units_available"
+          placeholder="0"
+          label="Units available"
+          type="number"
+          register={register('units_available')}
+          error={errors.units_available}
+        />
+      )}
+
       <div className="text-right mt-2">
         <button className="button">
-        { current ? 'Update' : 'Create reward' }
+          {current.id ? 'Update' : 'Create reward'}
         </button>
       </div>
     </form>

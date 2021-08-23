@@ -8,7 +8,7 @@ export type ImageUploadDropperProps = {
 
 export default function ImageUploadDropper({
   onChange
-}:ImageUploadDropperProps) {
+}: ImageUploadDropperProps) {
   const [hover, setHover] = useState(false)
   const [total, setTotal] = useState(0)
   const [files, setFiles] = useState([])
@@ -16,7 +16,7 @@ export default function ImageUploadDropper({
 
   const classes = clsx({
     'image-upload': true,
-    'image-upload--hover': hover,
+    'image-upload--hover': hover
   })
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export default function ImageUploadDropper({
   }, [])
 
   useEffect(() => {
-    if (onChange && (total === files.length) && total > 0) {
+    if (onChange && total === files.length && total > 0) {
       onChange(files)
       setTotal(0)
       setFiles([])
@@ -62,15 +62,20 @@ export default function ImageUploadDropper({
     const list = e.dataTransfer ? e.dataTransfer.files : e.target.files
 
     if (list.length > 0) {
+      setTotal(
+        total +
+          Array.from(list).filter((f: any) => f.type.startsWith('image')).length
+      )
 
-      setTotal(total + Array.from(list).filter((f:any) => f.type.startsWith('image')).length)
-      
-      for (let i=0; i < list.length; i++) {
+      for (let i = 0; i < list.length; i++) {
         const file = list[i]
         if (file.type.startsWith('image')) {
           const img = new Image()
-          img.onload = function() {
-            setFiles(files => [...files, { src: img.src, width: img.width, height: img.height}])
+          img.onload = function () {
+            setFiles((files) => [
+              ...files,
+              { url: img.src, width: img.width, height: img.height, file: file }
+            ])
           }
           img.src = URL.createObjectURL(file)
         }
@@ -86,7 +91,7 @@ export default function ImageUploadDropper({
         onChange={handleDrop}
         multiple={true}
         accept="image/*"
-        />
+      />
       <IconUpload />
       <span>Drop or select images to upload</span>
     </div>

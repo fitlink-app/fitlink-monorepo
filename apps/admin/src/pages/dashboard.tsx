@@ -90,7 +90,7 @@ function PopularActivities() {
 
   const { focusRole } = useContext(AuthContext)
 
-  const query = useHealthActivityStats(focusRole, dates.startAt)
+  const query = useHealthActivityStats(focusRole, dates.startAt, dates.endAt)
 
   return (
     <Card className="p-3 card--stretch">

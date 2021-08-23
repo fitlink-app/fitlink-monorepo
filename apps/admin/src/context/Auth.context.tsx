@@ -22,8 +22,6 @@ const axios = Axios.create({
     process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1'
 })
 
-let roleSwitchPathname = ''
-
 export const api = makeApi(axios)
 
 type Permissions = {
@@ -47,7 +45,7 @@ type AuthSwitchTree = AuthSwitchDto & {
   pathname: string
 }
 
-type RolePrimary = {
+export type RolePrimary = {
   subscription?: string
   organisation?: string
   team?: string
@@ -64,6 +62,7 @@ export type AuthContext = {
   switchMode: boolean
   primary: RolePrimary
   focusRole: FocusRole
+  fetchKey: string
   login: (credentials: Credentials) => Promise<AuthResultDto>
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
   logout: () => void
@@ -96,13 +95,16 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const myRoles = formatRoles(roles.data || [], childRole)
     const primary = setPrimaryRoles(myRoles)
+    const focusRole = setFocusRole(primary)
+    const menu = setMenu(primary)
+
     setState({
       ...state,
       user: me.data,
       roles: myRoles,
-      menu: setMenu(primary),
+      menu,
       primary,
-      focusRole: setFocusRole(primary)
+      focusRole
     })
   }, [me.data, roles.data, childRole])
 
@@ -166,6 +168,7 @@ export function AuthProvider({ children }) {
         pathname: router.pathname
       }
     ])
+
     return result
   }
 
@@ -366,7 +369,7 @@ export function AuthProvider({ children }) {
         icon: 'IconGear'
       }
     ]
-    console.log(primary)
+
     if (primary.superAdmin) {
       items = items.concat([
         {
@@ -383,6 +386,11 @@ export function AuthProvider({ children }) {
           label: 'Users',
           link: '/users',
           icon: 'IconFriends'
+        },
+        {
+          label: 'Activities',
+          link: '/activities',
+          icon: 'IconActivities'
         }
       ])
     }
@@ -395,9 +403,19 @@ export function AuthProvider({ children }) {
           icon: 'IconGear'
         },
         {
+          label: 'Users',
+          link: '/users',
+          icon: 'IconFriends'
+        },
+        {
           label: 'Knowledge Base',
           link: '/knowledge-base',
           icon: 'IconYoga'
+        },
+        {
+          label: 'Activities',
+          link: '/activities',
+          icon: 'IconActivities'
         }
       ])
     }
@@ -405,7 +423,12 @@ export function AuthProvider({ children }) {
     if (primary.team) {
       items = items.concat([
         {
-          label: 'User stats',
+          label: 'Users',
+          link: '/users',
+          icon: 'IconFriends'
+        },
+        {
+          label: 'Stats',
           link: '/stats',
           icon: 'IconFriends'
         },
@@ -470,6 +493,19 @@ export function AuthProvider({ children }) {
         switchMode: state.switchMode,
         primary: state.primary,
         focusRole: state.focusRole,
+
+        /**
+         * The fetch key is used to change react-query cache
+         * when session changes (e.g. with switching roles)
+         *
+         * */
+        fetchKey: [
+          state.focusRole,
+          state.primary.organisation,
+          state.primary.team,
+          state.primary.subscription,
+          state.primary.superAdmin
+        ].join('_'),
         login,
         logout,
         connect,

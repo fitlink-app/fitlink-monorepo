@@ -97,10 +97,19 @@ export default class CreateTestUsers implements Seeder {
         const email = `user${i + 1}@fitlinkapp.com`
         let user = await connection.getRepository(User).findOne({ email })
         if (!user) {
-          return factory(User)().create({
+          user = await factory(User)().create({
             name: `Test${i + 1} User`,
             email
           })
+
+          await connection
+            .getRepository(Team)
+            .createQueryBuilder()
+            .relation(Team, 'users')
+            .of(team)
+            .add(user)
+
+          return user
         }
       })
     )

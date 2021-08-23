@@ -20,6 +20,11 @@ import { FirebaseScrypt } from './helpers/firebase-scrypt'
 import { AuthProvider } from '../auth/entities/auth-provider.entity'
 import { ImagesService } from '../images/images.service'
 
+type EntityOwner = {
+  organisationId?: string
+  teamId?: string
+}
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -164,15 +169,37 @@ export class UsersService {
     return false
   }
 
-  async findAllUsers({
-    limit = 10,
-    page = 0
-  }: PaginationOptionsInterface): Promise<Pagination<User>> {
-    const [results, total] = await this.userRepository.findAndCount({
-      take: limit,
-      skip: page * limit,
-      relations: ['settings', 'avatar']
-    })
+  async findAllUsers(
+    { limit = 10, page = 0 }: PaginationOptionsInterface,
+    entityOwner?: EntityOwner
+  ): Promise<Pagination<User>> {
+    let query = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.settings', 'settings')
+      .leftJoinAndSelect('user.avatar', 'avatar')
+      .take(limit)
+      .skip(page * limit)
+
+    if (entityOwner && entityOwner.organisationId) {
+      query = query
+        .innerJoin('user.teams', 'team')
+        .innerJoin('team.organisation', 'organisation')
+        .where('organisation.id = :organisationId', {
+          organisationId: entityOwner.organisationId
+        })
+    }
+
+    if (entityOwner && entityOwner.teamId) {
+      query = query
+        .innerJoin('user.teams', 'team')
+        .innerJoin('team.organisation', 'organisation')
+        .where('team.id = :teamId', {
+          teamId: entityOwner.teamId
+        })
+    }
+
+    const [results, total] = await query.getManyAndCount()
+
     return new Pagination<User>({
       results,
       total

@@ -30,7 +30,7 @@ export class CreateRewardDto {
 
   @ApiProperty()
   @MinLength(3, {
-    message: 'Must be a descriptive length'
+    message: 'Must have a descriptive length'
   })
   description: string
 

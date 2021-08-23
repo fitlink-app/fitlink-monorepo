@@ -124,14 +124,14 @@ export class OrganisationsController {
    * @param request
    * @returns
    */
-  @Iam(Roles.SuperAdmin)
-  @Get(':organisationId/users')
-  @ApiResponse({ type: UserPublicPagination, status: 200 })
-  findAllUsers(
-    @Pagination() pagination: PaginationQuery,
-    @Query() query,
-    @Param('organisationId') id: string
-  ) {
-    return this.organisationsService.findAllUsers(id, query, pagination)
-  }
+  // @Iam(Roles.SuperAdmin)
+  // @Get(':organisationId/users')
+  // @ApiResponse({ type: UserPublicPagination, status: 200 })
+  // findAllUsers(
+  //   @Pagination() pagination: PaginationQuery,
+  //   @Query() query,
+  //   @Param('organisationId') id: string
+  // ) {
+  //   return this.organisationsService.findAllUsers(id, query, pagination)
+  // }
 }

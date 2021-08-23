@@ -241,7 +241,7 @@ export class User extends CreatableEntity {
   @Column({
     type: 'enum',
     enum: UserRank,
-    default: UserRank.Newbie
+    default: UserRank.Tier1
   })
   rank: UserRank
 
