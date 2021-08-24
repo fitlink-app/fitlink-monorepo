@@ -156,10 +156,6 @@ export function AuthProvider({ children }) {
       focusRole
     })
 
-    router.push('/dashboard')
-
-    roles.refetch()
-
     setChildRole(params)
     setRoleTree([
       ...roleTree,
@@ -168,6 +164,10 @@ export function AuthProvider({ children }) {
         pathname: router.pathname
       }
     ])
+
+    await roles.refetch()
+
+    router.push('/dashboard')
 
     return result
   }
@@ -391,6 +391,11 @@ export function AuthProvider({ children }) {
           label: 'Activities',
           link: '/activities',
           icon: 'IconActivities'
+        },
+        {
+          label: 'Rewards',
+          link: '/rewards',
+          icon: 'IconRewards'
         }
       ])
     }
@@ -416,6 +421,11 @@ export function AuthProvider({ children }) {
           label: 'Activities',
           link: '/activities',
           icon: 'IconActivities'
+        },
+        {
+          label: 'Rewards',
+          link: '/rewards',
+          icon: 'IconRewards'
         }
       ])
     }
