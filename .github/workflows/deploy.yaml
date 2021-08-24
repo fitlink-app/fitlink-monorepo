@@ -85,9 +85,6 @@ jobs:
       - name: Migrate database database
         run: yarn migration:run -c jest
 
-      - name: Merge env variables
-        run: sort -u -t '=' -k 1,1 .env.staging .env > .env && cat .env
-
       - name: Test e2e
         run: yarn run test
 

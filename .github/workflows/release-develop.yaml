@@ -83,6 +83,9 @@ jobs:
       - name: Stop docker
         run: docker-compose down
 
+      - name: Copy environment
+        run: cp .env.staging .env
+
       - name: Build nest for Serverless
         run: yarn run build
 
