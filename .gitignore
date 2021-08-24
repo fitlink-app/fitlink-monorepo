@@ -39,6 +39,8 @@ lerna-debug.log*
 /.aws
 .env*
 !.env.test
+!.env.staging
+!.env.production
 terraform
 .serverless
 /s3
@@ -54,3 +56,4 @@ terraform
 /apps/api/database/firebase/users.json
 /fitlink.sql
 /jest.sql
+/serverless/serverless.js

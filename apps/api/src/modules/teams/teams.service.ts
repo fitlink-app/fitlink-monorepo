@@ -128,17 +128,7 @@ export class TeamsService {
     }
     return team.users
   }
-  async deleteUserFromTeam(
-    organisationId: string,
-    teamId: string,
-    userId: string
-  ) {
-    const isOwner = !!(await this.findOne(teamId, organisationId))
-    if (!isOwner) {
-      throw new UnauthorizedException(
-        "That team doesn't belong to this organisation"
-      )
-    }
+  async deleteUserFromTeam(teamId: string, userId: string) {
     return await this.userRepository
       .createQueryBuilder('users')
       .relation(User, 'teams')

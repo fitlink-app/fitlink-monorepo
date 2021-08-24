@@ -1,9 +1,16 @@
-import ReactSelect, { Props, Theme } from 'react-select'
+import ReactSelect, {
+  Props,
+  Theme,
+  components,
+  createFilter
+} from 'react-select'
 import clsx from 'clsx'
+import { CSSProperties } from 'react'
 
 export type SelectProps = Props & {
   id: string
   label?: string
+  subLabel?: string
   inline?: boolean
 }
 
@@ -89,6 +96,15 @@ const Select: React.FC<SelectProps> = (props) => {
         classNamePrefix="react-select"
         styles={customStyles}
         theme={theme}
+        filterOption={createFilter({
+          stringify: (option) =>
+            `${option.data.subLabel} ${option.value} ${option.label}`
+        })}
+        components={{
+          Option: ({ children, ...rest }) => (
+            <components.Option {...rest}>{children}</components.Option>
+          )
+        }}
         {...props}
       />
     </div>

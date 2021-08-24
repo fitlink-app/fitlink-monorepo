@@ -20,6 +20,7 @@ import { FirebaseScrypt } from './helpers/firebase-scrypt'
 import { AuthProvider } from '../auth/entities/auth-provider.entity'
 import { ImagesService } from '../images/images.service'
 import { FilterUserDto } from './dto/search-user.dto'
+import { Roles } from '../user-roles/user-roles.constants'
 
 type EntityOwner = {
   organisationId?: string
@@ -207,6 +208,75 @@ export class UsersService {
       })
     } else if (filters.q) {
       query = query[where]('user.name ILIKE :name', {
+        name: `%${filters.q}%`
+      })
+    }
+
+    const [results, total] = await query.getManyAndCount()
+
+    return new Pagination<User>({
+      results,
+      total
+    })
+  }
+
+  /**
+   * Finds all admins based on role
+   * @param param0
+   * @param filters
+   * @param entityOwner
+   * @returns
+   */
+
+  async findAllAdmins(
+    { limit = 10, page = 0 }: PaginationOptionsInterface,
+    filters: FilterUserDto = {},
+    entityOwner?: EntityOwner
+  ): Promise<Pagination<User>> {
+    let query = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.settings', 'settings')
+      .leftJoinAndSelect('user.avatar', 'avatar')
+      .innerJoin('user.roles', 'role')
+      .take(limit)
+      .skip(page * limit)
+
+    if (entityOwner && entityOwner.organisationId) {
+      query = query
+        .innerJoin('user.teams', 'team')
+        .innerJoin('team.organisation', 'organisation')
+        .where('organisation.id = :organisationId', {
+          organisationId: entityOwner.organisationId
+        })
+        .andWhere('role.role = :role', {
+          role: Roles.OrganisationAdmin
+        })
+    }
+
+    if (entityOwner && entityOwner.teamId) {
+      query = query
+        .innerJoin('user.teams', 'team')
+        .innerJoin('team.organisation', 'organisation')
+        .where('team.id = :teamId', {
+          teamId: entityOwner.teamId
+        })
+        .andWhere('role.role = :role', {
+          role: Roles.TeamAdmin
+        })
+    }
+
+    if (!entityOwner.organisationId && !entityOwner.teamId) {
+      query = query.where('role.role = :role', {
+        role: Roles.SuperAdmin
+      })
+    }
+
+    if (filters.q && filters.q.indexOf('@') > 0) {
+      query = query.andWhere('user.email ILIKE :email', {
+        email: `${filters.q}%`
+      })
+    } else if (filters.q) {
+      query = query.andWhere('user.name ILIKE :name', {
         name: `%${filters.q}%`
       })
     }

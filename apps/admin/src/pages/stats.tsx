@@ -34,57 +34,14 @@ export default function TeamsPage() {
     }
   }, [primary.team])
 
-  const closeDrawer = (ms = 0) => async () => {
-    if (ms) {
-      await timeout(ms)
-    }
-    setRefresh(Date.now())
-    setDrawContent(null)
-  }
-
-  const CreateTeamForm = () => {
-    setWarning(true)
-    setWide(false)
-    // setDrawContent(<CreateTeam
-    //   teamId={teamId.current}
-    //   onSave={closeDrawer(1000)}
-    // />)
-  }
-
   const EditTeamForm = (fields) => {
     setWarning(true)
     setWide(false)
-    // setDrawContent(
-    //   <CreateTeam
-    //     onSave={closeDrawer(1000)}
-    //     teamId={teamId.current}
-    //     current={fields}
-    //   />
-    // )
   }
 
   const DeleteForm = (fields) => {
     setWarning(true)
     setWide(false)
-    // setDrawContent(
-    //   <ConfirmDeleteForm
-    //     onDelete={closeDrawer(1000)}
-    //     onCancel={closeDrawer()}
-    //     current={fields}
-    //     mutation={(id) =>
-    //       api.delete('/:teamId/teams/:teamId', {
-    //         teamId: teamId.current,
-    //         teamId: id
-    //       })
-    //     }
-    //     title="Delete team"
-    //     requireConfirmText="DELETE"
-    //     message={`
-    //       Are you sure you want to delete this team?
-    //       This will permanently remove all associated rewards, leagues, activities & more.
-    //     `}
-    //   />
-    // )
   }
 
   const showAvatar = ({
@@ -116,66 +73,7 @@ export default function TeamsPage() {
     return healthActivity.sport_name + distance
   }
 
-  const cellActions = ({
-    cell: {
-      row: { original }
-    }
-  }) => (
-    <div className="text-right">
-      <button className="button alt small" onClick={() => DeleteForm(original)}>
-        Delete
-      </button>
-      <button
-        className="button small ml-1"
-        onClick={() => EditTeamForm(original)}>
-        Edit
-      </button>
-    </div>
-  )
-
-  const viewDetails = ({
-    cell: {
-      row: {
-        original: {
-          created_at,
-          mobile_os,
-          provider_types,
-          points_total,
-          rank,
-          last_health_activity,
-          league_count,
-          reward_count,
-          last_app_opened_at
-        }
-      }
-    }
-  }) => {
-    return (
-      <button
-        className="icon-button"
-        onClick={() => {
-          setDrawContent(
-            <UserStats
-              date_joined={created_at}
-              mobile_os={mobile_os}
-              tracker={provider_types}
-              points={points_total}
-              rank={rank}
-              last_activity={
-                last_health_activity ? last_health_activity[0] : null
-              }
-              total_leagues={league_count}
-              rewards={reward_count}
-              last_session={last_app_opened_at}
-            />
-          )
-        }}>
-        <IconSearch />
-      </button>
-    )
-  }
-
-  const { api } = useContext(AuthContext)
+  const { api, focusRole } = useContext(AuthContext)
 
   return (
     <Dashboard title="Settings Users">
@@ -229,10 +127,17 @@ export default function TeamsPage() {
           ]}
           fetch={(limit, page) => {
             if (primary.team) {
-              return api.list<UserStat>('/stats', {
-                limit,
-                page
-              })
+              return api.list<UserStat>(
+                '/stats',
+                {
+                  limit,
+                  page
+                },
+                {
+                  primary,
+                  useRole: focusRole
+                }
+              )
             }
 
             return Promise.resolve({

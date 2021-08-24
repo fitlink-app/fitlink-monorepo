@@ -20,6 +20,8 @@ export type ConfirmProps = {
   message: string
   current?: Partial<Organisation>
   requireConfirmText?: string
+  updateText?: string
+  completedText?: string
   mutation: (current) => Promise<UpdateResult>
   onUpdate?: () => void
   onCancel?: () => void
@@ -30,6 +32,8 @@ const noop = () => {}
 
 export default function ConfirmForm({
   title = 'Confirm action',
+  updateText = 'Updating...',
+  completedText = 'Updated',
   message,
   current,
   requireConfirmText = '',
@@ -50,8 +54,8 @@ export default function ConfirmForm({
     }
     try {
       await toast.promise(update.mutateAsync(current.id), {
-        loading: <b>Updating...</b>,
-        success: <b>Updated</b>,
+        loading: <b>{updateText}</b>,
+        success: <b>{completedText}</b>,
         error: <b>Error</b>
       })
       if (!update.isError) {

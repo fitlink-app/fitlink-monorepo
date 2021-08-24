@@ -2,7 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Brackets, FindOneOptions, getManager, In, Repository } from 'typeorm'
-import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
+import {
+  Pagination,
+  PaginationOptionsInterface,
+  PaginationQuery
+} from '../../helpers/paginate'
 import { QueueableEventPayload } from '../../models/queueable.model'
 import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
 import { Sport } from '../sports/entities/sport.entity'
@@ -185,12 +189,38 @@ export class LeaguesService {
     })
   }
 
-  async getAllLeaguesForTeam(teamId: string): Promise<Pagination<League>> {
+  async getAllLeaguesForTeam(
+    id: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ): Promise<Pagination<League>> {
     const [results, total] = await this.leaguesRepository.findAndCount({
       where: {
-        team: teamId
+        team: { id }
       },
-      relations: ['image', 'sport']
+      relations: ['image', 'sport'],
+      take: limit,
+      skip: page * limit
+    })
+
+    return new Pagination<League>({
+      results,
+      total
+    })
+  }
+
+  async getAllLeaguesForOrganisation(
+    id: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ): Promise<Pagination<League>> {
+    const [results, total] = await this.leaguesRepository.findAndCount({
+      where: {
+        organisation: {
+          id
+        }
+      },
+      relations: ['image', 'sport'],
+      take: limit,
+      skip: page * limit
     })
 
     return new Pagination<League>({
