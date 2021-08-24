@@ -53,7 +53,7 @@ describe('Organisations', () => {
 
     const items = await screen.findAllByText(/Fitlink|company|2021\-07\-23|99/)
     expect(items).toHaveLength(5)
-
+    expect(screen.getAllByPlaceholderText(/Enter name\.\.\./)).toHaveLength(1);
     // Show and test the edit modal
     screen.getByRole('button', { name: /edit/i }).click()
     expect(screen.getAllByText(/save organisation/i)).toHaveLength(1)
