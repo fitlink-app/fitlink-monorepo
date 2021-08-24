@@ -391,6 +391,11 @@ export function AuthProvider({ children }) {
           label: 'Activities',
           link: '/activities',
           icon: 'IconActivities'
+        },
+        {
+          label: 'Rewards',
+          link: '/rewards',
+          icon: 'IconRewards'
         }
       ])
     }
@@ -416,6 +421,11 @@ export function AuthProvider({ children }) {
           label: 'Activities',
           link: '/activities',
           icon: 'IconActivities'
+        },
+        {
+          label: 'Rewards',
+          link: '/rewards',
+          icon: 'IconRewards'
         }
       ])
     }

@@ -18,6 +18,7 @@ import {
 } from './dto/reward-filters.dto'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RewardClaimedEvent } from './events/reward-claimed.event'
+import { FeedItem } from '../feed-items/entities/feed-item.entity'
 
 type EntityOwner = {
   organisationId?: string
@@ -197,7 +198,7 @@ export class RewardsService {
 
     // Include rewards by removing expiry date filtering
     if (include_expired_rewards === '1') {
-      filters.reward_expires_at = undefined
+      delete filters.reward_expires_at
     }
 
     const [results, total] = await this.rewardsRepository.findAndCount({
@@ -448,8 +449,25 @@ export class RewardsService {
       }
     }
 
-    return this.rewardsRepository.delete({
-      id: rewardId
+    return this.rewardsRepository.manager.transaction(async (manager) => {
+      // Delete redemptions
+      await manager.getRepository(RewardsRedemption).delete({
+        reward: {
+          id: rewardId
+        }
+      })
+
+      // Delete related feed items
+      await manager.getRepository(FeedItem).delete({
+        reward: {
+          id: rewardId
+        }
+      })
+
+      // Finally, delete the reward
+      return manager.getRepository(Reward).delete({
+        id: rewardId
+      })
     })
   }
 
