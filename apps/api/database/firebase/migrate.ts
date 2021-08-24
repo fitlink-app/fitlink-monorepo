@@ -763,6 +763,12 @@ const allow = Object.values(require('./trusted.json'))
             leagueTeam = team
           }
 
+          const sport: Sport = await sportRepository.findOneOrFail({
+            where: {
+              name_key: leagueData.sport
+            }
+          })
+
           const league = await repo.save(
             repo.create({
               access:
@@ -779,6 +785,7 @@ const allow = Object.values(require('./trusted.json'))
               participants_total: leagueData.members_count,
               repeat: leagueData.repeat,
               image,
+              sport,
               owner: creator,
               team: leagueTeam
             })

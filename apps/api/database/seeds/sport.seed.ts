@@ -164,6 +164,15 @@ export default class CreateSports implements Seeder {
       })
     }
 
+    if (!exists('highIntensityIntervalTraining')) {
+      create.push({
+        name: 'HIIT',
+        name_key: 'highIntensityIntervalTraining',
+        singular: 'HIIT workout',
+        plural: 'HIIIT workouts'
+      })
+    }
+
     await Promise.all(create.map((e) => factory(Sport)().create(e)))
 
     function exists(nameKey: string) {

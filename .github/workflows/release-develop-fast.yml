@@ -73,7 +73,7 @@ jobs:
         run: yarn run build
 
       - name: Install serverless globally
-        run: yarn add global serverless@2.28.7
+        run: yarn add global serverless@2.28.7 -W
 
       - name: Serverless - Run deploy
         if: github.ref == 'refs/heads/develop'
