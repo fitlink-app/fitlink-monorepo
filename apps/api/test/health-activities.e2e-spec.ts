@@ -30,6 +30,7 @@ import {
 } from '../src/modules/feed-items/feed-items.constants'
 import { UserReachedReward } from './seeds/rewards.seed'
 import { getAuthHeaders } from './helpers/auth'
+import { UserRank } from '../src/modules/users/users.constants'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -53,7 +54,7 @@ describe('Health Activities', () => {
     connection = getConnection()
     await useSeeding()
     await runSeeder(CreateSports)
-    users = await UsersSetup('Test Users', 3)
+    users = await UsersSetup('Test Users', 4)
     await LeaguesWithUsersAndEntriesSetup('Test Leagues', 2, users)
 
     userForStrava = await ProvidersSetup('StravaHealthActivityTest')
@@ -439,5 +440,45 @@ describe('Health Activities', () => {
     expect(feedItem.type).toBe('reward_unlocked')
     expect(feedItem.reward.name).toBe(nextReward.json().reward.name)
     expect(feedItem.reward.id).toBe(nextReward.json().reward.id)
+  })
+
+  it.only('Test that a user is promoted when their active-minute-week is increased', async () => {
+    const mockPayload: StravaEventData = {
+      aspect_type: 'create',
+      event_time: 12039,
+      object_id: 12309,
+      object_type: 'activity',
+      owner_id: 12309,
+      subscription_id: 102938,
+      updates: {}
+    }
+
+    providerService.getUserByOwnerId = jest.fn()
+    providerService.getUserByOwnerId.mockReturnValue({
+      user: { id: users[3].id }
+    })
+    stravaService.getStravaActivity = jest.fn()
+    stravaService.getStravaActivity.mockReturnValue({
+      ...stravaPayload
+    })
+
+    await app.inject({
+      method: 'POST',
+      payload: mockPayload,
+      url: '/providers/strava/webhook'
+    })
+
+    const user = await connection.getRepository(User).findOne(users[3].id)
+    expect(user.rank).toBe(UserRank.Tier2)
+    const feedItem = await connection.getRepository(FeedItem).findOne({
+      where: {
+        category: FeedItemCategory.MyUpdates,
+        type: FeedItemType.TierUp,
+        user,
+        tier: UserRank.Tier2
+      }
+    })
+    expect(feedItem).toBeDefined()
+    expect(feedItem.id).toBeDefined()
   })
 })

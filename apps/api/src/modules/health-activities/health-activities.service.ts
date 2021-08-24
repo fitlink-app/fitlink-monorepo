@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm'
+import { Events } from '../../events'
 import { tryAndCatch } from '../../helpers/tryAndCatch'
 import { ProvidersService } from '../providers/providers.service'
 import { Sport } from '../sports/entities/sport.entity'
@@ -85,7 +86,7 @@ export class HealthActivitiesService {
       const healthActivityCreatedEvent = new HealthActivityCreatedEvent()
       healthActivityCreatedEvent.health_activity_id = newHealthActivity.id
       await this.eventEmitter.emitAsync(
-        'health_activity.created',
+        Events.HEALTH_ACTIVITY_CREATED,
         healthActivityCreatedEvent
       )
       return newHealthActivity

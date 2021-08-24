@@ -13,6 +13,7 @@ import { zonedStartOfDay } from '../../../../common/date/helpers'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { DailyGoalsReachedEvent } from './events/daily-goals-reached.event'
 import { FeedGoalType } from '../feed-items/feed-items.constants'
+import { Events } from '../../events'
 
 interface GoalField {
   field:
@@ -131,7 +132,7 @@ export class GoalsEntriesService {
   ) {
     goalEntryReachedEvent.goal_type = goal_type
     await this.eventEmitter.emitAsync(
-      'daily_goal.reached',
+      Events.DAILY_GOAL_REACHED,
       goalEntryReachedEvent
     )
   }

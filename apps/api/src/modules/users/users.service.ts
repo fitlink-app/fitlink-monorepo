@@ -20,6 +20,7 @@ import { FirebaseScrypt } from './helpers/firebase-scrypt'
 import { AuthProvider } from '../auth/entities/auth-provider.entity'
 import { ImagesService } from '../images/images.service'
 import { FilterUserDto } from './dto/search-user.dto'
+import { UserRank } from './users.constants'
 
 type EntityOwner = {
   organisationId?: string
@@ -551,5 +552,18 @@ export class UsersService {
     const [hashed, salt] = hash.split('__FIREBASE__')
 
     return scrypt.verify(password, salt, hashed)
+  }
+
+  async calculateUserRank(userId: string) {
+    const user = await this.userRepository.findOne(userId)
+    const average = Math.ceil(user.active_minutes_week / 7)
+
+    return isNaN(average) || !average || average <= 10
+      ? UserRank.Tier1
+      : average <= 30
+      ? UserRank.Tier2
+      : average <= 50
+      ? UserRank.Tier3
+      : UserRank.Tier4
   }
 }

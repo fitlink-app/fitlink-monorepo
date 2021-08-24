@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { OnEvent } from '@nestjs/event-emitter'
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import { tryAndCatch } from '../../../../src/helpers/tryAndCatch'
 import { Repository } from 'typeorm'
@@ -12,6 +12,8 @@ import { Reward } from '../../rewards/entities/reward.entity'
 import { RewardsService } from '../../rewards/rewards.service'
 import { User } from '../entities/user.entity'
 import { UserPointsIncrementedEvent } from '../events/user-points-incremented.event'
+import { Events } from '../../../../src/events'
+import { UserActiveMinutesWeekIncrementedEvent } from '../events/user-active-minutes-week-incremented.event'
 
 @Injectable()
 export class UserPointsIncrementedListener {
@@ -19,12 +21,19 @@ export class UserPointsIncrementedListener {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private rewardsService: RewardsService,
-    private feedItemService: FeedItemsService
+    private feedItemService: FeedItemsService,
+    private eventEmitter: EventEmitter2
   ) {}
 
-  @OnEvent('user.points_incremented')
+  @OnEvent(Events.USER_POINTS_INCREMENTED)
   async onUserPointsIncremented(payload: UserPointsIncrementedEvent) {
     const user = await this.usersRepository.findOne({ id: payload.user_id })
+
+    await this.incrementWeeklyPointsAndMinutes(
+      user,
+      payload.active_time,
+      payload.new_points - payload.prev_points
+    )
     const {
       points_until_reward,
       reward
@@ -40,6 +49,30 @@ export class UserPointsIncrementedListener {
     // if payload.new_points is bigger or equal to points_until_reward
     payload.new_points >= points_until_reward &&
       (await this.addFeedItem(user, reward))
+  }
+
+  async incrementWeeklyPointsAndMinutes(
+    user: User,
+    active_time: number,
+    additional_points: number
+  ) {
+    const [updatedUser, error] = await tryAndCatch(
+      this.usersRepository.save({
+        ...user,
+        active_minutes_week: Math.ceil(
+          user.active_minutes_week + active_time / 60
+        ),
+        points_week: user.points_week + additional_points
+      })
+    )
+    const event = new UserActiveMinutesWeekIncrementedEvent()
+    event.userId = updatedUser.id
+    await this.eventEmitter.emitAsync(
+      Events.USER_ACTIVE_MINUTES_WEEK_INCREMENTED,
+      event
+    )
+
+    error && console.error(error)
   }
 
   async addFeedItem(user: User, reward: Reward) {

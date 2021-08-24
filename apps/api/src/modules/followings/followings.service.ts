@@ -8,6 +8,7 @@ import { User, UserPublic } from '../users/entities/user.entity'
 import { plainToClass } from 'class-transformer'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { NewFollowerEvent } from '../users/events/new-follower.event'
+import { Events } from '../../events'
 
 @Injectable()
 export class FollowingsService {
@@ -52,7 +53,7 @@ export class FollowingsService {
     const event = new NewFollowerEvent()
     event.userId = userId
     event.targetId = createFollowingDto.targetId
-    await this.eventEmitter.emitAsync('user.new_follower', event)
+    await this.eventEmitter.emitAsync(Events.USER_NEW_FOLLOWER, event)
 
     return plainToClass(UserPublic, saved.following, {
       excludeExtraneousValues: true

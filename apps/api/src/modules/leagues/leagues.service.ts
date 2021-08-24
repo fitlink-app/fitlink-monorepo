@@ -20,6 +20,7 @@ import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-en
 import { addDays, formatISO } from 'date-fns'
 import { CommonService } from '../common/services/common.service'
 import { LeagueJoinedEvent } from './events/league-joined.event'
+import { Events } from '../../events'
 
 type LeagueOptions = {
   teamId?: string
@@ -461,7 +462,7 @@ export class LeaguesService {
     const event = new LeagueJoinedEvent()
     event.leagueId = leagueId
     event.userId = userId
-    await this.eventEmitter.emitAsync('league.joined', event)
+    await this.eventEmitter.emitAsync(Events.LEAGUE_JOINED, event)
     return { success: true, league, leaderboardEntry }
   }
 

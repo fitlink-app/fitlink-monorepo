@@ -18,6 +18,7 @@ import {
 } from './dto/reward-filters.dto'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RewardClaimedEvent } from './events/reward-claimed.event'
+import { Events } from '../../events'
 
 type EntityOwner = {
   organisationId?: string
@@ -517,7 +518,7 @@ export class RewardsService {
       const event = new RewardClaimedEvent()
       event.rewardId = result.reward.id
       event.userId = result.user.id
-      await this.eventEmitter.emitAsync('reward.claimed', event)
+      await this.eventEmitter.emitAsync(Events.REWARD_CLAIMED, event)
     }
     return result
   }

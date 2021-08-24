@@ -11,6 +11,7 @@ import { FeedItemsService } from '../../feed-items/feed-items.service'
 import { User } from '../../users/entities/user.entity'
 import { Reward } from '../entities/reward.entity'
 import { RewardClaimedEvent } from '../events/reward-claimed.event'
+import { Events } from '../../../../src/events'
 
 @Injectable()
 export class RewardClaimedListener {
@@ -21,7 +22,7 @@ export class RewardClaimedListener {
     private usersRepository: Repository<User>,
     private feedItemService: FeedItemsService
   ) {}
-  @OnEvent('reward.claimed')
+  @OnEvent(Events.REWARD_CLAIMED)
   async onRewardClaimed({ rewardId, userId }: RewardClaimedEvent) {
     const reward = await this.rewardRepository.findOne({ id: rewardId })
     const user = await this.usersRepository.findOne({ id: userId })
