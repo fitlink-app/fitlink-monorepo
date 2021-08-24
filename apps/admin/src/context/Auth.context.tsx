@@ -17,8 +17,11 @@ import { useQuery } from 'react-query'
 import { MenuProps } from '../components/elements/MainMenu'
 import { useRouter } from 'next/router'
 
+console.log(`Using API: ${process.env.NEXT_PUBLIC_API_BASE_URL}`)
+
 const axios = Axios.create({
-  baseURL: process.env.API_BASE_URL || 'http://localhost:3000/api/v1'
+  baseURL:
+    process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1'
 })
 
 export const api = makeApi(axios)
