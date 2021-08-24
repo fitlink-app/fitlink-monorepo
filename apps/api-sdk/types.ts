@@ -40,8 +40,8 @@ import { CreateDefaultSubscriptionDto } from '@fitlink/api/src/modules/subscript
 import { UpdateSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/update-subscription.dto'
 import { AddUserToSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/add-user-to-subscription.dto'
 import { AuthRequestResetPasswordDto } from '@fitlink/api/src/modules/auth/dto/auth-reset-password'
-import { CreateAdminDto } from 'apps/api/src/modules/users/dto/create-admin.dto'
-import { UserRole } from 'apps/api/src/modules/user-roles/entities/user-role.entity'
+import { CreateAdminDto } from '@fitlink/api/src/modules/users/dto/create-admin.dto'
+import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 
 export type {
   AuthResultDto,

@@ -62,7 +62,7 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
           }
 
           return (
-            <>
+            <div key={label}>
               <MenuItem
                 to={link}
                 onClick={onClick}
@@ -95,7 +95,7 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
                   <hr />
                 </div>
               ) : null}
-            </>
+            </div>
           )
         })}
       </>
