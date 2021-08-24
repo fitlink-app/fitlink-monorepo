@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { SESClient, SendTemplatedEmailCommand } from '@aws-sdk/client-ses'
 import { ConfigService } from '@nestjs/config'
-import { writeFile, readFile } from 'fs/promises'
+import { promises } from 'fs'
 import { GoogleAnalyticsService } from './google-analytics.service'
 
 @Injectable()
@@ -9,9 +9,9 @@ export class EmailService {
   sesClient: SESClient
 
   constructor(
-    private configService: ConfigService, 
-    private googleAnalyticsService: GoogleAnalyticsService 
-    ) {
+    private configService: ConfigService,
+    private googleAnalyticsService: GoogleAnalyticsService
+  ) {
     this.sesClient = new SESClient({
       credentials: {
         accessKeyId: this.configService.get('SES_ACCESS_KEY_ID'),
@@ -25,9 +25,12 @@ export class EmailService {
     template: TemplatesType,
     data: NodeJS.Dict<string>,
     toAddresses: string[],
-    fromAddress = this.configService.get('EMAIL_DEFAULT_FROM_ADDRESS'),
+    fromAddress = this.configService.get('EMAIL_DEFAULT_FROM_ADDRESS')
   ) {
-    const GOOGLE_ANALYTICS_OPEN_EMAIL_URL = await this.googleAnalyticsService.sendGoogleAnalytics(template, 'email-is-sent')
+    const GOOGLE_ANALYTICS_OPEN_EMAIL_URL = await this.googleAnalyticsService.sendGoogleAnalytics(
+      template,
+      'email-is-sent'
+    )
     console.log(GOOGLE_ANALYTICS_OPEN_EMAIL_URL)
     data['GOOGLE_ANALYTICS_OPEN_EMAIL_URL'] = GOOGLE_ANALYTICS_OPEN_EMAIL_URL
     const templatedEmail = new SendTemplatedEmailCommand({
@@ -45,13 +48,10 @@ export class EmailService {
   }
 }
 
-
 /** Mocks email to a file, also useful for development */
 @Injectable()
 export class EmailServiceLocal {
-
-  constructor (private googleAnalyticsService: GoogleAnalyticsService)
-    {}
+  constructor(private googleAnalyticsService: GoogleAnalyticsService) {}
 
   async sendTemplatedEmail(
     template: TemplatesType,
@@ -60,7 +60,10 @@ export class EmailServiceLocal {
     fromAddress: string,
     userId?: string
   ) {
-    const GOOGLE_ANALYTICS_OPEN_EMAIL_URL = await this.googleAnalyticsService.sendGoogleAnalytics(template, 'email-is-sent')
+    const GOOGLE_ANALYTICS_OPEN_EMAIL_URL = await this.googleAnalyticsService.sendGoogleAnalytics(
+      template,
+      'email-is-sent'
+    )
     data['GOOGLE_ANALYTICS_OPEN_EMAIL_URL'] = GOOGLE_ANALYTICS_OPEN_EMAIL_URL
     const content = await this.appendEmailContent(
       template,
@@ -68,7 +71,10 @@ export class EmailServiceLocal {
       toAddresses,
       fromAddress
     )
-    await writeFile('email-debug.log', JSON.stringify(content, null, 2))
+    await promises.writeFile(
+      'email-debug.log',
+      JSON.stringify(content, null, 2)
+    )
     return '1'
   }
 
@@ -89,13 +95,13 @@ export class EmailServiceLocal {
   }
 
   async emailHasContent(search: string) {
-    const content = await readFile('email-debug.log')
+    const content = await promises.readFile('email-debug.log')
     return content.toString().toLowerCase().indexOf(search.toLowerCase()) > -1
   }
 
   async getEmailContent() {
     try {
-      const content = await readFile('email-debug.log')
+      const content = await promises.readFile('email-debug.log')
       return JSON.parse(content.toString()) as {
         template: string
         data: NodeJS.Dict<string>
