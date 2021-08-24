@@ -49,6 +49,7 @@ functions:
       - http:
           method: any
           path: /{any+}
+          cors: true
     vpc:
       securityGroupIds:
         - ${env:VPC_SECURITY_GROUP_ID}
