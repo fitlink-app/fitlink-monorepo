@@ -66,5 +66,3 @@ functions:
         - ${env:VPC_SUBNET_ID_1}
         - ${env:VPC_SUBNET_ID_2}
         - ${env:VPC_SUBNET_ID_3}
-
-
