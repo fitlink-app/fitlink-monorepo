@@ -132,10 +132,7 @@ export class LeaguesController {
    */
 
   @Iam(Roles.TeamAdmin, Roles.OrganisationAdmin)
-  @Post([
-    '/teams/:teamId/leagues',
-    '/organisations/:organisationId/teams/:teamId/leagues'
-  ])
+  @Post(['/teams/:teamId/leagues', '/organisations/:organisationId/leagues'])
   @ApiTags('leagues')
   @ApiResponse({ type: League, status: 201 })
   teamCreate(
@@ -169,6 +166,26 @@ export class LeaguesController {
     } else {
       return this.leaguesService.findManyAccessibleToUser(
         authUser.id,
+        pagination
+      )
+    }
+  }
+
+  @Iam(Roles.OrganisationAdmin, Roles.TeamAdmin)
+  @ApiTags('leagues')
+  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
+  @Get(['/organisations/:organisationId/leagues', '/teams/:teamId/leagues'])
+  findAllLeaguesForOrganisationsOrTeams(
+    @Param('teamId') teamId: string,
+    @Param('organisationId') organisationId: string,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    if (teamId) {
+      return this.leaguesService.getAllLeaguesForTeam(teamId, pagination)
+    }
+    if (organisationId) {
+      return this.leaguesService.getAllLeaguesForOrganisation(
+        organisationId,
         pagination
       )
     }
@@ -211,19 +228,6 @@ export class LeaguesController {
     @Pagination() pagination: PaginationQuery
   ) {
     return this.leaguesService.findAllParticipating(authUser.id, pagination)
-  }
-
-  /**
-   * Team admin can retrieve all leagues within the team
-   * @param teamId
-   * @returns
-   */
-  @Iam(Roles.TeamAdmin)
-  @ApiTags('leagues')
-  @Get('/teams/:teamId/leagues')
-  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
-  teamFindAll(@Param('teamId') teamId: string) {
-    return this.leaguesService.getAllLeaguesForTeam(teamId)
   }
 
   /**

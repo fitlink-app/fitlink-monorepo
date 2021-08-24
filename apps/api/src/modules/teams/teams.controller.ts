@@ -106,14 +106,13 @@ export class TeamsController {
     return this.teamsService.getAllUsersFromTeam(organisationId, teamId)
   }
 
-  @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin, Roles.TeamAdmin)
-  @Delete('/organisations/:organisationId/teams/:teamId/users/:userId')
+  @Iam(Roles.TeamAdmin)
+  @Delete('/teams/:teamId/users/:userId')
   deleteUserFromTeam(
-    @Param('organisationId') organisationId: string,
     @Param('teamId') teamId: string,
     @Param('userId') userId: string
   ) {
-    return this.teamsService.deleteUserFromTeam(organisationId, teamId, userId)
+    return this.teamsService.deleteUserFromTeam(teamId, userId)
   }
 
   @Iam(Roles.TeamAdmin)
