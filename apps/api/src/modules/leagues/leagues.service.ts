@@ -14,6 +14,7 @@ import { League, LeaguePublic } from './entities/league.entity'
 import { LeagueAccess } from './leagues.constants'
 import { User, UserPublic } from '../users/entities/user.entity'
 import { Image } from '../images/entities/image.entity'
+import { FeedItem } from '../feed-items/entities/feed-item.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
 import { plainToClass } from 'class-transformer'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
@@ -157,7 +158,8 @@ export class LeaguesService {
     const [results, total] = await this.leaguesRepository.findAndCount({
       where,
       take: limit,
-      skip: page * limit
+      skip: page * limit,
+      relations: ['image', 'sport']
     })
     return new Pagination<League>({
       results,
@@ -187,7 +189,8 @@ export class LeaguesService {
     const [results, total] = await this.leaguesRepository.findAndCount({
       where: {
         team: teamId
-      }
+      },
+      relations: ['image', 'sport']
     })
 
     return new Pagination<League>({
@@ -506,8 +509,14 @@ export class LeaguesService {
     updateLeagueDto: UpdateLeagueDto,
     { teamId, organisationId }: LeagueOptions = {}
   ) {
-    const { imageId, ...rest } = updateLeagueDto
+    const { imageId, sportId, ...rest } = updateLeagueDto
     const update: Partial<League> = { ...rest }
+
+    if (sportId) {
+      // Assign the sport
+      update.sport = new Sport()
+      update.sport.id = sportId
+    }
 
     // Only the image is allowed to change
     if (imageId) {
@@ -562,6 +571,11 @@ export class LeaguesService {
 
       // Delete leaderboards for league
       await entityManager.getRepository(Leaderboard).delete({
+        league: { id: league.id }
+      })
+
+      // Delete feed items for league
+      await entityManager.getRepository(FeedItem).delete({
         league: { id: league.id }
       })
 
