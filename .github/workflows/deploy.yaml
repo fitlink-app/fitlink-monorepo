@@ -127,4 +127,43 @@ jobs:
             git push origin develop
           fi
 
+  serverless_preview:
+    runs-on: ubuntu-18.04
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build nest for Serverless
+        run: yarn run build
+
+      - name: Remove dependencies
+        run: rm -R node_modules
+
+      - name: Install dependencies for serverless build
+        run: cd serverless && yarn install --frozen-lockfile
+
+      - name: Copy serverless build
+        run: cp dist/apps/api/serverless.js serverless/serverless.js
+
+      - name: Test serverless
+        run: cd serverless && node test.js
 

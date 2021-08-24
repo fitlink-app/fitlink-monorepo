@@ -54,3 +54,4 @@ terraform
 /apps/api/database/firebase/users.json
 /fitlink.sql
 /jest.sql
+/serverless/serverless.js
