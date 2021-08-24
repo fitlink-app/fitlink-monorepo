@@ -16,6 +16,7 @@ import { ApiResult } from '@fitlink/common/react-query/types'
 import { Reward as RewardEntity } from '@fitlink/api/src/modules/rewards/entities/reward.entity'
 import { useQuery } from 'react-query'
 import { timeout } from '../helpers/timeout'
+import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 
 export default function page() {
@@ -138,6 +139,7 @@ export default function page() {
           setRefresh(Date.now())
           closeDrawer(1000)()
         }}
+        onDelete={DeleteForm}
       />
     )
   }
@@ -224,6 +226,33 @@ export default function page() {
     }
     setRefresh(Date.now())
     setDrawContent(null)
+  }
+
+  const DeleteForm = (fields) => {
+    setWarning(true)
+    setDrawContent(
+      <ConfirmDeleteForm
+        onDelete={closeDrawer(1000)}
+        onCancel={closeDrawer()}
+        current={fields}
+        mutation={(rewardId) =>
+          api.delete(
+            `/rewards/:rewardId`,
+            {
+              rewardId
+            },
+            {
+              primary,
+              useRole: focusRole
+            }
+          )
+        }
+        title="Delete reward"
+        message={`
+          Are you sure you want to delete this reward?
+        `}
+      />
+    )
   }
 
   return (

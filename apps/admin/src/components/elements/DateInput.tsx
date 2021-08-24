@@ -72,7 +72,10 @@ export default function DateInput({
         display: 'flex',
         justifyContent: 'center'
       }}>
-      <button onClick={decreaseMonth} disabled={prevMonthButtonDisabled}>
+      <button
+        onClick={decreaseMonth}
+        type="button"
+        disabled={prevMonthButtonDisabled}>
         <IconArrowLeft />
       </button>
       <select
@@ -97,7 +100,10 @@ export default function DateInput({
         ))}
       </select>
 
-      <button onClick={increaseMonth} disabled={nextMonthButtonDisabled}>
+      <button
+        onClick={increaseMonth}
+        type="button"
+        disabled={nextMonthButtonDisabled}>
         <IconArrowRight />
       </button>
     </div>
