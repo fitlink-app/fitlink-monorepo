@@ -73,9 +73,15 @@ export type AuthContext = {
 
 export const AuthContext = React.createContext({} as AuthContext)
 
-export function AuthProvider({ children }) {
+export type AuthProviderProps = {
+  value?: AuthContext
+  children: React.ReactNode
+}
+
+export function AuthProvider({ children, value }: AuthProviderProps) {
   const [state, setState] = useState<AuthContext>({
-    primary: {}
+    primary: {},
+    ...value
   } as AuthContext)
   const [childRole, setChildRole] = useState<AuthSwitchDto>()
   const [roleTree, setRoleTree] = useState<AuthSwitchTree[]>([])

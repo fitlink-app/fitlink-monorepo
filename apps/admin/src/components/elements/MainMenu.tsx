@@ -46,7 +46,7 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
 
   if (menu.length && !prefix) {
     return (
-      <>
+      <div>
         {switchMode ? (
           <div className="top left">
             <a href="#" className="btn small" onClick={() => restoreRole()}>
@@ -54,20 +54,19 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
             </a>
           </div>
         ) : null}
-        {menu.map((item: MenuProps) => {
+        {menu.map((item: MenuProps, index: number) => {
           const { label, link, icon, onClick, hr, subMenu } = item
           const Icon = icons[icon]
           if (hr) {
-            return <hr />
+            return <hr key={index} />
           }
 
           return (
-            <div key={label}>
+            <div key={index}>
               <MenuItem
                 to={link}
                 onClick={onClick}
                 label={label}
-                key={label}
                 current={current.startsWith(link)}
                 icon={Icon ? <Icon /> : null}
               />
@@ -75,18 +74,18 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
               (subMenu &&
                 subMenu.filter((e) => current.startsWith(e.link)).length) ? (
                 <div className="sub-menu">
-                  {subMenu.map((item) => {
+                  {subMenu.map((item, index) => {
                     const { label, link, icon, onClick, hr } = item
                     const Icon = icons[icon]
                     if (hr) {
-                      return <hr />
+                      return <hr key={index} />
                     }
                     return (
                       <MenuItem
                         to={link}
                         onClick={onClick}
                         label={label}
-                        key={label}
+                        key={index}
                         current={current.startsWith(link)}
                         icon={Icon ? <Icon /> : null}
                       />
@@ -98,7 +97,7 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
             </div>
           )
         })}
-      </>
+      </div>
     )
   }
 
