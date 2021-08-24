@@ -74,7 +74,7 @@ export type AuthContext = {
 export const AuthContext = React.createContext({} as AuthContext)
 
 export type AuthProviderProps = {
-  value?: AuthContext
+  value?: Partial<AuthContext>
   children: React.ReactNode
 }
 
