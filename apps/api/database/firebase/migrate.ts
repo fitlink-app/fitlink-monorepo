@@ -406,7 +406,9 @@ const allow = Object.values(require('./trusted.json'))
                 ? new Date(auth.metadata.lastSignInTime)
                 : null
 
-            user.created_at = new Date(parseInt(userEntry.createdAt))
+            user.created_at = userEntry.createdAt
+              ? new Date(parseInt(userEntry.createdAt))
+              : new Date()
             user.updated_at = data.updated_at
               ? toDate(data.updated_at)
               : undefined
