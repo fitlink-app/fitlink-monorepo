@@ -17,7 +17,6 @@ jobs:
     env:
       # Serverless
       SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
-      SERVERLESS_DEPLOYMENT_BUCKET: ${{ secrets.DEV_SERVERLESS_DEPLOYMENT_BUCKET }}
 
       # Database
       DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
