@@ -7,3 +7,8 @@ Changelog
 *.markdown
 *.yml
 **/test/**/*.js
+.github
+.gitattributes
+.taprc
+.bin
+.cmd

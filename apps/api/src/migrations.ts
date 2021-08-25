@@ -39,7 +39,14 @@ import { AddParticipantsCountLeagues1624549177792 } from '../database/migrations
 import { RewardsUpdates1625057321096 } from '../database/migrations/1625057321096-RewardsUpdates'
 import { RewardsRedemptionsUpdates1625572472206 } from '../database/migrations/1625572472206-RewardsRedemptionsUpdates'
 import { LeaguesStartEndDates1625649869427 } from '../database/migrations/1625649869427-LeaguesStartEndDates'
+import { PolylineNullableAndDistributedColumnAdded1625739121649 } from '../database/migrations/1625739121649-PolylineNullableAndDistributedColumnAdded'
 import { AuthProvider1625759364689 } from '../database/migrations/1625759364689-AuthProvider'
+import { SchemaUpdates1625941631377 } from '../database/migrations/1625941631377-SchemaUpdates'
+import { UpdateFeedItems1626036318957 } from '../database/migrations/1626036318957-UpdateFeedItems'
+import { FixEnums1629302813084 } from '../database/migrations/1629302813084-FixEnums'
+import { AddOrganisationToActivity1629305606334 } from '../database/migrations/1629305606334-AddOrganisationToActivity'
+import { RenameActivityUserToOwner1629363309660 } from '../database/migrations/1629363309660-RenameActivityUserToOwner'
+import { UpdateRankTiers1629463294813 } from '../database/migrations/1629463294813-UpdateRankTiers'
 
 export default [
   InitializeSchema1614887523112,
@@ -78,5 +85,12 @@ export default [
   RewardsUpdates1625057321096,
   RewardsRedemptionsUpdates1625572472206,
   LeaguesStartEndDates1625649869427,
-  AuthProvider1625759364689
+  PolylineNullableAndDistributedColumnAdded1625739121649,
+  AuthProvider1625759364689,
+  SchemaUpdates1625941631377,
+  UpdateFeedItems1626036318957,
+  FixEnums1629302813084,
+  AddOrganisationToActivity1629305606334,
+  RenameActivityUserToOwner1629363309660,
+  UpdateRankTiers1629463294813
 ]

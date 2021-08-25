@@ -1,11 +1,18 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
+import { Organisation } from '../organisations/entities/organisation.entity'
+import { Team } from '../teams/entities/team.entity'
 import { User } from '../users/entities/user.entity'
 import { CreateUserRoleDto } from './dto/create-user-role.dto'
 import { UpdateUserRoleDto } from './dto/update-user-role.dto'
 import { UserRole } from './entities/user-role.entity'
 import { Roles } from './user-roles.constants'
+
+type EntityOwner = {
+  organisationId?: string
+  teamId?: string
+}
 
 @Injectable()
 export class UserRolesService {
@@ -91,6 +98,48 @@ export class UserRolesService {
       user,
       role: Roles.SuperAdmin
     })
+  }
+
+  deleteSuperAdminRole(id: string) {
+    return this.userRoleRepository.delete({
+      user: { id },
+      role: Roles.SuperAdmin
+    })
+  }
+
+  async assignAdminRole(
+    userId: string,
+    entityOwner: EntityOwner,
+    revoke = false
+  ) {
+    const user = new User()
+    user.id = userId
+
+    const data: Partial<UserRole> = { user }
+
+    if (entityOwner.organisationId) {
+      data.organisation = new Organisation()
+      data.organisation.id = entityOwner.organisationId
+      data.role = Roles.OrganisationAdmin
+    }
+
+    if (entityOwner.teamId) {
+      data.team = new Team()
+      data.team.id = entityOwner.teamId
+      data.role = Roles.TeamAdmin
+    }
+
+    if (!revoke) {
+      const existingRole = await this.userRoleRepository.findOne(data)
+
+      if (existingRole) {
+        return existingRole
+      }
+
+      return this.userRoleRepository.save(data)
+    } else {
+      return this.userRoleRepository.delete(data)
+    }
   }
 
   async checkOwnerShip(orgId: string, userId: string) {

@@ -26,9 +26,12 @@ const icons = {
 }
 
 export type MenuProps = {
-  label: string
-  link: string
+  label?: string
+  link?: string
   icon?: string
+  hr?: boolean
+  subMenu?: MenuProps[]
+  onClick?: () => void
 }
 
 export type MainMenuProps = {
@@ -43,7 +46,7 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
 
   if (menu.length && !prefix) {
     return (
-      <>
+      <div>
         {switchMode ? (
           <div className="top left">
             <a href="#" className="btn small" onClick={() => restoreRole()}>
@@ -51,19 +54,50 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
             </a>
           </div>
         ) : null}
-        {menu.map(({ label, link, icon }) => {
+        {menu.map((item: MenuProps, index: number) => {
+          const { label, link, icon, onClick, hr, subMenu } = item
           const Icon = icons[icon]
+          if (hr) {
+            return <hr key={index} />
+          }
+
           return (
-            <MenuItem
-              to={link}
-              label={label}
-              key={label}
-              current={current.startsWith(link)}
-              icon={Icon ? <Icon /> : null}
-            />
+            <div key={index}>
+              <MenuItem
+                to={link}
+                onClick={onClick}
+                label={label}
+                current={current.startsWith(link)}
+                icon={Icon ? <Icon /> : null}
+              />
+              {(subMenu && current.startsWith(link)) ||
+              (subMenu &&
+                subMenu.filter((e) => current.startsWith(e.link)).length) ? (
+                <div className="sub-menu">
+                  {subMenu.map((item, index) => {
+                    const { label, link, icon, onClick, hr } = item
+                    const Icon = icons[icon]
+                    if (hr) {
+                      return <hr key={index} />
+                    }
+                    return (
+                      <MenuItem
+                        to={link}
+                        onClick={onClick}
+                        label={label}
+                        key={index}
+                        current={current.startsWith(link)}
+                        icon={Icon ? <Icon /> : null}
+                      />
+                    )
+                  })}
+                  <hr />
+                </div>
+              ) : null}
+            </div>
           )
         })}
-      </>
+      </div>
     )
   }
 

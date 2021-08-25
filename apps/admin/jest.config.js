@@ -12,5 +12,8 @@ module.exports = {
   },
   moduleNameMapper: {
     '\\.(scss)$': '<rootDir>/src/tests/mock/styleMock.js'
-  }
+  },
+  setupFiles: [
+    '<rootDir>/src/tests/mock/setupTests.js'
+  ]
 };

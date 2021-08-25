@@ -2,15 +2,14 @@ import { useState, useContext } from 'react'
 import Dashboard from '../components/layouts/Dashboard'
 import { AuthContext } from '../context/Auth.context'
 import TableContainer from '../components/Table/TableContainer'
-import { toDateCell } from '../components/Table/helpers'
 import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 import { AnimatePresence } from 'framer-motion'
 import Drawer from '../components/elements/Drawer'
-import EditUser from '../components/forms/EditUser'
 import { timeout } from '../helpers/timeout'
 import Input from '../components/elements/Input'
 import useDebounce from '../hooks/useDebounce'
 import ConfirmForm from '../components/forms/ConfirmForm'
+import AssignUserForm from '../components/forms/AssignUserForm'
 
 export default function UsersPage() {
   const [drawContent, setDrawContent] = useState<
@@ -29,12 +28,6 @@ export default function UsersPage() {
     setDrawContent(null)
   }
 
-  const EditUserForm = (fields) => {
-    setWarning(true)
-    setWide(false)
-    setDrawContent(<EditUser onSave={closeDrawer(1000)} current={fields} />)
-  }
-
   const showAvatar = ({
     cell: {
       row: {
@@ -50,34 +43,7 @@ export default function UsersPage() {
     )
   }
 
-  const cellActions = ({
-    cell: {
-      row: { original }
-    }
-  }) => {
-    const { focusRole } = useContext(AuthContext)
-
-    return (
-      <div className="text-right">
-        {focusRole === 'app' && (
-          <button
-            className="button small ml-1"
-            onClick={() => EditUserForm(original)}>
-            Edit
-          </button>
-        )}
-        {focusRole === 'team' && (
-          <button
-            className="button small ml-1"
-            onClick={() => ConfirmRemoveForm(original)}>
-            Remove
-          </button>
-        )}
-      </div>
-    )
-  }
-
-  const ConfirmRemoveForm = (fields) => {
+  const ConfirmRevokeForm = (fields) => {
     setWarning(true)
     setWide(false)
     setDrawContent(
@@ -85,23 +51,39 @@ export default function UsersPage() {
         onUpdate={closeDrawer(1000)}
         onCancel={closeDrawer()}
         current={fields}
-        title="Remove"
-        updateText="Removing..."
-        completedText="Removed"
+        title="Revoke access"
         message={`
-          Are you sure you want to remove this user from your team?
-          Note they will also lose access to all leagues, rewards and other content
-          within this team.
+          Are you sure you want to revoke access?
         `}
         mutation={(current) =>
-          api.delete('/teams/:teamId/users/:userId', {
-            userId: current.id,
-            teamId: primary.team
-          })
+          api.delete(
+            '/admins/:userId',
+            {
+              userId: current.id
+            },
+            {
+              primary,
+              useRole: focusRole
+            }
+          )
         }
       />
     )
   }
+
+  const cellActions = ({
+    cell: {
+      row: { original }
+    }
+  }) => (
+    <div className="text-right">
+      <button
+        className="button small ml-1"
+        onClick={() => ConfirmRevokeForm(original)}>
+        Revoke
+      </button>
+    </div>
+  )
 
   const handleUsernameSearch = async (search) => {
     setKeyword(search)
@@ -113,7 +95,10 @@ export default function UsersPage() {
   return (
     <Dashboard title="Settings Users">
       <div className="flex ai-c jc-sb">
-        <h1 className="light mb-0 mr-2">Manage users</h1>
+        <div className="flex ai-c">
+          <h1 className="light mb-0 mr-2">Manage administrators</h1>
+          <AssignUserForm onSave={closeDrawer(1000)} />
+        </div>
         <Input
           className="input-large"
           inline={true}
@@ -129,13 +114,6 @@ export default function UsersPage() {
             { Header: ' ', accessor: 'avatar', Cell: showAvatar },
             { Header: 'Name', accessor: 'name' },
             { Header: 'Email', accessor: 'email' },
-            {
-              Header: 'Last login',
-              accessor: 'last_login_at',
-              Cell: toDateCell
-            },
-            { Header: 'Updated', accessor: 'updated_at', Cell: toDateCell },
-            { Header: 'Created', accessor: 'created_at', Cell: toDateCell },
             { Header: ' ', Cell: cellActions }
           ]}
           fetch={(limit, page, query) =>
@@ -148,7 +126,7 @@ export default function UsersPage() {
              * /teams/:teamId/users
              */
             api.list<User>(
-              '/users',
+              '/admins',
               {
                 limit,
                 page,
@@ -160,7 +138,7 @@ export default function UsersPage() {
               }
             )
           }
-          fetchName={`users_${fetchKey}`}
+          fetchName={`admins_${fetchKey}`}
           refresh={refresh}
           keyword={dbSearchTerm}
         />
