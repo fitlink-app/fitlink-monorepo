@@ -23,6 +23,7 @@
     "db:export": "docker exec -t postgres pg_dumpall -c -U fitlink > fitlink.sql",
     "db:export:jest": "docker exec -t postgres-jest pg_dumpall -c -U jest > jest.sql",
     "db:import": "docker exec -i postgres psql -U fitlink < fitlink.sql",
+    "db:import:uat": "docker exec -i postgres psql -U fitlink < fitlink.sql",
     "db:import:jest": "docker exec -i postgres-jest psql -U jest < jest.sql",
     "migration:show": "node scripts/check-migrations.js",
     "migration:run": "yarn run typeorm migration:run -f ./ormconfig.js",
