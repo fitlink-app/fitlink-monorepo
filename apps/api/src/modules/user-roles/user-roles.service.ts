@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Organisation } from '../organisations/entities/organisation.entity'
+import { Subscription } from '../subscriptions/entities/subscription.entity'
 import { Team } from '../teams/entities/team.entity'
 import { User } from '../users/entities/user.entity'
 import { CreateUserRoleDto } from './dto/create-user-role.dto'
@@ -9,8 +10,10 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto'
 import { UserRole } from './entities/user-role.entity'
 import { Roles } from './user-roles.constants'
 
-type EntityOwner = {
+type EntityRole = {
+  role?: Roles
   organisationId?: string
+  subscriptionId?: string
   teamId?: string
 }
 
@@ -109,7 +112,7 @@ export class UserRolesService {
 
   async assignAdminRole(
     userId: string,
-    entityOwner: EntityOwner,
+    entityRole: EntityRole,
     revoke = false
   ) {
     const user = new User()
@@ -117,15 +120,21 @@ export class UserRolesService {
 
     const data: Partial<UserRole> = { user }
 
-    if (entityOwner.organisationId) {
+    if (entityRole.organisationId) {
       data.organisation = new Organisation()
-      data.organisation.id = entityOwner.organisationId
+      data.organisation.id = entityRole.organisationId
       data.role = Roles.OrganisationAdmin
     }
 
-    if (entityOwner.teamId) {
+    if (entityRole.subscriptionId) {
+      data.subscription = new Subscription()
+      data.subscription.id = entityRole.subscriptionId
+      data.role = Roles.SubscriptionAdmin
+    }
+
+    if (entityRole.teamId) {
       data.team = new Team()
-      data.team.id = entityOwner.teamId
+      data.team.id = entityRole.teamId
       data.role = Roles.TeamAdmin
     }
 

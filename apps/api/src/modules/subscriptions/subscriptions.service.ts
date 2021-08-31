@@ -18,6 +18,12 @@ import {
 import { SubscriptionType } from './subscriptions.constants'
 import { SuccessResultDto } from '../../classes/dto/success'
 
+type EntityOwner = {
+  organisationId?: string
+  subscriptionId?: string
+  teamId?: string
+}
+
 interface ChargebeeError {
   api_error_code: string
   message: string
@@ -116,16 +122,23 @@ export class SubscriptionsService {
 
   async findSubscriptionUsers(
     subId: string,
-    options: PaginationOptionsInterface
+    options: PaginationOptionsInterface,
+    entityOwner: EntityOwner
   ): Promise<Pagination<User>> {
-    const query = this.userRepository
+    let query = this.userRepository
       .createQueryBuilder('user')
       .innerJoinAndSelect('user.subscription', 'subscription')
       .innerJoinAndSelect('subscription.organisation', 'organisation')
       .leftJoinAndSelect('user.avatar', 'avatar')
       .where('subscription.id = :subId', { subId })
-      .take(options.limit)
-      .skip(options.page * options.limit)
+
+    if (entityOwner.organisationId) {
+      query = query.andWhere('organisation.id = :organisationId', {
+        organisationId: entityOwner.organisationId
+      })
+    }
+
+    query = query.take(options.limit).skip(options.page * options.limit)
 
     const [results, total] = await query.getManyAndCount()
 
@@ -264,8 +277,21 @@ export class SubscriptionsService {
    */
   async addUser(
     userId: string,
-    subscriptionId: string
+    subscriptionId: string,
+    entityOwner: EntityOwner
   ): Promise<SuccessResultDto> {
+    // Ensure if an organisation is requested, the subscription belongs to it.
+    if (entityOwner.organisationId) {
+      await this.subscriptionRepository.findOneOrFail({
+        where: {
+          id: subscriptionId,
+          organisation: {
+            id: entityOwner.organisationId
+          }
+        }
+      })
+    }
+
     return this.subscriptionRepository.manager.transaction(async (manager) => {
       const repo = manager.getRepository(Subscription)
       await repo
@@ -328,7 +354,11 @@ export class SubscriptionsService {
    * @param subscriptionId
    * @returns
    */
-  async removeUserFromSubscription(userId: string, subscriptionId: string) {
+  async removeUserFromSubscription(
+    userId: string,
+    subscriptionId: string,
+    entityOwner: EntityOwner
+  ) {
     return this.subscriptionRepository.manager.transaction(async (manager) => {
       const subscriptionRepository = manager.getRepository(Subscription)
       const userRepository = manager.getRepository(User)
@@ -341,6 +371,12 @@ export class SubscriptionsService {
       const user = await userRepository.findOne(userId, {
         relations: ['teams', 'teams.organisation']
       })
+
+      if (entityOwner.organisationId) {
+        if (subscription.organisation.id !== entityOwner.organisationId) {
+          throw new Error('Invalid organisation for subscription')
+        }
+      }
 
       // A user cannot be removed from the default subscription
       // They must be moved instead
@@ -468,17 +504,24 @@ export class SubscriptionsService {
    * @param orgId
    * @param subId
    */
-  async findAll({
-    limit,
-    page
-  }: PaginationOptionsInterface): Promise<Pagination<Subscription>> {
+  async findAll(
+    { limit, page }: PaginationOptionsInterface,
+    entityOwner: EntityOwner = {}
+  ): Promise<Pagination<Subscription>> {
     const [results, total] = await this.subscriptionRepository.findAndCount({
       relations: ['organisation'],
       take: limit,
       skip: limit * page,
       order: {
         updated_at: 'DESC'
-      }
+      },
+      where: entityOwner.organisationId
+        ? {
+            organisation: {
+              id: entityOwner.organisationId
+            }
+          }
+        : {}
     })
 
     return new Pagination<Subscription>({

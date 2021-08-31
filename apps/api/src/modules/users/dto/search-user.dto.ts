@@ -13,6 +13,10 @@ export class FilterUserDto {
   @ApiProperty()
   @IsOptional()
   q?: string
+
+  @ApiProperty()
+  @IsOptional()
+  admin_type?: string
 }
 
 export class SearchUserForLeaguesDto {

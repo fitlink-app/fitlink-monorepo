@@ -592,6 +592,24 @@ export class AuthService {
       spr: false
     }
 
+    if (role === Roles.OrganisationAdmin) {
+      if (roles.o_a.includes(id)) {
+        return this.loginWithRole(user, {
+          ...base,
+          o_a: [id]
+        })
+      }
+    }
+
+    if (role === Roles.SubscriptionAdmin) {
+      if (roles.s_a.includes(id)) {
+        return this.loginWithRole(user, {
+          ...base,
+          s_a: [id]
+        })
+      }
+    }
+
     // Organisation admin can switch to managing a specific team
     if (role === Roles.TeamAdmin) {
       let orgId
