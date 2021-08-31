@@ -94,7 +94,9 @@ export type ListResource =
   | '/organisations/:organisationId/users'
   | '/organisations/:organisationId/admins'
   | '/organisations/:organisationId/teams'
+  | '/organisations/:organisationId/teams/:teamId/admins'
   | '/organisations/:organisationId/subscriptions'
+  | '/organisations/:organisationId/subscriptions/:subscriptionId/admins'
   | '/organisations/:organisationId/invitations'
   | '/organisations/:organisationId/rewards'
   | '/organisations/:organisationId/leagues'
@@ -123,6 +125,7 @@ export type ListResource =
   | '/queue'
   | '/sports'
   | '/subscriptions'
+  | '/subscriptions/:subscriptionId/admins'
   | '/subscriptions/:subscriptionId/users'
   | '/subscriptions/:subscriptionId/chargebee/payment-sources'
   | '/users-invitations'
@@ -148,7 +151,9 @@ export type ReadResource =
   | '/organisations/:organisationId/activities/:activityId'
   | '/organisations/:organisationId/admins/:userId'
   | '/organisations/:organisationId/teams/:teamId'
+  | '/organisations/:organisationId/teams/:teamId/admins/:userId'
   | '/organisations/:organisationId/subscriptions/:subscriptionId'
+  | '/organisations/:organisationId/subscriptions/:subscriptionId/admins/:userId'
   | '/organisations/:organisationId/invitations/:invitationId'
   | '/organisations/:organisationId/leagues/:leagueId'
   | '/teams/:teamId'
@@ -166,6 +171,7 @@ export type ReadResource =
   | '/queue/:queueId'
   | '/sports/:sportId'
   | '/subscriptions/:subscriptionId'
+  | '/subscriptions/:subscriptionId/admins/:userId'
   | '/subscriptions/:subscriptionId/users/:userId'
   | '/subscriptions/:subscriptionId/chargebee/hosted-page'
   | '/admins/:userId'
@@ -326,4 +332,4 @@ export type RolePrimary = {
   superAdmin?: boolean
 }
 
-export type FocusRole = 'app' | 'organisation' | 'team'
+export type FocusRole = 'app' | 'organisation' | 'team' | 'subscription'
