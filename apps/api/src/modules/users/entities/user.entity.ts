@@ -263,7 +263,7 @@ export class User extends CreatableEntity {
 
   @ApiProperty()
   @Column({ nullable: true })
-  week_rest_at: Date
+  week_reset_at: Date
 
   @ApiProperty()
   @Column({
