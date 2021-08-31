@@ -11,6 +11,7 @@ import {
   FeedItemCategory,
   FeedItemType
 } from '../../feed-items/feed-items.constants'
+import { Events } from '../../../../src/events'
 
 @Injectable()
 export class LeagueJoinedListener {
@@ -24,7 +25,7 @@ export class LeagueJoinedListener {
     private feedItemService: FeedItemsService
   ) {}
 
-  @OnEvent('league.joined')
+  @OnEvent(Events.LEAGUE_JOINED)
   async leagueJoined({ userId, leagueId }: LeagueJoinedEvent) {
     const [league, leagueErr] = await tryAndCatch(
       this.leagueRepository.findOne({ id: leagueId })

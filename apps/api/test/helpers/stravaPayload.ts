@@ -9,7 +9,7 @@ export default {
   },
   name: 'Happy Friday',
   distance: 28099,
-  moving_time: 4207,
+  moving_time: 5400,
   elapsed_time: 4410,
   total_elevation_gain: 516,
   type: 'Hike',

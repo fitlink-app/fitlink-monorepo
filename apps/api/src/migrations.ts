@@ -47,6 +47,7 @@ import { FixEnums1629302813084 } from '../database/migrations/1629302813084-FixE
 import { AddOrganisationToActivity1629305606334 } from '../database/migrations/1629305606334-AddOrganisationToActivity'
 import { RenameActivityUserToOwner1629363309660 } from '../database/migrations/1629363309660-RenameActivityUserToOwner'
 import { UpdateRankTiers1629463294813 } from '../database/migrations/1629463294813-UpdateRankTiers'
+import { UserWeekResetsAt1630413325975 } from '../database/migrations/1630413325975-UserWeekResetsAt'
 
 export default [
   InitializeSchema1614887523112,
@@ -92,5 +93,6 @@ export default [
   FixEnums1629302813084,
   AddOrganisationToActivity1629305606334,
   RenameActivityUserToOwner1629363309660,
-  UpdateRankTiers1629463294813
+  UpdateRankTiers1629463294813,
+  UserWeekResetsAt1630413325975
 ]

@@ -258,6 +258,14 @@ export class User extends CreatableEntity {
   points_week: number
 
   @ApiProperty()
+  @Column({ default: 0 })
+  active_minutes_week: number
+
+  @ApiProperty()
+  @Column({ nullable: true })
+  week_reset_at: Date
+
+  @ApiProperty()
   @Column({
     default: 0
   })
