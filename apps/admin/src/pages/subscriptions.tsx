@@ -133,13 +133,15 @@ export default function SubscriptionsPage() {
         }}>
         Manage Seats
       </button>
-      <button
-        className="button small ml-1"
-        onClick={() => {
-          router.push(`/subscriptions/${original.id}/admins`)
-        }}>
-        Manage Admins
-      </button>
+      {focusRole === 'organisation' && (
+        <button
+          className="button small ml-1"
+          onClick={() => {
+            router.push(`/subscriptions/${original.id}/admins`)
+          }}>
+          Manage Admins
+        </button>
+      )}
       <button
         className="button small ml-1"
         onClick={() => ConfirmSubscriptionForm(original)}>
