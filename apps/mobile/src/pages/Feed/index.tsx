@@ -46,7 +46,7 @@ export const Feed = () => {
   });
 
   const onFeedItemPressed = useCallback(() => {
-    navigation.navigate('ActivityDetails');
+    navigation.navigate('HealthActivityDetails');
   }, []);
 
   if (!user) return null;
@@ -75,6 +75,7 @@ export const Feed = () => {
                 <UserWidget
                   name={user.name}
                   rank={'Newbie'}
+                  avatar={user.avatar?.url_512x512}
                   friendCount={user.following_total}
                   followerCount={user.followers_total}
                   pointCount={user.points_total}

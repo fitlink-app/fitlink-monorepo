@@ -13,7 +13,7 @@ import {
 } from '@react-navigation/stack';
 import {RootStackParamList} from './types';
 import {
-  ActivityDetails,
+  HealthActivityDetails,
   League,
   LeagueForm,
   LeagueInviteFriends,
@@ -21,6 +21,8 @@ import {
   Reward,
   Route,
   Webview,
+  MyActivities,
+  ActivityForm,
 } from 'pages';
 import {SettingsNavigator} from './Settings';
 import {useSelector} from 'react-redux';
@@ -74,12 +76,20 @@ export default function Router() {
             />
             <Stack.Screen name={'Profile'} component={Profile} />
             <Stack.Screen
-              name={'ActivityDetails'}
-              component={ActivityDetails}
+              name={'HealthActivityDetails'}
+              component={HealthActivityDetails}
             />
             <Stack.Screen name={'Route'} component={Route} />
             <Stack.Screen name={'Reward'} component={Reward} />
             <Stack.Screen name={'Webview'} component={Webview} />
+            <Stack.Screen
+              name={'MyActivities'}
+              component={MyActivities}
+              options={{
+                cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+              }}
+            />
+            <Stack.Screen name={'ActivityForm'} component={ActivityForm} />
           </>
         ) : (
           <Stack.Screen

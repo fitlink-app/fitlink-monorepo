@@ -3,11 +3,14 @@ import {queryClient, QueryKeys} from '@query';
 import api from '@api';
 import {useMe} from '.';
 import {useReducer} from 'react';
-import {
-  UnitSystem,
-  User,
-} from '@fitlink/api/src/modules/users/entities/user.entity';
+import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {UpdateUserDto} from '@fitlink/api/src/modules/users/dto/update-user.dto';
+import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
+import {ImagePickerDialogResponse} from 'hooks/useImagePicker';
+import {useUpdateAvatar} from './useUpdateAvatar';
+import {Image} from '@fitlink/api/src/modules/images/entities/image.entity';
+import {useUploadImage} from '../images';
+import {ImageType} from '../../../../../api/src/modules/images/images.constants';
 
 export type UserGoalPreferences = {
   goal_mindfulness_minutes: number;
@@ -22,6 +25,8 @@ type State = {
   goals: UserGoalPreferences;
   unitSystem: UnitSystem;
   timezone: string;
+  avatar?: Image;
+  tempAvatar?: ImagePickerDialogResponse; // avatar that is picked in the Settings but not uploaded yet
 };
 
 enum ActionType {
@@ -29,13 +34,15 @@ enum ActionType {
   SetGoals = 'SET_GOALS',
   SetUnitSystem = 'SET_UNIT_SYSTEM',
   SetTimezone = 'SET_TIMEZONE',
+  SetAvatar = 'SET_AVATAR',
 }
 
 type Action =
   | {type: ActionType.SetName; payload: string}
   | {type: ActionType.SetUnitSystem; payload: UnitSystem}
   | {type: ActionType.SetTimezone; payload: string}
-  | {type: ActionType.SetGoals; payload: UserGoalPreferences};
+  | {type: ActionType.SetGoals; payload: UserGoalPreferences}
+  | {type: ActionType.SetAvatar; payload: ImagePickerDialogResponse};
 
 function settingsReducer(state: State, action: Action): State {
   switch (action.type) {
@@ -63,13 +70,21 @@ function settingsReducer(state: State, action: Action): State {
         goals: action.payload,
       };
 
+    case ActionType.SetAvatar:
+      return {
+        ...state,
+        tempAvatar: action.payload,
+      };
+
     default:
       return state;
   }
 }
 
 export function useSettings() {
-  // Set up initial state
+  const {mutateAsync: updateAvatar} = useUpdateAvatar();
+  const {mutateAsync: uploadImage} = useUploadImage();
+
   const {data: userData} = useMe({refetchOnMount: false});
   const user = userData!;
 
@@ -87,6 +102,7 @@ export function useSettings() {
     goals: initialGoals,
     unitSystem: user.unit_system,
     timezone: user.timezone,
+    avatar: user.avatar,
   };
 
   const [state, dispatch] = useReducer(settingsReducer, initialState);
@@ -96,7 +112,12 @@ export function useSettings() {
     JSON.stringify(initialState) !== JSON.stringify(state);
 
   // React-query
-  const {mutateAsync, reset, error, isLoading} = useMutation(
+  const {
+    mutateAsync: submitSettings,
+    reset: resetSettingsQuery,
+    error: settingsError,
+    isLoading: isSettingsLoading,
+  } = useMutation(
     (updatedSettings: UpdateUserDto) =>
       api.put<User>('/me', {payload: updatedSettings}),
     {
@@ -125,9 +146,13 @@ export function useSettings() {
     dispatch({type: ActionType.SetTimezone, payload: timezone});
   }
 
+  function setAvatar(avatar: ImagePickerDialogResponse) {
+    dispatch({type: ActionType.SetAvatar, payload: avatar});
+  }
+
   /** Submits new user settings */
   async function submit() {
-    reset();
+    resetSettingsQuery();
 
     const updatedSettings: UpdateUserDto = {
       name: state.name,
@@ -137,7 +162,17 @@ export function useSettings() {
       ...state.goals,
     };
 
-    return mutateAsync(updatedSettings);
+    const promises = [submitSettings(updatedSettings)];
+
+    if (state.tempAvatar) {
+      const image = await uploadImage({
+        image: state.tempAvatar,
+        type: ImageType.Avatar,
+      });
+      await updateAvatar({imageId: image.id});
+    }
+
+    return Promise.all(promises);
   }
 
   return {
@@ -145,13 +180,16 @@ export function useSettings() {
     goals: state.goals,
     unitSystem: state.unitSystem,
     timezone: state.timezone,
+    avatar: state.avatar,
+    tempAvatar: state.tempAvatar,
     setName,
     setGoals,
     setUnitSystem,
     setTimezone,
+    setAvatar,
     didSettingsChange,
-    isLoading,
-    error,
+    isLoading: isSettingsLoading,
+    error: settingsError,
     submit,
   };
 }

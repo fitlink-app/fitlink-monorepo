@@ -22,9 +22,10 @@ interface ImagePickerProps {
   imageSrc?: string;
   error?: string;
   iconSize?: number;
-  onImagePicked: (imageSrc: ImagePickerDialogResponse) => void;
+  onImagePicked?: (imageSrc: ImagePickerDialogResponse) => void;
   onImageDeleted?: () => void;
   style?: ViewStyle;
+  icon?: string;
   deleteButtonContainerStyle?: ViewStyle;
 }
 
@@ -38,6 +39,7 @@ export const ImagePicker = (props: ImagePickerProps) => {
     style,
     deleteButtonContainerStyle,
     iconSize = 50,
+    icon,
   } = props;
   const {openImagePicker} = useImagePicker();
 
@@ -47,14 +49,18 @@ export const ImagePicker = (props: ImagePickerProps) => {
     Keyboard.dismiss();
 
     openImagePicker('Select Image', response => {
-      onImagePicked(response);
+      onImagePicked && onImagePicked(response);
     });
   };
 
   const renderNoImageButtonContent = () => {
     return (
       <EmptyButtonContainer>
-        <Icon name={'camera'} size={iconSize} color={colors.accentSecondary} />
+        <Icon
+          name={icon || 'camera'}
+          size={iconSize}
+          color={colors.accentSecondary}
+        />
         {!!label && (
           <Label type={'body'} appearance={'primary'} style={{marginTop: 5}}>
             {label}
@@ -97,7 +103,7 @@ export const ImagePicker = (props: ImagePickerProps) => {
   };
 
   return (
-    <TouchHandler onPress={handleSelectImage}>
+    <TouchHandler disabled={!onImagePicked} onPress={handleSelectImage}>
       <Wrapper
         style={{
           ...style,

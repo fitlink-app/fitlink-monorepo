@@ -50,7 +50,7 @@ const StatsContainer = styled.View({
 
 const StatWidgetRow = styled.View({flexDirection: 'row'});
 
-export const ActivityDetails = () => {
+export const HealthActivityDetails = () => {
   const insets = useSafeAreaInsets();
   const {colors} = useTheme();
   const navigation = useNavigation();

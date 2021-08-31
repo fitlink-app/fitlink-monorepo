@@ -29,8 +29,6 @@ export function useEditLeague() {
         );
       },
       onSuccess: (data, params) => {
-        console.log(params);
-        // Invalidate League
         queryClient.invalidateQueries([QueryKeys.League, params.id]);
 
         // Invalidate Leagues

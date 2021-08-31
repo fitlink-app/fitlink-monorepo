@@ -35,7 +35,7 @@ interface ListModalProps
     | 'backdropComponent'
   > {
   onActivityPressed: (id: string) => void;
-  onExpand: () => void;
+  onExpand?: () => void;
 }
 
 export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
@@ -51,7 +51,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
 
     const SEARCH_RADIUS = 15;
 
-    const {data, isFetching, isFetchingNextPage, fetchNextPage, error} =
+    const {data, isFetching, isFetchingNextPage, fetchNextPage} =
       useFindActivities({
         type: '',
         keyword: '',
@@ -76,8 +76,6 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
     const types = useSelector(selectTypes);
 
     const handleLoadMore = () => {
-      console.log(data.pages[0].total);
-      console.log(activities.length);
       if (data?.pages && data.pages[0].total > activities.length) {
         fetchNextPage();
       }
@@ -117,8 +115,8 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
           {...props}
           pressBehavior={'collapse'}
           enableTouchThrough={true}
-          appearsOnIndex={1}
-          disappearsOnIndex={0}
+          appearsOnIndex={2}
+          disappearsOnIndex={1}
         />
       ),
       [],
@@ -180,7 +178,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
       return (
         <View
           style={{height: 80, justifyContent: 'center', alignItems: 'center'}}>
-          <ActivityIndicator />
+          <ActivityIndicator color={colors.accent} />
         </View>
       );
     };
@@ -193,6 +191,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
         snapPoints={snapPoints}
         animatedPosition={animatedPosition}
         animatedIndex={animatedIndex}
+        enableDismissOnClose={false}
         enablePanDownToClose={false}
         backgroundComponent={ModalBackground}
         backdropComponent={renderModalBackdrop}>

@@ -20,4 +20,6 @@ export enum QueryKeys {
   Sports = 'sports',
   SearchActivities = 'activities',
   SearchActivitiesMap = 'activities/map',
+  Activity = 'activity',
+  MyActivities = 'me/activities',
 }

@@ -8,7 +8,13 @@ import {
   NAVBAR_HEIGHT,
   TouchHandler,
 } from '@components';
-import {useModal, UserGoalPreferences, useSettings} from '@hooks';
+import {
+  ImagePickerDialogResponse,
+  useImagePicker,
+  useModal,
+  UserGoalPreferences,
+  useSettings,
+} from '@hooks';
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
 import {Keyboard, Platform, ScrollView, View} from 'react-native';
@@ -65,9 +71,9 @@ export const Settings = () => {
 
   const settings = useSettings();
   const {openModal, closeModal} = useModal();
+  const {openImagePicker} = useImagePicker();
 
   // TODO: Hook up with state
-  // TODO: Add Avatar url once API supports it
   // TODO: Implement tracker onPress
 
   /**
@@ -121,6 +127,10 @@ export const Settings = () => {
     settings.setGoals(parsedGoals);
   };
 
+  const handleOnAvatarPicked = (response: ImagePickerDialogResponse) => {
+    settings.setAvatar(response);
+  };
+
   const handleOnSavePressed = async () => {
     Keyboard.dismiss();
 
@@ -155,12 +165,18 @@ export const Settings = () => {
         <CategoryLabel>Profile</CategoryLabel>
         <SettingsButton
           preLabelComponent={
-            <Avatar url={undefined} size={44} style={{marginRight: 10}} />
+            <Avatar
+              url={settings.tempAvatar?.uri || settings.avatar?.url_512x512}
+              size={44}
+              style={{marginRight: 10}}
+            />
           }
           label={'Update image'}
-          onPress={() => {
-            // TODO: Show image picker modal (take pic, select from gallery, cancel)
-          }}
+          onPress={() =>
+            openImagePicker('Select Avatar', response => {
+              handleOnAvatarPicked(response);
+            })
+          }
         />
         <SettingsInput
           label={'Display name'}

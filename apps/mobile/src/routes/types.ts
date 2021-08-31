@@ -1,5 +1,6 @@
 import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {UpdateLeagueDto} from '@fitlink/api/src/modules/leagues/dto/update-league.dto';
+import {Activity} from '@fitlink/api/src/modules/activities/entities/activity.entity';
 
 export type RootStackParamList = {
   AuthenticationNavigator: undefined;
@@ -22,8 +23,24 @@ export type RootStackParamList = {
   LeagueForm: {data?: {id: string; dto: UpdateLeagueDto; imageUrl: string}};
   Rewards: undefined;
   Reward: {id: string};
-  ActivityDetails: {id: string};
+  HealthActivityDetails: {id: string};
   Route: {
     polyline: string;
+  };
+  MyActivities: {
+    onAddNewActivityPressed: () => void;
+    onActivityPressed: (activityId: string) => void;
+  };
+  ActivityForm: {
+    action: 'create' | 'edit';
+    id?: string;
+    geo?: any;
+    data?: Activity;
+    onSubmitCallback?: () => void;
+    onDelete?: (
+      id: string,
+      onDeleteCompleted?: () => void,
+      onClose?: () => void,
+    ) => void;
   };
 };

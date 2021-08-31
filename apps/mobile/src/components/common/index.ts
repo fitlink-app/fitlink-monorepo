@@ -18,3 +18,5 @@ export * from './Chip';
 export * from './Checkbox';
 export * from './ImagePicker';
 export * from './Lightbox';
+export * from './Swipeable';
+export * from './Accordion';

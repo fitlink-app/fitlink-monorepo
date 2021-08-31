@@ -9,7 +9,7 @@ interface FindActivitiesMapDto extends Pick<FindActivitiesDto, 'geo_radial'> {}
 
 export function useFindActivitiesMap(dto: FindActivitiesMapDto) {
   return useQuery<ListResponse<ActivityForMap>, Error>(
-    QueryKeys.SearchActivitiesMap,
+    [QueryKeys.SearchActivitiesMap, JSON.stringify(dto)],
     () => {
       const searchParams = new URLSearchParams();
       searchParams.append('geo_radial', String(dto.geo_radial));

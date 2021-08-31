@@ -11,6 +11,7 @@ import {
 } from '../common';
 import {FeedCollage} from './FeedCollage';
 import {FeedStatLabel} from './FeedStatLabel';
+import {formatRelative} from 'date-fns';
 
 const Wrapper = styled.View(({theme}) => ({
   paddingVertical: 15,
@@ -67,7 +68,7 @@ export const _FeedItem = ({onContentPress}: FeedItemProps) => {
   const isLiked = false;
   const name = 'Lana Smith';
   const title = 'Afternoon Hiking';
-  const date = 'today at 2:15pm';
+  const date = formatRelative(new Date('2021-08-24'), new Date());
   const points = 5;
   const images = [
     'https://source.unsplash.com/random/250%C3%97180/?hiking,woods',

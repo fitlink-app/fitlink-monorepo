@@ -5,6 +5,7 @@ import {
   BottomSheetModalProps,
   BottomSheetScrollView,
   BottomSheetView,
+  useBottomSheetModal,
 } from '@gorhom/bottom-sheet';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {useAnimatedStyle, useSharedValue} from 'react-native-reanimated';
@@ -20,10 +21,21 @@ import {
   LightboxHandles,
   TouchHandler,
 } from '@components';
-import {Dimensions, FlatList, Linking, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Dimensions,
+  FlatList,
+  Linking,
+  View,
+} from 'react-native';
 import {NativeViewGestureHandler} from 'react-native-gesture-handler';
+import {useActivity} from '@hooks';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useEffect} from 'react';
 
-const {width: SCREEN_WIDTH} = Dimensions.get('screen');
+const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('screen');
+
+const DETAILS_MODAL_KEY = 'DETAILS_MODAL_KEY';
 
 const imageHeight = SCREEN_WIDTH * 0.4;
 const imageWidth = SCREEN_WIDTH / 2.5;
@@ -58,6 +70,12 @@ const CarouselImage = styled.Image({
   width: imageWidth,
 });
 
+const EmptyContainer = styled.View({
+  alignItems: 'center',
+  justifyContent: 'center',
+  flex: 1,
+});
+
 interface ActivityDetailsModalProps
   extends Omit<
     BottomSheetModalProps,
@@ -69,51 +87,28 @@ interface ActivityDetailsModalProps
     | 'backgroundComponent'
     | 'backdropComponent'
   > {
+  activityId?: string;
   onBack?: () => void;
 }
 
 export const ActivityDetailsModal = React.forwardRef<
   BottomSheetModal,
   ActivityDetailsModalProps
->(({onBack, ...rest}, ref) => {
+>(({activityId, onBack, ...rest}, ref) => {
   const {colors} = useTheme();
+  const insets = useSafeAreaInsets();
+  const {dismiss, dismissAll} = useBottomSheetModal();
+
+  const {data: activity} = useActivity(activityId);
 
   const [contentHeight, setContentHeight] = useState(0);
   const snapPoints = useMemo(
-    () => ['30%', contentHeight + HANDLE_HEIGHT],
-    [contentHeight],
+    () => (!!activity ? ['45%', contentHeight + HANDLE_HEIGHT] : ['45%']),
+    [contentHeight, activity],
   );
 
-  // TEMP
-
-  const activity: any = {
-    name: 'Activity Name',
-    activity: 'Yoga',
-    date: '6pm every Friday',
-    cost: '$9.90',
-    organizer_email: 'hurka@gyuri.com',
-    description: 'Best fitness class ever.',
-    images: [
-      {
-        url: 'https://images.unsplash.com/photo-1518644961665-ed172691aaa1?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
-        alt: 'Fuiyooh',
-      },
-      {
-        url: 'https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
-        alt: 'Back Pain',
-      },
-      {
-        url: 'https://images.unsplash.com/photo-1614633757718-1c8380011b9b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=932&q=80',
-        alt: 'Huehuehue',
-      },
-    ],
-    organizer_name: 'Hurka Gyurka',
-    organizer_image:
-      'https://images.unsplash.com/photo-1571512599285-9ac4fdf3dba9?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
-    organizer_url: 'Fitness 3000',
-  };
-
   // Refs
+  const hadActivityLastRender = useRef(false);
   const carouselRef = useRef<FlatList>(null);
   const lightboxRef = useRef<LightboxHandles>(null);
   const scrollViewRef = useRef<BottomSheetScrollViewMethods>(null);
@@ -129,6 +124,14 @@ export const ActivityDetailsModal = React.forwardRef<
     () => [{flex: 1}, scrollViewAnimatedStyle],
     [scrollViewAnimatedStyle],
   );
+
+  useEffect(() => {
+    if (activity) {
+      hadActivityLastRender.current = true;
+    } else if (hadActivityLastRender.current) {
+      dismiss(DETAILS_MODAL_KEY);
+    }
+  }, [activity]);
 
   const handleOnDirectionsPressed = () => {
     // TODO: Handle open map
@@ -235,7 +238,9 @@ export const ActivityDetailsModal = React.forwardRef<
 
         <SectionContent>
           <Row style={{justifyContent: 'flex-start', alignItems: 'center'}}>
-            {!!organizer_image && <Avatar url={organizer_image} size={84} />}
+            {!!organizer_image && (
+              <Avatar url={organizer_image.url_512x512} size={84} />
+            )}
 
             <View style={{marginLeft: organizer_image ? 15 : 0}}>
               <Label appearance={'primary'} type={'subheading'} bold>
@@ -378,26 +383,43 @@ export const ActivityDetailsModal = React.forwardRef<
     );
   };
 
+  const renderEmpty = () => {
+    return (
+      <EmptyContainer>
+        <ActivityIndicator color={colors.accent} />
+      </EmptyContainer>
+    );
+  };
+
   return (
     <>
       <BottomSheetModal
         {...{...rest, ref, handleComponent}}
         index={0}
+        name={DETAILS_MODAL_KEY}
         handleHeight={200}
+        topInset={insets.top + 50}
         snapPoints={snapPoints}
         animatedIndex={animatedIndex}
         enablePanDownToClose={true}
         backgroundComponent={ModalBackground}
         backdropComponent={renderModalBackdrop}>
-        <BottomSheetScrollView
-          ref={scrollViewRef}
-          keyboardDismissMode="on-drag"
-          keyboardShouldPersistTaps="never"
-          style={scrollViewStyle}>
-          <BottomSheetView onLayout={handleOnLayout}>
-            {renderContent()}
-          </BottomSheetView>
-        </BottomSheetScrollView>
+        {activity ? (
+          <BottomSheetScrollView
+            ref={scrollViewRef}
+            bounces={false}
+            keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="never"
+            style={scrollViewStyle}>
+            <BottomSheetView
+              onLayout={handleOnLayout}
+              style={{paddingBottom: 20}}>
+              {renderContent()}
+            </BottomSheetView>
+          </BottomSheetScrollView>
+        ) : (
+          renderEmpty()
+        )}
       </BottomSheetModal>
       <Lightbox ref={lightboxRef} />
     </>
