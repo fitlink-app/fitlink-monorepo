@@ -40,6 +40,8 @@ import { RewardsUpdates1625057321096 } from '../database/migrations/162505732109
 import { RewardsRedemptionsUpdates1625572472206 } from '../database/migrations/1625572472206-RewardsRedemptionsUpdates'
 import { LeaguesStartEndDates1625649869427 } from '../database/migrations/1625649869427-LeaguesStartEndDates'
 import { AuthProvider1625759364689 } from '../database/migrations/1625759364689-AuthProvider'
+import { UserTiersUpdate1629718763314 } from '../database/migrations/1629718763314-UserTiersUpdate'
+import { UserTiersUpdateAddedNullable1629720807536 } from '../database/migrations/1629720807536-UserTiersUpdateAddedNullable'
 
 export default [
   InitializeSchema1614887523112,
@@ -78,5 +80,7 @@ export default [
   RewardsUpdates1625057321096,
   RewardsRedemptionsUpdates1625572472206,
   LeaguesStartEndDates1625649869427,
-  AuthProvider1625759364689
+  AuthProvider1625759364689,
+  UserTiersUpdate1629718763314,
+  UserTiersUpdateAddedNullable1629720807536
 ]
