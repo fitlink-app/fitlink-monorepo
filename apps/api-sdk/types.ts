@@ -5,6 +5,9 @@ import { UpdateTeamDto } from '@fitlink/api/src/modules/teams/dto/update-team.dt
 import { Activity } from '@fitlink/api/src/modules/activities/entities/activity.entity'
 import { CreateActivityDto } from '@fitlink/api/src/modules/activities/dto/create-activity.dto'
 import { UpdateActivityDto } from '@fitlink/api/src/modules/activities/dto/update-activity.dto'
+import { League } from '@fitlink/api/src/modules/leagues/entities/league.entity'
+import { CreateLeagueDto } from '@fitlink/api/src/modules/leagues/dto/create-league.dto'
+import { UpdateLeagueDto } from '@fitlink/api/src/modules/leagues/dto/update-league.dto'
 import { Reward } from '@fitlink/api/src/modules/rewards/entities/reward.entity'
 import { CreateRewardDto } from '@fitlink/api/src/modules/rewards/dto/create-reward.dto'
 import { UpdateRewardDto } from '@fitlink/api/src/modules/rewards/dto/update-reward.dto'
@@ -37,6 +40,8 @@ import { CreateDefaultSubscriptionDto } from '@fitlink/api/src/modules/subscript
 import { UpdateSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/update-subscription.dto'
 import { AddUserToSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/add-user-to-subscription.dto'
 import { AuthRequestResetPasswordDto } from '@fitlink/api/src/modules/auth/dto/auth-reset-password'
+import { CreateAdminDto } from '@fitlink/api/src/modules/users/dto/create-admin.dto'
+import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 
 export type {
   AuthResultDto,
@@ -87,6 +92,7 @@ export type ListResource =
   | '/organisations'
   | '/organisations/:organisationId/activities'
   | '/organisations/:organisationId/users'
+  | '/organisations/:organisationId/admins'
   | '/organisations/:organisationId/teams'
   | '/organisations/:organisationId/subscriptions'
   | '/organisations/:organisationId/invitations'
@@ -101,11 +107,13 @@ export type ListResource =
   | '/teams/:teamId/rewards'
   | '/teams/:teamId/rewards/:rewardId/redemptions'
   | '/teams/:teamId/users'
+  | '/teams/:teamId/admins'
   | '/teams/:teamId/stats'
   | '/teams/:teamId/stats/health-activities'
   | '/teams/:teamId/users/:userId/roles'
   | '/teams/:teamId/leagues'
   | '/teams/:teamId/leagues/:leagueId/leaderboards'
+  | '/admins'
   | '/users'
   | '/users/search'
   | '/activities'
@@ -138,6 +146,7 @@ export type ListResource =
 export type ReadResource =
   | '/organisations/:organisationId'
   | '/organisations/:organisationId/activities/:activityId'
+  | '/organisations/:organisationId/admins/:userId'
   | '/organisations/:organisationId/teams/:teamId'
   | '/organisations/:organisationId/subscriptions/:subscriptionId'
   | '/organisations/:organisationId/invitations/:invitationId'
@@ -147,6 +156,7 @@ export type ReadResource =
   | '/teams/:teamId/invitations/:invitationId'
   | '/teams/:teamId/rewards/:rewardId'
   | '/teams/:teamId/users/:userId'
+  | '/teams/:teamId/admins/:userId'
   | '/teams/:teamId/users/:userId/roles/:roleId'
   | '/teams/:teamId/leagues/:leagueId'
   | '/teams/:teamId/leagues/:leagueId/leaderboards/:leaderboardId'
@@ -158,6 +168,7 @@ export type ReadResource =
   | '/subscriptions/:subscriptionId'
   | '/subscriptions/:subscriptionId/users/:userId'
   | '/subscriptions/:subscriptionId/chargebee/hosted-page'
+  | '/admins/:userId'
   | '/users/:userId'
   | '/users-invitations/:invitationId'
   | '/me'
@@ -199,8 +210,12 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<CreateActivityDto>
   : T extends Reward
   ? Payload<CreateRewardDto>
+  : T extends League
+  ? Payload<CreateLeagueDto>
   : T extends AuthSignUp
   ? Payload<CreateUserDto>
+  : T extends UserRole
+  ? Payload<CreateAdminDto>
   : T extends AuthLogin
   ? Payload<AuthLoginDto>
   : T extends AuthConnect
@@ -243,6 +258,8 @@ export type UpdateResourceParams<T> = T extends Organisation
   ? Payload<UpdateActivityDto>
   : T extends Reward
   ? Payload<UpdateRewardDto>
+  : T extends League
+  ? Payload<CreateLeagueDto>
   : T extends User
   ? Payload<UpdateUserDto>
   : T extends ImageUpload

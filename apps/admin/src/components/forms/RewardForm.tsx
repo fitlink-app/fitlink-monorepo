@@ -16,6 +16,7 @@ export type RewardFormProps = {
   current?: Partial<RewardEntity>
   onSave?: () => void
   onError?: (err: any) => void
+  onDelete?: (fields: Partial<RewardEntity>) => void
 }
 
 const getFields = (reward: Partial<RewardEntity>) => {
@@ -34,7 +35,7 @@ const getFields = (reward: Partial<RewardEntity>) => {
     limit_units: reward.limit_units,
     units_available: reward.units_available,
     points_required: reward.points_required,
-    image_upload: null
+    image_upload: undefined
   }
 }
 
@@ -43,7 +44,8 @@ const noop = () => {}
 export default function RewardForm({
   current,
   onSave = noop,
-  onError = noop
+  onError = noop,
+  onDelete = noop
 }: RewardFormProps) {
   const { api, focusRole, primary } = useContext(AuthContext)
   const [image, setImage] = useState(current?.image?.url || '')
@@ -106,7 +108,7 @@ export default function RewardForm({
       // Handle images upload
       payload.imageId = await uploadReplaceOrKeep(
         image_upload,
-        (current.image || {}).id
+        current.image ? current.image.id : undefined
       )
 
       // Force integers
@@ -116,8 +118,6 @@ export default function RewardForm({
       } else {
         payload.units_available = 0
       }
-
-      console.log(payload)
 
       await createOrUpdate(payload)
 
@@ -259,7 +259,17 @@ export default function RewardForm({
       )}
 
       <div className="text-right mt-2">
-        <button className="button">
+        {current.id && (
+          <button
+            className="button alt mr-2"
+            onClick={() => {
+              onDelete(current)
+            }}>
+            Delete
+          </button>
+        )}
+
+        <button className="button" type="submit">
           {current.id ? 'Update' : 'Create reward'}
         </button>
       </div>

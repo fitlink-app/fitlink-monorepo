@@ -73,9 +73,15 @@ export type AuthContext = {
 
 export const AuthContext = React.createContext({} as AuthContext)
 
-export function AuthProvider({ children }) {
+export type AuthProviderProps = {
+  value?: Partial<AuthContext>
+  children: React.ReactNode
+}
+
+export function AuthProvider({ children, value }: AuthProviderProps) {
   const [state, setState] = useState<AuthContext>({
-    primary: {}
+    primary: {},
+    ...value
   } as AuthContext)
   const [childRole, setChildRole] = useState<AuthSwitchDto>()
   const [roleTree, setRoleTree] = useState<AuthSwitchTree[]>([])
@@ -156,10 +162,6 @@ export function AuthProvider({ children }) {
       focusRole
     })
 
-    router.push('/dashboard')
-
-    roles.refetch()
-
     setChildRole(params)
     setRoleTree([
       ...roleTree,
@@ -168,6 +170,10 @@ export function AuthProvider({ children }) {
         pathname: router.pathname
       }
     ])
+
+    await roles.refetch()
+
+    router.push('/dashboard')
 
     return result
   }
@@ -361,8 +367,8 @@ export function AuthProvider({ children }) {
     return primary
   }
 
-  function setMenu(primary: RolePrimary): MenuProps[] {
-    let items = [
+  function setMenu(primary: RolePrimary) {
+    let items: MenuProps[] = [
       {
         label: 'Overview',
         link: '/dashboard',
@@ -385,7 +391,23 @@ export function AuthProvider({ children }) {
         {
           label: 'Users',
           link: '/users',
-          icon: 'IconFriends'
+          icon: 'IconFriends',
+          subMenu: [
+            {
+              label: 'Admins',
+              link: '/admins'
+            }
+          ]
+        },
+        {
+          label: 'Rewards',
+          link: '/rewards',
+          icon: 'IconRewards'
+        },
+        {
+          label: 'Leagues',
+          link: '/leagues',
+          icon: 'IconLeagues'
         },
         {
           label: 'Activities',
@@ -405,17 +427,34 @@ export function AuthProvider({ children }) {
         {
           label: 'Users',
           link: '/users',
-          icon: 'IconFriends'
+          icon: 'IconFriends',
+          subMenu: [
+            {
+              label: 'Admins',
+              link: '/admins'
+            }
+          ]
         },
         {
-          label: 'Knowledge Base',
-          link: '/knowledge-base',
-          icon: 'IconYoga'
+          label: 'Rewards',
+          link: '/rewards',
+          icon: 'IconRewards'
+        },
+        {
+          label: 'Leagues',
+          link: '/leagues',
+          icon: 'IconLeagues'
         },
         {
           label: 'Activities',
           link: '/activities',
           icon: 'IconActivities'
+        },
+        { hr: true },
+        {
+          label: 'Knowledge Base',
+          link: '/knowledge-base',
+          icon: 'IconYoga'
         }
       ])
     }
@@ -447,6 +486,7 @@ export function AuthProvider({ children }) {
           link: '/activities',
           icon: 'IconActivities'
         },
+        { hr: true },
         {
           label: 'Knowledge Base',
           link: '/knowledge-base',
@@ -456,6 +496,7 @@ export function AuthProvider({ children }) {
     }
 
     return items.concat([
+      { hr: true },
       {
         label: 'Sign out',
         link: '/logout',

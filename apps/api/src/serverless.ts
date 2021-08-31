@@ -10,6 +10,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard'
 import { IamGuard } from './guards/iam.guard'
 import { FastifyServerOptions, FastifyInstance, fastify } from 'fastify'
 import fastifyMultipart from 'fastify-multipart'
+import fastifyCors from 'fastify-cors'
 import { ConfigService } from '@nestjs/config'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import * as awsLambdaFastify from 'aws-lambda-fastify'
@@ -37,6 +38,7 @@ async function bootstrapServer(): Promise<NestApp> {
 
   const fastifyAdapter = new FastifyAdapter(instance)
   fastifyAdapter.register(fastifyMultipart)
+  fastifyAdapter.register(fastifyCors)
 
   const app = await NestFactory.create<NestFastifyApplication>(
     ApiModule,
