@@ -52,7 +52,7 @@ export type RolePrimary = {
   superAdmin?: boolean
 }
 
-export type FocusRole = 'app' | 'organisation' | 'team'
+export type FocusRole = 'app' | 'organisation' | 'team' | 'subscription'
 
 export type AuthContext = {
   user?: User
@@ -63,6 +63,7 @@ export type AuthContext = {
   primary: RolePrimary
   focusRole: FocusRole
   fetchKey: string
+  ready?: boolean
   login: (credentials: Credentials) => Promise<AuthResultDto>
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
   logout: () => void
@@ -102,7 +103,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     const myRoles = formatRoles(roles.data || [], childRole)
     const primary = setPrimaryRoles(myRoles)
     const focusRole = setFocusRole(primary)
-    const menu = setMenu(primary)
+    const menu = setMenu(focusRole)
 
     setState({
       ...state,
@@ -173,7 +174,11 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
 
     await roles.refetch()
 
-    router.push('/dashboard')
+    if (params.role === Roles.SubscriptionAdmin) {
+      router.push('/billing')
+    } else {
+      router.push('/dashboard')
+    }
 
     return result
   }
@@ -367,16 +372,26 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     return primary
   }
 
-  function setMenu(primary: RolePrimary) {
-    let items: MenuProps[] = [
-      {
-        label: 'Overview',
-        link: '/dashboard',
-        icon: 'IconGear'
-      }
-    ]
+  function setMenu(focusRole: FocusRole) {
+    let items: MenuProps[] = []
 
-    if (primary.superAdmin) {
+    console.log(focusRole)
+
+    if (
+      focusRole === 'organisation' ||
+      focusRole === 'team' ||
+      focusRole === 'app'
+    ) {
+      items = items.concat([
+        {
+          label: 'Overview',
+          link: '/dashboard',
+          icon: 'IconGear'
+        }
+      ])
+    }
+
+    if (focusRole === 'app') {
       items = items.concat([
         {
           label: 'Organisations',
@@ -395,7 +410,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
           subMenu: [
             {
               label: 'Admins',
-              link: '/admins'
+              link: '/admins/global'
             }
           ]
         },
@@ -417,8 +432,13 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       ])
     }
 
-    if (primary.organisation) {
+    if (focusRole === 'organisation') {
       items = items.concat([
+        {
+          label: 'Subscriptions',
+          link: '/subscriptions',
+          icon: 'IconGear'
+        },
         {
           label: 'Teams',
           link: '/teams',
@@ -431,7 +451,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
           subMenu: [
             {
               label: 'Admins',
-              link: '/admins'
+              link: '/admins/organisation'
             }
           ]
         },
@@ -459,7 +479,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       ])
     }
 
-    if (primary.team) {
+    if (focusRole === 'team') {
       items = items.concat([
         {
           label: 'Users',
@@ -495,6 +515,16 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       ])
     }
 
+    if (focusRole === 'subscription') {
+      items = items.concat([
+        {
+          label: 'Billing',
+          link: '/billing',
+          icon: 'IconCreditCard'
+        }
+      ])
+    }
+
     return items.concat([
       { hr: true },
       {
@@ -510,12 +540,16 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       return 'app'
     }
 
-    if (primary.organisation) {
-      return 'organisation'
+    if (primary.subscription) {
+      return 'subscription'
     }
 
     if (primary.team) {
       return 'team'
+    }
+
+    if (primary.organisation) {
+      return 'organisation'
     }
   }
 
@@ -534,6 +568,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
         switchMode: state.switchMode,
         primary: state.primary,
         focusRole: state.focusRole,
+        ready: state.ready,
 
         /**
          * The fetch key is used to change react-query cache

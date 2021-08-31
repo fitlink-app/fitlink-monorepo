@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { useRouter } from 'next/dist/client/router'
+import { useRouter, Router, NextRouter } from 'next/dist/client/router'
 import MenuItem from './MenuItem'
 import IconActivities from '../icons/IconActivities'
 import IconCreditCard from '../icons/IconCreditCard'
@@ -11,7 +11,6 @@ import IconRewards from '../icons/IconRewards'
 import IconSignOut from '../icons/IconSignOut'
 import IconYoga from '../icons/IconYoga'
 import { AuthContext } from '../../context/Auth.context'
-import Button from '../elements/Button'
 
 const icons = {
   IconActivities,
@@ -48,11 +47,15 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
     return (
       <div>
         {switchMode ? (
-          <div className="top left">
-            <a href="#" className="btn small" onClick={() => restoreRole()}>
-              Back
-            </a>
-          </div>
+          <>
+            <MenuItem
+              to={''}
+              onClick={restoreRole}
+              label={'Back'}
+              icon={null}
+            />
+            <hr />
+          </>
         ) : null}
         {menu.map((item: MenuProps, index: number) => {
           const { label, link, icon, onClick, hr, subMenu } = item
@@ -67,12 +70,12 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
                 to={link}
                 onClick={onClick}
                 label={label}
-                current={current.startsWith(link)}
+                current={startsWith(router, link)}
                 icon={Icon ? <Icon /> : null}
               />
-              {(subMenu && current.startsWith(link)) ||
+              {(subMenu && startsWith(router, link)) ||
               (subMenu &&
-                subMenu.filter((e) => current.startsWith(e.link)).length) ? (
+                subMenu.filter((e) => startsWith(router, e.link)).length) ? (
                 <div className="sub-menu">
                   {subMenu.map((item, index) => {
                     const { label, link, icon, onClick, hr } = item
@@ -86,7 +89,7 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
                         onClick={onClick}
                         label={label}
                         key={index}
-                        current={current.startsWith(link)}
+                        current={startsWith(router, link)}
                         icon={Icon ? <Icon /> : null}
                       />
                     )
@@ -183,4 +186,12 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
       />
     </>
   )
+}
+
+const startsWith = (router: NextRouter, link: string) => {
+  let pathname = router.pathname
+  Object.keys(router.query).map((k) => {
+    pathname = pathname.replace(`[${k}]`, router.query[k] as string)
+  })
+  return pathname.startsWith(link)
 }

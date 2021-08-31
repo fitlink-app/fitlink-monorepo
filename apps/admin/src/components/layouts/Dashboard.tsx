@@ -11,6 +11,7 @@ type DashboardProps = {
   description?: string
   image?: string
   linkPrefix?: string
+  hideSidebar?: boolean
 }
 
 let hydrated = false
@@ -19,7 +20,8 @@ export default function Dashboard({
   children,
   title = 'Fitlink',
   description = '',
-  linkPrefix = ''
+  linkPrefix = '',
+  hideSidebar = false
 }: DashboardProps) {
   const hydratedRef = useRef(false)
   const [, rerender] = useState(false)
@@ -70,7 +72,7 @@ export default function Dashboard({
       </Head>
       <Toaster position="top-right" />
       <div className="layout-dashboard">
-        <Sidebar prefix={linkPrefix} menu={menu} />
+        {!hideSidebar && <Sidebar prefix={linkPrefix} menu={menu} />}
         <div className="content">{children}</div>
       </div>
       <div id="modal-root"></div>

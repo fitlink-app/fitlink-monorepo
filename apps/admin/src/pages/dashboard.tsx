@@ -30,6 +30,10 @@ type DateStartEnd = {
 export default function components() {
   const { focusRole } = useContext(AuthContext)
 
+  if (focusRole === 'subscription') {
+    return null
+  }
+
   return (
     <Dashboard title="Dashboard">
       <h1 className="light">

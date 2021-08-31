@@ -14,6 +14,7 @@ export type TableContainerProps = {
   keyword?: string
   fetchName: string
   refresh?: number
+  hidePagination?: boolean
   fetch: (
     limit: number,
     page: number,
@@ -32,6 +33,7 @@ export function TableContainer({
   fetchName,
   refresh,
   keyword,
+  hidePagination,
   fetch
 }: TableContainerProps) {
   const [results, setResults] = useState([])
@@ -105,6 +107,7 @@ export function TableContainer({
         data={results}
         loading={isFetching}
         fetched={isFetched}
+        hidePagination={hidePagination}
         pagination={{
           pagination,
           setPagination: (state) => {

@@ -11,17 +11,24 @@ import useApiErrors from '../../hooks/useApiErrors'
 import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 import useDebounce from '../../hooks/useDebounce'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
+import { Roles } from '../../../../api/src/modules/user-roles/user-roles.constants'
 
 export type CreateSubscriptionProps = {
   onSave?: () => void
   onError?: () => void
+  role?: Roles
+  subscriptionId?: string
+  teamId?: string
 }
 
 const noop = () => {}
 
 export default function AssignUserForm({
   onSave = noop,
-  onError = noop
+  onError = noop,
+  role,
+  subscriptionId,
+  teamId
 }: CreateSubscriptionProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const { api, primary, focusRole, fetchKey } = useContext(AuthContext)
@@ -32,17 +39,38 @@ export default function AssignUserForm({
   })
 
   const add: ApiMutationResult<UserRole> = useMutation(
-    (payload: CreateAdminDto) =>
-      api.post<UserRole>(
-        '/admins',
-        {
-          payload
-        },
-        {
-          primary,
-          useRole: focusRole
-        }
-      )
+    (payload: CreateAdminDto) => {
+      if (role === Roles.SubscriptionAdmin) {
+        return api.post<UserRole>(
+          '/organisations/:organisationId/subscriptions/:subscriptionId/admins',
+          {
+            payload,
+            organisationId: primary.organisation,
+            subscriptionId: subscriptionId
+          }
+        )
+      } else if (role === Roles.TeamAdmin) {
+        return api.post<UserRole>(
+          '/organisations/:organisationId/teams/:teamId/admins',
+          {
+            payload,
+            organisationId: primary.organisation,
+            teamId: teamId
+          }
+        )
+      } else {
+        return api.post<UserRole>(
+          '/admins',
+          {
+            payload
+          },
+          {
+            primary,
+            useRole: focusRole
+          }
+        )
+      }
+    }
   )
 
   const dbSearchTerm = useDebounce(searchTerm, 500)
@@ -81,6 +109,10 @@ export default function AssignUserForm({
 
   async function onSubmit(payload: CreateAdminDto) {
     clearErrors()
+
+    if (role) {
+      payload.role = role
+    }
 
     try {
       await toast.promise(add.mutateAsync(payload), {
