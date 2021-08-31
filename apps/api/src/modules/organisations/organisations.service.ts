@@ -59,21 +59,23 @@ export class OrganisationsService {
   }
 
   async findAll(
-    options: PaginationOptionsInterface,
-    query: SearchOrganisationDto
+    { limit = 10, page = 0 }: PaginationOptionsInterface,
+    filters: SearchOrganisationDto = {}
   ): Promise<Pagination<Organisation>> {
-    const [results, total] = await this.organisationRepository.findAndCount({
-      order: { created_at: 'DESC' },
-      take: options.limit,
-      skip: options.page * options.limit,
-      where: query.q
-        ? {
-            name: ILike(query.q)
-          }
-        : undefined,
-      relations: ['avatar']
-    })
+    let query = this.organisationRepository
+      .createQueryBuilder('organisation')
+      .leftJoinAndSelect('organisation.avatar', 'avatar')
+      .take(limit)
+      .skip(page * limit)
 
+     if (filters.q) {
+      query = query['where']('organisation.name ILIKE :name', {
+        name: `%${filters.q}%`
+      })
+     }
+
+    const [results, total] = await query.getManyAndCount()
+    
     return new Pagination<Organisation>({
       results,
       total
