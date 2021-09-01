@@ -4,12 +4,12 @@ import { useRouter } from 'next/router'
 
 const Logout = () => {
   const router = useRouter()
-  const { api } = useContext(AuthContext)
+  const { api, logout } = useContext(AuthContext)
 
   useEffect(() => {
     ;(async function () {
-      await api.logout()
-      router.push('/login')
+      await logout()
+      location.href = '/login'
     })()
   }, [])
 

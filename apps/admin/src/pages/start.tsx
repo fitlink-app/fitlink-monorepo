@@ -14,14 +14,12 @@ import { Roles } from '../../../api/src/modules/user-roles/user-roles.constants'
 import { useQuery } from 'react-query'
 import { UserRole } from '../../../api/src/modules/user-roles/entities/user-role.entity'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
+import Loader from '../components/elements/Loader'
 
-export default function OrganisationsPage() {
-  const [drawContent, setDrawContent] = useState<
-    React.ReactNode | undefined | false
-  >(false)
+export default function StartPage() {
   const { switchRole } = useContext(AuthContext)
   const [roles, setRoles] = useState<UserRole[]>([])
-  const [ready, setReady] = useState(false)
   const router = useRouter()
 
   const showAvatar = ({
@@ -66,6 +64,7 @@ export default function OrganisationsPage() {
 
   useEffect(() => {
     if (rolesQuery.isFetched) {
+      console.log(rolesQuery.data)
       if (rolesQuery.data.length === 1) {
         const data = rolesQuery.data[0]
         switch (data.role) {
@@ -77,21 +76,23 @@ export default function OrganisationsPage() {
         }
       } else {
         setRoles(rolesQuery.data)
-        setReady(true)
       }
     }
-  }, [rolesQuery.data])
+  }, [rolesQuery.isFetched])
 
-  if (!ready) {
-    return null
+  if (roles.length === 0) {
+    return <Loader />
   }
 
   return (
     <Dashboard title="Settings Users" hideSidebar={true}>
       <div className="flex jc-c">
         <div className="w-100">
-          <div className="col-12 jc-c">
+          <div className="flex ai-c jc-c">
             <h1 className="light mb-0 mr-2">Choose what to manage</h1>
+            <Link href="/logout">
+              <button className="button alt small mt-1">Logout</button>
+            </Link>
           </div>
 
           <div className="col-12 mt-4 overflow-x-auto w-100">
@@ -109,7 +110,6 @@ export default function OrganisationsPage() {
                 { Header: ' ', Cell: cellActions }
               ]}
               fetch={async function () {
-                const roles = await api.get<UserRole[]>('/me/roles')
                 return Promise.resolve({
                   results: roles.map((each) => ({
                     type: formatRoles[each.role],

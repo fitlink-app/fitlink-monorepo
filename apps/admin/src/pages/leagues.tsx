@@ -15,7 +15,7 @@ import { timeout } from '../helpers/timeout'
 import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 
-export default function page() {
+export default function LeaguesPage() {
   const { api, primary, focusRole, fetchKey } = useContext(AuthContext)
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
@@ -72,7 +72,7 @@ export default function page() {
     results: LeagueEntity[]
     total: number
     page_total: number
-  }> = useQuery(`${fetchKey}_rewards`, async () => {
+  }> = useQuery(`${fetchKey}_leagues`, async () => {
     if (focusRole) {
       return api.list<LeagueEntity>(
         '/leagues',
@@ -197,6 +197,7 @@ export default function page() {
             <IconPlus />
           </div>
         </div>
+        {console.log(sorted)}
         {sorted.map((l, i) => (
           <div className="rewards__wrap" key={`fl-r-${i}`}>
             <League

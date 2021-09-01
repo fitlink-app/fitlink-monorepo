@@ -4,6 +4,7 @@ import Sidebar from '../elements/Sidebar'
 import { Toaster } from 'react-hot-toast'
 import { AuthContext } from '../../context/Auth.context'
 import Button from '../elements/Button'
+import Loader from '../elements/Loader'
 
 type DashboardProps = {
   children: React.ReactNode
@@ -25,7 +26,7 @@ export default function Dashboard({
 }: DashboardProps) {
   const hydratedRef = useRef(false)
   const [, rerender] = useState(false)
-  const { menu, switchMode, restoreRole } = useContext(AuthContext)
+  const { menu, focusRole } = useContext(AuthContext)
 
   const url = process.env.URL
 
@@ -36,6 +37,10 @@ export default function Dashboard({
       rerender(true)
     }
   }, [])
+
+  if (!focusRole) {
+    return <Loader />
+  }
 
   return (
     <>

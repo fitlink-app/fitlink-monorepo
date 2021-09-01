@@ -20,6 +20,7 @@ import { BillingPlanStatus } from '@fitlink/api/src/modules/subscriptions/subscr
 import { useRouter } from 'next/router'
 import { ApiResult } from '../../../../../common/react-query/types'
 import { useQuery, useQueryClient } from 'react-query'
+import Loader from '../../../components/elements/Loader'
 
 const enumToBool = ({ value }) => {
   return boolToIcon({
@@ -69,8 +70,8 @@ export default function SubscriptionsUsersPage() {
     subscriptionData.current = subscription.data
   }, [subscription.dataUpdatedAt])
 
-  if (!subscriptionId) {
-    return <>Loading...</>
+  if (!router.isReady) {
+    return <Loader />
   }
 
   const closeDrawer = (ms = 0) => async () => {
