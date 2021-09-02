@@ -3,7 +3,10 @@ import styled from 'styled-components/native';
 import {ActivityType} from '@fitlink/api/src/modules/activities/activities.constants';
 import {FilterButton} from './components/FilterButton';
 
-const Container = styled.View({flexDirection: 'row', paddingTop: 5});
+const Container = styled.View({
+  flexDirection: 'row',
+  paddingTop: 5,
+});
 
 interface FiltersProps {
   types: ActivityType[];

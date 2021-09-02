@@ -11,13 +11,19 @@ export function useCreateActivity() {
     {
       onSuccess: () => {
         // Invalidate Activities
-        queryClient.invalidateQueries(QueryKeys.SearchActivities);
+        queryClient.invalidateQueries(QueryKeys.SearchActivities, {
+          refetchInactive: true,
+        });
 
         // Invalidate Activities for Map
-        queryClient.invalidateQueries(QueryKeys.SearchActivitiesMap);
+        queryClient.invalidateQueries(QueryKeys.SearchActivitiesMap, {
+          refetchInactive: true,
+        });
 
         // Invalidate My Activities
-        queryClient.invalidateQueries(QueryKeys.MyActivities);
+        queryClient.invalidateQueries(QueryKeys.MyActivities, {
+          refetchInactive: true,
+        });
       },
     },
   );

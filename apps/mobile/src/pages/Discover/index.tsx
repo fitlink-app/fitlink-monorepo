@@ -1,10 +1,18 @@
 import React, {useRef, useState} from 'react';
-import {Animated, StyleSheet, View, Image} from 'react-native';
+import {
+  Animated,
+  StyleSheet,
+  View,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {ActivityDetailsModal, ListModal} from './components';
 import {useEffect} from 'react';
 import styled, {useTheme} from 'styled-components/native';
+import RNGooglePlaces from 'react-native-google-places';
 import {Icon, Label, TouchHandler} from '@components';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useFindActivitiesMap} from '@hooks';
@@ -17,6 +25,15 @@ import {
 } from '@utils';
 import createCircle from '@turf/circle';
 import {useNavigation} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  selectCurrentLocation,
+  selectSearchLocation,
+  setCurrentLocation,
+  setSearchLocation,
+} from 'redux/discover/discoverSlice';
+import {AppDispatch} from 'redux/store';
+import {queryClient, QueryKeys} from '@query';
 
 const MAP_MARKER_ICON = require('../../../../assets/images/map/map_marker.png');
 const MAP_MARKER_USER_ACTIVITY = require('../../../../assets/images/map/map-marker-user-activity.png');
@@ -34,6 +51,8 @@ const images = {
   MAP_MARKER_ICON_SELECTED,
   MAP_MARKER_USER_ACTIVITY,
 };
+
+const MIN_SEARCH_LOCATION_DELTA = 10; // only search if location delta value is bigger than this number in km
 
 const {
   MapView,
@@ -107,17 +126,18 @@ export const Discover = () => {
   const {colors} = useTheme();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-
-  const geoRadial = {
-    lat: '51.752022',
-    lng: '-1.257677',
-  };
-
-  const SEARCH_RADIUS = 15;
+  const dispatch = useDispatch() as AppDispatch;
 
   // state
-  const {data: activityMarkersData} = useFindActivitiesMap({
-    geo_radial: `${geoRadial.lat},${geoRadial.lng},${SEARCH_RADIUS}`,
+  const searchLocation = useSelector(selectSearchLocation);
+  const actualUserLocation = useSelector(selectCurrentLocation);
+
+  const {
+    refetch: fetchActivityMarkers,
+    data: activityMarkersData,
+    isFetching: isFetchingMarkers,
+  } = useFindActivitiesMap({
+    geo_radial: `${searchLocation?.lat},${searchLocation?.lng},15`,
   });
 
   const activityMarkers = activityMarkersData?.results || [];
@@ -129,6 +149,8 @@ export const Discover = () => {
   const [selectedClusterIds, setSelectedClusterIds] = useState<string[]>();
   const [modalActivityId, setModalActivityId] = useState<string>();
   const [isAddActivityModeEnabled, setAddActivityModeEnabled] = useState(false);
+  const [userStartingLocation, setUserStartingLocation] =
+    useState<GeoJSON.Position>();
 
   // ref
   const lastListIndex = useRef(0);
@@ -142,6 +164,7 @@ export const Discover = () => {
   // map ref
   const mapViewRef = useRef() as React.MutableRefObject<MapboxGL.MapView>;
   const locationPickerCoordinates = useRef<LatLng>();
+  const lastSearchLocation = useRef<LatLng>();
 
   const cameraRef = useRef() as React.MutableRefObject<MapboxGL.Camera>;
   const isCameraAnimatingRef = useRef(false);
@@ -149,10 +172,6 @@ export const Discover = () => {
   const clusterSourceRef =
     useRef() as React.MutableRefObject<MapboxGL.ShapeSource>;
 
-  const locationMarkerValue = useRef<[number, number]>([
-    parseFloat(geoRadial.lng),
-    parseFloat(geoRadial.lat),
-  ]);
   const locationMarkerValueAnimated = useRef(
     //@ts-ignore
     new MapboxGL.AnimatedPoint(positionToPoint([0, 0])),
@@ -264,6 +283,27 @@ export const Discover = () => {
     listModalRef.current?.present();
   }, []);
 
+  useEffect(() => {
+    if (!userStartingLocation) return;
+
+    dispatch(
+      setSearchLocation({
+        lng: userStartingLocation[0],
+        lat: userStartingLocation[1],
+      }),
+    );
+  }, [userStartingLocation]);
+
+  useEffect(() => {
+    if (actualUserLocation) {
+      locationMarkerValueAnimated.current.setValue(
+        positionToPoint([actualUserLocation.lng, actualUserLocation.lat]),
+      );
+
+      handleFetchLocationMarkers();
+    }
+  }, [searchLocation]);
+
   // Location Picker Animation
   const userPickerLiftAnim = () => {
     if (isDragging.current) return;
@@ -294,8 +334,28 @@ export const Discover = () => {
     ],
   });
 
-  const handleOnCenterCameraPressed = () => {
-    centerCamera();
+  const handleFetchLocationMarkers = () => {
+    if (!searchLocation) return;
+
+    let locationDelta;
+
+    if (!!lastSearchLocation.current) {
+      locationDelta = getDistanceFromLatLonInKm(
+        searchLocation.lat,
+        searchLocation.lng,
+        lastSearchLocation.current.lat,
+        lastSearchLocation.current.lng,
+      );
+    }
+
+    const isNewLocationFar =
+      locationDelta === undefined || locationDelta > MIN_SEARCH_LOCATION_DELTA;
+
+    if (isNewLocationFar) {
+      queryClient.refetchQueries(QueryKeys.SearchActivities);
+      fetchActivityMarkers();
+      lastSearchLocation.current = searchLocation;
+    }
   };
 
   const setListModalStatus = (open: boolean) => {
@@ -372,8 +432,13 @@ export const Discover = () => {
   const handleOnUserLocationChange = (location: MapboxGL.Location) => {
     const {latitude, longitude} = location.coords;
 
-    // TODO: implement
-    updateLocationMarkerValue([longitude, latitude]);
+    dispatch(setCurrentLocation({lat: latitude, lng: longitude}));
+
+    // TODO: Set User location (different value), make sure distance is calculated from this value
+    if (!userStartingLocation) setUserStartingLocation([longitude, latitude]);
+
+    const locationPoint = positionToPoint([longitude, latitude]);
+    locationMarkerValueAnimated.current.setValue(locationPoint);
   };
 
   const handleOnActivityShapeSourcePress = async (event: any) => {
@@ -406,10 +471,25 @@ export const Discover = () => {
     }
   };
 
-  const updateLocationMarkerValue = (position: GeoJSON.Position) => {
-    locationMarkerValue.current = [position[0], position[1]];
-    const locationPoint = positionToPoint(position);
-    locationMarkerValueAnimated.current.setValue(locationPoint);
+  const openSearchModal = () => {
+    RNGooglePlaces.openAutocompleteModal({
+      useOverlay: true,
+      useSessionToken: true,
+    })
+      .then(place => {
+        const {location} = place;
+
+        dispatch(
+          setSearchLocation({lng: location.longitude, lat: location.latitude}),
+        );
+
+        moveToCoords({
+          longitude: location.longitude,
+          latitude: location.latitude,
+          zoomLevel: 12,
+        });
+      })
+      .catch(error => console.log(error.message)); // error is a Javascript Error object
   };
 
   const selectMarker = (id?: string) => {
@@ -490,9 +570,11 @@ export const Discover = () => {
   };
 
   const centerCamera = () => {
+    if (!actualUserLocation) return;
+
     moveToCoords({
-      longitude: locationMarkerValue.current[0],
-      latitude: locationMarkerValue.current[1],
+      longitude: actualUserLocation.lng,
+      latitude: actualUserLocation.lat,
       zoomLevel: 12,
     });
   };
@@ -527,7 +609,7 @@ export const Discover = () => {
       <ControlPanel>
         <IconWrapper>
           <Icon
-            onPress={handleOnCenterCameraPressed}
+            onPress={centerCamera}
             name={'location'}
             color={colors.accent}
             size={25}
@@ -536,7 +618,11 @@ export const Discover = () => {
           <ControlPanelSeparator />
 
           <Icon
-            onPress={() => {}}
+            onPress={() => {
+              closeAllModals();
+              deselectMarker();
+              openSearchModal();
+            }}
             name={'search'}
             color={colors.accent}
             size={21}
@@ -659,6 +745,14 @@ export const Discover = () => {
             isDragging.current = false;
             userPickerDropAnim();
           }
+
+          const {coordinates} = feature.geometry;
+
+          if (searchLocation && !isCameraAnimatingRef.current) {
+            dispatch(
+              setSearchLocation({lat: coordinates[1], lng: coordinates[0]}),
+            );
+          }
         }}
         onPress={() => {
           deselectMarker();
@@ -669,10 +763,7 @@ export const Discover = () => {
           animationDuration={1500}
           zoomLevel={12}
           maxZoomLevel={22}
-          centerCoordinate={[
-            parseFloat(geoRadial.lng),
-            parseFloat(geoRadial.lat),
-          ]}
+          centerCoordinate={userStartingLocation}
           followUserLocation={false}
         />
 
@@ -764,26 +855,28 @@ export const Discover = () => {
         )}
 
         {/* User Location */}
-        <MapboxGL.Animated.ShapeSource
-          id={'userLocation'}
-          shape={locationMarkerValueAnimated.current as any}>
-          <CircleLayer
-            key="mapboxUserLocationPluseCircle"
-            id="mapboxUserLocationPluseCircle"
-            style={layerStyles.userLocation.pluse as any}
-          />
-          <CircleLayer
-            key="mapboxUserLocationWhiteCircle"
-            id="mapboxUserLocationWhiteCircle"
-            style={layerStyles.userLocation.background as any}
-          />
-          <CircleLayer
-            key="mapboxUserLocationBlueCicle"
-            id="mapboxUserLocationBlueCicle"
-            aboveLayerID="mapboxUserLocationWhiteCircle"
-            style={layerStyles.userLocation.foreground as any}
-          />
-        </MapboxGL.Animated.ShapeSource>
+        {userStartingLocation && !isAddActivityModeEnabled && (
+          <MapboxGL.Animated.ShapeSource
+            id={'userLocation'}
+            shape={locationMarkerValueAnimated.current as any}>
+            <CircleLayer
+              key="mapboxUserLocationPluseCircle"
+              id="mapboxUserLocationPluseCircle"
+              style={layerStyles.userLocation.pluse as any}
+            />
+            <CircleLayer
+              key="mapboxUserLocationWhiteCircle"
+              id="mapboxUserLocationWhiteCircle"
+              style={layerStyles.userLocation.background as any}
+            />
+            <CircleLayer
+              key="mapboxUserLocationBlueCicle"
+              id="mapboxUserLocationBlueCicle"
+              aboveLayerID="mapboxUserLocationWhiteCircle"
+              style={layerStyles.userLocation.foreground as any}
+            />
+          </MapboxGL.Animated.ShapeSource>
+        )}
         <UserLocation onUpdate={handleOnUserLocationChange} visible={false} />
       </MapView>
 
@@ -824,6 +917,34 @@ export const Discover = () => {
             </Animated.View>
           </View>
         ) : null}
+
+        {isFetchingMarkers && (
+          <View
+            style={{
+              position: 'absolute',
+              width: '100%',
+              alignItems: 'center',
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                backgroundColor: colors.background,
+                padding: 10,
+                paddingHorizontal: 15,
+                borderRadius: 999,
+              }}>
+              <Label
+                type={'body'}
+                appearance={'accent'}
+                style={{marginRight: 5}}>
+                Loading activities...
+              </Label>
+              <View>
+                <ActivityIndicator color={colors.accent} />
+              </View>
+            </View>
+          </View>
+        )}
       </Overlay>
 
       <ListModal

@@ -26,10 +26,11 @@ const fetchActivities = ({
 
 export function useFindActivities(dto: FetchActivitiesDto) {
   return useInfiniteQuery<ListResponse<Activity>, Error>(
-    [QueryKeys.SearchActivities, JSON.stringify(dto)],
+    QueryKeys.SearchActivities,
     ({pageParam}) => fetchActivities({pageParam, dto}),
     {
       getNextPageParam: (lastPage, pages) => pages.length + 1,
+      enabled: false,
     },
   );
 }

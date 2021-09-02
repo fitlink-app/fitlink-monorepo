@@ -1,12 +1,13 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {ActivityType} from '@fitlink/api/src/modules/activities/activities.constants';
 import {RootState} from '../reducer';
-// import { Geometry } from 'geojson'
+import {LatLng} from '@utils';
 
 export type DiscoverState = {
-  //   currentUserLocation?: Geometry;
+  currentLocation?: LatLng;
   query: string;
   types: ActivityType[];
+  searchLocation?: LatLng;
 };
 
 export const initialState: DiscoverState = {
@@ -34,6 +35,12 @@ const discoverSlice = createSlice({
 
       state.types = updatedTypes;
     },
+    setSearchLocation: (state, {payload}: PayloadAction<LatLng>) => {
+      state.searchLocation = payload;
+    },
+    setCurrentLocation: (state, {payload}: PayloadAction<LatLng>) => {
+      state.currentLocation = payload;
+    },
   },
 });
 
@@ -41,6 +48,13 @@ export const selectQuery = (state: RootState) => state.discover.query;
 
 export const selectTypes = (state: RootState) => state.discover.types;
 
-export const {setQuery, toggleType} = discoverSlice.actions;
+export const selectSearchLocation = (state: RootState) =>
+  state.discover.searchLocation;
+
+export const selectCurrentLocation = (state: RootState) =>
+  state.discover.currentLocation;
+
+export const {setQuery, toggleType, setSearchLocation, setCurrentLocation} =
+  discoverSlice.actions;
 
 export default discoverSlice.reducer;

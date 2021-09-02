@@ -21410,6 +21410,10 @@ react-native-get-random-values@^1.4.0:
   dependencies:
     fast-base64-decode "^1.0.0"
 
+"react-native-google-places@github:krakz999/react-native-google-places":
+  version "3.2.0"
+  resolved "https://codeload.github.com/krakz999/react-native-google-places/tar.gz/06cf98d9c987e055f9a7c347f62868f6d3bee239"
+
 react-native-image-picker@^4.0.6:
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/react-native-image-picker/-/react-native-image-picker-4.0.6.tgz#0dfa5bb83bcf6ff58635ebb9201a185c2271e8cc"

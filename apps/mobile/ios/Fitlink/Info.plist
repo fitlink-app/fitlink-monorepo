@@ -48,6 +48,10 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Your location will be used to find nearby activities.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Your location will be used to find nearby activities.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>fitlink.ttf</string>

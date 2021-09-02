@@ -6,7 +6,7 @@ import {
   BottomSheetModalProps,
 } from '@gorhom/bottom-sheet';
 import {useFindActivities} from '@hooks';
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {ActivityIndicator, View} from 'react-native';
 import {useAnimatedStyle, useSharedValue} from 'react-native-reanimated';
 import styled, {useTheme} from 'styled-components/native';
@@ -16,8 +16,14 @@ import {ActivityItem, Handle, ModalBackground} from '../components';
 import {Search, Filters, ResultsLabel} from './components';
 import {getDistanceFromLatLonInKm} from '@utils';
 import {useDispatch, useSelector} from 'react-redux';
-import {selectTypes, toggleType} from 'redux/discover/discoverSlice';
+import {
+  selectQuery,
+  selectSearchLocation,
+  selectTypes,
+  toggleType,
+} from 'redux/discover/discoverSlice';
 import {AppDispatch} from 'redux/store';
+import {useEffect} from 'react';
 
 const HANDLE_HEIGHT = 80;
 
@@ -44,21 +50,32 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
     const dispatch = useDispatch() as AppDispatch;
     const snapPoints = useMemo(() => [HANDLE_HEIGHT, '90%'], []);
 
-    const geoRadial = {
-      lat: '51.752022',
-      lng: '-1.257677',
-    };
+    const searchQuery = useSelector(selectQuery);
+    const searchTypes = useSelector(selectTypes);
+    const searchLocation = useSelector(selectSearchLocation);
+    const types = useSelector(selectTypes);
 
-    const SEARCH_RADIUS = 15;
+    const {
+      refetch,
+      data,
+      isFetching,
+      isFetchingNextPage,
+      isFetchedAfterMount,
+      fetchNextPage,
+    } = useFindActivities({
+      type: searchTypes.join(),
+      keyword: searchQuery,
+      geo_radial: `${searchLocation?.lat},${searchLocation?.lng},15`,
+    });
 
-    const {data, isFetching, isFetchingNextPage, fetchNextPage} =
-      useFindActivities({
-        type: '',
-        keyword: '',
-        geo_radial: `${geoRadial.lat},${geoRadial.lng},${SEARCH_RADIUS}`,
-      });
+    const [lastSearchQuery, setLastSearchQuery] = useState<string | undefined>(
+      undefined,
+    );
 
-    const activities = getResultsFromPages<Activity>(data);
+    const activities =
+      isFetching && !isFetchingNextPage
+        ? []
+        : getResultsFromPages<Activity>(data);
 
     // Animations
     const animatedPosition = useSharedValue<number>(0);
@@ -73,7 +90,19 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
       [scrollViewAnimatedStyle],
     );
 
-    const types = useSelector(selectTypes);
+    useEffect(() => {
+      if (searchLocation && !isFetchedAfterMount) handleFetchResults();
+    }, [searchLocation]);
+
+    useEffect(() => {
+      handleFetchResults();
+    }, [types]);
+
+    const handleFetchResults = () => {
+      if (!searchLocation) return;
+      setLastSearchQuery(searchQuery.trim().length ? searchQuery : undefined);
+      refetch();
+    };
 
     const handleLoadMore = () => {
       if (data?.pages && data.pages[0].total > activities.length) {
@@ -86,7 +115,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
         <>
           <Handle />
           <AboveContentContainer>
-            <Search />
+            <Search onSubmit={handleFetchResults} key={'searchComponent'} />
             <Filters
               {...{types}}
               onTypePressed={type => {
@@ -99,14 +128,18 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
                 isFetching
                   ? `Searching for nearby activities...`
                   : !!activities.length
-                  ? `${data?.pages[0]?.total} activities found nearby`
-                  : 'No nearby activities found'
+                  ? `${data?.pages[0]?.total} activities found nearby ${
+                      lastSearchQuery ? `for "${lastSearchQuery}"` : ''
+                    }`
+                  : `No nearby activities found ${
+                      lastSearchQuery ? `for "${lastSearchQuery}"` : ''
+                    }`
               }
             />
           </AboveContentContainer>
         </>
       ),
-      [data, types, isFetching],
+      [data, types, isFetching, lastSearchQuery, searchQuery],
     );
 
     const renderModalBackdrop = useCallback(
@@ -185,22 +218,24 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
 
     return (
       <BottomSheetModal
-        {...{...rest, ref, handleComponent}}
+        {...{...rest, ref}}
         index={0}
+        keyboardBehavior={'extend'}
         handleHeight={HANDLE_HEIGHT}
         snapPoints={snapPoints}
+        handleComponent={null}
         animatedPosition={animatedPosition}
         animatedIndex={animatedIndex}
         enableDismissOnClose={false}
         enablePanDownToClose={false}
         backgroundComponent={ModalBackground}
         backdropComponent={renderModalBackdrop}>
+        {handleComponent()}
+
         <BottomSheetFlatList
           {...{renderItem}}
           initialNumToRender={75}
           data={activities}
-          keyboardDismissMode="none"
-          keyboardShouldPersistTaps="always"
           style={scrollViewStyle}
           contentContainerStyle={{
             paddingHorizontal: 16,

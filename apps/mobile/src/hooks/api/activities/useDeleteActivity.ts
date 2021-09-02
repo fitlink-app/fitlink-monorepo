@@ -44,10 +44,14 @@ export function useDeleteActivity() {
       queryClient.invalidateQueries([QueryKeys.Activity, id]);
 
       // Invalidate Activities
-      queryClient.invalidateQueries(QueryKeys.SearchActivities);
+      queryClient.invalidateQueries(QueryKeys.SearchActivities, {
+        refetchInactive: true,
+      });
 
       // Invalidate Activities for Map
-      queryClient.invalidateQueries(QueryKeys.SearchActivitiesMap);
+      queryClient.invalidateQueries(QueryKeys.SearchActivitiesMap, {
+        refetchInactive: true,
+      });
     },
   });
 }

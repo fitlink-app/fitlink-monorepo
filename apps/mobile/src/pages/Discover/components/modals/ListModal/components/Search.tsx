@@ -1,9 +1,6 @@
+import {BottomSheetTextInput} from '@gorhom/bottom-sheet';
 import React, {useCallback} from 'react';
-import {
-  NativeSyntheticEvent,
-  TextInput,
-  TextInputChangeEventData,
-} from 'react-native';
+import {NativeSyntheticEvent, TextInputChangeEventData} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {selectQuery, setQuery} from 'redux/discover/discoverSlice';
 import {AppDispatch} from 'redux/store';
@@ -15,7 +12,7 @@ const Container = styled.View({
   paddingVertical: 5,
 });
 
-const CustomTextInput = styled(TextInput)(({theme}) => ({
+const CustomTextInput = styled(BottomSheetTextInput)(({theme}) => ({
   ...theme.typography.textInputValue,
   marginTop: 4,
   marginBottom: 8,
@@ -25,7 +22,11 @@ const CustomTextInput = styled(TextInput)(({theme}) => ({
   backgroundColor: theme.colors.background,
 }));
 
-export const Search = () => {
+interface SearchProps {
+  onSubmit: () => void;
+}
+
+export const _Search = ({onSubmit}: SearchProps) => {
   const {colors} = useTheme();
   const dispatch = useDispatch() as AppDispatch;
 
@@ -38,15 +39,12 @@ export const Search = () => {
     [],
   );
 
-  const handleInputFocus = useCallback(() => {
-    console.log('TBD');
-  }, []);
-
-  const onSubmit = () => console.log('search');
+  const handleInputFocus = useCallback(() => {}, []);
 
   return (
     <Container>
       <CustomTextInput
+        key={'search'}
         style={{color: colors.text}}
         textContentType="location"
         placeholder="Search for an activity"
@@ -61,3 +59,5 @@ export const Search = () => {
     </Container>
   );
 };
+
+export const Search = React.memo(_Search);

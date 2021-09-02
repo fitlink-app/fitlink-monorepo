@@ -12,6 +12,7 @@ import {
 import {FeedCollage} from './FeedCollage';
 import {FeedStatLabel} from './FeedStatLabel';
 import {formatRelative} from 'date-fns';
+import {useNavigation} from '@react-navigation/native';
 
 const Wrapper = styled.View(({theme}) => ({
   paddingVertical: 15,
@@ -63,8 +64,10 @@ interface FeedItemProps {
 
 export const _FeedItem = ({onContentPress}: FeedItemProps) => {
   const {colors} = useTheme();
+  const navigation = useNavigation();
 
   // Temp variables
+  const userId = 'asd';
   const isLiked = false;
   const name = 'Lana Smith';
   const title = 'Afternoon Hiking';
@@ -116,15 +119,20 @@ export const _FeedItem = ({onContentPress}: FeedItemProps) => {
   return (
     <Wrapper>
       <Row>
-        <ProgressCircle
-          progress={0.33}
-          strokeWidth={2.5}
-          backgroundStrokeWidth={2}
-          bloomIntensity={0.5}
-          bloomRadius={5}
-          size={52}>
-          <Avatar url={'https://i.pravatar.cc/512'} size={44} />
-        </ProgressCircle>
+        <TouchHandler
+          onPress={() => {
+            navigation.navigate('Profile', {id: userId});
+          }}>
+          <ProgressCircle
+            progress={0.33}
+            strokeWidth={2.5}
+            backgroundStrokeWidth={2}
+            bloomIntensity={0.5}
+            bloomRadius={5}
+            size={52}>
+            <Avatar url={'https://i.pravatar.cc/512'} size={44} />
+          </ProgressCircle>
+        </TouchHandler>
 
         <RightContainer>
           <TouchHandler onPress={onContentPress}>
