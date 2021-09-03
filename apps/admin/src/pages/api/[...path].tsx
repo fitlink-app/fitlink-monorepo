@@ -79,8 +79,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
       selfHandleResponse: isLogin || isLogout,
       headers: {
         Authorization: `Bearer ${authToken}`
-      },
-      secure: false
+      }
     })
     function interceptLoginResponse(proxyRes, req, res) {
       // Read the API's response body from
@@ -110,6 +109,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
           res.status(200).json({ loggedIn: true })
           resolve()
         } catch (err) {
+          console.error(err)
           reject(err)
         }
       })
