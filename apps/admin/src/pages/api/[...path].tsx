@@ -72,6 +72,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
       // Don't autoRewrite because we manually rewrite
       // the URL in the route handler.
       autoRewrite: false,
+      changeOrigin: true,
       // In case we're dealing with a login request,
       // we need to tell http-proxy that we'll handle
       // the client-response ourselves (since we don't
