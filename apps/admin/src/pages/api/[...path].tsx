@@ -95,22 +95,26 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
       proxyRes.on('end', () => {
         try {
           // Extract the authToken from API's response:
-          const { access_token } = JSON.parse(apiResponseBody)
+          const json = JSON.parse(apiResponseBody)
+          const { access_token } = json
           // Set the authToken as an HTTP-only cookie.
           // We'll also set the SameSite attribute to
           // 'lax' for some additional CSRF protection.
-          const cookies = new Cookies(req, res)
-          cookies.set('auth-token', access_token, {
-            httpOnly: true,
-            sameSite: 'lax'
-          })
-          // Our response to the client won't contain
-          // the actual authToken. This way the auth token
-          // never gets exposed to the client.
-          res.status(200).json({ loggedIn: true })
-          resolve()
+          if (access_token) {
+            const cookies = new Cookies(req, res)
+            cookies.set('auth-token', access_token, {
+              httpOnly: true,
+              sameSite: 'lax'
+            })
+            // Our response to the client won't contain
+            // the actual authToken. This way the auth token
+            // never gets exposed to the client.
+            res.status(200).json({ loggedIn: true })
+            resolve()
+          } else {
+            res.status(json.statusCode).json(json)
+          }
         } catch (err) {
-          console.error(err)
           reject(err)
         }
       })
