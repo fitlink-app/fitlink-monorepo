@@ -11,8 +11,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
  * With this solution LocalStorage is never used.
  */
 
-// Get the actual API_URL as an environment variable. For real
-// applications, you might want to get it from 'next/config' instead.
+// API_BASE_URL should be configured in Vercel
 const API_URL = process.env.API_BASE_URL || 'http://localhost:3000'
 const proxy = httpProxy.createProxyServer()
 // You can export a config variable from any API route in Next.js.
