@@ -11,13 +11,16 @@ import App from './mock/app'
 import { api } from '../context/Auth.context'
 import { act } from 'react-dom/test-utils'
 import Toast from 'react-hot-toast'
+import { mockSessionState } from './mock/session'
 
 const useRouter = jest.spyOn(require('next/router'), 'useRouter')
 
 useRouter.mockImplementation(() => ({
   push: jest.fn(),
   prefetch: jest.fn(() => Promise.resolve()),
-  pathname: 'testing'
+  pathname: 'testing',
+  query: {},
+  isReady: true
 }))
 
 const toast = jest.spyOn(require('react-hot-toast'), 'default')
@@ -54,6 +57,8 @@ describe('Subscriptions', () => {
   })
 
   it('Fetches and displays subscription data in table', async () => {
+    mockSessionState()
+
     moxios.stubRequest(/subscriptions.*/, {
       status: 200,
       response: {

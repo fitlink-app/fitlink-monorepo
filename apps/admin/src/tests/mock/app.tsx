@@ -4,6 +4,15 @@ import '../../scss/Main.scss'
 import { ErrorBoundary } from '../../errors/boundary'
 import React from 'react'
 
+const useRouter = jest.spyOn(require('next/router'), 'useRouter')
+
+useRouter.mockImplementation(() => ({
+  push: jest.fn(() => Promise.resolve()),
+  prefetch: jest.fn(() => Promise.resolve()),
+  query: {},
+  isReady: true
+}))
+
 const queryClient = new QueryClient()
 
 type AppProps = {
