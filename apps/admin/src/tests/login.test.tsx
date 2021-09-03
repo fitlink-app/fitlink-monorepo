@@ -75,7 +75,8 @@ describe('Login', () => {
     const push = jest.fn()
     useRouter.mockImplementation(() => ({
       push,
-      prefetch: jest.fn(() => Promise.resolve())
+      prefetch: jest.fn(() => Promise.resolve()),
+      isReady: true
     }))
 
     render(
@@ -90,7 +91,7 @@ describe('Login', () => {
       })
       .click()
 
-    await waitFor(() => expect(push).toHaveBeenCalledWith('/dashboard'))
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/start'))
     expect(console.error).not.toHaveBeenCalled()
   })
 })

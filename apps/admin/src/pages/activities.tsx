@@ -21,7 +21,7 @@ export default function page() {
     React.ReactNode | undefined | false
   >(false)
   const [warning, setWarning] = useState(false)
-  const [wide, setWide] = useState(true)
+  const [wide, setWide] = useState(false)
   const [includeUsers, setIncludeUsers] = useState(true)
   const [refresh, setRefresh] = useState(0)
 

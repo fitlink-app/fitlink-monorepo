@@ -12,7 +12,7 @@ import IconWater from '../components/icons/IconWater'
 import Select from '../components/elements/Select'
 import Feedback from '../components/elements/Feedback'
 import IconDownload from '../components/icons/IconDownload'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import useHealthActivityStats from '../hooks/api/useHealthActivityStats'
 import useGoalStats from '../hooks/api/useGoalStats'
 import useRewardStats from '../hooks/api/useRewardStats'
@@ -21,6 +21,7 @@ import useLeagueStats from '../hooks/api/useLeagueStats'
 import useGlobalStats from '../hooks/api/useGlobalStats'
 import capitalize from 'lodash/capitalize'
 import { options } from '../data/date-options'
+import { useRouter } from 'next/router'
 
 type DateStartEnd = {
   startAt?: Date
@@ -29,6 +30,17 @@ type DateStartEnd = {
 
 export default function components() {
   const { focusRole } = useContext(AuthContext)
+  const router = useRouter()
+
+  useEffect(() => {
+    if (focusRole === 'subscription') {
+      router.push('/start')
+    }
+  }, [focusRole])
+
+  if (focusRole === 'subscription') {
+    return null
+  }
 
   return (
     <Dashboard title="Dashboard">

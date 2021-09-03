@@ -4,6 +4,7 @@ import Sidebar from '../elements/Sidebar'
 import { Toaster } from 'react-hot-toast'
 import { AuthContext } from '../../context/Auth.context'
 import Button from '../elements/Button'
+import Loader from '../elements/Loader'
 
 type DashboardProps = {
   children: React.ReactNode
@@ -11,6 +12,7 @@ type DashboardProps = {
   description?: string
   image?: string
   linkPrefix?: string
+  hideSidebar?: boolean
 }
 
 let hydrated = false
@@ -19,11 +21,12 @@ export default function Dashboard({
   children,
   title = 'Fitlink',
   description = '',
-  linkPrefix = ''
+  linkPrefix = '',
+  hideSidebar = false
 }: DashboardProps) {
   const hydratedRef = useRef(false)
   const [, rerender] = useState(false)
-  const { menu, switchMode, restoreRole } = useContext(AuthContext)
+  const { menu, focusRole } = useContext(AuthContext)
 
   const url = process.env.URL
 
@@ -34,6 +37,10 @@ export default function Dashboard({
       rerender(true)
     }
   }, [])
+
+  if (!focusRole) {
+    return <Loader />
+  }
 
   return (
     <>
@@ -70,7 +77,7 @@ export default function Dashboard({
       </Head>
       <Toaster position="top-right" />
       <div className="layout-dashboard">
-        <Sidebar prefix={linkPrefix} menu={menu} />
+        {!hideSidebar && <Sidebar prefix={linkPrefix} menu={menu} />}
         <div className="content">{children}</div>
       </div>
       <div id="modal-root"></div>

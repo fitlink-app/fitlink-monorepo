@@ -133,6 +133,15 @@ export default function SubscriptionsPage() {
         }}>
         Manage Seats
       </button>
+      {focusRole === 'organisation' && (
+        <button
+          className="button small ml-1"
+          onClick={() => {
+            router.push(`/subscriptions/${original.id}/admins`)
+          }}>
+          Manage Admins
+        </button>
+      )}
       <button
         className="button small ml-1"
         onClick={() => ConfirmSubscriptionForm(original)}>
@@ -146,7 +155,7 @@ export default function SubscriptionsPage() {
     </div>
   )
 
-  const { api } = useContext(AuthContext)
+  const { api, primary, focusRole } = useContext(AuthContext)
 
   return (
     <Dashboard title="Settings Users">
@@ -189,10 +198,17 @@ export default function SubscriptionsPage() {
             { Header: ' ', Cell: cellActions }
           ]}
           fetch={(limit, page) =>
-            api.list<Subscription>('/subscriptions', {
-              limit,
-              page
-            })
+            api.list<Subscription>(
+              '/subscriptions',
+              {
+                limit,
+                page
+              },
+              {
+                primary,
+                useRole: focusRole
+              }
+            )
           }
           fetchName="subscriptions"
           refresh={refresh}

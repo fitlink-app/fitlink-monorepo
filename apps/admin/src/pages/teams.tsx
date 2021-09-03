@@ -10,6 +10,7 @@ import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 import { timeout } from '../helpers/timeout'
 import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 import { Roles } from '@fitlink/api/src/modules/user-roles/user-roles.constants'
+import { useRouter } from 'next/router'
 
 export default function TeamsPage() {
   const [drawContent, setDrawContent] = useState<
@@ -20,6 +21,7 @@ export default function TeamsPage() {
   const [refresh, setRefresh] = useState(0)
   const { switchRole, primary } = useContext(AuthContext)
   const organisationId = useRef<string>()
+  const router = useRouter()
 
   useEffect(() => {
     if (primary.organisation) {
@@ -104,6 +106,13 @@ export default function TeamsPage() {
     <div className="text-right">
       <button className="button alt small" onClick={() => DeleteForm(original)}>
         Delete
+      </button>
+      <button
+        className="button small ml-1"
+        onClick={() => {
+          router.push(`/teams/${original.id}/admins`)
+        }}>
+        Manage Admins
       </button>
       <button
         className="button small ml-1"

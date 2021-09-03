@@ -65,6 +65,19 @@ export class SubscriptionsController {
     return this.subscriptionsService.findAll(pagination)
   }
 
+  @Iam(Roles.OrganisationAdmin)
+  @Get('/organisations/:organisationId/subscriptions')
+  @PaginationBody()
+  @ApiResponse({ type: SubscriptionPagination, status: 200 })
+  findAllWithinOrganisation(
+    @Pagination() pagination: PaginationQuery,
+    @Param('organisationId') organisationId: string
+  ) {
+    return this.subscriptionsService.findAll(pagination, {
+      organisationId
+    })
+  }
+
   @Iam(Roles.SuperAdmin)
   @Get('/subscriptions/:subscriptionId')
   @PaginationBody()
@@ -73,15 +86,21 @@ export class SubscriptionsController {
     return this.subscriptionsService.findOneSubscription(subId)
   }
 
-  @Iam(Roles.SuperAdmin)
-  @Get('/subscriptions/:subscriptionId/users')
+  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
+  @Get([
+    '/subscriptions/:subscriptionId/users',
+    '/organisations/:organisationId/subscriptions/:subscriptionId/users'
+  ])
   @PaginationBody()
   @ApiResponse({ type: User, status: 200 })
   findOneSubscriptionUsers(
     @Param('subscriptionId') subId: string,
+    @Param('organisationId') organisationId: string,
     @Pagination() pagination: PaginationQuery
   ) {
-    return this.subscriptionsService.findSubscriptionUsers(subId, pagination)
+    return this.subscriptionsService.findSubscriptionUsers(subId, pagination, {
+      organisationId
+    })
   }
 
   @Iam(Roles.SuperAdmin)
@@ -140,24 +159,38 @@ export class SubscriptionsController {
   }
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
-  @Post('/subscriptions/:subscriptionId/users')
+  @Post([
+    '/subscriptions/:subscriptionId/users',
+    '/organisations/:organisationId/subscriptions/:subscriptionId/users'
+  ])
   addUserToSubscription(
     @Body() addUserDto: AddUserToSubscriptionDto,
-    @Param('subscriptionId') subId: string
+    @Param('subscriptionId') subscriptionId: string,
+    @Param('organisationId') organisationId: string
   ) {
-    return this.subscriptionsService.addUser(addUserDto.id, subId)
+    return this.subscriptionsService.addUser(addUserDto.id, subscriptionId, {
+      organisationId
+    })
   }
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
-  @Delete('/subscriptions/:subscriptionId/users/:userId')
+  @Delete([
+    '/subscriptions/:subscriptionId/users/:userId',
+    '/organisations/:organisationId/subscriptions/:subscriptionId/users/:userId'
+  ])
   async removeFromSubscription(
+    @Param('organisationId') organisationId: string,
     @Param('subscriptionId') subId: string,
     @Param('userId') userId: string
   ) {
     const result = await this.subscriptionsService.removeUserFromSubscription(
       userId,
-      subId
+      subId,
+      {
+        organisationId
+      }
     )
+
     if (result === SubscriptionServiceError.CannotDeleteDefault) {
       throw new BadRequestException(
         'This user still belongs to one or more teams and cannot be removed yet. Delete them from teams first.'
@@ -202,20 +235,6 @@ export class SubscriptionsController {
   }
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
-  @Post('/organisations/:organisationId/subscriptions/:subscriptionId/users')
-  assignUsersBySubId(
-    @Body() updateSubscriptionDto: UpdateSubscriptionDto,
-    @Param('organisationId') orgId: string,
-    @Param('subscriptionId') subId: string
-  ) {
-    return this.subscriptionsService.assignUsers(
-      updateSubscriptionDto,
-      orgId,
-      subId
-    )
-  }
-
-  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
   @Post('/organisations/:organisationId/subscriptions/:subscriptionId/usersIds')
   assignUsersByUsersIds(
     @Body() updateSubscriptionDto: UpdateSubscriptionDto,
@@ -245,35 +264,6 @@ export class SubscriptionsController {
       subId,
       teamId
     )
-  }
-
-  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
-  @Get('/organisations/:organisationId/subscriptions/:subscriptionId/users')
-  findAllUsers(
-    @Param('organisationId') orgId: string,
-    @Param('subscriptionId') subId: string,
-    @Request() request
-  ) {
-    return this.subscriptionsService.findAllUsers(orgId, subId, {
-      limit: Object.prototype.hasOwnProperty.call(request.query, 'limit')
-        ? request.query.limit
-        : 10,
-      page: Object.prototype.hasOwnProperty.call(request.query, 'page')
-        ? request.query.page
-        : 0
-    })
-  }
-
-  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
-  @Delete(
-    '/organisations/:organisationId/subscriptions/:subscriptionId/users/:userId'
-  )
-  removeUser(
-    @Param('organisationId') orgId: string,
-    @Param('subscriptionId') subId: string,
-    @Param('userId') userId: string
-  ) {
-    return this.subscriptionsService.removeUser(orgId, subId, userId)
   }
 
   @Iam(Roles.SubscriptionAdmin)

@@ -445,7 +445,7 @@ export class Api {
   ) {
     const { payload, query, ...rest } = params
     const { extraParams, prefix } = this.useRole(config.useRole, config.primary)
-    const search = { ...rest, ...extraParams }
+    const search = { ...extraParams, ...rest }
     const replaced = (prefix + url)
       .split('/')
       .map((k) => search[k.substr(1)] || k)

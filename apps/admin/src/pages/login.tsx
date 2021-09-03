@@ -55,7 +55,7 @@ const LoginPage = () => {
     }
 
     if (isSuccess) {
-      router.push('/dashboard')
+      router.push('/start')
     }
   }, [error, isSuccess])
 

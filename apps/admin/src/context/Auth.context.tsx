@@ -18,8 +18,7 @@ import { MenuProps } from '../components/elements/MainMenu'
 import { useRouter } from 'next/router'
 
 const axios = Axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1'
+  baseURL: '/api/v1'
 })
 
 export const api = makeApi(axios)
@@ -52,7 +51,7 @@ export type RolePrimary = {
   superAdmin?: boolean
 }
 
-export type FocusRole = 'app' | 'organisation' | 'team'
+export type FocusRole = 'app' | 'organisation' | 'team' | 'subscription'
 
 export type AuthContext = {
   user?: User
@@ -63,9 +62,10 @@ export type AuthContext = {
   primary: RolePrimary
   focusRole: FocusRole
   fetchKey: string
+  ready?: boolean
   login: (credentials: Credentials) => Promise<AuthResultDto>
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
-  logout: () => void
+  logout: () => Promise<void>
   switchRole: (params: AuthSwitchDto) => Promise<AuthResultDto>
   restoreRole: () => void
   isRole: (role: Roles, id?: string) => boolean
@@ -83,6 +83,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     primary: {},
     ...value
   } as AuthContext)
+  const [resumed, setResumed] = useState(false)
   const [childRole, setChildRole] = useState<AuthSwitchDto>()
   const [roleTree, setRoleTree] = useState<AuthSwitchTree[]>([])
   const router = useRouter()
@@ -95,37 +96,70 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
   })
 
   useEffect(() => {
-    resume()
-  }, [])
+    if (router.isReady && router.pathname !== '/login') {
+      resumeStoredState()
+    }
+  }, [router.isReady, router.pathname])
 
   useEffect(() => {
-    const myRoles = formatRoles(roles.data || [], childRole)
-    const primary = setPrimaryRoles(myRoles)
-    const focusRole = setFocusRole(primary)
-    const menu = setMenu(primary)
+    if (resumed) {
+      resume()
+    }
+  }, [resumed])
 
-    setState({
-      ...state,
-      user: me.data,
-      roles: myRoles,
-      menu,
-      primary,
-      focusRole
-    })
-  }, [me.data, roles.data, childRole])
+  useEffect(() => {
+    if (resumed) {
+      const myRoles = formatRoles(roles.data || [], childRole)
+      const primary = setPrimaryRoles(myRoles)
+      const focusRole = setFocusRole(primary)
+      const menu = setMenu(focusRole)
+      const newState = {
+        ...state,
+        user: me.data,
+        roles: myRoles,
+        menu,
+        primary,
+        focusRole
+      }
+
+      storeState(newState)
+      setState(newState)
+    }
+  }, [me.data, roles.data, childRole, resumed])
+
+  /**
+   * Stores the state of role switching
+   * @param state
+   */
+  function storeState(state: AuthContext) {
+    localStorage.setItem(
+      'fitlink',
+      JSON.stringify({
+        roleTree: roleTree,
+        childRole: childRole,
+        switchMode: state.switchMode
+      })
+    )
+  }
+
+  function resumeStoredState() {
+    const stored = localStorage.getItem('fitlink')
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      setRoleTree(parsed.roleTree)
+      setChildRole(parsed.childRole)
+      setState({
+        ...state,
+        switchMode: parsed.switchMode
+      })
+    }
+
+    setResumed(true)
+  }
 
   async function resume() {
-    const { access_token, id_token, refresh_token } = localStorage
-    if (refresh_token) {
-      api.setTokens({
-        access_token,
-        id_token,
-        refresh_token
-      })
-
-      me.refetch()
-      roles.refetch()
-    }
+    me.refetch()
+    roles.refetch()
   }
 
   async function login({ email, password }) {
@@ -137,7 +171,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       password
     })
 
-    storeTokens(api.getTokens())
+    // storeTokens(api.getTokens())
 
     me.refetch()
     roles.refetch()
@@ -146,7 +180,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
   }
 
   async function switchRole(params: AuthSwitchDto) {
-    storePreviousTokens(api.getTokens(), params.role)
+    // storePreviousTokens(api.getTokens(), params.role)
     const result = await api.loginWithRole(params)
     let focusRole: FocusRole = 'app'
 
@@ -171,29 +205,34 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       }
     ])
 
-    await roles.refetch()
+    // await roles.refetch()
 
-    router.push('/dashboard')
+    if (params.role === Roles.SubscriptionAdmin) {
+      router.push('/billing')
+    } else {
+      router.push('/dashboard')
+    }
 
     return result
   }
 
   async function restoreRole() {
-    const prev = getPreviousTokens(childRole.role)
-    api.setTokens(prev)
-    roles.refetch()
-
     // Set the previous role in the tree
     const tree = [...roleTree]
     const last = tree.pop()
+
+    if (last) {
+      router.push(last.pathname)
+    } else {
+      router.push('/start')
+    }
+
     setRoleTree(tree)
     setChildRole(tree[tree.length - 1])
     setState({
       ...state,
       switchMode: tree.length > 0
     })
-
-    router.push(last.pathname)
   }
 
   function formatRoles(roles: UserRole[], childRole?: AuthSwitchDto) {
@@ -257,8 +296,6 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       provider
     })
 
-    storeTokens(api.getTokens())
-
     const user = result.me
 
     setState({
@@ -267,49 +304,6 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     })
 
     return result
-  }
-
-  /**
-   * TODO: A better approach is to use an http-only cookie
-   * and proxy API calls through Next.js
-   *
-   * Otherwise, we risk exposing these tokens to XSS exploits
-   * in NPM libraries or browser extensions (that would have access
-   * to localStorage)
-   *
-   * For now this is a workaround for development purposes,
-   * but will need to change for launch ASAP.
-   *
-   * Alternatively, we can store these in-memory only
-   * and prevent a user from hard-reloading a page with prompts, however
-   * this may not prevent malicious code listening to network requests.
-   *
-   * @param tokens
-   */
-  async function storeTokens(tokens: AuthResultDto) {
-    Object.keys(tokens).map((key) => {
-      localStorage.setItem(key, tokens[key])
-    })
-  }
-
-  async function storePreviousTokens(tokens: AuthResultDto, role: Roles) {
-    Object.keys(tokens).map((key) => {
-      localStorage.setItem(key + '_previous_' + role, tokens[key])
-    })
-  }
-
-  function getPreviousTokens(role: Roles) {
-    const tokens: AuthResultDto = {
-      id_token: '',
-      access_token: '',
-      refresh_token: ''
-    }
-
-    Object.keys(tokens).map((key) => {
-      tokens[key] = localStorage.getItem(key + '_previous_' + role)
-    })
-
-    return tokens
   }
 
   async function logout() {
@@ -367,16 +361,24 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     return primary
   }
 
-  function setMenu(primary: RolePrimary) {
-    let items: MenuProps[] = [
-      {
-        label: 'Overview',
-        link: '/dashboard',
-        icon: 'IconGear'
-      }
-    ]
+  function setMenu(focusRole: FocusRole) {
+    let items: MenuProps[] = []
 
-    if (primary.superAdmin) {
+    if (
+      focusRole === 'organisation' ||
+      focusRole === 'team' ||
+      focusRole === 'app'
+    ) {
+      items = items.concat([
+        {
+          label: 'Overview',
+          link: '/dashboard',
+          icon: 'IconGear'
+        }
+      ])
+    }
+
+    if (focusRole === 'app') {
       items = items.concat([
         {
           label: 'Organisations',
@@ -395,7 +397,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
           subMenu: [
             {
               label: 'Admins',
-              link: '/admins'
+              link: '/admins/global'
             }
           ]
         },
@@ -417,8 +419,13 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       ])
     }
 
-    if (primary.organisation) {
+    if (focusRole === 'organisation') {
       items = items.concat([
+        {
+          label: 'Subscriptions',
+          link: '/subscriptions',
+          icon: 'IconGear'
+        },
         {
           label: 'Teams',
           link: '/teams',
@@ -431,7 +438,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
           subMenu: [
             {
               label: 'Admins',
-              link: '/admins'
+              link: '/admins/organisation'
             }
           ]
         },
@@ -459,7 +466,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       ])
     }
 
-    if (primary.team) {
+    if (focusRole === 'team') {
       items = items.concat([
         {
           label: 'Users',
@@ -495,6 +502,16 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       ])
     }
 
+    if (focusRole === 'subscription') {
+      items = items.concat([
+        {
+          label: 'Billing',
+          link: '/billing',
+          icon: 'IconCreditCard'
+        }
+      ])
+    }
+
     return items.concat([
       { hr: true },
       {
@@ -510,12 +527,16 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       return 'app'
     }
 
-    if (primary.organisation) {
-      return 'organisation'
+    if (primary.subscription) {
+      return 'subscription'
     }
 
     if (primary.team) {
       return 'team'
+    }
+
+    if (primary.organisation) {
+      return 'organisation'
     }
   }
 
@@ -534,6 +555,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
         switchMode: state.switchMode,
         primary: state.primary,
         focusRole: state.focusRole,
+        ready: state.ready,
 
         /**
          * The fetch key is used to change react-query cache

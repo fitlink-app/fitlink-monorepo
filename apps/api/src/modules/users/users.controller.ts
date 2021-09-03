@@ -202,8 +202,10 @@ export class UsersController {
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.TeamAdmin)
   @Get([
-    '/subscriptions/:subscriptionId/admins',
+    '/organisations/:organisationId/subscriptions/:subscriptionId/admins',
     '/organisations/:organisationId/admins',
+    '/organisations/:organisationId/teams/:teamId/admins',
+    '/subscriptions/:subscriptionId/admins',
     '/teams/:teamId/admins',
     '/admins'
   ])
@@ -213,10 +215,12 @@ export class UsersController {
   findAllAdmins(
     @Pagination() pagination: PaginationQuery,
     @Param('organisationId') organisationId: string,
+    @Param('subscriptionId') subscriptionId: string,
     @Param('teamId') teamId: string,
     @Query() query: FilterUserDto
   ) {
     return this.usersService.findAllAdmins(pagination, query, {
+      subscriptionId,
       organisationId,
       teamId
     })
@@ -235,14 +239,17 @@ export class UsersController {
   createAdmin(
     @AuthUser() user: AuthenticatedUser,
     @Param('organisationId') organisationId: string,
+    @Param('subscriptionId') subscriptionId: string,
     @Param('teamId') teamId: string,
-    @Body() { userId }: CreateAdminDto
+    @Body() { role, userId }: CreateAdminDto
   ) {
     if (user.isSuperAdmin() && !organisationId) {
       return this.userRolesService.assignSuperAdminRole(userId)
     } else {
       return this.userRolesService.assignAdminRole(userId, {
+        role,
         organisationId,
+        subscriptionId,
         teamId
       })
     }
@@ -261,6 +268,7 @@ export class UsersController {
   deleteAdmin(
     @AuthUser() user: AuthenticatedUser,
     @Param('organisationId') organisationId: string,
+    @Param('subscriptionId') subscriptionId: string,
     @Param('teamId') teamId: string,
     @Param('userId') userId: string
   ) {
@@ -276,6 +284,7 @@ export class UsersController {
         userId,
         {
           organisationId,
+          subscriptionId,
           teamId
         },
         true

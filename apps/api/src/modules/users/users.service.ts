@@ -25,6 +25,7 @@ import { Roles } from '../user-roles/user-roles.constants'
 
 type EntityOwner = {
   organisationId?: string
+  subscriptionId?: string
   teamId?: string
 }
 
@@ -236,29 +237,38 @@ export class UsersService {
   ): Promise<Pagination<User>> {
     let query = this.userRepository
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.settings', 'settings')
       .leftJoinAndSelect('user.avatar', 'avatar')
       .innerJoin('user.roles', 'role')
       .take(limit)
       .skip(page * limit)
 
     if (entityOwner && entityOwner.organisationId) {
-      query = query
-        .innerJoin('user.teams', 'team')
-        .innerJoin('team.organisation', 'organisation')
-        .where('organisation.id = :organisationId', {
-          organisationId: entityOwner.organisationId
-        })
-        .andWhere('role.role = :role', {
+      query = query.where('role.organisation.id = :organisationId', {
+        organisationId: entityOwner.organisationId
+      })
+
+      if (entityOwner.subscriptionId) {
+        query = query
+          .andWhere('role.role = :role', {
+            role: Roles.SubscriptionAdmin
+          })
+          .andWhere('role.subscription.id = :subscriptionId', {
+            subscriptionId: entityOwner.subscriptionId
+          })
+      } else {
+        query = query.andWhere('role.role = :role', {
           role: Roles.OrganisationAdmin
         })
+      }
+    } else if (entityOwner && entityOwner.subscriptionId) {
+      query = query.where('role.subscription.id = :subscriptionId', {
+        subscriptionId: entityOwner.organisationId
+      })
     }
 
     if (entityOwner && entityOwner.teamId) {
       query = query
-        .innerJoin('user.teams', 'team')
-        .innerJoin('team.organisation', 'organisation')
-        .where('team.id = :teamId', {
+        .where('role.team.id = :teamId', {
           teamId: entityOwner.teamId
         })
         .andWhere('role.role = :role', {
@@ -266,7 +276,11 @@ export class UsersService {
         })
     }
 
-    if (!entityOwner.organisationId && !entityOwner.teamId) {
+    if (
+      !entityOwner.organisationId &&
+      !entityOwner.teamId &&
+      !entityOwner.subscriptionId
+    ) {
       query = query.where('role.role = :role', {
         role: Roles.SuperAdmin
       })

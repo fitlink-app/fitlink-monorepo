@@ -10,7 +10,9 @@ const useRouter = jest.spyOn(require('next/router'), 'useRouter')
 useRouter.mockImplementation(() => ({
   push: jest.fn(),
   prefetch: jest.fn(() => Promise.resolve()),
-  pathname: 'testing'
+  pathname: 'testing',
+  query: {},
+  isReady: true
 }))
 
 describe('Users', () => {
