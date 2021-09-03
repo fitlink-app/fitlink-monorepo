@@ -385,7 +385,7 @@ describe('Subscriptions', () => {
       url: `/subscriptions/${sub.id}/users`,
       headers: superadminHeaders,
       query: {
-        limit: '20'
+        limit: '1000'
       }
     })
 
