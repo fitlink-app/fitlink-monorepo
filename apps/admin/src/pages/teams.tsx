@@ -134,8 +134,12 @@ export default function TeamsPage() {
 
   const { api, focusRole, fetchKey } = useContext(AuthContext)
 
+  if (focusRole === 'team') {
+    return null
+  }
+
   return (
-    <Dashboard title="Settings Users">
+    <Dashboard title="Teams">
       <div className="flex ai-c">
         <h1 className="light mb-0 mr-2">Manage teams</h1>
         <button className="button alt small mt-1" onClick={CreateTeamForm}>

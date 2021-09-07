@@ -67,7 +67,7 @@ export type AuthContext = {
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
   logout: () => Promise<void>
   switchRole: (params: AuthSwitchDto) => Promise<AuthResultDto>
-  restoreRole: () => void
+  restoreRole: () => Promise<void>
   isRole: (role: Roles, id?: string) => boolean
 }
 
@@ -83,38 +83,65 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     primary: {},
     ...value
   } as AuthContext)
-  const [resumed, setResumed] = useState(false)
+  const [readyToResume, setReadyToResume] = useState(false)
   const [childRole, setChildRole] = useState<AuthSwitchDto>()
   const [roleTree, setRoleTree] = useState<AuthSwitchTree[]>([])
   const router = useRouter()
   const me = useQuery('me', () => api.get<User>('/me'), {
-    enabled: false
+    enabled: false,
+    retry: false
   })
 
   const roles = useQuery('me/roles', () => api.get<UserRole[]>('/me/roles'), {
-    enabled: false
+    enabled: false,
+    retry: false
   })
 
+  /**
+   * Redirect the user to login if you cannot authenticate
+   */
   useEffect(() => {
-    if (router.isReady && router.pathname !== '/login') {
-      resumeStoredState()
+    if (me.isError) {
+      router.push('/login')
+    }
+  }, [me.isError])
+
+  /**
+   * If on a route that requires loading the user's profile
+   * from page load, load the stored (localStorage) state
+   * into memory which will determine the permissions of
+   * the interface to display to the user.
+   */
+  useEffect(() => {
+    if (!readyToResume && router.isReady) {
+      if (router.pathname !== '/login') {
+        resumeStoredState()
+      } else {
+        clearStoredState()
+      }
     }
   }, [router.isReady, router.pathname])
 
+  /**
+   * Once any localStorage state has been loaded into
+   * memory, we're ready to load the user's profile
+   * and roles.
+   */
   useEffect(() => {
-    if (resumed) {
+    if (readyToResume) {
       resume()
     }
-  }, [resumed])
+  }, [readyToResume])
 
   useEffect(() => {
-    if (resumed) {
+    if (readyToResume) {
       const myRoles = formatRoles(roles.data || [], childRole)
       const primary = setPrimaryRoles(myRoles)
       const focusRole = setFocusRole(primary)
       const menu = setMenu(focusRole)
       const newState = {
         ...state,
+        switchMode: focusRole === 'app' ? false : state.switchMode,
         user: me.data,
         roles: myRoles,
         menu,
@@ -125,7 +152,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       storeState(newState)
       setState(newState)
     }
-  }, [me.data, roles.data, childRole, resumed])
+  }, [me.data, roles.data, childRole, readyToResume])
 
   /**
    * Stores the state of role switching
@@ -154,7 +181,11 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       })
     }
 
-    setResumed(true)
+    setReadyToResume(true)
+  }
+
+  function clearStoredState() {
+    localStorage.removeItem('fitlink')
   }
 
   async function resume() {
@@ -220,12 +251,13 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     // Set the previous role in the tree
     const tree = [...roleTree]
     const last = tree.pop()
+    const newRole = tree[tree.length - 1]
 
-    if (last) {
-      router.push(last.pathname)
-    } else {
-      router.push('/start')
-    }
+    // Restore the previous role to the API / session
+    await api.loginWithRole({
+      role: newRole ? newRole.role : undefined,
+      id: newRole ? newRole.id : undefined
+    })
 
     setRoleTree(tree)
     setChildRole(tree[tree.length - 1])
@@ -233,6 +265,13 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       ...state,
       switchMode: tree.length > 0
     })
+
+    // If a previous item exists route to it.
+    if (last) {
+      router.push(last.pathname)
+    } else {
+      router.push('/start')
+    }
   }
 
   function formatRoles(roles: UserRole[], childRole?: AuthSwitchDto) {
