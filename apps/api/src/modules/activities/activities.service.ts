@@ -198,11 +198,13 @@ export class ActivitiesService {
     const geo = geoRadial.split(',')
     const query = this.queryFindAccessibleToUser(userId)
       .andWhere(
-        'ST_DistanceSphere(activity.meeting_point, ST_MakePoint(:lat,:lng)) <= :rad * 1000',
+        `((ST_DistanceSphere(activity.meeting_point, ST_MakePoint(:lat,:lng)) <= :rad * 1000)
+        OR owner.id = :userId)`,
         {
           lat: geo[0],
           lng: geo[1],
-          rad: parseInt(geo[2]) || 5
+          rad: parseInt(geo[2]) || 5,
+          userId
         }
       )
       .take(500)
