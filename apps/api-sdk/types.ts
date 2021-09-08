@@ -42,6 +42,9 @@ import { AddUserToSubscriptionDto } from '@fitlink/api/src/modules/subscriptions
 import { AuthRequestResetPasswordDto } from '@fitlink/api/src/modules/auth/dto/auth-reset-password'
 import { CreateAdminDto } from '@fitlink/api/src/modules/users/dto/create-admin.dto'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
+import { TeamsInvitation } from 'apps/api/src/modules/teams-invitations/entities/teams-invitation.entity'
+import { RespondTeamsInvitationDto } from 'apps/api/src/modules/teams-invitations/dto/respond-teams-invitation.dto'
+import { RespondOrganisationsInvitationDto } from 'apps/api/src/modules/organisations-invitations/dto/respond-organisations-invitation.dto'
 
 export type {
   AuthResultDto,
@@ -78,6 +81,10 @@ export type AuthSignUp = '/auth/signup'
 export type AuthConnect = '/auth/connect'
 export type AuthSwitch = '/auth/switch'
 export type AuthRequestResetPassword = '/auth/request-password-reset'
+export type TeamsInvitationsVerify = '/teams-invitations/verify'
+export type TeamsInvitationsRespond = '/teams-invitations/respond'
+export type OrganisationsInvitationsVerify = '/organisations-invitations/verify'
+export type OrganisationsInvitationsRespond = '/organisations-invitations/respond'
 
 export type CreatableResource =
   | AuthLogin
@@ -87,6 +94,10 @@ export type CreatableResource =
   | AuthConnect
   | AuthSwitch
   | AuthRequestResetPassword
+  | TeamsInvitationsVerify
+  | TeamsInvitationsRespond
+  | OrganisationsInvitationsVerify
+  | OrganisationsInvitationsRespond
 
 export type ListResource =
   | '/organisations'
@@ -95,8 +106,10 @@ export type ListResource =
   | '/organisations/:organisationId/admins'
   | '/organisations/:organisationId/teams'
   | '/organisations/:organisationId/teams/:teamId/admins'
+  | '/organisations/:organisationId/teams/:teamId/invitations'
   | '/organisations/:organisationId/subscriptions'
   | '/organisations/:organisationId/subscriptions/:subscriptionId/admins'
+  | '/organisations/:organisationId/subscriptions/:subscriptionId/invitations'
   | '/organisations/:organisationId/invitations'
   | '/organisations/:organisationId/rewards'
   | '/organisations/:organisationId/leagues'
@@ -234,6 +247,14 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<{}>
   : T extends AuthRequestResetPassword
   ? Payload<AuthRequestResetPasswordDto>
+  : T extends TeamsInvitationsVerify
+  ? Payload<{ token: string }>
+  : T extends TeamsInvitationsRespond
+  ? Payload<RespondTeamsInvitationDto>
+  : T extends OrganisationsInvitationsVerify
+  ? Payload<{ token: string }>
+  : T extends OrganisationsInvitationsRespond
+  ? Payload<RespondOrganisationsInvitationDto>
   : never
 
 export type UploadResourceParams = FilePayload
@@ -252,6 +273,10 @@ export type CreatableResourceResponse<T> = T extends AuthSignUp
   ? { success: true }
   : T extends SubscriptionUser
   ? { success: boolean }
+  : T extends TeamsInvitationsVerify
+  ? TeamsInvitation
+  : T extends TeamsInvitationsRespond
+  ? TeamsInvitation
   : never
 
 export type UpdateResourceParams<T> = T extends Organisation

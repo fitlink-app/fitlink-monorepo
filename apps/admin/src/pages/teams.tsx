@@ -69,8 +69,9 @@ export default function TeamsPage() {
         onCancel={closeDrawer()}
         current={fields}
         mutation={(id) =>
-          api.delete('/teams/:teamId', {
-            teamId: id
+          api.delete('/organisations/:organisationId/teams/:teamId', {
+            teamId: id,
+            organisationId: organisationId.current
           })
         }
         title="Delete team"

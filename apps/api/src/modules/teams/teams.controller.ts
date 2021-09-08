@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -16,11 +17,13 @@ import { Image } from '../images/entities/image.entity'
 import { Roles } from '../user-roles/user-roles.constants'
 import { CreateTeamDto } from './dto/create-team.dto'
 import { UpdateTeamDto } from './dto/update-team.dto'
-import { TeamsService } from './teams.service'
+import { TeamServiceError, TeamsService } from './teams.service'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { PaginationQuery } from '../../helpers/paginate'
 import { Team } from './entities/team.entity'
 import { ApiBaseResponses } from '../../decorators/swagger.decorator'
+import { RespondTeamsInvitationDto } from '../teams-invitations/dto/respond-teams-invitation.dto'
+import { TeamsInvitationsServiceError } from '../teams-invitations/teams-invitations.service'
 
 @Controller()
 @ApiTags('teams')
@@ -151,5 +154,27 @@ export class TeamsController {
   @Get('/teams/:id')
   findOne(@Param('id') id: string) {
     return this.teamsService.findOne(id)
+  }
+
+  @Post('/teams-invitations/respond')
+  async accept(
+    @Body() { token, accept }: RespondTeamsInvitationDto,
+    @User() user: AuthenticatedUser
+  ) {
+    const result = await this.teamsService.respondToInvitation(
+      token,
+      accept,
+      user.id
+    )
+
+    if (typeof result === 'string') {
+      throw new BadRequestException(result)
+    }
+
+    if (!result) {
+      throw new BadRequestException(TeamsInvitationsServiceError.TokenNotFound)
+    }
+
+    return result
   }
 }

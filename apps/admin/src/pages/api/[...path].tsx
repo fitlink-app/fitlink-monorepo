@@ -13,6 +13,9 @@ import { NextApiRequest, NextApiResponse } from 'next'
 
 // API_BASE_URL should be configured in Vercel
 const API_URL = process.env.API_BASE_URL || 'http://localhost:3000'
+
+console.log(`API will connect at ${API_URL}`)
+
 const proxy = httpProxy.createProxyServer()
 // You can export a config variable from any API route in Next.js.
 // We'll use this to disable the bodyParser, otherwise Next.js

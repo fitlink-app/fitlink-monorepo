@@ -102,7 +102,9 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
    */
   useEffect(() => {
     if (me.isError) {
-      router.push('/login')
+      router.push('/login', {
+        query: router.query
+      })
     }
   }, [me.isError])
 
@@ -223,20 +225,23 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
 
     setState({
       ...state,
-      switchMode: true,
+      switchMode: focusRole !== 'app',
       focusRole
     })
 
-    setChildRole(params)
-    setRoleTree([
-      ...roleTree,
-      {
-        ...params,
-        pathname: router.pathname
-      }
-    ])
-
-    // await roles.refetch()
+    if (focusRole !== 'app') {
+      setChildRole(params)
+      setRoleTree([
+        ...(roleTree || []),
+        {
+          ...params,
+          pathname: router.pathname
+        }
+      ])
+    } else {
+      setChildRole(undefined)
+      setRoleTree(undefined)
+    }
 
     if (params.role === Roles.SubscriptionAdmin) {
       router.push('/billing')
@@ -316,6 +321,15 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
         permissions.teams.push(role.team)
       }
     })
+
+    if (permissions.superAdmin) {
+      return {
+        superAdmin: true,
+        organisations: [],
+        subscriptions: [],
+        teams: []
+      }
+    }
 
     return permissions
   }

@@ -11,6 +11,8 @@ import { timeout } from '../helpers/timeout'
 import Input from '../components/elements/Input'
 import useDebounce from '../hooks/useDebounce'
 import ConfirmForm from '../components/forms/ConfirmForm'
+import InviteUserForm from '../components/forms/InviteUserForm'
+import { Roles } from '../../../api/src/modules/user-roles/user-roles.constants'
 
 export default function UsersPage() {
   const [drawContent, setDrawContent] = useState<
@@ -110,10 +112,31 @@ export default function UsersPage() {
   const dbSearchTerm = useDebounce(keyword, 500)
   const { api, fetchKey, focusRole, primary } = useContext(AuthContext)
 
+  const InviteTeamMemberForm = () => {
+    setWarning(true)
+    setWide(false)
+    setDrawContent(
+      <InviteUserForm
+        role={Roles.Self}
+        teamId={primary.team}
+        onSave={closeDrawer(1000)}
+      />
+    )
+  }
+
   return (
     <Dashboard title="Settings Users">
       <div className="flex ai-c jc-sb">
         <h1 className="light mb-0 mr-2">Manage users</h1>
+
+        {focusRole === 'team' && (
+          <button
+            className="button alt small mt-1"
+            onClick={InviteTeamMemberForm}>
+            Invite User
+          </button>
+        )}
+
         <Input
           className="input-large"
           inline={true}

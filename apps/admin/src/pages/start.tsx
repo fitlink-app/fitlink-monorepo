@@ -58,7 +58,7 @@ export default function StartPage() {
 
   const { api } = useContext(AuthContext)
 
-  const rolesQuery = useQuery('me/roles', () =>
+  const rolesQuery = useQuery('start_roles', () =>
     api.get<UserRole[]>('/me/roles')
   )
 
@@ -148,6 +148,9 @@ const getDescriptiveName = (role: UserRole) => {
   if (role.organisation) {
     return role.organisation.name
   }
+
+  // Superadmin
+  return 'Fitlink Global'
 }
 
 const getId = (role: UserRole) => {

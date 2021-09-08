@@ -16,6 +16,7 @@ import SelectEntityForm from '../../components/forms/SelectEntityForm'
 import { Subscription } from '../../../../api/src/modules/subscriptions/entities/subscription.entity'
 import { useQuery } from 'react-query'
 import { ApiResult } from '../../../../common/react-query/types'
+import InviteUserForm from '../../components/forms/InviteUserForm'
 
 type PageType = 'team' | 'subscription' | 'organisation' | 'global'
 
@@ -156,6 +157,26 @@ export default function UsersPage(props: UsersPageProps) {
     )
   }
 
+  const InviteAdminForm = (fields) => {
+    setWarning(true)
+    setWide(false)
+    const props: any = {}
+    if (role.current === Roles.SubscriptionAdmin) {
+      props.subscriptionId = id.current
+    }
+
+    if (role.current === Roles.TeamAdmin) {
+      props.teamId = id.current
+    }
+    setDrawContent(
+      <InviteUserForm
+        role={role.current}
+        {...props}
+        onSave={closeDrawer(1000)}
+      />
+    )
+  }
+
   const cellActions = ({
     cell: {
       row: { original }
@@ -213,6 +234,11 @@ export default function UsersPage(props: UsersPageProps) {
           <button className="button alt small mt-1" onClick={AssignAdminForm}>
             Assign User
           </button>
+          {type !== 'global' && (
+            <button className="button alt small mt-1" onClick={InviteAdminForm}>
+              Invite User
+            </button>
+          )}
           <div className="flex jc-e">
             <Input
               className="input-large"

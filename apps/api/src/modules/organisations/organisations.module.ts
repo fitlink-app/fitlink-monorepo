@@ -9,6 +9,7 @@ import { AuthModule } from '../auth/auth.module'
 import { OrganisationsInvitationsModule } from '../organisations-invitations/organisations-invitations.module'
 import { User } from '../users/entities/user.entity'
 import { CommonModule } from '../common/common.module'
+import { UserRolesModule } from '../user-roles/user-roles.module'
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { CommonModule } from '../common/common.module'
     HttpModule,
     ImagesModule,
     OrganisationsInvitationsModule,
-    CommonModule
+    CommonModule,
+    UserRolesModule
   ],
   controllers: [OrganisationsController],
   providers: [OrganisationsService],

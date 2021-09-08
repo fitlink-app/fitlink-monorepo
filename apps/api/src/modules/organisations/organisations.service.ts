@@ -5,13 +5,18 @@ import { UpdateOrganisationDto } from './dto/update-organisation.dto'
 import { Organisation } from './entities/organisation.entity'
 import { Image } from '../images/entities/image.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
-import { OrganisationsInvitationsService } from '../organisations-invitations/organisations-invitations.service'
+import {
+  OrganisationsInvitationsService,
+  OrganisationsInvitationsServiceError
+} from '../organisations-invitations/organisations-invitations.service'
 import { OrganisationsInvitation } from '../organisations-invitations/entities/organisations-invitation.entity'
 import { getManager } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 import { SearchOrganisationDto } from './dto/search-organisation.dto'
 import { User, UserPublic } from '../users/entities/user.entity'
 import { CommonService } from '../common/services/common.service'
+import { UserRolesService } from '../user-roles/user-roles.service'
+import { Roles } from '../user-roles/user-roles.constants'
 
 @Injectable()
 export class OrganisationsService {
@@ -20,11 +25,15 @@ export class OrganisationsService {
     private readonly organisationRepository: Repository<Organisation>,
     private readonly invitationsService: OrganisationsInvitationsService,
     private readonly commonService: CommonService,
+    private readonly userRolesService: UserRolesService,
     @InjectRepository(User)
     private userRepository: Repository<User>
   ) {}
 
-  async create(createOrganisationDto: CreateOrganisationDto) {
+  async create(
+    createOrganisationDto: CreateOrganisationDto,
+    invitationOwnerId: string
+  ) {
     const { email, invitee, imageId, ...rest } = createOrganisationDto
 
     let create: Partial<Organisation> = { ...rest }
@@ -43,10 +52,15 @@ export class OrganisationsService {
     let inviteLink: string
 
     if (email) {
-      const result = await this.invitationsService.create(organisation.id, {
-        email,
-        invitee
-      })
+      const result = await this.invitationsService.create(
+        organisation.id,
+        {
+          email,
+          invitee,
+          admin: true
+        },
+        invitationOwnerId
+      )
       invitation = result.invitation
       inviteLink = result.inviteLink
     }
@@ -68,14 +82,14 @@ export class OrganisationsService {
       .take(limit)
       .skip(page * limit)
 
-     if (filters.q) {
+    if (filters.q) {
       query = query['where']('organisation.name ILIKE :name', {
         name: `%${filters.q}%`
       })
-     }
+    }
 
     const [results, total] = await query.getManyAndCount()
-    
+
     return new Pagination<Organisation>({
       results,
       total
@@ -154,5 +168,46 @@ export class OrganisationsService {
     })
 
     return result
+  }
+
+  /**
+   * Verifies the token and responds to the invitation
+   * either accepts or declines.
+   *
+   * @param token
+   * @returns object (TeamInvitation)
+   */
+
+  async respondToInvitation(token: string, accept: boolean, userId: string) {
+    const invitation = await this.invitationsService.verifyToken(token)
+
+    if (typeof invitation === 'string') {
+      return invitation
+    }
+
+    const roles = await this.userRolesService.getAllUserRoles(userId)
+
+    const alreadyAdmin = roles.filter(
+      (e) => e.organisation && e.organisation.id === invitation.organisation.id
+    ).length
+
+    // Delete the invitation if the user is already a member
+    if (alreadyAdmin) {
+      await this.invitationsService.remove(invitation.id)
+      return invitation
+    }
+
+    if (accept) {
+      await this.userRolesService.assignAdminRole(
+        userId,
+        {
+          organisationId: invitation.organisation.id
+        },
+        false
+      )
+      return this.invitationsService.accept(invitation)
+    } else {
+      return this.invitationsService.decline(invitation)
+    }
   }
 }
