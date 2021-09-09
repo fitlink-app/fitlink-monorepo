@@ -42,9 +42,9 @@ import { AddUserToSubscriptionDto } from '@fitlink/api/src/modules/subscriptions
 import { AuthRequestResetPasswordDto } from '@fitlink/api/src/modules/auth/dto/auth-reset-password'
 import { CreateAdminDto } from '@fitlink/api/src/modules/users/dto/create-admin.dto'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
-import { TeamsInvitation } from 'apps/api/src/modules/teams-invitations/entities/teams-invitation.entity'
-import { RespondTeamsInvitationDto } from 'apps/api/src/modules/teams-invitations/dto/respond-teams-invitation.dto'
-import { RespondOrganisationsInvitationDto } from 'apps/api/src/modules/organisations-invitations/dto/respond-organisations-invitation.dto'
+import { TeamsInvitation } from '@fitlink/api/src/modules/teams-invitations/entities/teams-invitation.entity'
+import { RespondTeamsInvitationDto } from '@fitlink/api/src/modules/teams-invitations/dto/respond-teams-invitation.dto'
+import { RespondOrganisationsInvitationDto } from '@fitlink/api/src/modules/organisations-invitations/dto/respond-organisations-invitation.dto'
 
 export type {
   AuthResultDto,
