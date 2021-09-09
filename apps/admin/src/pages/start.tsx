@@ -1,20 +1,12 @@
-import { AnimatePresence } from 'framer-motion'
 import { useState, useContext, useEffect } from 'react'
-import Drawer from '../components/elements/Drawer'
-import CreateOrganisation from '../components/forms/CreateOrganisation'
-import Dashboard from '../components/layouts/Dashboard'
-import TableContainer from '../components/Table/TableContainer'
-import { toDateCell, toOtherCell } from '../components/Table/helpers'
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import { AuthContext } from '../context/Auth.context'
-import { Organisation } from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
-import { timeout } from '../helpers/timeout'
-import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
-import { Roles } from '../../../api/src/modules/user-roles/user-roles.constants'
-import { useQuery } from 'react-query'
-import { UserRole } from '../../../api/src/modules/user-roles/entities/user-role.entity'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Dashboard from '../components/layouts/Dashboard'
+import TableContainer from '../components/Table/TableContainer'
+import { AuthContext } from '../context/Auth.context'
+import { Roles } from '@fitlink/api/src/modules/user-roles/user-roles.constants'
+import { useQuery } from 'react-query'
+import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 import Loader from '../components/elements/Loader'
 
 export default function StartPage() {
@@ -65,7 +57,7 @@ export default function StartPage() {
   useEffect(() => {
     if (rolesQuery.isFetched) {
       console.log(rolesQuery.data)
-      if (rolesQuery.data.length === 1) {
+      if (rolesQuery.data.length === 0) {
         const data = rolesQuery.data[0]
         switch (data.role) {
           case Roles.SubscriptionAdmin:
