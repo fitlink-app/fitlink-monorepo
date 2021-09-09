@@ -60,7 +60,7 @@ const LoginPage = () => {
        * if they're available. This is typically used
        * for team invitations, organisation invitations, etc.
        */
-      if (router.asPath.indexOf('/redeem') === 0) {
+      if (router.asPath && router.asPath.indexOf('/redeem') === 0) {
         router.push(router.asPath)
       } else {
         router.push('/start')
