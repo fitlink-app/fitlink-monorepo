@@ -592,6 +592,20 @@ export class AuthService {
       spr: false
     }
 
+    // Restore the user's original roles / session
+    if (!role) {
+      return this.login(user)
+    }
+
+    if (role === Roles.SuperAdmin) {
+      if (roles.spr) {
+        return this.loginWithRole(user, {
+          ...base,
+          spr: true
+        })
+      }
+    }
+
     if (role === Roles.OrganisationAdmin) {
       if (roles.o_a.includes(id)) {
         return this.loginWithRole(user, {

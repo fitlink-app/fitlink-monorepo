@@ -13,4 +13,8 @@ export class CreateTeamsInvitationDto {
 
   @ApiProperty()
   team: Team
+
+  @ApiProperty()
+  @IsOptional()
+  admin: boolean
 }

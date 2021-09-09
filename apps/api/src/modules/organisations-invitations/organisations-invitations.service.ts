@@ -13,6 +13,13 @@ import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { JwtService } from '@nestjs/jwt'
 import { OrganisationInvitationJWT } from '../../models/organisation-invitation.jwt.model'
 import { Organisation } from '../organisations/entities/organisation.entity'
+import { User } from '../users/entities/user.entity'
+
+export enum OrganisationsInvitationsServiceError {
+  TokenExpired = 'The invitation can no longer be used',
+  TokenInvalid = 'The invitation is invalid',
+  TokenNotFound = 'The invitation cannot be found'
+}
 
 @Injectable()
 export class OrganisationsInvitationsService {
@@ -26,16 +33,23 @@ export class OrganisationsInvitationsService {
 
   async create(
     organisationId: string,
-    createDto: CreateOrganisationsInvitationDto
+    createDto: CreateOrganisationsInvitationDto,
+    ownerId: string
   ) {
     const organisation = new Organisation()
     organisation.id = organisationId
 
-    const { email, invitee } = createDto
+    const { email, invitee, admin } = createDto
+
+    const owner = new User()
+    owner.id = ownerId
+
     const invitation = await this.invitationsRepository.save(
       this.invitationsRepository.create({
         email,
         organisation,
+        admin,
+        owner,
         name: invitee
       })
     )
@@ -76,9 +90,7 @@ export class OrganisationsInvitationsService {
    * @returns string
    */
   createInviteLink(token: string) {
-    return this.configService
-      .get('INVITE_ORGANISATION_URL')
-      .replace('{token}', token)
+    return this.configService.get('INVITE_URL').replace('{token}', token)
   }
 
   /**
@@ -133,11 +145,9 @@ export class OrganisationsInvitationsService {
     } catch (e) {
       switch (e.message) {
         case 'jwt expired':
-          throw new UnauthorizedException(
-            'The invitation can no longer be used'
-          )
+          return OrganisationsInvitationsServiceError.TokenExpired
         default:
-          throw new BadRequestException('Token is invalid')
+          return OrganisationsInvitationsServiceError.TokenInvalid
       }
     }
   }
@@ -151,16 +161,18 @@ export class OrganisationsInvitationsService {
    * @returns object (OrganisationInvitation)
    */
 
-  verifyToken(token: string) {
+  async verifyToken(token: string) {
     const payload = this.readToken(token)
-    try {
-      return this.invitationsRepository.findOne(payload.sub, {
-        where: { accepted: false },
-        relations: ['organisation']
-      })
-    } catch (e) {
-      return new UnauthorizedException('The invitation can no longer be used')
+
+    // Return string errors
+    if (typeof payload === 'string') {
+      return payload as OrganisationsInvitationsServiceError
     }
+
+    return this.invitationsRepository.findOne(payload.sub, {
+      where: {},
+      relations: ['organisation', 'owner']
+    })
   }
 
   /**
@@ -214,5 +226,27 @@ export class OrganisationsInvitationsService {
    */
   remove(id: string) {
     return this.invitationsRepository.delete(id)
+  }
+
+  /**
+   * Marks the invitation as accepted
+   *
+   * @param id
+   * @returns
+   */
+  accept(invitation: OrganisationsInvitation) {
+    invitation.accepted = true
+    return this.invitationsRepository.save(invitation)
+  }
+
+  /**
+   * Marks the invitation as declined
+   *
+   * @param id
+   * @returns
+   */
+  decline(invitation: OrganisationsInvitation) {
+    invitation.dismissed = true
+    return this.invitationsRepository.save(invitation)
   }
 }

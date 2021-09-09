@@ -12,6 +12,13 @@ import { TeamsInvitation } from './entities/teams-invitation.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { JwtService } from '@nestjs/jwt'
 import { TeamInvitationJWT } from '../../models/team-invitation.jwt.model'
+import { User, UserPublic } from '../users/entities/user.entity'
+import { plainToClass } from 'class-transformer'
+
+export enum TeamsInvitationsServiceError {
+  TokenNotFound = 'The invitation cannot be found',
+  TokenExpired = 'The invitation can no longer be used'
+}
 
 @Injectable()
 export class TeamsInvitationsService {
@@ -23,13 +30,19 @@ export class TeamsInvitationsService {
     private readonly invitationsRepository: Repository<TeamsInvitation>
   ) {}
 
-  async create(createDto: CreateTeamsInvitationDto) {
-    const { email, team, invitee } = createDto
+  async create(createDto: CreateTeamsInvitationDto, ownerId: string) {
+    const { email, team, invitee, admin } = createDto
+
+    const owner = new User()
+    owner.id = ownerId
+
     const invitation = await this.invitationsRepository.save(
       this.invitationsRepository.create({
         email,
         team,
-        name: invitee
+        name: invitee,
+        admin,
+        owner
       })
     )
 
@@ -69,7 +82,7 @@ export class TeamsInvitationsService {
    * @returns string
    */
   createInviteLink(token: string) {
-    return this.configService.get('INVITE_TEAM_URL').replace('{token}', token)
+    return this.configService.get('INVITE_URL').replace('{token}', token)
   }
 
   /**
@@ -124,11 +137,9 @@ export class TeamsInvitationsService {
     } catch (e) {
       switch (e.message) {
         case 'jwt expired':
-          throw new UnauthorizedException(
-            'The invitation can no longer be used'
-          )
+          return TeamsInvitationsServiceError.TokenExpired
         default:
-          throw new BadRequestException('Token is invalid')
+          return TeamsInvitationsServiceError.TokenNotFound
       }
     }
   }
@@ -142,15 +153,25 @@ export class TeamsInvitationsService {
    * @returns object (TeamInvitation)
    */
 
-  verifyToken(token: string) {
+  async verifyToken(token: string) {
     const payload = this.readToken(token)
-    try {
-      return this.invitationsRepository.findOne(payload.sub, {
-        where: { accepted: false },
-        relations: ['team']
-      })
-    } catch (e) {
-      return new UnauthorizedException('The invitation can no longer be used')
+
+    if (typeof payload === 'string') {
+      return payload as TeamsInvitationsServiceError
+    }
+
+    const result = await this.invitationsRepository.findOne(payload.sub, {
+      where: { accepted: false, dismissed: false },
+      relations: ['team', 'owner']
+    })
+
+    if (result) {
+      return {
+        ...result,
+        owner: plainToClass(UserPublic, result.owner)
+      } as TeamsInvitation
+    } else {
+      return null
     }
   }
 
@@ -205,5 +226,29 @@ export class TeamsInvitationsService {
    */
   remove(id: string) {
     return this.invitationsRepository.delete(id)
+  }
+
+  /**
+   * Decline the invitation
+   *
+   * @param invitation
+   * @returns object (TeamInvitation)
+   */
+
+  decline(invitation: TeamsInvitation) {
+    invitation.dismissed = true
+    return this.invitationsRepository.save(invitation)
+  }
+
+  /**
+   * Accept the invitation
+   *
+   * @param invitation
+   * @returns object (TeamInvitation)
+   */
+
+  accept(invitation: TeamsInvitation) {
+    invitation.accepted = true
+    return this.invitationsRepository.save(invitation)
   }
 }

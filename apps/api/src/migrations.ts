@@ -48,6 +48,8 @@ import { AddOrganisationToActivity1629305606334 } from '../database/migrations/1
 import { RenameActivityUserToOwner1629363309660 } from '../database/migrations/1629363309660-RenameActivityUserToOwner'
 import { UpdateRankTiers1629463294813 } from '../database/migrations/1629463294813-UpdateRankTiers'
 import { UpdateUsersTiers1630668000965 } from '../database/migrations/1630668000965-UpdateUsersTiers'
+import { InvitationsAdmin1631085397864 } from '../database/migrations/1631085397864-InvitationsAdmin'
+import { InvitationsOwners1631087970817 } from '../database/migrations/1631087970817-InvitationsOwners'
 
 export default [
   InitializeSchema1614887523112,
@@ -94,5 +96,7 @@ export default [
   AddOrganisationToActivity1629305606334,
   RenameActivityUserToOwner1629363309660,
   UpdateRankTiers1629463294813,
-  UpdateUsersTiers1630668000965
+  UpdateUsersTiers1630668000965,
+  InvitationsAdmin1631085397864,
+  InvitationsOwners1631087970817
 ]

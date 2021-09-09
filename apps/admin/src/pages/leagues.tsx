@@ -172,7 +172,9 @@ export default function LeaguesPage() {
       <div className="row ai-c mb-2">
         <div className="col-12 col-lg-8">
           <div className="flex ai-c">
-            <h1 className="light mb-0 mr-2">Your leagues</h1>
+            <h1 className="light mb-0 mr-2">
+              {focusRole === 'app' ? 'Global' : 'Your'} leagues
+            </h1>
             <button className="button alt small mt-1" onClick={NewLeagueForm}>
               Add new
             </button>

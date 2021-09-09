@@ -6,11 +6,16 @@ import { AuthenticatedUser } from '../../models'
 import { Organisation } from '../organisations/entities/organisation.entity'
 import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.entity'
 import { TeamsInvitationsService } from '../teams-invitations/teams-invitations.service'
+import { UserRolesService } from '../user-roles/user-roles.service'
 import { User, UserStat } from '../users/entities/user.entity'
 import { CreateTeamDto } from './dto/create-team.dto'
 import { DateQueryDto } from './dto/date-query.dto'
 import { UpdateTeamDto } from './dto/update-team.dto'
 import { Team } from './entities/team.entity'
+
+export enum TeamServiceError {
+  AlreadyMember = 'You are already a member of this team'
+}
 
 @Injectable()
 export class TeamsService {
@@ -19,6 +24,7 @@ export class TeamsService {
     private teamRepository: Repository<Team>,
     @InjectRepository(Organisation)
     private organisationRepository: Repository<Organisation>,
+    private userRolesService: UserRolesService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(TeamsInvitation)
@@ -136,6 +142,13 @@ export class TeamsService {
       .remove(teamId)
   }
 
+  /**
+   * Join team from a raw token
+   *
+   * @param invitation
+   * @param userId
+   * @returns
+   */
   async joinTeam(token: string, authenticated_user: AuthenticatedUser) {
     const invitation = (await this.teamInvitationService.verifyToken(
       token
@@ -153,6 +166,76 @@ export class TeamsService {
     const savedInvitation = await this.teamInvitationRepository.save(invitation)
 
     return savedInvitation
+  }
+
+  /**
+   * Join team from an invitation already provided.
+   *
+   * @param invitation
+   * @param userId
+   * @returns
+   */
+  async joinTeamFromInvitation(invitation: TeamsInvitation, userId: string) {
+    const user = await this.userRepository.findOne(userId)
+
+    await this.teamRepository
+      .createQueryBuilder('team')
+      .relation(Team, 'users')
+      .of(invitation.team.id)
+      .add(user)
+
+    invitation.resolved_user = user
+    const savedInvitation = await this.teamInvitationRepository.save(invitation)
+
+    return savedInvitation
+  }
+
+  /**
+   * Verifies the token and responds to the invitation
+   * either accepts or declines.
+   *
+   * @param token
+   * @returns object (TeamInvitation)
+   */
+
+  async respondToInvitation(token: string, accept: boolean, userId: string) {
+    const invitation = await this.teamInvitationService.verifyToken(token)
+
+    if (typeof invitation === 'string') {
+      return invitation
+    }
+
+    // Admin invitations do not join teams
+    if (invitation.admin) {
+      if (accept) {
+        await this.userRolesService.assignAdminRole(userId, {
+          teamId: invitation.team.id
+        })
+        return this.teamInvitationService.accept(invitation)
+      } else {
+        return this.teamInvitationService.decline(invitation)
+      }
+    }
+
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['teams']
+    })
+
+    const alreadyMember = user.teams.filter((e) => e.id === invitation.team.id)
+      .length
+
+    // Delete the invitation if the user is already a member
+    if (alreadyMember) {
+      await this.teamInvitationService.remove(invitation.id)
+      return TeamServiceError.AlreadyMember
+    }
+
+    if (accept) {
+      invitation.accepted = true
+      return this.joinTeamFromInvitation(invitation, userId)
+    } else {
+      return this.teamInvitationService.decline(invitation)
+    }
   }
 
   async queryUserTeamStats(

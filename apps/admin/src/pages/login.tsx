@@ -55,7 +55,16 @@ const LoginPage = () => {
     }
 
     if (isSuccess) {
-      router.push('/start')
+      /**
+       * Redeem URLs are masked, and should be loaded
+       * if they're available. This is typically used
+       * for team invitations, organisation invitations, etc.
+       */
+      if (router.asPath && router.asPath.indexOf('/redeem') === 0) {
+        router.push(router.asPath)
+      } else {
+        router.push('/start')
+      }
     }
   }, [error, isSuccess])
 

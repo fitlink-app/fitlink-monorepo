@@ -201,11 +201,20 @@ export class User extends CreatableEntity {
   )
   organisations_invitations: OrganisationsInvitation[]
 
+  @OneToMany(() => OrganisationsInvitation, (invitation) => invitation.owner)
+  organisations_invitations_sent: OrganisationsInvitation[]
+
   @OneToMany(() => TeamsInvitation, (invitation) => invitation.resolved_user)
   teams_invitations: TeamsInvitation[]
 
+  @OneToMany(() => TeamsInvitation, (invitation) => invitation.owner)
+  teams_invitations_sent: TeamsInvitation[]
+
   @OneToMany(() => LeaguesInvitation, (invitation) => invitation.to_user)
   leagues_invitations: LeaguesInvitation[]
+
+  @OneToMany(() => LeaguesInvitation, (invitation) => invitation.from_user)
+  leagues_invitations_sent: LeaguesInvitation[]
 
   @OneToMany(() => Activity, (activity) => activity.owner)
   activities: Activity[]

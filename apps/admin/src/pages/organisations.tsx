@@ -116,11 +116,15 @@ export default function OrganisationsPage() {
   const dbSearchTerm = useDebounce(keyword, 500)
   const { api, fetchKey, focusRole, primary } = useContext(AuthContext)
 
+  if (focusRole === 'organisation') {
+    return null
+  }
+
   return (
     <Dashboard title="Settings Users">
       <div className="flex ai-c jc-sb">
         <div className="flex ai-c">
-        <h1 className="light mb-0 mr-2">Manage organisations</h1>
+          <h1 className="light mb-0 mr-2">Manage organisations</h1>
           <button
             className="button alt small mt-1"
             onClick={CreateOrganisationForm}>
@@ -152,15 +156,18 @@ export default function OrganisationsPage() {
             { Header: ' ', Cell: cellActions }
           ]}
           fetch={(limit, page, query) =>
-            api.list<Organisation>('/organisations', {
-              limit,
-              page,
-              query
-            },
-            {
-              primary,
-              useRole: focusRole
-            })
+            api.list<Organisation>(
+              '/organisations',
+              {
+                limit,
+                page,
+                query
+              },
+              {
+                primary,
+                useRole: focusRole
+              }
+            )
           }
           fetchName={`organisations_${fetchKey}`}
           refresh={refresh}

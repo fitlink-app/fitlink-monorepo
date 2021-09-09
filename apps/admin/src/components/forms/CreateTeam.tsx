@@ -42,14 +42,19 @@ export default function CreateOrganisation({
   })
 
   const create: ApiMutationResult<Team> = useMutation(
-    (payload: CreateTeamDto) => api.post<Team>('/teams', { payload })
+    (payload: CreateTeamDto) =>
+      api.post<Team>('/organisations/:organisationId/teams', {
+        payload,
+        organisationId
+      })
   )
 
   const update: ApiMutationResult<UpdateResult> = useMutation(
     (payload: CreateTeamDto) =>
-      api.put<Team>('/teams/:teamId', {
+      api.put<Team>('/organisations/:organisationId/teams/:teamId', {
         payload,
-        teamId: current.id
+        teamId: current.id,
+        organisationId
       })
   )
 
