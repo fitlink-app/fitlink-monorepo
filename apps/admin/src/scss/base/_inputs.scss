@@ -14,6 +14,10 @@ input:not([type="checkbox"]):not([type="file"]), textarea, select {
     border-color: $primary;
     box-shadow: 0 0 0 3px rgba($primary, 0.25), 0 10px 10px 0 rgba($primary, 0.1);
   }
+
+  .in-row & {
+    margin-bottom: 0;
+  }
 }
 
 input:not([type="checkbox"]):not([type="file"]), select {

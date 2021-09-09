@@ -1,0 +1,183 @@
+.layout-signup {
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 100vh;
+  position: relative;
+  background-size: cover;
+  background-position: center center;
+  background-image: url(../../img/signup-600.jpg);
+
+  @media screen and (min-width: $medium) {
+    background-image: url(../../img/signup-960.jpg)
+  }
+  @media screen and (min-width: $large) {
+    background-image: url(../../img/signup-1280.jpg)
+  }
+  @media screen and (min-width: $extraLarge) {
+    background-image: url(../../img/signup-1920.jpg)
+  }
+
+  .img-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 5, 5, .45);
+    mix-blend-mode: multiply;
+  }
+
+  .intro {
+    width: 100%;
+    background-color: rgba(0, 233, 215, .5);
+    padding-top: 4rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    display: flex;
+    position: relative;
+
+    @media screen and (min-width: $medium) {
+      width: 40%;
+      padding-top: 6rem;
+      padding-bottom: 6rem;
+      padding-left: 3rem;
+      padding-right: 0;
+    }
+
+    @media screen and (min-width: 1130px) {
+      padding-top: 10rem;
+      padding-bottom: 10rem;
+    }
+  }
+
+  .intro-content {
+    background: #f2f2f2;
+    border-radius: 40px 0px 0 0;
+    width: 100%;
+    margin-left: auto;
+    display: flex;
+    align-content: center;
+    flex-wrap: wrap;
+    position: relative;
+
+    padding-top: 4.5rem;
+    padding-bottom: 3.5rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+
+    @media screen and (min-width: $medium) {
+      max-width: 580px;
+    }
+  }
+
+  h1 {
+    font-size: 4.375rem;
+    font-weight: 400;
+    margin-top: 4rem;
+    margin-bottom: 2.5rem;
+  }
+
+  h2 {
+    font-weight: 300;
+    line-height: 1.35em;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .link {
+    display: inline-block;
+    cursor: pointer;
+    color: $grey;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+    
+    & > svg {
+      display: inline-block;
+      vertical-align: bottom;
+      position: relative;
+      top: -2px;
+      width: 1rem;
+    }
+  }
+
+  .personal {
+    margin-top: 3rem;
+    padding: 1.5rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    box-shadow: -20px -20px 20px #0000000D;
+    background: $white;
+    border-radius: 0 0 20px 0;
+  }
+  .badge {
+    display: block;
+    padding: 1rem 1rem 0 0;
+    & > img {
+      display: block;
+      width: auto;
+      height: 40px;
+    }
+  }
+
+  .content {
+    width: 100%;
+    position: relative;
+    padding-bottom: 4rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    display: flex;
+
+    @media screen and (min-width: $medium) {
+      width: 60%;
+      padding-top: 6rem;
+      padding-bottom: 6rem;
+      padding-right: 3rem;
+      padding-left: 0;
+    }
+
+    @media screen and (min-width: 1130px) {
+      padding-top: 10rem;
+      padding-bottom: 10rem;
+    }
+  }
+
+  .w-100 {
+    display: block;
+    width: 100%;
+  }
+
+  .main {
+    background: $white;
+    width: 100%;
+    max-width: 900px;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+
+  .illustration {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  form {
+    max-width: 600px;
+    margin: 0 auto;
+
+    a {
+      color: $darkGrey;
+    }
+  }
+}

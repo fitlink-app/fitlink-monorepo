@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { UseFormRegisterReturn } from 'react-hook-form'
 import clsx from 'clsx'
+import parse from 'html-react-parser'
 
 export type CheckboxProps = {
   label: string
@@ -48,7 +49,7 @@ export default function Checkbox({
         onChange={() => handleChange()}
         {...register}
       />
-      <label htmlFor={name}>{label}</label>
+      <label htmlFor={name}>{parse(label)}</label>
       {error !== '' && <span>{error}</span>}
     </div>
   )
