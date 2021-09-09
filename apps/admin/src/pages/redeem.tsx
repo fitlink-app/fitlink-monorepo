@@ -7,6 +7,7 @@ import { AuthContext } from '../context/Auth.context'
 import { useMutation } from 'react-query'
 import {
   OrganisationsInvitationsRespond,
+  OrganisationsInvitationsVerify,
   TeamsInvitationsRespond,
   TeamsInvitationsVerify
 } from '@fitlink/api-sdk/types'
@@ -20,6 +21,8 @@ import { LeagueInvitationJWT } from '@fitlink/api/src/models/league-invitation.j
 import { TeamsInvitation } from '@fitlink/api/src/modules/teams-invitations/entities/teams-invitation.entity'
 import { OrganisationsInvitation } from '../../../api/src/modules/organisations-invitations/entities/organisations-invitation.entity'
 import Link from 'next/link'
+import { RespondTeamsInvitationDto } from '../../../api/src/modules/teams-invitations/dto/respond-teams-invitation.dto'
+import { RespondOrganisationsInvitationDto } from '../../../api/src/modules/organisations-invitations/dto/respond-organisations-invitation.dto'
 
 const RedeemPage = () => {
   const token = useRef<
@@ -65,7 +68,7 @@ const RedeemPage = () => {
 
   const teamInvitationRespond: ApiMutationResult<TeamsInvitation> = useMutation(
     'team_invitation_response',
-    (payload) => {
+    (payload: RespondTeamsInvitationDto) => {
       return api.post<TeamsInvitationsRespond>('/teams-invitations/respond', {
         payload
       })
@@ -75,7 +78,7 @@ const RedeemPage = () => {
   const orgInvitation: ApiMutationResult<OrganisationsInvitation> = useMutation(
     'organisation_invitation',
     () => {
-      return api.post<TeamsInvitationsVerify>(
+      return api.post<OrganisationsInvitationsVerify>(
         '/organisations-invitations/verify',
         {
           payload: {
@@ -88,7 +91,7 @@ const RedeemPage = () => {
 
   const orgInvitationRespond: ApiMutationResult<OrganisationsInvitation> = useMutation(
     'organisation_invitation_response',
-    (payload) => {
+    (payload: RespondOrganisationsInvitationDto) => {
       return api.post<OrganisationsInvitationsRespond>(
         '/organisations-invitations/respond',
         {
