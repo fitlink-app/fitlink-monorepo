@@ -4,6 +4,8 @@ import { Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { AuthenticatedUser } from '../../models'
 import { Organisation } from '../organisations/entities/organisation.entity'
+import { Subscription } from '../subscriptions/entities/subscription.entity'
+import { BillingPlanStatus } from '../subscriptions/subscriptions.constants'
 import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.entity'
 import { TeamsInvitationsService } from '../teams-invitations/teams-invitations.service'
 import { UserRolesService } from '../user-roles/user-roles.service'
@@ -29,6 +31,8 @@ export class TeamsService {
     private userRepository: Repository<User>,
     @InjectRepository(TeamsInvitation)
     private teamInvitationRepository: Repository<TeamsInvitation>,
+    @InjectRepository(Subscription)
+    private subscriptionRepository: Repository<Subscription>,
 
     private teamInvitationService: TeamsInvitationsService
   ) {}
@@ -76,10 +80,13 @@ export class TeamsService {
         where: {
           id,
           organisation: { id: organisationId }
-        }
+        },
+        relations: ['organisation', 'organisation.subscriptions']
       })
     }
-    return await this.teamRepository.findOne(id)
+    return await this.teamRepository.findOne(id, {
+      relations: ['organisation', 'organisation.subscriptions']
+    })
   }
 
   async update(
@@ -134,38 +141,164 @@ export class TeamsService {
     }
     return team.users
   }
+
   async deleteUserFromTeam(teamId: string, userId: string) {
-    return await this.userRepository
+    await this.removeFromTeam(teamId, userId)
+  }
+
+  /**
+   * Join a user to a team
+   * without their express consent
+   * (e.g. for automatically generating team participation from signup)
+
+   * @param teamId
+   * @param userId
+   * @returns
+   */
+  async joinTeam(teamId: string, userId: string) {
+    await this.addToTeam(teamId, userId)
+    return true
+  }
+
+  async addToTeam(teamId: string, userId: string) {
+    await this.teamRepository
+      .createQueryBuilder('team')
+      .relation(Team, 'users')
+      .of(teamId)
+      .add(userId)
+
+    // Increment the count
+    await this.teamRepository.increment({ id: teamId }, 'user_count', 1)
+
+    // Setup subscriptions
+    await this.updateTeamUsersSubscription(teamId, userId)
+  }
+
+  async removeFromTeam(teamId: string, userId: string) {
+    await this.userRepository
       .createQueryBuilder('users')
       .relation(User, 'teams')
       .of(userId)
       .remove(teamId)
+
+    // Decrement the count
+    await this.teamRepository.decrement({ id: teamId }, 'user_count', 1)
+
+    // Remove user from a subscription if necessary
+    await this.removeTeamUserSubscription(userId)
   }
 
   /**
-   * Join team from a raw token
+   * Ensure the user joining the team will be set to the default
+   * subscription of the organisation.
+   *
+   * If they're already part of an existing active subscription, this step
+   * is skipped.
+   *
+   * @param token
+   * @param userId
+   * @returns
+   */
+  async updateTeamUsersSubscription(teamId: string, userId: string) {
+    const team = await this.findOne(teamId)
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['subscription', 'teams', 'teams.organisation']
+    })
+
+    // Skip if the user is already on an active subscription
+    // This could even be a subscription on a different organisation
+    // However this implies that a different organisation will be paying for this user.
+    // In future we may need a way to store multiple subscriptions on a single user.
+    if (
+      user.subscription &&
+      user.subscription.billing_plan_status === BillingPlanStatus.Active
+    ) {
+      return true
+    }
+
+    // If the user only belongs to this team, the organisation count should be incremented
+    if (user.teams.length === 1) {
+      await this.organisationRepository.increment(
+        { id: team.organisation.id },
+        'user_count',
+        1
+      )
+    }
+
+    // Or add them to the default subscription
+    const defaultSubscription = team.organisation.subscriptions.filter(
+      (e) => e.default
+    )[0]
+
+    if (defaultSubscription) {
+      user.subscription = defaultSubscription
+      await this.userRepository.save(user)
+      await this.subscriptionRepository.increment(
+        { id: user.subscription.id },
+        'user_count',
+        1
+      )
+      return true
+    }
+
+    return false
+  }
+
+  /**
+   * Remove team member from subscriptions
+   * @param token
+   * @param userId
+   * @returns
+   */
+  async removeTeamUserSubscription(userId: string) {
+    const user = await this.getUserWithTeams(userId)
+
+    // Remove user from subscription if they no longer belong to any teams
+    // within the subscription's organisation
+    const exists = user.teams.filter(
+      (e) => e.organisation.id === user.subscription.organisation.id
+    )
+    if (exists.length === 0) {
+      const subscription = user.subscription
+      if (subscription) {
+        user.subscription = null
+        await this.userRepository.save(user)
+        await this.subscriptionRepository.decrement(
+          { id: subscription.id },
+          'user_count',
+          1
+        )
+        await this.organisationRepository.increment(
+          { id: subscription.organisation.id },
+          'user_count',
+          1
+        )
+      }
+    }
+
+    return true
+  }
+
+  /**
+   * Join team from a token
    *
    * @param invitation
    * @param userId
    * @returns
    */
-  async joinTeam(token: string, authenticated_user: AuthenticatedUser) {
-    const invitation = (await this.teamInvitationService.verifyToken(
-      token
-    )) as TeamsInvitation
+  async joinTeamFromToken(token: string, userId: string) {
+    const invitation = await this.teamInvitationService.verifyToken(token)
 
-    const user = await this.userRepository.findOne(authenticated_user.id)
+    if (typeof invitation === 'string') {
+      return invitation
+    }
 
-    await this.teamRepository
-      .createQueryBuilder('team')
-      .relation(Team, 'users')
-      .of(invitation.team.id)
-      .add(user)
+    const user = await this.userRepository.findOne(userId)
+
+    await this.addToTeam(invitation.team.id, userId)
 
     invitation.resolved_user = user
-    const savedInvitation = await this.teamInvitationRepository.save(invitation)
-
-    return savedInvitation
+    return this.teamInvitationRepository.save(invitation)
   }
 
   /**
@@ -184,10 +317,10 @@ export class TeamsService {
       .of(invitation.team.id)
       .add(user)
 
-    invitation.resolved_user = user
-    const savedInvitation = await this.teamInvitationRepository.save(invitation)
+    await this.addToTeam(invitation.team.id, userId)
 
-    return savedInvitation
+    invitation.resolved_user = user
+    return this.teamInvitationRepository.save(invitation)
   }
 
   /**
@@ -236,6 +369,18 @@ export class TeamsService {
     } else {
       return this.teamInvitationService.decline(invitation)
     }
+  }
+
+  async getUserWithTeams(userId: string) {
+    const user = await this.userRepository.findOne(userId, {
+      relations: [
+        'teams',
+        'teams.organisation',
+        'teams.organisation.subscriptions'
+      ]
+    })
+
+    return user
   }
 
   async queryUserTeamStats(

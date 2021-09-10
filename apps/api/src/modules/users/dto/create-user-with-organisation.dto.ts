@@ -4,7 +4,8 @@ import {
   IsEnum,
   IsNotEmpty,
   IsString,
-  MinLength
+  MinLength,
+  IsOptional
 } from 'class-validator'
 import { OrganisationType } from '../../organisations/organisations.constants'
 
@@ -37,6 +38,7 @@ export class CreateUserWithOrganisationDto {
 
   @ApiProperty()
   @IsNotEmpty()
+  @IsOptional()
   type_other: string
 
   @ApiProperty()

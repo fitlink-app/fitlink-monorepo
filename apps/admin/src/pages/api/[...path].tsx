@@ -37,7 +37,9 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
     const isLogin =
       pathname === '/api/v1/auth/login' || pathname === '/api/v1/auth/switch'
     const isLogout = pathname === '/api/v1/auth/logout'
-    const isSignup = pathname === '/api/v1/auth/signup'
+    const isSignup =
+      pathname === '/api/v1/auth/signup' ||
+      pathname === '/api/v1/auth/organisation'
 
     // Get the `auth-token` cookie:
     const cookies = new Cookies(req, res)
@@ -115,10 +117,10 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
             // Our response to the client won't contain
             // the actual authToken. This way the auth token
             // never gets exposed to the client.
-            res.status(200).json({ loggedIn: true })
+            res.status(proxyRes.statusCode).json({ loggedIn: true })
             resolve()
           } else {
-            res.status(json.statusCode).json(json)
+            res.status(proxyRes.statusCode).json(json)
           }
         } catch (err) {
           reject(err)

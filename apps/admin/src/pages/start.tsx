@@ -58,7 +58,7 @@ export default function StartPage() {
   useEffect(() => {
     if (rolesQuery.isFetched) {
       setRefresh(Date.now())
-      setRoles(rolesQuery.data)
+      setRoles(rolesQuery.data || [])
     }
   }, [rolesQuery.isFetched])
 

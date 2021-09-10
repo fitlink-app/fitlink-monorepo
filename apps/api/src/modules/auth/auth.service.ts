@@ -11,6 +11,7 @@ import { plainToClass } from 'class-transformer'
 import { Connection, Repository } from 'typeorm'
 import { AuthenticatedUser, JWTRoles } from '../../models'
 import { CreateUserDto } from '../users/dto/create-user.dto'
+import { CreateUserWithOrganisationDto } from '../users/dto/create-user-with-organisation.dto'
 import { User } from '../users/entities/user.entity'
 import { UsersService } from '../users/users.service'
 import { AuthResultDto } from './dto/auth-result'
@@ -26,7 +27,6 @@ import { v4 as uuid } from 'uuid'
 import { AuthSwitchDto } from './dto/auth-switch'
 import { Roles } from '../user-roles/user-roles.constants'
 import { Team } from '../teams/entities/team.entity'
-import { CreateUserWithOrganisationDto } from 'apps/api-sdk/types'
 import { OrganisationsService } from '../organisations/organisations.service'
 
 type PasswordResetToken = {
@@ -197,7 +197,9 @@ export class AuthService {
       await this.usersService.sendVerificationEmail(user.id, email)
 
       // Create the organisation
-      const { organisation } = await this.organisationsService.create(
+      // Also creates the default subscription and team
+      // Also assigns the owner as an admin
+      await this.organisationsService.signup(
         {
           name: company,
           type,
@@ -206,8 +208,6 @@ export class AuthService {
         },
         user.id
       )
-
-      await this.organisationsService.assignAdmin(organisation.id, user.id)
 
       return {
         auth: await this.login(user),

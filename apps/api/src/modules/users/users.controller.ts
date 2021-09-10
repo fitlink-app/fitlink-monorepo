@@ -280,6 +280,11 @@ export class UsersController {
       }
       return this.userRolesService.deleteSuperAdminRole(userId)
     } else {
+      if (organisationId && user.id === userId) {
+        throw new BadRequestException(
+          'You may not remove yourself as organisation admin.'
+        )
+      }
       return this.userRolesService.assignAdminRole(
         userId,
         {

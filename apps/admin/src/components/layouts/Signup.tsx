@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import Head from 'next/head'
 import { motion } from 'framer-motion'
+import { Toaster } from 'react-hot-toast'
 
 type LoginProps = {
   children: React.ReactNode
@@ -62,9 +63,8 @@ export default function Login({
           href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap"
         />
       </Head>
-      <div className="layout-signup">
-        {children}
-      </div>
+      <Toaster position="top-right" />
+      <div className="layout-signup">{children}</div>
     </>
   )
 }

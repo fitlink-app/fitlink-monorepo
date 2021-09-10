@@ -50,6 +50,7 @@ import { UpdateRankTiers1629463294813 } from '../database/migrations/16294632948
 import { UpdateUsersTiers1630668000965 } from '../database/migrations/1630668000965-UpdateUsersTiers'
 import { InvitationsAdmin1631085397864 } from '../database/migrations/1631085397864-InvitationsAdmin'
 import { InvitationsOwners1631087970817 } from '../database/migrations/1631087970817-InvitationsOwners'
+import { AddUserCounts1631279600063 } from '../database/migrations/1631279600063-AddUserCounts'
 
 export default [
   InitializeSchema1614887523112,
@@ -98,5 +99,6 @@ export default [
   UpdateRankTiers1629463294813,
   UpdateUsersTiers1630668000965,
   InvitationsAdmin1631085397864,
-  InvitationsOwners1631087970817
+  InvitationsOwners1631087970817,
+  AddUserCounts1631279600063
 ]

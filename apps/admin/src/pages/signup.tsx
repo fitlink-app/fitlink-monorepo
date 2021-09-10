@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react'
 import Link from 'next/link'
 import Input from '../components/elements/Input'
+import Feedback from '../components/elements/Feedback'
 import Checkbox from '../components/elements/Checkbox'
 import Button from '../components/elements/Button'
 import Logo from '../components/elements/Logo'
@@ -12,10 +13,14 @@ import { OrganisationType } from '@fitlink/api/src/modules/organisations/organis
 import Select from '../components/elements/Select'
 import useApiErrors from '../hooks/useApiErrors'
 import { ApiMutationResult } from '../../../common/react-query/types'
-import { Organisation } from '../../../api/src/modules/organisations/entities/organisation.entity'
 import { useMutation } from 'react-query'
-import { AuthSignupDto, CreateUserDto } from '../../../api-sdk/types'
+import {
+  AuthSignupDto,
+  CreateUserWithOrganisationDto
+} from '../../../api-sdk/types'
 import { AuthContext } from '../context/Auth.context'
+import toast from 'react-hot-toast'
+import { useRouter } from 'next/router'
 
 const organisationTypes = Object.keys(OrganisationType).map((key) => {
   return {
@@ -26,19 +31,19 @@ const organisationTypes = Object.keys(OrganisationType).map((key) => {
 
 const SignupPage = () => {
   const { api } = useContext(AuthContext)
+  const router = useRouter()
 
   const words = ['Business', 'Building', 'Team', 'School']
 
   const { handleSubmit, register, control, watch } = useForm({
     defaultValues: {
-      first_name: undefined,
-      last_name: undefined,
+      name: undefined,
       company: undefined,
       email: undefined,
       password: undefined,
       agree_to_terms: undefined,
       subscribe: undefined,
-      type: undefined,
+      type: organisationTypes[0].value,
       type_other: undefined
     }
   })
@@ -46,17 +51,39 @@ const SignupPage = () => {
   const other = watch('type')
 
   const create: ApiMutationResult<AuthSignupDto> = useMutation(
-    (payload: CreateUserDto) => api.signUp(payload)
+    (payload: CreateUserWithOrganisationDto) =>
+      api.signUpWithOrganisation(payload)
   )
 
-  const { errors, isError, errorMessage, clearErrors } = useApiErrors(
-    create.isError,
-    create.error
-  )
+  const {
+    errors,
+    isError,
+    errorMessage,
+    clearErrors,
+    setErrors
+  } = useApiErrors(create.isError, create.error)
 
   async function submit(payload) {
-    console.log(payload)
-    console.log(new Date().toISOString())
+    payload.date = new Date().toISOString()
+
+    if (!payload.agree_to_terms) {
+      setErrors({
+        agree_to_terms: 'You must agree to our terms to continue'
+      })
+      return
+    }
+
+    clearErrors()
+
+    try {
+      await toast.promise(create.mutateAsync(payload), {
+        error: <b>Error</b>,
+        loading: <b>Signing you up...</b>,
+        success: <b>Account created!</b>
+      })
+
+      router.push('/start')
+    } catch (e) {}
   }
 
   return (
@@ -148,22 +175,17 @@ const SignupPage = () => {
             </p>
           </div>
           <div className="form w-100">
+            {errorMessage && <Feedback message={errorMessage} type="error" />}
             <form onSubmit={handleSubmit(submit)}>
               <div className="row">
-                <div className="col-12 col-lg-6">
+                <div className="col-12 col-lg-12">
                   <Input
-                    label="First name"
-                    name="first_name"
+                    label="Full name"
+                    name="name"
                     className="in-row"
-                    register={register('first_name')}
-                  />
-                </div>
-                <div className="col-12 col-lg-6">
-                  <Input
-                    label="Last name"
-                    name="last_name"
-                    className="in-row"
-                    register={register('last_name')}
+                    placeholder="Your name and surname"
+                    register={register('name')}
+                    error={errors.name}
                   />
                 </div>
               </div>
@@ -173,6 +195,7 @@ const SignupPage = () => {
                     label="Company / Organisation name"
                     name="company"
                     register={register('company')}
+                    error={errors.company}
                   />
                 </div>
                 <div className="col-12 col-lg-6">
@@ -213,18 +236,21 @@ const SignupPage = () => {
                 type="email"
                 name="email"
                 register={register('email')}
+                error={errors.email}
               />
               <Input
                 label="Password"
                 type="password"
                 name="password"
                 register={register('password')}
+                error={errors.password}
               />
               <Checkbox
                 register={register('agree_to_terms')}
                 name="terms"
                 showSwitch={false}
                 label="I agree to the <a href='https://fitlinkapp.com/terms-and-conditions' target='_blank' rel='noopener noreferrer'>Fitlink terms and conditions</a>"
+                error={errors.agree_to_terms}
               />
               <Checkbox
                 register={register('subscribe')}
@@ -233,7 +259,11 @@ const SignupPage = () => {
                 label="Subscribe to our newsletter for useful tips about promoting wellness"
               />
               <div className="text-right">
-                <Button label="Start trial" className="pointer" />
+                <Button
+                  label="Start trial"
+                  className="pointer"
+                  disabled={create.isLoading}
+                />
               </div>
             </form>
           </div>

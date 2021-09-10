@@ -23,13 +23,13 @@ import {
   ValidationResponse
 } from '../../decorators/swagger.decorator'
 import { CreateUserDto } from '../users/dto/create-user.dto'
+import { CreateUserWithOrganisationDto } from '../users/dto/create-user-with-organisation.dto'
 import {
   AuthResetPasswordDto,
   AuthRequestResetPasswordDto
 } from './dto/auth-reset-password'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { AuthenticatedUser } from '../../models'
-import { CreateUserWithOrganisationDto } from 'apps/api-sdk/types'
 
 @Controller()
 @ApiBaseResponses()

@@ -365,4 +365,9 @@ export type RolePrimary = {
   superAdmin?: boolean
 }
 
-export type FocusRole = 'app' | 'organisation' | 'team' | 'subscription'
+export type FocusRole =
+  | 'app'
+  | 'organisation'
+  | 'team'
+  | 'subscription'
+  | 'user'

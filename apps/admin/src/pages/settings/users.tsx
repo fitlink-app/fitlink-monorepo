@@ -48,7 +48,6 @@ export default function components() {
       }
     }
   }) => {
-    console.log(avatar)
     let [firstName, lastName] = (name || '?').split(' ')
     lastName = lastName || ' '
     return (

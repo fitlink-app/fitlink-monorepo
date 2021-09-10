@@ -17,6 +17,8 @@ import { User, UserPublic } from '../users/entities/user.entity'
 import { CommonService } from '../common/services/common.service'
 import { UserRolesService } from '../user-roles/user-roles.service'
 import { Roles } from '../user-roles/user-roles.constants'
+import { SubscriptionsService } from '../subscriptions/subscriptions.service'
+import { TeamsService } from '../teams/teams.service'
 
 @Injectable()
 export class OrganisationsService {
@@ -26,13 +28,16 @@ export class OrganisationsService {
     private readonly invitationsService: OrganisationsInvitationsService,
     private readonly commonService: CommonService,
     private readonly userRolesService: UserRolesService,
+    private readonly subscriptionsService: SubscriptionsService,
+    private readonly teamsService: TeamsService,
     @InjectRepository(User)
     private userRepository: Repository<User>
   ) {}
 
   async create(
     createOrganisationDto: CreateOrganisationDto,
-    invitationOwnerId: string
+    invitationOwnerId: string,
+    createDefaults = false
   ) {
     const { email, invitee, imageId, ...rest } = createOrganisationDto
 
@@ -70,6 +75,34 @@ export class OrganisationsService {
       invitation,
       inviteLink
     }
+  }
+
+  async signup(createOrganisationDto: CreateOrganisationDto, ownerId: string) {
+    const { organisation } = await this.create(createOrganisationDto, ownerId)
+
+    // Assign the user as admin
+    await this.assignAdmin(organisation.id, ownerId)
+
+    // Create the default subscription
+    await this.subscriptionsService.createDefault(
+      {
+        billing_entity: organisation.name
+      },
+      organisation.id
+    )
+
+    // Create the default team
+    const team = await this.teamsService.create(
+      {
+        name: organisation.name
+      },
+      organisation.id
+    )
+
+    // The owner should be a member of the team
+    await this.teamsService.joinTeam(team.id, ownerId)
+
+    return organisation
   }
 
   async findAll(

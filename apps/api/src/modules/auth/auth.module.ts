@@ -24,7 +24,7 @@ import { OrganisationsModule } from '../organisations/organisations.module'
     UsersModule,
     PassportModule,
     CommonModule,
-    OrganisationsModule,
+    forwardRef(() => OrganisationsModule),
     forwardRef(() => UserRolesModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],

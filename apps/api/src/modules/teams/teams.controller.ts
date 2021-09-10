@@ -140,8 +140,16 @@ export class TeamsController {
   // }
 
   @Post('/teams/join')
-  userJoinTeam(@Body('token') token: string, @User() user: AuthenticatedUser) {
-    return this.teamsService.joinTeam(token, user)
+  async userJoinTeam(
+    @Body('token') token: string,
+    @User() user: AuthenticatedUser
+  ) {
+    const join = await this.teamsService.joinTeamFromToken(token, user.id)
+    if (typeof join === 'string') {
+      throw new BadRequestException(join)
+    }
+
+    return join
   }
 
   @Iam(Roles.SuperAdmin)
