@@ -14,8 +14,6 @@ import { NextApiRequest, NextApiResponse } from 'next'
 // API_BASE_URL should be configured in Vercel
 const API_URL = process.env.API_BASE_URL || 'http://localhost:3000'
 
-console.log(`API will connect at ${API_URL}`)
-
 const proxy = httpProxy.createProxyServer()
 // You can export a config variable from any API route in Next.js.
 // We'll use this to disable the bodyParser, otherwise Next.js
@@ -39,6 +37,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
     const isLogin =
       pathname === '/api/v1/auth/login' || pathname === '/api/v1/auth/switch'
     const isLogout = pathname === '/api/v1/auth/logout'
+    const isSignup = pathname === '/api/v1/auth/signup'
 
     // Get the `auth-token` cookie:
     const cookies = new Cookies(req, res)
@@ -58,8 +57,8 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
     // intercept the API's response. It contains the
     // auth token that we want to strip out and set
     // as an HTTP-only cookie.interceptLoginResponse
-    if (isLogin) {
-      proxy.once('proxyRes', interceptLoginResponse)
+    if (isLogin || isSignup) {
+      proxy.once('proxyRes', interceptLoginOrSignupResponse)
     }
 
     if (isLogout) {
@@ -80,12 +79,12 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
       // we need to tell http-proxy that we'll handle
       // the client-response ourselves (since we don't
       // want to pass along the auth token).
-      selfHandleResponse: isLogin || isLogout,
+      selfHandleResponse: isLogin || isLogout || isSignup,
       headers: {
         Authorization: `Bearer ${authToken}`
       }
     })
-    function interceptLoginResponse(proxyRes, req, res) {
+    function interceptLoginOrSignupResponse(proxyRes, req, res) {
       // Read the API's response body from
       // the stream:
       let apiResponseBody = ''
@@ -99,10 +98,14 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
         try {
           // Extract the authToken from API's response:
           const json = JSON.parse(apiResponseBody)
-          const { access_token } = json
+          let { access_token, auth } = json
           // Set the authToken as an HTTP-only cookie.
           // We'll also set the SameSite attribute to
           // 'lax' for some additional CSRF protection.
+          if (!access_token && auth) {
+            access_token = auth.access_token
+          }
+
           if (access_token) {
             const cookies = new Cookies(req, res)
             cookies.set('auth-token', access_token, {

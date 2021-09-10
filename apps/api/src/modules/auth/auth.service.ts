@@ -26,6 +26,8 @@ import { v4 as uuid } from 'uuid'
 import { AuthSwitchDto } from './dto/auth-switch'
 import { Roles } from '../user-roles/user-roles.constants'
 import { Team } from '../teams/entities/team.entity'
+import { CreateUserWithOrganisationDto } from 'apps/api-sdk/types'
+import { OrganisationsService } from '../organisations/organisations.service'
 
 type PasswordResetToken = {
   sub: string
@@ -34,7 +36,8 @@ type PasswordResetToken = {
 
 export enum AuthServiceError {
   Provider = 'The provider is not valid',
-  Email = 'An email is required'
+  Email = 'An email is required',
+  Exists = 'A user with this email already exists'
 }
 
 @Injectable()
@@ -44,6 +47,7 @@ export class AuthService {
     private jwtService: JwtService,
     private emailService: EmailService,
     private configService: ConfigService,
+    private organisationsService: OrganisationsService,
 
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: Repository<RefreshToken>,
@@ -137,20 +141,80 @@ export class AuthService {
    * @param user
    * @returns object containing 3 tokens and user object
    */
-  async signup(createUserDto: CreateUserDto) {
-    const { email, name, password } = createUserDto
-    const user = await this.usersService.create({
-      name,
-      email,
-      password: await this.usersService.hashPassword(password)
-    })
+  async signup({ email, name, password }: CreateUserDto) {
+    const existing = await this.usersService.findByEmail(email)
 
-    // Send a verification email
-    await this.usersService.sendVerificationEmail(user.id, email)
+    if (!existing) {
+      const user = await this.usersService.create({
+        name,
+        email,
+        password: await this.usersService.hashPassword(password)
+      })
 
-    return {
-      auth: await this.login(user),
-      me: plainToClass(User, user)
+      // Send a verification email
+      await this.usersService.sendVerificationEmail(user.id, email)
+
+      return {
+        auth: await this.login(user),
+        me: plainToClass(User, user)
+      }
+    } else {
+      return AuthServiceError.Exists
+    }
+  }
+
+  /**
+   * Signs up a user and creates organisation, and immediately
+   * creates tokens
+   *
+   * TODO: This should fail gracefully if a user already exists
+   * (it will fail already with a 500 error due to unique email column)
+   *
+   * @param user
+   * @returns object containing 3 tokens and user object
+   */
+  async signupWithOrganisation({
+    email,
+    name,
+    password,
+    agree_to_terms,
+    subscribe,
+    company,
+    type,
+    type_other,
+    date
+  }: CreateUserWithOrganisationDto) {
+    const existing = await this.usersService.findByEmail(email)
+
+    if (!existing) {
+      const user = await this.usersService.create({
+        name,
+        email,
+        password: await this.usersService.hashPassword(password)
+      })
+
+      // Send a verification email
+      await this.usersService.sendVerificationEmail(user.id, email)
+
+      // Create the organisation
+      const { organisation } = await this.organisationsService.create(
+        {
+          name: company,
+          type,
+          type_other,
+          timezone: ''
+        },
+        user.id
+      )
+
+      await this.organisationsService.assignAdmin(organisation.id, user.id)
+
+      return {
+        auth: await this.login(user),
+        me: plainToClass(User, user)
+      }
+    } else {
+      return AuthServiceError.Exists
     }
   }
 

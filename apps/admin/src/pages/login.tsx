@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import Link from 'next/link'
 import Input from '../components/elements/Input'
 import Logo from '../components/elements/Logo'
@@ -14,47 +15,82 @@ import {
   AuthLoginDto,
   AuthResultDto,
   AuthProviderType,
-  AuthSignupDto
+  AuthSignupDto,
+  CreateUserDto
 } from '@fitlink/api-sdk/types'
-import { getErrorMessage } from '@fitlink/api-sdk'
 import { ApiMutationResult } from '@fitlink/common/react-query/types'
 import { useRouter } from 'next/router'
+import useApiErrors from '../hooks/useApiErrors'
+import useRedeemInvitation from '../hooks/api/useRedeemInvitation'
 
 const LoginPage = () => {
-  const [loading, setLoading] = useState(false)
-  const [errorMessage, setError] = useState('')
   const router = useRouter()
 
-  const { user, login, primary } = useContext(AuthContext)
+  const { user, login, signup, primary } = useContext(AuthContext)
+  const [redeemToken, setRedeemToken] = useState('')
 
-  const {
-    mutate,
-    isError,
-    isSuccess,
-    error,
-    data
-  }: ApiMutationResult<AuthResultDto> = useMutation((emailPass: AuthLoginDto) =>
-    login(emailPass)
+  const { handleSubmit, register, control, watch } = useForm({
+    defaultValues: {
+      name: undefined,
+      password: undefined,
+      email: undefined
+    }
+  })
+
+  const loginMutation: ApiMutationResult<AuthResultDto> = useMutation(
+    (emailPass: AuthLoginDto) => login(emailPass)
   )
 
-  const handleLogin = (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+  const signupMutation: ApiMutationResult<AuthResultDto> = useMutation(
+    (emailPass: AuthLoginDto) => signup(emailPass)
+  )
 
-    mutate({
-      email: e.target.elements.email.value,
-      password: e.target.elements.password.defaultValue
+  const {
+    errors,
+    isError,
+    errorMessage,
+    clearErrors
+  } = useApiErrors(loginMutation.isError || signupMutation.isError, {
+    ...loginMutation.error,
+    ...signupMutation.error
+  })
+
+  const loading = loginMutation.isLoading || signupMutation.isLoading
+
+  async function handleLogin(payload: AuthLoginDto) {
+    loginMutation.mutate({
+      email: payload.email,
+      password: payload.password
     })
   }
 
-  useEffect(() => {
-    if (error) {
-      setLoading(false)
-      setError(getErrorMessage(error))
-    }
+  async function handleSignup(payload: CreateUserDto) {
+    signupMutation.mutate({
+      name: payload.name,
+      email: payload.email,
+      password: payload.password
+    })
+  }
 
-    if (isSuccess) {
+  async function submit(payload) {
+    if (router.query.signup) {
+      handleSignup(payload)
+    } else {
+      handleLogin(payload)
+    }
+  }
+
+  function createAccount(e) {
+    e.preventDefault()
+    if (router.asPath) {
+      router.push('/login?signup=true', router.asPath)
+    }
+  }
+
+  useEffect(() => {
+    const success = signupMutation.isSuccess || loginMutation.isSuccess
+
+    if (success) {
       /**
        * Redeem URLs are masked, and should be loaded
        * if they're available. This is typically used
@@ -66,17 +102,61 @@ const LoginPage = () => {
         router.push('/start')
       }
     }
-  }, [error, isSuccess])
+  }, [loginMutation.isSuccess, signupMutation.isSuccess])
+
+  useEffect(() => {
+    if (router.asPath) {
+      const params = new URLSearchParams(router.asPath)
+      if (params.get('/redeem?token')) {
+        setRedeemToken(params.get('/redeem?token'))
+      }
+    }
+  }, [router.asPath])
+
+  const { invitationText, invitationTarget } = useRedeemInvitation(redeemToken)
 
   return (
     <Login title="Login">
       <div className="text-center">
         <Logo height={32} />
-        <h1 className="h6 mt-2 color-grey">Manage your Fitlink team</h1>
+        <h1 className="h6 mt-2 color-grey">
+          {invitationText || 'Manage your Fitlink team'}
+        </h1>
       </div>
-      <form onSubmit={handleLogin} className="mt-2">
-        <Input label="E-mail address" name="email" type="email" inline={true} />
-        <Input label="Password" name="password" type="password" inline={true} />
+      <form onSubmit={handleSubmit(submit)} className="mt-2">
+        {invitationTarget && (
+          <Input
+            label="Organisation"
+            name="organisation"
+            readOnly
+            inline={true}
+            value={invitationTarget}
+          />
+        )}
+
+        {router.query.signup && (
+          <Input
+            label="Name"
+            name="name"
+            inline={true}
+            register={register('name')}
+          />
+        )}
+
+        <Input
+          label="E-mail address"
+          name="email"
+          type="email"
+          inline={true}
+          register={register('email')}
+        />
+        <Input
+          label="Password"
+          name="password"
+          type="password"
+          inline={true}
+          register={register('password')}
+        />
 
         {errorMessage !== '' && (
           <Feedback
@@ -87,16 +167,25 @@ const LoginPage = () => {
         )}
         <div className="row ai-c mt-2">
           <div className="col">
-            <Link href="/demo/forgot-password">
-              <a className="small-link inline-block">
-                Forgot password
-                <IconArrowRight />
-              </a>
-            </Link>
+            {!router.query.signup && (
+              <Link href="/forgot-password">
+                <a className="small-link inline-block">
+                  Forgot password
+                  <IconArrowRight />
+                </a>
+              </Link>
+            )}
+            {router.query.signup && (
+              <Link href="/login">
+                <a className="small-link inline-block">
+                  I already have an account <IconArrowRight />
+                </a>
+              </Link>
+            )}
           </div>
           <div className="col text-right">
             <button className="button" disabled={loading}>
-              Login with e-mail
+              {router.query.signup ? 'Signup' : 'Login'} with e-mail
             </button>
           </div>
         </div>
@@ -104,14 +193,43 @@ const LoginPage = () => {
 
       <div className="text-center">
         <div className="or">Or</div>
-        <AppleLogin />
-        <GoogleLogin />
+        <div className="row">
+          <div className="col">
+            <AppleLogin signup={!!router.query.signup} />
+          </div>
+          <div className="col">
+            <GoogleLogin signup={!!router.query.signup} />
+          </div>
+        </div>
+
+        {!router.query.signup && (
+          <>
+            <div className="or">Or</div>
+            <div className="row ai-c mt-2">
+              <div className="col text-left">
+                <a
+                  className="small-link inline-block pointer"
+                  onClick={createAccount}>
+                  Create a personal account
+                  <IconArrowRight />
+                </a>
+              </div>
+              <div className="col text-right">
+                <Link href="/signup">
+                  <button className="button alt" disabled={loading}>
+                    Start a free trial
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </Login>
   )
 }
 
-function GoogleLogin() {
+function GoogleLogin({ signup = false }) {
   const { connect } = useContext(AuthContext)
   const {
     mutate,
@@ -170,14 +288,14 @@ function GoogleLogin() {
       ) : (
         <button className="button alt block" onClick={signIn}>
           <IconGoogle className="mr-1" />
-          Login with Google
+          {signup ? 'Signup' : 'Login'} with Google
         </button>
       )}
     </>
   )
 }
 
-function AppleLogin() {
+function AppleLogin({ signup = false }) {
   const { connect } = useContext(AuthContext)
   const {
     mutate,
@@ -234,7 +352,7 @@ function AppleLogin() {
       ) : (
         <button className="button alt block mb-1" onClick={signIn}>
           <IconApple className="mr-1" />
-          Login with Apple
+          {signup ? 'Signup' : 'Login'} with Apple
         </button>
       )}
     </>

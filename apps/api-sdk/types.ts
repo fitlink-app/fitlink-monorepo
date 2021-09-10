@@ -24,6 +24,7 @@ import {
 } from '@fitlink/api/src/modules/auth/dto/auth-login'
 import { AuthSwitchDto } from '@fitlink/api/src/modules/auth/dto/auth-switch'
 import { CreateUserDto } from '@fitlink/api/src/modules/users/dto/create-user.dto'
+import { CreateUserWithOrganisationDto } from '@fitlink/api/src/modules/users/dto/create-user-with-organisation.dto'
 import {
   AuthResultDto,
   AuthLogoutDto,
@@ -55,6 +56,7 @@ export type {
   AuthConnectDto,
   AuthRequestResetPasswordDto,
   CreateUserDto,
+  CreateUserWithOrganisationDto,
   UpdateUserDto,
   UpdateUserEmailDto,
   UpdateUserPasswordDto,
@@ -80,6 +82,7 @@ export type AuthRefresh = '/auth/refresh'
 export type AuthSignUp = '/auth/signup'
 export type AuthConnect = '/auth/connect'
 export type AuthSwitch = '/auth/switch'
+export type AuthSignUpOrganisation = '/auth/organisation'
 export type AuthRequestResetPassword = '/auth/request-password-reset'
 export type TeamsInvitationsVerify = '/teams-invitations/verify'
 export type TeamsInvitationsRespond = '/teams-invitations/respond'
@@ -90,9 +93,10 @@ export type CreatableResource =
   | AuthLogin
   | AuthLogout
   | AuthRefresh
-  | AuthSignUp
   | AuthConnect
   | AuthSwitch
+  | AuthSignUp
+  | AuthSignUpOrganisation
   | AuthRequestResetPassword
   | TeamsInvitationsVerify
   | TeamsInvitationsRespond
@@ -233,6 +237,8 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<CreateLeagueDto>
   : T extends AuthSignUp
   ? Payload<CreateUserDto>
+  : T extends AuthSignUpOrganisation
+  ? Payload<CreateUserWithOrganisationDto>
   : T extends UserRole
   ? Payload<CreateAdminDto>
   : T extends AuthLogin
@@ -260,6 +266,8 @@ export type CreateResourceParams<T> = T extends Organisation
 export type UploadResourceParams = FilePayload
 
 export type CreatableResourceResponse<T> = T extends AuthSignUp
+  ? CreateUserResult
+  : T extends AuthSignUpOrganisation
   ? CreateUserResult
   : T extends AuthLogin
   ? AuthResultDto

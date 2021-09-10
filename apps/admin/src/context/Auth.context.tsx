@@ -6,7 +6,9 @@ import {
   AuthResultDto,
   AuthSignupDto,
   AuthProviderType,
-  AuthSwitchDto
+  AuthSwitchDto,
+  AuthLoginDto,
+  CreateUserDto
 } from '@fitlink/api-sdk/types'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 import { Roles } from '@fitlink/api/src/modules/user-roles/user-roles.constants'
@@ -23,16 +25,13 @@ const axios = Axios.create({
 
 export const api = makeApi(axios)
 
+const statelessUrls = ['/signup', '/login']
+
 type Permissions = {
   superAdmin: boolean
   organisations: Partial<Organisation>[]
   subscriptions: Partial<Subscription>[]
   teams: Partial<Team>[]
-}
-
-type Credentials = {
-  email: string
-  password: string
 }
 
 type ConnectProvider = {
@@ -51,7 +50,12 @@ export type RolePrimary = {
   superAdmin?: boolean
 }
 
-export type FocusRole = 'app' | 'organisation' | 'team' | 'subscription'
+export type FocusRole =
+  | 'app'
+  | 'organisation'
+  | 'team'
+  | 'subscription'
+  | 'user'
 
 export type AuthContext = {
   user?: User
@@ -63,7 +67,8 @@ export type AuthContext = {
   focusRole: FocusRole
   fetchKey: string
   ready?: boolean
-  login: (credentials: Credentials) => Promise<AuthResultDto>
+  signup: (credentials: CreateUserDto) => Promise<AuthSignupDto>
+  login: (credentials: AuthLoginDto) => Promise<AuthResultDto>
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
   logout: () => Promise<void>
   switchRole: (params: AuthSwitchDto) => Promise<AuthResultDto>
@@ -116,10 +121,12 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
    */
   useEffect(() => {
     if (!readyToResume && router.isReady) {
-      if (router.pathname !== '/login') {
-        resumeStoredState()
-      } else {
+      // On stateless urls (.e.g login and signup)
+      // the stored state can be cleared.
+      if (statelessUrls.includes(router.pathname)) {
         clearStoredState()
+      } else {
+        resumeStoredState()
       }
     }
   }, [router.isReady, router.pathname])
@@ -204,7 +211,21 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       password
     })
 
-    // storeTokens(api.getTokens())
+    me.refetch()
+    roles.refetch()
+
+    return result
+  }
+
+  async function signup({ email, password, name }) {
+    setRoleTree([])
+    setChildRole(null)
+
+    const result = await api.signUp({
+      name,
+      email,
+      password
+    })
 
     me.refetch()
     roles.refetch()
@@ -591,6 +612,8 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     if (primary.organisation) {
       return 'organisation'
     }
+
+    return 'user'
   }
 
   return (
@@ -622,6 +645,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
           state.primary.subscription,
           state.primary.superAdmin
         ].join('_'),
+        signup,
         login,
         logout,
         connect,

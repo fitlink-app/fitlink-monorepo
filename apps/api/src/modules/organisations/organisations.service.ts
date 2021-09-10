@@ -210,4 +210,15 @@ export class OrganisationsService {
       return this.invitationsService.decline(invitation)
     }
   }
+
+  /**
+   * Assign admin role to organisation
+   */
+  async assignAdmin(organisationId: string, userId: string) {
+    return this.userRolesService.assignAdminRole(
+      userId,
+      { organisationId },
+      false
+    )
+  }
 }

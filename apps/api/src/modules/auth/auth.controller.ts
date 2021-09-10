@@ -29,6 +29,7 @@ import {
 } from './dto/auth-reset-password'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { AuthenticatedUser } from '../../models'
+import { CreateUserWithOrganisationDto } from 'apps/api-sdk/types'
 
 @Controller()
 @ApiBaseResponses()
@@ -66,7 +67,30 @@ export class AuthController {
   @ValidationResponse()
   @ApiResponse({ type: AuthSignupDto, status: 200 })
   async signup(@Body() createUserDto: CreateUserDto) {
-    return this.authService.signup(createUserDto)
+    const result = await this.authService.signup(createUserDto)
+
+    if (typeof result === 'string') {
+      throw new BadRequestException(result)
+    }
+
+    return result
+  }
+
+  @ApiTags('auth')
+  @Post('auth/organisation')
+  @Public()
+  @ValidationResponse()
+  @ApiResponse({ type: AuthSignupDto, status: 200 })
+  async signupWithOrganisation(
+    @Body() createUserDto: CreateUserWithOrganisationDto
+  ) {
+    const result = await this.authService.signupWithOrganisation(createUserDto)
+
+    if (typeof result === 'string') {
+      throw new BadRequestException(result)
+    }
+
+    return result
   }
 
   @ApiTags('auth')

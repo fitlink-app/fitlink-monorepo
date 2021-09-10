@@ -17,6 +17,7 @@ export type TableProps = {
     pagination: TablePagination
     setPagination: (pagination: Partial<TablePagination>) => void
   }
+  nullMessage?: string
 }
 
 export type TablePagination = {
@@ -33,7 +34,8 @@ export function Table({
   loading,
   fetched,
   hidePagination,
-  pagination: { pagination, setPagination }
+  pagination: { pagination, setPagination },
+  nullMessage = 'No data available.'
 }: TableProps) {
   const { pageTotal, limit, total } = pagination
   const offset = pagination.page * limit
@@ -101,7 +103,7 @@ export function Table({
               <td colSpan={10000}>
                 <div className="flex row ai-c ji-c p-2">
                   <div className="col-4 offset-4 h-7">
-                    {fetched && <Feedback message="No data available." />}
+                    {fetched && <Feedback message={nullMessage} />}
                   </div>
                 </div>
               </td>
