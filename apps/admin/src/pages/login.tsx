@@ -41,19 +41,17 @@ const LoginPage = () => {
     (emailPass: AuthLoginDto) => login(emailPass)
   )
 
-  const signupMutation: ApiMutationResult<AuthResultDto> = useMutation(
+  const signupMutation: ApiMutationResult<AuthSignupDto> = useMutation(
     (emailPass: AuthLoginDto) => signup(emailPass)
   )
 
-  const {
-    errors,
-    isError,
-    errorMessage,
-    clearErrors
-  } = useApiErrors(loginMutation.isError || signupMutation.isError, {
-    ...loginMutation.error,
-    ...signupMutation.error
-  })
+  const { errors, errorMessage, clearErrors } = useApiErrors(
+    loginMutation.isError || signupMutation.isError,
+    {
+      ...loginMutation.error,
+      ...signupMutation.error
+    }
+  )
 
   const loading = loginMutation.isLoading || signupMutation.isLoading
 
@@ -73,6 +71,7 @@ const LoginPage = () => {
   }
 
   async function submit(payload) {
+    clearErrors()
     if (router.query.signup) {
       handleSignup(payload)
     } else {
@@ -140,6 +139,7 @@ const LoginPage = () => {
             name="name"
             inline={true}
             register={register('name')}
+            error={errors.name}
           />
         )}
 
@@ -149,6 +149,7 @@ const LoginPage = () => {
           type="email"
           inline={true}
           register={register('email')}
+          error={errors.email}
         />
         <Input
           label="Password"
@@ -156,6 +157,7 @@ const LoginPage = () => {
           type="password"
           inline={true}
           register={register('password')}
+          error={errors.password}
         />
 
         {errorMessage !== '' && (
