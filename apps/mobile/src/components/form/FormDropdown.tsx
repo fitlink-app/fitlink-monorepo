@@ -12,12 +12,14 @@ const ContentContainer = styled.View(({theme: {colors}}) => ({
 }));
 
 interface FormDropdownProps extends DropdownProps {
-  label: string;
+  label?: string;
 }
 
 export const FormDropdown = ({label, style, ...rest}: FormDropdownProps) => (
   <View {...{style}}>
-    <FormTitle style={{alignSelf: 'flex-start'}}>{label}</FormTitle>
+    {!!label && (
+      <FormTitle style={{alignSelf: 'flex-start'}}>{label}</FormTitle>
+    )}
     <ContentContainer>
       <Dropdown {...rest} />
     </ContentContainer>

@@ -23,10 +23,13 @@ import {
   Webview,
   MyActivities,
   ActivityForm,
+  Notifications,
 } from 'pages';
 import {SettingsNavigator} from './Settings';
 import {useSelector} from 'react-redux';
 import {memoSelectIsAuthenticated} from 'redux/auth/authSlice';
+import {Onboarding} from 'pages/Onboarding';
+import {CustomInterpolators} from './interpolators';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -37,6 +40,7 @@ export default function Router() {
   const {colors} = useTheme();
 
   const isAuthenticated = useSelector(memoSelectIsAuthenticated);
+  const isOnboarded = true;
 
   const navigatorOptions = {
     cardShadowEnabled: true,
@@ -53,44 +57,57 @@ export default function Router() {
       }}>
       <Stack.Navigator screenOptions={navigatorOptions}>
         {isAuthenticated ? (
-          <>
-            <Stack.Screen name={'HomeNavigator'} component={HomeNavigator} />
-            <Stack.Screen
-              name={'Settings'}
-              component={SettingsNavigator}
-              options={{
-                cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-              }}
-            />
-            <Stack.Screen name={'League'} component={League} />
-            <Stack.Screen
-              name={'LeagueInviteFriends'}
-              component={LeagueInviteFriends}
-            />
-            <Stack.Screen
-              name={'LeagueForm'}
-              component={LeagueForm}
-              options={{
-                cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-              }}
-            />
-            <Stack.Screen name={'Profile'} component={Profile} />
-            <Stack.Screen
-              name={'HealthActivityDetails'}
-              component={HealthActivityDetails}
-            />
-            <Stack.Screen name={'Route'} component={Route} />
-            <Stack.Screen name={'Reward'} component={Reward} />
-            <Stack.Screen name={'Webview'} component={Webview} />
-            <Stack.Screen
-              name={'MyActivities'}
-              component={MyActivities}
-              options={{
-                cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-              }}
-            />
-            <Stack.Screen name={'ActivityForm'} component={ActivityForm} />
-          </>
+          isOnboarded ? (
+            <>
+              <Stack.Screen name={'HomeNavigator'} component={HomeNavigator} />
+              <Stack.Screen
+                name={'Settings'}
+                component={SettingsNavigator}
+                options={{
+                  cardStyleInterpolator:
+                    CustomInterpolators.forVerticalWithOverlay,
+                }}
+              />
+              <Stack.Screen name={'League'} component={League} />
+              <Stack.Screen
+                name={'LeagueInviteFriends'}
+                component={LeagueInviteFriends}
+              />
+              <Stack.Screen
+                name={'LeagueForm'}
+                component={LeagueForm}
+                options={{
+                  cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+                }}
+              />
+              <Stack.Screen name={'Profile'} component={Profile} />
+              <Stack.Screen
+                name={'HealthActivityDetails'}
+                component={HealthActivityDetails}
+              />
+              <Stack.Screen name={'Route'} component={Route} />
+              <Stack.Screen name={'Reward'} component={Reward} />
+              <Stack.Screen name={'Webview'} component={Webview} />
+              <Stack.Screen
+                name={'Notifications'}
+                component={Notifications}
+                options={{
+                  cardStyleInterpolator:
+                    CustomInterpolators.forVerticalWithOverlay,
+                }}
+              />
+              <Stack.Screen
+                name={'MyActivities'}
+                component={MyActivities}
+                options={{
+                  cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+                }}
+              />
+              <Stack.Screen name={'ActivityForm'} component={ActivityForm} />
+            </>
+          ) : (
+            <Stack.Screen name={'Onboarding'} component={Onboarding} />
+          )
         ) : (
           <Stack.Screen
             name={'AuthenticationNavigator'}

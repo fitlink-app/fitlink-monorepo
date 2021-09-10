@@ -11,9 +11,8 @@ import {
 import {
   ImagePickerDialogResponse,
   useImagePicker,
+  useMe,
   useModal,
-  UserGoalPreferences,
-  useSettings,
 } from '@hooks';
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
@@ -29,9 +28,26 @@ import {
 } from './components';
 import {SettingsItemWrapper} from './components/SettingsItemWrapper';
 import {SettingsItemLabel} from './components/SettingsItemLabel';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch} from 'redux/store';
 import {logout} from 'redux/auth/authSlice';
+import {
+  clearChanges,
+  PRIVACY_ITEMS,
+  selectDidSettingsChange,
+  selectSettings,
+  setActivitiesPrivacy,
+  setAvatar,
+  setDailyStatisticsPrivacy,
+  setGoals,
+  setName,
+  setNewsletterSubscription,
+  setState,
+  setUnitSystem,
+  submit,
+  UserGoalPreferences,
+} from 'redux/settings/settingsSlice';
+import {useEffect} from 'react';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -45,21 +61,6 @@ const Row = styled.View({
   justifyContent: 'space-between',
 });
 
-const PRIVACY_ITEMS = [
-  {
-    label: 'Private',
-    value: 'private',
-  },
-  {
-    label: 'Followers',
-    value: 'followers',
-  },
-  {
-    label: 'Public',
-    value: 'public',
-  },
-];
-
 type UserGoalPreferencesString = {
   [K in keyof UserGoalPreferences]: string;
 };
@@ -69,12 +70,45 @@ export const Settings = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch() as AppDispatch;
 
-  const settings = useSettings();
+  const {data: user} = useMe();
   const {openModal, closeModal} = useModal();
   const {openImagePicker} = useImagePicker();
 
-  // TODO: Hook up with state
-  // TODO: Implement tracker onPress
+  const settings = useSelector(selectSettings);
+  const didSettingsChange = useSelector(selectDidSettingsChange);
+
+  const [isInitialized, setInitialized] = useState(false);
+
+  console.log(user);
+  useEffect(() => {
+    if (user && !isInitialized) {
+      dispatch(clearChanges());
+
+      dispatch(
+        setState({
+          name: user?.name || '',
+          unitSystem: user?.unit_system || UnitSystem.Imperial,
+          timezone: user.timezone,
+          avatar: user.avatar,
+          goals: {
+            goal_mindfulness_minutes: user?.goal_mindfulness_minutes || 0,
+            goal_steps: user?.goal_steps || 0,
+            goal_floors_climbed: user?.goal_floors_climbed || 0,
+            goal_water_litres: user?.goal_water_litres || 0,
+            goal_sleep_hours: user?.goal_sleep_hours || 0,
+          },
+          userSettings: {
+            newsletter_subscriptions_user:
+              user?.settings?.newsletter_subscriptions_user,
+            privacy_activities: user?.settings?.privacy_activities,
+            privacy_daily_statistics: user?.settings?.privacy_daily_statistics,
+          },
+        }),
+      );
+
+      setInitialized(true);
+    }
+  }, [user]);
 
   /**
    * We keep track of the goal input values in a local state
@@ -91,7 +125,7 @@ export const Settings = () => {
     };
   };
 
-  const [goals, setGoals] = useState<UserGoalPreferencesString>(
+  const [localGoals, setLocalGoals] = useState<UserGoalPreferencesString>(
     initializeGoalsFromNumericSource(settings.goals),
   );
 
@@ -103,7 +137,8 @@ export const Settings = () => {
    */
   const handleOnGoalChanged = (value: string, field: string) => {
     let formattedValue = value;
-    setGoals(prevGoals => ({...prevGoals, [field]: formattedValue}));
+    console.log(value);
+    setLocalGoals(prevGoals => ({...prevGoals, [field]: formattedValue}));
   };
 
   /**
@@ -113,22 +148,24 @@ export const Settings = () => {
    * to the settings hook state
    */
   const handleOnGoalSubmitted = () => {
-    let parsedGoals = settings.goals;
+    console.log(localGoals);
+    let parsedGoals = {...settings.goals};
 
-    for (const property in goals) {
+    for (const property in localGoals) {
       let parsedValue = parseFloat(
-        goals[property as keyof UserGoalPreferencesString],
+        localGoals[property as keyof UserGoalPreferencesString],
       );
+
       if (isNaN(parsedValue)) parsedValue = 0;
       parsedGoals[property as keyof UserGoalPreferences] = parsedValue;
     }
 
-    setGoals(initializeGoalsFromNumericSource(parsedGoals));
-    settings.setGoals(parsedGoals);
+    setLocalGoals(initializeGoalsFromNumericSource(parsedGoals));
+    dispatch(setGoals(parsedGoals));
   };
 
   const handleOnAvatarPicked = (response: ImagePickerDialogResponse) => {
-    settings.setAvatar(response);
+    dispatch(setAvatar(response));
   };
 
   const handleOnSavePressed = async () => {
@@ -136,7 +173,7 @@ export const Settings = () => {
 
     // TODO: Show loading overlay
 
-    await settings.submit();
+    await dispatch(submit());
     navigation.goBack();
   };
 
@@ -144,7 +181,7 @@ export const Settings = () => {
     <Wrapper>
       <Navbar
         rightComponent={
-          settings.didSettingsChange ? (
+          didSettingsChange ? (
             <TouchHandler onPress={handleOnSavePressed}>
               <Label bold appearance={'accent'}>
                 Save
@@ -181,7 +218,7 @@ export const Settings = () => {
         <SettingsInput
           label={'Display name'}
           value={settings.name}
-          onChangeText={settings.setName}
+          onChangeText={text => dispatch(setName(text))}
           autoCapitalize={'words'}
           keyboardType={'default'}
           returnKeyType={'done'}
@@ -254,7 +291,7 @@ export const Settings = () => {
         <CategoryLabel>Goals</CategoryLabel>
         <SettingsInput
           label={'Steps'}
-          value={goals.goal_steps.toString()}
+          value={localGoals.goal_steps.toString()}
           onChangeText={(text: string) =>
             handleOnGoalChanged(text, 'goal_steps')
           }
@@ -265,7 +302,7 @@ export const Settings = () => {
         />
         <SettingsInput
           label={'Floors'}
-          value={goals.goal_floors_climbed.toString()}
+          value={localGoals.goal_floors_climbed.toString()}
           onChangeText={(text: string) =>
             handleOnGoalChanged(text, 'goal_floors_climbed')
           }
@@ -276,7 +313,7 @@ export const Settings = () => {
         />
         <SettingsInput
           label={'Water (litres)'}
-          value={goals.goal_water_litres.toString()}
+          value={localGoals.goal_water_litres.toString()}
           onChangeText={(text: string) =>
             handleOnGoalChanged(text, 'goal_water_litres')
           }
@@ -287,7 +324,7 @@ export const Settings = () => {
         />
         <SettingsInput
           label={'Sleep (hours)'}
-          value={goals.goal_sleep_hours.toString()}
+          value={localGoals.goal_sleep_hours.toString()}
           onChangeText={(text: string) =>
             handleOnGoalChanged(text, 'goal_sleep_hours')
           }
@@ -298,7 +335,7 @@ export const Settings = () => {
         />
         <SettingsInput
           label={'Mindfulness (minutes)'}
-          value={goals.goal_mindfulness_minutes.toString()}
+          value={localGoals.goal_mindfulness_minutes.toString()}
           onChangeText={(text: string) =>
             handleOnGoalChanged(text, 'goal_mindfulness_minutes')
           }
@@ -315,13 +352,13 @@ export const Settings = () => {
           label={'Miles'}
           accent={settings.unitSystem === 'imperial'}
           icon={settings.unitSystem === 'imperial' ? 'check' : 'none'}
-          onPress={() => settings.setUnitSystem('imperial' as UnitSystem)}
+          onPress={() => dispatch(setUnitSystem(UnitSystem.Imperial))}
         />
         <SettingsButton
           label={'Kilometres'}
           accent={settings.unitSystem === 'metric'}
           icon={settings.unitSystem === 'metric' ? 'check' : 'none'}
-          onPress={() => settings.setUnitSystem('metric' as UnitSystem)}
+          onPress={() => dispatch(setUnitSystem(UnitSystem.Metric))}
         />
 
         {/* Privacy */}
@@ -329,13 +366,15 @@ export const Settings = () => {
         <SettingsDropdown
           label={'Daily Statistics'}
           items={PRIVACY_ITEMS}
-          value={PRIVACY_ITEMS[0].value}
+          value={settings.userSettings?.privacy_daily_statistics}
+          onValueChange={value => dispatch(setDailyStatisticsPrivacy(value))}
           prompt={'Select daily statistics privacy'}
         />
         <SettingsDropdown
           label={'Activities'}
           items={PRIVACY_ITEMS}
-          value={PRIVACY_ITEMS[0].value}
+          value={settings.userSettings?.privacy_activities}
+          onValueChange={value => dispatch(setActivitiesPrivacy(value))}
           prompt={'Select activity privacy'}
         />
 
@@ -344,7 +383,16 @@ export const Settings = () => {
         <SettingsItemWrapper>
           <Row>
             <SettingsItemLabel children={'Subscribe to newsletter'} />
-            <Checkbox onPress={() => {}} checked={false} />
+            <Checkbox
+              onPress={() =>
+                dispatch(
+                  setNewsletterSubscription(
+                    !settings.userSettings?.newsletter_subscriptions_user,
+                  ),
+                )
+              }
+              checked={!!settings.userSettings?.newsletter_subscriptions_user}
+            />
           </Row>
         </SettingsItemWrapper>
 

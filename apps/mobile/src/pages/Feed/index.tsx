@@ -5,7 +5,7 @@ import {
   Icon,
   RewardTracker,
 } from '@components';
-import {useMe} from '@hooks';
+import {useGoals, useMe} from '@hooks';
 import {UserWidget} from '@components';
 import React, {useCallback} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -15,13 +15,22 @@ import {useNavigation} from '@react-navigation/native';
 
 const Wrapper = styled.View({flex: 1});
 
-const SettingsButtonContainer = styled.View({
+const TopButtonRow = styled.View({
   position: 'absolute',
   right: 20,
+  flexDirection: 'row',
 });
+
+const TopButtonSpacer = styled.View({width: 10});
 
 const SettingsButton = styled(Icon).attrs(({theme: {colors}}) => ({
   name: 'gear',
+  size: 20,
+  color: colors.accentSecondary,
+}))({});
+
+const NotificationsButton = styled(Icon).attrs(({theme: {colors}}) => ({
+  name: 'bell',
   size: 20,
   color: colors.accentSecondary,
 }))({});
@@ -44,6 +53,13 @@ export const Feed = () => {
     refetchOnMount: false,
     refetchInterval: 10000,
   });
+
+  const {data: goals} = useGoals({
+    refetchOnMount: false,
+    refetchInterval: 10000,
+  });
+
+  console.log(goals);
 
   const onFeedItemPressed = useCallback(() => {
     navigation.navigate('HealthActivityDetails');
@@ -88,31 +104,46 @@ export const Feed = () => {
                     {
                       enabled: true,
                       identifier: 'steps',
-                      goal: {value: 3476, target: 7500},
+                      goal: {
+                        value: goals?.current_steps || 0,
+                        target: goals?.target_steps || 0,
+                      },
                       icon: 'steps',
                     },
                     {
-                      enabled: false,
+                      enabled: true,
                       identifier: 'mindfulness',
-                      goal: {value: 0, target: 200},
+                      goal: {
+                        value: goals?.current_mindfulness_minutes || 0,
+                        target: goals?.target_mindfulness_minutes || 0,
+                      },
                       icon: 'yoga',
                     },
                     {
-                      enabled: false,
+                      enabled: true,
                       identifier: 'water',
-                      goal: {value: 0, target: 200},
+                      goal: {
+                        value: goals?.current_water_litres || 0,
+                        target: goals?.target_water_litres || 0,
+                      },
                       icon: 'water',
                     },
                     {
                       enabled: true,
                       identifier: 'sleep',
-                      goal: {value: 7.5, target: 8},
+                      goal: {
+                        value: goals?.current_sleep_hours || 0,
+                        target: goals?.target_sleep_hours || 0,
+                      },
                       icon: 'sleep',
                     },
                     {
                       enabled: true,
                       identifier: 'floors',
-                      goal: {value: 22, target: 15},
+                      goal: {
+                        value: goals?.current_floors_climbed || 0,
+                        target: goals?.target_floors_climbed || 0,
+                      },
                       icon: 'stairs',
                     },
                   ]}
@@ -128,13 +159,21 @@ export const Feed = () => {
                 />
               </HeaderWidgetContainer>
 
-              <SettingsButtonContainer>
+              <TopButtonRow>
+                <NotificationsButton
+                  onPress={() => {
+                    navigation.navigate('Notifications');
+                  }}
+                />
+
+                <TopButtonSpacer />
+
                 <SettingsButton
                   onPress={() => {
                     navigation.navigate('Settings');
                   }}
                 />
-              </SettingsButtonContainer>
+              </TopButtonRow>
             </HeaderContainer>
 
             <FeedContainer>

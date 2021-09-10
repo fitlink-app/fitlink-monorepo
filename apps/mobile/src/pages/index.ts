@@ -15,3 +15,4 @@ export * from './Route';
 export * from './Discover';
 export * from './MyActivities';
 export * from './ActivityForm';
+export * from './Notifications';

@@ -171,7 +171,11 @@ export const Profile = (
         </LoadingContainer>
       )}
 
-      <Navbar backButtonLabel={'Back'} overlay rightComponent={FollowButton} />
+      <Navbar
+        backButtonLabel={'Back'}
+        overlay
+        rightComponent={isUserFetchedAfterMount ? FollowButton : undefined}
+      />
     </Wrapper>
   );
 };

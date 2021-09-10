@@ -16,14 +16,8 @@ const navigatorOptions = {
 
 export const SettingsNavigator = () => {
   return (
-    <Stack.Navigator screenOptions={navigatorOptions}>
-      <Stack.Screen
-        name={'Settings'}
-        component={Settings}
-        options={{
-          cardStyleInterpolator: CustomInterpolators.forVerticalWithOverlay,
-        }}
-      />
+    <Stack.Navigator screenOptions={navigatorOptions} mode={'card'}>
+      <Stack.Screen name={'Settings'} component={Settings} />
 
       <Stack.Screen
         name={'UpdateEmail'}

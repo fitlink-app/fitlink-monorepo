@@ -2,11 +2,13 @@ import {AnyAction, combineReducers} from '@reduxjs/toolkit';
 import authSlice, {clearAuthResult} from './auth/authSlice';
 import discoverSlice from './discover/discoverSlice';
 import feedPreferencesSlice from './feedPreferences/feedPreferencesSlice';
+import settingsSlice from './settings/settingsSlice';
 
 const appReducer = combineReducers({
   auth: authSlice,
   feedPreferences: feedPreferencesSlice,
   discover: discoverSlice,
+  settings: settingsSlice,
 });
 
 const rootReducer = (

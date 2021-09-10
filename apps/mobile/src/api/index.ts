@@ -20,7 +20,8 @@ export function getErrors(e: ResponseError) {
 }
 
 // axios.interceptors.request.use(request => {
-//   console.log('Request:', request);
+//   console.log('Request:', request.url);
+//   console.log('Request:', request.params);
 //   return request;
 // });
 

@@ -8,6 +8,7 @@ export type RootStackParamList = {
   Welcome: undefined;
   SignIn: undefined;
   SignUp: undefined;
+  Onboarding: undefined;
   ForgotPassword: {email?: string};
   Settings: undefined;
   UpdateEmail: undefined;
@@ -43,4 +44,5 @@ export type RootStackParamList = {
       onClose?: () => void,
     ) => void;
   };
+  Notifications: undefined;
 };
