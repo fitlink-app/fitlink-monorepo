@@ -76,7 +76,8 @@ describe('Login', () => {
     useRouter.mockImplementation(() => ({
       push,
       prefetch: jest.fn(() => Promise.resolve()),
-      isReady: true
+      isReady: true,
+      query: {}
     }))
 
     render(

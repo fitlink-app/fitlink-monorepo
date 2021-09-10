@@ -10,8 +10,9 @@ import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role
 import Loader from '../components/elements/Loader'
 
 export default function StartPage() {
-  const { switchRole } = useContext(AuthContext)
+  const { fetchKey, switchRole } = useContext(AuthContext)
   const [roles, setRoles] = useState<UserRole[]>([])
+  const [refresh, setRefresh] = useState(0)
   const router = useRouter()
 
   const showAvatar = ({
@@ -56,23 +57,12 @@ export default function StartPage() {
 
   useEffect(() => {
     if (rolesQuery.isFetched) {
-      console.log(rolesQuery.data)
-      if (rolesQuery.data.length === 0) {
-        const data = rolesQuery.data[0]
-        switch (data.role) {
-          case Roles.SubscriptionAdmin:
-            router.push('/billing')
-            break
-          default:
-            router.push('/dashboard')
-        }
-      } else {
-        setRoles(rolesQuery.data)
-      }
+      setRefresh(Date.now())
+      setRoles(rolesQuery.data || [])
     }
   }, [rolesQuery.isFetched])
 
-  if (roles.length === 0) {
+  if (!rolesQuery.isFetched && roles.length === 0) {
     return <Loader />
   }
 
@@ -87,36 +77,48 @@ export default function StartPage() {
             </Link>
           </div>
 
-          <div className="col-12 mt-4 overflow-x-auto w-100">
-            <TableContainer
-              hidePagination={true}
-              columns={[
-                {
-                  Header: 'Type',
-                  accessor: 'type'
-                },
-                {
-                  Header: 'Name',
-                  accessor: 'name'
-                },
-                { Header: ' ', Cell: cellActions }
-              ]}
-              fetch={async function () {
-                return Promise.resolve({
-                  results: roles.map((each) => ({
-                    type: formatRoles[each.role],
-                    role: each.role,
-                    name: getDescriptiveName(each),
-                    id: getId(each)
-                  })),
-                  total: roles.length,
-                  page_total: roles.length
-                })
-              }}
-              fetchName="my_roles"
-              refresh={0}
-            />
-          </div>
+          {!roles.length && (
+            <div className="flex ai-c jc-c mt-4">
+              <p className="w-50">
+                This dashboard is for administrators. If you require access
+                please contact your organisation administrator.
+              </p>
+            </div>
+          )}
+
+          {!!roles.length && (
+            <div className="col-12 mt-4 overflow-x-auto w-100">
+              <TableContainer
+                hidePagination={true}
+                columns={[
+                  {
+                    Header: 'Type',
+                    accessor: 'type'
+                  },
+                  {
+                    Header: 'Name',
+                    accessor: 'name'
+                  },
+                  { Header: ' ', Cell: cellActions }
+                ]}
+                fetch={async function () {
+                  return Promise.resolve({
+                    results: roles.map((each) => ({
+                      type: formatRoles[each.role],
+                      role: each.role,
+                      name: getDescriptiveName(each),
+                      id: getId(each)
+                    })),
+                    total: roles.length,
+                    page_total: roles.length
+                  })
+                }}
+                fetchName={`start_roles_${fetchKey}_${refresh}`}
+                refresh={refresh}
+                nullMessage="Nothing to manage yet."
+              />
+            </div>
+          )}
         </div>
       </div>
     </Dashboard>

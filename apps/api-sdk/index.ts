@@ -16,6 +16,7 @@ import {
   AuthConnectDto,
   AuthSwitchDto,
   CreateUserDto,
+  CreateUserWithOrganisationDto,
   AuthLogin,
   AuthLogout,
   AuthRefresh,
@@ -25,7 +26,8 @@ import {
   AuthConnect,
   AuthSwitch,
   FocusRole,
-  RolePrimary
+  RolePrimary,
+  AuthSignUpOrganisation
 } from './types'
 
 const ERR_TOKEN_EXPIRED = 'Token expired'
@@ -333,6 +335,23 @@ export class Api {
     const result = await this.post<AuthSignUp>('/auth/signup', {
       payload
     })
+    this.setTokens(result.auth)
+    return result
+  }
+
+  /**
+   * Signs up a new user with organisation, logs in and stores tokens
+   *
+   * @param dto
+   * @returns `{auth: AuthResult, me: User}`
+   */
+  async signUpWithOrganisation(payload: CreateUserWithOrganisationDto) {
+    const result = await this.post<AuthSignUpOrganisation>(
+      '/auth/organisation',
+      {
+        payload
+      }
+    )
     this.setTokens(result.auth)
     return result
   }

@@ -74,6 +74,8 @@ export class SubscriptionsService {
     let subscription = new Subscription()
     subscription.organisation = org
     subscription.billing_entity = billing_entity
+    subscription.default = true
+
     if (rest) {
       subscription = Object.assign(subscription, { ...rest })
     }

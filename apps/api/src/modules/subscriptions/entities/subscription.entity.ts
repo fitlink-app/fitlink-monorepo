@@ -119,6 +119,11 @@ export class Subscription extends CreatableEntity {
   billing_plan_last_billed_month: string
 
   @Column({
+    default: 0
+  })
+  user_count: number
+
+  @Column({
     type: 'enum',
     enum: SubscriptionType,
     default: SubscriptionType.Trial14day

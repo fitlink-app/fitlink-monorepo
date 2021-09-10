@@ -199,7 +199,6 @@ export default function LeaguesPage() {
             <IconPlus />
           </div>
         </div>
-        {console.log(sorted)}
         {sorted.map((l, i) => (
           <div className="rewards__wrap" key={`fl-r-${i}`}>
             <League

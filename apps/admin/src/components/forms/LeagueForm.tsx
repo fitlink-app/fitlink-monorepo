@@ -140,7 +140,9 @@ export default function LeagueForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h4 className="light mb-3">{current ? 'Edit league' : 'New league'}</h4>
+      <h4 className="light mb-3">
+        {current.id ? 'Edit league' : 'New league'}
+      </h4>
       <League
         image={image}
         name={name}

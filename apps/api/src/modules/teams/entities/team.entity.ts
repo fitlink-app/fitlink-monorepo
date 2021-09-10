@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import {
   Column,
   CreateDateColumn,
@@ -58,4 +59,10 @@ export class Team {
 
   @OneToMany(() => League, (league) => league.team, { nullable: true })
   leagues?: League[]
+
+  @ApiProperty()
+  @Column({
+    default: 0
+  })
+  user_count: number
 }

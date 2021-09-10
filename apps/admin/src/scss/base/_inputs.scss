@@ -24,6 +24,11 @@ input:not([type="checkbox"]):not([type="file"]), select {
   height: 2.75rem;
 }
 
+input:read-only {
+  background-color: $grey-200;
+  color: #000;
+}
+
 textarea {
   line-height: 1.2em;
 }
@@ -32,7 +37,7 @@ textarea {
   /* z-index: 20;
   position: relative; */
   text-align: left;
-  
+
   input {
     height: auto !important;
     margin: 0 !important;
@@ -83,7 +88,7 @@ select[multiple] {
     }
 
     span {
-      float: right;
+      float: none;
       font-size: 0.75rem;
       font-weight: 700;
       color: $red;
@@ -97,7 +102,7 @@ select[multiple] {
     z-index: 1;
     opacity: 0;
   }
-  
+
   input[type="checkbox"] + label {
     padding-left: 1.5rem;
     position: relative;
@@ -261,7 +266,7 @@ select[multiple] {
       padding-bottom: 0;
     }
   }
-  
+
   .react-datepicker__current-month, .react-datepicker-time__header, .react-datepicker-year-header {
     color: $darkGrey;
     font-weight: 700;
@@ -284,16 +289,16 @@ select[multiple] {
     font-weight: 700;
     box-shadow: 0 0 0 3px rgba($primary, 0.25);
   }
-  
+
   .react-datepicker__time-container {
     border-color: $grey-300;
   }
-  
+
   .react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item {
     height: auto;
     padding: 8px 10px;
   }
-  
+
   .react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item--selected {
     background-color: $primary;
     font-weight: 700;

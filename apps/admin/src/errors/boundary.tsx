@@ -36,7 +36,8 @@ export class ErrorBoundary extends React.Component {
             </h1>
             <p>
               Please contact support at support@fitlinkapp.com if the issue
-              persists.
+              persists. You can provide them with the below error message in
+              order to investigate:
             </p>
             <Feedback type="error" message={this.state.error} />
           </div>

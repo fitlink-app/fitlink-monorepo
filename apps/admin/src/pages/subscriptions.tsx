@@ -147,11 +147,14 @@ export default function SubscriptionsPage() {
         onClick={() => ConfirmSubscriptionForm(original)}>
         Make Default
       </button>
-      <button
-        className="button small ml-1"
-        onClick={() => EditSubscriptionForm(original)}>
-        Edit
-      </button>
+
+      {focusRole === 'app' && (
+        <button
+          className="button small ml-1"
+          onClick={() => EditSubscriptionForm(original)}>
+          Edit
+        </button>
+      )}
     </div>
   )
 
@@ -176,11 +179,12 @@ export default function SubscriptionsPage() {
         <TableContainer
           columns={[
             { Header: 'Billing Entity', accessor: 'billing_entity' },
-            {
-              Header: 'Billing Name',
-              accessor: 'billing_first_name',
-              Cell: toJoinCells(['billing_first_name', 'billing_last_name'])
-            },
+            { Header: 'Active users', accessor: 'user_count' },
+            // {
+            //   Header: 'Billing Name',
+            //   accessor: 'billing_first_name',
+            //   Cell: toJoinCells(['billing_first_name', 'billing_last_name'])
+            // },
             { Header: 'Organisation', accessor: 'organisation.name' },
             {
               Header: 'Default Subscription',
@@ -193,8 +197,8 @@ export default function SubscriptionsPage() {
               Cell: enumToBool
             },
             { Header: 'Plan Type', accessor: 'type' },
-            { Header: 'Created', accessor: 'created_at', Cell: toDateCell },
-            { Header: 'Updated', accessor: 'updated_at', Cell: toDateCell },
+            // { Header: 'Created', accessor: 'created_at', Cell: toDateCell },
+            // { Header: 'Updated', accessor: 'updated_at', Cell: toDateCell },
             { Header: ' ', Cell: cellActions }
           ]}
           fetch={(limit, page) =>
