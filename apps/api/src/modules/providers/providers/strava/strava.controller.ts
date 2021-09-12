@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query
+} from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { User } from '../../../../decorators/authenticated-user.decorator'
 import { Public } from '../../../../decorators/public.decorator'
@@ -18,6 +26,21 @@ export class StravaControler {
     @Query('hub.verify_token') token: string
   ) {
     return this.stravaService.verifyWebhook(token, challenge)
+  }
+
+  @Get('/webhook/view')
+  readWebhook() {
+    return this.stravaService.viewWebhook()
+  }
+
+  @Post('/webhook/register')
+  registerWebhook() {
+    return this.stravaService.registerWebhook()
+  }
+
+  @Delete('/webhook/register/:id')
+  deregisterWebhook(@Param('id') id: string) {
+    return this.stravaService.deregisterWebhook(id)
   }
 
   @Public()

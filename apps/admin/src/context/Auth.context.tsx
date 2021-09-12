@@ -489,6 +489,11 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
           label: 'Activities',
           link: '/activities',
           icon: 'IconActivities'
+        },
+        {
+          label: 'Global Configuration',
+          link: '/global-config',
+          icon: 'IconGear'
         }
       ])
     }

@@ -31,6 +31,8 @@ import {
 import { UserReachedReward } from './seeds/rewards.seed'
 import { getAuthHeaders } from './helpers/auth'
 import { UserRank } from '../src/modules/users/users.constants'
+import { WebhookEventData } from '../src/modules/providers/types/webhook'
+import { ProviderType } from '../src/modules/providers/providers.constants'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -442,7 +444,7 @@ describe('Health Activities', () => {
     expect(feedItem.reward.id).toBe(nextReward.json().reward.id)
   })
 
-  it.only('Test that a user is promoted when their active-minute-week is increased', async () => {
+  it('Test that a user is promoted when their active-minute-week is increased', async () => {
     const mockPayload: StravaEventData = {
       aspect_type: 'create',
       event_time: 12039,
@@ -480,5 +482,60 @@ describe('Health Activities', () => {
     })
     expect(feedItem).toBeDefined()
     expect(feedItem.id).toBeDefined()
+  })
+
+  it('POST /providers/webhook Allows manual entries from device (google fit, apple health)', async () => {
+    // Provider service should be forced to return a matching provider.
+    providerService.findOne.mockReturnValue({
+      user: { id: '12345' }
+    } as Partial<Provider>)
+
+    const user = (await UsersSetup('Test health activities', 1))[0]
+
+    const mockPayload: WebhookEventData = {
+      activities: [
+        {
+          calories: 100,
+          distance: 1000,
+          provider: ProviderType.GoogleFit,
+          end_time: new Date().toISOString(),
+          start_time: new Date().toISOString(),
+          quantity: 1,
+          type: 'walking'
+        },
+        {
+          calories: 100,
+          distance: 1000,
+          provider: ProviderType.GoogleFit,
+          end_time: new Date().toISOString(),
+          start_time: new Date().toISOString(),
+          quantity: 1,
+          type: 'running'
+        },
+        {
+          calories: 100,
+          distance: 1000,
+          provider: ProviderType.GoogleFit,
+          end_time: new Date().toISOString(),
+          start_time: new Date().toISOString(),
+          quantity: 1,
+          type: 'moonwalking'
+        }
+      ]
+    }
+
+    const result = await app.inject({
+      method: 'POST',
+      payload: mockPayload,
+      url: '/providers/webhook',
+      headers: getAuthHeaders({}, user.id)
+    })
+
+    const activities = result.json()
+
+    expect(activities.length).toBe(3)
+    expect(activities[0].id).toBeDefined()
+    expect(activities[1].id).toBeDefined()
+    expect(activities[2].id).toBeUndefined()
   })
 })

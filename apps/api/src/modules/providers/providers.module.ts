@@ -12,6 +12,8 @@ import { AuthModule } from '../auth/auth.module'
 import { ConfigModule } from '@nestjs/config'
 import { HealthActivitiesModule } from '../health-activities/health-activities.module'
 import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
+import { WebhookController } from './providers/webhook/webhook.controller'
+import { WebhookService } from './providers/webhook/webhook.service'
 
 @Module({
   imports: [
@@ -22,8 +24,13 @@ import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
     AuthModule,
     GoalsEntriesModule
   ],
-  controllers: [ProvidersController, StravaControler, FitbitController],
-  providers: [ProvidersService, StravaService, FitbitService],
+  controllers: [
+    ProvidersController,
+    StravaControler,
+    FitbitController,
+    WebhookController
+  ],
+  providers: [ProvidersService, StravaService, FitbitService, WebhookService],
   exports: [ProvidersService]
 })
 export class ProvidersModule {}

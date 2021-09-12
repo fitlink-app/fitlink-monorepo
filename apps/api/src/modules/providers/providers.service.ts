@@ -26,9 +26,21 @@ export class ProvidersService {
       provider_user_id
     } = createProviderDto
 
-    const tokenExpiresAt = new Date(token_expires_at)
     try {
+      const tokenExpiresAt = new Date(token_expires_at)
+      const user = await this.userRepository.findOne(userId, {
+        relations: ['providers']
+      })
+      const exists = user.providers.filter((e) => e.type === type)[0]
+      let id: string
+
+      if (exists) {
+        id = exists.id
+      }
+
+      // Replaces the existing data in case it needs an update
       const provider = this.providerRepository.create({
+        id,
         user: { id: userId },
         token_expires_at: tokenExpiresAt,
         type,
@@ -37,12 +49,6 @@ export class ProvidersService {
         scopes,
         provider_user_id
       })
-
-      await this.userRepository
-        .createQueryBuilder()
-        .relation(User, 'providers')
-        .of(userId)
-        .add(provider)
 
       return await this.providerRepository.save(provider)
     } catch (err) {

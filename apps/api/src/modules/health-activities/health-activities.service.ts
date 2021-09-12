@@ -40,8 +40,14 @@ export class HealthActivitiesService {
     const [userProvider, userProviderErr] = await tryAndCatch(
       this.providersService.findOne(userId, provider)
     )
+
     userProviderErr && console.error('User provider not found')
-    type == 'unknown' && console.error('Sport not registered')
+    type === 'unknown' && console.error('Sport not registered')
+
+    if (userProviderErr || type === 'unknown') {
+      return { healthActivity: null }
+    }
+
     const sport = await this.sportsRepository.findOne({
       where: { name_key: type }
     })
@@ -89,7 +95,7 @@ export class HealthActivitiesService {
         Events.HEALTH_ACTIVITY_CREATED,
         healthActivityCreatedEvent
       )
-      return newHealthActivity
+      return newHealthActivity as HealthActivity
     } else {
       return { healthActivity: null }
     }
