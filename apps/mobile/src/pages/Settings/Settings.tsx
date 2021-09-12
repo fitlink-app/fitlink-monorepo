@@ -15,7 +15,7 @@ import {
   useModal,
 } from '@hooks';
 import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {Keyboard, Platform, ScrollView, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
@@ -48,6 +48,7 @@ import {
   UserGoalPreferences,
 } from 'redux/settings/settingsSlice';
 import {useEffect} from 'react';
+import {TransitionContext} from 'contexts';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -70,9 +71,11 @@ export const Settings = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch() as AppDispatch;
 
-  const {data: user} = useMe();
   const {openModal, closeModal} = useModal();
   const {openImagePicker} = useImagePicker();
+  const {showTransition, hideTransition} = useContext(TransitionContext);
+
+  const {data: user} = useMe();
 
   const settings = useSelector(selectSettings);
   const didSettingsChange = useSelector(selectDidSettingsChange);
@@ -171,9 +174,12 @@ export const Settings = () => {
   const handleOnSavePressed = async () => {
     Keyboard.dismiss();
 
-    // TODO: Show loading overlay
+    showTransition('Saving changes...');
 
     await dispatch(submit());
+
+    hideTransition();
+
     navigation.goBack();
   };
 

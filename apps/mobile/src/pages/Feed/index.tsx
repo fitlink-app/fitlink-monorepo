@@ -3,15 +3,19 @@ import {
   FeedItem,
   GoalTracker,
   Icon,
+  Label,
+  Modal,
   RewardTracker,
 } from '@components';
-import {useGoals, useMe} from '@hooks';
+import {useGoals, useMe, useModal} from '@hooks';
 import {UserWidget} from '@components';
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {FlatList, RefreshControl} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {getPersistedData, persistData} from '@utils';
+import {NewsletterModal} from './components';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -49,6 +53,8 @@ export const Feed = () => {
   const navigation = useNavigation();
   const {colors} = useTheme();
 
+  const {openModal, closeModal} = useModal();
+
   const {data: user, refetch: refetchUser} = useMe({
     refetchOnMount: false,
     refetchInterval: 10000,
@@ -59,13 +65,40 @@ export const Feed = () => {
     refetchInterval: 10000,
   });
 
-  console.log(goals);
-
   const onFeedItemPressed = useCallback(() => {
     navigation.navigate('HealthActivityDetails');
   }, []);
 
   if (!user) return null;
+
+  useEffect(() => {
+    promptNewsletterModal();
+  }, []);
+
+  const promptNewsletterModal = async () => {
+    const newsletterKey = 'NEWSLETTER_PROMPTED';
+    const wasNewsletterModalShown = await getPersistedData(newsletterKey);
+
+    if (
+      !wasNewsletterModalShown &&
+      !user?.settings?.newsletter_subscriptions_user
+    ) {
+      await persistData(newsletterKey, 'true');
+
+      openModal(id => {
+        return (
+          <Modal title={'Newsletter'}>
+            <NewsletterModal
+              {...{user}}
+              onCloseCallback={() => {
+                closeModal(id);
+              }}
+            />
+          </Modal>
+        );
+      });
+    }
+  };
 
   const renderItem = ({item, index}) => {
     return <FeedItem key={item} onContentPress={onFeedItemPressed} />;
