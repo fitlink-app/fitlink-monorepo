@@ -88,6 +88,7 @@ export type TeamsInvitationsVerify = '/teams-invitations/verify'
 export type TeamsInvitationsRespond = '/teams-invitations/respond'
 export type OrganisationsInvitationsVerify = '/organisations-invitations/verify'
 export type OrganisationsInvitationsRespond = '/organisations-invitations/respond'
+export type CreateStravaSubscription = '/providers/strava/webhook/register'
 
 export type CreatableResource =
   | AuthLogin
@@ -102,6 +103,7 @@ export type CreatableResource =
   | TeamsInvitationsRespond
   | OrganisationsInvitationsVerify
   | OrganisationsInvitationsRespond
+  | CreateStravaSubscription
 
 export type ListResource =
   | '/organisations'
@@ -213,6 +215,9 @@ export type ReadResource =
   | '/teams/:teamId/stats/rewards'
   | '/teams/:teamId/stats/leagues'
   | '/teams/:teamId/stats/global'
+  | '/providers/strava/webhook/view'
+  | '/providers/strava/webhook/register/:id'
+  | '/app/config'
 
 export type UploadResource = '/images'
 

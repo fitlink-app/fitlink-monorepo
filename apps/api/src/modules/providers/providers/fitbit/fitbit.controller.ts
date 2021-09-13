@@ -4,10 +4,13 @@ import { FitbitService } from './fitbit.service'
 import { FitbitEventData } from '../../types/fitbit'
 import { AuthenticatedUser } from '../../../../models/authenticated-user.model'
 import { User } from '../../../../decorators/authenticated-user.decorator'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBaseResponses } from '../../../../decorators/swagger.decorator'
+import { OauthUrl } from '../fitbit/fitbit.dto'
 
 @Controller('/providers/fitbit')
 @ApiTags('providers')
+@ApiBaseResponses()
 export class FitbitController {
   constructor(private fitbitService: FitbitService) {}
 
@@ -25,6 +28,7 @@ export class FitbitController {
     return this.fitbitService.verifyWebhook(verify)
   }
 
+  @ApiResponse({ type: OauthUrl, status: 200 })
   @Get('/auth')
   getOAuthUrl(@User() user: AuthenticatedUser) {
     return this.fitbitService.getOAuthUrl(user.id)

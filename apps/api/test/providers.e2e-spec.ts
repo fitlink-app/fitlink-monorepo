@@ -204,13 +204,13 @@ describe('Providers', () => {
     expect(parsedQueryValues.state).toBe(seededUser.id)
   })
 
-  it('GET /providers/users/', async () => {
+  it('GET /me/providers', async () => {
     await SeedProviderToUser(seededUser.id, 'fitbit')
     await SeedProviderToUser(seededUser.id, 'strava')
     const data = await app.inject({
       method: 'GET',
       headers: authHeaders,
-      url: `/providers/users`
+      url: `/me/providers`
     })
 
     const firstResult = data.json()[0]
@@ -219,5 +219,62 @@ describe('Providers', () => {
     expect(firstResult.id).toBeDefined()
     expect(firstResult.type).toBeDefined()
     expect(firstResult.refresh_token).toBeDefined()
+  })
+
+  it('POST /me/providers A user can create apple_healthkit or google_fit provider once only', async () => {
+    const data = await app.inject({
+      method: 'POST',
+      headers: authHeaders,
+      url: `/me/providers`,
+      payload: {
+        type: 'google_fit'
+      }
+    })
+
+    const provider = data.json()
+
+    expect(provider.id).toBeDefined()
+    expect(provider.type).toEqual('google_fit')
+
+    const update = await app.inject({
+      method: 'POST',
+      headers: authHeaders,
+      url: `/me/providers`,
+      payload: {
+        type: 'google_fit'
+      }
+    })
+
+    const updateProvider = update.json()
+    expect(updateProvider.id).toEqual(provider.id)
+  })
+
+  it('DELETE /me/providers/:providerType A user can delete the provider', async () => {
+    const providers = await getProviders()
+    const fit = providers.filter((e) => e.type === 'google_fit')[0]
+    expect(fit).toBeDefined()
+
+    const del = await app.inject({
+      method: 'DELETE',
+      headers: authHeaders,
+      url: `/me/providers/google_fit`
+    })
+
+    expect(del.statusCode).toEqual(200)
+
+    const updatedProviders = await getProviders()
+    expect(
+      updatedProviders.filter((e) => e.type === 'google_fit')[0]
+    ).toBeUndefined()
+
+    async function getProviders() {
+      const get = await app.inject({
+        method: 'GET',
+        headers: authHeaders,
+        url: `/me/providers`
+      })
+
+      return get.json()
+    }
   })
 })
