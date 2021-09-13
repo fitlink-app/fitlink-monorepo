@@ -227,12 +227,7 @@ describe('Providers', () => {
       headers: authHeaders,
       url: `/me/providers`,
       payload: {
-        type: 'google_fit',
-        token: 'token',
-        refresh_token: 'token',
-        token_expires_at: new Date().getTime(),
-        scopes: ['read', 'write'],
-        provider_user_id: '12345'
+        type: 'google_fit'
       }
     })
 
@@ -240,26 +235,18 @@ describe('Providers', () => {
 
     expect(provider.id).toBeDefined()
     expect(provider.type).toEqual('google_fit')
-    expect(provider.scopes).toEqual(['read', 'write'])
 
     const update = await app.inject({
       method: 'POST',
       headers: authHeaders,
       url: `/me/providers`,
       payload: {
-        type: 'google_fit',
-        token: 'token2',
-        refresh_token: 'token2',
-        token_expires_at: new Date().getTime(),
-        scopes: ['read', 'write'],
-        provider_user_id: '12345'
+        type: 'google_fit'
       }
     })
 
     const updateProvider = update.json()
-
     expect(updateProvider.id).toEqual(provider.id)
-    expect(updateProvider.token).toEqual('token2')
   })
 
   it('DELETE /me/providers/:providerType A user can delete the provider', async () => {

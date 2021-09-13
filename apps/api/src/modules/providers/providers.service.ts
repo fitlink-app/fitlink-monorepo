@@ -77,10 +77,13 @@ export class ProvidersService {
       id = exists.id
     }
 
-    return this.providerRepository.create({
-      id,
-      user: { id: userId }
-    })
+    return this.providerRepository.save(
+      this.providerRepository.create({
+        id,
+        user: { id: userId },
+        type
+      })
+    )
   }
 
   async findAll(id: string) {
