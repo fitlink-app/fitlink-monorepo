@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
+import { CreateManualProviderDto } from './dto/create-manual-provider.dto'
 import { CreateProviderDto } from './dto/create-provider.dto'
 import { UpdateProviderDto } from './dto/update-provider.dto'
 import { Provider } from './entities/provider.entity'
@@ -54,6 +55,32 @@ export class ProvidersService {
     } catch (err) {
       throw new BadRequestException(err.message)
     }
+  }
+
+  /**
+   * For manually creating a provider
+   *
+   *
+   * @param param0
+   * @param userId
+   * @returns
+   */
+  async createManual({ type }: CreateManualProviderDto, userId: string) {
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['providers']
+    })
+
+    const exists = user.providers.filter((e) => e.type === type)[0]
+
+    let id: string
+    if (exists) {
+      id = exists.id
+    }
+
+    return this.providerRepository.create({
+      id,
+      user: { id: userId }
+    })
   }
 
   async findAll(id: string) {

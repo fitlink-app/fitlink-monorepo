@@ -62,6 +62,8 @@ export default function components() {
     })
   )
 
+  const config = useQuery('environment', () => api.get('/app/config'))
+
   useEffect(() => {
     if (deregisterStrava.isSuccess || registerStrava.isSuccess) {
       strava.refetch()
@@ -128,35 +130,41 @@ export default function components() {
             </p>
           </Card>
         </div>
-        {/* <div className="col-12 col-md-6 col-xl-5 col-hd-4 mt-2">
+        <div className="col-12 col-md-6 col-xl-5 col-hd-4 mt-2">
+          <Card className="p-3 card--stretch pb-4">
+            <h2 className="h5 color-light-grey m-0">Useful links</h2>
+            <div className="pt-2">
+              <ul>
+                <li>
+                  <a
+                    href="https://analytics.google.com/analytics/web/#/p277435002/reports/reportinghub"
+                    target="_blank"
+                    rel="noopener nofollow">
+                    Google Analytics
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </Card>
+        </div>
+        <div className="col-12 col-md-12 col-xl-12 col-hd-4 mt-2">
           <Card className="p-3 card--stretch">
             <h3 className="h5 color-light-grey mb-3">
-              Newsletter subscriptions
+              Environmental variables
             </h3>
-            <Checkbox
-              label="Admin newsletter"
-              name="admin"
-              checked={true}
-              showSwitch={true}
-              onChange={(v) => {}}
-            />
-            <p className="pl-7 pl-md-6">
-              Receive important information, updates, and helpful tips to boost
-              your employee wellness campaigns.
-            </p>
-            <Checkbox
-              label="User newsletter"
-              name="admin"
-              checked={true}
-              showSwitch={true}
-              onChange={(v) => {}}
-            />
-            <p className="pl-7 pl-md-6">
-              Receive information on app updates, new rewards, and tips to keep
-              you inspired and motivated to achieve your wellness goals.
-            </p>
+            <table>
+              {config.isFetched &&
+                Object.keys(config.data).map((key) => {
+                  return (
+                    <tr>
+                      <th className="text-right pr-2">{key}:</th>
+                      <td>{config.data[key]}</td>
+                    </tr>
+                  )
+                })}
+            </table>
           </Card>
-        </div> */}
+        </div>
       </div>
     </Dashboard>
   )

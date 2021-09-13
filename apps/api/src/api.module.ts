@@ -59,6 +59,7 @@ import { UsersSettingsModule } from './modules/users-settings/users-settings.mod
 import { UploadGuard } from './guards/upload.guard'
 import { UserRolesModule } from './modules/user-roles/user-roles.module'
 import { UsersInvitationsModule } from './modules/users-invitations/users-invitations.module'
+import { AppController } from './api.controller'
 
 @Module({
   imports: [
@@ -145,6 +146,7 @@ import { UsersInvitationsModule } from './modules/users-invitations/users-invita
       provide: APP_GUARD,
       useClass: UploadGuard
     }
-  ]
+  ],
+  controllers: [AppController]
 })
 export class ApiModule {}

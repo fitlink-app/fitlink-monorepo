@@ -6,10 +6,14 @@ import { UpdateProviderDto } from './dto/update-provider.dto'
 import { ProviderType } from './providers.constants'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { AuthenticatedUser } from '../../models'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBaseResponses } from '../../decorators/swagger.decorator'
+import { Provider } from './entities/provider.entity'
+import { DeleteResult } from 'typeorm'
 
 @Controller()
 @ApiTags('providers')
+@ApiBaseResponses()
 export class ProvidersController {
   constructor(private readonly providersService: ProvidersService) {}
 
@@ -21,13 +25,16 @@ export class ProvidersController {
    * This is for Google Fit & Apple Healthkit. Other services
    * need to go through an Oauth flow via the API.
    *
+   *
+   *
    */
   @Post('/me/providers')
+  @ApiResponse({ type: Provider, status: 201 })
   link(
     @Body() createProviderDto: CreateManualProviderDto,
     @User() user: AuthenticatedUser
   ) {
-    return this.providersService.create(createProviderDto, user.id)
+    return this.providersService.createManual(createProviderDto, user.id)
   }
 
   /**
@@ -37,6 +44,7 @@ export class ProvidersController {
    * @returns
    */
   @Get('/me/providers')
+  @ApiResponse({ type: Provider, status: 200, isArray: true })
   findAll(@User() user: AuthenticatedUser) {
     return this.providersService.findAll(user.id)
   }
@@ -50,6 +58,7 @@ export class ProvidersController {
    */
 
   @Put('/me/providers/:providerType')
+  @ApiResponse({ type: Provider, status: 200 })
   update(
     @User() user: AuthenticatedUser,
     @Param('providerType') providerType: ProviderType,
@@ -69,6 +78,7 @@ export class ProvidersController {
    * @returns
    */
   @Delete('/me/providers/:providerType')
+  @ApiResponse({ type: DeleteResult, status: 200 })
   remove(
     @User() user: AuthenticatedUser,
     @Param('providerType') providerType: ProviderType

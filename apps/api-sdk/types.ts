@@ -217,6 +217,7 @@ export type ReadResource =
   | '/teams/:teamId/stats/global'
   | '/providers/strava/webhook/view'
   | '/providers/strava/webhook/register/:id'
+  | '/app/config'
 
 export type UploadResource = '/images'
 

@@ -7,15 +7,18 @@ import {
   Post,
   Query
 } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBaseResponses } from 'apps/api/src/decorators/swagger.decorator'
 import { User } from '../../../../decorators/authenticated-user.decorator'
 import { Public } from '../../../../decorators/public.decorator'
 import { AuthenticatedUser } from '../../../../models/authenticated-user.model'
 import { StravaEventData } from '../../types/strava'
+import { OauthUrl } from './strava.dto'
 import { StravaService } from './strava.service'
 
 @Controller('/providers/strava')
 @ApiTags('providers')
+@ApiBaseResponses()
 export class StravaControler {
   constructor(private stravaService: StravaService) {}
 
@@ -49,6 +52,7 @@ export class StravaControler {
     return this.stravaService.processStravaData(stravaEventData)
   }
 
+  @ApiResponse({ type: OauthUrl, status: 200 })
   @Get('/auth')
   getOAuthUrl(@User() user: AuthenticatedUser) {
     return this.stravaService.getOAuthUrl(user.id)
