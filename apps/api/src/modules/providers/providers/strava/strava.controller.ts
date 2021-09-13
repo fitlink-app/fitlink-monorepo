@@ -8,7 +8,7 @@ import {
   Query
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { ApiBaseResponses } from 'apps/api/src/decorators/swagger.decorator'
+import { ApiBaseResponses } from '../../../../decorators/swagger.decorator'
 import { User } from '../../../../decorators/authenticated-user.decorator'
 import { Public } from '../../../../decorators/public.decorator'
 import { AuthenticatedUser } from '../../../../models/authenticated-user.model'

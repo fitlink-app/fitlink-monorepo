@@ -5,7 +5,7 @@ import { FitbitEventData } from '../../types/fitbit'
 import { AuthenticatedUser } from '../../../../models/authenticated-user.model'
 import { User } from '../../../../decorators/authenticated-user.decorator'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { ApiBaseResponses } from 'apps/api/src/decorators/swagger.decorator'
+import { ApiBaseResponses } from '../../../../decorators/swagger.decorator'
 import { OauthUrl } from '../fitbit/fitbit.dto'
 
 @Controller('/providers/fitbit')
