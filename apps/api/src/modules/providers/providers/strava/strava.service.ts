@@ -197,6 +197,7 @@ export class StravaService {
         callback_url: string
       }
     } catch (e) {
+      console.error(e)
       throw new BadRequestException(e.response.data.errors)
     }
   }
