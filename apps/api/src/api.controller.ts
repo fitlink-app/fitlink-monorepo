@@ -67,6 +67,10 @@ export class AppController {
 }
 
 function mask(str: string, max?: number) {
+  if (!str) {
+    return 'NOT SET!'
+  }
+
   if (max) {
     str = str.substr(str.length - max)
   }
