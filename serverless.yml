@@ -70,3 +70,7 @@ functions:
         - ${env:VPC_SUBNET_ID_1}
         - ${env:VPC_SUBNET_ID_2}
         - ${env:VPC_SUBNET_ID_3}
+  leagues:
+    handler: dist/apps/api/serverless.processLeagues
+    events:
+      - schedule: rate(10 minutes)

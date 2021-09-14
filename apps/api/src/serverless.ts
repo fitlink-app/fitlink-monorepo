@@ -24,6 +24,7 @@ import { createConnection } from 'typeorm'
 import migrations from './migrations'
 import { validationExceptionFactory } from './exceptions/validation.exception.factory'
 import { UploadGuardV2 } from './guards/upload-v2.guard'
+import { LeaguesService } from './modules/leagues/leagues.service'
 
 interface NestApp {
   app: NestFastifyApplication
@@ -85,6 +86,12 @@ export async function handler(
   }
   const proxy = awsLambdaFastify(cachedNestApp.instance)
   return proxy(event, context)
+}
+
+export async function processLeagues() {
+  const module = await NestFactory.createApplicationContext(ApiModule)
+  const leaguesService = module.get(LeaguesService)
+  return leaguesService.processPendingLeagues()
 }
 
 export async function migrate() {

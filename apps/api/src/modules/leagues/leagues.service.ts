@@ -1,7 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, FindOneOptions, getManager, In, Repository } from 'typeorm'
+import {
+  Brackets,
+  FindOneOptions,
+  getManager,
+  In,
+  LessThan,
+  Repository
+} from 'typeorm'
 import {
   Pagination,
   PaginationOptionsInterface,
@@ -866,5 +873,20 @@ export class LeaguesService {
     } else {
       reject('An error has occurred')
     }
+  }
+
+  /**
+   * Example method for testing serverless methods.
+   */
+  async processPendingLeagues() {
+    const leagues = await this.leaguesRepository.find({
+      where: {
+        ends_at: LessThan(new Date())
+      },
+      take: 10
+    })
+
+    console.log(leagues.map((e) => e.name))
+    return leagues
   }
 }
