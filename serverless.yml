@@ -9,6 +9,7 @@ plugins:
   - serverless-offline
   - serverless-dotenv-plugin
   - serverless-deployment-bucket
+  - serverless-aws-alias
 
 package:
   exclude:
