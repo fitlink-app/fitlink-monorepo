@@ -9,7 +9,7 @@ plugins:
   - serverless-offline
   - serverless-dotenv-plugin
   - serverless-deployment-bucket
-  - serverless-aws-alias
+  - serverless-provisioned-concurrency-autoscaling
 
 package:
   exclude:
@@ -58,6 +58,8 @@ functions:
         - ${env:VPC_SUBNET_ID_1}
         - ${env:VPC_SUBNET_ID_2}
         - ${env:VPC_SUBNET_ID_3}
+    provisionedConcurrency: ${env:PROVISIONED_CONCURRENCY}
+    concurrencyAutoscaling: false
 
   migrate:
     handler: dist/apps/api/serverless.migrate
