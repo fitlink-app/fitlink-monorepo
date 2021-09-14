@@ -24,6 +24,7 @@ custom:
     functions:
       - main
       - migrate
+      - leagues
     dependenciesPath: ./serverless/package.json
     packageManager: yarn
     customInstallationCommand: node -e "fs.copyFileSync('../../../serverless/.yarnclean', '.yarnclean'); fs.copyFileSync('../../../serverless/yarn.lock', 'yarn.lock')" && yarn install --production --frozen-lockfile
@@ -72,5 +73,12 @@ functions:
         - ${env:VPC_SUBNET_ID_3}
   leagues:
     handler: dist/apps/api/serverless.processLeagues
+    vpc:
+      securityGroupIds:
+        - ${env:VPC_SECURITY_GROUP_ID}
+      subnetIds:
+        - ${env:VPC_SUBNET_ID_1}
+        - ${env:VPC_SUBNET_ID_2}
+        - ${env:VPC_SUBNET_ID_3}
     events:
       - schedule: rate(10 minutes)
