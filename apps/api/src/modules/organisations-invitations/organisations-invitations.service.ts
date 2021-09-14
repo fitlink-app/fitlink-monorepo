@@ -21,6 +21,11 @@ export enum OrganisationsInvitationsServiceError {
   TokenNotFound = 'The invitation cannot be found'
 }
 
+type InviteeInviter = {
+  inviter: string
+  invitee: string
+}
+
 @Injectable()
 export class OrganisationsInvitationsService {
   constructor(
@@ -28,7 +33,9 @@ export class OrganisationsInvitationsService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     @InjectRepository(OrganisationsInvitation)
-    private readonly invitationsRepository: Repository<OrganisationsInvitation>
+    private readonly invitationsRepository: Repository<OrganisationsInvitation>,
+    @InjectRepository(Organisation)
+    private readonly organisationsRepository: Repository<Organisation>
   ) {}
 
   async create(
@@ -56,8 +63,16 @@ export class OrganisationsInvitationsService {
 
     const token = this.createToken(invitation.id)
     const inviteLink = this.createInviteLink(token)
+    const org = await this.organisationsRepository.findOne(organisationId)
 
-    await this.sendEmail(invitee, email, inviteLink)
+    await this.sendEmail(
+      {
+        invitee,
+        inviter: org.name
+      },
+      email,
+      inviteLink
+    )
 
     return { invitation, inviteLink, token }
   }
@@ -72,12 +87,19 @@ export class OrganisationsInvitationsService {
    * @returns jwt token
    */
   async resend(id: string) {
-    const { email, name } = await this.findOne(id)
+    const { email, name, organisation } = await this.findOne(id)
 
     const token = this.createToken(id)
     const inviteLink = this.createInviteLink(token)
 
-    await this.sendEmail(name, email, inviteLink)
+    await this.sendEmail(
+      {
+        invitee: name,
+        inviter: organisation.name
+      },
+      email,
+      inviteLink
+    )
 
     return { token, inviteLink }
   }
@@ -101,11 +123,15 @@ export class OrganisationsInvitationsService {
    * @param inviteLink
    * @returns string (MessageId)
    */
-  sendEmail(invitee: string, email: string, inviteLink: string) {
+  sendEmail(
+    { invitee, inviter }: InviteeInviter,
+    email: string,
+    inviteLink: string
+  ) {
     return this.emailService.sendTemplatedEmail(
       'organisation-invitation',
       {
-        INVITER_NAME: 'Fitlink',
+        INVITER_NAME: inviter,
         INVITEE_NAME: invitee,
         INVITE_LINK: inviteLink
       },
@@ -210,7 +236,8 @@ export class OrganisationsInvitationsService {
     return this.invitationsRepository.findOne({
       where: {
         id: invitationId
-      }
+      },
+      relations: ['organisation']
     })
   }
 

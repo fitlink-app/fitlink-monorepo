@@ -140,6 +140,7 @@ const LoginPage = () => {
             inline={true}
             register={register('name')}
             error={errors.name}
+            disabled={loading}
           />
         )}
 
@@ -150,6 +151,7 @@ const LoginPage = () => {
           inline={true}
           register={register('email')}
           error={errors.email}
+          disabled={loading}
         />
         <Input
           label="Password"
@@ -158,6 +160,7 @@ const LoginPage = () => {
           inline={true}
           register={register('password')}
           error={errors.password}
+          disabled={loading}
         />
 
         {errorMessage !== '' && (

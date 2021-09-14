@@ -6,11 +6,12 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { OrganisationsInvitation } from './entities/organisations-invitation.entity'
 import { JwtModule } from '@nestjs/jwt'
 import { CommonModule } from '../common/common.module'
+import { Organisation } from '../organisations/entities/organisation.entity'
 
 @Module({
   imports: [
     CommonModule,
-    TypeOrmModule.forFeature([OrganisationsInvitation]),
+    TypeOrmModule.forFeature([OrganisationsInvitation, Organisation]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

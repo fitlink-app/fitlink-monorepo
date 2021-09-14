@@ -57,9 +57,7 @@ export class AppController {
         this.configService.get('APPLE_PRIVATE_KEY_B64'),
         100
       ),
-      AUTH_JWT_TOKEN_SECRET: mask(
-        this.configService.get('AUTH_JWT_TOKEN_SECRET')
-      ),
+      AUTH_JWT_SECRET: mask(this.configService.get('AUTH_JWT_SECRET')),
       EMAIL_JWT_TOKEN_SECRET: mask(
         this.configService.get('EMAIL_JWT_TOKEN_SECRET')
       ),
