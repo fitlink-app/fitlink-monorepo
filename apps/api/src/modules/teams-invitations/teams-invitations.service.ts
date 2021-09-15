@@ -60,7 +60,8 @@ export class TeamsInvitationsService {
         inviter: inviterTeam.name
       },
       email,
-      inviteLink
+      inviteLink,
+      admin
     )
 
     return { invitation, inviteLink, token }
@@ -76,7 +77,7 @@ export class TeamsInvitationsService {
    * @returns jwt token
    */
   async resend(id: string) {
-    const { email, name, team } = await this.findOne(id)
+    const { email, name, admin, team } = await this.findOne(id)
 
     const token = this.createToken(id)
     const inviteLink = this.createInviteLink(token)
@@ -87,7 +88,8 @@ export class TeamsInvitationsService {
         inviter: team.name
       },
       email,
-      inviteLink
+      inviteLink,
+      admin
     )
 
     return { token, inviteLink }
@@ -115,10 +117,11 @@ export class TeamsInvitationsService {
   sendEmail(
     { invitee, inviter }: InviteeInviter,
     email: string,
-    inviteLink: string
+    inviteLink: string,
+    isAdmin: boolean
   ) {
     return this.emailService.sendTemplatedEmail(
-      'team-invitation',
+      isAdmin ? 'team-admin-invitation' : 'team-invitation',
       {
         INVITER_NAME: inviter,
         INVITEE_NAME: invitee,

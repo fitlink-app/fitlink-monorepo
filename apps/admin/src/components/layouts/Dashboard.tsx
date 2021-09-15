@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast'
 import { AuthContext } from '../../context/Auth.context'
 import Button from '../elements/Button'
 import Loader from '../elements/Loader'
+import LoaderFullscreen from '../elements/LoaderFullscreen'
 
 type DashboardProps = {
   children: React.ReactNode
@@ -37,10 +38,6 @@ export default function Dashboard({
       rerender(true)
     }
   }, [])
-
-  if (!focusRole) {
-    return <Loader />
-  }
 
   return (
     <>
@@ -76,11 +73,18 @@ export default function Dashboard({
         />
       </Head>
       <Toaster position="top-right" />
-      <div className="layout-dashboard">
-        {!hideSidebar && <Sidebar prefix={linkPrefix} menu={menu} />}
-        <div className="content">{children}</div>
-      </div>
-      <div id="modal-root"></div>
+
+      {!focusRole ? (
+        <LoaderFullscreen />
+      ) : (
+        <>
+          <div className="layout-dashboard">
+            {!hideSidebar && <Sidebar prefix={linkPrefix} menu={menu} />}
+            <div className="content">{children}</div>
+          </div>
+          <div id="modal-root"></div>
+        </>
+      )}
     </>
   )
 }
