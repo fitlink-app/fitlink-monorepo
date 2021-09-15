@@ -46,6 +46,7 @@ import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role
 import { TeamsInvitation } from '@fitlink/api/src/modules/teams-invitations/entities/teams-invitation.entity'
 import { RespondTeamsInvitationDto } from '@fitlink/api/src/modules/teams-invitations/dto/respond-teams-invitation.dto'
 import { RespondOrganisationsInvitationDto } from '@fitlink/api/src/modules/organisations-invitations/dto/respond-organisations-invitation.dto'
+import { RespondSubscriptionsInvitationDto } from '@fitlink/api/src/modules/subscriptions/dto/respond-subscriptions-invitation.dto'
 
 export type {
   AuthResultDto,
@@ -88,6 +89,8 @@ export type TeamsInvitationsVerify = '/teams-invitations/verify'
 export type TeamsInvitationsRespond = '/teams-invitations/respond'
 export type OrganisationsInvitationsVerify = '/organisations-invitations/verify'
 export type OrganisationsInvitationsRespond = '/organisations-invitations/respond'
+export type SubscriptionsInvitationsVerify = '/subscriptions-invitations/verify'
+export type SubscriptionsInvitationsRespond = '/subscriptions-invitations/respond'
 export type CreateStravaSubscription = '/providers/strava/webhook/register'
 
 export type CreatableResource =
@@ -103,6 +106,8 @@ export type CreatableResource =
   | TeamsInvitationsRespond
   | OrganisationsInvitationsVerify
   | OrganisationsInvitationsRespond
+  | SubscriptionsInvitationsVerify
+  | SubscriptionsInvitationsRespond
   | CreateStravaSubscription
 
 export type ListResource =
@@ -266,6 +271,10 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<{ token: string }>
   : T extends OrganisationsInvitationsRespond
   ? Payload<RespondOrganisationsInvitationDto>
+  : T extends SubscriptionsInvitationsVerify
+  ? Payload<{ token: string }>
+  : T extends SubscriptionsInvitationsRespond
+  ? Payload<RespondSubscriptionsInvitationDto>
   : never
 
 export type UploadResourceParams = FilePayload

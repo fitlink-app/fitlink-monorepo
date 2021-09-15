@@ -11,6 +11,7 @@ import { CreatableEntity } from '../../../classes/entity/creatable'
 import { Organisation } from '../../organisations/entities/organisation.entity'
 import { User } from '../../users/entities/user.entity'
 import { BillingPlanStatus, SubscriptionType } from '../subscriptions.constants'
+import { SubscriptionsInvitation } from './subscriptions-invitation.entity'
 
 @Entity()
 export class Subscription extends CreatableEntity {
@@ -27,6 +28,12 @@ export class Subscription extends CreatableEntity {
   })
   @JoinColumn()
   organisation: Organisation
+
+  @OneToMany(
+    () => SubscriptionsInvitation,
+    (invitation) => invitation.subscription
+  )
+  invitations: SubscriptionsInvitation[]
 
   @Column({
     nullable: true,

@@ -7,7 +7,9 @@ import {
   OrganisationsInvitationsRespond,
   OrganisationsInvitationsVerify,
   TeamsInvitationsRespond,
-  TeamsInvitationsVerify
+  TeamsInvitationsVerify,
+  SubscriptionsInvitationsRespond,
+  SubscriptionsInvitationsVerify
 } from '@fitlink/api-sdk/types'
 import { RespondTeamsInvitationDto } from '@fitlink/api/src/modules/teams-invitations/dto/respond-teams-invitation.dto'
 import { OrganisationsInvitation } from '@fitlink/api/src/modules/organisations-invitations/entities/organisations-invitation.entity'
@@ -15,15 +17,21 @@ import { RespondOrganisationsInvitationDto } from '@fitlink/api/src/modules/orga
 import { TeamInvitationJWT } from '@fitlink/api/src/models/team-invitation.jwt.model'
 import { OrganisationInvitationJWT } from '@fitlink/api/src/models/organisation-invitation.jwt.model'
 import { LeagueInvitationJWT } from '@fitlink/api/src/models/league-invitation.jwt.model'
+import { SubscriptionInvitationJWT } from '@fitlink/api/src/models/subscription-invitation.jwt.model'
 import { decode } from 'jsonwebtoken'
 import useApiErrors from '../useApiErrors'
 import toast from 'react-hot-toast'
+import { SubscriptionsInvitation } from '@fitlink/api/src/modules/subscriptions/entities/subscriptions-invitation.entity'
+import { RespondSubscriptionsInvitationDto } from '@fitlink/api/src/modules/subscriptions/dto/respond-subscriptions-invitation.dto'
 
 export default function useRedeemInvitation(token: string) {
   const [tokenError, setTokenError] = useState<string>()
 
   const tokenRef = useRef<
-    TeamInvitationJWT | OrganisationInvitationJWT | LeagueInvitationJWT
+    | TeamInvitationJWT
+    | OrganisationInvitationJWT
+    | LeagueInvitationJWT
+    | SubscriptionInvitationJWT
   >()
 
   const [invitationText, setInvitationText] = useState<string>()
@@ -36,6 +44,7 @@ export default function useRedeemInvitation(token: string) {
           | TeamInvitationJWT
           | OrganisationInvitationJWT
           | LeagueInvitationJWT
+          | SubscriptionInvitationJWT
 
         tokenRef.current = decoded
         if (decoded.type === 'team-invitation') {
@@ -43,6 +52,10 @@ export default function useRedeemInvitation(token: string) {
         }
         if (decoded.type === 'organisation-invitation') {
           orgInvitation.mutate({})
+        }
+
+        if (decoded.type === 'subscription-invitation') {
+          subscriptionInvitation.mutate({})
         }
       } catch (e) {
         setTokenError(
@@ -98,15 +111,44 @@ export default function useRedeemInvitation(token: string) {
     }
   )
 
+  const subscriptionInvitation: ApiMutationResult<SubscriptionsInvitation> = useMutation(
+    'susbcription_invitation',
+    () => {
+      return api.post<SubscriptionsInvitationsVerify>(
+        '/subscriptions-invitations/verify',
+        {
+          payload: { token }
+        }
+      )
+    }
+  )
+
+  const susbcriptionInvitationRespond: ApiMutationResult<SubscriptionsInvitation> = useMutation(
+    'subscription_invitation_response',
+    (payload: RespondSubscriptionsInvitationDto) => {
+      return api.post<SubscriptionsInvitationsRespond>(
+        '/subscriptions-invitations/respond',
+        {
+          payload
+        }
+      )
+    }
+  )
+
   const { errorMessage, isError } = useApiErrors(
     teamInvitationRespond.isError ||
       teamInvitation.isError ||
       orgInvitation.isError ||
-      orgInvitationRespond.isError,
-    teamInvitationRespond.error ||
-      teamInvitation.error ||
+      subscriptionInvitation.isError ||
+      orgInvitationRespond.isError ||
+      teamInvitationRespond.isError ||
+      susbcriptionInvitationRespond.isError,
+    teamInvitation.error ||
       orgInvitation.error ||
-      orgInvitationRespond.error
+      subscriptionInvitation.error ||
+      orgInvitationRespond.error ||
+      teamInvitationRespond.error ||
+      susbcriptionInvitationRespond.error
   )
 
   async function respond(accept = true) {
@@ -125,12 +167,23 @@ export default function useRedeemInvitation(token: string) {
       })
     }
 
-    if (mutation) {
-      await toast.promise(mutation, {
-        loading: <b>Saving...</b>,
-        success: <b>Done</b>,
-        error: <b>Error</b>
+    if (subscriptionInvitation.isSuccess) {
+      mutation = susbcriptionInvitationRespond.mutateAsync({
+        token,
+        accept
       })
+    }
+
+    if (mutation) {
+      try {
+        await toast.promise(mutation, {
+          loading: <b>Saving...</b>,
+          success: <b>Done</b>,
+          error: <b>Error</b>
+        })
+      } catch (e) {
+        setTokenError(e)
+      }
     }
   }
 
@@ -151,20 +204,43 @@ export default function useRedeemInvitation(token: string) {
       `)
       setInvitationTarget(orgInvitation.data.organisation.name)
     }
-  }, [teamInvitation.isSuccess, orgInvitation.isSuccess])
 
-  const showButtons = teamInvitation.isSuccess || orgInvitation.isSuccess
+    if (subscriptionInvitation.isSuccess) {
+      setInvitationText(`
+        ${subscriptionInvitation.data.owner.name} invited you to administer the billing subscription for
+        ${subscriptionInvitation.data.subscription.organisation.name}
+      `)
+      setInvitationTarget(
+        subscriptionInvitation.data.subscription.organisation.name
+      )
+    }
+  }, [
+    teamInvitation.isSuccess,
+    orgInvitation.isSuccess,
+    subscriptionInvitation.isSuccess
+  ])
+
+  const showButtons =
+    teamInvitation.isSuccess ||
+    orgInvitation.isSuccess ||
+    subscriptionInvitation.isSuccess
+
   const showRespond =
-    orgInvitationRespond.isSuccess || teamInvitationRespond.isSuccess
+    orgInvitationRespond.isSuccess ||
+    teamInvitationRespond.isSuccess ||
+    susbcriptionInvitationRespond.isSuccess
+
   const isLoading =
-    orgInvitationRespond.isLoading || teamInvitationRespond.isLoading
-  const invitation = orgInvitationRespond.data || teamInvitationRespond.data
+    orgInvitationRespond.isLoading ||
+    teamInvitationRespond.isLoading ||
+    susbcriptionInvitationRespond.isLoading
+
+  const invitation =
+    orgInvitationRespond.data ||
+    teamInvitationRespond.data ||
+    susbcriptionInvitationRespond.data
 
   return {
-    teamInvitation,
-    teamInvitationRespond,
-    orgInvitation,
-    orgInvitationRespond,
     errorMessage,
     isError,
     tokenError,

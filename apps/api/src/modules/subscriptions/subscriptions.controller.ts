@@ -32,6 +32,9 @@ import {
 import { CreateSubscriptionDto } from './dto/create-subscription.dto'
 import { User } from '../users/entities/user.entity'
 import { AddUserToSubscriptionDto } from './dto/add-user-to-subscription.dto'
+import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
+import { AuthenticatedUser } from '../../models'
+import { RespondSubscriptionsInvitationDto } from './dto/respond-subscriptions-invitation.dto'
 
 @Controller()
 @ApiTags('subscriptions')
@@ -312,5 +315,21 @@ export class SubscriptionsController {
       subId,
       customerId
     )
+  }
+
+  @Post('/subscriptions-invitations/respond')
+  async accept(
+    @Body() { token, accept }: RespondSubscriptionsInvitationDto,
+    @AuthUser() user: AuthenticatedUser
+  ) {
+    const result = await this.subscriptionsService.respondToInvitation(
+      token,
+      accept,
+      user.id
+    )
+    if (typeof result === 'string') {
+      throw new BadRequestException(result)
+    }
+    return result
   }
 }
