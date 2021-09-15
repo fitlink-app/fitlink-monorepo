@@ -128,3 +128,4 @@ export type TemplatesType =
   | 'team-invitation'
   | 'league-invitation'
   | 'subscription-invitation'
+  | 'team-admin-invitation'

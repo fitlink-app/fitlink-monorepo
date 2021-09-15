@@ -6,6 +6,7 @@ import { AuthContext } from '../context/Auth.context'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import useRedeemInvitation from '../hooks/api/useRedeemInvitation'
+import LoaderFullscreen from '../components/elements/LoaderFullscreen'
 
 const RedeemPage = () => {
   const router = useRouter()
@@ -23,7 +24,7 @@ const RedeemPage = () => {
   } = useRedeemInvitation(router.query.token as string)
 
   if (!user) {
-    return null
+    return <LoaderFullscreen />
   }
 
   return (
