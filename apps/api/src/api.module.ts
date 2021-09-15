@@ -25,6 +25,7 @@ import { Reward } from './modules/rewards/entities/reward.entity'
 import { RewardsRedemption } from './modules/rewards-redemptions/entities/rewards-redemption.entity'
 import { Sport } from './modules/sports/entities/sport.entity'
 import { Subscription } from './modules/subscriptions/entities/subscription.entity'
+import { SubscriptionsInvitation } from './modules/subscriptions/entities/subscriptions-invitation.entity'
 import { Team } from './modules/teams/entities/team.entity'
 import { TeamsInvitation } from './modules/teams-invitations/entities/teams-invitation.entity'
 import { User } from './modules/users/entities/user.entity'
@@ -102,6 +103,7 @@ import { AppController } from './api.controller'
             RewardsRedemption,
             Sport,
             Subscription,
+            SubscriptionsInvitation,
             Team,
             TeamsInvitation,
             User,

@@ -30,6 +30,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, Expose } from 'class-transformer'
 import { UnitSystem, UserRank } from '../users.constants'
 import { LeaguesInvitation } from '../../leagues-invitations/entities/leagues-invitation.entity'
+import { SubscriptionsInvitation } from '../../subscriptions/entities/subscriptions-invitation.entity'
 
 @Entity()
 export class User extends CreatableEntity {
@@ -215,6 +216,15 @@ export class User extends CreatableEntity {
 
   @OneToMany(() => LeaguesInvitation, (invitation) => invitation.from_user)
   leagues_invitations_sent: LeaguesInvitation[]
+
+  @OneToMany(
+    () => SubscriptionsInvitation,
+    (invitation) => invitation.resolved_user
+  )
+  subscriptions_invitations: SubscriptionsInvitation[]
+
+  @OneToMany(() => LeaguesInvitation, (invitation) => invitation.from_user)
+  subscriptions_invitations_sent: SubscriptionsInvitation[]
 
   @OneToMany(() => Activity, (activity) => activity.owner)
   activities: Activity[]

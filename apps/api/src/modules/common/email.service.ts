@@ -127,3 +127,4 @@ export type TemplatesType =
   | 'organisation-invitation'
   | 'team-invitation'
   | 'league-invitation'
+  | 'subscription-invitation'

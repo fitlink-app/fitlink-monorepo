@@ -17,6 +17,8 @@ import {
 } from 'chargebee-typescript/lib/resources'
 import { SubscriptionType } from './subscriptions.constants'
 import { SuccessResultDto } from '../../classes/dto/success'
+import { SubscriptionsInvitationsService } from './subscriptions-invitations.service'
+import { UserRolesService } from '../user-roles/user-roles.service'
 
 type EntityOwner = {
   organisationId?: string
@@ -56,7 +58,10 @@ export class SubscriptionsService {
     private teamRepository: Repository<Team>,
 
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private userRepository: Repository<User>,
+
+    private invitationsService: SubscriptionsInvitationsService,
+    private userRolesService: UserRolesService
   ) {}
 
   /**
@@ -887,5 +892,58 @@ export class SubscriptionsService {
           }
         })
     })
+  }
+
+  /**
+   * Verifies the token and responds to the invitation
+   * either accepts or declines.
+   *
+   * @param token
+   * @returns object (SubscriptionsInvitation)
+   */
+
+  async respondToInvitation(token: string, accept: boolean, userId: string) {
+    const invitation = await this.invitationsService.verifyToken(token)
+
+    if (typeof invitation === 'string') {
+      return invitation
+    }
+
+    const roles = await this.userRolesService.getAllUserRoles(userId)
+
+    const alreadyAdmin = roles.filter(
+      (e) => e.subscription && e.subscription.id === invitation.subscription.id
+    ).length
+
+    // Delete the invitation if the user is already a member
+    if (alreadyAdmin) {
+      await this.invitationsService.remove(invitation.id)
+      invitation.accepted = true
+      return invitation
+    }
+
+    if (accept) {
+      await this.userRolesService.assignAdminRole(
+        userId,
+        {
+          subscriptionId: invitation.subscription.id
+        },
+        false
+      )
+      return this.invitationsService.accept(invitation)
+    } else {
+      return this.invitationsService.decline(invitation)
+    }
+  }
+
+  /**
+   * Assign admin role to subscription
+   */
+  async assignAdmin(subscriptionId: string, userId: string) {
+    return this.userRolesService.assignAdminRole(
+      userId,
+      { subscriptionId },
+      false
+    )
   }
 }

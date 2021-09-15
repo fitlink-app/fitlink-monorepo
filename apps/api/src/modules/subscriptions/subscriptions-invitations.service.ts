@@ -3,18 +3,19 @@ import { ConfigService } from '@nestjs/config'
 import { InjectRepository } from '@nestjs/typeorm'
 import { FindManyOptions, Repository } from 'typeorm'
 import { EmailService } from '../common/email.service'
-import { CreateTeamsInvitationDto } from './dto/create-teams-invitation.dto'
-import { TeamsInvitation } from './entities/teams-invitation.entity'
+import { CreateSubscriptionsInvitationDto } from './dto/create-subscriptions-invitation.dto'
+import { SubscriptionsInvitation } from './entities/subscriptions-invitation.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { JwtService } from '@nestjs/jwt'
-import { TeamInvitationJWT } from '../../models/team-invitation.jwt.model'
+import { SubscriptionInvitationJWT } from '../../models/subscription-invitation.jwt.model'
 import { User, UserPublic } from '../users/entities/user.entity'
 import { plainToClass } from 'class-transformer'
-import { Team } from '../teams/entities/team.entity'
+import { Subscription } from './entities/subscription.entity'
 
-export enum TeamsInvitationsServiceError {
+export enum SubscriptionsInvitationsServiceError {
   TokenNotFound = 'The invitation cannot be found',
-  TokenExpired = 'The invitation can no longer be used'
+  TokenExpired = 'The invitation can no longer be used',
+  OrganisationNotExists = 'The subscription is not linked to an organisation'
 }
 
 type InviteeInviter = {
@@ -23,19 +24,19 @@ type InviteeInviter = {
 }
 
 @Injectable()
-export class TeamsInvitationsService {
+export class SubscriptionsInvitationsService {
   constructor(
     private readonly emailService: EmailService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
-    @InjectRepository(TeamsInvitation)
-    private readonly invitationsRepository: Repository<TeamsInvitation>,
-    @InjectRepository(Team)
-    private readonly teamsRepository: Repository<Team>
+    @InjectRepository(SubscriptionsInvitation)
+    private readonly invitationsRepository: Repository<SubscriptionsInvitation>,
+    @InjectRepository(Subscription)
+    private readonly subscriptionsRepository: Repository<Subscription>
   ) {}
 
-  async create(createDto: CreateTeamsInvitationDto, ownerId: string) {
-    const { email, team, invitee, admin } = createDto
+  async create(createDto: CreateSubscriptionsInvitationDto, ownerId: string) {
+    const { email, subscription, invitee } = createDto
 
     const owner = new User()
     owner.id = ownerId
@@ -43,21 +44,25 @@ export class TeamsInvitationsService {
     const invitation = await this.invitationsRepository.save(
       this.invitationsRepository.create({
         email,
-        team,
+        subscription,
         name: invitee,
-        admin,
         owner
       })
     )
 
     const token = this.createToken(invitation.id)
     const inviteLink = this.createInviteLink(token)
-    const inviterTeam = await this.teamsRepository.findOne(team.id)
+    const inviterSubscription = await this.subscriptionsRepository.findOne(
+      subscription.id,
+      {
+        relations: ['organisation']
+      }
+    )
 
     await this.sendEmail(
       {
         invitee: invitee,
-        inviter: inviterTeam.name
+        inviter: inviterSubscription.organisation.name
       },
       email,
       inviteLink
@@ -68,7 +73,7 @@ export class TeamsInvitationsService {
 
   /**
    * Regenerates a token for an existing
-   * team invitation.
+   * subscription invitation.
    *
    * E.g. "Resend email" functionality.
    *
@@ -76,7 +81,7 @@ export class TeamsInvitationsService {
    * @returns jwt token
    */
   async resend(id: string) {
-    const { email, name, team } = await this.findOne(id)
+    const { email, name, subscription } = await this.findOne(id)
 
     const token = this.createToken(id)
     const inviteLink = this.createInviteLink(token)
@@ -84,7 +89,7 @@ export class TeamsInvitationsService {
     await this.sendEmail(
       {
         invitee: name,
-        inviter: team.name
+        inviter: subscription.organisation.name
       },
       email,
       inviteLink
@@ -94,7 +99,7 @@ export class TeamsInvitationsService {
   }
 
   /**
-   * Generates an team invitation url
+   * Generates an subscription admin invitation url
    * comprised of the JWT.
    *
    * @param token
@@ -118,7 +123,7 @@ export class TeamsInvitationsService {
     inviteLink: string
   ) {
     return this.emailService.sendTemplatedEmail(
-      'team-invitation',
+      'subscription-invitation',
       {
         INVITER_NAME: inviter,
         INVITEE_NAME: invitee,
@@ -129,18 +134,18 @@ export class TeamsInvitationsService {
   }
 
   /**
-   * Greates a JWT for the team invitation
+   * Greates a JWT for the subscription invitation
    *
    * @param id
    * @returns string (JWT)
    */
   createToken(id: string) {
-    const payload: TeamInvitationJWT = {
+    const payload: SubscriptionInvitationJWT = {
       iss: 'fitlinkapp.com',
       aud: 'fitlinkapp.com',
       sub: id,
       iat: new Date().getTime(),
-      type: 'team-invitation'
+      type: 'subscription-invitation'
     }
 
     return this.jwtService.sign(payload)
@@ -156,50 +161,50 @@ export class TeamsInvitationsService {
     try {
       this.jwtService.verify(token)
       const jwt = this.jwtService.decode(token)
-      return (jwt as unknown) as TeamInvitationJWT
+      return (jwt as unknown) as SubscriptionInvitationJWT
     } catch (e) {
       switch (e.message) {
         case 'jwt expired':
-          return TeamsInvitationsServiceError.TokenExpired
+          return SubscriptionsInvitationsServiceError.TokenExpired
         default:
-          return TeamsInvitationsServiceError.TokenNotFound
+          return SubscriptionsInvitationsServiceError.TokenNotFound
       }
     }
   }
 
   /**
    * Verifies the token and retrieves the associated
-   * team invitation entity object,
+   * susbcription invitation entity object,
    * only if it has not yet been redeemed.
    *
    * @param token
-   * @returns object (TeamInvitation)
+   * @returns object (SubscriptionInvitation)
    */
 
   async verifyToken(token: string) {
     const payload = this.readToken(token)
 
     if (typeof payload === 'string') {
-      return payload as TeamsInvitationsServiceError
+      return payload as SubscriptionsInvitationsServiceError
     }
 
     const result = await this.invitationsRepository.findOne(payload.sub, {
       where: { accepted: false, dismissed: false },
-      relations: ['team', 'owner']
+      relations: ['subscription', 'owner', 'subscription.organisation']
     })
 
     if (result) {
       return {
         ...result,
         owner: plainToClass(UserPublic, result.owner)
-      } as TeamsInvitation
+      } as SubscriptionsInvitation
     } else {
       return null
     }
   }
 
   /**
-   * Finds a paginated series of team invitations
+   * Finds a paginated series of subscription invitations
    * based on where condition
    *
    * @param where
@@ -207,23 +212,23 @@ export class TeamsInvitationsService {
    * @returns object
    */
   async findAll(
-    where: FindManyOptions<TeamsInvitation>['where'],
+    where: FindManyOptions<SubscriptionsInvitation>['where'],
     options: PaginationOptionsInterface
-  ): Promise<Pagination<TeamsInvitation>> {
+  ): Promise<Pagination<SubscriptionsInvitation>> {
     const [results, total] = await this.invitationsRepository.findAndCount({
       where,
       order: { created_at: 'DESC' },
       take: options.limit,
       skip: options.page * options.limit
     })
-    return new Pagination<TeamsInvitation>({
+    return new Pagination<SubscriptionsInvitation>({
       results,
       total
     })
   }
 
   /**
-   * Finds a single team invitation
+   * Finds a single subscription invitation
    * by id
    *
    * @param invitationId
@@ -234,12 +239,12 @@ export class TeamsInvitationsService {
       where: {
         id: invitationId
       },
-      relations: ['team']
+      relations: ['subscription', 'subscription.organisation']
     })
   }
 
   /**
-   * Deletes an team invitation.
+   * Deletes a subscription invitation.
    *
    * While the JWT will remain valid, it won't
    * be verifiable due to the invitation
@@ -256,10 +261,10 @@ export class TeamsInvitationsService {
    * Decline the invitation
    *
    * @param invitation
-   * @returns object (TeamInvitation)
+   * @returns object (SubscriptionsInvitation)
    */
 
-  decline(invitation: TeamsInvitation) {
+  decline(invitation: SubscriptionsInvitation) {
     invitation.dismissed = true
     return this.invitationsRepository.save(invitation)
   }
@@ -268,10 +273,10 @@ export class TeamsInvitationsService {
    * Accept the invitation
    *
    * @param invitation
-   * @returns object (TeamInvitation)
+   * @returns object (SubscriptionsInvitation)
    */
 
-  accept(invitation: TeamsInvitation) {
+  accept(invitation: SubscriptionsInvitation) {
     invitation.accepted = true
     return this.invitationsRepository.save(invitation)
   }
