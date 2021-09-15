@@ -31,6 +31,7 @@ import { TeamsInvitation } from '../../src/modules/teams-invitations/entities/te
 import { User } from '../../src/modules/users/entities/user.entity'
 import { UsersSetting } from '../../src/modules/users-settings/entities/users-setting.entity'
 import { Subscription } from '../../src/modules/subscriptions/entities/subscription.entity'
+import { SubscriptionsInvitation } from '../../src/modules/subscriptions/entities/subscriptions-invitation.entity'
 import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity'
 import {
   mockConfigService,
@@ -68,6 +69,7 @@ export const entities = [
   RewardsRedemption,
   Sport,
   Subscription,
+  SubscriptionsInvitation,
   Team,
   TeamsInvitation,
   User,
