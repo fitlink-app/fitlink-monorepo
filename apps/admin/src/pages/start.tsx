@@ -8,6 +8,7 @@ import { Roles } from '@fitlink/api/src/modules/user-roles/user-roles.constants'
 import { useQuery } from 'react-query'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 import LoaderFullscreen from '../components/elements/LoaderFullscreen'
+import toast from 'react-hot-toast'
 
 export default function StartPage() {
   const { fetchKey, switchRole } = useContext(AuthContext)
@@ -37,13 +38,16 @@ export default function StartPage() {
   }) => (
     <div className="text-right">
       <button
-        className="button small ml-1"
-        onClick={() =>
+        className="button small ml-1 pointer"
+        onClick={async () => {
+          toast.loading(<b>Switching role...</b>)
           switchRole({
             id: original.id,
             role: original.role
+          }).finally(() => {
+            toast.dismiss()
           })
-        }>
+        }}>
         Manage
       </button>
     </div>

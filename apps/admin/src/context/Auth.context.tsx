@@ -287,19 +287,19 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       id: newRole ? newRole.id : undefined
     })
 
+    // If a previous item exists route to it.
+    if (last) {
+      await router.push(last.pathname)
+    } else {
+      await router.push('/start')
+    }
+
     setRoleTree(tree)
     setChildRole(tree[tree.length - 1])
     setState({
       ...state,
       switchMode: tree.length > 0
     })
-
-    // If a previous item exists route to it.
-    if (last) {
-      router.push(last.pathname)
-    } else {
-      router.push('/start')
-    }
   }
 
   function formatRoles(roles: UserRole[], childRole?: AuthSwitchDto) {
@@ -321,6 +321,13 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
 
       if (childRole.role === Roles.TeamAdmin) {
         permissions.teams.push({
+          id: childRole.id
+        })
+        return permissions
+      }
+
+      if (childRole.role === Roles.SubscriptionAdmin) {
+        permissions.subscriptions.push({
           id: childRole.id
         })
         return permissions
