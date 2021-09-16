@@ -89,7 +89,7 @@ export class ActivitiesService {
         type: 'Point',
         coordinates: meeting_point.split(',')
       }
-    })
+    } as Partial<Activity>)
 
     const activity = await this.activityRepository.save(created)
 
