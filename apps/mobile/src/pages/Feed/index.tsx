@@ -69,11 +69,9 @@ export const Feed = () => {
     navigation.navigate('HealthActivityDetails');
   }, []);
 
-  if (!user) return null;
-
   useEffect(() => {
     promptNewsletterModal();
-  }, []);
+  }, [user]);
 
   const promptNewsletterModal = async () => {
     const newsletterKey = 'NEWSLETTER_PROMPTED';
@@ -81,7 +79,8 @@ export const Feed = () => {
 
     if (
       !wasNewsletterModalShown &&
-      !user?.settings?.newsletter_subscriptions_user
+      !user?.settings?.newsletter_subscriptions_user &&
+      !!user
     ) {
       await persistData(newsletterKey, 'true');
 
@@ -99,6 +98,8 @@ export const Feed = () => {
       });
     }
   };
+
+  if (!user) return null;
 
   const renderItem = ({item, index}) => {
     return <FeedItem key={item} onContentPress={onFeedItemPressed} />;

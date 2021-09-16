@@ -49,6 +49,7 @@ type Settings = {
 export type SettingsState = {
   currentState: Settings;
   lastSetState?: Settings;
+  isSaving: boolean;
 };
 
 export const submit = createAsyncThunk(
@@ -181,9 +182,26 @@ const settingsSlice = createSlice({
       };
     },
   },
+  extraReducers: builder => {
+    builder
+      // Submit reducers
+      .addCase(submit.pending, (state, {payload}) => {
+        state.isSaving = true;
+      })
+
+      .addCase(submit.fulfilled, (state, {payload}) => {
+        state.isSaving = false;
+      })
+
+      .addCase(submit.rejected, (state, {payload}) => {
+        state.isSaving = false;
+      });
+  },
 });
 
 export const selectSettings = (state: RootState) => state.settings.currentState;
+export const selectIsSavingSettings = (state: RootState) =>
+  state.settings.isSaving;
 
 export const selectDidSettingsChange = (state: RootState) =>
   JSON.stringify(state.settings.currentState) !==

@@ -77,37 +77,44 @@ export const Settings = () => {
 
   const {data: user} = useMe();
 
+  console.log(user?.settings);
+
   const settings = useSelector(selectSettings);
   const didSettingsChange = useSelector(selectDidSettingsChange);
 
   const [isInitialized, setInitialized] = useState(false);
 
-  console.log(user);
   useEffect(() => {
     if (user && !isInitialized) {
       dispatch(clearChanges());
 
-      dispatch(
-        setState({
-          name: user?.name || '',
-          unitSystem: user?.unit_system || UnitSystem.Imperial,
-          timezone: user.timezone,
-          avatar: user.avatar,
-          goals: {
-            goal_mindfulness_minutes: user?.goal_mindfulness_minutes || 0,
-            goal_steps: user?.goal_steps || 0,
-            goal_floors_climbed: user?.goal_floors_climbed || 0,
-            goal_water_litres: user?.goal_water_litres || 0,
-            goal_sleep_hours: user?.goal_sleep_hours || 0,
-          },
-          userSettings: {
-            newsletter_subscriptions_user:
-              user?.settings?.newsletter_subscriptions_user,
-            privacy_activities: user?.settings?.privacy_activities,
-            privacy_daily_statistics: user?.settings?.privacy_daily_statistics,
-          },
-        }),
-      );
+      console.log('hey');
+      console.log(user?.settings?.newsletter_subscriptions_user);
+      console.log(user.settings);
+
+      const newState = {
+        name: user?.name || '',
+        unitSystem: user?.unit_system || UnitSystem.Imperial,
+        timezone: user.timezone,
+        avatar: user.avatar,
+        goals: {
+          goal_mindfulness_minutes: user?.goal_mindfulness_minutes || 0,
+          goal_steps: user?.goal_steps || 0,
+          goal_floors_climbed: user?.goal_floors_climbed || 0,
+          goal_water_litres: user?.goal_water_litres || 0,
+          goal_sleep_hours: user?.goal_sleep_hours || 0,
+        },
+        userSettings: {
+          newsletter_subscriptions_user:
+            user?.settings?.newsletter_subscriptions_user,
+          privacy_activities: user?.settings?.privacy_activities,
+          privacy_daily_statistics: user?.settings?.privacy_daily_statistics,
+        },
+      };
+
+      dispatch(setState(newState));
+
+      setLocalGoals(initializeGoalsFromNumericSource(newState.goals));
 
       setInitialized(true);
     }
@@ -140,8 +147,10 @@ export const Settings = () => {
    */
   const handleOnGoalChanged = (value: string, field: string) => {
     let formattedValue = value;
-    console.log(value);
-    setLocalGoals(prevGoals => ({...prevGoals, [field]: formattedValue}));
+    setLocalGoals(prevGoals => ({
+      ...(prevGoals || ({} as any)),
+      [field]: formattedValue,
+    }));
   };
 
   /**
@@ -151,7 +160,6 @@ export const Settings = () => {
    * to the settings hook state
    */
   const handleOnGoalSubmitted = () => {
-    console.log(localGoals);
     let parsedGoals = {...settings.goals};
 
     for (const property in localGoals) {

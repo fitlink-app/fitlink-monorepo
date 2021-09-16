@@ -1,6 +1,6 @@
 {
   "name": "@fitlink/mobile",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "workspaces": {
     "nohoist": [
@@ -25,12 +25,16 @@
     ]
   },
   "scripts": {
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "android:dev": "react-native run-android --variant=devDebug --appIdSuffix=dev",
+    "android:stg": "react-native run-android --variant=stgDebug --appIdSuffix=stg",
+    "android": "react-native run-android --variant=prdDebug",
+    "ios:dev": "react-native run-ios --configuration Development --scheme Fitlink.dev",
+    "ios:stg": "react-native run-ios --configuration Staging --scheme Fitlink.stg",
+    "ios": "react-native run-ios --configuration Production --scheme Fitlink"
   },
   "peerDependencies": {
     "@fitlink/common": "*"
@@ -50,6 +54,9 @@
     "@react-navigation/stack": "^5.14.5",
     "@reduxjs/toolkit": "^1.6.1",
     "@turf/circle": "^6.5.0",
+    "appcenter": "^4.2.0",
+    "appcenter-analytics": "^4.2.0",
+    "appcenter-crashes": "^4.2.0",
     "axios": "^0.21.1",
     "numbro": "^2.3.2",
     "patch-package": "^6.4.7",
@@ -57,9 +64,11 @@
     "react": "17.0.1",
     "react-native": "0.64.1",
     "react-native-bootsplash": "^3.2.5",
+    "react-native-config": "^1.4.4",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-google-places": "github:krakz999/react-native-google-places",
     "react-native-image-picker": "^4.0.6",
+    "react-native-inappbrowser-reborn": "^3.6.3",
     "react-native-linear-gradient": "^2.5.6",
     "react-native-pager-view": "^5.4.0",
     "react-native-reanimated": "^2.2.0",

@@ -30,6 +30,7 @@ import {useSelector} from 'react-redux';
 import {memoSelectIsAuthenticated} from 'redux/auth/authSlice';
 import {Onboarding} from 'pages/Onboarding';
 import {CustomInterpolators} from './interpolators';
+import {useMe} from '@hooks';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -40,7 +41,7 @@ export default function Router() {
   const {colors} = useTheme();
 
   const isAuthenticated = useSelector(memoSelectIsAuthenticated);
-  const isOnboarded = true;
+  const {data: me, isFetchedAfterMount: isUserFetched} = useMe();
 
   const navigatorOptions = {
     cardShadowEnabled: true,
@@ -57,7 +58,7 @@ export default function Router() {
       }}>
       <Stack.Navigator screenOptions={navigatorOptions}>
         {isAuthenticated ? (
-          isOnboarded ? (
+          isUserFetched && me?.onboarded ? (
             <>
               <Stack.Screen name={'HomeNavigator'} component={HomeNavigator} />
               <Stack.Screen

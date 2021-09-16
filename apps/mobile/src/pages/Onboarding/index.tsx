@@ -8,8 +8,10 @@ import {useMe} from '@hooks';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   clearChanges,
+  selectIsSavingSettings,
   selectSettings,
   setState,
+  submit,
 } from 'redux/settings/settingsSlice';
 import {AppDispatch} from 'redux/store';
 import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
@@ -65,6 +67,7 @@ export const Onboarding = () => {
 
   // redux
   const settings = useSelector(selectSettings);
+  const isSaving = useSelector(selectIsSavingSettings);
 
   // local state
   const [isInitialized, setInitialized] = useState(false);
@@ -120,9 +123,20 @@ export const Onboarding = () => {
     navEnabled.current = true;
   };
 
-  const handleNextPressed = () => {
+  const handleNextPressed = async () => {
     // switch
     setPage(currentPage + 1);
+
+    switch (currentPage) {
+      case OnboardingPages.Privacy:
+        await dispatch(submit());
+
+        break;
+
+      default:
+        setPage(currentPage + 1);
+        break;
+    }
   };
 
   const handleBackPressed = () => {
@@ -130,6 +144,8 @@ export const Onboarding = () => {
   };
 
   const isContinueEnabled = () => {
+    if (isSaving) return false;
+
     switch (currentPage) {
       case OnboardingPages.BasicInfo:
         return settings.name?.length >= 3;
@@ -149,6 +165,8 @@ export const Onboarding = () => {
   };
 
   const isBackEnabled = () => {
+    if (isSaving) return false;
+
     switch (currentPage) {
       case OnboardingPages.BasicInfo:
         return false;
@@ -164,10 +182,14 @@ export const Onboarding = () => {
         <>
           <Navigation
             backEnabled={isBackEnabled()}
-            onBack={() => setPage(currentPage - 1)}
-            onLogout={() => {
-              dispatch(logout());
-            }}
+            onBack={isSaving ? undefined : () => setPage(currentPage - 1)}
+            onLogout={
+              isSaving
+                ? undefined
+                : () => {
+                    dispatch(logout());
+                  }
+            }
           />
           <StyledPager
             onPageSelected={handlePageSelected}
@@ -186,6 +208,7 @@ export const Onboarding = () => {
                 currentPage === OnboardingPages.Privacy ? 'Finish' : 'Continue'
               }
               onPress={handleNextPressed}
+              loading={isSaving}
               disabled={!isContinueEnabled()}
             />
 
