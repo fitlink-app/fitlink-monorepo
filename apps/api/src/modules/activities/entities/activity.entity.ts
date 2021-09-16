@@ -9,7 +9,7 @@ import {
   Index
 } from 'typeorm'
 
-import { Geometry } from 'geojson'
+import { Geometry, Point } from 'geojson'
 import { Team } from '../../teams/entities/team.entity'
 import { Image } from '../../images/entities/image.entity'
 import { CreatableEntity } from '../../../classes/entity/creatable'
@@ -63,7 +63,7 @@ export class Activity extends CreatableEntity {
   meeting_point_text: string
 
   @Column({ type: 'geometry', spatialFeatureType: 'Point', srid: 4326 })
-  meeting_point: Geometry
+  meeting_point: Point
 
   @Column({
     type: 'enum',

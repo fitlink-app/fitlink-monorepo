@@ -13,7 +13,7 @@ import { Activity, ActivityForMap } from './entities/activity.entity'
 import { ActivityType } from './activities.constants'
 import { Pagination } from '../../helpers/paginate'
 import { Image } from '../images/entities/image.entity'
-import { Geometry } from 'geojson'
+import { Geometry, Point } from 'geojson'
 
 @Injectable()
 export class ActivitiesIminService {
@@ -317,7 +317,7 @@ export class ActivitiesIminService {
         meeting_point: {
           type: 'Point',
           coordinates: [location[0].geo.latitude, location[0].geo.longitude]
-        } as Geometry,
+        } as Point,
         meeting_point_text: location[0].name
       }
     }
