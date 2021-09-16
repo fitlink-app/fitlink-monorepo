@@ -111,7 +111,7 @@ export function Table({
             </tr>
           )}
 
-          {loading && (
+          {loading && !fetched && (
             <tr>
               <td colSpan={10000}>
                 <div className="flex row ai-c ji-c p-2">

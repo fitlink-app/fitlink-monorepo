@@ -8,6 +8,7 @@ export const TableLoader = ({ rows = 4 }) => {
       width="100%"
       height={50}
       viewBox="0 0 100 50"
+      preserveAspectRatio="none"
       backgroundColor="#f3f3f3"
       foregroundColor="#00E9D7">
       {Array.from({ length: rows }).map((c, i) => {

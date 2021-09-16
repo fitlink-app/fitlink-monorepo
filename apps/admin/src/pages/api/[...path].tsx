@@ -34,6 +34,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
     // In case the current API request is for logging in,
     // we'll need to intercept the API response.
     // More on that in a bit.
+    await timeout(10000)
 
     const pathname = url.parse(req.url).pathname
     const isLogin =
