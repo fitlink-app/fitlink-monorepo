@@ -79,19 +79,19 @@ export class ActivitiesService {
       team.id = entityOwner.teamId
     }
 
-    const activity = await this.activityRepository.save(
-      this.activityRepository.create({
-        ...rest,
-        owner,
-        organisation,
-        team,
-        organizer_image: organizerImage,
-        meeting_point: {
-          type: 'Point',
-          coordinates: meeting_point.split(',')
-        }
-      })
-    )
+    const created = this.activityRepository.create({
+      ...rest,
+      owner,
+      organisation,
+      team,
+      organizer_image: organizerImage,
+      meeting_point: {
+        type: 'Point',
+        coordinates: meeting_point.split(',')
+      }
+    })
+
+    const activity = await this.activityRepository.save(created)
 
     if (imageEntities.length) {
       await this.activityRepository

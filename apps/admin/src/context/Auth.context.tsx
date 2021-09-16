@@ -311,6 +311,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     }
 
     // If a child role is enabled, actual roles are ignored
+    // and this role supercedes all others
     if (childRole) {
       if (childRole.role === Roles.OrganisationAdmin) {
         permissions.organisations.push({
