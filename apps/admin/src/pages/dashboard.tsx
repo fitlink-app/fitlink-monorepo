@@ -139,7 +139,7 @@ function PopularActivities() {
             <LoaderChart />
           </div>
         )}
-        {query.isFetched && query.data.results.length > 0 && (
+        {query.isFetched && !query.isFetching && query.data.results.length > 0 && (
           <VerticalBarChart
             data={{
               labels: query.data.results.map((e) => e.name),
@@ -198,7 +198,7 @@ function GoalStats() {
         </div>
       )}
 
-      {query.isFetched && (
+      {query.isFetched && !query.isFetching && (
         <>
           <div className="row mt-4">
             <div className="col-4 text-center">
@@ -311,7 +311,7 @@ function PopularLeagues() {
           <LoaderChart />
         </div>
       )}
-      {query.isFetched && (
+      {query.isFetched && !query.isFetching && (
         <table className="static-table mt-2">
           <tbody>
             {query.data.slice(0, 6).map((e, i) => (
@@ -383,7 +383,7 @@ function PopularRewards() {
           <LoaderChart />
         </div>
       )}
-      {query.isFetched && (
+      {query.isFetched && !query.isFetching && (
         <table className="static-table mt-2">
           <tbody>
             {query.data.slice(0, 6).map((e, i) => (
