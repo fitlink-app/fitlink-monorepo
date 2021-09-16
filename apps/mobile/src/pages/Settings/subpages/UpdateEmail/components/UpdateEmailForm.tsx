@@ -91,7 +91,7 @@ export const UpdateEmailForm = () => {
 
       <SignUpButton
         text="Update E-mail Address"
-        onPress={handleSubmit(onSubmit)}
+        onPress={() => handleSubmit(onSubmit)}
         loading={isSubmitting}
         disabled={isSubmitting || !values.email.length}
       />

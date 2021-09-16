@@ -8,6 +8,7 @@ import {
   ProgressBar,
   TouchHandlerProps,
   TouchHandler,
+  Label,
 } from '../../common';
 import {LayoutUtils} from '@utils';
 
@@ -30,7 +31,7 @@ const ContentContainer = styled.View({
   flex: 1,
 });
 
-interface RewardTrackerProps extends TouchHandlerProps {
+interface RewardTrackerProps extends Omit<TouchHandlerProps, 'disabled'> {
   /** User's points */
   points: number;
 
@@ -39,12 +40,16 @@ interface RewardTrackerProps extends TouchHandlerProps {
 
   /** Number of unlocked rewards that the user can afford with points */
   claimableRewardsCount: number;
+
+  /** Show next reward available label*/
+  showNextReward?: boolean;
 }
 
 export const _RewardTracker = ({
   points,
   targetPoints,
   claimableRewardsCount,
+  showNextReward,
   ...rest
 }: RewardTrackerProps) => {
   const {colors} = useTheme();
@@ -65,7 +70,7 @@ export const _RewardTracker = ({
   };
 
   return (
-    <TouchHandler {...rest}>
+    <TouchHandler {...rest} disabled={!rest.onPress}>
       <Wrapper>
         <Row>
           <Icon
@@ -77,7 +82,19 @@ export const _RewardTracker = ({
           <ContentContainer>
             <CardLabelRow>
               {renderCardLabel()}
-              <CardButton text={'View Rewards'} disabled />
+              {showNextReward ? (
+                !claimableRewardsCount && (
+                  <Label type={'caption'}>
+                    Next reward at{' '}
+                    <Label type={'caption'} appearance={'accent'}>
+                      {targetPoints}
+                    </Label>{' '}
+                    points
+                  </Label>
+                )
+              ) : (
+                <CardButton text={'View Rewards'} disabled />
+              )}
             </CardLabelRow>
 
             <ProgressBar

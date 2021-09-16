@@ -5,7 +5,7 @@ import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {ListResponse} from '@fitlink/api-sdk/types';
 import {getNextPageParam} from 'utils/api';
 
-const limit = 25;
+const limit = 10;
 
 const fetchFollowedUsers = ({
   pageParam = 0,

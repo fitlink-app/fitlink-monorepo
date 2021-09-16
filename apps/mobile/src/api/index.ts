@@ -2,9 +2,10 @@ import Axios from 'axios';
 import {makeApi} from '@fitlink/api-sdk';
 import {ResponseError} from '@fitlink/api-sdk/types';
 import {getErrorFields, getErrorMessage} from '@fitlink/api-sdk';
+import Config from 'react-native-config';
 
 const axios = Axios.create({
-  baseURL: 'http://localhost:3000/api/v1',
+  baseURL: Config.API_URL,
 });
 
 export type RequestError = {
@@ -18,6 +19,16 @@ export function getErrors(e: ResponseError) {
     fields: getErrorFields(e),
   } as RequestError;
 }
+
+// axios.interceptors.request.use(request => {
+//   console.log('Request:', request);
+//   return request;
+// });
+
+// axios.interceptors.response.use(response => {
+//   console.log('Response:', response);
+//   return response;
+// });
 
 axios.interceptors.request.use(
   config => new Promise(resolve => setTimeout(() => resolve(config), 600)),
