@@ -4,7 +4,9 @@ import { Roles } from '../../user-roles/user-roles.constants'
 
 export class CreateAdminDto {
   @ApiProperty()
-  @IsUUID()
+  @IsUUID(null, {
+    message: 'You must select a user'
+  })
   userId?: string
 
   @ApiProperty()

@@ -12,6 +12,7 @@ import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 import useDebounce from '../../hooks/useDebounce'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 import { Roles } from '../../../../api/src/modules/user-roles/user-roles.constants'
+import { shortDescriptions } from '../../data/role-descriptions'
 
 export type CreateSubscriptionProps = {
   onSave?: () => void
@@ -134,7 +135,19 @@ export default function AssignUserForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex ai-c">
-        <div className="w-40 mr-2">
+        <div className="full-width mr-2">
+          <h4 className="light mb-3">
+            {role === Roles.Self && 'Assign a user to this team'}
+            {role === Roles.OrganisationAdmin &&
+              'Assign an organisation administrator'}
+            {role === Roles.TeamAdmin && 'Assign a team administrator'}
+            {role === Roles.SubscriptionAdmin &&
+              'Assign a subscription administrator'}
+            {role === Roles.SuperAdmin && 'Assign a super administrator'}
+          </h4>
+
+          <Feedback message={shortDescriptions[role]} className="mb-2" />
+
           <Controller
             name="userId"
             control={control}
@@ -142,6 +155,7 @@ export default function AssignUserForm({
               return (
                 <Select
                   classNamePrefix="addl-class"
+                  placeholder="Select a user"
                   options={
                     users.data
                       ? users.data.results.map((item) => ({
@@ -163,13 +177,14 @@ export default function AssignUserForm({
                     }
                   }}
                   onBlur={field.onBlur}
+                  error={errors.userId}
                 />
               )
             }}
           />
         </div>
 
-        <button className="button" disabled={add.isLoading}>
+        <button className="button mt-2" disabled={add.isLoading}>
           Assign User
         </button>
       </div>

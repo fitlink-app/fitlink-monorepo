@@ -103,7 +103,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
   })
 
   /**
-   * Redirect the user to login if you cannot authenticate
+   * Redirect the user to login if you cannot authenticate.
    */
   useEffect(() => {
     if (me.isError) {
@@ -150,9 +150,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       const menu = setMenu(focusRole)
       const newState = {
         ...state,
-        switchMode: focusRole === 'app' ? false : state.switchMode,
         user: me.data,
-        roles: myRoles,
         menu,
         primary,
         focusRole
@@ -161,7 +159,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       storeState(newState)
       setState(newState)
     }
-  }, [me.data, roles.data, childRole, readyToResume])
+  }, [me.data, roles.data, childRole, roleTree, readyToResume])
 
   /**
    * Stores the state of role switching
@@ -173,7 +171,8 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       JSON.stringify({
         roleTree: roleTree,
         childRole: childRole,
-        switchMode: state.switchMode
+        switchMode: state.switchMode,
+        focusRole: state.focusRole
       })
     )
   }
@@ -186,7 +185,8 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       setChildRole(parsed.childRole)
       setState({
         ...state,
-        switchMode: parsed.switchMode
+        switchMode: parsed.switchMode,
+        focusRole: parsed.focusRole
       })
     }
 
@@ -242,11 +242,13 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       focusRole = 'organisation'
     } else if (params.role === Roles.TeamAdmin) {
       focusRole = 'team'
+    } else if (params.role === Roles.SubscriptionAdmin) {
+      focusRole = 'subscription'
     }
 
     setState({
       ...state,
-      switchMode: focusRole !== 'app',
+      switchMode: true,
       focusRole
     })
 
@@ -261,7 +263,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       ])
     } else {
       setChildRole(undefined)
-      setRoleTree(undefined)
+      setRoleTree([])
     }
 
     if (params.role === Roles.SubscriptionAdmin) {

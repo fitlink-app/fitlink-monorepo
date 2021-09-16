@@ -2,6 +2,7 @@ import httpProxy from 'http-proxy'
 import Cookies from 'cookies'
 import url from 'url'
 import { NextApiRequest, NextApiResponse } from 'next'
+import { timeout } from '../../helpers/timeout'
 
 /**
  * Based on https://maxschmitt.me/posts/next-js-http-only-cookie-auth-tokens/
@@ -29,10 +30,11 @@ export const config = {
 export default (req: NextApiRequest, res: NextApiResponse) => {
   // Return a Promise to let Next.js know when we're done
   // processing the request:
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>(async (resolve, reject) => {
     // In case the current API request is for logging in,
     // we'll need to intercept the API response.
     // More on that in a bit.
+
     const pathname = url.parse(req.url).pathname
     const isLogin =
       pathname === '/api/v1/auth/login' || pathname === '/api/v1/auth/switch'

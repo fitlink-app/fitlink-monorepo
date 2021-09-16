@@ -20595,6 +20595,11 @@ react-colorful@^5.0.1:
   resolved "https://registry.yarnpkg.com/react-colorful/-/react-colorful-5.2.0.tgz#1cd24ca7deff73a70cf34261813a4ed6c45129c2"
   integrity sha512-SJXywyc9oew0rOp7xjmtStiJ5N4Mk2RYc/1OptlaEnbuCz9PvILmRotoHfowdmO142HASUSgKdngL4WOHo/TnQ==
 
+react-content-loader@^6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/react-content-loader/-/react-content-loader-6.0.3.tgz#32e28ca7120e0a2552fc26655d0d4448cc1fc0c5"
+  integrity sha512-CIRgTHze+ls+jGDIfCitw27YkW2XcaMpsYORTUdBxsMFiKuUYMnlvY76dZE4Lsaa9vFXVw+41ieBEK7SJt0nug==
+
 react-currency-input-field@^3.4.1:
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/react-currency-input-field/-/react-currency-input-field-3.4.1.tgz#128e7322b52d093716c2c47f7592903de19e79f4"

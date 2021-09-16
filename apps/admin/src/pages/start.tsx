@@ -7,7 +7,7 @@ import { AuthContext } from '../context/Auth.context'
 import { Roles } from '@fitlink/api/src/modules/user-roles/user-roles.constants'
 import { useQuery } from 'react-query'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
-import Loader from '../components/elements/Loader'
+import LoaderFullscreen from '../components/elements/LoaderFullscreen'
 
 export default function StartPage() {
   const { fetchKey, switchRole } = useContext(AuthContext)
@@ -62,13 +62,13 @@ export default function StartPage() {
     }
   }, [rolesQuery.isFetched])
 
-  if (!rolesQuery.isFetched && roles.length === 0) {
-    return <Loader />
+  if (!rolesQuery.isFetched) {
+    return <LoaderFullscreen />
   }
 
   return (
     <Dashboard title="Settings Users" hideSidebar={true}>
-      <div className="flex jc-c">
+      <div className="flex jc-c ai-c">
         <div className="w-100">
           <div className="flex ai-c jc-c">
             <h1 className="light mb-0 mr-2">Choose what to manage</h1>

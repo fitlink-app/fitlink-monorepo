@@ -13,6 +13,7 @@ import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 import { Roles } from '../../../api/src/modules/user-roles/user-roles.constants'
 import Input from '../components/elements/Input'
 import useDebounce from '../hooks/useDebounce'
+import LoaderFullscreen from '../components/elements/LoaderFullscreen'
 
 export default function OrganisationsPage() {
   const [drawContent, setDrawContent] = useState<
@@ -116,8 +117,8 @@ export default function OrganisationsPage() {
   const dbSearchTerm = useDebounce(keyword, 500)
   const { api, fetchKey, focusRole, primary } = useContext(AuthContext)
 
-  if (focusRole === 'organisation') {
-    return null
+  if (focusRole !== 'app') {
+    return <LoaderFullscreen />
   }
 
   return (
