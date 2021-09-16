@@ -8,12 +8,13 @@ import Loader from '../elements/Loader'
 import LoaderFullscreen from '../elements/LoaderFullscreen'
 
 type DashboardProps = {
-  children: React.ReactNode
+  children?: React.ReactNode
   title?: string
   description?: string
   image?: string
   linkPrefix?: string
   hideSidebar?: boolean
+  loading?: boolean
 }
 
 let hydrated = false
@@ -23,7 +24,8 @@ export default function Dashboard({
   title = 'Fitlink',
   description = '',
   linkPrefix = '',
-  hideSidebar = false
+  hideSidebar = false,
+  loading = false
 }: DashboardProps) {
   const hydratedRef = useRef(false)
   const [, rerender] = useState(false)
@@ -76,7 +78,7 @@ export default function Dashboard({
       </Head>
       <Toaster position="top-right" />
 
-      {!focusRole ? (
+      {!focusRole || loading ? (
         <LoaderFullscreen />
       ) : (
         <>

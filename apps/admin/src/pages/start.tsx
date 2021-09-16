@@ -11,7 +11,7 @@ import LoaderFullscreen from '../components/elements/LoaderFullscreen'
 import toast from 'react-hot-toast'
 
 export default function StartPage() {
-  const { fetchKey, switchRole } = useContext(AuthContext)
+  const { api, fetchKey, switchRole } = useContext(AuthContext)
   const [roles, setRoles] = useState<UserRole[]>([])
   const [refresh, setRefresh] = useState(0)
   const router = useRouter()
@@ -53,9 +53,7 @@ export default function StartPage() {
     </div>
   )
 
-  const { api } = useContext(AuthContext)
-
-  const rolesQuery = useQuery('start_roles', () =>
+  const rolesQuery = useQuery(`start_roles_${fetchKey}`, () =>
     api.get<UserRole[]>('/me/roles')
   )
 
@@ -67,7 +65,7 @@ export default function StartPage() {
   }, [rolesQuery.isFetched])
 
   if (!rolesQuery.isFetched) {
-    return <LoaderFullscreen />
+    return <Dashboard title="Start" hideSidebar={true} loading={true} />
   }
 
   return (
