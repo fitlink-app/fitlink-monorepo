@@ -1,10 +1,11 @@
+import {TouchHandler} from '@components';
 import {useNavigation} from '@react-navigation/core';
 import React from 'react';
-import {StyleProp, ViewStyle} from 'react-native';
+import {Animated, StyleProp, ViewStyle, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {Icon} from './Icon';
-import {Label} from './Label';
+import {Label, LabelProps} from './Label';
 
 export const NAVBAR_HEIGHT = 40;
 
@@ -13,6 +14,9 @@ const Wrapper = styled.View({
   alignItems: 'center',
   justifyContent: 'center',
   paddingHorizontal: 20,
+  position: 'absolute',
+  top: 0,
+  zIndex: 10,
 });
 
 const ContentContainer = styled.View({
@@ -22,21 +26,23 @@ const ContentContainer = styled.View({
   alignItems: 'center',
 });
 
-const Content = styled.View({justifyContent: 'center', paddingHorizontal: 5});
+const Content = styled.View({
+  justifyContent: 'center',
+  paddingHorizontal: 5,
+});
+
+const BackButtonRow = styled.View({flexDirection: 'row'});
+
+const BackButtonLabel = styled(Label).attrs({
+  type: 'subheading',
+  appearance: 'primary',
+})({marginLeft: 15});
+
+const Background = styled(Animated.View)({...StyleSheet.absoluteFillObject});
 
 const LeftContent = styled(Content)({flex: 1, alignItems: 'flex-start'});
 
 const RightContent = styled(Content)({flex: 1, alignItems: 'flex-end'});
-
-const Title = styled(Label).attrs(() => ({
-  appearance: 'primary',
-  type: 'caption',
-  bold: true,
-  numberOfLines: 1,
-}))({
-  textAlign: 'center',
-});
-
 interface NavbarProps {
   disableBackButton?: boolean;
 
@@ -49,8 +55,20 @@ interface NavbarProps {
   /** Override navbar center component */
   centerComponent?: JSX.Element;
 
+  /** Override icon color */
+  iconColor?: string;
+
+  /** Override title label props */
+  titleProps?: Partial<LabelProps>;
+
   /** Override back button icon */
   backButtonIcon?: string;
+
+  /** Optional label for back button */
+  backButtonLabel?: string;
+
+  /** Animate header BG opacity and title opacity based on ScrolLView content offset */
+  scrollAnimatedValue?: Animated.Value;
 
   /** Set navbar title (if centerComponent is provided, title will be overridden) */
   title?: string;
@@ -64,12 +82,40 @@ export const Navbar = ({
   rightComponent,
   centerComponent,
   backButtonIcon = 'arrow-left',
+  backButtonLabel,
   title,
+  iconColor,
   overlay,
+  titleProps,
+  scrollAnimatedValue,
 }: NavbarProps) => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const {colors} = useTheme();
+
+  const overlayStyle: StyleProp<ViewStyle> = overlay
+    ? {
+        backgroundColor: colors.background,
+      }
+    : {};
+
+  const fixedHeaderOpacity = scrollAnimatedValue
+    ? scrollAnimatedValue.interpolate({
+        inputRange: [25, 125],
+        outputRange: [0, 0.8],
+        extrapolate: 'clamp',
+      })
+    : 0.8;
+
+  const animatedTitleOpacity = scrollAnimatedValue
+    ? scrollAnimatedValue.interpolate({
+        inputRange: [25, 125],
+        outputRange: [0, 1],
+        extrapolate: 'clamp',
+      })
+    : 1;
+
+  const AnimatedLabel = Animated.createAnimatedComponent(Label);
 
   const handleOnBackPressed = () => {
     navigation.goBack();
@@ -77,34 +123,46 @@ export const Navbar = ({
 
   const renderBackButton = () => {
     return (
-      <Icon
-        name={backButtonIcon}
-        size={22}
-        color={colors.accent}
-        onPress={handleOnBackPressed}
-      />
+      <TouchHandler onPress={handleOnBackPressed}>
+        <BackButtonRow>
+          <Icon
+            name={backButtonIcon}
+            size={22}
+            color={iconColor || colors.accent}
+          />
+
+          {!!backButtonLabel && (
+            <BackButtonLabel>{backButtonLabel}</BackButtonLabel>
+          )}
+        </BackButtonRow>
+      </TouchHandler>
     );
   };
 
   const renderTitle = () => {
-    return <Title>{title}</Title>;
+    return (
+      <AnimatedLabel
+        appearance={'primary'}
+        type={'caption'}
+        bold
+        numberOfLines={1}
+        style={{
+          textAlign: 'center',
+          opacity: animatedTitleOpacity,
+        }}
+        {...titleProps}>
+        {title}
+      </AnimatedLabel>
+    );
   };
-
-  const overlayStyle: StyleProp<ViewStyle> = overlay
-    ? {
-        position: 'absolute',
-        top: 0,
-        zIndex: 10,
-        backgroundColor: `${colors.background}CC`,
-      }
-    : {};
 
   return (
     <Wrapper
       style={{
         paddingTop: insets.top,
-        ...overlayStyle,
       }}>
+      <Background style={{...overlayStyle, opacity: fixedHeaderOpacity}} />
+
       <ContentContainer>
         <LeftContent>
           {leftComponent ? leftComponent : renderBackButton()}

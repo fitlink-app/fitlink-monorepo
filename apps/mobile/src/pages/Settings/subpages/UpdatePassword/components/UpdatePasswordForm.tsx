@@ -116,7 +116,7 @@ export const UpdatePasswordForm = () => {
 
       <SignUpButton
         text="Update Password"
-        onPress={handleSubmit(onSubmit)}
+        onPress={() => handleSubmit(onSubmit)}
         loading={isSubmitting}
         disabled={
           isSubmitting ||

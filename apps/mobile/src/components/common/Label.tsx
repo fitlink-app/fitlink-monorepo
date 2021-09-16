@@ -11,67 +11,63 @@ type LabelAppearance =
   | 'accentSecondary'
   | 'error';
 
-interface LabelProps extends TextProps {
+export interface LabelProps extends TextProps {
   type?: LabelType;
   appearance?: LabelAppearance;
   bold?: boolean;
 }
 
-export const Label: React.FC<LabelProps> = ({
-  type = 'body',
-  appearance,
-  bold,
-  style,
-  ...rest
-}) => {
-  const {fonts, typography, colors} = useTheme();
+export const Label: React.FC<LabelProps> = React.forwardRef(
+  ({type = 'body', appearance, bold, style, ...rest}, ref: any) => {
+    const {fonts, typography, colors} = useTheme();
 
-  // Get base text style based on label type
-  function createTypeStyle() {
-    switch (type) {
-      case 'title':
-        return typography.title;
+    // Get base text style based on label type
+    function createTypeStyle() {
+      switch (type) {
+        case 'title':
+          return typography.title;
 
-      case 'subheading':
-        return typography.subheading;
+        case 'subheading':
+          return typography.subheading;
 
-      case 'caption':
-        return typography.caption;
+        case 'caption':
+          return typography.caption;
 
-      default:
-        return typography.body;
-    }
-  }
-
-  function createTextColor() {
-    switch (appearance) {
-      case 'primary':
-        return colors.text;
-
-      case 'secondary':
-        return colors.secondaryText;
-
-      case 'accent':
-        return colors.accent;
-
-      case 'accentSecondary':
-        return colors.accentSecondary;
-
-      case 'error': {
-        return colors.danger;
+        default:
+          return typography.body;
       }
-
-      default:
-        return colors.text;
     }
-  }
 
-  const textStyles: StyleProp<TextStyle>[] = [
-    createTypeStyle(),
-    {color: createTextColor()},
-    bold ? {fontFamily: fonts.bold} : {},
-    style,
-  ];
+    function createTextColor() {
+      switch (appearance) {
+        case 'primary':
+          return colors.text;
 
-  return <Text {...rest} style={textStyles} />;
-};
+        case 'secondary':
+          return colors.secondaryText;
+
+        case 'accent':
+          return colors.accent;
+
+        case 'accentSecondary':
+          return colors.accentSecondary;
+
+        case 'error': {
+          return colors.danger;
+        }
+
+        default:
+          return colors.text;
+      }
+    }
+
+    const textStyles: StyleProp<TextStyle>[] = [
+      createTypeStyle(),
+      {color: createTextColor()},
+      bold ? {fontFamily: fonts.bold} : {},
+      style,
+    ];
+
+    return <Text {...rest} ref={ref} style={textStyles} />;
+  },
+);

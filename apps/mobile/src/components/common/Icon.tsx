@@ -10,9 +10,10 @@ interface IconProps
   extends Omit<IcoMoonIconProps, 'onPress'>,
     Pick<TouchHandlerProps, 'onPress'> {
   hitSlop?: number;
+  disabled?: boolean;
 }
 
-export const Icon = ({onPress, hitSlop = 10, ...rest}: IconProps) => {
+export const Icon = ({onPress, disabled, hitSlop = 10, ...rest}: IconProps) => {
   const hitSlopInsets = {
     top: hitSlop,
     left: hitSlop,
@@ -20,8 +21,13 @@ export const Icon = ({onPress, hitSlop = 10, ...rest}: IconProps) => {
     right: hitSlop,
   };
 
+  // TODO: Implement loading state
+
   return (
-    <TouchHandler {...{onPress}} disabled={!onPress} hitSlop={hitSlopInsets}>
+    <TouchHandler
+      {...{onPress, disabled}}
+      disabled={!onPress}
+      hitSlop={hitSlopInsets}>
       <IcoMoonIcon {...rest} />
     </TouchHandler>
   );
