@@ -235,20 +235,22 @@ export default function UsersPage(props: UsersPageProps) {
             Assign User
           </button>
           {type !== 'global' && (
-            <button className="button alt small mt-1" onClick={InviteAdminForm}>
+            <button
+              className="button alt small mt-1 ml-1"
+              onClick={InviteAdminForm}>
               Invite User
             </button>
           )}
-          <div className="flex jc-e">
-            <Input
-              className="input-large"
-              inline={true}
-              onChange={handleUsernameSearch}
-              name="userSearch"
-              placeholder="Enter name or email..."
-              value=""
-            />
-          </div>
+        </div>
+        <div className="flex jc-e">
+          <Input
+            className="input-large"
+            inline={true}
+            onChange={handleUsernameSearch}
+            name="userSearch"
+            placeholder="Enter name or email..."
+            value=""
+          />
         </div>
       </div>
       <div className="mt-4 overflow-x-auto">

@@ -127,15 +127,17 @@ export default function UsersPage() {
   return (
     <Dashboard title="Settings Users">
       <div className="flex ai-c jc-sb">
-        <h1 className="light mb-0 mr-2">Manage users</h1>
+        <div className="flex ai-c">
+          <h1 className="light mb-0 mr-2">Manage users</h1>
 
-        {focusRole === 'team' && (
-          <button
-            className="button alt small mt-1"
-            onClick={InviteTeamMemberForm}>
-            Invite User
-          </button>
-        )}
+          {focusRole === 'team' && (
+            <button
+              className="button alt small mt-1"
+              onClick={InviteTeamMemberForm}>
+              Invite User
+            </button>
+          )}
+        </div>
 
         <Input
           className="input-large"

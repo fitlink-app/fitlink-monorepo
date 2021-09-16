@@ -11,6 +11,8 @@ import { timeout } from '../helpers/timeout'
 import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 import { Roles } from '@fitlink/api/src/modules/user-roles/user-roles.constants'
 import { useRouter } from 'next/router'
+import { RoleContext } from '../context/Role.context'
+import toast from 'react-hot-toast'
 
 export default function TeamsPage() {
   const [drawContent, setDrawContent] = useState<
@@ -20,14 +22,8 @@ export default function TeamsPage() {
   const [wide, setWide] = useState(false)
   const [refresh, setRefresh] = useState(0)
   const { switchRole, primary } = useContext(AuthContext)
-  const organisationId = useRef<string>()
+  const { organisation } = useContext(RoleContext)
   const router = useRouter()
-
-  useEffect(() => {
-    if (primary.organisation) {
-      organisationId.current = primary.organisation
-    }
-  }, [primary.organisation])
 
   const closeDrawer = (ms = 0) => async () => {
     if (ms) {
@@ -42,7 +38,7 @@ export default function TeamsPage() {
     setWide(false)
     setDrawContent(
       <CreateTeam
-        organisationId={organisationId.current}
+        organisationId={organisation.current}
         onSave={closeDrawer(1000)}
       />
     )
@@ -54,7 +50,7 @@ export default function TeamsPage() {
     setDrawContent(
       <CreateTeam
         onSave={closeDrawer(1000)}
-        organisationId={organisationId.current}
+        organisationId={organisation.current}
         current={fields}
       />
     )
@@ -71,7 +67,7 @@ export default function TeamsPage() {
         mutation={(id) =>
           api.delete('/organisations/:organisationId/teams/:teamId', {
             teamId: id,
-            organisationId: organisationId.current
+            organisationId: organisation.current
           })
         }
         title="Delete team"
@@ -117,12 +113,15 @@ export default function TeamsPage() {
       </button>
       <button
         className="button small ml-1"
-        onClick={() =>
+        onClick={() => {
+          toast.loading(<b>Switching role...</b>)
           switchRole({
             id: original.id,
             role: Roles.TeamAdmin
+          }).finally(() => {
+            toast.dismiss()
           })
-        }>
+        }}>
         Switch
       </button>
       <button

@@ -690,21 +690,24 @@ export class AuthService {
 
     // Organisation admin can switch to managing a specific team
     if (role === Roles.TeamAdmin) {
-      let orgId
+      let orgs = []
       if (!roles.spr) {
         const team = await this.teamRepository.findOne(id, {
           relations: ['organisation']
         })
-        if (!roles.o_a.includes(team.organisation.id)) {
+
+        if (!roles.t_a.includes(team.id)) {
           return false
-        } else {
-          orgId = team.organisation.id
+        }
+
+        if (roles.o_a.includes(team.organisation.id)) {
+          orgs.push(team.organisation.id)
         }
       }
       return this.loginWithRole(user, {
         ...base,
         t_a: [id],
-        o_a: [orgId]
+        o_a: orgs
       })
     }
 

@@ -39,6 +39,8 @@ export default function Dashboard({
     }
   }, [])
 
+  console.log(focusRole)
+
   return (
     <>
       <Head>

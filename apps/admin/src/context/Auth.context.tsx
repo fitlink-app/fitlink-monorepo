@@ -103,7 +103,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
   })
 
   /**
-   * Redirect the user to login if you cannot authenticate
+   * Redirect the user to login if you cannot authenticate.
    */
   useEffect(() => {
     if (me.isError) {
@@ -150,9 +150,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       const menu = setMenu(focusRole)
       const newState = {
         ...state,
-        switchMode: focusRole === 'app' ? false : state.switchMode,
         user: me.data,
-        roles: myRoles,
         menu,
         primary,
         focusRole
@@ -161,7 +159,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       storeState(newState)
       setState(newState)
     }
-  }, [me.data, roles.data, childRole, readyToResume])
+  }, [me.data, roles.data, childRole, roleTree, readyToResume])
 
   /**
    * Stores the state of role switching
@@ -173,7 +171,8 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       JSON.stringify({
         roleTree: roleTree,
         childRole: childRole,
-        switchMode: state.switchMode
+        switchMode: state.switchMode,
+        focusRole: state.focusRole
       })
     )
   }
@@ -186,7 +185,8 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       setChildRole(parsed.childRole)
       setState({
         ...state,
-        switchMode: parsed.switchMode
+        switchMode: parsed.switchMode,
+        focusRole: parsed.focusRole
       })
     }
 
@@ -242,11 +242,13 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       focusRole = 'organisation'
     } else if (params.role === Roles.TeamAdmin) {
       focusRole = 'team'
+    } else if (params.role === Roles.SubscriptionAdmin) {
+      focusRole = 'subscription'
     }
 
     setState({
       ...state,
-      switchMode: focusRole !== 'app',
+      switchMode: true,
       focusRole
     })
 
@@ -261,7 +263,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       ])
     } else {
       setChildRole(undefined)
-      setRoleTree(undefined)
+      setRoleTree([])
     }
 
     if (params.role === Roles.SubscriptionAdmin) {
@@ -285,19 +287,19 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       id: newRole ? newRole.id : undefined
     })
 
+    // If a previous item exists route to it.
+    if (last) {
+      await router.push(last.pathname)
+    } else {
+      await router.push('/start')
+    }
+
     setRoleTree(tree)
     setChildRole(tree[tree.length - 1])
     setState({
       ...state,
       switchMode: tree.length > 0
     })
-
-    // If a previous item exists route to it.
-    if (last) {
-      router.push(last.pathname)
-    } else {
-      router.push('/start')
-    }
   }
 
   function formatRoles(roles: UserRole[], childRole?: AuthSwitchDto) {
@@ -309,6 +311,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     }
 
     // If a child role is enabled, actual roles are ignored
+    // and this role supercedes all others
     if (childRole) {
       if (childRole.role === Roles.OrganisationAdmin) {
         permissions.organisations.push({
@@ -319,6 +322,13 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
 
       if (childRole.role === Roles.TeamAdmin) {
         permissions.teams.push({
+          id: childRole.id
+        })
+        return permissions
+      }
+
+      if (childRole.role === Roles.SubscriptionAdmin) {
+        permissions.subscriptions.push({
           id: childRole.id
         })
         return permissions

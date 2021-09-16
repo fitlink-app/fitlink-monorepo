@@ -12,12 +12,14 @@ export type SelectProps = Props & {
   label?: string
   subLabel?: string
   inline?: boolean
+  error?: string
 }
 
-const Select: React.FC<SelectProps> = (props) => {
+const Select: React.FC<SelectProps> = ({ error, ...props }) => {
   const classes = clsx({
     'input-block': true,
-    'input-block--inline': props.inline
+    'input-block--inline': props.inline,
+    'input-block--error': error
   })
 
   const theme = ({
@@ -107,6 +109,7 @@ const Select: React.FC<SelectProps> = (props) => {
         }}
         {...props}
       />
+      {error && error !== '' && <span>{error}</span>}
     </div>
   )
 }
