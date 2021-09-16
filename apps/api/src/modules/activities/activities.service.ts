@@ -88,7 +88,7 @@ export class ActivitiesService {
         organizer_image: organizerImage,
         meeting_point: {
           type: 'Point',
-          coordinates: meeting_point.split(',')
+          coordinates: meeting_point.split(',').map((e) => Number(e))
         }
       })
     )

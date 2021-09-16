@@ -302,6 +302,10 @@
   min-height: 100vh;
 }
 
+.full-width {
+  width: 100%;
+}
+
 .text-left { text-align: left; }
 .text-center { text-align: center; }
 .text-right { text-align: right; }
@@ -388,4 +392,11 @@
 
 .pointer {
   cursor: pointer;
+}
+
+.abs-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

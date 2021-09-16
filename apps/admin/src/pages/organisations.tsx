@@ -13,6 +13,8 @@ import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 import { Roles } from '../../../api/src/modules/user-roles/user-roles.constants'
 import Input from '../components/elements/Input'
 import useDebounce from '../hooks/useDebounce'
+import LoaderFullscreen from '../components/elements/LoaderFullscreen'
+import toast from 'react-hot-toast'
 
 export default function OrganisationsPage() {
   const [drawContent, setDrawContent] = useState<
@@ -93,12 +95,15 @@ export default function OrganisationsPage() {
       </button>
       <button
         className="button small ml-1"
-        onClick={() =>
+        onClick={() => {
+          toast.loading(<b>Switching role...</b>)
           switchRole({
             id: original.id,
             role: Roles.OrganisationAdmin
+          }).finally(() => {
+            toast.dismiss()
           })
-        }>
+        }}>
         Switch
       </button>
       <button
@@ -116,8 +121,8 @@ export default function OrganisationsPage() {
   const dbSearchTerm = useDebounce(keyword, 500)
   const { api, fetchKey, focusRole, primary } = useContext(AuthContext)
 
-  if (focusRole === 'organisation') {
-    return null
+  if (focusRole !== 'app') {
+    return <LoaderFullscreen />
   }
 
   return (

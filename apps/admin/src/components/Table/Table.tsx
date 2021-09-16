@@ -6,6 +6,7 @@ import IconArrowRight from '../icons/IconArrowRight'
 import IconArrowRightDouble from '../icons/IconArrowRightDouble'
 import Feedback from '../elements/Feedback'
 import Loader from '../elements/Loader'
+import { TableLoader } from './TableLoader'
 
 export type TableProps = {
   columns: Column<any>[]
@@ -98,12 +99,24 @@ export function Table({
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {page.length === 0 && (
+          {page.length === 0 && fetched && (
             <tr>
               <td colSpan={10000}>
                 <div className="flex row ai-c ji-c p-2">
                   <div className="col-4 offset-4 h-7">
-                    {fetched && <Feedback message={nullMessage} />}
+                    {<Feedback message={nullMessage} />}
+                  </div>
+                </div>
+              </td>
+            </tr>
+          )}
+
+          {loading && (
+            <tr>
+              <td colSpan={10000}>
+                <div className="flex row ai-c ji-c p-2">
+                  <div className="col-12">
+                    <TableLoader />
                   </div>
                 </div>
               </td>

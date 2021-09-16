@@ -22,6 +22,8 @@ import useGlobalStats from '../hooks/api/useGlobalStats'
 import capitalize from 'lodash/capitalize'
 import { options } from '../data/date-options'
 import { useRouter } from 'next/router'
+import { LoaderChart } from '../components/elements/LoaderChart'
+import { TableLoader } from '../components/Table/TableLoader'
 
 type DateStartEnd = {
   startAt?: Date
@@ -132,7 +134,12 @@ function PopularActivities() {
         </div>
       </div>
       <div style={{ height: '400px' }}>
-        {query.isFetched && query.data.results.length > 0 && (
+        {query.isFetching && (
+          <div className="abs-center">
+            <LoaderChart />
+          </div>
+        )}
+        {query.isFetched && !query.isFetching && query.data.results.length > 0 && (
           <VerticalBarChart
             data={{
               labels: query.data.results.map((e) => e.name),
@@ -157,100 +164,108 @@ function GoalStats() {
   const query = useGoalStats(focusRole, dates.startAt, dates.endAt)
 
   return (
-    query.isFetched && (
-      <Card className="p-3 card--stretch">
-        <div className="row ai-c">
-          <div className="col">
-            <h2 className="h5 color-light-grey m-0">
-              How is your {audience} doing?
-            </h2>
-          </div>
-          <div className="col flex ai-c jc-e">
-            <IconDownload
-              width="24px"
-              height="24px"
-              className="mr-1 color-light-grey hover-dark-grey"
-            />
-            <Select
-              id="team"
-              defaultValue={options[2]}
-              isSearchable={false}
-              options={options}
-              inline={true}
-              onChange={(v: any) => {
-                setDates({
-                  startAt: v.date,
-                  endAt: v.end_date
-                })
-              }}
-            />
-          </div>
+    <Card className="p-3 card--stretch">
+      <div className="row ai-c">
+        <div className="col">
+          <h2 className="h5 color-light-grey m-0">
+            How is your {audience} doing?
+          </h2>
         </div>
-        <div className="row mt-4">
-          <div className="col-4 text-center">
-            <ProgressChart
-              progress={query.data.progress_active_users}
-              icon={<IconFriends />}
-              value={query.data.user_active_count.toLocaleString()}
-              goal={query.data.user_total_count.toLocaleString()}
-              label="Active users"
-            />
-          </div>
-          <div className="col-4 text-center">
-            <ProgressChart
-              progress={query.data.progress_steps}
-              icon={<IconSteps />}
-              value={query.data.current_steps.toLocaleString()}
-              goal={query.data.goal_steps.toLocaleString()}
-              label="Average daily steps"
-              color="#4EF0C2"
-            />
-          </div>
-          <div className="col-4 text-center">
-            <ProgressChart
-              progress={query.data.progress_sleep_hours}
-              icon={<IconSleep />}
-              value={query.data.current_sleep_hours.toLocaleString()}
-              goal={query.data.goal_sleep_hours.toLocaleString()}
-              label="Average hours slept"
-              color="#7CF5AB"
-            />
-          </div>
+        <div className="col flex ai-c jc-e">
+          <IconDownload
+            width="24px"
+            height="24px"
+            className="mr-1 color-light-grey hover-dark-grey"
+          />
+          <Select
+            id="team"
+            defaultValue={options[2]}
+            isSearchable={false}
+            options={options}
+            inline={true}
+            onChange={(v: any) => {
+              setDates({
+                startAt: v.date,
+                endAt: v.end_date
+              })
+            }}
+          />
         </div>
-        <div className="row mt-2">
-          <div className="col-4 text-center">
-            <ProgressChart
-              progress={query.data.progress_mindfulness_minutes}
-              icon={<IconYoga />}
-              value={query.data.current_mindfulness_minutes.toLocaleString()}
-              goal={query.data.goal_mindfulness_minutes.toLocaleString()}
-              label="Average mindful minutes"
-              color="#A6F893"
-            />
-          </div>
-          <div className="col-4 text-center">
-            <ProgressChart
-              progress={query.data.progress_floors_climbed}
-              icon={<IconStairs />}
-              value={query.data.current_floors_climbed.toLocaleString()}
-              goal={query.data.goal_floors_climbed.toLocaleString()}
-              label="Average floors climbed"
-              color="#7CF5AB"
-            />
-          </div>
-          <div className="col-4 text-center">
-            <ProgressChart
-              progress={query.data.progress_water_litres}
-              icon={<IconWater />}
-              value={query.data.current_water_litres.toLocaleString()}
-              goal={query.data.goal_water_litres.toLocaleString()}
-              label="Average water intake"
-              color="#4EF0C2"
-            />
-          </div>
+      </div>
+      {query.isFetching && (
+        <div className="abs-center">
+          <LoaderChart />
         </div>
-      </Card>
-    )
+      )}
+
+      {query.isFetched && !query.isFetching && (
+        <>
+          <div className="row mt-4">
+            <div className="col-4 text-center">
+              <ProgressChart
+                progress={query.data.progress_active_users}
+                icon={<IconFriends />}
+                value={query.data.user_active_count.toLocaleString()}
+                goal={query.data.user_total_count.toLocaleString()}
+                label="Active users"
+              />
+            </div>
+            <div className="col-4 text-center">
+              <ProgressChart
+                progress={query.data.progress_steps}
+                icon={<IconSteps />}
+                value={query.data.current_steps.toLocaleString()}
+                goal={query.data.goal_steps.toLocaleString()}
+                label="Average daily steps"
+                color="#4EF0C2"
+              />
+            </div>
+            <div className="col-4 text-center">
+              <ProgressChart
+                progress={query.data.progress_sleep_hours}
+                icon={<IconSleep />}
+                value={query.data.current_sleep_hours.toLocaleString()}
+                goal={query.data.goal_sleep_hours.toLocaleString()}
+                label="Average hours slept"
+                color="#7CF5AB"
+              />
+            </div>
+          </div>
+          <div className="row mt-2">
+            <div className="col-4 text-center">
+              <ProgressChart
+                progress={query.data.progress_mindfulness_minutes}
+                icon={<IconYoga />}
+                value={query.data.current_mindfulness_minutes.toLocaleString()}
+                goal={query.data.goal_mindfulness_minutes.toLocaleString()}
+                label="Average mindful minutes"
+                color="#A6F893"
+              />
+            </div>
+            <div className="col-4 text-center">
+              <ProgressChart
+                progress={query.data.progress_floors_climbed}
+                icon={<IconStairs />}
+                value={query.data.current_floors_climbed.toLocaleString()}
+                goal={query.data.goal_floors_climbed.toLocaleString()}
+                label="Average floors climbed"
+                color="#7CF5AB"
+              />
+            </div>
+            <div className="col-4 text-center">
+              <ProgressChart
+                progress={query.data.progress_water_litres}
+                icon={<IconWater />}
+                value={query.data.current_water_litres.toLocaleString()}
+                goal={query.data.goal_water_litres.toLocaleString()}
+                label="Average water intake"
+                color="#4EF0C2"
+              />
+            </div>
+          </div>
+        </>
+      )}
+    </Card>
   )
 }
 
@@ -291,7 +306,12 @@ function PopularLeagues() {
           />
         </div>
       </div>
-      {query.isFetched && (
+      {query.isFetching && (
+        <div className="abs-center">
+          <LoaderChart />
+        </div>
+      )}
+      {query.isFetched && !query.isFetching && (
         <table className="static-table mt-2">
           <tbody>
             {query.data.slice(0, 6).map((e, i) => (
@@ -358,7 +378,12 @@ function PopularRewards() {
           />
         </div>
       </div>
-      {query.isFetched && (
+      {query.isFetching && (
+        <div className="abs-center">
+          <LoaderChart />
+        </div>
+      )}
+      {query.isFetched && !query.isFetching && (
         <table className="static-table mt-2">
           <tbody>
             {query.data.slice(0, 6).map((e, i) => (

@@ -11,6 +11,7 @@ import useApiErrors from '../../hooks/useApiErrors'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 import { Roles } from '../../../../api/src/modules/user-roles/user-roles.constants'
 import Input from '../elements/Input'
+import { shortDescriptions } from '../../data/role-descriptions'
 
 export type InviteUserProps = {
   onSave?: () => void
@@ -117,7 +118,7 @@ export default function InviteUserForm({
     }
   }
 
-  const { isError, errorMessage, clearErrors } = useApiErrors(
+  const { isError, errorMessage, clearErrors, errors } = useApiErrors(
     add.isError,
     add.error
   )
@@ -129,14 +130,20 @@ export default function InviteUserForm({
         {role === Roles.OrganisationAdmin &&
           'Invite an organisation administrator'}
         {role === Roles.TeamAdmin && 'Invite a team administrator'}
+        {role === Roles.SubscriptionAdmin &&
+          'Invite a subscription administrator'}
         {role === Roles.SuperAdmin && 'Invite a super administrator'}
       </h4>
+
+      <Feedback message={shortDescriptions[role]} className="mb-2" />
 
       <Input
         name="invitee"
         placeholder="Full name"
         label="Full name"
         register={register('invitee')}
+        error={errors.invitee}
+        required
       />
 
       <Input
@@ -145,9 +152,11 @@ export default function InviteUserForm({
         label="Email address"
         type="email"
         register={register('email')}
+        required
+        error={errors.email}
       />
 
-      <button className="button" disabled={add.isLoading}>
+      <button className="button mt-1" disabled={add.isLoading}>
         Invite User
       </button>
 

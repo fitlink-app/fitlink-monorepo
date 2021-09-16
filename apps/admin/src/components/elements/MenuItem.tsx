@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import clsx from 'clsx'
-import noop from 'lodash/noop'
 
 export type MenuItemProps = {
   icon: React.ReactNode
@@ -19,7 +18,8 @@ export default function MenuItem({
 }: MenuItemProps) {
   const classes = clsx({
     'menu-item': true,
-    current: current
+    current: current,
+    pointer: true
   })
 
   if (onClick) {

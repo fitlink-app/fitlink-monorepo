@@ -27,6 +27,7 @@
     "next": "^10.2.0",
     "react": "^17.0.2",
     "react-chartjs-2": "^3.0.3",
+    "react-content-loader": "^6.0.3",
     "react-currency-input-field": "^3.4.1",
     "react-datepicker": "^4.1.1",
     "react-dom": "^17.0.2",

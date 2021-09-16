@@ -80,7 +80,7 @@ select[multiple] {
   }
 
   &--error {
-    input:not([type="checkbox"]):not([type="file"]), textarea, label, select {
+    input:not([type="checkbox"]):not([type="file"]), textarea, label, select, .addl-class__control {
       border-color: $red;
       &:focus, &:active {
         box-shadow: 0 0 0 3px rgba($red, 0.25);
