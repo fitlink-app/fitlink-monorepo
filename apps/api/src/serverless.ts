@@ -13,7 +13,7 @@ import fastifyMultipart from 'fastify-multipart'
 import fastifyCors from 'fastify-cors'
 import { ConfigService } from '@nestjs/config'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
-import * as awsLambdaFastify from 'aws-lambda-fastify'
+import awsLambdaFastify from 'aws-lambda-fastify'
 import {
   Context,
   APIGatewayProxyEvent,

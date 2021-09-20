@@ -38,7 +38,7 @@ const VerticalBarChart = ({ data }: VerticalBarChartProps) => {
     ]
   }
 
-  return <Bar data={chartData} options={options} type="bar" />
+  return <Bar data={chartData} options={options} itemType="bar" />
 }
 
 export default VerticalBarChart
