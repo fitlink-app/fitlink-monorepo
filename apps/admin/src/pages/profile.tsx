@@ -166,7 +166,7 @@ export default function Profile() {
 
     // Explicit removal of image
     if (payload.avatar === 'DELETE') {
-      await deleteUserAvatar.mutateAsync()
+      await deleteUserAvatar.mutateAsync({})
     }
 
     try {
