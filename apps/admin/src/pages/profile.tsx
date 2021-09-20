@@ -1,56 +1,29 @@
 import React, { useContext, useEffect, useState } from 'react'
 import Card from '../components/elements/Card'
 import Input from '../components/elements/Input'
-import Button from '../components/elements/Button'
-import Select from '../components/elements/Select'
 import Checkbox from '../components/elements/Checkbox'
 import Dashboard from '../components/layouts/Dashboard'
-import ImageSelect from '../components/elements/ImageSelect'
 import AvatarSelect from '../components/elements/AvatarSelect'
 import Feedback from '../components/elements/Feedback'
 import { useMutation } from 'react-query'
 import { AuthContext } from '../context/Auth.context'
 import {
+  DeleteResult,
   UpdateResult,
   UpdateUserAvatarDto,
   UpdateUserDto,
   UpdateUserEmailDto
-} from '../../../api-sdk/types'
+} from '@fitlink/api-sdk/types'
 import LoaderFullscreen from '../components/elements/LoaderFullscreen'
 import { useForm } from 'react-hook-form'
-import { ApiMutationResult } from '../../../common/react-query/types'
-import { User } from '../../../api/src/modules/users/entities/user.entity'
-import { Image } from '../../../api/src/modules/images/entities/image.entity'
+import { ApiMutationResult } from '@fitlink/common/react-query/types'
+import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
+import { Image } from '@fitlink/api/src/modules/images/entities/image.entity'
 import toast from 'react-hot-toast'
 import useApiErrors from '../hooks/useApiErrors'
-import { UpdateUsersSettingDto } from '../../../api/src/modules/users-settings/dto/update-users-setting.dto'
-
-const currencies = [
-  {
-    value: 'GBP',
-    label: 'GBP - British Pound'
-  },
-  {
-    value: 'EUR',
-    label: 'EUR - Euro'
-  },
-  {
-    value: 'USD',
-    label: 'USD - US Dollar'
-  },
-  {
-    value: 'AUD',
-    label: 'AUD - Australian Dollar'
-  },
-  {
-    value: 'EAD',
-    label: 'EAD - Emirati Dirham'
-  }
-]
+import { UpdateUsersSettingDto } from '@fitlink/api/src/modules/users-settings/dto/update-users-setting.dto'
 
 export default function Profile() {
-  const [company, setCompany] = useState('My Company LTD')
-  const [currenct, setCurrency] = useState(currencies[0])
   const { api, user, refreshUser } = useContext(AuthContext)
 
   const resendEmail = useMutation('resend_verification', () => {
@@ -94,6 +67,13 @@ export default function Profile() {
     }
   )
 
+  const deleteUserAvatar: ApiMutationResult<DeleteResult> = useMutation(
+    'delete_user_avatar',
+    () => {
+      return api.delete('/me/avatar', {})
+    }
+  )
+
   const updateSettings: ApiMutationResult<UpdateResult> = useMutation(
     'update_user_settings',
     (payload: UpdateUsersSettingDto) => {
@@ -112,11 +92,17 @@ export default function Profile() {
   async function resendVerificationEmail(e: React.MouseEvent) {
     e.currentTarget.classList.add('active')
     try {
-      toast.promise(resendEmail.mutateAsync(), {
-        loading: <b>Sending...</b>,
-        success: <b>Verification sent</b>,
-        error: <b>Error</b>
-      })
+      toast.promise(
+        resendEmail.mutateAsync(),
+        {
+          loading: <b>Sending...</b>,
+          success: <b>Verification sent</b>,
+          error: <b>Error</b>
+        },
+        {
+          position: 'bottom-center'
+        }
+      )
     } catch (e) {
       console.error(e)
     }
@@ -180,9 +166,7 @@ export default function Profile() {
 
     // Explicit removal of image
     if (payload.avatar === 'DELETE') {
-      await updateUserAvatar.mutateAsync({
-        imageId: undefined
-      })
+      await deleteUserAvatar.mutateAsync()
     }
 
     try {
@@ -273,7 +257,14 @@ export default function Profile() {
                 />
               )}
 
-              <button className="button" disabled={updateUserEmail.isLoading}>
+              <button
+                className="button"
+                disabled={
+                  updateUserEmail.isLoading ||
+                  updateUser.isLoading ||
+                  updateUserAvatar.isLoading ||
+                  deleteUserAvatar.isLoading
+                }>
                 Update
               </button>
             </form>
