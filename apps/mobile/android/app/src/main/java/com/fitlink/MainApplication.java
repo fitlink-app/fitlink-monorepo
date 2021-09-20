@@ -10,6 +10,7 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.soloader.SoLoader;
 import com.swmansion.reanimated.ReanimatedJSIModulePackage;
+import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
