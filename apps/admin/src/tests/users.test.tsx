@@ -4,6 +4,7 @@ import * as moxios from 'moxios'
 import Page from '../pages/users'
 import App from './mock/app'
 import { api } from '../context/Auth.context'
+import { mockSessionState } from './mock/session'
 
 const useRouter = jest.spyOn(require('next/router'), 'useRouter')
 
@@ -20,6 +21,7 @@ describe('Users', () => {
 
   beforeEach(() => {
     moxios.install(axios)
+    mockSessionState()
   })
 
   afterEach(() => {
