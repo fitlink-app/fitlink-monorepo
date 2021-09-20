@@ -1,0 +1,44 @@
+.role-switcher {
+  &__roles {
+    position: absolute;
+    top: 3.5rem;
+    right: 0;
+    border-radius: 0.5rem;
+    background-color: #fff;
+    padding: 0;
+    z-index: 1;
+    width: 300px;
+    box-shadow: 3px 3px 3px rgba(0,0,0,.2);
+    overflow: hidden;
+    span {
+      display: block;
+      a {
+        border-bottom: 1px solid $grey-100;
+        display: block;
+        color: $primary;
+        padding: .5rem;
+        text-decoration: none;
+        font-weight: 200;
+        &:hover {
+          color: #fff;
+          background-color: $primary;
+        }
+      }
+    }
+  }
+
+  &__manage {
+    color: $primary;
+    background-color: #fff;
+    border: 1px solid $primary;
+    padding: .6rem .75rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &.in {
+      background-color: $grey-200;
+    }
+  }
+}

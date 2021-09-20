@@ -1,0 +1,10 @@
+.account {
+  position: absolute;
+  top: 1.5rem;
+  right: 3rem;
+  z-index: 2;
+  display: flex;
+  .avatar {
+    margin-left: 1rem;
+  }
+}

@@ -104,7 +104,12 @@ const Select: React.FC<SelectProps> = ({ error, ...props }) => {
         })}
         components={{
           Option: ({ children, ...rest }) => (
-            <components.Option {...rest}>{children}</components.Option>
+            <components.Option {...rest}>
+              {children}{' '}
+              {rest.data.subLabel ? (
+                <span className="sub-label">{rest.data.subLabel}</span>
+              ) : null}
+            </components.Option>
           )
         }}
         {...props}

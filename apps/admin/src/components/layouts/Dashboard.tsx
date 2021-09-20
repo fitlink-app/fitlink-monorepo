@@ -6,6 +6,7 @@ import { AuthContext } from '../../context/Auth.context'
 import Button from '../elements/Button'
 import Loader from '../elements/Loader'
 import LoaderFullscreen from '../elements/LoaderFullscreen'
+import Account from '../elements/Account'
 
 type DashboardProps = {
   children?: React.ReactNode
@@ -41,8 +42,6 @@ export default function Dashboard({
     }
   }, [])
 
-  console.log(focusRole)
-
   return (
     <>
       <Head>
@@ -76,7 +75,18 @@ export default function Dashboard({
           href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap"
         />
       </Head>
-      <Toaster position="top-right" />
+      <Toaster
+        position="top-right"
+        containerClassName="toast-wrapper"
+        toastOptions={{
+          style: {
+            padding: '12px'
+          }
+        }}
+        containerStyle={{
+          right: 30
+        }}
+      />
 
       {!focusRole || loading ? (
         <LoaderFullscreen />
@@ -84,7 +94,10 @@ export default function Dashboard({
         <>
           <div className="layout-dashboard">
             {!hideSidebar && <Sidebar prefix={linkPrefix} menu={menu} />}
-            <div className="content">{children}</div>
+            <div className="content">
+              {!hideSidebar && <Account />}
+              {children}
+            </div>
           </div>
           <div id="modal-root"></div>
         </>

@@ -60,7 +60,12 @@ export class UserRolesService {
           id
         }
       },
-      relations: ['organisation', 'team', 'subscription']
+      relations: [
+        'organisation',
+        'team',
+        'subscription',
+        'subscription.organisation'
+      ]
     })
   }
 

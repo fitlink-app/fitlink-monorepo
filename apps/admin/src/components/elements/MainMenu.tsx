@@ -41,22 +41,11 @@ export type MainMenuProps = {
 export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
   const router = useRouter()
   const current = router.pathname
-  const { switchMode, restoreRole } = useContext(AuthContext)
+  const { switchMode } = useContext(AuthContext)
 
   if (menu.length && !prefix) {
     return (
       <div>
-        {switchMode ? (
-          <>
-            <MenuItem
-              to={''}
-              onClick={restoreRole}
-              label={'Back'}
-              icon={null}
-            />
-            <hr />
-          </>
-        ) : null}
         {menu.map((item: MenuProps, index: number) => {
           const { label, link, icon, onClick, hr, subMenu } = item
           const Icon = icons[icon]

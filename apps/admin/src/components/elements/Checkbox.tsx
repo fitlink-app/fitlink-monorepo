@@ -8,7 +8,7 @@ export type CheckboxProps = {
   name: string
   checked?: boolean
   showSwitch?: boolean
-  onChange?: (e: any) => void
+  onChange?: (checked: boolean) => void
   error?: string
   register?: UseFormRegisterReturn
 }

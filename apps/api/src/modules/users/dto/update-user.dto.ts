@@ -19,7 +19,7 @@ export class UpdateUserDto {
   @MinLength(2, {
     message: 'Name must be at least 2 characters long'
   })
-  name: string
+  name?: string
 
   @ApiProperty({
     enum: UnitSystem
@@ -29,7 +29,7 @@ export class UpdateUserDto {
   @IsEnum(UnitSystem, {
     message: 'Unit system must be metric or imperial'
   })
-  unit_system: UnitSystem
+  unit_system?: UnitSystem
 
   @ApiProperty({
     example: 'Etc/UTC'
@@ -37,37 +37,37 @@ export class UpdateUserDto {
   @IsOptional()
   @IsNotEmpty()
   @IsTimezone()
-  timezone: string
+  timezone?: string
 
   @ApiProperty()
   @IsOptional()
   @IsBoolean()
-  onboarded: boolean
+  onboarded?: boolean
 
   @ApiProperty()
   @IsOptional()
   @IsNumber()
-  goal_mindfulness_minutes: number
+  goal_mindfulness_minutes?: number
 
   @ApiProperty()
   @IsOptional()
   @IsNumber()
-  goal_steps: number
+  goal_steps?: number
 
   @ApiProperty()
   @IsOptional()
   @IsNumber()
-  goal_floors_climbed: number
+  goal_floors_climbed?: number
 
   @ApiProperty()
   @IsOptional()
   @IsNumber()
-  goal_water_litres: number
+  goal_water_litres?: number
 
   @ApiProperty()
   @IsOptional()
   @IsNumber()
-  goal_sleep_hours: number
+  goal_sleep_hours?: number
 }
 
 export class UpdateBasicUserDto {
@@ -117,6 +117,12 @@ export class VerifyUserEmailDto {
   @ApiProperty()
   @IsString()
   token: string
+}
+
+export class VerifyUserEmailResultDto {
+  @ApiProperty()
+  @IsString()
+  success: boolean
 }
 
 export class UpdateUserPasswordDto {

@@ -696,12 +696,13 @@ export class AuthService {
           relations: ['organisation']
         })
 
-        if (!roles.t_a.includes(team.id)) {
-          return false
-        }
-
+        // Organisation admins have full access to teams
         if (roles.o_a.includes(team.organisation.id)) {
           orgs.push(team.organisation.id)
+
+          // Allow access for team admins
+        } else if (!roles.t_a.includes(team.id)) {
+          return false
         }
       }
       return this.loginWithRole(user, {

@@ -35,7 +35,8 @@ import {
   UpdateUserAvatarDto,
   UpdateUserDto,
   UpdateUserEmailDto,
-  UpdateUserPasswordDto
+  UpdateUserPasswordDto,
+  VerifyUserEmailDto
 } from '@fitlink/api/src/modules/users/dto/update-user.dto'
 import { CreateDefaultSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/create-default-subscription.dto'
 import { UpdateSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/update-subscription.dto'
@@ -47,6 +48,7 @@ import { TeamsInvitation } from '@fitlink/api/src/modules/teams-invitations/enti
 import { RespondTeamsInvitationDto } from '@fitlink/api/src/modules/teams-invitations/dto/respond-teams-invitation.dto'
 import { RespondOrganisationsInvitationDto } from '@fitlink/api/src/modules/organisations-invitations/dto/respond-organisations-invitation.dto'
 import { RespondSubscriptionsInvitationDto } from '@fitlink/api/src/modules/subscriptions/dto/respond-subscriptions-invitation.dto'
+import { UpdateUsersSettingDto } from '@fitlink/api/src/modules/users-settings/dto/update-users-setting.dto'
 
 export type {
   AuthResultDto,
@@ -92,6 +94,7 @@ export type OrganisationsInvitationsRespond = '/organisations-invitations/respon
 export type SubscriptionsInvitationsVerify = '/subscriptions-invitations/verify'
 export type SubscriptionsInvitationsRespond = '/subscriptions-invitations/respond'
 export type CreateStravaSubscription = '/providers/strava/webhook/register'
+export type VerifyUserEmail = '/users/verify-email'
 
 export type CreatableResource =
   | AuthLogin
@@ -109,6 +112,7 @@ export type CreatableResource =
   | SubscriptionsInvitationsVerify
   | SubscriptionsInvitationsRespond
   | CreateStravaSubscription
+  | VerifyUserEmail
 
 export type ListResource =
   | '/organisations'
@@ -208,6 +212,7 @@ export type ReadResource =
   | '/me/avatar'
   | '/me/email'
   | '/me/password'
+  | '/me/settings'
   | '/stats/goals'
   | '/stats/rewards'
   | '/stats/leagues'
@@ -275,6 +280,8 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<{ token: string }>
   : T extends SubscriptionsInvitationsRespond
   ? Payload<RespondSubscriptionsInvitationDto>
+  : T extends VerifyUserEmail
+  ? Payload<VerifyUserEmailDto>
   : never
 
 export type UploadResourceParams = FilePayload
@@ -292,13 +299,15 @@ export type CreatableResourceResponse<T> = T extends AuthSignUp
   : T extends AuthSwitch
   ? AuthResultDto
   : T extends AuthLogout
-  ? { success: true }
+  ? { success: boolean }
   : T extends SubscriptionUser
   ? { success: boolean }
   : T extends TeamsInvitationsVerify
   ? TeamsInvitation
   : T extends TeamsInvitationsRespond
   ? TeamsInvitation
+  : T extends VerifyUserEmail
+  ? { success: boolean }
   : never
 
 export type UpdateResourceParams<T> = T extends Organisation
@@ -321,6 +330,8 @@ export type UpdateResourceParams<T> = T extends Organisation
   ? Payload<UpdateUserPasswordDto>
   : T extends UpdateUserEmailDto
   ? Payload<UpdateUserEmailDto>
+  : T extends UpdateUsersSettingDto
+  ? Payload<UpdateUsersSettingDto>
   : never
 
 export type ResourceParams = NodeJS.Dict<any> & {
