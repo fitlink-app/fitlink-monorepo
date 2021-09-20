@@ -141,6 +141,7 @@ const LoginPage = () => {
             register={register('name')}
             error={errors.name}
             disabled={loading}
+            required
           />
         )}
 
@@ -152,6 +153,7 @@ const LoginPage = () => {
           register={register('email')}
           error={errors.email}
           disabled={loading}
+          required
         />
         <Input
           label="Password"
@@ -161,6 +163,7 @@ const LoginPage = () => {
           register={register('password')}
           error={errors.password}
           disabled={loading}
+          required
         />
 
         {errorMessage !== '' && (

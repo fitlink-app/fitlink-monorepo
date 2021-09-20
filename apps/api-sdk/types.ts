@@ -41,7 +41,10 @@ import {
 import { CreateDefaultSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/create-default-subscription.dto'
 import { UpdateSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/update-subscription.dto'
 import { AddUserToSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/add-user-to-subscription.dto'
-import { AuthRequestResetPasswordDto } from '@fitlink/api/src/modules/auth/dto/auth-reset-password'
+import {
+  AuthRequestResetPasswordDto,
+  AuthResetPasswordDto
+} from '@fitlink/api/src/modules/auth/dto/auth-reset-password'
 import { CreateAdminDto } from '@fitlink/api/src/modules/users/dto/create-admin.dto'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 import { TeamsInvitation } from '@fitlink/api/src/modules/teams-invitations/entities/teams-invitation.entity'
@@ -87,6 +90,7 @@ export type AuthConnect = '/auth/connect'
 export type AuthSwitch = '/auth/switch'
 export type AuthSignUpOrganisation = '/auth/organisation'
 export type AuthRequestResetPassword = '/auth/request-password-reset'
+export type AuthResetPassword = '/auth/reset-password'
 export type TeamsInvitationsVerify = '/teams-invitations/verify'
 export type TeamsInvitationsRespond = '/teams-invitations/respond'
 export type OrganisationsInvitationsVerify = '/organisations-invitations/verify'
@@ -105,6 +109,7 @@ export type CreatableResource =
   | AuthSignUp
   | AuthSignUpOrganisation
   | AuthRequestResetPassword
+  | AuthResetPassword
   | TeamsInvitationsVerify
   | TeamsInvitationsRespond
   | OrganisationsInvitationsVerify
@@ -228,6 +233,7 @@ export type ReadResource =
   | '/providers/strava/webhook/view'
   | '/providers/strava/webhook/register/:id'
   | '/app/config'
+  | '/auth/reset-password'
 
 export type UploadResource = '/images'
 
@@ -332,6 +338,8 @@ export type UpdateResourceParams<T> = T extends Organisation
   ? Payload<UpdateUserEmailDto>
   : T extends UpdateUsersSettingDto
   ? Payload<UpdateUsersSettingDto>
+  : T extends AuthResetPassword
+  ? Payload<AuthResetPasswordDto>
   : never
 
 export type ResourceParams = NodeJS.Dict<any> & {

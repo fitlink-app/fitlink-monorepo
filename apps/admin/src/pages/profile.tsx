@@ -22,6 +22,7 @@ import { Image } from '@fitlink/api/src/modules/images/entities/image.entity'
 import toast from 'react-hot-toast'
 import useApiErrors from '../hooks/useApiErrors'
 import { UpdateUsersSettingDto } from '@fitlink/api/src/modules/users-settings/dto/update-users-setting.dto'
+import Link from 'next/link'
 
 export default function Profile() {
   const { api, user, refreshUser } = useContext(AuthContext)
@@ -92,17 +93,11 @@ export default function Profile() {
   async function resendVerificationEmail(e: React.MouseEvent) {
     e.currentTarget.classList.add('active')
     try {
-      toast.promise(
-        resendEmail.mutateAsync(),
-        {
-          loading: <b>Sending...</b>,
-          success: <b>Verification sent</b>,
-          error: <b>Error</b>
-        },
-        {
-          position: 'bottom-center'
-        }
-      )
+      toast.promise(resendEmail.mutateAsync(), {
+        loading: <b>Sending...</b>,
+        success: <b>Verification sent</b>,
+        error: <b>Error</b>
+      })
     } catch (e) {
       console.error(e)
     }
@@ -267,6 +262,9 @@ export default function Profile() {
                 }>
                 Update
               </button>
+              <Link href="/forgot-password">
+                <button className="button alt ml-2">Reset password</button>
+              </Link>
             </form>
 
             <em className="mt-2 flex">
@@ -284,7 +282,11 @@ export default function Profile() {
             <Checkbox
               label="Admin newsletter"
               name="admin_newsletter"
-              checked={user.settings.newsletter_subscriptions_admin}
+              checked={
+                user.settings
+                  ? user.settings.newsletter_subscriptions_admin
+                  : false
+              }
               showSwitch={true}
               onChange={async (checked) => {
                 console.log(checked)
@@ -300,7 +302,11 @@ export default function Profile() {
             <Checkbox
               label="User newsletter"
               name="user_newsletter"
-              checked={user.settings.newsletter_subscriptions_user}
+              checked={
+                user.settings
+                  ? user.settings.newsletter_subscriptions_user
+                  : false
+              }
               showSwitch={true}
               onChange={async (checked) => {
                 console.log(checked)
