@@ -3,6 +3,7 @@ export type IconProps = {
   height?: string
   children?: React.ReactNode
   className?: string
+  viewBox?: string
   onClick?: (e?: any) => void
 }
 
@@ -11,6 +12,7 @@ export default function Icon({
   height = '16px',
   children = <></>,
   className = '',
+  viewBox = '0 0 32 32',
   onClick = () => {}
 }: IconProps) {
   return (
@@ -20,7 +22,7 @@ export default function Icon({
       width={width}
       height={height}
       onClick={onClick}
-      viewBox="0 0 32 32">
+      viewBox={viewBox}>
       {children}
     </svg>
   )

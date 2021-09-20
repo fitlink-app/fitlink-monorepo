@@ -338,3 +338,13 @@ select[multiple] {
     color: inherit;
   }
 }
+
+.sub-label {
+  display: block;
+  margin-top: .25rem;
+  background: #333;
+  padding: 2px;
+  color: $primary;
+  border-radius: 3px;
+  font-size: .75rem;
+}

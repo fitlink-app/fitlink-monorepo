@@ -3,9 +3,10 @@
   flex: 0 0 3.875rem;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.1);
   padding: 1.5rem 1rem;
-  overflow-x: hidden;
+  // overflow-x: hidden;
   overflow-y: auto;
-  
+  z-index: 1;
+
   @media screen and (min-width: $large) {
     flex: 0 0 15rem;
     padding: 1.5rem;

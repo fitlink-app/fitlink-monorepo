@@ -25,7 +25,9 @@ const axios = Axios.create({
 
 export const api = makeApi(axios)
 
-const statelessUrls = ['/signup', '/login']
+// URLs where localStorage state can be completely
+// reset, as the user is expected to be in a clean state.
+const statelessUrls = ['/signup', '/login', '/verify-email']
 
 type Permissions = {
   superAdmin: boolean
@@ -67,13 +69,15 @@ export type AuthContext = {
   focusRole: FocusRole
   fetchKey: string
   ready?: boolean
+  currentRole?: Roles
+  currentRoleId?: string
   signup: (credentials: CreateUserDto) => Promise<AuthSignupDto>
   login: (credentials: AuthLoginDto) => Promise<AuthResultDto>
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
   logout: () => Promise<void>
   switchRole: (params: AuthSwitchDto) => Promise<AuthResultDto>
-  restoreRole: () => Promise<void>
   isRole: (role: Roles, id?: string) => boolean
+  refreshUser: () => Promise<void>
 }
 
 export const AuthContext = React.createContext({} as AuthContext)
@@ -90,7 +94,6 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
   } as AuthContext)
   const [readyToResume, setReadyToResume] = useState(false)
   const [childRole, setChildRole] = useState<AuthSwitchDto>()
-  const [roleTree, setRoleTree] = useState<AuthSwitchTree[]>([])
   const router = useRouter()
   const me = useQuery('me', () => api.get<User>('/me'), {
     enabled: false,
@@ -159,7 +162,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       storeState(newState)
       setState(newState)
     }
-  }, [me.data, roles.data, childRole, roleTree, readyToResume])
+  }, [me.data, roles.data, childRole, readyToResume])
 
   /**
    * Stores the state of role switching
@@ -169,7 +172,6 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     localStorage.setItem(
       'fitlink',
       JSON.stringify({
-        roleTree: roleTree,
         childRole: childRole,
         switchMode: state.switchMode,
         focusRole: state.focusRole
@@ -181,7 +183,6 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     const stored = localStorage.getItem('fitlink')
     if (stored) {
       const parsed = JSON.parse(stored)
-      setRoleTree(parsed.roleTree)
       setChildRole(parsed.childRole)
       setState({
         ...state,
@@ -202,8 +203,12 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     roles.refetch()
   }
 
+  async function refreshUser() {
+    me.refetch()
+    roles.refetch()
+  }
+
   async function login({ email, password }) {
-    setRoleTree([])
     setChildRole(null)
 
     const result = await api.login({
@@ -218,7 +223,6 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
   }
 
   async function signup({ email, password, name }) {
-    setRoleTree([])
     setChildRole(null)
 
     const result = await api.signUp({
@@ -249,57 +253,24 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     setState({
       ...state,
       switchMode: true,
-      focusRole
+      focusRole,
+      currentRole: params.role,
+      currentRoleId: params.id
     })
 
     if (focusRole !== 'app') {
       setChildRole(params)
-      setRoleTree([
-        ...(roleTree || []),
-        {
-          ...params,
-          pathname: router.pathname
-        }
-      ])
     } else {
       setChildRole(undefined)
-      setRoleTree([])
     }
 
     if (params.role === Roles.SubscriptionAdmin) {
-      router.push('/billing')
+      await router.push('/billing')
     } else {
-      router.push('/dashboard')
+      await router.push('/dashboard')
     }
 
     return result
-  }
-
-  async function restoreRole() {
-    // Set the previous role in the tree
-    const tree = [...roleTree]
-    const last = tree.pop()
-    const newRole = tree[tree.length - 1]
-
-    // Restore the previous role to the API / session
-    await api.loginWithRole({
-      role: newRole ? newRole.role : undefined,
-      id: newRole ? newRole.id : undefined
-    })
-
-    // If a previous item exists route to it.
-    if (last) {
-      await router.push(last.pathname)
-    } else {
-      await router.push('/start')
-    }
-
-    setRoleTree(tree)
-    setChildRole(tree[tree.length - 1])
-    setState({
-      ...state,
-      switchMode: tree.length > 0
-    })
   }
 
   function formatRoles(roles: UserRole[], childRole?: AuthSwitchDto) {
@@ -665,8 +636,8 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
         logout,
         connect,
         switchRole,
-        restoreRole,
-        isRole
+        isRole,
+        refreshUser
       }}>
       {children}
     </AuthContext.Provider>

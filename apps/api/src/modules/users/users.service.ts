@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { formatRoles } from '../../helpers/formatRoles'
@@ -500,7 +500,7 @@ export class UsersService {
       .getCount()
 
     if (exists) {
-      throw new Error('Requested email is already in use')
+      throw new BadRequestException('Requested email is already in use')
     }
 
     await this.sendVerificationEmail(userId, email)
@@ -523,7 +523,10 @@ export class UsersService {
   verifyEmail(token: string) {
     try {
       const payload = this.jwtService.decode(token) as EmailResetJWT
-      this.jwtService.verify(token)
+      this.jwtService.verify(token, {
+        secret: this.configService.get('EMAIL_JWT_TOKEN_SECRET')
+      })
+
       if (payload.type === 'email-reset') {
         const [id, email] = payload.sub.split('|')
         return this.userRepository.update(id, {
@@ -554,7 +557,10 @@ export class UsersService {
       type: 'email-reset'
     }
 
-    const token = this.jwtService.sign(payload)
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get('EMAIL_JWT_TOKEN_SECRET')
+    })
+
     const EMAIL_VERIFICATION_LINK = this.configService
       .get('EMAIL_VERIFICATION_URL')
       .replace('{token}', token)
