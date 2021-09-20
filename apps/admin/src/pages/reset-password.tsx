@@ -88,12 +88,14 @@ export default function ForgotPassword() {
               type="password"
               register={register('password')}
               error={errors.password}
+              required
             />
             <Input
               label="Confirm New Password"
               name="password_confirm"
               type="password"
               register={register('password_confirm')}
+              required
             />
           </>
         )}

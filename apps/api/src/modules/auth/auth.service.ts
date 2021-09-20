@@ -154,6 +154,9 @@ export class AuthService {
       // Send a verification email
       await this.usersService.sendVerificationEmail(user.id, email)
 
+      // Send a welcome email
+      await this.emailService.sendTemplatedEmail('welcome-email', {}, [email])
+
       return {
         auth: await this.login(user),
         me: plainToClass(User, user)
@@ -195,6 +198,11 @@ export class AuthService {
 
       // Send a verification email
       await this.usersService.sendVerificationEmail(user.id, email)
+
+      // Send a welcome email
+      await this.emailService.sendTemplatedEmail('welcome-email-admin', {}, [
+        email
+      ])
 
       // Create the organisation
       // Also creates the default subscription and team
@@ -244,6 +252,11 @@ export class AuthService {
 
     // Send a verification email
     await this.usersService.sendVerificationEmail(user.id, provider.email)
+
+    // Send a welcome email
+    await this.emailService.sendTemplatedEmail('welcome-email', {}, [
+      provider.email
+    ])
 
     return {
       auth: await this.login(user),

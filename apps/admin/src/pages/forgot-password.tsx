@@ -77,6 +77,7 @@ export default function ForgotPassword() {
           type="email"
           register={register('email')}
           error={errors.email}
+          required
         />
         {errorMessage && (
           <Feedback type="error" className="mt-2" message={errorMessage} />
