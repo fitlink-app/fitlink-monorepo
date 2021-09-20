@@ -26,7 +26,7 @@ export function RoleSwitcher() {
     // toast.loading(<b>Switching role...</b>)
   }, [])
 
-  return (
+  return roles.length > 1 ? (
     <div className="role-switcher">
       <a
         className={`role-switcher__manage ${show ? 'in' : ''}`}
@@ -62,5 +62,5 @@ export function RoleSwitcher() {
         </div>
       )}
     </div>
-  )
+  ) : null
 }
