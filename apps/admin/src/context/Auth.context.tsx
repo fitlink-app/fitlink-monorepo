@@ -27,7 +27,13 @@ export const api = makeApi(axios)
 
 // URLs where localStorage state can be completely
 // reset, as the user is expected to be in a clean state.
-const statelessUrls = ['/signup', '/login', '/verify-email']
+const statelessUrls = [
+  '/signup',
+  '/login',
+  '/verify-email',
+  '/reset-password',
+  '/forgot-password'
+]
 
 type Permissions = {
   superAdmin: boolean
