@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
+import Dashboard from '../components/layouts/Dashboard'
 
 const IndexPage = () => {
   const router = useRouter()
@@ -8,7 +9,7 @@ const IndexPage = () => {
     router.push('/login')
   }, [])
 
-  return null
+  return <Dashboard hideSidebar={true} />
 }
 
 export default IndexPage

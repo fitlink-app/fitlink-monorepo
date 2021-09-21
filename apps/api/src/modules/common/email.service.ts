@@ -124,6 +124,8 @@ export type TemplatesType =
   | 'user-invitation'
   | 'user-removed-from-team'
   | 'welcome'
+  | 'welcome-email'
+  | 'welcome-email-admin'
   | 'organisation-invitation'
   | 'team-invitation'
   | 'league-invitation'

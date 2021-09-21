@@ -2,7 +2,7 @@
   display: flex;
   overflow: hidden;
   position: relative;
-  
+
   .content {
     flex: 1;
     height: 100vh;
@@ -11,9 +11,10 @@
     overflow-x: hidden;
     overflow-y: auto;
     background: $grey-80;
+    position: relative;
   }
 
-  
+
   /*  &.open {
     transform: translateX(0%);
   } */
@@ -33,11 +34,11 @@
   overflow-y: auto;
   box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
   //transition: transform 0.15s;
-  
+
   &--wide {
     width: 800px;
   }
-  
+
   &__close {
     position: absolute;
     top: 2rem;
@@ -45,11 +46,11 @@
     color: $lightGrey;
     transition: color 0.2s;
     cursor: pointer;
-    
+
     &:hover {
       color: $darkGrey;
     }
-    
+
     svg {
       width: 2rem;
       height: 2rem;

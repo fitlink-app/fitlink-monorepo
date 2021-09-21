@@ -160,6 +160,10 @@ export default function SubscriptionsPage() {
 
   const { api, primary, focusRole } = useContext(AuthContext)
 
+  if (focusRole === 'organisation' && !primary.organisation) {
+    return <Dashboard />
+  }
+
   return (
     <Dashboard title="Settings Users">
       <Head>

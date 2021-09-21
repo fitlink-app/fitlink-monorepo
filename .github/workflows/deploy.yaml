@@ -71,7 +71,8 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        # run: yarn install --frozen-lockfile
+        run: yarn install
 
       - name: Setup docker
         run: docker-compose up -d postgres-jest s3rver

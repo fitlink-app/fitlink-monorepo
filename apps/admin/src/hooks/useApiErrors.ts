@@ -25,6 +25,7 @@ export default function useApiErrors(isError: boolean, error: ResponseError) {
     isError,
     errorMessage,
     clearErrors,
-    setErrors
+    setErrors,
+    setMessage
   }
 }

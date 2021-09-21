@@ -4,7 +4,8 @@ export const mockSessionState = () => {
   moxios.stubRequest('/me', {
     status: 200,
     response: {
-      email: 'johndoe@example.com'
+      email: 'johndoe@example.com',
+      name: 'John Doe'
     }
   })
 

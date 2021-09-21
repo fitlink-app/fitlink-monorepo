@@ -30,4 +30,11 @@
     margin: 0 0 1rem 1rem;
     cursor: pointer;
   }
+
+  a {
+    color: $dark;
+    &.active {
+      opacity: .5;
+    }
+  }
 }

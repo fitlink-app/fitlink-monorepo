@@ -6,14 +6,16 @@ import { AuthContext } from '../../context/Auth.context'
 import Button from '../elements/Button'
 import Loader from '../elements/Loader'
 import LoaderFullscreen from '../elements/LoaderFullscreen'
+import Account from '../elements/Account'
 
 type DashboardProps = {
-  children: React.ReactNode
+  children?: React.ReactNode
   title?: string
   description?: string
   image?: string
   linkPrefix?: string
   hideSidebar?: boolean
+  loading?: boolean
 }
 
 let hydrated = false
@@ -23,7 +25,8 @@ export default function Dashboard({
   title = 'Fitlink',
   description = '',
   linkPrefix = '',
-  hideSidebar = false
+  hideSidebar = false,
+  loading = false
 }: DashboardProps) {
   const hydratedRef = useRef(false)
   const [, rerender] = useState(false)
@@ -38,8 +41,6 @@ export default function Dashboard({
       rerender(true)
     }
   }, [])
-
-  console.log(focusRole)
 
   return (
     <>
@@ -74,15 +75,29 @@ export default function Dashboard({
           href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap"
         />
       </Head>
-      <Toaster position="top-right" />
+      <Toaster
+        position="top-right"
+        containerClassName="toast-wrapper"
+        toastOptions={{
+          style: {
+            padding: '12px'
+          }
+        }}
+        containerStyle={{
+          right: 30
+        }}
+      />
 
-      {!focusRole ? (
+      {!focusRole || loading ? (
         <LoaderFullscreen />
       ) : (
         <>
           <div className="layout-dashboard">
             {!hideSidebar && <Sidebar prefix={linkPrefix} menu={menu} />}
-            <div className="content">{children}</div>
+            <div className="content">
+              {!hideSidebar && <Account />}
+              {children}
+            </div>
           </div>
           <div id="modal-root"></div>
         </>
