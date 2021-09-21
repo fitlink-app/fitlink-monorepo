@@ -1,11 +1,19 @@
 .layout-signup {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
   min-height: 100vh;
+  padding: 2rem 0;
   position: relative;
   background-size: cover;
   background-position: center center;
   background-image: url(../../img/signup-600.jpg);
+  background-attachment: fixed;
+
+  & > .flex {
+    width: 100%;
+  }
 
   @media screen and (min-width: $medium) {
     background-image: url(../../img/signup-960.jpg)
@@ -27,26 +35,43 @@
     mix-blend-mode: multiply;
   }
 
+  .primary {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: $primary;
+    opacity: 0.5;
+    width: 40%;
+    display: none;
+
+    @media screen and (min-width: $medium) {
+      display: block;
+    }
+  }
+
   .intro {
     width: 100%;
-    background-color: rgba(0, 233, 215, .5);
-    padding-top: 4rem;
+    //background-color: rgba(0, 233, 215, .5);
+    //padding-top: 4rem;
+    //padding-bottom: 4rem;
     padding-left: 2rem;
     padding-right: 2rem;
     display: flex;
     position: relative;
+    align-items: center;
 
     @media screen and (min-width: $medium) {
       width: 40%;
-      padding-top: 6rem;
-      padding-bottom: 6rem;
+      //padding-top: 6rem;
+      //padding-bottom: 6rem;
       padding-left: 3rem;
       padding-right: 0;
     }
 
     @media screen and (min-width: 1130px) {
-      padding-top: 10rem;
-      padding-bottom: 10rem;
+      //padding-top: 10rem;
+      //padding-bottom: 10rem;
     }
   }
 
@@ -68,19 +93,25 @@
     @media screen and (min-width: $medium) {
       max-width: 580px;
     }
+
+    h2 {
+      font-size: 1.25rem;
+      margin-bottom: 2rem;
+    }
   }
 
   h1 {
     font-size: 4.375rem;
     font-weight: 400;
-    margin-top: 4rem;
-    margin-bottom: 2.5rem;
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
   }
 
   h2 {
     font-weight: 300;
     line-height: 1.35em;
-    margin-top: 1.5rem;
+    //margin-top: 1.5rem;
     margin-bottom: 0.5rem;
   }
 
@@ -125,22 +156,22 @@
   .content {
     width: 100%;
     position: relative;
-    padding-bottom: 4rem;
+    //padding-bottom: 4rem;
     padding-left: 2rem;
     padding-right: 2rem;
     display: flex;
 
     @media screen and (min-width: $medium) {
       width: 60%;
-      padding-top: 6rem;
-      padding-bottom: 6rem;
+      //padding-top: 6rem;
+      //padding-bottom: 6rem;
       padding-right: 3rem;
       padding-left: 0;
     }
 
     @media screen and (min-width: 1130px) {
-      padding-top: 10rem;
-      padding-bottom: 10rem;
+      //padding-top: 10rem;
+      //padding-bottom: 10rem;
     }
   }
 
@@ -178,6 +209,25 @@
 
     a {
       color: $darkGrey;
+    }
+  }
+
+  ul {
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+    width: 100%;
+
+    li {
+      font-family: 'Lato', sans-serif;
+      font-weight: 400;
+      margin: 0.5rem 0;
+      padding-left: 1.25rem;
+      background-position: 0px 0.2rem;
+      background-repeat: no-repeat;
+      background-size: 14px 14px;
+      background-image: url("data:image/svg+xml,%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%2300E9D7' d='M27.241 5.217l-16.44 16.44-6.041-6.041c-0.293-0.293-0.768-0.293-1.061 0l-1.768 1.768c-0.293 0.293-0.293 0.768 0 1.061l8.339 8.339c0.293 0.293 0.768 0.293 1.061 0l18.738-18.738c0.293-0.293 0.293-0.768 0-1.061l-1.768-1.768c-0.293-0.293-0.768-0.293-1.061 0z'%3E%3C/path%3E%3C/svg%3E%0A");
+      line-height: 1.3em;
     }
   }
 }
