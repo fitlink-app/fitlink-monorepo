@@ -2,7 +2,6 @@ apply plugin: "com.android.application"
 
 project.ext.envConfigFiles = [
   dev: ".env.development",
-  stg: ".env.stating",
   prd: ".env.production"
 ]
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
@@ -180,11 +179,6 @@ android {
       dimension "default"
       applicationIdSuffix ".dev"
       versionNameSuffix "-dev"
-    }
-    stg {
-      dimension "default"
-      applicationIdSuffix ".stg"
-      versionNameSuffix "-stg"
     }
     prd {
       dimension "default"
