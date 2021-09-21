@@ -61,5 +61,4 @@ buck-out/
 # .env files
 .env.development
 .env.production
-.env.staging
 
