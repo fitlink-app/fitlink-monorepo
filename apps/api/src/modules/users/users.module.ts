@@ -32,7 +32,6 @@ import { UserActiveMinutesIncrementedListener } from './listeners/UserActiveMinu
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        console.log(configService.get('EMAIL_JWT_TOKEN_SECRET'))
         return {
           secret: configService.get('EMAIL_JWT_TOKEN_SECRET'),
           signOptions: { expiresIn: '1h' }
