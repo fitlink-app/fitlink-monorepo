@@ -6,8 +6,6 @@ platform :ios, '10.0'
 project 'Fitlink',
 'Development' => :debug,
 'Development.Release' => :release,
-'Staging' => :debug,
-'Staging.Release' => :release
 
 IS_CI = ENV['APPCENTER_BUILD_ID']
 

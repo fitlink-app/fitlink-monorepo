@@ -2,25 +2,24 @@
   "name": "@fitlink/mobile",
   "version": "1.0.0",
   "private": true,
-  "workspaces": {
-    "nohoist": [
-      "**"
-    ]
-  },
   "scripts": {
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "postinstall": "patch-package",
     "android:dev": "react-native run-android --variant=devDebug --appIdSuffix=dev",
-    "android:stg": "react-native run-android --variant=stgDebug --appIdSuffix=stg",
     "android": "react-native run-android --variant=prdDebug",
     "ios:dev": "react-native run-ios --configuration Development --scheme Fitlink.dev",
-    "ios:stg": "react-native run-ios --configuration Staging --scheme Fitlink.stg",
     "ios": "react-native run-ios --configuration Production --scheme Fitlink"
   },
   "peerDependencies": {
     "@fitlink/common": "*"
+  },
+  "workspaces": {
+    "nohoist": [
+      "patch-package",
+      "typescript"
+    ]
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^4.0.0-alpha.25",
