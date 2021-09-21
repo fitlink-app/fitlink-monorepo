@@ -17,7 +17,24 @@
   },
   "workspaces": {
     "nohoist": [
+      "@react-native-community/**",
+      "react-native",
+      "react-native/**",
+      "react-native-svg",
+      "@react-navigation/**",
+      "react-native-reanimated",
+      "react-native-gesture-handler",
+      "react-native-screens",
+      "react-native-safe-area-context",
+      "jetifier",
+      "@babel/runtime",
+      "@react-native-picker/picker",
+      "react-native-tab-view",
+      "react-native-linear-gradient",
+      "@react-native-google-signin/google-signin",
+      "@invertase/react-native-apple-authentication",
       "patch-package",
+      "react-native-bootsplash",
       "typescript"
     ]
   },
