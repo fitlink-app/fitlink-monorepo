@@ -33,7 +33,7 @@ const SignupPage = () => {
   const { api } = useContext(AuthContext)
   const router = useRouter()
 
-  const words = ['Business', 'Building', 'Team', 'School']
+  const words = ['people', 'business', 'building', 'team', 'school', 'transport']
 
   const { handleSubmit, register, control, watch } = useForm({
     defaultValues: {
@@ -89,183 +89,153 @@ const SignupPage = () => {
   return (
     <Signup title="Sign up">
       <div className="img-overlay" />
-      <div className="intro">
-        <div className="intro-content">
-          <Logo />
-          <h1>
-            Fitlink for your
-            <div className="color-primary">
-              <Typewriter
-                loop
-                cursor
-                cursorStyle="|"
-                typeSpeed={70}
-                deleteSpeed={50}
-                delaySpeed={1000}
-                words={words}
-              />
-            </div>
-          </h1>
-          <p>
-            Fitlink helps your employees focus on{' '}
-            <strong>healthier living</strong>.
-          </p>
-          <p>Healthier means happier.</p>
-          <h2>
-            Sign up for a <strong>completely free, 30 day trial</strong>.
-          </h2>
-          <p>
-            <a
-              className="link"
-              href="https://fitlinkapp.com/pricing"
-              target="_blank"
-              rel="noopener noreferrer">
-              View pricing details <IconArrowRight />
-            </a>
-          </p>
-
-          <div className="personal">
-            <h3>Fitlink is free for Personal Use</h3>
+      <div className="primary" />
+      <div className="flex">
+        <div className="intro">
+          <div className="intro-content">
+            <Logo />
+            <h1>
+              Healthy
+              <div className="color-primary">
+                <Typewriter
+                  loop
+                  cursor
+                  cursorStyle="|"
+                  typeSpeed={70}
+                  deleteSpeed={50}
+                  delaySpeed={1000}
+                  words={words}
+                />
+              </div>
+            </h1>
+            <h2>
+              Billing is monthly and you don’t need a credit card to sign up. You'll only be charged for users once they've joined your team.
+            </h2>
+            <ul>
+              <li>14 day free trial</li>
+              <li>Dashboard with team insights and analytics</li>
+              <li>Custom team leagues</li>
+              <li>Create your own rewards</li>
+              <li>Access to sponsored rewards</li>
+              <li>Team based activities</li>
+              <li>Custom branded website</li>
+            </ul>
             <p>
-              Fitlink lets you create personal health goals and track them
-              daily, giving you the power to lead a healthier life.
+              <a
+                className="button small alt"
+                href="https://fitlinkapp.com/pricing"
+                target="_blank"
+                rel="noopener noreferrer">
+                View pricing details <IconArrowRight />
+              </a>
             </p>
-            <div className="flex">
-              <a
-                className="badge"
-                href="https://apps.apple.com/gb/app/fitlink-app/id970460487"
-                target="_blank"
-                rel="noopener noreferrer">
-                <img
-                  src="/img/app-store-badge.svg"
-                  alt="Download on the App Store"
-                />
-              </a>
-              <a
-                className="badge"
-                href="https://play.google.com/store/apps/details?id=app.fitlink"
-                target="_blank"
-                rel="noopener noreferrer">
-                <img
-                  src="/img/google-play-badge.png"
-                  alt="Get it on Google Play"
-                />
-              </a>
-            </div>
           </div>
         </div>
-      </div>
-      <div className="content">
-        <div className="main">
-          <div className="mb-4 w-100">
-            <img
-              src="/img/illustration-sports.png"
-              alt="Sport Illustrations"
-              className="illustration"
-            />
-          </div>
-          <div className="mb-2">
-            <h2 className="text-center">Create an Account</h2>
-            <p className="text-center">
-              <Link href="/login">
-                <a className="link">
-                  I already have an account <IconArrowRight />
-                </a>
-              </Link>
-            </p>
-          </div>
-          <div className="form w-100">
-            {errorMessage && <Feedback message={errorMessage} type="error" />}
-            <form onSubmit={handleSubmit(submit)}>
-              <div className="row">
-                <div className="col-12 col-lg-12">
+        <div className="content">
+          <div className="main">
+            <div className="">
+              <h2 className="text-center">Create an Account</h2>
+              <p className="text-center">
+                <Link href="/login">
+                  <a className="link">
+                    I already have an account <IconArrowRight />
+                  </a>
+                </Link>
+              </p>
+            </div>
+            <div className="form w-100">
+              {errorMessage && <Feedback message={errorMessage} type="error" />}
+              <form onSubmit={handleSubmit(submit)}>
+                <div className="row">
+                  <div className="col-12 col-lg-12">
+                    <Input
+                      label="Full name"
+                      name="name"
+                      className="in-row"
+                      placeholder="Your name and surname"
+                      register={register('name')}
+                      error={errors.name}
+                    />
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-12 col-lg-6">
+                    <Input
+                      label="Company / Organisation name"
+                      name="company"
+                      register={register('company')}
+                      error={errors.company}
+                    />
+                  </div>
+                  <div className="col-12 col-lg-6">
+                    <Controller
+                      name="type"
+                      control={control}
+                      render={({ field }) => {
+                        return (
+                          <Select
+                            classNamePrefix="addl-class"
+                            options={organisationTypes}
+                            label="Type of organisation"
+                            inline={false}
+                            id="type"
+                            defaultValue={organisationTypes[0]}
+                            onChange={(option) => {
+                              if (option) {
+                                field.onChange(option.value)
+                              }
+                            }}
+                            onBlur={field.onBlur}
+                          />
+                        )
+                      }}
+                    />
+                  </div>
+                </div>
+                {other === OrganisationType.Other && (
                   <Input
-                    label="Full name"
-                    name="name"
-                    className="in-row"
-                    placeholder="Your name and surname"
-                    register={register('name')}
-                    error={errors.name}
+                    register={register('type_other')}
+                    name="type_other"
+                    placeholder="Type of organisation"
+                    error={errors.type_other}
                   />
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-12 col-lg-6">
-                  <Input
-                    label="Company / Organisation name"
-                    name="company"
-                    register={register('company')}
-                    error={errors.company}
-                  />
-                </div>
-                <div className="col-12 col-lg-6">
-                  <Controller
-                    name="type"
-                    control={control}
-                    render={({ field }) => {
-                      return (
-                        <Select
-                          classNamePrefix="addl-class"
-                          options={organisationTypes}
-                          label="Type of organisation"
-                          inline={false}
-                          id="type"
-                          defaultValue={organisationTypes[0]}
-                          onChange={(option) => {
-                            if (option) {
-                              field.onChange(option.value)
-                            }
-                          }}
-                          onBlur={field.onBlur}
-                        />
-                      )
-                    }}
-                  />
-                </div>
-              </div>
-              {other === OrganisationType.Other && (
+                )}
                 <Input
-                  register={register('type_other')}
-                  name="type_other"
-                  placeholder="Type of organisation"
-                  error={errors.type_other}
+                  label="Email address"
+                  type="email"
+                  name="email"
+                  register={register('email')}
+                  error={errors.email}
                 />
-              )}
-              <Input
-                label="Email address"
-                type="email"
-                name="email"
-                register={register('email')}
-                error={errors.email}
-              />
-              <Input
-                label="Password"
-                type="password"
-                name="password"
-                register={register('password')}
-                error={errors.password}
-              />
-              <Checkbox
-                register={register('agree_to_terms')}
-                name="terms"
-                showSwitch={false}
-                label="I agree to the <a href='https://fitlinkapp.com/terms-and-conditions' target='_blank' rel='noopener noreferrer'>Fitlink terms and conditions</a>"
-                error={errors.agree_to_terms}
-              />
-              <Checkbox
-                register={register('subscribe')}
-                name="newsletter"
-                showSwitch={false}
-                label="Subscribe to our newsletter for useful tips about promoting wellness"
-              />
-              <div className="text-right">
-                <Button
-                  label="Start trial"
-                  className="pointer"
-                  disabled={create.isLoading}
+                <Input
+                  label="Password"
+                  type="password"
+                  name="password"
+                  register={register('password')}
+                  error={errors.password}
                 />
-              </div>
-            </form>
+                <Checkbox
+                  register={register('agree_to_terms')}
+                  name="terms"
+                  showSwitch={false}
+                  label="I agree to the <a href='https://fitlinkapp.com/terms-and-conditions' target='_blank' rel='noopener noreferrer'>Fitlink terms and conditions</a>"
+                  error={errors.agree_to_terms}
+                />
+                <Checkbox
+                  register={register('subscribe')}
+                  name="newsletter"
+                  showSwitch={false}
+                  label="Subscribe to our newsletter for useful tips about promoting wellness"
+                />
+                <div className="text-right">
+                  <Button
+                    label="Start trial"
+                    className="pointer"
+                    disabled={create.isLoading}
+                  />
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
