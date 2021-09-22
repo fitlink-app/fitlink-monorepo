@@ -17,25 +17,7 @@
   },
   "workspaces": {
     "nohoist": [
-      "@react-native-community/**",
-      "react-native",
-      "react-native/**",
-      "react-native-svg",
-      "@react-navigation/**",
-      "react-native-reanimated",
-      "react-native-gesture-handler",
-      "react-native-screens",
-      "react-native-safe-area-context",
-      "jetifier",
-      "@babel/runtime",
-      "@react-native-picker/picker",
-      "react-native-tab-view",
-      "react-native-linear-gradient",
-      "@react-native-google-signin/google-signin",
-      "@invertase/react-native-apple-authentication",
-      "patch-package",
-      "react-native-bootsplash",
-      "typescript"
+      "**"
     ]
   },
   "dependencies": {
@@ -70,7 +52,7 @@
     "react-native-inappbrowser-reborn": "^3.6.3",
     "react-native-linear-gradient": "^2.5.6",
     "react-native-pager-view": "^5.4.0",
-    "react-native-reanimated": "^2.2.0",
+    "react-native-reanimated": "2.2.0",
     "react-native-safe-area-context": "^3.2.0",
     "react-native-screens": "^3.3.0",
     "react-native-snackbar-component": "1.1.11",
