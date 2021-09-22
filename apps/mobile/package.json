@@ -37,6 +37,7 @@
       "react-native-bootsplash",
       "typescript",
       "graceful-fs"
+      "typescript"
     ]
   },
   "dependencies": {
