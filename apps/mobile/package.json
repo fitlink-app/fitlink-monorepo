@@ -10,6 +10,7 @@
     "android:dev": "react-native run-android --variant=devDebug --appIdSuffix=dev",
     "android": "react-native run-android --variant=prdDebug",
     "ios:dev": "react-native run-ios --configuration Development --scheme Fitlink.dev",
+    "ios:codepush": "react-native run-ios --configuration Production --scheme Fitlink.codepush",
     "ios": "react-native run-ios --configuration Production --scheme Fitlink"
   },
   "peerDependencies": {
