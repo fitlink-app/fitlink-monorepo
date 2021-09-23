@@ -899,7 +899,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.fathomux.Fit-Link";
-				PRODUCT_NAME = Fitlink;
+				PRODUCT_NAME = "(Codepush) Fitlink";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
