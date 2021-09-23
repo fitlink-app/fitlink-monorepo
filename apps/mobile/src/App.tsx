@@ -12,6 +12,7 @@ import {Platform, UIManager} from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import {persistor, store} from 'redux/store';
 import RNBootSplash from 'react-native-bootsplash';
+import codePush from 'react-native-code-push';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -51,4 +52,6 @@ const App = () => {
   );
 };
 
-export default withQueryClient(App);
+const appWithQuery = withQueryClient(App);
+
+export default codePush(appWithQuery);
