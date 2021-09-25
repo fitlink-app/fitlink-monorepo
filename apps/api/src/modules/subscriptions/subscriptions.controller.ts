@@ -7,7 +7,8 @@ import {
   Param,
   Delete,
   Request,
-  BadRequestException
+  BadRequestException,
+  Query
 } from '@nestjs/common'
 import {
   SubscriptionsService,
@@ -42,30 +43,31 @@ import { RespondSubscriptionsInvitationDto } from './dto/respond-subscriptions-i
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
-  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin)
-  @Post('/organisations/:organisationId/subscriptions')
-  create(
-    @Body() createDefaultSubscriptionDto: CreateDefaultSubscriptionDto,
-    @Param('organisationId') organisationId: string
+  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
+  @Post(['/subscriptions', '/organisations/:organisationId/subscriptions'])
+  createOne(
+    @Body() { organisationId, ...dto }: CreateSubscriptionDto,
+    @Param('organisationId') paramOrganisationId: string
   ) {
-    return this.subscriptionsService.createDefault(
-      createDefaultSubscriptionDto,
-      organisationId
-    )
-  }
-
-  @Iam(Roles.SuperAdmin)
-  @Post('/subscriptions')
-  createOne(@Body() { organisationId, ...dto }: CreateSubscriptionDto) {
+    if (paramOrganisationId) {
+      organisationId = paramOrganisationId
+    }
     return this.subscriptionsService.createDefault(dto, organisationId)
   }
 
-  @Iam(Roles.SuperAdmin)
+  @Iam(Roles.SuperAdmin, Roles.SubscriptionAdmin)
   @Get('/subscriptions')
   @PaginationBody()
   @ApiResponse({ type: SubscriptionPagination, status: 200 })
-  findAll(@Pagination() pagination: PaginationQuery) {
-    return this.subscriptionsService.findAll(pagination)
+  findAll(
+    @Pagination() pagination: PaginationQuery,
+    @AuthUser() user: AuthenticatedUser
+  ) {
+    if (user.isSuperAdmin()) {
+      return this.subscriptionsService.findAll(pagination)
+    } else {
+      return this.subscriptionsService.findAllAccessibleBy(user.id, pagination)
+    }
   }
 
   @Iam(Roles.OrganisationAdmin)
@@ -81,8 +83,11 @@ export class SubscriptionsController {
     })
   }
 
-  @Iam(Roles.SuperAdmin)
-  @Get('/subscriptions/:subscriptionId')
+  @Iam(Roles.SuperAdmin, Roles.SubscriptionAdmin, Roles.OrganisationAdmin)
+  @Get([
+    '/subscriptions/:subscriptionId',
+    '/organisations/:organisationId/subscriptions/:subscriptionId'
+  ])
   @PaginationBody()
   @ApiResponse({ type: Subscription, status: 200 })
   findOneSubscription(@Param('subscriptionId') subId: string) {
@@ -106,8 +111,11 @@ export class SubscriptionsController {
     })
   }
 
-  @Iam(Roles.SuperAdmin)
-  @Delete('/subscriptions/:subscriptionId')
+  @Iam(Roles.SuperAdmin, Roles.SubscriptionAdmin, Roles.OrganisationAdmin)
+  @Delete([
+    '/subscriptions/:subscriptionId',
+    '/organisations/:organisationId/subscriptions/:subscriptionId'
+  ])
   @PaginationBody()
   @ApiResponse({ type: Subscription, status: 200 })
   async deleteOneSubscription(@Param('subscriptionId') subId: string) {
@@ -119,9 +127,11 @@ export class SubscriptionsController {
     }
   }
 
-  @Iam(Roles.SuperAdmin)
-  @Get('/subscriptions/:subscriptionId/chargebee/hosted-page')
-  @PaginationBody()
+  @Iam(Roles.SuperAdmin, Roles.SubscriptionAdmin, Roles.OrganisationAdmin)
+  @Get([
+    '/subscriptions/:subscriptionId/chargebee/hosted-page',
+    '/organisations/:organisationId/subscriptions/:subscriptionId/chargebee/hosted-page'
+  ])
   @ApiResponse({ type: Subscription, status: 200 })
   async chargebeeHostedPage(@Param('subscriptionId') subId: string) {
     const result = await this.subscriptionsService.getChargebeeHostedPage(subId)
@@ -134,8 +144,41 @@ export class SubscriptionsController {
     return result
   }
 
-  @Iam(Roles.SuperAdmin)
-  @Get('/subscriptions/:subscriptionId/chargebee/payment-sources')
+  @Iam(Roles.SuperAdmin, Roles.SubscriptionAdmin, Roles.OrganisationAdmin)
+  @Get([
+    '/subscriptions/:subscriptionId/chargebee/subscription',
+    '/organisations/:organisationId/subscriptions/:subscriptionId/chargebee/subscription'
+  ])
+  @ApiResponse({ type: Subscription, status: 200 })
+  async chargebeeSubscription(@Param('subscriptionId') subId: string) {
+    const subscription = await this.subscriptionsService.findOneSubscription(
+      subId
+    )
+    const result = await this.subscriptionsService.getChargebeeSubscription(
+      subscription
+    )
+    return result
+  }
+
+  @Iam(Roles.SuperAdmin, Roles.SubscriptionAdmin, Roles.OrganisationAdmin)
+  @Get([
+    '/subscriptions/:subscriptionId/chargebee/invoice-download-link/:invoiceId',
+    '/organisations/:organisationId/subscriptions/:subscriptionId/chargebee/invoice-download-link/:invoiceId'
+  ])
+  @PaginationBody()
+  @ApiResponse({ type: Subscription, status: 200 })
+  async chargebeeInvoiceDownloadLink(@Param('invoiceId') invoiceId: string) {
+    const result = await this.subscriptionsService.chargebeeGeneratedInvoiceLink(
+      invoiceId
+    )
+    return result
+  }
+
+  @Iam(Roles.SuperAdmin, Roles.SubscriptionAdmin, Roles.OrganisationAdmin)
+  @Get([
+    '/subscriptions/:subscriptionId/chargebee/payment-sources',
+    '/organisations/:organisationId/subscriptions/:subscriptionId/chargebee/payment-sources'
+  ])
   @PaginationBody()
   @ApiResponse({ type: Subscription, status: 200 })
   async chargebeePaymentSources(@Param('subscriptionId') subId: string) {
@@ -151,13 +194,40 @@ export class SubscriptionsController {
     return result
   }
 
-  @Iam(Roles.SuperAdmin)
-  @Put('/subscriptions/:subscriptionId')
+  @Iam(Roles.SuperAdmin, Roles.SubscriptionAdmin, Roles.OrganisationAdmin)
+  @Get([
+    '/subscriptions/:subscriptionId/chargebee/invoices',
+    '/organisations/:organisationId/subscriptions/:subscriptionId/chargebee/invoices'
+  ])
+  @PaginationBody()
+  @ApiResponse({ type: Subscription, status: 200 })
+  async chargebeeInvoices(
+    @Param('subscriptionId') subId: string,
+    @Query('offset') offset?: string
+  ) {
+    const subscription = await this.findOneSubscription(subId)
+    const result = await this.subscriptionsService.getChargebeeInvoices(
+      subscription,
+      offset
+    )
+
+    return result
+  }
+
+  @Iam(Roles.SuperAdmin, Roles.SubscriptionAdmin, Roles.OrganisationAdmin)
+  @Put([
+    '/subscriptions/:subscriptionId',
+    '/organisations/:organisationId/subscriptions/:subscriptionId'
+  ])
   @UpdateResponse()
   updateOne(
     @Body() updateSubscriptionDto: UpdateSubscriptionDto,
-    @Param('subscriptionId') subId: string
+    @Param('subscriptionId') subId: string,
+    @Param('organisationId') orgId: string
   ) {
+    if (orgId) {
+      updateSubscriptionDto.organisationId = orgId
+    }
     return this.subscriptionsService.updateOne(updateSubscriptionDto, subId)
   }
 
@@ -207,34 +277,6 @@ export class SubscriptionsController {
     }
 
     return result
-  }
-
-  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
-  @Get('/organisations/:organisationId/subscriptions/:subscriptionId')
-  findOne(
-    @Param('organisationId') orgId: string,
-    @Param('subscriptionId') subId: string
-  ) {
-    return this.subscriptionsService.findOne(orgId, subId)
-  }
-
-  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
-  @Put('/organisations/:organisationId/subscriptions/:subscriptionId')
-  update(
-    @Body() updateOrganisationDto: UpdateSubscriptionDto,
-    @Param('organisationId') orgId: string,
-    @Param('subscriptionId') subId: string
-  ) {
-    return this.subscriptionsService.update(updateOrganisationDto, orgId, subId)
-  }
-
-  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)
-  @Delete('/organisations/:organisationId/subscriptions/:subscriptionId')
-  remove(
-    @Param('organisationId') orgId: string,
-    @Param('subscriptionId') subId: string
-  ) {
-    return this.subscriptionsService.remove(orgId, subId)
   }
 
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.SubscriptionAdmin)

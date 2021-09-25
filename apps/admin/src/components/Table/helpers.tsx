@@ -7,6 +7,11 @@ export const toDateCell = ({ value }) => {
   return format(new Date(value), 'yyyy-MM-dd')
 }
 
+export const toDateCellFromUDate = ({ value }) => {
+  if (value === '') return '-'
+  return format(new Date(value * 1000), 'yyyy-MM-dd')
+}
+
 export const toLocaleCell = ({ value }) => {
   return value.toLocaleString()
 }

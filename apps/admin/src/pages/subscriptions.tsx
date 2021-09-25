@@ -18,6 +18,7 @@ import ConfirmForm from '../components/forms/ConfirmForm'
 import Head from 'next/head'
 import { BillingPlanStatus } from '../../../api/src/modules/subscriptions/subscriptions.constants'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 
 const enumToBool = ({ value }) => {
   return boolToIcon({
@@ -148,13 +149,9 @@ export default function SubscriptionsPage() {
         Make Default
       </button>
 
-      {focusRole === 'app' && (
-        <button
-          className="button small ml-1"
-          onClick={() => EditSubscriptionForm(original)}>
-          Edit
-        </button>
-      )}
+      <Link href={`/subscriptions/${original.id}`}>
+        <button className="button small ml-1 pointer">Edit</button>
+      </Link>
     </div>
   )
 

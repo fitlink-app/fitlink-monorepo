@@ -17,7 +17,9 @@ const icons = {
 }
 
 export function RoleSwitcher() {
-  const { switchRole, currentRole, currentRoleId } = useContext(AuthContext)
+  const { switchRole, currentRole, currentRoleId, switchMode } = useContext(
+    AuthContext
+  )
   const [value, setValue] = useState(null)
   const { roles } = useRoles()
   const [show, setShow] = useState(false)
@@ -26,7 +28,7 @@ export function RoleSwitcher() {
     // toast.loading(<b>Switching role...</b>)
   }, [])
 
-  return roles.length > 1 ? (
+  return roles.length > 1 || switchMode ? (
     <div className="role-switcher">
       <a
         className={`role-switcher__manage ${show ? 'in' : ''}`}

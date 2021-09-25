@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import Card from '../components/elements/Card'
 import Drawer from '../components/elements/Drawer'
 import BillingForm from '../components/forms/BillingForm'
@@ -10,6 +10,8 @@ import { format, endOfMonth } from 'date-fns'
 import TableContainer from '../components/Table/TableContainer'
 import { toChipCell, toDateCell } from '../components/Table/helpers'
 import IconDownload from '../components/icons/IconDownload'
+import { useQuery } from 'react-query'
+import { AuthContext } from '../context/Auth.context'
 
 const billingInfo = {
   firstname: 'Paul',
@@ -55,6 +57,7 @@ export default function page() {
     React.ReactNode | undefined | false
   >(false)
   const [warning, setWarning] = useState(false)
+  const { api } = useContext(AuthContext)
 
   const EditBilling = () => {
     setWarning(true)
