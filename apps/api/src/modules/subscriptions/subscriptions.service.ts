@@ -22,6 +22,7 @@ import { SubscriptionsInvitationsService } from './subscriptions-invitations.ser
 import { UserRolesService } from '../user-roles/user-roles.service'
 import { differenceInDays } from 'date-fns'
 import { UserRole } from '../user-roles/entities/user-role.entity'
+import { ConfigService } from '@nestjs/config'
 
 type EntityOwner = {
   organisationId?: string
@@ -59,7 +60,8 @@ export class SubscriptionsService {
 
     private invitationsService: SubscriptionsInvitationsService,
     private userRolesService: UserRolesService,
-    private httpService: HttpService
+    private httpService: HttpService,
+    private configService: ConfigService
   ) {}
 
   /**
@@ -885,7 +887,7 @@ export class SubscriptionsService {
     } = await this.chargeBeePostRequest<any>(
       `/customers/${customerId}/subscriptions`,
       {
-        plan_id: 'fitlink-for-teams',
+        plan_id: this.configService.get('CHARGEBEE_PLAN_ID'),
         free_period: daysUsed > 0 ? 14 - daysUsed : 0,
 
         // Plan quantity needs to be minimum 1
@@ -1163,13 +1165,18 @@ export class SubscriptionsService {
   async chargeBeeGetRequest<T>(url: string, params: NodeJS.Dict<any> = {}) {
     try {
       const result = await this.httpService
-        .get(`https://fitlinkapp-test.chargebee.com/api/v2${url}`, {
-          auth: {
-            username: 'test_BeVUqNaub4Rujsuyj15TtXcL9T8eMG66',
-            password: ''
-          },
-          params
-        })
+        .get(
+          `https://${this.configService.get(
+            'CHARGEBEE_API_SITE'
+          )}.chargebee.com/api/v2${url}`,
+          {
+            auth: {
+              username: this.configService.get('CHARGEBEE_API_KEY'),
+              password: ''
+            },
+            params
+          }
+        )
         .toPromise()
       return result.data as T
     } catch (e) {
@@ -1181,11 +1188,13 @@ export class SubscriptionsService {
     try {
       const result = await this.httpService
         .post(
-          `https://fitlinkapp-test.chargebee.com/api/v2${url}`,
+          `https://${this.configService.get(
+            'CHARGEBEE_API_SITE'
+          )}.chargebee.com/api/v2${url}`,
           {},
           {
             auth: {
-              username: 'test_BeVUqNaub4Rujsuyj15TtXcL9T8eMG66',
+              username: this.configService.get('CHARGEBEE_API_KEY'),
               password: ''
             },
             params: params
