@@ -118,13 +118,21 @@ export class SubscriptionsController {
   ])
   @PaginationBody()
   @ApiResponse({ type: Subscription, status: 200 })
-  async deleteOneSubscription(@Param('subscriptionId') subId: string) {
-    const result = await this.subscriptionsService.deleteSubscription(subId)
+  async deleteOneSubscription(
+    @Param('subscriptionId') subId: string,
+    @Param('organisationId') organisationId: string
+  ) {
+    const result = await this.subscriptionsService.deleteSubscription(
+      subId,
+      organisationId
+    )
     if (result === SubscriptionServiceError.CannotDeleteDefault) {
       throw new BadRequestException(
         'You cannot delete the default subscription'
       )
     }
+
+    return result
   }
 
   @Iam(Roles.SuperAdmin, Roles.SubscriptionAdmin, Roles.OrganisationAdmin)
@@ -223,10 +231,10 @@ export class SubscriptionsController {
   updateOne(
     @Body() updateSubscriptionDto: UpdateSubscriptionDto,
     @Param('subscriptionId') subId: string,
-    @Param('organisationId') orgId: string
+    @Param('organisationId') organisationId: string
   ) {
-    if (orgId) {
-      updateSubscriptionDto.organisationId = orgId
+    if (organisationId) {
+      updateSubscriptionDto.organisationId = organisationId
     }
     return this.subscriptionsService.updateOne(updateSubscriptionDto, subId)
   }
@@ -283,12 +291,12 @@ export class SubscriptionsController {
   @Post('/organisations/:organisationId/subscriptions/:subscriptionId/usersIds')
   assignUsersByUsersIds(
     @Body() updateSubscriptionDto: UpdateSubscriptionDto,
-    @Param('organisationId') orgId: string,
+    @Param('organisationId') organisationId: string,
     @Param('subscriptionId') subId: string
   ) {
     return this.subscriptionsService.assignUsers(
       updateSubscriptionDto,
-      orgId,
+      organisationId,
       subId
     )
   }
@@ -299,13 +307,13 @@ export class SubscriptionsController {
   )
   assignUsersByTeamId(
     @Body() updateSubscriptionDto: UpdateSubscriptionDto,
-    @Param('organisationId') orgId: string,
+    @Param('organisationId') organisationId: string,
     @Param('subscriptionId') subId: string,
     @Param('teamId') teamId: string
   ) {
     return this.subscriptionsService.assignUsers(
       updateSubscriptionDto,
-      orgId,
+      organisationId,
       subId,
       teamId
     )
@@ -314,10 +322,10 @@ export class SubscriptionsController {
   @Iam(Roles.SubscriptionAdmin)
   @Post('/organisations/:organisationId/subscriptions/:subscriptionId/billing')
   setupBilling(
-    @Param('organisationId') orgId: string,
+    @Param('organisationId') organisationId: string,
     @Param('subscriptionId') subId: string
   ) {
-    return this.subscriptionsService.setupBilling(orgId, subId)
+    return this.subscriptionsService.setupBilling(organisationId, subId)
   }
 
   @Iam(Roles.SubscriptionAdmin)
@@ -325,10 +333,10 @@ export class SubscriptionsController {
     '/organisations/:organisationId/subscriptions/:subscriptionId/billing/chargebee'
   )
   createChargebeePlan(
-    @Param('organisationId') orgId: string,
+    @Param('organisationId') organisationId: string,
     @Param('subscriptionId') subId: string
   ) {
-    return this.subscriptionsService.setupBilling(orgId, subId, true)
+    return this.subscriptionsService.setupBilling(organisationId, subId, true)
   }
 
   @Iam(Roles.SubscriptionAdmin)
@@ -336,11 +344,15 @@ export class SubscriptionsController {
     '/organisations/:organisationId/subscriptions/:subscriptionId/billing/:customerId'
   )
   getChargebeePlan(
-    @Param('organisationId') orgId: string,
+    @Param('organisationId') organisationId: string,
     @Param('subscriptionId') subId: string,
     @Param('customerId') customerId: string
   ) {
-    return this.subscriptionsService.getChargebeePlan(orgId, subId, customerId)
+    return this.subscriptionsService.getChargebeePlan(
+      organisationId,
+      subId,
+      customerId
+    )
   }
 
   @Iam(Roles.SubscriptionAdmin)
@@ -348,12 +360,12 @@ export class SubscriptionsController {
     '/organisations/:organisationId/subscriptions/:subscriptionId/billing/:customerId'
   )
   removeChargebeePlan(
-    @Param('organisationId') orgId: string,
+    @Param('organisationId') organisationId: string,
     @Param('subscriptionId') subId: string,
     @Param('customerId') customerId: string
   ) {
     return this.subscriptionsService.removeChargebeePlan(
-      orgId,
+      organisationId,
       subId,
       customerId
     )

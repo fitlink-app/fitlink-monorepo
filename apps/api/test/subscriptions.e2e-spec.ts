@@ -15,6 +15,8 @@ import {
 } from './seeds/subscriptions.seed'
 import { useSeeding } from 'typeorm-seeding'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
+import { SubscriptionsService } from '../src/modules/subscriptions/subscriptions.service'
+import { Customer } from 'chargebee-typescript/lib/resources'
 
 let connection: Connection
 
@@ -81,6 +83,12 @@ describe('Subscriptions', () => {
       providers: []
     })
 
+    app.get(SubscriptionsService).updateChargeBeeCustomer = jest.fn(() =>
+      Promise.resolve({
+        id: '12345'
+      } as Customer)
+    )
+
     // Retrieve an subscription to test with
     await useSeeding()
 
@@ -127,7 +135,10 @@ describe('Subscriptions', () => {
         method: 'POST',
         url: `/organisations/${organisation.id}/subscriptions`,
         headers: getHeaders(),
-        payload
+        payload: {
+          ...payload,
+          organisationId: organisation.id
+        }
       })
 
       if (type === 'an authenticated user') {
@@ -256,11 +267,25 @@ describe('Subscriptions', () => {
   ])
 
   testSuperAdmainAndUser(
-    `DELETE /organisations/:organisationId/subscriptions/:subscriptionId deleting subscription by superAdmain`,
+    `DELETE /organisations/:organisationId/subscriptions/:subscriptionId deleting subscription by superAdmin`,
     async (type, getHeaders) => {
-      const seed = await getSubscriptions('Test Subscription')
+      const seed = await SubscriptionsSetup('Test Subscription', 1, {
+        default: false
+      })
+
       const anotherSubscription = seed[0]
-      const { organisation, id, ...rest } = anotherSubscription
+      const { organisation, id } = anotherSubscription
+
+      // Remove assigned users
+      await connection.getRepository(User).update(
+        {
+          subscription: { id }
+        },
+        {
+          subscription: null
+        }
+      )
+
       const result = await app.inject({
         method: 'DELETE',
         url: `/organisations/${organisation.id}/subscriptions/${id}`,
@@ -271,22 +296,37 @@ describe('Subscriptions', () => {
         expect(result.statusCode).toEqual(403)
         return
       }
+
       expect(result.statusCode).toEqual(200)
-      expect(result.body).toEqual('subscription is deleted')
+      expect(result.json().affected).toEqual(1)
     }
   )
 
   it(`DELETE /organisations/:organisationId/subscriptions/:subscriptionId deleting subscription by organisationAdmin`, async () => {
-    const seed = await getSubscriptions('Test Subscription')
+    const seed = await SubscriptionsSetup('Test Subscription Delete', 1, {
+      default: false
+    })
+
     const anotherSubscription = seed[0]
-    const { organisation, id, ...rest } = anotherSubscription
+    const { organisation, id } = anotherSubscription
+
+    // Remove assigned users
+    await connection.getRepository(User).update(
+      {
+        subscription: { id }
+      },
+      {
+        subscription: null
+      }
+    )
+
     const result = await app.inject({
       method: 'DELETE',
       url: `/organisations/${organisation.id}/subscriptions/${id}`,
       headers: getAuthHeaders({ o_a: [organisation.id] })
     })
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual('subscription is deleted')
+    expect(result.json().affected).toEqual(1)
   })
 
   testSuperOrgAdmain(
@@ -294,7 +334,7 @@ describe('Subscriptions', () => {
     async (type, getHeaders) => {
       const seed = await getSubscriptions('Test Subscription')
       const anotherSubscription = seed[0]
-      const { organisation, id, ...rest } = anotherSubscription
+      const { organisation, id } = anotherSubscription
       const wrongOrganisationId = '15d81974-8214-419e-a587-a49a82b19433'
       const result = await app.inject({
         method: 'DELETE',
@@ -349,6 +389,8 @@ describe('Subscriptions', () => {
         default: true
       }
     })
+
+    console.log(result.json())
 
     expect(result.statusCode).toBe(200)
 
@@ -473,12 +515,22 @@ describe('Subscriptions', () => {
     ).toBe(1)
   })
 
-  it('GET /subscriptions/:subscriptionId/users Cannot delete the default subscription', async () => {
+  it('DELETE /subscriptions/:subscriptionId/users Cannot delete the default subscription', async () => {
     const sub = (
       await SubscriptionsSetup('Test Subscription', 1, {
         default: true
       })
     )[0]
+
+    // Remove assigned users
+    await connection.getRepository(User).update(
+      {
+        subscription: { id: sub.id }
+      },
+      {
+        subscription: null
+      }
+    )
 
     const result = await app.inject({
       method: 'DELETE',

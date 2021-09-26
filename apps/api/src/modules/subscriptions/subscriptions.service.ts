@@ -16,7 +16,7 @@ import {
   PaymentSource,
   Subscription as ChargebeeSubscription
 } from 'chargebee-typescript/lib/resources'
-import { SubscriptionType } from './subscriptions.constants'
+import { BillingPlanStatus, SubscriptionType } from './subscriptions.constants'
 import { SuccessResultDto } from '../../classes/dto/success'
 import { SubscriptionsInvitationsService } from './subscriptions-invitations.service'
 import { UserRolesService } from '../user-roles/user-roles.service'
@@ -72,12 +72,18 @@ export class SubscriptionsService {
     organisationId: string
   ): Promise<Subscription> {
     const { billing_entity, ...rest } = createDefaultDto
-    const org = await this.organisationRepository.findOne(organisationId)
+    const org = await this.organisationRepository.findOne(organisationId, {
+      relations: ['subscriptions']
+    })
 
     let subscription = new Subscription()
     subscription.organisation = org
     subscription.billing_entity = billing_entity
-    subscription.default = true
+
+    // If no subscriptions exist, make this one the default
+    if (org.subscriptions.length === 0) {
+      subscription.default = true
+    }
 
     if (rest) {
       subscription = Object.assign(subscription, { ...rest })
@@ -169,6 +175,15 @@ export class SubscriptionsService {
       relations: ['organisation']
     })
 
+    if (
+      !subscription ||
+      (organisationId && subscription.organisation.id !== organisationId)
+    ) {
+      throw new BadRequestException(
+        "the subscription doesn't exist for this organisation"
+      )
+    }
+
     if (organisationId) {
       update.organisation = new Organisation()
       update.organisation.id = organisationId
@@ -245,8 +260,28 @@ export class SubscriptionsService {
    * @param orgId
    * @param subId
    */
-  async deleteSubscription(subId: string) {
+  async deleteSubscription(subId: string, organisationId?: string) {
     const subscription = await this.findOneSubscription(subId)
+    if (organisationId && subscription.organisation.id !== organisationId) {
+      throw new BadRequestException(
+        "the subscription doesn't exist for this organisation"
+      )
+    }
+
+    const user = await this.userRepository.findOne({
+      where: {
+        subscription: {
+          id: subId
+        }
+      }
+    })
+
+    if (user) {
+      throw new BadRequestException(
+        "Can't delete a subscription that still has users assigned to it."
+      )
+    }
+
     if (subscription.default) {
       return SubscriptionServiceError.CannotDeleteDefault
     }
@@ -735,7 +770,8 @@ export class SubscriptionsService {
             subscription.billing_plan_customer_id
           )
           await this.subscriptionRepository.update(subscription.id, {
-            billing_plan_subscription_id: chargebeeSubscription.id
+            billing_plan_subscription_id: chargebeeSubscription.id,
+            billing_plan_status: BillingPlanStatus.Active
           })
         } else {
           // Primarily used for updating the number of seats on the plan
