@@ -185,4 +185,16 @@ export class TeamsController {
 
     return result
   }
+
+  @Iam(Roles.TeamAdmin)
+  @Post('/teams/:teamId/regenerate-join-code')
+  async regenerateJoinCode(@Param('teamId') teamId: string) {
+    return this.teamsService.updateJoinCode(teamId)
+  }
+
+  @Iam(Roles.TeamAdmin)
+  @Get('/teams/:teamId/invite-link')
+  async getInviteLink(@Param('teamId') teamId: string) {
+    return this.teamsService.getInviteLink(teamId)
+  }
 }

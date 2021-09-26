@@ -51,8 +51,13 @@ export class TeamsInvitationsService {
     )
 
     const token = this.createToken(invitation.id)
-    const inviteLink = this.createInviteLink(token)
     const inviterTeam = await this.teamsRepository.findOne(team.id)
+
+    let inviteLink = this.createInviteLink(token)
+
+    if (!admin) {
+      inviteLink = this.getJoinLink(inviterTeam)
+    }
 
     await this.sendEmail(
       {
@@ -104,6 +109,19 @@ export class TeamsInvitationsService {
    */
   createInviteLink(token: string) {
     return this.configService.get('INVITE_URL').replace('{token}', token)
+  }
+
+  /**
+   * Generates an team invitation url
+   * comprised of the JWT.
+   *
+   * @param token
+   * @returns string
+   */
+  getJoinLink(team: Team) {
+    return {
+      url: `${this.configService.get('SHORT_URL')}/join/${team.join_code}`
+    }
   }
 
   /**
