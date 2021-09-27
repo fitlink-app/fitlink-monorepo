@@ -5,3 +5,4 @@ export * from './rewards';
 export * from './images';
 export * from './sports';
 export * from './activities';
+export * from './providers';
