@@ -289,6 +289,35 @@ describe('Activities', () => {
     expect(result.message).toContain('invitation can no longer be used')
   })
 
+  it.only('POST /teams/join Allows a user to join from a team join code invited by team admin', async () => {
+    const invitationData = await createInvitation(
+      organisation.id,
+      team.id,
+      teamAdminHeaders,
+      {
+        admin: false,
+        email: 'jest@example.com',
+        invitee: 'Jest'
+      }
+    )
+
+    const url: string = invitationData.json().inviteLink
+    expect(url).toBeDefined()
+
+    const code = url.split('/').reverse()[0]
+
+    const join = await app.inject({
+      method: 'POST',
+      url: `/teams/join`,
+      headers: authHeaders,
+      payload: {
+        code
+      }
+    })
+
+    expect(join.json().success).toBe(true)
+  })
+
   async function getTeam(id: string) {
     const connection = getConnection()
     const repository = connection.getRepository(Team)

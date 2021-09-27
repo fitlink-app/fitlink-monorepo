@@ -17,7 +17,8 @@ import { UpdateTeamDto } from './dto/update-team.dto'
 import { Team } from './entities/team.entity'
 
 export enum TeamServiceError {
-  AlreadyMember = 'You are already a member of this team'
+  AlreadyMember = 'You are already a member of this team',
+  TeamNotExist = 'Team does not exist'
 }
 
 @Injectable()
@@ -535,5 +536,17 @@ export class TeamsService {
     return {
       url: `${this.configService.get('SHORT_URL')}/join/${team.join_code}`
     }
+  }
+
+  async joinTeamFromCode(code: string, userId: string) {
+    const team = await this.teamRepository.findOne({
+      where: {
+        join_code: code
+      }
+    })
+    if (!team) {
+      return TeamServiceError.TeamNotExist
+    }
+    return this.joinTeam(team.id, userId)
   }
 }

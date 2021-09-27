@@ -24,6 +24,7 @@ import { Team } from './entities/team.entity'
 import { ApiBaseResponses } from '../../decorators/swagger.decorator'
 import { RespondTeamsInvitationDto } from '../teams-invitations/dto/respond-teams-invitation.dto'
 import { TeamsInvitationsServiceError } from '../teams-invitations/teams-invitations.service'
+import { JoinTeamDto } from './dto/join-team.dto'
 
 @Controller()
 @ApiTags('teams')
@@ -141,15 +142,26 @@ export class TeamsController {
 
   @Post('/teams/join')
   async userJoinTeam(
-    @Body('token') token: string,
+    @Body() { token, code }: JoinTeamDto,
     @User() user: AuthenticatedUser
   ) {
-    const join = await this.teamsService.joinTeamFromToken(token, user.id)
-    if (typeof join === 'string') {
-      throw new BadRequestException(join)
-    }
+    if (token) {
+      const join = await this.teamsService.joinTeamFromToken(token, user.id)
+      if (typeof join === 'string') {
+        throw new BadRequestException(join)
+      }
 
-    return join
+      return join
+    } else if (code) {
+      const join = await this.teamsService.joinTeamFromCode(code, user.id)
+      if (typeof join === 'string') {
+        throw new BadRequestException(join)
+      }
+
+      return { success: join }
+    } else {
+      throw new BadRequestException('You must specify a join code or token')
+    }
   }
 
   @Iam(Roles.SuperAdmin)
