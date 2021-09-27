@@ -14,7 +14,7 @@ export function useProviders() {
     {
       onSuccess: data => {
         if (!data) return;
-        setProviderListFromData(query.data);
+        setProviderListFromData(data);
       },
     },
   );
