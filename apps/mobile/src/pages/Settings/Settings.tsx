@@ -91,12 +91,8 @@ export const Settings = () => {
   const [isInitialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    if (user && !isInitialized) {
+    if (user && providerList && !isInitialized) {
       dispatch(clearChanges());
-
-      console.log('hey');
-      console.log(user?.settings?.newsletter_subscriptions_user);
-      console.log(user.settings);
 
       const newState = {
         name: user?.name || '',
@@ -124,7 +120,7 @@ export const Settings = () => {
 
       setInitialized(true);
     }
-  }, [user]);
+  }, [user, providerList]);
 
   /**
    * We keep track of the goal input values in a local state

@@ -12,14 +12,17 @@ const IconHolder = styled.View({
 
 interface TrackerButtonProps extends ButtonProps {
   label: string;
-  providerType: string;
+  isLinked: boolean;
+  isLoading: boolean;
 }
 
-export const TrackerButton = ({label, ...rest}: TrackerButtonProps) => {
+export const TrackerButton = ({
+  label,
+  isLinked,
+  isLoading,
+  ...rest
+}: TrackerButtonProps) => {
   const {colors, typography} = useTheme();
-  //   const { isLinked, isLoading, linkProvider } = useHealthProvider(providerType);
-  const isLinked = false;
-  const isLoading = false;
 
   const textStyle = {
     ...typography.button,
