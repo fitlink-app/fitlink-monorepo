@@ -11,8 +11,11 @@ import {
 import {
   ImagePickerDialogResponse,
   useImagePicker,
+  useStrava,
   useMe,
   useModal,
+  useProviders,
+  useFitbit,
 } from '@hooks';
 import {useNavigation} from '@react-navigation/native';
 import React, {useContext, useState} from 'react';
@@ -25,6 +28,7 @@ import {
   SettingsButton,
   SettingsInput,
   SettingsDropdown,
+  SettingsHealthActivityButton,
 } from './components';
 import {SettingsItemWrapper} from './components/SettingsItemWrapper';
 import {SettingsItemLabel} from './components/SettingsItemLabel';
@@ -76,8 +80,10 @@ export const Settings = () => {
   const {showTransition, hideTransition} = useContext(TransitionContext);
 
   const {data: user} = useMe();
+  const {providerList} = useProviders();
 
-  console.log(user?.settings);
+  const {isLinking: isStravaLinking, link: linkStrava} = useStrava();
+  const {isLinking: isFitbitLinking, link: linkFitbit} = useFitbit();
 
   const settings = useSelector(selectSettings);
   const didSettingsChange = useSelector(selectDidSettingsChange);
@@ -296,10 +302,42 @@ export const Settings = () => {
 
         {/* Linked Trackers */}
         <CategoryLabel>Trackers</CategoryLabel>
-        {Platform.OS === 'android' && <SettingsButton label={'Google Fit'} />}
-        {Platform.OS === 'ios' && <SettingsButton label={'Apple Health'} />}
-        <SettingsButton label={'Strava'} onPress={() => {}} />
-        <SettingsButton label={'Fitbit'} />
+
+        {Platform.OS === 'android' && (
+          <SettingsHealthActivityButton
+            label={'Google Fit'}
+            onLink={() => {}}
+            onUnlink={() => {}}
+            isLoading={false}
+            isLinked={providerList?.includes('google_fit')}
+          />
+        )}
+
+        {Platform.OS === 'ios' && (
+          <SettingsHealthActivityButton
+            label={'Apple Health'}
+            onLink={() => {}}
+            onUnlink={() => {}}
+            isLoading={false}
+            isLinked={providerList?.includes('apple_health')}
+          />
+        )}
+
+        <SettingsHealthActivityButton
+          label={'Strava'}
+          onLink={linkStrava}
+          onUnlink={() => {}}
+          isLoading={isStravaLinking}
+          isLinked={providerList?.includes('strava')}
+        />
+
+        <SettingsHealthActivityButton
+          label={'Fitbit'}
+          onLink={linkFitbit}
+          onUnlink={() => {}}
+          isLoading={isFitbitLinking}
+          isLinked={providerList?.includes('fitbit')}
+        />
 
         {/* Goals */}
         <CategoryLabel>Goals</CategoryLabel>
