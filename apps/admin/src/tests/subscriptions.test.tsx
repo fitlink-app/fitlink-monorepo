@@ -109,12 +109,12 @@ describe('Subscriptions', () => {
     )
 
     const items = await screen.findAllByText(
-      /Fitness Tech Group|dynamic|Fitlink|Gosnell/
+      /Fitness Tech Group|Fitlink|Gosnell/
     )
-    expect(items).toHaveLength(3)
+    expect(items).toHaveLength(2)
 
     // Show and test the edit modal
-    screen.getByRole('button', { name: /make default/i }).click()
+    screen.getByRole('button', { name: /set default/i }).click()
     expect(screen.getAllByText(/set default subscription/i)).toHaveLength(1)
 
     const confirmBtn = screen.getAllByRole('button', { name: /confirm/i })
