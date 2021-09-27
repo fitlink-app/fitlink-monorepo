@@ -390,8 +390,6 @@ describe('Subscriptions', () => {
       }
     })
 
-    console.log(result.json())
-
     expect(result.statusCode).toBe(200)
 
     other = await getSubscription(subscription2.id)

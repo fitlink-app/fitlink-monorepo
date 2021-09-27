@@ -5,7 +5,8 @@ import {
   Get,
   Param,
   Post,
-  Query
+  Query,
+  Response
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ApiBaseResponses } from '../../../../decorators/swagger.decorator'
@@ -60,12 +61,18 @@ export class StravaControler {
 
   @Public()
   @Get('/callback')
-  oauthCallback(
+  async oauthCallback(
     @Query('code') code: string,
     @Query('state') state: string,
-    @Query('scope') scope: string
+    @Query('scope') scope: string,
+    @Response() res
   ) {
-    return this.stravaService.saveStravaProvider(code, state, scope)
+    try {
+      await this.stravaService.saveStravaProvider(code, state, scope)
+      res.redirect('fitlink-app://provider/strava/auth-success')
+    } catch (e) {
+      res.redirect('fitlink-app://provider/strava/auth-fail')
+    }
   }
 
   @Get('revokeToken')

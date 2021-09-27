@@ -1,6 +1,7 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Connection } from 'typeorm'
 import { useSeeding } from 'typeorm-seeding'
+import { Provider } from '../src/modules/providers/entities/provider.entity'
 import { ProvidersModule } from '../src/modules/providers/providers.module'
 import { FitbitService } from '../src/modules/providers/providers/fitbit/fitbit.service'
 import { StravaService } from '../src/modules/providers/providers/strava/strava.service'
@@ -33,6 +34,7 @@ describe('Providers', () => {
   let fitbitService: MockType<FitbitService>
   let seededUser: User
   let authHeaders
+  let connection: Connection
 
   beforeAll(async () => {
     app = await mockApp({
@@ -40,6 +42,8 @@ describe('Providers', () => {
       providers: []
     })
     await useSeeding()
+
+    connection = app.get(Connection)
 
     seededUser = await ProvidersSetup('ProvidersTest')
 
@@ -60,36 +64,22 @@ describe('Providers', () => {
       method: 'GET',
       headers: authHeaders
     })
-    let url = data.json().oauth_url
-    url.split('\n').map((line: string, index: number) => {
-      if (index === 0) {
-        expect(line).toBe('https://www.strava.com/oauth/mobile/authorize')
-      }
-      if (index === 1) {
-        expect(line.trim()).toBe(`?client_id=${STRAVA_CLIENT_ID}`)
-      }
-      if (index === 2) {
-        expect(line.trim()).toBe(`&client_secret=${STRAVA_CLIENT_SECRET}`)
-      }
-      if (index === 3) {
-        expect(line.trim()).toBe(`&redirect_uri=${STRAVA_REDIRECT_URI}`)
-      }
-      if (index === 4) {
-        expect(line.trim()).toBe(`&scope=${STRAVA_SCOPES}`)
-      }
-      if (index === 5) {
-        expect(line.trim()).toBe(`&response_type=code`)
-      }
-      if (index === 6) {
-        expect(line.trim()).toBe(`&state=${seededUser.id}`)
-      }
-    })
+    const url = data.json().oauth_url || ''
+    const parse = new URLSearchParams(url.substr(url.indexOf('?')))
+
+    expect(parse.get('client_id')).toBe(STRAVA_CLIENT_ID)
+    expect(parse.get('client_secret')).toBe(STRAVA_CLIENT_SECRET)
+    expect(parse.get('redirect_uri')).toBe(STRAVA_REDIRECT_URI)
+    expect(parse.get('scope')).toBe(STRAVA_SCOPES)
+    expect(parse.get('response_type')).toBe('code')
+    expect(parse.get('state')).toBe(seededUser.id)
+    expect(url).toContain('https://www.strava.com/oauth/mobile/authorize')
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
   })
 
   it('GET /providers/strava/callback', async () => {
-    let stravaApiMockData = {
+    const stravaApiMockData = {
       access_token: 'access_token',
       athlete: { id: '210918' },
       expires_at: 1622455071943,
@@ -103,19 +93,26 @@ describe('Providers', () => {
       method: 'GET',
       url: `/providers/strava/callback?code=10291823&state=${seededUser.id}&scope=${STRAVA_SCOPES}`
     })
-    let result = data.json()
+
+    expect(data.statusCode).toBe(200)
+    expect(data.headers.location).toBe(
+      'fitlink-app://provider/strava/auth-success'
+    )
+
+    const result = await connection.getRepository(Provider).findOne({
+      where: {
+        provider_user_id: '210918'
+      },
+      relations: ['user']
+    })
+
     expect(result.type).toBe('strava')
     expect(result.refresh_token).toBe(stravaApiMockData.refresh_token)
     expect(result.token).toBe(stravaApiMockData.access_token)
-    expect(result.token_expires_at).toBe(
-      new Date(stravaApiMockData.expires_at * 1000).toISOString()
-    )
     expect(result.scopes[0]).toBe(STRAVA_SCOPES)
     expect(result.provider_user_id).toBe(stravaApiMockData.athlete.id)
     expect(result.user.id).toBe(seededUser.id)
     expect(result.id).toBeDefined()
-    expect(data.statusCode).toBe(200)
-    expect(data.statusMessage).toBe('OK')
   })
 
   it('GET /providers/strava/revokeToken', async () => {

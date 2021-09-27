@@ -4,7 +4,7 @@ import { CreateFeedItemDto } from './dto/create-feed-item.dto'
 import { UpdateFeedItemDto } from './dto/update-feed-item.dto'
 import { ApiExcludeEndpoint } from '@nestjs/swagger'
 
-@Controller('feed-items')
+@Controller()
 export class FeedItemsController {
   constructor(private readonly feedItemsService: FeedItemsService) {}
 
@@ -14,30 +14,30 @@ export class FeedItemsController {
     return this.feedItemsService.create(createFeedItemDto)
   }
 
-  @ApiExcludeEndpoint()
-  @Get()
-  findAll() {
-    return this.feedItemsService.findAll()
-  }
+  // @ApiExcludeEndpoint()
+  // @Get()
+  // findAll() {
+  //   return this.feedItemsService.findAll()
+  // }
 
-  @ApiExcludeEndpoint()
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.feedItemsService.findOne(+id)
-  }
+  // @ApiExcludeEndpoint()
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.feedItemsService.findOne(+id)
+  // }
 
-  @ApiExcludeEndpoint()
-  @Put(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateFeedItemDto: UpdateFeedItemDto
-  ) {
-    return this.feedItemsService.update(+id, updateFeedItemDto)
-  }
+  // @ApiExcludeEndpoint()
+  // @Put(':id')
+  // update(
+  //   @Param('id') id: string,
+  //   @Body() updateFeedItemDto: UpdateFeedItemDto
+  // ) {
+  //   return this.feedItemsService.update(+id, updateFeedItemDto)
+  // }
 
-  @ApiExcludeEndpoint()
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.feedItemsService.remove(+id)
-  }
+  // @ApiExcludeEndpoint()
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.feedItemsService.remove(+id)
+  // }
 }

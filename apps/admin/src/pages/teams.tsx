@@ -109,7 +109,7 @@ export default function TeamsPage() {
         onClick={() => {
           router.push(`/teams/${original.id}/admins`)
         }}>
-        Manage Admins
+        Admins
       </button>
       <button
         className="button small ml-1"
@@ -122,7 +122,7 @@ export default function TeamsPage() {
             toast.dismiss()
           })
         }}>
-        Switch
+        Manage Team
       </button>
       <button
         className="button small ml-1"
