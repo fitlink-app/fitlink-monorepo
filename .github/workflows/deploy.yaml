@@ -51,6 +51,9 @@ jobs:
       SES_ACCESS_KEY_ID: ${{ secrets.DEV_SES_ACCESS_KEY_ID }}
       SES_SECRET_ACCESS_KEY: ${{ secrets.DEV_SES_SECRET_ACCESS_KEY }}
 
+      # Chargebee
+      CHARGEBEE_API_KEY: ${{ secrets.DEV_CHARGEBEE_API_KEY }}
+
     steps:
       - uses: actions/checkout@v2
 

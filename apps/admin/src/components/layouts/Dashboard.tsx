@@ -7,6 +7,7 @@ import Button from '../elements/Button'
 import Loader from '../elements/Loader'
 import LoaderFullscreen from '../elements/LoaderFullscreen'
 import Account from '../elements/Account'
+import { useRouter } from 'next/router'
 
 type DashboardProps = {
   children?: React.ReactNode
@@ -30,7 +31,9 @@ export default function Dashboard({
 }: DashboardProps) {
   const hydratedRef = useRef(false)
   const [, rerender] = useState(false)
+  const scrollContainer = useRef<HTMLDivElement>()
   const { menu, focusRole } = useContext(AuthContext)
+  const { route } = useRouter()
 
   const url = process.env.URL
 
@@ -41,6 +44,26 @@ export default function Dashboard({
       rerender(true)
     }
   }, [])
+
+  useEffect(() => {
+    if (scrollContainer.current) {
+      document.documentElement.classList.remove('scrolled')
+      scrollContainer.current.addEventListener('scroll', scrollEvent)
+    }
+    return () => {
+      if (scrollContainer.current) {
+        scrollContainer.current.removeEventListener('scroll', scrollEvent)
+      }
+    }
+
+    function scrollEvent() {
+      if (scrollContainer.current.scrollTop > 20) {
+        document.documentElement.classList.add('scrolled')
+      } else {
+        document.documentElement.classList.remove('scrolled')
+      }
+    }
+  }, [scrollContainer.current, route])
 
   return (
     <>
@@ -94,7 +117,7 @@ export default function Dashboard({
         <>
           <div className="layout-dashboard">
             {!hideSidebar && <Sidebar prefix={linkPrefix} menu={menu} />}
-            <div className="content">
+            <div className="content" ref={scrollContainer}>
               {!hideSidebar && <Account />}
               {children}
             </div>

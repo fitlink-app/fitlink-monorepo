@@ -99,6 +99,7 @@ export type SubscriptionsInvitationsVerify = '/subscriptions-invitations/verify'
 export type SubscriptionsInvitationsRespond = '/subscriptions-invitations/respond'
 export type CreateStravaSubscription = '/providers/strava/webhook/register'
 export type VerifyUserEmail = '/users/verify-email'
+export type RegenerateJoinCode = '/teams/:teamId/regenerate-join-code'
 
 export type CreatableResource =
   | AuthLogin
@@ -118,6 +119,7 @@ export type CreatableResource =
   | SubscriptionsInvitationsRespond
   | CreateStravaSubscription
   | VerifyUserEmail
+  | RegenerateJoinCode
 
 export type ListResource =
   | '/organisations'
@@ -161,6 +163,7 @@ export type ListResource =
   | '/subscriptions/:subscriptionId/admins'
   | '/subscriptions/:subscriptionId/users'
   | '/subscriptions/:subscriptionId/chargebee/payment-sources'
+  | '/subscriptions/:subscriptionId/chargebee/invoices'
   | '/users-invitations'
   | '/leagues'
   | '/me'
@@ -198,6 +201,7 @@ export type ReadResource =
   | '/teams/:teamId/users/:userId/roles/:roleId'
   | '/teams/:teamId/leagues/:leagueId'
   | '/teams/:teamId/leagues/:leagueId/leaderboards/:leaderboardId'
+  | '/teams/:teamId/invite-link'
   | '/activities/:activityId'
   | '/rewards/:rewardId'
   | '/leagues/:leagueId'
@@ -207,6 +211,8 @@ export type ReadResource =
   | '/subscriptions/:subscriptionId/admins/:userId'
   | '/subscriptions/:subscriptionId/users/:userId'
   | '/subscriptions/:subscriptionId/chargebee/hosted-page'
+  | '/subscriptions/:subscriptionId/chargebee/subscription'
+  | '/subscriptions/:subscriptionId/chargebee/invoice-download-link/:invoiceId'
   | '/admins/:userId'
   | '/users/:userId'
   | '/users-invitations/:invitationId'
@@ -288,6 +294,8 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<RespondSubscriptionsInvitationDto>
   : T extends VerifyUserEmail
   ? Payload<VerifyUserEmailDto>
+  : T extends RegenerateJoinCode
+  ? Payload<{}>
   : never
 
 export type UploadResourceParams = FilePayload
@@ -314,6 +322,8 @@ export type CreatableResourceResponse<T> = T extends AuthSignUp
   ? TeamsInvitation
   : T extends VerifyUserEmail
   ? { success: boolean }
+  : T extends RegenerateJoinCode
+  ? { code: string }
   : never
 
 export type UpdateResourceParams<T> = T extends Organisation

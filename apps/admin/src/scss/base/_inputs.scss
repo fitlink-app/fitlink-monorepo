@@ -95,6 +95,14 @@ select[multiple] {
     }
   }
 
+  &--highlight {
+    input {
+      color: $primary;
+      background-color: #fff;
+      border-color: $primary;
+    }
+  }
+
   input[type="checkbox"] {
     width: 0px;
     height: 0px;

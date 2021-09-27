@@ -31,6 +31,7 @@ export async function SubscriptionsSetup(
         organisation
       }).createMany(count, {
         billing_entity,
+        billing_email: 'billingemail@example.com',
         ...override
       })
 

@@ -18,6 +18,7 @@ export type InputProps = InputHTMLAttributes<
   max?: number
   error?: string
   register?: UseFormRegisterReturn
+  inputRef?: React.MutableRefObject<HTMLInputElement>
 }
 
 export default function Input({
@@ -34,6 +35,7 @@ export default function Input({
   max,
   error = '',
   register,
+  inputRef,
   ...rest
 }: InputProps) {
   const [val, setVal] = useState(value)
@@ -82,6 +84,7 @@ export default function Input({
           onChange={(e) => handleChange(e)}
           placeholder={placeholder}
           rows={rows}
+          ref={inputRef}
           {...rest}
           {...register}
         />
@@ -98,6 +101,7 @@ export default function Input({
           onKeyDown={(e) => handleKeyDown(e)}
           min={min || -9999999999}
           max={max || 9999999999}
+          ref={inputRef}
           {...rest}
           {...register}
         />
@@ -111,6 +115,7 @@ export default function Input({
         onChange={(e) => handleChange(e)}
         placeholder={placeholder}
         onKeyDown={(e) => handleKeyDown(e)}
+        ref={inputRef}
         {...rest}
         {...register}
       />

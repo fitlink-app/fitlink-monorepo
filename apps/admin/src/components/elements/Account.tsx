@@ -1,11 +1,12 @@
 import Link from 'next/link'
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../../context/Auth.context'
 import IconGear from '../icons/IconGear'
 import { RoleSwitcher } from './RoleSwitcher'
 
 export default function Account() {
   const { user } = useContext(AuthContext)
+  const [display, setDisplay] = useState({ display: 'flex' })
 
   if (!user) {
     return null
@@ -14,7 +15,7 @@ export default function Account() {
   const [f, l] = user.name.split(' ')
 
   return user ? (
-    <div className="account">
+    <div className="account" style={display}>
       <RoleSwitcher />
       <Link href="/profile">
         <div className="avatar pointer">
