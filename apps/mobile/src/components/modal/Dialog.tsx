@@ -59,8 +59,12 @@ const CancelButton = styled(Button).attrs(() => ({
 interface DialogProps {
   /** Callback to be invoked when the dialog is closed internally, pass closeModal(id) method here*/
   onCloseCallback: () => void;
+
   /** Title of the dialog */
   title: string;
+
+  /** Optional description */
+  description?: string;
 
   /** Cancel button's label, defaults to 'Cancel' */
   cancelButtonLabel?: string;
@@ -74,6 +78,7 @@ interface DialogProps {
 export const Dialog: React.FC<DialogProps> = ({
   onCloseCallback,
   title,
+  description,
   cancelButtonLabel,
   buttons,
   hideCancelButton,
@@ -116,6 +121,17 @@ export const Dialog: React.FC<DialogProps> = ({
             <Label appearance={'primary'} type={'title'} bold>
               {title}
             </Label>
+
+            {!!description && (
+              <Label
+                type={'subheading'}
+                style={{
+                  textAlign: 'center',
+                  marginTop: 10,
+                }}>
+                {description}
+              </Label>
+            )}
           </VerticalSpacer>
 
           <HorizontalSpacer>
