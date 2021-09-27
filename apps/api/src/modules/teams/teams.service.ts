@@ -95,6 +95,17 @@ export class TeamsService {
     })
   }
 
+  async findOneByCode(code: string) {
+    return await this.teamRepository.findOne(
+      {
+        join_code: code
+      },
+      {
+        relations: ['avatar']
+      }
+    )
+  }
+
   async update(
     id: string,
     updateTeamDto: UpdateTeamDto,

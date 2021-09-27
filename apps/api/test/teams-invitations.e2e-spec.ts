@@ -306,6 +306,14 @@ describe('Activities', () => {
 
     const code = url.split('/').reverse()[0]
 
+    const teamByCode = await app.inject({
+      method: 'GET',
+      url: `/teams/code/${code}`,
+      headers: authHeaders
+    })
+
+    expect(teamByCode.json().id).toEqual(team.id)
+
     const join = await app.inject({
       method: 'POST',
       url: `/teams/join`,

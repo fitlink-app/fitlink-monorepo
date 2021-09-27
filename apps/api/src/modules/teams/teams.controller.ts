@@ -9,7 +9,7 @@ import {
   Put,
   Query
 } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { Iam } from '../../decorators/iam.decorator'
 import { AuthenticatedUser } from '../../models'
@@ -126,6 +126,12 @@ export class TeamsController {
     @Pagination() pagination: PaginationQuery
   ) {
     return this.teamsService.queryUserTeamStats(teamId, pagination)
+  }
+
+  @Get('/teams/code/:code')
+  @ApiResponse({ type: Team })
+  findTeamByCode(@Param('code') code: string) {
+    return this.teamsService.findOneByCode(code)
   }
 
   // @Iam(Roles.TeamAdmin)
