@@ -37,8 +37,8 @@ export default function BillingForm({
       billing_city: current.billing_city,
       billing_state: current.billing_state,
       billing_postcode: current.billing_postcode,
-      billing_country: current.billing_country,
-      billing_country_code: current.billing_country_code
+      billing_country: current.billing_country || 'United Kingdom',
+      billing_country_code: current.billing_country_code || 'GB'
     }
   })
 

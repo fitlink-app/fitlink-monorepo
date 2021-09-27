@@ -59,5 +59,5 @@ export class CreateDefaultSubscriptionDto {
   @ApiProperty()
   @IsEnum(SubscriptionType)
   @IsOptional()
-  type?: string
+  type?: SubscriptionType
 }

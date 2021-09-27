@@ -16,13 +16,33 @@ import { timeout } from '../helpers/timeout'
 import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 import ConfirmForm from '../components/forms/ConfirmForm'
 import Head from 'next/head'
-import { BillingPlanStatus } from '../../../api/src/modules/subscriptions/subscriptions.constants'
+import {
+  BillingPlanStatus,
+  SubscriptionType
+} from '../../../api/src/modules/subscriptions/subscriptions.constants'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 
 const enumToBool = ({ value }) => {
   return boolToIcon({
     value: value === BillingPlanStatus.Active
+  })
+}
+
+const billingActive = ({
+  value,
+  cell: {
+    row: {
+      original: { type }
+    }
+  }
+}) => {
+  if (type === SubscriptionType.Free) {
+    return 'Free'
+  }
+
+  return boolToIcon({
+    value: !!value
   })
 }
 
@@ -66,7 +86,14 @@ export default function SubscriptionsPage() {
         onCancel={closeDrawer()}
         current={fields}
         mutation={(id) =>
-          api.delete('/subscriptions/:subscriptionId', { subscriptionId: id })
+          api.delete(
+            '/subscriptions/:subscriptionId',
+            { subscriptionId: id },
+            {
+              useRole: focusRole,
+              primary
+            }
+          )
         }
         title="Delete subscription"
         requireConfirmText="DELETE"
@@ -92,12 +119,19 @@ export default function SubscriptionsPage() {
           New users to this organisation will be allocated to this subscription in future.
         `}
         mutation={(current) =>
-          api.put<Subscription>('/subscriptions/:subscriptionId', {
-            subscriptionId: current.id,
-            payload: {
-              default: true
+          api.put<Subscription>(
+            '/subscriptions/:subscriptionId',
+            {
+              subscriptionId: current.id,
+              payload: {
+                default: true
+              }
+            },
+            {
+              useRole: focusRole,
+              primary
             }
-          })
+          )
         }
       />
     )
@@ -132,7 +166,7 @@ export default function SubscriptionsPage() {
         onClick={() => {
           router.push(`/subscriptions/${original.id}/users`)
         }}>
-        Manage Seats
+        Seats
       </button>
       {focusRole === 'organisation' && (
         <button
@@ -140,18 +174,28 @@ export default function SubscriptionsPage() {
           onClick={() => {
             router.push(`/subscriptions/${original.id}/admins`)
           }}>
-          Manage Admins
+          Admins
         </button>
       )}
       <button
         className="button small ml-1"
         onClick={() => ConfirmSubscriptionForm(original)}>
-        Make Default
+        Set Default
       </button>
 
-      <Link href={`/subscriptions/${original.id}`}>
-        <button className="button small ml-1 pointer">Edit</button>
-      </Link>
+      {focusRole === 'organisation' && (
+        <Link href={`/subscriptions/${original.id}`}>
+          <button className="button small ml-1 pointer">Edit</button>
+        </Link>
+      )}
+
+      {focusRole === 'app' && (
+        <button
+          className="button small ml-1 pointer"
+          onClick={() => EditSubscriptionForm(original)}>
+          Edit
+        </button>
+      )}
     </div>
   )
 
@@ -194,10 +238,9 @@ export default function SubscriptionsPage() {
             },
             {
               Header: 'Billing active',
-              accessor: 'billing_plan_status',
-              Cell: enumToBool
+              accessor: 'billing_plan_subscription_id',
+              Cell: billingActive
             },
-            { Header: 'Plan Type', accessor: 'type' },
             // { Header: 'Created', accessor: 'created_at', Cell: toDateCell },
             // { Header: 'Updated', accessor: 'updated_at', Cell: toDateCell },
             { Header: ' ', Cell: cellActions }

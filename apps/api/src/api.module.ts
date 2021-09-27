@@ -8,6 +8,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter'
 import { Activity } from './modules/activities/entities/activity.entity'
 import { AuthProvider } from './modules/auth/entities/auth-provider.entity'
 import { FeedItem } from './modules/feed-items/entities/feed-item.entity'
+import { FeedItemLike } from './modules/feed-items/entities/feed-item-like.entity'
 import { Following } from './modules/followings/entities/following.entity'
 import { GoalsEntry } from './modules/goals-entries/entities/goals-entry.entity'
 import { HealthActivity } from './modules/health-activities/entities/health-activity.entity'
@@ -87,6 +88,7 @@ import { AppController } from './api.controller'
             AuthProvider,
             Following,
             FeedItem,
+            FeedItemLike,
             HealthActivity,
             GoalsEntry,
             Image,

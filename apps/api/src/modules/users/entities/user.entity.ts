@@ -65,6 +65,9 @@ export class User extends CreatableEntity {
   })
   refresh_tokens: RefreshToken[]
 
+  @ManyToMany(() => FeedItem, (feedItem) => feedItem.likes)
+  likes: FeedItem[]
+
   @ApiProperty()
   @Column({
     type: 'enum',

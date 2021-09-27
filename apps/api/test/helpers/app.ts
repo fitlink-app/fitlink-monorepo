@@ -13,6 +13,7 @@ import { Activity } from '../../src/modules/activities/entities/activity.entity'
 import { AuthProvider } from '../../src/modules/auth/entities/auth-provider.entity'
 import { HealthActivity } from '../../src/modules/health-activities/entities/health-activity.entity'
 import { FeedItem } from '../../src/modules/feed-items/entities/feed-item.entity'
+import { FeedItemLike } from '../../src/modules/feed-items/entities/feed-item-like.entity'
 import { Following } from '../../src/modules/followings/entities/following.entity'
 import { GoalsEntry } from '../../src/modules/goals-entries/entities/goals-entry.entity'
 import { Image } from '../../src/modules/images/entities/image.entity'
@@ -53,6 +54,7 @@ export const entities = [
   AuthProvider,
   Following,
   FeedItem,
+  FeedItemLike,
   GoalsEntry,
   HealthActivity,
   Image,

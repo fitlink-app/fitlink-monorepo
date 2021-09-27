@@ -91,7 +91,6 @@ describe('Teams', () => {
       headers: authHeaders,
       payload: { token: invitationToken }
     })
-    console.log(data.json())
     expect(data.statusMessage).toBe('Created')
     expect(data.statusCode).toBe(201)
     expect(data.json().resolved_user).toBeDefined()
