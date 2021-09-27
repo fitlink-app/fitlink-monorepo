@@ -212,13 +212,15 @@ export class StravaService {
 
   getOAuthUrl(userId: string) {
     return {
-      oauth_url: `${STRAVA_AUTHORIZE_URL}
-    ?client_id=${this.stravaConfig('id')}
-    &client_secret=${this.stravaConfig('secret')}
-    &redirect_uri=${this.stravaConfig('uri')}
-    &scope=${this.stravaConfig('scopes')}
-    &response_type=code
-    &state=${userId}`
+      oauth_url: [
+        STRAVA_AUTHORIZE_URL,
+        `?client_id=${this.stravaConfig('id')}`,
+        `&client_secret=${this.stravaConfig('secret')}`,
+        `&redirect_uri=${this.stravaConfig('uri')}`,
+        `&scope=${this.stravaConfig('scopes')}`,
+        `&response_type=code`,
+        `&state=${userId}`
+      ].join('')
     }
   }
 
