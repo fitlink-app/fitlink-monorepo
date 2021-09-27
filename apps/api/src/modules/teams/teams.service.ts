@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
@@ -16,7 +17,8 @@ import { UpdateTeamDto } from './dto/update-team.dto'
 import { Team } from './entities/team.entity'
 
 export enum TeamServiceError {
-  AlreadyMember = 'You are already a member of this team'
+  AlreadyMember = 'You are already a member of this team',
+  TeamNotExist = 'Team does not exist'
 }
 
 @Injectable()
@@ -34,7 +36,8 @@ export class TeamsService {
     @InjectRepository(Subscription)
     private subscriptionRepository: Repository<Subscription>,
 
-    private teamInvitationService: TeamsInvitationsService
+    private teamInvitationService: TeamsInvitationsService,
+    private configService: ConfigService
   ) {}
 
   /**
@@ -46,6 +49,9 @@ export class TeamsService {
   async create(fields: Partial<Team>, organisationId: string) {
     fields.organisation = new Organisation()
     fields.organisation.id = organisationId
+
+    // Create unique join code
+    fields.join_code = await this.generateJoinCode()
 
     // Set it as the team organisation
     const team = await this.teamRepository.save(
@@ -87,6 +93,17 @@ export class TeamsService {
     return await this.teamRepository.findOne(id, {
       relations: ['organisation', 'organisation.subscriptions']
     })
+  }
+
+  async findOneByCode(code: string) {
+    return await this.teamRepository.findOne(
+      {
+        join_code: code
+      },
+      {
+        relations: ['avatar']
+      }
+    )
   }
 
   async update(
@@ -492,5 +509,55 @@ export class TeamsService {
       total: results.length,
       results: results
     })
+  }
+
+  async generateJoinCode(): Promise<string> {
+    const joinCode = Math.floor(Date.now() * Math.random())
+      .toString(36)
+      .substr(0, 6)
+      .toUpperCase()
+      .replace('O', '0')
+
+    // Join code uniqueness
+    if (
+      (await this.teamRepository.count({
+        where: {
+          join_code: joinCode
+        }
+      })) > 0
+    ) {
+      return this.generateJoinCode()
+    }
+
+    return joinCode
+  }
+
+  async updateJoinCode(teamId: string) {
+    const code = await this.generateJoinCode()
+    await this.teamRepository.update(teamId, {
+      join_code: code
+    })
+    return {
+      code
+    }
+  }
+
+  async getInviteLink(teamId: string) {
+    const team = await this.teamRepository.findOne(teamId)
+    return {
+      url: `${this.configService.get('SHORT_URL')}/join/${team.join_code}`
+    }
+  }
+
+  async joinTeamFromCode(code: string, userId: string) {
+    const team = await this.teamRepository.findOne({
+      where: {
+        join_code: code
+      }
+    })
+    if (!team) {
+      return TeamServiceError.TeamNotExist
+    }
+    return this.joinTeam(team.id, userId)
   }
 }

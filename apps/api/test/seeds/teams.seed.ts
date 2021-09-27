@@ -35,6 +35,19 @@ export async function TeamsSetup(
         })
       )
 
+      // Init join code
+      await Promise.all(
+        teams.map((team) => {
+          return connection.getRepository(Team).update(team.id, {
+            join_code: Math.floor(Date.now() * Math.random())
+              .toString(36)
+              .substr(0, 6)
+              .toUpperCase()
+              .replace('O', '0')
+          })
+        })
+      )
+
       return teams
     }
 

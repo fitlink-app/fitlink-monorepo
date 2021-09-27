@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common'
+import { Injectable, BadRequestException, HttpService } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Not, Repository } from 'typeorm'
 import { CreateDefaultSubscriptionDto } from './dto/create-default-subscription.dto'
@@ -8,17 +8,21 @@ import { Organisation } from '../organisations/entities/organisation.entity'
 import { Team } from '../teams/entities/team.entity'
 import { User } from '../users/entities/user.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
-import { ChargeBee } from 'chargebee-typescript'
 import {
   Customer,
   CustomerBillingAddress,
   HostedPage,
-  PaymentSource
+  Invoice,
+  PaymentSource,
+  Subscription as ChargebeeSubscription
 } from 'chargebee-typescript/lib/resources'
-import { SubscriptionType } from './subscriptions.constants'
+import { BillingPlanStatus, SubscriptionType } from './subscriptions.constants'
 import { SuccessResultDto } from '../../classes/dto/success'
 import { SubscriptionsInvitationsService } from './subscriptions-invitations.service'
 import { UserRolesService } from '../user-roles/user-roles.service'
+import { differenceInDays } from 'date-fns'
+import { UserRole } from '../user-roles/entities/user-role.entity'
+import { ConfigService } from '@nestjs/config'
 
 type EntityOwner = {
   organisationId?: string
@@ -39,12 +43,6 @@ export enum SubscriptionServiceError {
   NoDefaultAvailable = 'no_default_subscription_available'
 }
 
-const chargebee = new ChargeBee()
-
-chargebee.configure({
-  site: 'fitlinkapp-test',
-  api_key: 'test_BeVUqNaub4Rujsuyj15TtXcL9T8eMG66'
-})
 @Injectable()
 export class SubscriptionsService {
   constructor(
@@ -61,7 +59,9 @@ export class SubscriptionsService {
     private userRepository: Repository<User>,
 
     private invitationsService: SubscriptionsInvitationsService,
-    private userRolesService: UserRolesService
+    private userRolesService: UserRolesService,
+    private httpService: HttpService,
+    private configService: ConfigService
   ) {}
 
   /**
@@ -74,12 +74,18 @@ export class SubscriptionsService {
     organisationId: string
   ): Promise<Subscription> {
     const { billing_entity, ...rest } = createDefaultDto
-    const org = await this.organisationRepository.findOne(organisationId)
+    const org = await this.organisationRepository.findOne(organisationId, {
+      relations: ['subscriptions']
+    })
 
     let subscription = new Subscription()
     subscription.organisation = org
     subscription.billing_entity = billing_entity
-    subscription.default = true
+
+    // If no subscriptions exist, make this one the default
+    if (org.subscriptions.length === 0) {
+      subscription.default = true
+    }
 
     if (rest) {
       subscription = Object.assign(subscription, { ...rest })
@@ -165,11 +171,20 @@ export class SubscriptionsService {
     { organisationId, ...dto }: UpdateSubscriptionDto,
     subId: string
   ) {
-    let update: Partial<Subscription> = dto
+    const update: Partial<Subscription> = dto
 
     const subscription = await this.subscriptionRepository.findOne(subId, {
       relations: ['organisation']
     })
+
+    if (
+      !subscription ||
+      (organisationId && subscription.organisation.id !== organisationId)
+    ) {
+      throw new BadRequestException(
+        "the subscription doesn't exist for this organisation"
+      )
+    }
 
     if (organisationId) {
       update.organisation = new Organisation()
@@ -194,15 +209,26 @@ export class SubscriptionsService {
     }
 
     // The subscription is not yet connected to a ChargeBee billing plan
-    if (
-      !subscription.billing_plan_customer_id &&
-      subscription.type === SubscriptionType.Dynamic
-    ) {
-      const customer = await this.updateChargeBeeCustomer(subscription)
-      update.billing_plan_customer_id = customer.id
-    } else {
-      // Update the ChargeBee customer
-      await this.updateChargeBeeCustomer(subscription)
+    try {
+      if (
+        !subscription.billing_plan_customer_id &&
+        subscription.type !== SubscriptionType.Free
+      ) {
+        const customer = await this.updateChargeBeeCustomer({
+          ...subscription,
+          ...update
+        })
+        update.billing_plan_customer_id = customer.id
+      } else {
+        // Update the ChargeBee customer
+        await this.updateChargeBeeCustomer({ ...subscription, ...update })
+      }
+    } catch (e) {
+      const msg = e.message ? e.message.split(':')[1] || e.message : e
+      console.log(e)
+      throw new BadRequestException(
+        `There was a problem updating your billing information: ${msg}`
+      )
     }
 
     return await this.subscriptionRepository.update(subId, update)
@@ -236,8 +262,28 @@ export class SubscriptionsService {
    * @param orgId
    * @param subId
    */
-  async deleteSubscription(subId: string) {
+  async deleteSubscription(subId: string, organisationId?: string) {
     const subscription = await this.findOneSubscription(subId)
+    if (organisationId && subscription.organisation.id !== organisationId) {
+      throw new BadRequestException(
+        "the subscription doesn't exist for this organisation"
+      )
+    }
+
+    const user = await this.userRepository.findOne({
+      where: {
+        subscription: {
+          id: subId
+        }
+      }
+    })
+
+    if (user) {
+      throw new BadRequestException(
+        "Can't delete a subscription that still has users assigned to it."
+      )
+    }
+
     if (subscription.default) {
       return SubscriptionServiceError.CannotDeleteDefault
     }
@@ -299,7 +345,7 @@ export class SubscriptionsService {
       })
     }
 
-    return this.subscriptionRepository.manager.transaction(async (manager) => {
+    await this.subscriptionRepository.manager.transaction(async (manager) => {
       const repo = manager.getRepository(Subscription)
       await repo
         .createQueryBuilder()
@@ -319,20 +365,69 @@ export class SubscriptionsService {
 
       await Promise.all(
         others.map((subscription) => {
-          return repo
-            .createQueryBuilder()
-            .relation(Subscription, 'users')
-            .of(subscription.id)
-            .remove(userId)
+          return Promise.all([
+            repo
+              .createQueryBuilder()
+              .relation(Subscription, 'users')
+              .of(subscription.id)
+              .remove(userId),
+
+            // Decrement the user count
+            this.decrement(subscription.id, repo)
+          ])
         })
       )
 
       await manager.getRepository(User).update(userId, {
         subscription: { id: subscriptionId }
       })
-
-      return { success: true }
     })
+
+    // Update's user count & associated subscription
+    await this.updateCount(subscriptionId)
+
+    return { success: true }
+  }
+
+  async increment(subscriptionId: string, repo: Repository<Subscription>) {
+    const subscription = await repo.findOne(subscriptionId)
+    await repo.increment({ id: subscriptionId }, 'user_count', 1)
+    subscription.user_count = subscription.user_count + 1
+    return this.updateChargeBeeCustomer(subscription)
+  }
+
+  async decrement(subscriptionId: string, repo: Repository<Subscription>) {
+    const subscription = await repo.findOne(subscriptionId)
+    await repo.decrement({ id: subscriptionId }, 'user_count', 1)
+    subscription.user_count = subscription.user_count - 1
+    return this.updateChargeBeeCustomer(subscription)
+  }
+
+  async updateCount(subscriptionId: string) {
+    const subscriptionUserCount = await this.userRepository.count({
+      where: {
+        subscription: {
+          id: subscriptionId
+        }
+      }
+    })
+
+    await this.subscriptionRepository.update(
+      {
+        id: subscriptionId
+      },
+      {
+        user_count: subscriptionUserCount
+      }
+    )
+
+    const subscription = await this.subscriptionRepository.findOne(
+      subscriptionId
+    )
+
+    await this.updateChargeBeeCustomer(subscription)
+
+    return subscriptionUserCount
   }
 
   /**
@@ -387,7 +482,7 @@ export class SubscriptionsService {
 
       // A user cannot be removed from the default subscription
       // They must be moved instead
-      if (subscription.default) {
+      if (user.teams.length && subscription.default) {
         return SubscriptionServiceError.CannotDeleteDefault
       }
 
@@ -413,6 +508,9 @@ export class SubscriptionsService {
           await userRepository.update(userId, {
             subscription: { id: defaultSubscription.id }
           })
+
+          // Increment the user count
+          await this.increment(defaultSubscription.id, subscriptionRepository)
         } else {
           return SubscriptionServiceError.NoDefaultAvailable
         }
@@ -431,6 +529,9 @@ export class SubscriptionsService {
         .relation(Subscription, 'users')
         .of(subscriptionId)
         .remove(userId)
+
+      // Increment the user count
+      await this.decrement(subscriptionId, subscriptionRepository)
 
       return { success: true }
     })
@@ -538,6 +639,45 @@ export class SubscriptionsService {
   }
 
   /**
+   * Find all subscriptions
+   * @param orgId
+   * @param subId
+   */
+  async findAllAccessibleBy(
+    userId: string,
+    { limit, page }: PaginationOptionsInterface,
+    entityOwner: EntityOwner = {}
+  ): Promise<Pagination<Subscription>> {
+    let query = this.subscriptionRepository
+      .createQueryBuilder('subscription')
+      .leftJoinAndSelect('subscription.organisation', 'organisation')
+      .innerJoin(
+        UserRole,
+        'user_role',
+        'user_role.subscriptionId = subscription.id AND user_role.userId = :userId',
+        {
+          userId
+        }
+      )
+      .take(limit)
+      .skip(limit * page)
+      .orderBy('updated_at', 'DESC')
+
+    if (entityOwner.organisationId) {
+      query = query.where('organisation.id = :organisationId', {
+        organisationId: entityOwner.organisationId
+      })
+    }
+
+    const [results, total] = await query.getManyAndCount()
+
+    return new Pagination<Subscription>({
+      results,
+      total
+    })
+  }
+
+  /**
    * Find all subscription's users
    * @param orgId,
    * @param subId
@@ -608,72 +748,59 @@ export class SubscriptionsService {
     return await this.findOne(orgId, subId, ['organisation', 'users'])
   }
 
+  /**
+   * Updates the subscription with a Chargebee Customer
+   * OR creates one if it does not exist.
+   *
+   * Also creates a subscription on the Fitlink Teams plan
+   * for the customer, using the current user_count
+   *
+   * @param subscription
+   * @returns
+   */
+
   async updateChargeBeeCustomer(subscription: Subscription): Promise<Customer> {
-    const chargebeeCustomer: Partial<Customer> = {
-      company: subscription.billing_entity,
-      first_name: subscription.billing_first_name,
-      last_name: subscription.billing_last_name,
-      preferred_currency_code: subscription.billing_currency_code
-    }
-
-    const address: Partial<CustomerBillingAddress> = {
-      company: subscription.billing_entity,
-      line1: subscription.billing_address_1,
-      line2: subscription.billing_address_2,
-      city: subscription.billing_city,
-      state: subscription.billing_state,
-      country: subscription.billing_country_code,
-      zip: subscription.billing_postcode
-    }
-
     if (subscription.billing_plan_customer_id) {
-      if (subscription.type === SubscriptionType.Dynamic) {
-        const customer = await getPromise(
-          chargebee.customer.update(subscription.billing_plan_customer_id, {
-            allow_direct_debit: true,
-            ...chargebeeCustomer
-          })
-        )
+      if (subscription.type !== SubscriptionType.Free) {
+        // Update the customers' information
+        const customer = await this.chargebeeUpdateCustomer(subscription)
 
-        await getPromise(
-          chargebee.customer.update_billing_info(
-            subscription.billing_plan_customer_id,
-            {
-              billing_address: address
-            }
+        // Subscribe the customer
+        if (!subscription.billing_plan_subscription_id) {
+          const chargebeeSubscription = await this.createChargebeeSubscription(
+            subscription,
+            subscription.billing_plan_customer_id
           )
-        )
+          await this.subscriptionRepository.update(subscription.id, {
+            billing_plan_subscription_id: chargebeeSubscription.id,
+            billing_plan_status: BillingPlanStatus.Active
+          })
+        } else {
+          // Primarily used for updating the number of seats on the plan
+          await this.updateChargebeeSubscription(subscription)
+        }
 
         return customer
       } else {
-        // The plan type has changed which means we need to delete the customer
-        return getPromise(
-          chargebee.customer.update(subscription.billing_plan_customer_id, {
-            allow_direct_debit: true,
-            ...chargebeeCustomer
-          })
-        )
+        // The subscription was converted to a free plan
+        // Cancel the associated subscription
+        if (subscription.billing_plan_subscription_id) {
+          await this.chargebeeCancelSubscription(subscription)
+        }
       }
-    } else if (subscription.type === SubscriptionType.Dynamic) {
-      return getPromise(
-        chargebee.customer.create({
-          allow_direct_debit: true,
-          billing_address: address,
-          ...chargebeeCustomer
-        })
-      )
-    }
+    } else if (subscription.type !== SubscriptionType.Free) {
+      // Creating a brand new customer on ChargeBee
+      const customer = await this.chargebeeCreateCustomer(subscription)
 
-    function getPromise(request: any): Promise<Customer> {
-      return new Promise((resolve, reject) => {
-        request.request((error, result) => {
-          if (error) {
-            reject(error)
-          } else {
-            const customer = result.customer as Customer
-            resolve(customer)
-          }
-        })
+      // Also create the subscription for the new customer
+      const chargebeeSubscription = await this.createChargebeeSubscription(
+        subscription,
+        customer.id
+      )
+
+      await this.subscriptionRepository.update(subscription.id, {
+        billing_plan_subscription_id: chargebeeSubscription.id,
+        billing_plan_customer_id: customer.id
       })
     }
   }
@@ -688,10 +815,7 @@ export class SubscriptionsService {
     subId: string,
     chargeBeePlan = false
   ): Promise<any> {
-    const subscription = await this.findOne(orgId, subId, [
-      'organisation',
-      'users'
-    ])
+    const subscription = await this.findOne(orgId, subId, ['organisation'])
 
     if (!subscription) {
       throw new BadRequestException(
@@ -699,48 +823,31 @@ export class SubscriptionsService {
       )
     }
 
-    let countUsers
-    if (subscription.users.length > 0) {
-      countUsers = subscription.users.length
-    } else {
-      throw new BadRequestException('the subscription has no users')
-    }
-
     if (chargeBeePlan) {
-      const chargebeeCustomer = {
-        company: subscription.billing_entity,
-        billing_address: {
+      const customer: Customer = await this.chargeBeePostRequest<any>(
+        '/customers',
+        {
+          allow_direct_debit: true,
+          first_name: subscription.billing_first_name,
+          last_name: subscription.billing_last_name,
           company: subscription.billing_entity,
-          line1: subscription.billing_address_1,
-          line2: subscription.billing_address_2,
-          city: subscription.billing_city,
-          state: subscription.billing_state,
-          country: subscription.billing_country_code,
-          zip: subscription.billing_postcode
+          email: subscription.billing_email,
+          'billing_address[line1]': subscription.billing_address_1,
+          'billing_address[line2]': subscription.billing_address_2,
+          'billing_address[city]': subscription.billing_city,
+          'billing_address[state]': subscription.billing_state,
+          'billing_address[country]': subscription.billing_country_code,
+          'billing_address[zip]': subscription.billing_postcode
         }
-      }
-      const chargebeeCustomerCreate = new Promise((resolve, reject) => {
-        chargebee.customer
-          .create({
-            allow_direct_debit: true,
-            ...chargebeeCustomer
-          })
-          .request((error, result: any) => {
-            if (error) {
-              reject(error)
-            } else {
-              const customer: typeof chargebee.customer = result.customer
-              resolve({ customer })
-            }
-          })
-      })
+      )
+
       return {
-        countUsers: countUsers,
-        customer: await chargebeeCustomerCreate
+        countUsers: subscription.user_count,
+        customer: customer
       }
     } else {
       return {
-        countUsers: countUsers
+        countUsers: subscription.user_count
       }
     }
   }
@@ -756,10 +863,7 @@ export class SubscriptionsService {
     subId: string,
     customerId: string
   ): Promise<any> {
-    const subscription = await this.findOne(orgId, subId, [
-      'organisation',
-      'users'
-    ])
+    const subscription = await this.findOne(orgId, subId, ['organisation'])
 
     if (!subscription) {
       throw new BadRequestException(
@@ -767,17 +871,55 @@ export class SubscriptionsService {
       )
     }
 
-    const chargebeeCustomer = new Promise((resolve, reject) => {
-      chargebee.customer.retrieve(customerId).request((error, result: any) => {
-        if (error) {
-          reject(error)
-        } else {
-          const customer: typeof chargebee.customer = result.customer
-          resolve({ customer })
-        }
-      })
-    })
-    return await chargebeeCustomer
+    const result = await this.chargeBeeGetRequest<{ customer: Customer }>(
+      `/customers/${customerId}`
+    )
+    return result.customer
+  }
+
+  async createChargebeeSubscription(
+    subscription: Subscription,
+    customerId: string
+  ) {
+    const daysUsed = differenceInDays(subscription.created_at, new Date())
+    const result: {
+      subscription: ChargebeeSubscription
+    } = await this.chargeBeePostRequest<any>(
+      `/customers/${customerId}/subscriptions`,
+      {
+        plan_id: this.configService.get('CHARGEBEE_PLAN_ID'),
+        free_period: daysUsed > 0 ? 14 - daysUsed : 0,
+
+        // Plan quantity needs to be minimum 1
+        plan_quantity: subscription.user_count || 1
+      }
+    )
+
+    return result.subscription
+  }
+
+  async updateChargebeeSubscription(subscription: Subscription) {
+    const result: {
+      subscription: ChargebeeSubscription
+    } = await this.chargeBeePostRequest<any>(
+      `/subscriptions/${subscription.billing_plan_subscription_id}`,
+      {
+        // Plan quantity needs to be minimum 1
+        plan_quantity: subscription.user_count || 1
+      }
+    )
+
+    return result.subscription
+  }
+
+  async getChargebeeSubscription(subscription: Subscription) {
+    const result: {
+      subscription: ChargebeeSubscription
+    } = await this.chargeBeeGetRequest<any>(
+      `/subscriptions/${subscription.billing_plan_subscription_id}`
+    )
+
+    return result
   }
 
   /**
@@ -802,17 +944,7 @@ export class SubscriptionsService {
       )
     }
 
-    const chargebeeCustomer = new Promise((resolve, reject) => {
-      chargebee.customer.delete(customerId).request((error, result: any) => {
-        if (error) {
-          reject(error)
-        } else {
-          const customer: typeof chargebee.customer = result.customer
-          resolve({ customer })
-        }
-      })
-    })
-    return await chargebeeCustomer
+    return this.chargeBeePostRequest(`/${customerId}/delete`)
   }
 
   /**
@@ -831,23 +963,14 @@ export class SubscriptionsService {
       return SubscriptionServiceError.CustomerNotFound
     }
 
-    return new Promise((resolve, reject) => {
-      chargebee.hosted_page
-        .manage_payment_sources({
-          customer: {
-            id: subscription.billing_plan_customer_id
-          }
-        })
-        .request((error: ChargebeeError, result: any) => {
-          if (error) {
-            reject(error)
-          } else {
-            const hostedPage: HostedPage = result.hosted_page
+    const result = await this.chargeBeePostRequest<any>(
+      `/hosted_pages/manage_payment_sources`,
+      {
+        'customer[id]': subscription.billing_plan_customer_id
+      }
+    )
 
-            resolve(hostedPage)
-          }
-        })
-    })
+    return result.hosted_page
   }
 
   /**
@@ -872,26 +995,42 @@ export class SubscriptionsService {
       return SubscriptionServiceError.CustomerNotFound
     }
 
-    return new Promise((resolve, reject) => {
-      chargebee.payment_source
-        .list({
-          customer_id: {
-            is: subscription.billing_plan_customer_id
-          },
-          status: { is: 'valid' }
-        })
-        .request((error: ChargebeeError, result: { list: PaymentSource[] }) => {
-          if (error) {
-            reject(error)
-          } else {
-            resolve({
-              results: result.list,
-              pageTotal: result.list.length,
-              total: result.list.length
-            })
-          }
-        })
+    const result = await this.chargeBeeGetRequest<{
+      list: { payment_source: PaymentSource }[]
+    }>(`/payment_sources`, {
+      'customer_id[is]': subscription.billing_plan_customer_id
     })
+
+    const list = result.list || []
+
+    return {
+      results: list.map((each) => each.payment_source),
+      pageTotal: list.length,
+      total: list.length
+    }
+  }
+
+  async getChargebeeInvoices(subscription: Subscription, offset?: string) {
+    if (!subscription.billing_plan_customer_id) {
+      throw new BadRequestException('Customer billing not yet created')
+    }
+
+    const result = await this.chargeBeeGetRequest<{
+      list: { invoice: Invoice }[]
+      next_offset: string
+    }>(`/invoices`, {
+      'customer_id[is]': subscription.billing_plan_customer_id,
+      'subscription_id[is]': subscription.billing_plan_subscription_id,
+      offset
+    })
+
+    const list = result.list || []
+
+    return {
+      results: list.map((each) => each.invoice),
+      pageTotal: list.length,
+      total: list.length
+    }
   }
 
   /**
@@ -945,5 +1084,131 @@ export class SubscriptionsService {
       { subscriptionId },
       false
     )
+  }
+
+  async chargebeeGeneratedInvoiceLink(invoiceId: string) {
+    const result = await this.chargeBeePostRequest<{
+      download: { download_url: string }
+    }>(`/invoices/${invoiceId}/pdf`)
+    return result.download
+  }
+
+  async chargebeeCancelSubscription(subscription: Subscription) {
+    await this.chargeBeePostRequest(
+      `/subscriptions/${subscription.billing_plan_subscription_id}/cancel`
+    )
+  }
+
+  async chargebeeUpdateCustomer(subscription: Subscription) {
+    const customerId = subscription.billing_plan_customer_id
+
+    const address = {
+      'billing_address[line1]': subscription.billing_address_1,
+      'billing_address[line2]': subscription.billing_address_2,
+      'billing_address[city]': subscription.billing_city,
+      'billing_address[state]': subscription.billing_state,
+      'billing_address[country]': subscription.billing_country_code,
+      'billing_address[postcode]': subscription.billing_postcode
+    }
+
+    const [update] = await Promise.all([
+      this.chargeBeePostRequest<any>(`/customers/${customerId}`, {
+        allow_direct_debit: true,
+        company: subscription.billing_entity,
+        first_name: subscription.billing_first_name,
+        last_name: subscription.billing_last_name,
+        email: subscription.billing_email
+      }),
+      this.chargeBeePostRequest<any>(
+        `/customers/${customerId}/update_billing_info`,
+        address
+      )
+    ])
+
+    return update.customer as Customer
+  }
+
+  /**
+   * Creates a new ChargeBee customer
+   *
+   * This endpoint allows adding the billing address directly.
+   * Future updates use the update_billing_info endpoint.
+   *
+   * @param subscription
+   * @returns
+   */
+
+  async chargebeeCreateCustomer(subscription: Subscription) {
+    // Creating a brand new customer on ChargeBee
+    const {
+      customer
+    }: { customer: Customer } = await this.chargeBeePostRequest<any>(
+      '/customers',
+      {
+        allow_direct_debit: true,
+        first_name: subscription.billing_first_name,
+        last_name: subscription.billing_last_name,
+        company: subscription.billing_entity,
+        email: subscription.billing_email,
+        'billing_address[line1]': subscription.billing_address_1,
+        'billing_address[line2]': subscription.billing_address_2,
+        'billing_address[city]': subscription.billing_city,
+        'billing_address[state]': subscription.billing_state,
+        'billing_address[country]': subscription.billing_country_code,
+        'billing_address[zip]': subscription.billing_postcode
+      }
+    )
+
+    return customer
+  }
+
+  async chargeBeeGetRequest<T>(url: string, params: NodeJS.Dict<any> = {}) {
+    try {
+      const result = await this.httpService
+        .get(
+          `https://${this.configService.get(
+            'CHARGEBEE_API_SITE'
+          )}.chargebee.com/api/v2${url}`,
+          {
+            auth: {
+              username: this.configService.get('CHARGEBEE_API_KEY'),
+              password: ''
+            },
+            params
+          }
+        )
+        .toPromise()
+      return result.data as T
+    } catch (e) {
+      throw new BadRequestException(e)
+    }
+  }
+
+  async chargeBeePostRequest<T>(url: string, params: Partial<T> = {}) {
+    try {
+      const result = await this.httpService
+        .post(
+          `https://${this.configService.get(
+            'CHARGEBEE_API_SITE'
+          )}.chargebee.com/api/v2${url}`,
+          {},
+          {
+            auth: {
+              username: this.configService.get('CHARGEBEE_API_KEY'),
+              password: ''
+            },
+            params: params
+          }
+        )
+        .toPromise()
+      return result.data as T
+    } catch (e) {
+      if (e.response) {
+        console.log(e.response.data)
+        throw new BadRequestException(e.response.data)
+      }
+      console.log(e)
+      throw new BadRequestException(e)
+    }
   }
 }

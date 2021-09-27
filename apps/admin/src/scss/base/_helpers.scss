@@ -400,3 +400,9 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+@for $i from 0 through 10 {
+  .opacity-#{$i} {
+    opacity: $i / 10;
+  }
+}

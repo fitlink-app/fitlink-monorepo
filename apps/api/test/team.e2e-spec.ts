@@ -65,7 +65,8 @@ describe('Teams', () => {
       headers: superadminHeaders,
       payload: {
         email: user.email,
-        invitee: user.name
+        invitee: user.name,
+        admin: true
       }
     })
 
@@ -90,6 +91,7 @@ describe('Teams', () => {
       headers: authHeaders,
       payload: { token: invitationToken }
     })
+    console.log(data.json())
     expect(data.statusMessage).toBe('Created')
     expect(data.statusCode).toBe(201)
     expect(data.json().resolved_user).toBeDefined()
@@ -115,7 +117,7 @@ describe('Teams', () => {
 
   it(`DELETE /teamId/users/userId`, async () => {
     const users = team.users
-    let userId = users[0].id
+    const userId = users[0].id
     const data = await app.inject({
       method: 'DELETE',
       url: `/teams/${team.id}/users/${userId}`,

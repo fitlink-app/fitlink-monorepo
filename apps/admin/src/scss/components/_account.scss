@@ -4,7 +4,16 @@
   right: 3rem;
   z-index: 2;
   display: flex;
+  flex-direction: row;
+  transition: opacity 0.25s, transform 0.25s;
+  transform: translate(0);
+
   .avatar {
     margin-left: 1rem;
+  }
+
+  .scrolled & {
+    opacity: 0;
+    transform: translate(0, -100%)
   }
 }

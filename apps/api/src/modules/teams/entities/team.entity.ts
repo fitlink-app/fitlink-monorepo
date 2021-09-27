@@ -65,4 +65,11 @@ export class Team {
     default: 0
   })
   user_count: number
+
+  @ApiProperty()
+  @Column({
+    nullable: true,
+    unique: true
+  })
+  join_code: string
 }

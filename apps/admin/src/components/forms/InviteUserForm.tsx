@@ -12,12 +12,15 @@ import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role
 import { Roles } from '../../../../api/src/modules/user-roles/user-roles.constants'
 import Input from '../elements/Input'
 import { shortDescriptions } from '../../data/role-descriptions'
+import CopyText from './CopyText'
+import { RegenerateJoinCode } from '@fitlink/api-sdk/types'
 
 export type InviteUserProps = {
   onSave?: () => void
   onError?: () => void
   role?: Roles
   teamId?: string
+  joinCode?: string
   organisationId?: string
   subscriptionId?: string
 }
@@ -38,7 +41,8 @@ export default function InviteUserForm({
   role,
   organisationId,
   subscriptionId,
-  teamId
+  teamId,
+  joinCode
 }: InviteUserProps) {
   const { api, primary, focusRole } = useContext(AuthContext)
   const { handleSubmit, register } = useForm({
@@ -47,6 +51,8 @@ export default function InviteUserForm({
       email: undefined
     }
   })
+
+  const [copied, setCopied] = useState(false)
 
   const add: ApiMutationResult<UserRole> = useMutation(
     (payload: CreateAdminDto) => {
@@ -98,6 +104,24 @@ export default function InviteUserForm({
       }
     }
   )
+
+  const regenerate = useMutation(() => {
+    return api.post<RegenerateJoinCode>('/teams/:teamId/regenerate-join-code', {
+      teamId
+    })
+  })
+
+  const inviteLink = useQuery(`invite_link_${teamId}`, () => {
+    return api.get<{ url: string }>('/teams/:teamId/invite-link', {
+      teamId
+    })
+  })
+
+  const code = regenerate.data ? regenerate.data.code : joinCode
+
+  useEffect(() => {
+    inviteLink.refetch()
+  }, [code])
 
   async function onSubmit(payload: any) {
     clearErrors()
@@ -156,9 +180,37 @@ export default function InviteUserForm({
         error={errors.email}
       />
 
-      <button className="button mt-1" disabled={add.isLoading}>
-        Invite User
-      </button>
+      <div className="flex jc-sb">
+        <button className="button mt-1" disabled={add.isLoading}>
+          Invite User
+        </button>
+
+        <button
+          className="button alt mt-1 ml-2"
+          disabled={regenerate.isLoading}
+          type="button"
+          onClick={() => {
+            regenerate.mutate()
+          }}>
+          Regenerate Join Code
+        </button>
+      </div>
+
+      {role === Roles.Self && inviteLink.isFetched && (
+        <div className="pointer copy-text-container">
+          <Input
+            name="email"
+            placeholder="Email address"
+            label="OR send them this link directly"
+            readOnly={true}
+            value={copied ? 'Copied!' : inviteLink.data.url}
+            className={copied ? 'input-block--highlight' : 'pointer'}
+          />
+          {!copied && (
+            <CopyText setCopied={setCopied} text={inviteLink.data.url} />
+          )}
+        </div>
+      )}
 
       {isError && (
         <Feedback message={errorMessage} type="error" className="mt-2" />

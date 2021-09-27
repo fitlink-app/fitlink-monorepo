@@ -9,7 +9,7 @@ import {
   Put,
   Query
 } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { Iam } from '../../decorators/iam.decorator'
 import { AuthenticatedUser } from '../../models'
@@ -24,6 +24,7 @@ import { Team } from './entities/team.entity'
 import { ApiBaseResponses } from '../../decorators/swagger.decorator'
 import { RespondTeamsInvitationDto } from '../teams-invitations/dto/respond-teams-invitation.dto'
 import { TeamsInvitationsServiceError } from '../teams-invitations/teams-invitations.service'
+import { JoinTeamDto } from './dto/join-team.dto'
 
 @Controller()
 @ApiTags('teams')
@@ -127,6 +128,12 @@ export class TeamsController {
     return this.teamsService.queryUserTeamStats(teamId, pagination)
   }
 
+  @Get('/teams/code/:code')
+  @ApiResponse({ type: Team })
+  findTeamByCode(@Param('code') code: string) {
+    return this.teamsService.findOneByCode(code)
+  }
+
   // @Iam(Roles.TeamAdmin)
   // @Get('/teams/:teamId/stats/health-activities')
   // findTeamHealthActivities(
@@ -141,15 +148,26 @@ export class TeamsController {
 
   @Post('/teams/join')
   async userJoinTeam(
-    @Body('token') token: string,
+    @Body() { token, code }: JoinTeamDto,
     @User() user: AuthenticatedUser
   ) {
-    const join = await this.teamsService.joinTeamFromToken(token, user.id)
-    if (typeof join === 'string') {
-      throw new BadRequestException(join)
-    }
+    if (token) {
+      const join = await this.teamsService.joinTeamFromToken(token, user.id)
+      if (typeof join === 'string') {
+        throw new BadRequestException(join)
+      }
 
-    return join
+      return join
+    } else if (code) {
+      const join = await this.teamsService.joinTeamFromCode(code, user.id)
+      if (typeof join === 'string') {
+        throw new BadRequestException(join)
+      }
+
+      return { success: join }
+    } else {
+      throw new BadRequestException('You must specify a join code or token')
+    }
   }
 
   @Iam(Roles.SuperAdmin)
@@ -184,5 +202,17 @@ export class TeamsController {
     }
 
     return result
+  }
+
+  @Iam(Roles.TeamAdmin)
+  @Post('/teams/:teamId/regenerate-join-code')
+  async regenerateJoinCode(@Param('teamId') teamId: string) {
+    return this.teamsService.updateJoinCode(teamId)
+  }
+
+  @Iam(Roles.TeamAdmin)
+  @Get('/teams/:teamId/invite-link')
+  async getInviteLink(@Param('teamId') teamId: string) {
+    return this.teamsService.getInviteLink(teamId)
   }
 }

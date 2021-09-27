@@ -73,6 +73,7 @@ export type AuthContext = {
   switchMode: boolean
   primary: RolePrimary
   focusRole: FocusRole
+  originalRole: FocusRole
   fetchKey: string
   ready?: boolean
   currentRole?: Roles
@@ -152,17 +153,19 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
   }, [readyToResume])
 
   useEffect(() => {
-    if (readyToResume) {
+    if (readyToResume && roles.isFetched) {
       const myRoles = formatRoles(roles.data || [], childRole)
       const primary = setPrimaryRoles(myRoles)
       const focusRole = setFocusRole(primary)
+      const originalRole = state.originalRole || focusRole
       const menu = setMenu(focusRole)
       const newState = {
         ...state,
         user: me.data,
         menu,
         primary,
-        focusRole
+        focusRole,
+        originalRole
       }
 
       storeState(newState)
@@ -180,7 +183,9 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       JSON.stringify({
         childRole: childRole,
         switchMode: state.switchMode,
-        focusRole: state.focusRole
+        focusRole: state.focusRole,
+        primary: state.primary,
+        originalRole: state.originalRole
       })
     )
   }
@@ -193,7 +198,9 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       setState({
         ...state,
         switchMode: parsed.switchMode,
-        focusRole: parsed.focusRole
+        focusRole: parsed.focusRole,
+        originalRole: parsed.originalRole,
+        primary: parsed.primary || {}
       })
     }
 
@@ -256,9 +263,11 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       focusRole = 'subscription'
     }
 
+    const switchMode = focusRole === state.originalRole ? false : true
+
     setState({
       ...state,
-      switchMode: true,
+      switchMode,
       focusRole,
       currentRole: params.role,
       currentRoleId: params.id
@@ -271,7 +280,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
     }
 
     if (params.role === Roles.SubscriptionAdmin) {
-      await router.push('/billing')
+      await router.push(`/subscriptions/${params.id}`)
     } else {
       await router.push('/dashboard')
     }
@@ -280,7 +289,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
   }
 
   function formatRoles(roles: UserRole[], childRole?: AuthSwitchDto) {
-    let permissions: Permissions = {
+    const permissions: Permissions = {
       superAdmin: false,
       organisations: [],
       subscriptions: [],
@@ -572,7 +581,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
       items = items.concat([
         {
           label: 'Billing',
-          link: '/billing',
+          link: `/subscriptions/${state.primary.subscription}`,
           icon: 'IconCreditCard'
         }
       ])
@@ -623,6 +632,7 @@ export function AuthProvider({ children, value }: AuthProviderProps) {
         switchMode: state.switchMode,
         primary: state.primary,
         focusRole: state.focusRole,
+        originalRole: state.originalRole,
         ready: state.ready,
 
         /**

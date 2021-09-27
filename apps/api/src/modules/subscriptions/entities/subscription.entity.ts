@@ -39,6 +39,12 @@ export class Subscription extends CreatableEntity {
     nullable: true,
     default: ''
   })
+  billing_email: string
+
+  @Column({
+    nullable: true,
+    default: ''
+  })
   billing_first_name: string
 
   @Column({
@@ -104,6 +110,12 @@ export class Subscription extends CreatableEntity {
   })
   /** Used for chargebee */
   billing_plan_customer_id: string
+
+  @Column({
+    nullable: true
+  })
+  /** Used for chargebee */
+  billing_plan_subscription_id: string
 
   @Column({
     type: 'enum',

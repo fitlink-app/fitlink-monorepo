@@ -10,6 +10,7 @@ import { format, endOfMonth } from 'date-fns'
 import TableContainer from '../../components/Table/TableContainer'
 import { toChipCell, toDateCell } from '../../components/Table/helpers'
 import IconDownload from '../../components/icons/IconDownload'
+import { Subscription } from '@fitlink/api/src/modules/subscriptions/entities/subscription.entity'
 
 const billingInfo = {
   firstname: 'Paul',
@@ -58,7 +59,9 @@ export default function page() {
 
   const EditBilling = () => {
     setWarning(true)
-    setDrawContent(<BillingForm {...billingInfo} />)
+    setDrawContent(
+      <BillingForm current={billingInfo as Partial<Subscription>} />
+    )
   }
 
   const toCurrency = ({ value }) => {
