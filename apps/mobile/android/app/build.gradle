@@ -4,7 +4,8 @@ apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.grad
 
 project.ext.envConfigFiles = [
   dev: ".env.development",
-  prd: ".env.production"
+  prd: ".env.production",
+  codepush: ".env.production"
 ]
 
 import com.android.build.OutputFile
@@ -88,7 +89,9 @@ project.ext.react = [
     enableHermes: true,  // clean and rebuild if changing
 ]
 
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 apply from: "../../node_modules/react-native/react.gradle"
+apply from: "../../node_modules/react-native-code-push/android/codepush.gradle"
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -142,8 +145,9 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
       resValue "string", "build_config_package", "com.fitlink"
-        versionCode 1
-        versionName "1.0"
+      resValue 'string', "CODE_PUSH_APK_BUILD_TIME", String.format("\"%d\"", System.currentTimeMillis())
+      versionCode 1
+        versionName "1.0.0"
     }
     splits {
         abi {
@@ -166,11 +170,11 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            minifyEnabled enableProguardInReleaseBuilds
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-        }
+          // Caution! In production, you need to generate your own keystore file.
+          // see https://reactnative.dev/docs/signed-apk-android.
+          minifyEnabled enableProguardInReleaseBuilds
+          proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+      }
     }
 
   flavorDimensions "default"
@@ -179,14 +183,19 @@ android {
       minSdkVersion rootProject.ext.minSdkVersion
       dimension "default"
       applicationIdSuffix ".dev"
-      versionNameSuffix "-dev"
-
+      resValue "string", "CodePushDeploymentKey", '""'
+    }
+    codepush {
+      minSdkVersion rootProject.ext.minSdkVersion
+      dimension "default"
+      applicationIdSuffix ".codepush"
+      resValue "string", "CodePushDeploymentKey", '"g61xENppeC9NpJQJ7HDm_CA8SczZPzzYBGTU4"'
     }
     prd {
       minSdkVersion rootProject.ext.minSdkVersion
       dimension "default"
       applicationIdSuffix ".prd"
-      versionNameSuffix "-prd"
+      resValue "string", "CodePushDeploymentKey", '"MYgbPTJTPLiJdtz_mDKS4GohmXJihhwzsBadA"'
     }
   }
 
