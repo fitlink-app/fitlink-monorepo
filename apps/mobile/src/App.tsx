@@ -13,6 +13,8 @@ import MapboxGL from '@react-native-mapbox-gl/maps';
 import {persistor, store} from 'redux/store';
 import RNBootSplash from 'react-native-bootsplash';
 import codePush from 'react-native-code-push';
+import {useCodePush} from '@hooks';
+import {UpdateInfo} from 'components/UpdateInfo';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -25,28 +27,41 @@ MapboxGL.setAccessToken(
 );
 
 const App = () => {
+  const {syncImmediate, isUpToDate, isError, syncMessage, progressFraction} =
+    useCodePush();
+
   useEffect(() => {
     setTimeout(() => {
       RNBootSplash.hide();
+      syncImmediate();
     }, 1000);
   }, []);
+
+  if (isUpToDate || isError)
+    return (
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <AppBackground>
+            <Provider store={store}>
+              <PersistGate persistor={persistor}>
+                <Transition>
+                  <ModalProvider>
+                    <QueryPersistor>
+                      <Router />
+                    </QueryPersistor>
+                  </ModalProvider>
+                </Transition>
+              </PersistGate>
+            </Provider>
+          </AppBackground>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    );
 
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <AppBackground>
-          <Provider store={store}>
-            <PersistGate persistor={persistor}>
-              <Transition>
-                <ModalProvider>
-                  <QueryPersistor>
-                    <Router />
-                  </QueryPersistor>
-                </ModalProvider>
-              </Transition>
-            </PersistGate>
-          </Provider>
-        </AppBackground>
+        <UpdateInfo progress={progressFraction} message={syncMessage} />
       </ThemeProvider>
     </SafeAreaProvider>
   );
@@ -54,4 +69,6 @@ const App = () => {
 
 const appWithQuery = withQueryClient(App);
 
-export default codePush(appWithQuery);
+const codePushOptions = {checkFrequency: codePush.CheckFrequency.MANUAL};
+
+export default codePush(codePushOptions)(appWithQuery);
