@@ -37,39 +37,55 @@ export class TeamsInvitationsService {
   async create(createDto: CreateTeamsInvitationDto, ownerId: string) {
     const { email, team, invitee, admin } = createDto
 
-    const owner = new User()
-    owner.id = ownerId
+    let inviteLink: string
 
-    const invitation = await this.invitationsRepository.save(
-      this.invitationsRepository.create({
-        email,
-        team,
-        name: invitee,
-        admin,
-        owner
-      })
-    )
-
-    const token = this.createToken(invitation.id)
     const inviterTeam = await this.teamsRepository.findOne(team.id)
 
-    let inviteLink = this.createInviteLink(token)
+    if (admin) {
+      const owner = new User()
+      owner.id = ownerId
 
-    if (!admin) {
-      inviteLink = this.getJoinLink(inviterTeam)
+      const invitation = await this.invitationsRepository.save(
+        this.invitationsRepository.create({
+          email,
+          team,
+          name: invitee,
+          admin,
+          owner
+        })
+      )
+
+      const token = this.createToken(invitation.id)
+      inviteLink = this.createInviteLink(token)
+
+      await this.sendEmail(
+        {
+          invitee: invitee,
+          inviter: inviterTeam.name
+        },
+        email,
+        inviteLink,
+        admin
+      )
+
+      return { invitation, inviteLink, token }
+    } else {
+      // Join links are not time-based and can be joined by anyone
+      // with the link. Useful for Slack integrations for e.g.
+      inviteLink = this.getJoinLink(inviterTeam).url
+
+      await this.sendEmail(
+        {
+          invitee: invitee,
+          inviter: inviterTeam.name
+        },
+        email,
+        inviteLink,
+        false
+      )
+
+      return { inviteLink }
     }
-
-    await this.sendEmail(
-      {
-        invitee: invitee,
-        inviter: inviterTeam.name
-      },
-      email,
-      inviteLink,
-      admin
-    )
-
-    return { invitation, inviteLink, token }
   }
 
   /**

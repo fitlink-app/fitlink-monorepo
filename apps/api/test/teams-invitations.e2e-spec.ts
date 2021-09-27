@@ -68,7 +68,8 @@ describe('Activities', () => {
     async (type, getHeaders) => {
       const payload = {
         email: 'jest@example.com',
-        invitee: 'Jest'
+        invitee: 'Jest',
+        admin: true
       }
 
       const data = await createInvitation(
@@ -101,7 +102,8 @@ describe('Activities', () => {
     async (type, getHeaders) => {
       const payload = {
         email: 'jest@example.com',
-        invitee: 'Jest'
+        invitee: 'Jest',
+        admin: true
       }
 
       await createInvitation()
