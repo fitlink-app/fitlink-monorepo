@@ -4,7 +4,7 @@ import { MaxLength, IsEnum, IsOptional, IsEmail, IsUUID } from 'class-validator'
 import { Image } from '../../images/entities/image.entity'
 import { OrganisationsInvitation } from '../../organisations-invitations/entities/organisations-invitation.entity'
 import { Organisation } from '../entities/organisation.entity'
-import { OrganisationType } from '../organisations.constants'
+import { OrganisationMode, OrganisationType } from '../organisations.constants'
 
 export class CreateOrganisationDto {
   @ApiProperty()
@@ -14,6 +14,10 @@ export class CreateOrganisationDto {
   @ApiProperty()
   @IsEnum(OrganisationType)
   type: OrganisationType
+
+  @ApiProperty()
+  @IsEnum(OrganisationMode)
+  mode: OrganisationMode
 
   @ApiProperty()
   @IsOptional()

@@ -15,7 +15,7 @@ export default function useRewardStats(
   startAt: Date,
   endAt: Date
 ) {
-  const { api, fetchKey, primary, focusRole } = useContext(AuthContext)
+  const { api, fetchKey, primary, modeRole } = useContext(AuthContext)
 
   const statsData: ApiResult<Result[]> = useQuery(
     `${fetchKey}_stats_rewards`,
@@ -33,7 +33,7 @@ export default function useRewardStats(
           },
           {
             primary,
-            useRole: focusRole
+            useRole: modeRole
           }
         )
       }

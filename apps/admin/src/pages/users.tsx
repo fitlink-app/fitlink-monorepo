@@ -13,6 +13,7 @@ import useDebounce from '../hooks/useDebounce'
 import ConfirmForm from '../components/forms/ConfirmForm'
 import InviteUserForm from '../components/forms/InviteUserForm'
 import { Roles } from '../../../api/src/modules/user-roles/user-roles.constants'
+import { OrganisationMode } from '@fitlink/api/src/modules/organisations/organisations.constants'
 
 export default function UsersPage() {
   const [drawContent, setDrawContent] = useState<
@@ -57,18 +58,18 @@ export default function UsersPage() {
       row: { original }
     }
   }) => {
-    const { focusRole } = useContext(AuthContext)
+    const { modeRole, mode } = useContext(AuthContext)
 
     return (
       <div className="text-right">
-        {focusRole === 'app' && (
+        {modeRole === 'app' && (
           <button
             className="button small ml-1"
             onClick={() => EditUserForm(original)}>
             Edit
           </button>
         )}
-        {focusRole === 'team' && (
+        {modeRole === 'team' && (
           <button
             className="button small ml-1"
             onClick={() => ConfirmRemoveForm(original)}>
@@ -110,7 +111,9 @@ export default function UsersPage() {
   }
 
   const dbSearchTerm = useDebounce(keyword, 500)
-  const { api, fetchKey, focusRole, primary } = useContext(AuthContext)
+  const { api, fetchKey, focusRole, modeRole, primary, mode } = useContext(
+    AuthContext
+  )
 
   const InviteTeamMemberForm = () => {
     setWarning(true)
@@ -130,7 +133,7 @@ export default function UsersPage() {
         <div className="flex ai-c">
           <h1 className="light mb-0 mr-2">Manage users</h1>
 
-          {focusRole === 'team' && (
+          {modeRole === 'team' && (
             <button
               className="button alt small mt-1"
               onClick={InviteTeamMemberForm}>
@@ -181,7 +184,7 @@ export default function UsersPage() {
               },
               {
                 primary,
-                useRole: focusRole
+                useRole: modeRole
               }
             )
           }

@@ -16,7 +16,7 @@ import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 
 export default function LeaguesPage() {
-  const { api, primary, focusRole, fetchKey } = useContext(AuthContext)
+  const { api, primary, modeRole, fetchKey } = useContext(AuthContext)
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)
@@ -73,7 +73,7 @@ export default function LeaguesPage() {
     total: number
     page_total: number
   }> = useQuery(`${fetchKey}_leagues`, async () => {
-    if (focusRole) {
+    if (modeRole) {
       return api.list<LeagueEntity>(
         '/leagues',
         {
@@ -81,7 +81,7 @@ export default function LeaguesPage() {
         },
         {
           primary,
-          useRole: focusRole
+          useRole: modeRole
         }
       )
     }
@@ -141,7 +141,7 @@ export default function LeaguesPage() {
             },
             {
               primary,
-              useRole: focusRole
+              useRole: modeRole
             }
           )
         }
@@ -173,7 +173,7 @@ export default function LeaguesPage() {
         <div className="col-12 col-lg-8">
           <div className="flex ai-c">
             <h1 className="light mb-0 mr-2">
-              {focusRole === 'app' ? 'Global' : 'Your'} leagues
+              {modeRole === 'app' ? 'Global' : 'Your'} leagues
             </h1>
             <button className="button alt small mt-1" onClick={NewLeagueForm}>
               Add new

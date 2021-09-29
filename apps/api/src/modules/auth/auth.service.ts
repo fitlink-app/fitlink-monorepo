@@ -28,6 +28,7 @@ import { AuthSwitchDto } from './dto/auth-switch'
 import { Roles } from '../user-roles/user-roles.constants'
 import { Team } from '../teams/entities/team.entity'
 import { OrganisationsService } from '../organisations/organisations.service'
+import { OrganisationMode } from '../organisations/organisations.constants'
 
 type PasswordResetToken = {
   sub: string
@@ -212,7 +213,8 @@ export class AuthService {
           name: company,
           type,
           type_other,
-          timezone: ''
+          timezone: '',
+          mode: OrganisationMode.Simple
         },
         user.id
       )
@@ -685,9 +687,12 @@ export class AuthService {
 
     if (role === Roles.OrganisationAdmin) {
       if (roles.o_a.includes(id)) {
+        const organisation = await this.organisationsService.findOne(id)
         return this.loginWithRole(user, {
           ...base,
-          o_a: [id]
+          o_a: [id],
+          t_a: [organisation.teams[0].id],
+          s_a: [organisation.subscriptions[0].id]
         })
       }
     }
@@ -703,15 +708,18 @@ export class AuthService {
 
     // Organisation admin can switch to managing a specific team
     if (role === Roles.TeamAdmin) {
-      let orgs = []
+      const orgs = []
+      const subs = []
       if (!roles.spr) {
         const team = await this.teamRepository.findOne(id, {
-          relations: ['organisation']
+          relations: ['organisation', 'organisation.subscriptions']
         })
 
         // Organisation admins have full access to teams
+        // as well as subscriptions (billing)
         if (roles.o_a.includes(team.organisation.id)) {
           orgs.push(team.organisation.id)
+          subs.push(team.organisation.subscriptions[0].id)
 
           // Allow access for team admins
         } else if (!roles.t_a.includes(team.id)) {
@@ -721,15 +729,19 @@ export class AuthService {
       return this.loginWithRole(user, {
         ...base,
         t_a: [id],
-        o_a: orgs
+        o_a: orgs,
+        s_a: subs
       })
     }
 
     // Super admin can switch to managing a specific organisation
     if (roles.spr && role === Roles.OrganisationAdmin) {
+      const organisation = await this.organisationsService.findOne(id)
       return this.loginWithRole(user, {
         ...base,
-        o_a: [id]
+        o_a: [id],
+        t_a: [organisation.teams[0].id],
+        s_a: [organisation.subscriptions[0].id]
       })
     }
   }

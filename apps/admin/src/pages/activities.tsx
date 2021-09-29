@@ -16,7 +16,7 @@ import { AuthContext } from '../context/Auth.context'
 import { timeout } from '../helpers/timeout'
 
 export default function page() {
-  const { api, primary, focusRole, fetchKey } = useContext(AuthContext)
+  const { api, primary, modeRole, fetchKey } = useContext(AuthContext)
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)
@@ -95,7 +95,7 @@ export default function page() {
         </div>
       </div>
       <div className="mt-4 overflow-x-auto">
-        {focusRole === 'app' && (
+        {modeRole === 'app' && (
           <div className="p-2">
             <Checkbox
               name="include_user_activities"
@@ -125,7 +125,7 @@ export default function page() {
              * /activities/global
              *
              */
-            if (focusRole === 'app') {
+            if (modeRole === 'app') {
               return api.list<Activity>(
                 '/activities/global',
                 {
@@ -143,7 +143,7 @@ export default function page() {
                * /organisations/:organisationId/activities/global
                * /teams/:teamId/activities
                */
-            } else if (focusRole) {
+            } else if (modeRole) {
               return api.list<Activity>(
                 '/activities',
                 {
@@ -151,7 +151,7 @@ export default function page() {
                   page
                 },
                 {
-                  useRole: focusRole,
+                  useRole: modeRole,
                   primary
                 }
               )

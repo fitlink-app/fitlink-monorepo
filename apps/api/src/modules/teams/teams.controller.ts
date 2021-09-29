@@ -176,9 +176,9 @@ export class TeamsController {
     return this.teamsService.findAll(pagination)
   }
 
-  @Iam(Roles.SuperAdmin)
-  @Get('/teams/:id')
-  findOne(@Param('id') id: string) {
+  @Iam(Roles.SuperAdmin, Roles.TeamAdmin)
+  @Get('/teams/:teamId')
+  findOne(@Param('teamId') id: string) {
     return this.teamsService.findOne(id)
   }
 

@@ -58,7 +58,7 @@ export default function ActivityForm({
   onSave = noop,
   onError = noop
 }: ActivityFormProps) {
-  const { api, primary, focusRole } = useContext(AuthContext)
+  const { api, primary, modeRole } = useContext(AuthContext)
   const [showOrg, setShowOrg] = useState(current?.organizer_name ? true : false)
   const [images, setImages] = useState<ImageFile[]>(current.images || [])
   const isUpdate = !!current.id
@@ -81,7 +81,7 @@ export default function ActivityForm({
         },
         {
           primary,
-          useRole: focusRole
+          useRole: modeRole
         }
       ),
     update: (payload) =>
@@ -95,7 +95,7 @@ export default function ActivityForm({
         },
         {
           primary,
-          useRole: focusRole
+          useRole: modeRole
         }
       )
   })

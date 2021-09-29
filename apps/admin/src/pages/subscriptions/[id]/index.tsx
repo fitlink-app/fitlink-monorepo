@@ -40,7 +40,9 @@ export default function SubscriptionsBillingPage() {
     React.ReactNode | undefined | false
   >(false)
   const [warning, setWarning] = useState(false)
-  const { api, focusRole, primary, fetchKey } = useContext(AuthContext)
+  const { api, focusRole, modeRole, primary, fetchKey } = useContext(
+    AuthContext
+  )
   const router = useRouter()
   const subscriptionId = useRef<string>()
   const chargeBee = useRef(null)
@@ -92,7 +94,7 @@ export default function SubscriptionsBillingPage() {
   })
 
   const chargebeeSubscription = useQuery(
-    `get_chargebee_subscription_${fetchKey}`,
+    `get_chargebee_subscription`,
     () => {
       return api.get<{
         subscription: ChargebeeSubscription
@@ -111,7 +113,8 @@ export default function SubscriptionsBillingPage() {
     },
     {
       enabled: false,
-      retry: false
+      retry: false,
+      cacheTime: 0
     }
   )
 
@@ -143,7 +146,7 @@ export default function SubscriptionsBillingPage() {
   }
 
   const paymentSources = useQuery(
-    `payment_sources_${fetchKey}`,
+    `payment_sources`,
     () => {
       return api.list<PaymentSource>(
         '/subscriptions/:subscriptionId/chargebee/payment-sources',
@@ -158,12 +161,13 @@ export default function SubscriptionsBillingPage() {
     },
     {
       enabled: false,
-      retry: false
+      retry: false,
+      cacheTime: 0
     }
   )
 
   const invoices = useQuery(
-    `invoices_${fetchKey}`,
+    `invoices`,
     () => {
       return api.list<Invoice>(
         '/subscriptions/:subscriptionId/chargebee/invoices',
@@ -178,12 +182,13 @@ export default function SubscriptionsBillingPage() {
     },
     {
       enabled: false,
-      retry: false
+      retry: false,
+      cacheTime: 0
     }
   )
 
   const subscription = useQuery(
-    `subscription_${fetchKey}`,
+    `subscription`,
     () => {
       return api.get<Subscription>(
         '/subscriptions/:subscriptionId',
@@ -198,20 +203,20 @@ export default function SubscriptionsBillingPage() {
     },
     {
       enabled: false,
-      initialData: {} as Subscription
+      initialData: {} as Subscription,
+      cacheTime: 0
     }
   )
 
   useEffect(() => {
-    if (router.isReady && focusRole) {
-      console.log(JSON.stringify([focusRole, primary]))
+    if (router.isReady && modeRole) {
       subscriptionId.current = router.query.id as string
-      paymentSources.refetch({ stale: false })
-      subscription.refetch({ stale: false })
-      invoices.refetch({ stale: false })
-      chargebeeSubscription.refetch({ stale: false })
+      paymentSources.refetch()
+      subscription.refetch()
+      invoices.refetch()
+      chargebeeSubscription.refetch()
     }
-  }, [router.isReady, focusRole])
+  }, [router.isReady, modeRole])
 
   useEffect(() => {
     if (typeof window !== 'undefined' && chargeBeeStatus === 'ready') {
@@ -278,7 +283,7 @@ export default function SubscriptionsBillingPage() {
   }
 
   return (
-    <Dashboard title="Billing">
+    <Dashboard title="Billing" loading={subscription.isFetching}>
       <h1 className="light">Billing</h1>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">
@@ -484,7 +489,7 @@ export default function SubscriptionsBillingPage() {
               <button
                 className="button"
                 onClick={EditBilling}
-                disabled={!subscription.isFetched}>
+                disabled={subscription.isLoading}>
                 Update billing information
               </button>
             </div>
