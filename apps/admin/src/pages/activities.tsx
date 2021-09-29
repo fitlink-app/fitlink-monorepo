@@ -87,7 +87,7 @@ export default function page() {
       <div>
         <div className="flex ai-c">
           <h1 className="light mb-0 mr-2">
-            {primary.superAdmin ? 'Global' : 'Your'} activities
+            {modeRole === 'app' ? 'Global' : 'Your'} activities
           </h1>
           <button className="button alt small mt-1" onClick={NewActivityForm}>
             Add new
