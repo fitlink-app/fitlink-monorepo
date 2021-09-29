@@ -3,9 +3,12 @@ apply plugin: "com.android.application"
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 project.ext.envConfigFiles = [
-  dev: ".env.development",
-  prd: ".env.production",
-  codepush: ".env.production"
+  devDebug: ".env.development",
+  devRelease: ".env.development",
+  prdDebug: ".env.production",
+  prdRelease: ".env.production",
+  codepushDebug: ".env.production",
+  codepushRelease: ".env.production"
 ]
 
 import com.android.build.OutputFile
