@@ -4,7 +4,7 @@ import {linkOauth} from '../utils';
 const AUTH_ENDPOINT = 'providers/fitbit/auth';
 const REVOKE_TOKEN_ENDPOINT = 'providers/fitbit/revokeToken';
 
-export function useStrava() {
+export function useFitbit() {
   const [isLinking, setLinking] = useState(false);
 
   const link = async () => {
