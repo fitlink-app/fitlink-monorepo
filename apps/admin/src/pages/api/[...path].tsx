@@ -123,6 +123,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
             resolve()
           } else {
             res.status(proxyRes.statusCode).json(json)
+            resolve()
           }
         } catch (err) {
           reject(err)

@@ -1,6 +1,5 @@
 import { useState, useContext, useEffect, useRef } from 'react'
 import Dashboard from '../../components/layouts/Dashboard'
-import { AuthContext } from '../../context/Auth.context'
 import TableContainer from '../../components/Table/TableContainer'
 import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 import { AnimatePresence } from 'framer-motion'
@@ -17,6 +16,7 @@ import { Subscription } from '../../../../api/src/modules/subscriptions/entities
 import { useQuery } from 'react-query'
 import { ApiResult } from '../../../../common/react-query/types'
 import InviteUserForm from '../../components/forms/InviteUserForm'
+import { AuthContext } from '../../context/Auth.context'
 
 type PageType = 'team' | 'subscription' | 'organisation' | 'global'
 
@@ -61,7 +61,6 @@ export default function UsersPage(props: UsersPageProps) {
 
       if (router.query.id) {
         id.current = router.query.id as string
-        console.log(id.current)
       }
     }
   }, [router.query])
@@ -108,7 +107,7 @@ export default function UsersPage(props: UsersPageProps) {
               {
                 userId: current.id,
                 organisationId: primary.organisation,
-                subscriptionId: id.current
+                subscriptionId: id.current || primary.subscription
               }
             )
           } else if (role.current === Roles.TeamAdmin) {
@@ -117,7 +116,7 @@ export default function UsersPage(props: UsersPageProps) {
               {
                 userId: current.id,
                 organisationId: primary.organisation,
-                teamId: id.current
+                teamId: id.current || primary.team
               }
             )
           } else {
@@ -142,11 +141,11 @@ export default function UsersPage(props: UsersPageProps) {
     setWide(false)
     const props: any = {}
     if (role.current === Roles.SubscriptionAdmin) {
-      props.subscriptionId = id.current
+      props.subscriptionId = id.current || primary.subscription
     }
 
     if (role.current === Roles.TeamAdmin) {
-      props.teamId = id.current
+      props.teamId = id.current || primary.team
     }
     setDrawContent(
       <AssignUserForm
@@ -162,11 +161,11 @@ export default function UsersPage(props: UsersPageProps) {
     setWide(false)
     const props: any = {}
     if (role.current === Roles.SubscriptionAdmin) {
-      props.subscriptionId = id.current
+      props.subscriptionId = id.current || primary.subscription
     }
 
     if (role.current === Roles.TeamAdmin) {
-      props.teamId = id.current
+      props.teamId = id.current || primary.team
     }
     setDrawContent(
       <InviteUserForm
@@ -289,14 +288,14 @@ export default function UsersPage(props: UsersPageProps) {
               )
             }
 
-            if (id.current && type === 'team') {
+            if ((id.current || primary.team) && type === 'team') {
               return api.list<User>(
                 '/teams/:teamId/admins',
                 {
                   limit,
                   page,
                   query: { ...query },
-                  teamId: id.current
+                  teamId: id.current || primary.team
                 },
                 {
                   primary,

@@ -73,7 +73,7 @@ export default function TeamsPage() {
     return healthActivity.sport_name + distance
   }
 
-  const { api, focusRole } = useContext(AuthContext)
+  const { api, modeRole, focusRole, fetchKey } = useContext(AuthContext)
 
   return (
     <Dashboard title="Settings Users">
@@ -135,7 +135,7 @@ export default function TeamsPage() {
                 },
                 {
                   primary,
-                  useRole: focusRole
+                  useRole: modeRole
                 }
               )
             }
@@ -146,7 +146,7 @@ export default function TeamsPage() {
               total: 0
             })
           }}
-          fetchName={`team_users_${primary.team}`}
+          fetchName={`team_users_${primary.team}_${fetchKey}`}
           refresh={refresh}
         />
       </div>

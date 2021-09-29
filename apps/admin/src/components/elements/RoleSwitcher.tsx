@@ -1,4 +1,3 @@
-import Select from './Select'
 import useRoles from '../../hooks/api/useRoles'
 import { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../../context/Auth.context'
@@ -17,10 +16,8 @@ const icons = {
 }
 
 export function RoleSwitcher() {
-  const { switchRole, currentRole, currentRoleId, switchMode } = useContext(
-    AuthContext
-  )
-  const [value, setValue] = useState(null)
+  const { switchRole, hasRole } = useContext(AuthContext)
+
   const { roles } = useRoles()
   const [show, setShow] = useState(false)
 
@@ -28,20 +25,20 @@ export function RoleSwitcher() {
     // toast.loading(<b>Switching role...</b>)
   }, [])
 
-  return roles.length > 1 || switchMode ? (
+  return roles.length > 1 || hasRole(Roles.SuperAdmin) ? (
     <div className="role-switcher">
       <a
         className={`role-switcher__manage ${show ? 'in' : ''}`}
         href="#"
         onClick={() => setShow(!show)}>
-        Switch Account <IconRepeat viewBox="0 0 512 512" className="ml-1" />
+        Switch Role <IconRepeat viewBox="0 0 512 512" className="ml-1" />
       </a>
       {show && (
         <div className="role-switcher__roles">
           {roles.map(({ role, id, type, name }) => {
             const Icon = icons[type]
             return (
-              <span>
+              <span key={id}>
                 <a
                   href="#"
                   onClick={() => {
@@ -53,7 +50,6 @@ export function RoleSwitcher() {
                     }).finally(() => {
                       toast.dismiss()
                     })
-                    setValue(null)
                   }}>
                   <Icon className="mr-1" />
                   {name}

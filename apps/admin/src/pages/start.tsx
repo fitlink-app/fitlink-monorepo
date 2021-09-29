@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react'
+import { useRef, useState, useContext, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Dashboard from '../components/layouts/Dashboard'
@@ -11,10 +11,11 @@ import LoaderFullscreen from '../components/elements/LoaderFullscreen'
 import toast from 'react-hot-toast'
 
 export default function StartPage() {
-  const { api, fetchKey, switchRole } = useContext(AuthContext)
+  const { api, fetchKey, switchRole, modeRole } = useContext(AuthContext)
   const [roles, setRoles] = useState<UserRole[]>([])
   const [refresh, setRefresh] = useState(0)
   const router = useRouter()
+  const roleSet = useRef<boolean>(false)
 
   const showAvatar = ({
     cell: {
@@ -58,18 +59,36 @@ export default function StartPage() {
   )
 
   useEffect(() => {
-    if (rolesQuery.isFetched) {
+    if (rolesQuery.isSuccess) {
+      const data = rolesQuery.data
       setRefresh(Date.now())
-      setRoles(rolesQuery.data || [])
+      setRoles(data || [])
+      if (data.length === 1) {
+        setDefaultRole()
+      }
     }
-  }, [rolesQuery.isFetched])
+  }, [rolesQuery.isFetched, modeRole])
+
+  async function setDefaultRole() {
+    if (!roleSet.current) {
+      roleSet.current = true
+      await switchRole({
+        id: getId(rolesQuery.data[0]),
+        role: rolesQuery.data[0].role
+      })
+    }
+  }
 
   if (!rolesQuery.isFetched) {
     return <Dashboard title="Start" hideSidebar={true} loading={true} />
   }
 
+  if (roles.length === 1) {
+    return <Dashboard title="Start" hideSidebar={true} loading={true} />
+  }
+
   return (
-    <Dashboard title="Settings Users" hideSidebar={true}>
+    <Dashboard title="Settings Users" hideSidebar={true} forceDisplay={true}>
       <div className="flex jc-c ai-c">
         <div className="w-100">
           <div className="flex ai-c jc-c">

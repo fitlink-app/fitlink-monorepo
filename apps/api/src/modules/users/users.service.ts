@@ -428,7 +428,7 @@ export class UsersService {
   }
 
   updateBasic(id: string, { imageId, ...rest }: UpdateBasicUserDto) {
-    let update: Partial<User> = { ...rest }
+    const update: Partial<User> = { ...rest }
 
     if (imageId) {
       update.avatar = new Image()

@@ -64,8 +64,13 @@ export class UserRolesService {
         'organisation',
         'team',
         'subscription',
-        'subscription.organisation'
-      ]
+        'subscription.organisation',
+        'organisation.teams',
+        'organisation.subscriptions'
+      ],
+      order: {
+        created_at: 'ASC'
+      }
     })
   }
 
@@ -169,7 +174,7 @@ export class UserRolesService {
   }
 
   filterDto(dto: CreateUserRoleDto) {
-    let arr = Object.keys(dto)
+    const arr = Object.keys(dto)
     let entity: {
       [key: string]: string
     } = {}

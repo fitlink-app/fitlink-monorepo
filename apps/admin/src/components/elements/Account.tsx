@@ -18,9 +18,14 @@ export default function Account() {
     <div className="account" style={display}>
       <RoleSwitcher />
       <Link href="/profile">
-        <div className="avatar pointer">
-          <span>{`${f[0]}${l ? l[0] : ''}`}</span>
-          {user.avatar && <img src={user.avatar.url_128x128} alt={user.name} />}
+        <div className="flex ai-c">
+          <div className="avatar pointer">
+            <span>{`${f[0]}${l ? l[0] : ''}`}</span>
+            {user.avatar && (
+              <img src={user.avatar.url_128x128} alt={user.name} />
+            )}
+          </div>
+          <span className="ml-1 pointer">{user.name}</span>
         </div>
       </Link>
     </div>

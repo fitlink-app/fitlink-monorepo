@@ -17,6 +17,7 @@ type DashboardProps = {
   linkPrefix?: string
   hideSidebar?: boolean
   loading?: boolean
+  forceDisplay?: boolean
 }
 
 let hydrated = false
@@ -27,12 +28,13 @@ export default function Dashboard({
   description = '',
   linkPrefix = '',
   hideSidebar = false,
-  loading = false
+  loading = false,
+  forceDisplay = false
 }: DashboardProps) {
   const hydratedRef = useRef(false)
   const [, rerender] = useState(false)
   const scrollContainer = useRef<HTMLDivElement>()
-  const { menu, focusRole } = useContext(AuthContext)
+  const { menu, modeRole } = useContext(AuthContext)
   const { route } = useRouter()
 
   const url = process.env.URL
@@ -111,7 +113,7 @@ export default function Dashboard({
         }}
       />
 
-      {!focusRole || loading ? (
+      {(!modeRole || loading) && !forceDisplay ? (
         <LoaderFullscreen />
       ) : (
         <>

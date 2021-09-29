@@ -56,6 +56,7 @@ import { AddBillingEmail1632294093767 } from '../database/migrations/16322940937
 import { AddBillingSubscriptionId1632316578136 } from '../database/migrations/1632316578136-AddBillingSubscriptionId'
 import { AddTeamJoinCode1632688836338 } from '../database/migrations/1632688836338-AddTeamJoinCode'
 import { AddFeedItemLikes1632753932139 } from '../database/migrations/1632753932139-AddFeedItemLikes'
+import { OrganisationMode1632771719624 } from '../database/migrations/1632771719624-OrganisationMode'
 
 export default [
   InitializeSchema1614887523112,
@@ -110,5 +111,6 @@ export default [
   AddBillingEmail1632294093767,
   AddBillingSubscriptionId1632316578136,
   AddTeamJoinCode1632688836338,
-  AddFeedItemLikes1632753932139
+  AddFeedItemLikes1632753932139,
+  OrganisationMode1632771719624
 ]

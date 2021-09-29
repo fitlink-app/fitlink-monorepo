@@ -41,7 +41,6 @@ export type MainMenuProps = {
 export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
   const router = useRouter()
   const current = router.pathname
-  const { switchMode } = useContext(AuthContext)
 
   if (menu.length && !prefix) {
     return (

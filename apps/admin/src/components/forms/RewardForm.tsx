@@ -47,7 +47,7 @@ export default function RewardForm({
   onError = noop,
   onDelete = noop
 }: RewardFormProps) {
-  const { api, focusRole, primary } = useContext(AuthContext)
+  const { api, modeRole, primary } = useContext(AuthContext)
   const [image, setImage] = useState(current?.image?.url || '')
   const isUpdate = !!current.id
 
@@ -69,7 +69,7 @@ export default function RewardForm({
         },
         {
           primary,
-          useRole: focusRole
+          useRole: modeRole
         }
       ),
     update: (payload) =>
@@ -81,7 +81,7 @@ export default function RewardForm({
         },
         {
           primary,
-          useRole: focusRole
+          useRole: modeRole
         }
       )
   })
@@ -264,6 +264,7 @@ export default function RewardForm({
         {current.id && (
           <button
             className="button alt mr-2"
+            type="button"
             onClick={() => {
               onDelete(current)
             }}>

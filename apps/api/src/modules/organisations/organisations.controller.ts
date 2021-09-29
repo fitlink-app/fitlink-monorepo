@@ -195,4 +195,16 @@ export class OrganisationsController {
 
     return result
   }
+
+  @Iam(Roles.OrganisationAdmin)
+  @Get('/organisations/:organisationId/stats')
+  findAllUsersAndStats(
+    @Param('organisationId') organisationId: string,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.organisationsService.queryUserOrganisationStats(
+      organisationId,
+      pagination
+    )
+  }
 }

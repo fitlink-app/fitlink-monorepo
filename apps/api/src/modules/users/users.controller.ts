@@ -285,6 +285,7 @@ export class UsersController {
           'You may not remove yourself as organisation admin.'
         )
       }
+      console.log(userId, organisationId, subscriptionId, teamId)
       return this.userRolesService.assignAdminRole(
         userId,
         {

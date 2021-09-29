@@ -10,7 +10,7 @@ export default function useHealthActivityStats(
   startAt: Date,
   endAt?: Date
 ) {
-  const { api, fetchKey, primary, focusRole } = useContext(AuthContext)
+  const { api, fetchKey, primary, modeRole } = useContext(AuthContext)
 
   const healthActivitiesData: ApiResult<{
     results: any[]
@@ -34,7 +34,7 @@ export default function useHealthActivityStats(
           },
           {
             primary,
-            useRole: focusRole
+            useRole: modeRole
           }
         )
       }

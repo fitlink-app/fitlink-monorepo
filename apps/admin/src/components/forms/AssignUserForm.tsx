@@ -32,7 +32,7 @@ export default function AssignUserForm({
   teamId
 }: CreateSubscriptionProps) {
   const [searchTerm, setSearchTerm] = useState('')
-  const { api, primary, focusRole, fetchKey } = useContext(AuthContext)
+  const { api, primary, modeRole, fetchKey } = useContext(AuthContext)
   const { handleSubmit, control, setValue } = useForm({
     defaultValues: {
       userId: undefined
@@ -67,7 +67,7 @@ export default function AssignUserForm({
           },
           {
             primary,
-            useRole: focusRole
+            useRole: modeRole
           }
         )
       }
@@ -90,7 +90,7 @@ export default function AssignUserForm({
         },
         {
           primary,
-          useRole: focusRole
+          useRole: modeRole
         }
       ),
     {

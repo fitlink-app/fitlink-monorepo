@@ -34,7 +34,7 @@ export default function useGoalStats(
   startAt: Date,
   endAt?: Date
 ) {
-  const { api, primary, focusRole } = useContext(AuthContext)
+  const { api, primary, modeRole } = useContext(AuthContext)
 
   const goalStatsData: ApiResult<Result & Progress> = useQuery(
     `${type}_${primary.team || primary.organisation}_stats_goals`,
@@ -55,7 +55,7 @@ export default function useGoalStats(
           },
           {
             primary,
-            useRole: focusRole
+            useRole: modeRole
           }
         )
 
