@@ -10,6 +10,7 @@ import {useDispatch} from 'react-redux';
 import {signInWithApple, signInWithGoogle} from 'redux/auth/authSlice';
 import {AppDispatch} from 'redux/store';
 import appleAuth from '@invertase/react-native-apple-authentication';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 const Wrapper = styled.View({flex: 1, alignItems: 'center'});
 
@@ -49,7 +50,9 @@ export const Welcome = () => {
   const handleOnGooglePressed = async () => {
     try {
       setGoogleLoading(true);
-      await dispatch(signInWithGoogle());
+
+      const {idToken} = await GoogleSignin.signIn();
+      if (idToken) await dispatch(signInWithGoogle(idToken));
     } catch (e) {
       setGoogleLoading(false);
     }
@@ -58,7 +61,13 @@ export const Welcome = () => {
   const handleOnApplePressed = async () => {
     try {
       setAppleLoading(true);
-      await dispatch(signInWithApple());
+
+      const appleAuthRequestResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+      });
+
+      await dispatch(signInWithApple(appleAuthRequestResponse));
     } catch (e) {
       setAppleLoading(false);
     }
