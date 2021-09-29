@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react'
+import { useRef, useState, useContext, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Dashboard from '../components/layouts/Dashboard'
@@ -15,6 +15,7 @@ export default function StartPage() {
   const [roles, setRoles] = useState<UserRole[]>([])
   const [refresh, setRefresh] = useState(0)
   const router = useRouter()
+  const roleSet = useRef<boolean>(false)
 
   const showAvatar = ({
     cell: {
@@ -69,11 +70,13 @@ export default function StartPage() {
   }, [rolesQuery.isFetched, modeRole])
 
   async function setDefaultRole() {
-    await switchRole({
-      id: rolesQuery.data[0].id,
-      role: rolesQuery.data[0].role
-    })
-    await router.push('/dashboard')
+    if (!roleSet.current) {
+      roleSet.current = true
+      await switchRole({
+        id: getId(rolesQuery.data[0]),
+        role: rolesQuery.data[0].role
+      })
+    }
   }
 
   if (!rolesQuery.isFetched) {

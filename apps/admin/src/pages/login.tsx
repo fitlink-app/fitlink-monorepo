@@ -89,12 +89,15 @@ const LoginPage = () => {
   useEffect(() => {
     const success = signupMutation.isSuccess || loginMutation.isSuccess
 
+    console.log('HERE', success)
+
     if (success) {
       /**
        * Redeem URLs are masked, and should be loaded
        * if they're available. This is typically used
        * for team invitations, organisation invitations, etc.
        */
+
       if (router.asPath && router.asPath.indexOf('/redeem') === 0) {
         router.push(router.asPath)
       } else {

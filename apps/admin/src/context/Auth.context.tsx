@@ -149,8 +149,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [focusRole, primary])
 
   async function resume(resumeFromRouter = false) {
-    const myData = await me.refetch()
     const { data } = await roles.refetch()
+    const myData = await me.refetch()
 
     if (!data) {
       return
@@ -162,7 +162,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     if (resumeFromRouter && myData.isSuccess) {
       const currentRole = await role.refetch()
-      if (!currentRole.data.super_admin) {
+
+      if (currentRole.data.subscription_admin) {
+        setPrimary({
+          organisation: undefined,
+          subscription: currentRole.data.subscription_admin[0],
+          team: undefined
+        })
+        setModeRole('subscription')
+        setFocusRole('subscription')
+      } else if (!currentRole.data.super_admin) {
         // Restore primary ids from current role
         setPrimary({
           organisation: currentRole.data.organisation_admin[0],
@@ -208,6 +217,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
      * later to support larger organisations with multiple teams.
      *
      */
+
     if (data.filter((e) => e.role === Roles.SuperAdmin).length) {
       setFocusRole('app')
       setModeRole('app')
@@ -259,7 +269,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       password
     })
 
-    await resume()
+    try {
+      await resume()
+    } catch (e) {
+      console.error(e)
+    }
+
+    console.log('HERE', result)
 
     return result
   }
