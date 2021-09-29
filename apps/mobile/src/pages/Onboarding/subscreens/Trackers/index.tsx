@@ -1,4 +1,5 @@
 import {Label} from '@components';
+import {useFitbit, useProviders, useStrava} from '@hooks';
 import React from 'react';
 import {Platform} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
@@ -31,28 +32,43 @@ const LabelWrapper = styled.View({
 });
 
 export const Trackers = () => {
+  const {providerList} = useProviders();
+
+  const {isLinking: isStravaLinking, link: linkStrava} = useStrava();
+  const {isLinking: isFitbitLinking, link: linkFitbit} = useFitbit();
+
   function renderButtons() {
-    const buttons = [];
+    return (
+      <ButtonWrapper>
+        {Platform.OS === 'android' && (
+          <TrackerButton
+            label={'Google Fit'}
+            isLinked={providerList.includes('google_fit')}
+            isLoading={false}
+          />
+        )}
+        {Platform.OS === 'ios' && (
+          <TrackerButton
+            label={'Apple Health'}
+            isLinked={providerList.includes('apple_health')}
+            isLoading={false}
+          />
+        )}
 
-    if (Platform.OS === 'android') {
-      buttons.push(
-        <TrackerButton label={'Google Fit'} providerType={'google_fit'} />,
-      );
-    }
-
-    if (Platform.OS === 'ios') {
-      buttons.push(
         <TrackerButton
-          label={'Apple Health'}
-          providerType={'apple_healthkit'}
-        />,
-      );
-    }
-
-    buttons.push(<TrackerButton label={'Strava'} providerType={'strava'} />);
-    buttons.push(<TrackerButton label={'Fitbit'} providerType={'fitbit'} />);
-
-    return <ButtonWrapper>{buttons}</ButtonWrapper>;
+          label={'Strava'}
+          isLinked={providerList.includes('strava')}
+          isLoading={isStravaLinking}
+          onPress={linkStrava}
+        />
+        <TrackerButton
+          label={'Fitbit'}
+          isLinked={providerList.includes('fitbit')}
+          isLoading={isFitbitLinking}
+          onPress={linkFitbit}
+        />
+      </ButtonWrapper>
+    );
   }
   return (
     <Wrapper>

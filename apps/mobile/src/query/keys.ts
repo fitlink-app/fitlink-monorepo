@@ -23,4 +23,5 @@ export enum QueryKeys {
   SearchActivitiesMap = 'activities/map',
   Activity = 'activity',
   MyActivities = 'me/activities',
+  MyProviders = 'me/providers',
 }
