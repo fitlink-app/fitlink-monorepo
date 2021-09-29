@@ -37,6 +37,12 @@ export default function MenuTeam(primary: Primary) {
       label: 'Knowledge Base',
       link: '/knowledge-base',
       icon: 'IconYoga'
+    },
+    { hr: true },
+    {
+      label: 'Sign out',
+      link: '/logout',
+      icon: 'IconSignOut'
     }
   ]
 }
