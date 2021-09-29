@@ -17,7 +17,8 @@ export class CreateOrganisationDto {
 
   @ApiProperty()
   @IsEnum(OrganisationMode)
-  mode: OrganisationMode
+  @IsOptional()
+  mode?: OrganisationMode
 
   @ApiProperty()
   @IsOptional()
