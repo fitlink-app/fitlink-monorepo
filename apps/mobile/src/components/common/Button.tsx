@@ -172,16 +172,18 @@ export const Button = ({
               <ActivityIndicator color={textColor} />
             </IconContainer>
           )}
-          <ButtonLabel
-            numberOfLines={1}
-            style={{
-              ...typography.button,
-              ...createTextStyle(),
-              color: textColor,
-              ...(textStyle as {}),
-            }}>
-            {loading ? (loadingText ? loadingText : text) : text}
-          </ButtonLabel>
+          {(!loading || loadingText) && (
+            <ButtonLabel
+              numberOfLines={1}
+              style={{
+                ...typography.button,
+                ...createTextStyle(),
+                color: textColor,
+                ...(textStyle as {}),
+              }}>
+              {loading ? (loadingText ? loadingText : text) : text}
+            </ButtonLabel>
+          )}
         </Row>
       </ButtonContentContainer>
     </TouchHandler>
