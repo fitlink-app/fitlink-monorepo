@@ -4,6 +4,11 @@ import { Primary } from '../../context/Auth.context'
 export function MenuOrganisationComplex(primary: Primary) {
   return [
     {
+      label: 'Overview',
+      link: '/dashboard',
+      icon: 'IconGear'
+    },
+    {
       label: 'Users',
       link: '/users',
       icon: 'IconFriends',
@@ -61,6 +66,11 @@ export function MenuOrganisationComplex(primary: Primary) {
 
 export function MenuOrganisationSimple(primary: Primary) {
   return [
+    {
+      label: 'Overview',
+      link: '/dashboard',
+      icon: 'IconGraph'
+    },
     {
       label: 'Users',
       link: '/users',
