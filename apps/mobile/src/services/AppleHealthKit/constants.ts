@@ -1,0 +1,15 @@
+export const mapping: {[appleValue: string]: string} = {
+  Walking: 'walking',
+  Running: 'running',
+  Swimming: 'swimming',
+  Cycling: 'cycling',
+  CrossTraining: 'crossfitTraining',
+  HighIntensityIntervalTraining: 'highIntensityIntervalTraining',
+  CrossCountrySkiing: 'skiing',
+  DownhillSkiing: 'skiing',
+  Hiking: 'hiking',
+  Snowboarding: 'snowboarding',
+  Rowing: 'rowing',
+  SurfingSports: 'surfing',
+  Yoga: 'yoga',
+};
