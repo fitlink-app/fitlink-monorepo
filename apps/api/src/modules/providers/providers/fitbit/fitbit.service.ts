@@ -318,10 +318,13 @@ export class FitbitService {
   async createPushSubscription(accessToken: string, subscribeeId: string) {
     try {
       // Replace this with the sub Id from fitbit dashboard
-      const subscriberId = 'default'
       const responses = await Promise.all([
         this.Fitbit.post(
-          `/activities/apiSubscriptions/${subscribeeId}.json?subscriberId=${subscriberId}`,
+          `/activities/apiSubscriptions/${subscribeeId}.json?subscriberId=activities`,
+          accessToken
+        ),
+        this.Fitbit.post(
+          `/sleep/apiSubscriptions/${subscribeeId}.json?subscriberId=sleep`,
           accessToken
         )
       ])
