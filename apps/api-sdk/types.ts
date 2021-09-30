@@ -225,6 +225,7 @@ export type ReadResource =
   | '/me/email'
   | '/me/password'
   | '/me/settings'
+  | '/me/providers'
   | '/stats/goals'
   | '/stats/rewards'
   | '/stats/leagues'
@@ -238,7 +239,9 @@ export type ReadResource =
   | '/teams/:teamId/stats/leagues'
   | '/teams/:teamId/stats/global'
   | '/providers/strava/webhook/view'
+  | '/providers/strava/auth'
   | '/providers/strava/webhook/register/:id'
+  | '/providers/fitbit/auth'
   | '/app/config'
   | '/auth/reset-password'
 

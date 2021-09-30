@@ -148,7 +148,18 @@ describe('Providers', () => {
       method: 'GET',
       url: `/providers/fitbit/callback?code=1012098123&state=${seededUser.id}`
     })
-    let result = data.json()
+
+    expect(data.statusCode).toBe(200)
+    expect(data.headers.location).toBe(
+      'fitlink-app://provider/fitbit/auth-success'
+    )
+
+    const result = await connection.getRepository(Provider).findOne({
+      where: {
+        provider_user_id: '10298id'
+      },
+      relations: ['user']
+    })
 
     expect(result.type).toBe('fitbit')
     expect(result.refresh_token).toBe(fitbitApiMockData.refresh_token)
@@ -185,9 +196,9 @@ describe('Providers', () => {
       headers: authHeaders
     })
 
-    let oauth_url = data.json().oauth_url.split('?')
+    const oauth_url = data.json().oauth_url.split('?')
 
-    let query = {
+    const query = {
       apiRoute: oauth_url[0],
       queryValues: oauth_url[1]
     }

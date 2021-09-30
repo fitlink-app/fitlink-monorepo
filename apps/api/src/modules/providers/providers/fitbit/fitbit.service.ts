@@ -29,10 +29,6 @@ import { GoalsEntriesService } from '../../../goals-entries/goals-entries.servic
 
 const FitbitApiClient: any = fitbitClient
 
-// You'll get this from the dashboard every time you're trying to make a verification
-const fitbit_verify_code =
-  'fbc7cb5495f6268e3705bc1051726897e5d398c2a3caa3dbc5ff80df99c4a93f'
-
 @Injectable()
 export class FitbitService {
   constructor(
@@ -239,7 +235,7 @@ export class FitbitService {
     if (!provider) {
       throw new NotFoundException(`Provider Not found`)
     }
-    let now = new Date(Date.now())
+    const now = new Date(Date.now())
     console.log(`Is FITBIT Token Expired: ${provider.token_expires_at < now}`)
     if (provider.token_expires_at < now) {
       const {
@@ -267,9 +263,24 @@ export class FitbitService {
     }
   }
 
-  verifyWebhook(verifyToken: string) {
-    if (verifyToken !== fitbit_verify_code) {
-      throw new HttpException('NOT FOUND', HttpStatus.NOT_FOUND)
+  verifyWebhook(verifyToken: string, type: string) {
+    switch (type) {
+      case 'default':
+        return (
+          verifyToken ===
+          this.configService.get('FITBIT_VERIFY_WEBHOOK_DEFAULT')
+        )
+      case 'activities':
+        return (
+          verifyToken ===
+          this.configService.get('FITBIT_VERIFY_WEBHOOK_ACTIVITIES')
+        )
+      case 'sleep':
+        return (
+          verifyToken === this.configService.get('FITBIT_VERIFY_WEBHOOK_SLEEP')
+        )
+      default:
+        return false
     }
   }
 
@@ -302,7 +313,7 @@ export class FitbitService {
   async createPushSubscription(accessToken: string, subscribeeId: string) {
     try {
       // Replace this with the sub Id from fitbit dashboard
-      const subscriberId = 'sohailkhan'
+      const subscriberId = 'default'
       const responses = await Promise.all([
         this.Fitbit.post(
           `/activities/apiSubscriptions/${subscribeeId}.json?subscriberId=${subscriberId}`,
@@ -312,7 +323,6 @@ export class FitbitService {
 
       for (const response of responses) {
         const body = response[0] as FitbitSubscriptionResponseBody
-        console.log(body)
         if (body.errors) {
           console.error(body.errors[0].message)
           throw new BadRequestException(body.errors[0].message)

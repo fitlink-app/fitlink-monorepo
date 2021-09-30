@@ -163,7 +163,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (resumeFromRouter && myData.isSuccess) {
       const currentRole = await role.refetch()
 
-      if (currentRole.data.subscription_admin) {
+      if (
+        currentRole.data.subscription_admin &&
+        !currentRole.data.organisation_admin
+      ) {
         setPrimary({
           organisation: undefined,
           subscription: currentRole.data.subscription_admin[0],
