@@ -21,7 +21,7 @@ import { UserActiveMinutesIncrementedListener } from './listeners/UserActiveMinu
     CommonModule,
     TypeOrmModule.forFeature([User, AuthProvider]),
     ConfigModule,
-    FeedItemsModule,
+    forwardRef(() => FeedItemsModule),
     HttpModule,
     // forward ref rewards module because of the circular dependency
     forwardRef(() => RewardsModule),

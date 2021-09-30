@@ -5,11 +5,13 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { HealthActivity } from './entities/health-activity.entity'
 import { ProvidersModule } from '../providers/providers.module'
 import { Sport } from '../sports/entities/sport.entity'
+import { ImagesModule } from '../images/images.module'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([HealthActivity, Sport]),
-    forwardRef(() => ProvidersModule)
+    forwardRef(() => ProvidersModule),
+    ImagesModule
   ],
   controllers: [HealthActivitiesController],
   providers: [HealthActivitiesService],

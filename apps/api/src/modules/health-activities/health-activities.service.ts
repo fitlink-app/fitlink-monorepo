@@ -4,12 +4,17 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm'
 import { Events } from '../../events'
 import { tryAndCatch } from '../../helpers/tryAndCatch'
+import { Image } from '../images/entities/image.entity'
 import { ProvidersService } from '../providers/providers.service'
 import { Sport } from '../sports/entities/sport.entity'
 import { CreateHealthActivityDto } from './dto/create-health-activity.dto'
-import { UpdateHealthActivityDto } from './dto/update-health-activity.dto'
 import { HealthActivity } from './entities/health-activity.entity'
 import { HealthActivityCreatedEvent } from './events/health-activity-created.event'
+import { ShareableImageStat } from './health-activities.constants'
+import shareActivityTemplate from './health-activities.image-template'
+import nodeHtmlToImage from 'node-html-to-image'
+import { ImagesService } from '../images/images.service'
+import { Pagination } from '../../helpers/paginate'
 
 @Injectable()
 export class HealthActivitiesService {
@@ -20,7 +25,8 @@ export class HealthActivitiesService {
     @InjectRepository(Sport)
     private sportsRepository: Repository<Sport>,
     private providersService: ProvidersService,
-    private eventEmitter: EventEmitter2
+    private eventEmitter: EventEmitter2,
+    private imagesService: ImagesService
   ) {}
 
   async create(activity: CreateHealthActivityDto, userId: string) {
@@ -123,19 +129,72 @@ export class HealthActivitiesService {
     return !!userActivities
   }
 
-  findAll() {
-    return `This action returns all healthActivities`
+  setHealthActivityImages(
+    healthActivityId: string,
+    imageId: string | string[]
+  ) {
+    return this.healthActivityRepository
+      .createQueryBuilder()
+      .relation(HealthActivity, 'images')
+      .of(healthActivityId)
+      .add(imageId)
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} healthActivity`
+  removeHealthActivityImage(healthActivityId: string, imageId: string) {
+    return this.healthActivityRepository
+      .createQueryBuilder()
+      .relation(HealthActivity, 'images')
+      .of(healthActivityId)
+      .remove(imageId)
   }
 
-  update(id: number, updateHealthActivityDto: UpdateHealthActivityDto) {
-    return `This action updates a #${id} healthActivity`
+  async findAll(
+    userId: string,
+    relations: string[] = ['user', 'images', 'sport']
+  ) {
+    const [results, total] = await this.healthActivityRepository.findAndCount({
+      where: {
+        user: {
+          id: userId
+        }
+      },
+      relations
+    })
+
+    return new Pagination<HealthActivity>({
+      results,
+      total
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} healthActivity`
+  findOne(id: string, relations: string[] = ['user']) {
+    return this.healthActivityRepository.findOne(id, {
+      relations
+    })
+  }
+
+  async createShareableImage(
+    stats: ShareableImageStat[] = [],
+    imageUrl: string
+  ) {
+    const formattedStats = stats.map((stat) => {
+      const value = stat.value
+        .replace('kilometers', 'km')
+        .replace('kilometer', 'km')
+        .replace('meters', 'm')
+        .replace('meter', 'm')
+
+      return { ...stat, value }
+    })
+
+    return await nodeHtmlToImage({
+      type: 'jpeg',
+      quality: 95,
+      html: shareActivityTemplate,
+      content: {
+        imageUrl,
+        stats: formattedStats
+      }
+    })
   }
 }
