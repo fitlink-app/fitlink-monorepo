@@ -205,10 +205,15 @@ export class FitbitService {
   }
 
   async deAuthorize(userId: string) {
-    const accessToken = await this.getFreshFitbitToken(userId)
-    await this.revokeToken(accessToken)
+    try {
+      const accessToken = await this.getFreshFitbitToken(userId)
+      await this.revokeToken(accessToken)
+    } catch (e) {
+      console.error(e)
+    }
+
     await this.providersService.remove(userId, ProviderType.Fitbit)
-    return { revoked_token: accessToken }
+    return true
   }
 
   // This is separated into it's own function so that it can be mocked in the tests.

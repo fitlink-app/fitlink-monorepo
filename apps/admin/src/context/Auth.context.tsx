@@ -164,8 +164,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const currentRole = await role.refetch()
 
       if (
-        currentRole.data.subscription_admin &&
-        !currentRole.data.organisation_admin
+        currentRole.data.subscription_admin[0] &&
+        !currentRole.data.organisation_admin[0]
       ) {
         setPrimary({
           organisation: undefined,
@@ -182,18 +182,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
           team: currentRole.data.team_admin[0]
         })
 
-        const org = await fetchOrganisation(
-          currentRole.data.organisation_admin[0]
-        )
-
-        if (org && org.mode === OrganisationMode.Complex) {
-          setMode(OrganisationMode.Complex)
-        } else {
-          setMode(OrganisationMode.Simple)
-        }
-
+        let org: Organisation
         if (currentRole.data.organisation_admin[0]) {
+          org = await fetchOrganisation(currentRole.data.organisation_admin[0])
+
+          if (org && org.mode === OrganisationMode.Complex) {
+            setMode(OrganisationMode.Complex)
+          } else {
+            setMode(OrganisationMode.Simple)
+          }
+
           setFocusRole('organisation')
+        } else {
+          setFocusRole('team')
         }
 
         if (currentRole.data.team_admin[0]) {

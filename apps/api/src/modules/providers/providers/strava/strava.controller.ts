@@ -75,7 +75,7 @@ export class StravaControler {
     }
   }
 
-  @Get('revokeToken')
+  @Delete()
   deAuthorize(@User() user: AuthenticatedUser) {
     return this.stravaService.deAuthorize(user.id)
   }

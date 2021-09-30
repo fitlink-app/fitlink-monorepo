@@ -7,7 +7,8 @@ import {
   Query,
   Param,
   NotFoundException,
-  Response
+  Response,
+  Delete
 } from '@nestjs/common'
 import { Public } from '../../../../decorators/public.decorator'
 import { FitbitService } from './fitbit.service'
@@ -62,7 +63,7 @@ export class FitbitController {
     }
   }
 
-  @Get('/revokeToken')
+  @Delete()
   deAuthorize(@User() user: AuthenticatedUser) {
     return this.fitbitService.deAuthorize(user.id)
   }

@@ -87,6 +87,16 @@ export default function components() {
     window.open(oauth_url)
   }
 
+  async function revokeStrava() {
+    await api.delete('/providers/strava', {})
+    providers.refetch()
+  }
+
+  async function revokeFitbit() {
+    await api.delete('/providers/fitbit', {})
+    providers.refetch()
+  }
+
   return (
     <Dashboard title="Settings">
       <h1 className="light">Settings</h1>
@@ -190,6 +200,18 @@ export default function components() {
               <Button
                 onClick={() => authStrava()}
                 label="Authenticate Strava"
+              />
+            </div>
+            <div className="pt-2">
+              <Button
+                onClick={() => revokeFitbit()}
+                label="Revoke FitBit"
+                className="alt mr-1"
+              />
+              <Button
+                className="alt"
+                onClick={() => revokeStrava()}
+                label="Revoke Strava"
               />
             </div>
           </Card>
