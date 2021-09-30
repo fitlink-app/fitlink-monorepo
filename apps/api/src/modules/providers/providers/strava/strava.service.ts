@@ -262,14 +262,12 @@ export class StravaService {
   async deAuthorize(userId: string) {
     try {
       const accessToken = await this.getFreshStravaAccessToken(userId)
-      const result = await this.revokeToken(accessToken)
-      if (result) {
-        await this.providersService.remove(userId, ProviderType.Strava)
-      }
-      return { revoked_token: result.access_token }
-    } catch (err) {
-      throw new BadRequestException(err.message)
+      await this.revokeToken(accessToken)
+    } catch (e) {
+      console.error(e)
     }
+    await this.providersService.remove(userId, ProviderType.Strava)
+    return true
   }
 
   verifyWebhook(token: string, challenge: string) {

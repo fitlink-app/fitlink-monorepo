@@ -89,10 +89,12 @@ export default function components() {
 
   async function revokeStrava() {
     await api.delete('/providers/strava', {})
+    providers.refetch()
   }
 
   async function revokeFitbit() {
     await api.delete('/providers/fitbit', {})
+    providers.refetch()
   }
 
   return (

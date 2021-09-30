@@ -115,21 +115,18 @@ describe('Providers', () => {
     expect(result.id).toBeDefined()
   })
 
-  it('GET /providers/strava/revokeToken', async () => {
+  it('DELET /providers/strava', async () => {
     const provider = await SeedProviderToUser(seededUser.id, 'strava')
     stravaService.getFreshStravaAccessToken = jest.fn()
     stravaService.revokeToken = jest.fn()
     stravaService.getFreshStravaAccessToken.mockReturnValue(provider.token)
     stravaService.revokeToken.mockReturnValue({ access_token: provider.token })
     const data = await app.inject({
-      method: 'GET',
-      url: `/providers/strava/revokeToken`,
+      method: 'DELETE',
+      url: `/providers/strava`,
       headers: authHeaders
     })
-
-    expect(data.json().revoked_token).toBe(provider.token)
     expect(data.statusCode).toBe(200)
-    expect(data.statusMessage).toBe('OK')
   })
 
   it('GET /providers/fitbit/callback', async () => {
@@ -172,21 +169,19 @@ describe('Providers', () => {
     expect(data.statusMessage).toBe('OK')
   })
 
-  it('GET /provider/fitbit/revokeToken', async () => {
+  it('DELETE /provider/fitbit', async () => {
     const provider = await SeedProviderToUser(seededUser.id, 'fitbit')
     fitbitService.getFreshFitbitToken = jest.fn()
     fitbitService.revokeToken = jest.fn()
 
     fitbitService.getFreshFitbitToken.mockReturnValue(provider.token)
     const data = await app.inject({
-      method: 'GET',
-      url: `/providers/fitbit/revokeToken`,
+      method: 'DELETE',
+      url: `/providers/fitbit`,
       headers: authHeaders
     })
 
-    expect(data.json().revoked_token).toBe(provider.token)
     expect(data.statusCode).toBe(200)
-    expect(data.statusMessage).toBe('OK')
   })
 
   it('GET /providers/fitbit/auth/:userId', async () => {
