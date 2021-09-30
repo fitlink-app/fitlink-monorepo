@@ -96,7 +96,9 @@ export class HealthActivitiesController {
       image_url
     )
 
-    res.writeHead(200, { 'Content-Type': 'image/jpeg' })
-    res.end(image, 'binary')
+    return image
+
+    // res.writeHead(200, { 'Content-Type': 'image/jpeg' })
+    // res.end(image, 'binary')
   }
 }

@@ -12,7 +12,7 @@ import { HealthActivity } from './entities/health-activity.entity'
 import { HealthActivityCreatedEvent } from './events/health-activity-created.event'
 import { ShareableImageStat } from './health-activities.constants'
 import shareActivityTemplate from './health-activities.image-template'
-import nodeHtmlToImage from 'node-html-to-image'
+// import nodeHtmlToImage from 'node-html-to-image'
 import { ImagesService } from '../images/images.service'
 import { Pagination } from '../../helpers/paginate'
 
@@ -187,14 +187,16 @@ export class HealthActivitiesService {
       return { ...stat, value }
     })
 
-    return await nodeHtmlToImage({
-      type: 'jpeg',
-      quality: 95,
-      html: shareActivityTemplate,
-      content: {
-        imageUrl,
-        stats: formattedStats
-      }
-    })
+    return 'nodeHtmlToImage needs to be implemented'
+
+    // return await nodeHtmlToImage({
+    //   type: 'jpeg',
+    //   quality: 95,
+    //   html: shareActivityTemplate,
+    //   content: {
+    //     imageUrl,
+    //     stats: formattedStats
+    //   }
+    // })
   }
 }
