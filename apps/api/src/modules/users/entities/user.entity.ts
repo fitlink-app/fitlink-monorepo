@@ -140,7 +140,8 @@ export class User extends CreatableEntity {
   @ApiProperty({ type: Image })
   @OneToOne(() => Image, {
     cascade: ['remove'],
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
+    eager: true
   })
   @JoinColumn()
   avatar: Image

@@ -309,7 +309,6 @@ export class UsersController {
   @Get('users/search')
   @ApiTags('users')
   @PaginationBody()
-  @ApiQuery({ type: SearchUserDto })
   @ApiResponse({ type: UserPublic, isArray: true, status: 200 })
   search(
     @Query() query: SearchUserDto,
