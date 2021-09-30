@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Query,
+  Param,
+  NotFoundException,
+  Response
+} from '@nestjs/common'
 import { Public } from '../../../../decorators/public.decorator'
 import { FitbitService } from './fitbit.service'
 import { FitbitEventData } from '../../types/fitbit'
@@ -23,9 +33,12 @@ export class FitbitController {
 
   @Public()
   @HttpCode(204)
-  @Get('/webhook')
-  verifyWebhook(@Query('verify') verify: string) {
-    return this.fitbitService.verifyWebhook(verify)
+  @Get('/webhook/:type')
+  verifyWebhook(@Query('verify') verify: string, @Param('type') type: string) {
+    if (!this.fitbitService.verifyWebhook(verify, type)) {
+      throw new NotFoundException()
+    }
+    return true
   }
 
   @ApiResponse({ type: OauthUrl, status: 200 })
@@ -36,8 +49,17 @@ export class FitbitController {
 
   @Public()
   @Get('/callback')
-  oauthCallback(@Query('code') code, @Query('state') state) {
-    return this.fitbitService.saveFitbitProvider(code, state)
+  async oauthCallback(
+    @Query('code') code,
+    @Query('state') state,
+    @Response() res
+  ) {
+    try {
+      await this.fitbitService.saveFitbitProvider(code, state)
+      res.redirect('fitlink-app://provider/fitbit/auth-success')
+    } catch (e) {
+      res.redirect('fitlink-app://provider/fitbit/auth-fail')
+    }
   }
 
   @Get('/revokeToken')
