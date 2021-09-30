@@ -332,7 +332,7 @@ export class StravaService {
     if (!provider) {
       throw new NotFoundException(`Provider Not found`)
     }
-    let now = new Date(Date.now())
+    const now = new Date()
     if (provider.token_expires_at < now) {
       // Token Expired Get New Token
       const {
