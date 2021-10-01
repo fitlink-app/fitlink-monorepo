@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
   package="com.fitlink">
 
   <uses-permission android:name="android.permission.INTERNET" />
@@ -26,6 +27,27 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
+
+        <intent-filter>
+          <action android:name="android.intent.action.VIEW"/>
+          <category android:name="android.intent.category.DEFAULT"/>
+          <category android:name="android.intent.category.BROWSABLE"/>
+
+          <data android:scheme="http" android:host="https://fitlinkapp.com/"/>
+          <data android:scheme="fitlink-app"/>
+        </intent-filter>
       </activity>
+
+    <service
+      android:name=".MainNotificationService">
+      <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+      </intent-filter>
+    </service>
+
+    <receiver
+      android:name="com.intercom.reactnative.RNIntercomPushBroadcastReceiver"
+      tools:replace="android:exported"
+      android:exported="true"/>
     </application>
 </manifest>
