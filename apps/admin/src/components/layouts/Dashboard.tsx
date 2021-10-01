@@ -8,6 +8,7 @@ import Loader from '../elements/Loader'
 import LoaderFullscreen from '../elements/LoaderFullscreen'
 import Account from '../elements/Account'
 import { useRouter } from 'next/router'
+import { useIntercom } from 'react-use-intercom'
 
 type DashboardProps = {
   children?: React.ReactNode
@@ -35,7 +36,8 @@ export default function Dashboard({
   const [, rerender] = useState(false)
   const scrollContainer = useRef<HTMLDivElement>()
   const { menu, modeRole } = useContext(AuthContext)
-  const { route } = useRouter()
+  const router = useRouter()
+  const { boot } = useIntercom()
 
   const url = process.env.URL
 
@@ -65,7 +67,7 @@ export default function Dashboard({
         document.documentElement.classList.remove('scrolled')
       }
     }
-  }, [scrollContainer.current, route])
+  }, [scrollContainer.current, router.route])
 
   return (
     <>

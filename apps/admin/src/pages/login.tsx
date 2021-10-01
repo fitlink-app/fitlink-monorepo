@@ -89,8 +89,6 @@ const LoginPage = () => {
   useEffect(() => {
     const success = signupMutation.isSuccess || loginMutation.isSuccess
 
-    console.log('HERE', success)
-
     if (success) {
       /**
        * Redeem URLs are masked, and should be loaded
