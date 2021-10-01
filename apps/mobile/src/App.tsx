@@ -13,7 +13,7 @@ import MapboxGL from '@react-native-mapbox-gl/maps';
 import {persistor, store} from 'redux/store';
 import RNBootSplash from 'react-native-bootsplash';
 import codePush from 'react-native-code-push';
-import {useCodePush} from '@hooks';
+import {useCodePush, useIntercomNotifications} from '@hooks';
 import {UpdateInfo} from 'components/UpdateInfo';
 
 if (Platform.OS === 'android') {
@@ -29,6 +29,8 @@ MapboxGL.setAccessToken(
 const App = () => {
   const {syncImmediate, isUpToDate, isError, syncMessage, progressFraction} =
     useCodePush();
+
+  useIntercomNotifications();
 
   useEffect(() => {
     setTimeout(() => {
