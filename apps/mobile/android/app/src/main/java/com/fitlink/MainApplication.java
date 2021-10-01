@@ -60,6 +60,7 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    IntercomModule.initialize(this, "android_sdk-b2ac2fe21fda54fb03c22bc67b047ee05f7e4713", "jhnnkwbj");
   }
 
   /**
