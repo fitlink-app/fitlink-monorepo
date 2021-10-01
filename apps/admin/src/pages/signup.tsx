@@ -122,7 +122,7 @@ const SignupPage = () => {
             </ul>
             <p>
               <a
-                className="button small alt"
+                className="link"
                 href="https://fitlinkapp.com/pricing"
                 target="_blank"
                 rel="noopener noreferrer">
