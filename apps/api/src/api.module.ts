@@ -32,6 +32,7 @@ import { TeamsInvitation } from './modules/teams-invitations/entities/teams-invi
 import { User } from './modules/users/entities/user.entity'
 import { UserRole } from './modules/user-roles/entities/user-role.entity'
 import { UsersSetting } from './modules/users-settings/entities/users-setting.entity'
+import { Notification } from './modules/notifications/entities/notification.entity'
 
 // Modules
 import { AuthModule } from './modules/auth/auth.module'
@@ -62,6 +63,7 @@ import { UploadGuard } from './guards/upload.guard'
 import { UserRolesModule } from './modules/user-roles/user-roles.module'
 import { UsersInvitationsModule } from './modules/users-invitations/users-invitations.module'
 import { AppController } from './api.controller'
+import { NotificationsModule } from './modules/notifications/notifications.module'
 
 @Module({
   imports: [
@@ -110,7 +112,8 @@ import { AppController } from './api.controller'
             TeamsInvitation,
             User,
             UserRole,
-            UsersSetting
+            UsersSetting,
+            Notification
           ],
           synchronize: false,
           logging: false,
@@ -143,7 +146,8 @@ import { AppController } from './api.controller'
     HealthActivitiesModule,
     UserRolesModule,
     SubscriptionsModule,
-    UsersInvitationsModule
+    UsersInvitationsModule,
+    NotificationsModule
   ],
   providers: [
     {

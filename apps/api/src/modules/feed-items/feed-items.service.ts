@@ -4,19 +4,21 @@ import { plainToClass } from 'class-transformer'
 import { Brackets, Repository } from 'typeorm'
 import { Pagination, PaginationQuery } from '../../helpers/paginate'
 import { tryAndCatch } from '../../helpers/tryAndCatch'
+import { NotificationsService } from '../notifications/notifications.service'
 import { PrivacySetting } from '../users-settings/users-settings.constants'
 import { UserPublic } from '../users/entities/user.entity'
 import { CreateFeedItemDto } from './dto/create-feed-item.dto'
 import { FeedFilterDto } from './dto/feed-filter.dto'
 import { UpdateFeedItemDto } from './dto/update-feed-item.dto'
 import { FeedItem } from './entities/feed-item.entity'
-import { FeedItemCategory } from './feed-items.constants'
+import { FeedItemCategory, FeedItemType } from './feed-items.constants'
 
 @Injectable()
 export class FeedItemsService {
   constructor(
     @InjectRepository(FeedItem)
-    private feedItemRepository: Repository<FeedItem>
+    private feedItemRepository: Repository<FeedItem>,
+    private notificationsService: NotificationsService
   ) {}
   async create(createFeedItemDto: CreateFeedItemDto) {
     const [result, resultErr] = await tryAndCatch(
@@ -25,6 +27,19 @@ export class FeedItemsService {
       )
     )
     resultErr && console.error(resultErr.message)
+    if (!resultErr) {
+      const item = result as FeedItem
+      if (item.category === FeedItemCategory.MyUpdates) {
+        switch (item.type) {
+          case FeedItemType.NewFollower:
+            this.notificationsService.create({
+              feed_item: result.feed_item,
+              user: result.feed_item.user
+            })
+            break
+        }
+      }
+    }
     return result
   }
 

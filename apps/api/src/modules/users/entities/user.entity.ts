@@ -31,6 +31,7 @@ import { Exclude, Expose } from 'class-transformer'
 import { UnitSystem, UserRank } from '../users.constants'
 import { LeaguesInvitation } from '../../leagues-invitations/entities/leagues-invitation.entity'
 import { SubscriptionsInvitation } from '../../subscriptions/entities/subscriptions-invitation.entity'
+import { Notification } from '../../notifications/entities/notification.entity'
 
 @Entity()
 export class User extends CreatableEntity {
@@ -67,6 +68,9 @@ export class User extends CreatableEntity {
 
   @ManyToMany(() => FeedItem, (feedItem) => feedItem.likes)
   likes: FeedItem[]
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[]
 
   @ApiProperty()
   @Column({

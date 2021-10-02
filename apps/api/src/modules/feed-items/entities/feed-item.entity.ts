@@ -5,7 +5,8 @@ import {
   Column,
   JoinColumn,
   ManyToMany,
-  JoinTable
+  JoinTable,
+  OneToOne
 } from 'typeorm'
 
 import { CreatableEntity } from '../../../classes/entity/creatable'
@@ -20,6 +21,7 @@ import {
   FeedGoalType
 } from '../feed-items.constants'
 import { UserRank } from '../../users/users.constants'
+import { Notification } from '../../notifications/entities/notification.entity'
 
 @Entity()
 export class FeedItem extends CreatableEntity {
@@ -81,4 +83,9 @@ export class FeedItem extends CreatableEntity {
   @JoinTable()
   @JoinColumn()
   likes: User[] | UserPublic[]
+
+  @OneToOne(() => Notification, (notification) => notification.feed_item, {
+    nullable: true
+  })
+  notification: Notification
 }
