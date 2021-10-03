@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Brackets, Not, Repository } from 'typeorm'
 import { tryAndCatch } from '../../helpers/tryAndCatch'
@@ -11,7 +12,8 @@ import { Page } from './entities/page.entity'
 export class PagesService {
   constructor(
     @InjectRepository(Page)
-    private pagesRepository: Repository<Page>
+    private pagesRepository: Repository<Page>,
+    private configService: ConfigService
   ) {}
   async create(
     teamId: string,
@@ -106,7 +108,7 @@ export class PagesService {
         }
       },
       {
-        relations: ['logo']
+        relations: ['logo', 'team']
       }
     )
 
@@ -120,7 +122,10 @@ export class PagesService {
         domain: page.domain,
         enabled: page.enabled,
         logo: page.logo.url,
-        logo_id: page.logo.id
+        logo_id: page.logo.id,
+        join_link: `${this.configService.get('SHORT_URL')}/join/${
+          page.team.join_code
+        }`
       } as CreatePageDto
     }
   }
@@ -131,7 +136,7 @@ export class PagesService {
         domain
       },
       {
-        relations: ['logo']
+        relations: ['logo', 'team']
       }
     )
 
@@ -145,7 +150,10 @@ export class PagesService {
         domain: page.domain,
         enabled: page.enabled,
         logo: page.logo.url,
-        logo_id: page.logo.id
+        logo_id: page.logo.id,
+        join_link: `${this.configService.get('SHORT_URL')}/join/${
+          page.team.join_code
+        }`
       } as CreatePageDto
     }
   }

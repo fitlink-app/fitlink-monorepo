@@ -1,21 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsArray, IsBoolean, IsNotEmpty, IsOptional } from 'class-validator'
 
+const message = 'This field is required'
+
 export class CreatePageDto {
   @ApiProperty()
   @IsOptional()
   id: string
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message
+  })
   domain: string
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message
+  })
   logo: File | string
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message
+  })
   logo_id: string
 
   @ApiProperty()
@@ -27,11 +35,15 @@ export class CreatePageDto {
   banner_image_id: string
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message
+  })
   banner_title: string
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message
+  })
   banner_description: string
 
   @ApiProperty()
@@ -52,15 +64,21 @@ export class CreatePageDto {
   contact_website: string
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message
+  })
   contact_group_name: string
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message
+  })
   contact_group_lead: string
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message
+  })
   contact_email: string
 
   @ApiProperty()
@@ -114,4 +132,7 @@ export class CreatePageDto {
   @ApiProperty()
   @IsBoolean()
   enabled: boolean
+
+  @IsOptional()
+  join_link?: string
 }

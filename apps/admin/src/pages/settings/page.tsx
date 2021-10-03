@@ -20,6 +20,9 @@ import { CreatePage } from '@fitlink/api-sdk/types'
 import useApiErrors from '../../hooks/useApiErrors'
 import { ApiMutationResult, ApiResult } from '@fitlink/common/react-query/types'
 
+const pagesDomain =
+  process.env.NEXT_PUBLIC_BUSINESS_PAGEDOMAIN || 'develop-pages.fitlinkapp.com'
+
 export default function ManagePage() {
   const { api, primary } = useContext(AuthContext)
   const publishRef = useRef<HTMLInputElement>()
@@ -74,20 +77,13 @@ export default function ManagePage() {
         signup_title: '',
         signup_description: '',
         signup_join_link: true,
-        enabled: false
+        enabled: false,
+        join_link: ''
       }
     }
   )
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    watch,
-    setValue,
-    reset,
-    trigger
-  } = useForm({
+  const { control, register, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: loadPage.data
   })
 
@@ -125,7 +121,7 @@ export default function ManagePage() {
     }
   )
 
-  const { errorMessage, errors, setErrors } = useApiErrors(
+  const { errorMessage, errors, setErrors, clearErrors } = useApiErrors(
     savePage.isError || checkDomain.isError,
     {
       ...savePage.error,
@@ -147,6 +143,8 @@ export default function ManagePage() {
   }, [loadPage.isFetched])
 
   async function onSubmit(payload: CreatePageDto) {
+    clearErrors()
+
     // Set the ID if exists
     if (loadPage.data.id) {
       payload.id = loadPage.data.id
@@ -250,7 +248,11 @@ export default function ManagePage() {
           <Feedback message="The team page is used to advertise the team to your co-workers so they can download the app and join in." />
 
           {errorMessage && (
-            <Feedback className="mt-2" message={errorMessage} type="error" />
+            <Feedback
+              className="mt-2"
+              message={`Unable to save page. Please see below for validation errors.`}
+              type="error"
+            />
           )}
 
           <div className="row mt-2 ai-s">
@@ -290,6 +292,23 @@ export default function ManagePage() {
                         (errors.domain && (
                           <ErrorIcon className="ml-1" title="Not available" />
                         ))}
+                      {!loadPage.data.enabled && (
+                        <small className="color-grey ml-1">
+                          Page is not published yet.
+                        </small>
+                      )}
+                      {loadPage.data.enabled && (
+                        <small className="ml-1">
+                          <a
+                            className="color-primary"
+                            href={`https://${domain}.${pagesDomain}`}
+                            target="_blank"
+                            rel="noopener nofollow">
+                            Page is published
+                          </a>
+                          .
+                        </small>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -338,7 +357,14 @@ export default function ManagePage() {
                     />
                     <small>
                       Users with access to this page will be able to join this
-                      team automatically via the app.
+                      team automatically via the app. <br />
+                      {loadPage.data.join_link && (
+                        <a
+                          className="color-primary"
+                          href={loadPage.data.join_link}>
+                          {loadPage.data.join_link}
+                        </a>
+                      )}
                     </small>
                   </div>
                 </div>
@@ -361,7 +387,11 @@ export default function ManagePage() {
                     <div className="row">
                       <div className="col-sm-5">
                         <ImageSelect
-                          filename={loadPage.data.logo as string}
+                          filename={
+                            loadPage.data.content[index]
+                              ? (loadPage.data.content[index].image as string)
+                              : ''
+                          }
                           onChange={(event) => {
                             setValue(
                               `content.${index}.image`,
@@ -400,6 +430,7 @@ export default function ManagePage() {
                 append({
                   description: '',
                   image: '',
+                  image_id: '',
                   title: ''
                 })
               }
@@ -415,6 +446,7 @@ export default function ManagePage() {
                   label="Website"
                   placeholder="https://example.com"
                   register={register('contact_website')}
+                  error={errors.contact_website}
                 />
                 <Input
                   name="contact_group_name"
@@ -422,12 +454,14 @@ export default function ManagePage() {
                   placeholder="E.g.: The Flying Squad"
                   type="textarea"
                   register={register('contact_group_name')}
+                  error={errors.contact_group_name}
                 />
                 <Input
                   name="contact_group_lead"
                   label="Team / Group Lead"
                   placeholder="Team / Group Lead"
                   register={register('contact_group_lead')}
+                  error={errors.contact_group_lead}
                 />
                 <Input
                   type="email"
@@ -435,6 +469,7 @@ export default function ManagePage() {
                   label="Email"
                   placeholder="teamlead@example.com"
                   register={register('contact_email')}
+                  error={errors.contact_email}
                 />
                 <Input
                   type="tel"
@@ -442,42 +477,49 @@ export default function ManagePage() {
                   label="Contact Number"
                   placeholder="+44"
                   register={register('contact_number')}
+                  error={errors.contact_number}
                 />
                 <Input
                   name="contact_facebook"
                   label="Facebook"
                   placeholder="Facebook Official Page"
                   register={register('contact_facebook')}
+                  error={errors.contact_facebook}
                 />
                 <Input
                   name="contact_instagram"
                   label="Instagram"
                   placeholder="Instagram Official Page"
                   register={register('contact_instagram')}
+                  error={errors.contact_instagram}
                 />
                 <Input
                   name="contact_twitter"
                   label="Twitter"
                   placeholder="Twitter Official Page"
                   register={register('contact_twitter')}
+                  error={errors.contact_twitter}
                 />
                 <Input
                   name="contact_linkedin"
                   label="LinkedIn"
                   placeholder="LinkedIn Official Page"
                   register={register('contact_linkedin')}
+                  error={errors.contact_linkedin}
                 />
                 <Input
                   name="contact_subtitle"
                   label="Subtitle"
                   placeholder="e.g. Corporate Wellness Program"
                   register={register('contact_subtitle')}
+                  error={errors.contact_subtitle}
                 />
                 <Input
                   name="contact_text"
                   label="Text"
                   placeholder="e.g. For any questions or help..."
                   register={register('contact_text')}
+                  error={errors.contact_text}
                 />
               </Card>
             </div>
@@ -495,6 +537,7 @@ export default function ManagePage() {
                   label="Title"
                   placeholder="e.g. Join this group"
                   register={register('signup_title')}
+                  error={errors.signup_title}
                 />
                 <Input
                   name="signup_description"
@@ -502,13 +545,24 @@ export default function ManagePage() {
                   placeholder="Title"
                   type="textarea"
                   register={register('signup_description')}
+                  error={errors.signup_description}
                 />
                 <Checkbox
                   name="signup_join_link"
                   register={register('signup_join_link')}
                   showSwitch={true}
                   label="Show Join Link"
+                  error={errors.signup_join_link}
                 />
+                <small>
+                  Users with access to this page will be able to join this team
+                  automatically via the app. <br />
+                  {loadPage.data.join_link && (
+                    <a className="color-primary" href={loadPage.data.join_link}>
+                      {loadPage.data.join_link}
+                    </a>
+                  )}
+                </small>
               </Card>
             </div>
           </div>
@@ -517,6 +571,7 @@ export default function ManagePage() {
             {!loadPage.data.enabled && (
               <button
                 className="button button-save"
+                disabled={savePage.isLoading}
                 onClick={() => (publishRef.current.checked = true)}>
                 Save &amp; Publish Page
               </button>
@@ -524,11 +579,13 @@ export default function ManagePage() {
             {loadPage.data.enabled && (
               <button
                 className="button alt button-save"
+                disabled={savePage.isLoading}
                 onClick={() => (publishRef.current.checked = false)}>
                 Unpublish Page
               </button>
             )}
             <button
+              disabled={savePage.isLoading}
               className={`button button-save ml-2 ${
                 !loadPage.data.enabled ? 'alt ' : ''
               }`}>
