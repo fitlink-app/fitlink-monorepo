@@ -52,6 +52,8 @@ import { RespondTeamsInvitationDto } from '@fitlink/api/src/modules/teams-invita
 import { RespondOrganisationsInvitationDto } from '@fitlink/api/src/modules/organisations-invitations/dto/respond-organisations-invitation.dto'
 import { RespondSubscriptionsInvitationDto } from '@fitlink/api/src/modules/subscriptions/dto/respond-subscriptions-invitation.dto'
 import { UpdateUsersSettingDto } from '@fitlink/api/src/modules/users-settings/dto/update-users-setting.dto'
+import { Page } from '@fitlink/api/src/modules/pages/entities/page.entity'
+import { CreatePageDto } from '@fitlink/api/src/modules/pages/dto/create-page.dto'
 
 export type {
   AuthResultDto,
@@ -100,6 +102,7 @@ export type SubscriptionsInvitationsRespond = '/subscriptions-invitations/respon
 export type CreateStravaSubscription = '/providers/strava/webhook/register'
 export type VerifyUserEmail = '/users/verify-email'
 export type RegenerateJoinCode = '/teams/:teamId/regenerate-join-code'
+export type CreatePage = '/teams/:teamId/page'
 
 export type CreatableResource =
   | AuthLogin
@@ -120,6 +123,7 @@ export type CreatableResource =
   | CreateStravaSubscription
   | VerifyUserEmail
   | RegenerateJoinCode
+  | CreatePage
 
 export type ListResource =
   | '/organisations'
@@ -238,6 +242,7 @@ export type ReadResource =
   | '/teams/:teamId/stats/rewards'
   | '/teams/:teamId/stats/leagues'
   | '/teams/:teamId/stats/global'
+  | '/teams/:teamId/page'
   | '/providers/strava'
   | '/providers/strava/webhook/view'
   | '/providers/strava/auth'
@@ -302,6 +307,8 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<VerifyUserEmailDto>
   : T extends RegenerateJoinCode
   ? Payload<{}>
+  : T extends CreatePage
+  ? Payload<CreatePageDto>
   : never
 
 export type UploadResourceParams = FilePayload

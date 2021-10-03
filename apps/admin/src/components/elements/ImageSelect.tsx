@@ -6,7 +6,7 @@ export type ImageSelectProps = {
   filename?: string
   removeable?: boolean
   accept?: string
-  onChange?: (e: any) => void
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
   showPreview?: boolean
   label?: string
   backgroundSize?: string
@@ -22,38 +22,40 @@ export default function ImageSelect({
   label = 'Select an image',
   backgroundSize = 'cover',
   className
-}:ImageSelectProps) {
+}: ImageSelectProps) {
   const [preview, setPreview] = useState(filename || '')
   const classes = clsx({
     'image-select': true,
     [className]: className
   })
 
-  const previewImage = (e) => {
+  const previewImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (onChange) {
       onChange(e)
     }
     setPreview(URL.createObjectURL(e.target.files[0]))
   }
 
-  return(
+  useEffect(() => {
+    if (filename !== preview) {
+      setPreview(filename)
+    }
+  }, [filename])
+
+  return (
     <div className={classes}>
-      <input
-        type="file"
-        id="image"
-        onChange={previewImage}
-        accept="image/*"
-        />
+      <input type="file" id="image" onChange={previewImage} accept="image/*" />
       <IconImage />
       <label htmlFor="image">{label}</label>
-      { showPreview &&
+      {showPreview && (
         <div
           className="image-select__preview"
           style={{
             backgroundImage: `url(${preview})`,
             backgroundSize: backgroundSize
-          }} />
-      }
+          }}
+        />
+      )}
     </div>
-  )  
+  )
 }

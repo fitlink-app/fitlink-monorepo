@@ -22,6 +22,7 @@ import { LeaderboardEntry } from '../../src/modules/leaderboard-entries/entities
 import { LeaguesInvitation } from '../../src/modules/leagues-invitations/entities/leagues-invitation.entity'
 import { League } from '../../src/modules/leagues/entities/league.entity'
 import { Organisation } from '../../src/modules/organisations/entities/organisation.entity'
+import { Page } from '../../src/modules/pages/entities/page.entity'
 import { Provider } from '../../src/modules/providers/entities/provider.entity'
 import { RefreshToken } from '../../src/modules/auth/entities/auth.entity'
 import { Reward } from '../../src/modules/rewards/entities/reward.entity'
@@ -64,6 +65,7 @@ export const entities = [
   LeaguesInvitation,
   Organisation,
   OrganisationsInvitation,
+  Page,
   Provider,
   Queueable,
   RefreshToken,
