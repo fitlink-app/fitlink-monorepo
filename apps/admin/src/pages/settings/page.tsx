@@ -19,6 +19,7 @@ import { CheckDomainDto } from '@fitlink/api/src/modules/pages/dto/check-domain.
 import { CreatePage } from '@fitlink/api-sdk/types'
 import useApiErrors from '../../hooks/useApiErrors'
 import { ApiMutationResult, ApiResult } from '@fitlink/common/react-query/types'
+import useDebounce from '../../hooks/useDebounce'
 
 const pagesDomain =
   process.env.NEXT_PUBLIC_BUSINESS_PAGEDOMAIN || 'develop-pages.fitlinkapp.com'
@@ -94,6 +95,7 @@ export default function ManagePage() {
   })
 
   const domain = watch('domain')
+  const dbDomain = useDebounce(domain, 500)
 
   const savePage: ApiMutationResult<Page> = useMutation(
     'save_page',
@@ -117,16 +119,14 @@ export default function ManagePage() {
       })
     },
     {
-      enabled: false
+      enabled: false,
+      retry: false
     }
   )
 
   const { errorMessage, errors, setErrors, clearErrors } = useApiErrors(
-    savePage.isError || checkDomain.isError,
-    {
-      ...savePage.error,
-      ...checkDomain.error
-    }
+    savePage.isError,
+    savePage.error
   )
 
   useEffect(() => {
@@ -221,12 +221,10 @@ export default function ManagePage() {
   }
 
   useEffect(() => {
-    if (domain && domain.length >= 2) {
-      const correct = domain.match(/^[a-z0-9-]+[a-z0-9]$/)
-      if (domain && correct) {
-        tm.current = setTimeout(() => {
-          checkDomain.refetch()
-        }, 100)
+    if (dbDomain && dbDomain.length >= 2) {
+      const correct = dbDomain.match(/^[a-z0-9-]+[a-z0-9]$/)
+      if (dbDomain && correct) {
+        checkDomain.refetch()
       }
       if (!correct) {
         setErrors({
@@ -238,7 +236,7 @@ export default function ManagePage() {
         })
       }
     }
-  }, [domain])
+  }, [dbDomain])
 
   return (
     <Dashboard title="Settings">
@@ -285,16 +283,19 @@ export default function ManagePage() {
                       <small>
                         https://{domain || 'yourdomainhere'}.on.fitlinkapp.com
                       </small>
-                      {domain && checkDomain.isSuccess && !errors.domain && (
+                      {domain && !checkDomain.error && !errors.domain && (
                         <CheckmarkIcon className="ml-1" title="Available" />
                       )}
-                      {(domain && checkDomain.isError) ||
-                        (errors.domain && (
+                      {domain && checkDomain.error && (
+                        <>
                           <ErrorIcon className="ml-1" title="Not available" />
-                        ))}
-                      {!loadPage.data.enabled && (
+                        </>
+                      )}
+                      {!loadPage.data.enabled && domain && (
                         <small className="color-grey ml-1">
-                          Page is not published yet.
+                          {checkDomain.error
+                            ? 'Domain is not available'
+                            : 'Page is not published yet.'}
                         </small>
                       )}
                       {loadPage.data.enabled && (

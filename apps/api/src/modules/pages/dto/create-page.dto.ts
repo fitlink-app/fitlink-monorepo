@@ -135,4 +135,7 @@ export class CreatePageDto {
 
   @IsOptional()
   join_link?: string
+
+  @IsOptional()
+  team_id?: string
 }

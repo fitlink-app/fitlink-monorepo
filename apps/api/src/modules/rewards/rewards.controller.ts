@@ -36,6 +36,7 @@ import {
   RewardFiltersDto,
   RewardGlobalFilterDto
 } from './dto/reward-filters.dto'
+import { Public } from '../../decorators/public.decorator'
 
 @ApiBaseResponses()
 @Controller()
@@ -261,5 +262,14 @@ export class RewardsController {
     }
 
     return reward
+  }
+
+  @Public()
+  @Get('/teams/:teamId/public/rewards')
+  async getTeamRewardsForPublicPage(@Param('teamId') teamId: string) {
+    const rewards = await this.rewardsService.getTeamRewardsForPublicPage(
+      teamId
+    )
+    return rewards
   }
 }

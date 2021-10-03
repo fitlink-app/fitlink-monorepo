@@ -58,6 +58,7 @@ import { AddTeamJoinCode1632688836338 } from '../database/migrations/16326888363
 import { AddFeedItemLikes1632753932139 } from '../database/migrations/1632753932139-AddFeedItemLikes'
 import { OrganisationMode1632771719624 } from '../database/migrations/1632771719624-OrganisationMode'
 import { AddPages1633257728285 } from '../database/migrations/1633257728285-AddPages'
+import { DomainUnique1633275502651 } from '../database/migrations/1633275502651-DomainUnique'
 
 export default [
   InitializeSchema1614887523112,
@@ -114,5 +115,6 @@ export default [
   AddTeamJoinCode1632688836338,
   AddFeedItemLikes1632753932139,
   OrganisationMode1632771719624,
-  AddPages1633257728285
+  AddPages1633257728285,
+  DomainUnique1633275502651
 ]
