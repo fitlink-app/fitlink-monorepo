@@ -15,6 +15,16 @@ import toast from 'react-hot-toast'
 import Button from '../../components/elements/Button'
 import Feedback from '../../components/elements/Feedback'
 
+type TeamFormValues = {
+  id?: string
+  name: string
+  avatar:
+    | File
+    | {
+        url?: string
+      }
+}
+
 export default function components() {
   const { api, primary } = useContext(AuthContext)
 
@@ -25,7 +35,7 @@ export default function components() {
       avatar: {
         url: undefined
       }
-    }
+    } as TeamFormValues
   })
 
   const team = useQuery(
