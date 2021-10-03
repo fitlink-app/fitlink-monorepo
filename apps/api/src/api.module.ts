@@ -19,6 +19,7 @@ import { LeaguesInvitation } from './modules/leagues-invitations/entities/league
 import { League } from './modules/leagues/entities/league.entity'
 import { Organisation } from './modules/organisations/entities/organisation.entity'
 import { OrganisationsInvitation } from './modules/organisations-invitations/entities/organisations-invitation.entity'
+import { Page } from './modules/pages/entities/page.entity'
 import { Provider } from './modules/providers/entities/provider.entity'
 import { Queueable } from './modules/queue/entities/queueable.entity'
 import { RefreshToken } from './modules/auth/entities/auth.entity'
@@ -48,6 +49,7 @@ import { LeaguesInvitationModule } from './modules/leagues-invitations/leagues-i
 import { LeaguesModule } from './modules/leagues/leagues.module'
 import { OrganisationsModule } from './modules/organisations/organisations.module'
 import { OrganisationsInvitationsModule } from './modules/organisations-invitations/organisations-invitations.module'
+import { PagesModule } from './modules/pages/pages.module'
 import { ProvidersModule } from './modules/providers/providers.module'
 import { QueueModule } from './modules/queue/queue.module'
 import { RewardsModule } from './modules/rewards/rewards.module'
@@ -98,6 +100,7 @@ import { AppController } from './api.controller'
             LeaguesInvitation,
             Organisation,
             OrganisationsInvitation,
+            Page,
             Provider,
             Queueable,
             RefreshToken,
@@ -130,6 +133,7 @@ import { AppController } from './api.controller'
     LeaguesInvitationModule,
     OrganisationsModule,
     OrganisationsInvitationsModule,
+    PagesModule,
     ProvidersModule,
     QueueModule,
     RewardsModule,
