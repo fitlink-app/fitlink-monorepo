@@ -57,7 +57,7 @@ export class PagesController {
   async readFromDomain(@Param('domain') domain: string) {
     if (domain.length > 1) {
       const page = await this.pagesService.findOneByDomain(domain)
-      if (page || !page.enabled) {
+      if (!page || !page.enabled) {
         throw new NotFoundException(
           'This page is not available or not yet published.'
         )

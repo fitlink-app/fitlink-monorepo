@@ -32,7 +32,9 @@ export class Page extends CreatableEntity {
   @JoinColumn()
   logo: Image
 
-  @Column()
+  @Column({
+    unique: true
+  })
   domain: string
 
   @Column()

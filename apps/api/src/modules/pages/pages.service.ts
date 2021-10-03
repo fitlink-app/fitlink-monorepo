@@ -143,6 +143,7 @@ export class PagesService {
     if (page) {
       return {
         id: page.id,
+        team_id: page.team.id,
         ...page.banner,
         ...page.contact,
         ...page.signup,

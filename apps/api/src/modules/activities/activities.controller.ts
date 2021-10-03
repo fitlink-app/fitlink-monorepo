@@ -324,6 +324,15 @@ export class ActivitiesController {
     })
   }
 
+  @Public()
+  @Get('/teams/:teamId/public/activities')
+  async getTeamActivitiesForPublicPage(@Param('teamId') teamId: string) {
+    const activities = await this.activitiesService.getTeamActivitiesForPublicPage(
+      teamId
+    )
+    return activities
+  }
+
   @Delete('/activities/:id')
   remove(@User() user: AuthenticatedUser, @Param('id') id: string) {
     if (user.isSuperAdmin()) {
