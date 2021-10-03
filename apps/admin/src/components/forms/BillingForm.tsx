@@ -14,6 +14,29 @@ import { AuthContext } from '../../context/Auth.context'
 import useApiErrors from '../../hooks/useApiErrors'
 import Feedback from '../elements/Feedback'
 
+const currencies = [
+  {
+    value: 'GBP',
+    label: 'GBP - British Pound'
+  },
+  {
+    value: 'EUR',
+    label: 'EUR - Euro'
+  },
+  {
+    value: 'USD',
+    label: 'USD - US Dollar'
+  },
+  {
+    value: 'AUD',
+    label: 'AUD - Australian Dollar'
+  },
+  {
+    value: 'EAD',
+    label: 'EAD - Emirati Dirham'
+  }
+]
+
 export type BillingFormProps = {
   current: Partial<Subscription>
   onSave?: () => void
@@ -29,6 +52,7 @@ export default function BillingForm({
 
   const { register, setValue, handleSubmit } = useForm({
     defaultValues: {
+      billing_entity: current.billing_entity,
       billing_first_name: current.billing_first_name,
       billing_last_name: current.billing_last_name,
       billing_email: current.billing_email,
@@ -38,7 +62,8 @@ export default function BillingForm({
       billing_state: current.billing_state,
       billing_postcode: current.billing_postcode,
       billing_country: current.billing_country || 'United Kingdom',
-      billing_country_code: current.billing_country_code || 'GB'
+      billing_country_code: current.billing_country_code || 'GB',
+      billing_currency_code: current.billing_currency_code || 'GBP'
     }
   })
 
@@ -80,6 +105,14 @@ export default function BillingForm({
     <form onSubmit={handleSubmit(onSubmit)}>
       <h4 className="light mb-3">Update billing information</h4>
       {errorMessage && <Feedback type="error" message={errorMessage} />}
+      <Input
+        name="billing_entity"
+        placeholder="Company / Entity"
+        label="Company / Entity"
+        required
+        register={register('billing_entity')}
+        error={errors.billing_entity}
+      />
       <Input
         name="billing_first_name"
         placeholder="First name"
@@ -143,6 +176,25 @@ export default function BillingForm({
         register={register('billing_postcode')}
         error={errors.billing_postcode}
       />
+
+      <Select
+        id="currency"
+        isSearchable={true}
+        label="Currency"
+        required
+        defaultValue={{
+          label: currencies.filter(
+            (e) => e.value === current.billing_currency_code
+          )[0].label,
+          value: current.billing_currency_code
+        }}
+        options={currencies}
+        onChange={(v) => {
+          setValue('billing_currency_code', v.value)
+        }}
+        error={errors.billing_currency_code}
+      />
+
       <Select
         id="country"
         isSearchable={true}

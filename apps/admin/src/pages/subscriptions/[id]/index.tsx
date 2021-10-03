@@ -35,6 +35,8 @@ import useCurrencyConversion, {
 import toast from 'react-hot-toast'
 import { SubscriptionType } from '@fitlink/api/src/modules/subscriptions/subscriptions.constants'
 
+const PER_UNIT_PRICE = 5 // 5.00 GBP
+
 export default function SubscriptionsBillingPage() {
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
@@ -63,6 +65,7 @@ export default function SubscriptionsBillingPage() {
         onSave={async () => {
           await closeDrawer()()
           subscription.refetch()
+          chargebeeSubscription.refetch()
         }}
       />
     )
@@ -258,10 +261,10 @@ export default function SubscriptionsBillingPage() {
     }
   }
 
-  const { formatAmount, amount } = useCurrencyConversion(
-    5,
-    chargebeeSubscription.isSuccess
-      ? (chargebeeSubscription.data.subscription.currency_code as Currency)
+  const { convertGbp } = useCurrencyConversion(
+    chargebeeSubscription.isFetched
+      ? (chargebeeSubscription.data.customer
+          .preferred_currency_code as Currency)
       : 'GBP'
   )
 
@@ -316,7 +319,7 @@ export default function SubscriptionsBillingPage() {
                         </small>
                       </p>
                       <h2 className="h1 light mb-0 ml-a unbilled-amount">
-                        {formatAmount(
+                        {convertGbp(
                           (chargebeeSubscription.data.subscription
                             .plan_unit_price /
                             100) *
@@ -331,9 +334,11 @@ export default function SubscriptionsBillingPage() {
                       <tr>
                         <td>Active users</td>
                         <td>{userCount}</td>
-                        <td className="text-right">{formatAmount(amount)}</td>
+                        <td className="text-right">
+                          {convertGbp(PER_UNIT_PRICE)}
+                        </td>
                         <td className="text-right pr-1">
-                          {formatAmount(amount * userCount)}
+                          {convertGbp(PER_UNIT_PRICE * userCount)}
                         </td>
                       </tr>
                     </tbody>
@@ -442,6 +447,10 @@ export default function SubscriptionsBillingPage() {
             <table
               className={`static-table static-table--billing mt-2 billing-form`}>
               <tbody>
+                <tr>
+                  <th>Company / Entity</th>
+                  <td>{subscription.data.billing_entity || '-'}</td>
+                </tr>
                 <tr>
                   <th>First name</th>
                   <td>{subscription.data.billing_first_name || '-'}</td>
