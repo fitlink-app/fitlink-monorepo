@@ -1143,7 +1143,8 @@ export class SubscriptionsService {
         company: subscription.billing_entity,
         first_name: subscription.billing_first_name,
         last_name: subscription.billing_last_name,
-        email: subscription.billing_email
+        email: subscription.billing_email,
+        preferred_currency_code: subscription.billing_currency_code
       }),
       this.chargeBeePostRequest<any>(
         `/customers/${customerId}/update_billing_info`,

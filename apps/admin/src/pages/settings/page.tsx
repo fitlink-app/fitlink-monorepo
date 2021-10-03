@@ -183,19 +183,33 @@ export default function ManagePage() {
       }
     })
 
-    const imagesUploaded = await Promise.all(
-      images.map(async (e) => {
-        const payload = new FormData()
-        payload.append('file', e.file)
-        const image = await api.uploadFile<Image>('/images', {
-          payload
-        })
-        return {
-          image,
-          name: e.name
-        }
-      })
-    )
+    let imagesUploaded: { image: Image; name: string }[] = []
+    try {
+      if (images.length) {
+        imagesUploaded = await toast.promise(
+          Promise.all(
+            images.map(async (e) => {
+              const payload = new FormData()
+              payload.append('file', e.file)
+              const image = await api.uploadFile<Image>('/images', {
+                payload
+              })
+              return {
+                image,
+                name: e.name
+              }
+            })
+          ),
+          {
+            loading: <b>Images uploading...</b>,
+            error: <b>Error uploading images</b>,
+            success: <b>Images uploaded.</b>
+          }
+        )
+      }
+    } catch (e) {
+      console.error(e)
+    }
 
     imagesUploaded.forEach((each) => {
       const split = each.name.split('.').map((e) => parseInt(e))
@@ -214,7 +228,8 @@ export default function ManagePage() {
         loading: <b>Saving...</b>
       })
       // Refresh the state
-      loadPage.refetch()
+      const { data } = await loadPage.refetch()
+      reset(data)
     } catch (e) {
       console.error(e)
     }
@@ -324,7 +339,7 @@ export default function ManagePage() {
                 <div className="row">
                   <div className="col-sm-5">
                     <ImageSelect
-                      filename={loadPage.data.logo as string}
+                      filename={loadPage.data.banner_image as string}
                       onChange={(event) => {
                         setValue('banner_image', event.target.files[0])
                       }}
