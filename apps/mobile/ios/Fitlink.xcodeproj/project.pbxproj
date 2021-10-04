@@ -53,6 +53,8 @@
 		748C4D5F9BAC4AAC8C2EA8ED /* fitlink.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = fitlink.ttf; path = ../assets/fonts/fitlink.ttf; sourceTree = "<group>"; };
 		7E6F44686D82B7250B7F6508 /* Pods-Fitlink.development.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink.development.xcconfig"; path = "Target Support Files/Pods-Fitlink/Pods-Fitlink.development.xcconfig"; sourceTree = "<group>"; };
 		885C13B11BE5E823465F59D7 /* Pods-Fitlink-FitlinkTests.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink-FitlinkTests.staging.xcconfig"; path = "Target Support Files/Pods-Fitlink-FitlinkTests/Pods-Fitlink-FitlinkTests.staging.xcconfig"; sourceTree = "<group>"; };
+		8A355F9674422A9F89593506 /* Pods-Fitlink-FitlinkTests.release.codepush.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink-FitlinkTests.release.codepush.xcconfig"; path = "Target Support Files/Pods-Fitlink-FitlinkTests/Pods-Fitlink-FitlinkTests.release.codepush.xcconfig"; sourceTree = "<group>"; };
+		91E592B5C21E52DD94904B8E /* Pods-Fitlink.release.codepush.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink.release.codepush.xcconfig"; path = "Target Support Files/Pods-Fitlink/Pods-Fitlink.release.codepush.xcconfig"; sourceTree = "<group>"; };
 		B3A0D7E44DF84DC9BC705B2C /* Lato-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Lato-Regular.ttf"; path = "../assets/fonts/Lato-Regular.ttf"; sourceTree = "<group>"; };
 		B7C3654B7BD4A9173B8A4878 /* Pods-Fitlink-FitlinkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink-FitlinkTests.debug.xcconfig"; path = "Target Support Files/Pods-Fitlink-FitlinkTests/Pods-Fitlink-FitlinkTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BA441B1A21B31D9A19C70326 /* libPods-Fitlink-FitlinkTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Fitlink-FitlinkTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -182,6 +184,8 @@
 				5865A5FC88403F83782EE204 /* Pods-Fitlink-FitlinkTests.development.xcconfig */,
 				C3112D0A8B9C3FAA2502D70E /* Pods-Fitlink-FitlinkTests.release.staging.xcconfig */,
 				55091BABC1AFFECEF0A66158 /* Pods-Fitlink-FitlinkTests.release.development.xcconfig */,
+				91E592B5C21E52DD94904B8E /* Pods-Fitlink.release.codepush.xcconfig */,
+				8A355F9674422A9F89593506 /* Pods-Fitlink-FitlinkTests.release.codepush.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -879,7 +883,7 @@
 		};
 		5BC99E5D26FB6A9900533FEA /* Release.Codepush */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6C634EBD2AADFB18E8721255 /* Pods-Fitlink.release.xcconfig */;
+			baseConfigurationReference = 91E592B5C21E52DD94904B8E /* Pods-Fitlink.release.codepush.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -908,7 +912,7 @@
 		};
 		5BC99E5E26FB6A9900533FEA /* Release.Codepush */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3A6BD20438AB8E9AD4A86424 /* Pods-Fitlink-FitlinkTests.release.xcconfig */;
+			baseConfigurationReference = 8A355F9674422A9F89593506 /* Pods-Fitlink-FitlinkTests.release.codepush.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
