@@ -383,7 +383,7 @@ export class UsersService {
    */
   findOne(id: string) {
     return this.userRepository.findOne(id, {
-      relations: ['settings', 'avatar']
+      relations: ['settings', 'avatar', 'teams']
     })
   }
 
