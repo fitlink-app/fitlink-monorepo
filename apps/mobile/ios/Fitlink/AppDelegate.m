@@ -11,6 +11,7 @@
 #import <AppCenterReactNativeAnalytics.h>
 #import <AppCenterReactNativeCrashes.h>
 #import <CodePush/CodePush.h>
+#import <IntercomModule.h>
 
 @import GooglePlaces;
 @import GoogleMaps;
@@ -67,6 +68,7 @@ static void InitializeFlipper(UIApplication *application) {
   [AppCenterReactNative register];
   [AppCenterReactNativeAnalytics registerWithInitiallyEnabled:true];
   [AppCenterReactNativeCrashes registerWithAutomaticProcessing];
+  [IntercomModule initialize:@"ios_sdk-e9cecd16c2a508c21a63fd21d3b20a1fb7ada2cb" withAppId:@"jhnnkwbj"];
   
   return YES;
 }
