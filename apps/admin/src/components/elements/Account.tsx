@@ -17,7 +17,7 @@ export default function Account() {
   return user ? (
     <div className="account" style={display}>
       <RoleSwitcher />
-      <Link href="/profile">
+      <Link href="/settings/profile">
         <div className="flex ai-c">
           <div className="avatar pointer">
             {!user.avatar && <span>{`${f[0]}${l ? l[0] : ''}`}</span>}

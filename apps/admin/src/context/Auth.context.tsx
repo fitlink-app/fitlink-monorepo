@@ -71,6 +71,7 @@ export type AuthContext = {
   menu: MenuProps[]
   mode: OrganisationMode
   user: User
+  team?: Team
   signup: (credentials: CreateUserDto) => Promise<AuthSignupDto>
   login: (credentials: AuthLoginDto) => Promise<AuthResultDto>
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
@@ -92,6 +93,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [modeRole, setModeRole] = useState<FocusRole>()
   const [primary, setPrimary] = useState<Primary>({})
   const [user, setUser] = useState<User>()
+  const [team, setTeam] = useState<Team>()
   const [fetchKey, setFetchKey] = useState<string>('default')
   const [menu, setMenu] = useState<MenuProps[]>([])
   const [mode, setMode] = useState<OrganisationMode>(OrganisationMode.Simple)
@@ -185,6 +187,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         let org: Organisation
         if (currentRole.data.organisation_admin[0]) {
           org = await fetchOrganisation(currentRole.data.organisation_admin[0])
+          setTeam(org.teams[0])
 
           if (org && org.mode === OrganisationMode.Complex) {
             setMode(OrganisationMode.Complex)
@@ -203,6 +206,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           } else {
             setModeRole('team')
           }
+
+          const team = await fetchTeam(currentRole.data.team_admin[0])
+          setTeam(team)
         }
       } else {
         setFocusRole('app')
@@ -238,7 +244,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         setFocusRole('organisation')
         setModeRole('team')
-        // Set primary IDs
+        setTeam(orgRole.organisation.teams[0])
       } else if (
         orgRole &&
         orgRole.organisation.mode === OrganisationMode.Complex
@@ -252,6 +258,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setFocusRole('organisation')
         setModeRole('organisation')
         setMode(OrganisationMode.Complex)
+        setTeam(orgRole.organisation.teams[0])
       } else if (teamRole) {
         setPrimary({
           organisation: undefined,
@@ -261,6 +268,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setFocusRole('team')
         setModeRole('team')
         setMode(OrganisationMode.Simple)
+        setTeam(teamRole.team)
       }
     }
 
@@ -346,6 +354,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (org.mode === OrganisationMode.Complex) {
         mode = 'organisation'
       }
+      setTeam(org.teams[0])
     } else if (params.role === Roles.TeamAdmin) {
       role = 'team'
       mode = 'team'
@@ -355,6 +364,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       organisation = teamEntity.organisation.id
       team = params.id
       subscription = teamEntity.organisation.subscriptions[0].id
+      setTeam(teamEntity)
     } else if (params.role === Roles.SubscriptionAdmin) {
       role = 'subscription'
     }
@@ -415,6 +425,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         menu,
         mode,
         user,
+        team,
         login,
         logout,
         signup,
