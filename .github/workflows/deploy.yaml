@@ -57,6 +57,9 @@ jobs:
       # Chargebee
       CHARGEBEE_API_KEY: ${{ secrets.DEV_CHARGEBEE_API_KEY }}
 
+      # Intercom
+      INTERCOM_API_KEY: ${{ secrets.PROD_INTERCOM_API_KEY }}
+
     steps:
       - uses: actions/checkout@v2
 
