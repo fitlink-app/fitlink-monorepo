@@ -13,6 +13,7 @@
 #import <CodePush/CodePush.h>
 #import <IntercomModule.h>
 #import <UserNotifications/UserNotifications.h>
+#import <React/RCTLinkingManager.h>
 
 @import GooglePlaces;
 @import GoogleMaps;
@@ -91,6 +92,21 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     [IntercomModule setDeviceToken:deviceToken];
+}
+
+- (BOOL)application:(UIApplication *)application
+   openURL:(NSURL *)url
+   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+{
+  return [RCTLinkingManager application:application openURL:url options:options];
+}
+
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+  return [RCTLinkingManager application:application openURL:url
+                      sourceApplication:sourceApplication annotation:annotation];
 }
 
 @end
