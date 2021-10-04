@@ -6,7 +6,8 @@ import {
   Put,
   Param,
   Delete,
-  Query
+  Query,
+  BadRequestException
 } from '@nestjs/common'
 import { OrganisationsService } from './organisations.service'
 import {
@@ -30,13 +31,23 @@ import { PaginationQuery } from '../../helpers/paginate'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { SearchOrganisationDto } from './dto/search-organisation.dto'
 import { User, UserPublicPagination } from '../users/entities/user.entity'
+import { AuthenticatedUser } from '../../models'
+import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
+import { RespondOrganisationsInvitationDto } from '../organisations-invitations/dto/respond-organisations-invitation.dto'
+import {
+  OrganisationsInvitationsService,
+  OrganisationsInvitationsServiceError
+} from '../organisations-invitations/organisations-invitations.service'
+import { VerifyOrganisationsInvitationDto } from '../organisations-invitations/dto/verify-organisations-invitation.dto'
+import { Public } from '../../decorators/public.decorator'
 
 @ApiTags('organisations')
 @ApiBaseResponses()
-@Controller('organisations')
+@Controller()
 export class OrganisationsController {
   constructor(
     private readonly organisationsService: OrganisationsService,
+    private readonly invitationsService: OrganisationsInvitationsService,
     private readonly imagesService: ImagesService
   ) {}
 
@@ -47,21 +58,25 @@ export class OrganisationsController {
    */
   @Iam(Roles.SuperAdmin)
   @Uploads('avatar', UploadOptions.Nullable)
-  @Post()
+  @Post('/organisations')
   @ApiResponse({ type: CreateOrganisationDtoResult, status: 201 })
   async create(
     @Files('avatar') file: Storage.MultipartFile,
-    @Body() createOrganisationDto: CreateOrganisationDto
+    @Body() createOrganisationDto: CreateOrganisationDto,
+    @AuthUser() user: AuthenticatedUser
   ) {
     let image = {}
     if (file) {
       const avatar = await this.imagesService.createOne(file)
       image = { avatar }
     }
-    return this.organisationsService.create({
-      ...createOrganisationDto,
-      ...image
-    })
+    return this.organisationsService.create(
+      {
+        ...createOrganisationDto,
+        ...image
+      },
+      user.id
+    )
   }
 
   /**
@@ -70,7 +85,7 @@ export class OrganisationsController {
    * @returns
    */
   @Iam(Roles.SuperAdmin)
-  @Get()
+  @Get('/organisations')
   @ApiResponse({ type: Organisation, isArray: true, status: 200 })
   findAll(
     @Pagination() pagination: PaginationQuery,
@@ -85,7 +100,7 @@ export class OrganisationsController {
    * @returns
    */
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin)
-  @Get(':organisationId')
+  @Get('/organisations/:organisationId')
   @ApiResponse({ type: Organisation, status: 200 })
   findOne(@Param('organisationId') id: string) {
     return this.organisationsService.findOne(id)
@@ -98,7 +113,7 @@ export class OrganisationsController {
    * @returns
    */
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin)
-  @Put(':organisationId')
+  @Put('/organisations/:organisationId')
   @UpdateResponse()
   update(
     @Param('organisationId') id: string,
@@ -113,10 +128,26 @@ export class OrganisationsController {
    * @returns
    */
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin)
-  @Delete(':organisationId')
+  @Delete('/organisations/:organisationId')
   @DeleteResponse()
   remove(@Param('organisationId') id: string) {
     return this.organisationsService.remove(id)
+  }
+
+  @Post('/organisations-invitations/respond')
+  async accept(
+    @Body() { token, accept }: RespondOrganisationsInvitationDto,
+    @AuthUser() user: AuthenticatedUser
+  ) {
+    const result = await this.organisationsService.respondToInvitation(
+      token,
+      accept,
+      user.id
+    )
+    if (typeof result === 'string') {
+      throw new BadRequestException(result)
+    }
+    return result
   }
 
   /**
@@ -134,4 +165,46 @@ export class OrganisationsController {
   // ) {
   //   return this.organisationsService.findAllUsers(id, query, pagination)
   // }
+
+  /**
+   * Verifies that a token is still valid. This is useful
+   * in the UI layer to tell the user whether they can
+   * still proceed with creating an account, or alternatively
+   * with merging the organisation under their current login.
+   *
+   * Throws an UnauthorizedException if the token is no
+   * longer valid.
+   *
+   * @param token
+   * @returns boolean
+   */
+  @Public()
+  @Post('organisations-invitations/verify')
+  async verify(@Body() { token }: VerifyOrganisationsInvitationDto) {
+    const result = await this.invitationsService.verifyToken(token)
+
+    if (typeof result === 'string') {
+      throw new BadRequestException(result)
+    }
+
+    if (!result) {
+      throw new BadRequestException(
+        OrganisationsInvitationsServiceError.TokenNotFound
+      )
+    }
+
+    return result
+  }
+
+  @Iam(Roles.OrganisationAdmin)
+  @Get('/organisations/:organisationId/stats')
+  findAllUsersAndStats(
+    @Param('organisationId') organisationId: string,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.organisationsService.queryUserOrganisationStats(
+      organisationId,
+      pagination
+    )
+  }
 }

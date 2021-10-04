@@ -6,7 +6,7 @@ import {UpdateUserEmailDto} from '@fitlink/api/src/modules/users/dto/update-user
 
 export function useUpdateEmail() {
   return useMutation(
-    (dto: UpdateUserEmailDto) => api.put<any>('/me/email', dto),
+    (dto: UpdateUserEmailDto) => api.put<any>('/me/email', {payload: dto}),
     {
       onSuccess: (data, variables) => {
         queryClient.setQueryData<User>(

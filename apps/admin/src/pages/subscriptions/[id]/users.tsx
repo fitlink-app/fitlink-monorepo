@@ -20,6 +20,7 @@ import { BillingPlanStatus } from '@fitlink/api/src/modules/subscriptions/subscr
 import { useRouter } from 'next/router'
 import { ApiResult } from '../../../../../common/react-query/types'
 import { useQuery, useQueryClient } from 'react-query'
+import Loader from '../../../components/elements/Loader'
 
 const enumToBool = ({ value }) => {
   return boolToIcon({
@@ -35,16 +36,23 @@ export default function SubscriptionsUsersPage() {
   const [wide, setWide] = useState(false)
   const [refresh, setRefresh] = useState(0)
   const router = useRouter()
-  const { api } = useContext(AuthContext)
+  const { api, primary, focusRole } = useContext(AuthContext)
   const subscriptionData = useRef<Subscription>()
   const subscriptionId = (router.query.id as unknown) as string
 
   const subscription: ApiResult<Subscription> = useQuery(
     subscriptionId || 'subscription_id',
     () =>
-      api.get<Subscription>('/subscriptions/:subscriptionId', {
-        subscriptionId
-      }),
+      api.get<Subscription>(
+        '/subscriptions/:subscriptionId',
+        {
+          subscriptionId
+        },
+        {
+          primary,
+          useRole: focusRole
+        }
+      ),
     {
       enabled: false
     }
@@ -62,8 +70,8 @@ export default function SubscriptionsUsersPage() {
     subscriptionData.current = subscription.data
   }, [subscription.dataUpdatedAt])
 
-  if (!subscriptionId) {
-    return <>Loading...</>
+  if (!router.isReady) {
+    return <Loader />
   }
 
   const closeDrawer = (ms = 0) => async () => {
@@ -105,10 +113,17 @@ export default function SubscriptionsUsersPage() {
         onCancel={closeDrawer()}
         current={fields}
         mutation={(id) =>
-          api.delete('/subscriptions/:subscriptionId/users/:userId', {
-            subscriptionId,
-            userId: id
-          })
+          api.delete(
+            '/subscriptions/:subscriptionId/users/:userId',
+            {
+              subscriptionId,
+              userId: id
+            },
+            {
+              primary,
+              useRole: focusRole
+            }
+          )
         }
         title={`Remove ${fields.name}`}
         message={`
@@ -186,6 +201,10 @@ export default function SubscriptionsUsersPage() {
                   limit,
                   page,
                   subscriptionId
+                },
+                {
+                  primary,
+                  useRole: focusRole
                 }
               )
             } else {

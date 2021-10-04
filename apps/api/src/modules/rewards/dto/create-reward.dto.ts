@@ -44,8 +44,8 @@ export class CreateRewardDto {
   @MinLength(3, {
     message: 'Must have a descriptive length'
   })
-  @MaxLength(50, {
-    message: 'Must not exceed 50 characters in length'
+  @MaxLength(80, {
+    message: 'Must not exceed 80 characters in length'
   })
   name_short: string
 

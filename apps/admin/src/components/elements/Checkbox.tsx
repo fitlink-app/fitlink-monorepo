@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { UseFormRegisterReturn } from 'react-hook-form'
 import clsx from 'clsx'
+import parse from 'html-react-parser'
 
 export type CheckboxProps = {
   label: string
   name: string
   checked?: boolean
   showSwitch?: boolean
-  onChange?: (e: any) => void
+  onChange?: (checked: boolean) => void
   error?: string
   register?: UseFormRegisterReturn
 }
@@ -48,7 +49,7 @@ export default function Checkbox({
         onChange={() => handleChange()}
         {...register}
       />
-      <label htmlFor={name}>{label}</label>
+      <label htmlFor={name}>{parse(label)}</label>
       {error !== '' && <span>{error}</span>}
     </div>
   )

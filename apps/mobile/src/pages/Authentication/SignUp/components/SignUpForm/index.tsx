@@ -1,9 +1,13 @@
 import React, {useRef} from 'react';
 import {Button, FormError, InputField, Label} from '@components';
-import {useAuth, useForm} from '@hooks';
+import {useForm} from '@hooks';
 import styled from 'styled-components/native';
 import {TextInput} from 'react-native';
 import {PrivacyPolicyLabel, TermsOfServiceLabel} from './components';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from 'redux/store';
+import {signUp} from 'redux/auth/authSlice';
+import {RequestError} from '@api';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -28,7 +32,8 @@ export interface SignUpFormValues {
 }
 
 export const SignUpForm = () => {
-  const {signUp} = useAuth();
+  // const {signUp} = useAuth();
+  const dispatch = useDispatch() as AppDispatch;
 
   const passwordFieldRef = useRef<TextInput>(null);
 
@@ -46,8 +51,11 @@ export const SignUpForm = () => {
 
   const onSubmit = async () => {
     const credentials = {email: values.email, password: values.password};
-    const requestError = await signUp(credentials);
-    return requestError;
+
+    const result = await dispatch(signUp(credentials));
+    return result.type === signUp.rejected.toString()
+      ? (result.payload as RequestError)
+      : undefined;
   };
 
   return (
@@ -89,7 +97,8 @@ export const SignUpForm = () => {
 
       <SignUpButton
         text="Agree and Sign up"
-        onPress={handleSubmit(onSubmit)}
+        loadingText="Creating account..."
+        onPress={() => handleSubmit(onSubmit)}
         loading={isSubmitting}
         disabled={
           isSubmitting ||

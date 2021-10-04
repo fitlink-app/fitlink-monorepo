@@ -1,5 +1,11 @@
 import React from 'react';
-import {ViewStyle, ActivityIndicator, StyleProp, TextStyle} from 'react-native';
+import {
+  ViewStyle,
+  ActivityIndicator,
+  StyleProp,
+  TextStyle,
+  View,
+} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {Label} from './Label';
 import {Icon} from './Icon';
@@ -7,9 +13,11 @@ import {TouchHandler, TouchHandlerProps} from './TouchHandler';
 
 const ButtonLabel = styled(Label)({textAlign: 'center'});
 
-const Row = styled.View({flexDirection: 'row'});
+const Row = styled.View({
+  flexDirection: 'row',
+});
 
-const ButtonContentContainer = styled.View(({theme: {colors}}) => ({
+const ButtonContentContainer = styled.View(() => ({
   borderRadius: 8,
   height: 44,
   paddingHorizontal: 24,
@@ -18,13 +26,23 @@ const ButtonContentContainer = styled.View(({theme: {colors}}) => ({
   alignItems: 'center',
 }));
 
+const IconContainer = styled.View({
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: 20,
+  height: 20,
+});
+
 type ButtonType = 'default' | 'danger';
 
 export interface ButtonProps extends TouchHandlerProps {
   text?: string;
+  loadingText?: string;
   type?: ButtonType;
   textStyle?: StyleProp<TextStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
   outline?: boolean;
+  wrapContent?: boolean;
   textOnly?: boolean;
   icon?: string;
   loading?: boolean;
@@ -32,17 +50,20 @@ export interface ButtonProps extends TouchHandlerProps {
 
 export const Button = ({
   text,
+  loadingText,
   type = 'default',
   disabled,
   outline,
+  wrapContent,
   textOnly,
   textStyle,
+  containerStyle,
   icon,
   loading,
   style,
   ...rest
 }: ButtonProps) => {
-  const {typography, colors, fonts} = useTheme();
+  const {typography, colors} = useTheme();
 
   const buttonMainColor = createButtonMainColor();
 
@@ -84,6 +105,14 @@ export const Button = ({
       });
     }
 
+    if (!wrapContent) {
+      additionalContainerStyles.push({width: '100%', alignItems: 'center'});
+    }
+
+    if (containerStyle) {
+      additionalContainerStyles.push(containerStyle as ViewStyle);
+    }
+
     return additionalContainerStyles;
   }
 
@@ -91,7 +120,8 @@ export const Button = ({
     let color = typography.button.color;
 
     if (disabled) {
-      color = textOnly ? colors.accentSecondary : typography.button.color;
+      color =
+        textOnly || outline ? colors.accentSecondary : typography.button.color;
     } else {
       if (outline) {
         color = buttonMainColor;
@@ -112,7 +142,7 @@ export const Button = ({
   }
 
   function createTextStyle() {
-    let style: StyleProp<TextStyle> = {flex: 1};
+    let style: StyleProp<TextStyle> = wrapContent ? {} : {flex: 1};
 
     if (textOnly) style = typography.textButton;
 
@@ -122,7 +152,7 @@ export const Button = ({
   const textColor = createButtonTextColor();
 
   const buttonBaseStyleModifier: StyleProp<ViewStyle> = {
-    width: textOnly ? undefined : '100%',
+    width: textOnly || wrapContent ? undefined : '100%',
     alignItems: 'center',
   };
 
@@ -131,12 +161,18 @@ export const Button = ({
       {...{...rest, disabled}}
       style={[style, buttonBaseStyleModifier]}>
       <ButtonContentContainer style={createContainerStyle()}>
-        {loading ? (
-          <ActivityIndicator color={textColor} />
-        ) : (
-          <Row>
-            {!!icon && <Icon name={icon} size={18} color={textColor} />}
-
+        <Row>
+          {!!icon && !loading && (
+            <IconContainer>
+              <Icon name={icon} size={18} color={textColor} />
+            </IconContainer>
+          )}
+          {loading && !loadingText && (
+            <IconContainer>
+              <ActivityIndicator color={textColor} />
+            </IconContainer>
+          )}
+          {(!loading || loadingText) && (
             <ButtonLabel
               numberOfLines={1}
               style={{
@@ -145,10 +181,10 @@ export const Button = ({
                 color: textColor,
                 ...(textStyle as {}),
               }}>
-              {text}
+              {loading ? (loadingText ? loadingText : text) : text}
             </ButtonLabel>
-          </Row>
-        )}
+          )}
+        </Row>
       </ButtonContentContainer>
     </TouchHandler>
   );

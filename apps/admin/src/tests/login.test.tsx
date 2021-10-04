@@ -63,19 +63,17 @@ describe('Login', () => {
     moxios.stubRequest('/me', {
       status: 200,
       response: {
-        email: 'johndoe@example.com'
+        email: 'johndoe@example.com',
+        name: 'John Doe'
       }
-    })
-
-    moxios.stubRequest('/me/roles', {
-      status: 200,
-      response: []
     })
 
     const push = jest.fn()
     useRouter.mockImplementation(() => ({
       push,
-      prefetch: jest.fn(() => Promise.resolve())
+      prefetch: jest.fn(() => Promise.resolve()),
+      isReady: true,
+      query: {}
     }))
 
     render(
@@ -90,7 +88,7 @@ describe('Login', () => {
       })
       .click()
 
-    await waitFor(() => expect(push).toHaveBeenCalledWith('/dashboard'))
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/start'))
     expect(console.error).not.toHaveBeenCalled()
   })
 })

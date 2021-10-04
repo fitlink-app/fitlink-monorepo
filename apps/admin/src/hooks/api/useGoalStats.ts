@@ -3,6 +3,7 @@ import { useQuery } from 'react-query'
 import { AuthContext } from '../../context/Auth.context'
 import { ApiResult } from '@fitlink/common/react-query/types'
 import { formatISO, startOfDay, endOfDay } from 'date-fns'
+import { FocusRole } from '@fitlink/api-sdk/types'
 
 type Result = {
   goal_steps: number
@@ -29,11 +30,11 @@ type Progress = {
 }
 
 export default function useGoalStats(
-  type: 'organisation' | 'team' | 'app',
+  type: FocusRole,
   startAt: Date,
   endAt?: Date
 ) {
-  const { api, primary, focusRole } = useContext(AuthContext)
+  const { api, primary, modeRole } = useContext(AuthContext)
 
   const goalStatsData: ApiResult<Result & Progress> = useQuery(
     `${type}_${primary.team || primary.organisation}_stats_goals`,
@@ -54,7 +55,7 @@ export default function useGoalStats(
           },
           {
             primary,
-            useRole: focusRole
+            useRole: modeRole
           }
         )
 

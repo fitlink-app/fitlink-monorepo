@@ -1,8 +1,12 @@
 import React, {useRef} from 'react';
 import {Button, FormError, FormTitle, InputField} from '@components';
-import {useAuth, useForm} from '@hooks';
+import {useForm} from '@hooks';
 import styled from 'styled-components/native';
 import {TextInput} from 'react-native';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from 'redux/store';
+import {signIn} from 'redux/auth/authSlice';
+import {RequestError} from '@api';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -26,7 +30,7 @@ interface SignInFormProps {
 }
 
 export const SignInForm = ({onEmailChanged}: SignInFormProps) => {
-  const {signIn} = useAuth();
+  const dispatch = useDispatch() as AppDispatch;
 
   const passwordFieldRef = useRef<TextInput>(null);
 
@@ -44,8 +48,11 @@ export const SignInForm = ({onEmailChanged}: SignInFormProps) => {
 
   const onSubmit = async () => {
     const credentials = {email: values.email, password: values.password};
-    const requestError = await signIn(credentials);
-    return requestError;
+
+    const result = await dispatch(signIn(credentials));
+    return result.type === signIn.rejected.toString()
+      ? (result.payload as RequestError)
+      : undefined;
   };
 
   return (
@@ -87,7 +94,8 @@ export const SignInForm = ({onEmailChanged}: SignInFormProps) => {
 
       <SignInButton
         text="Sign in"
-        onPress={handleSubmit(onSubmit)}
+        loadingText="Logging in..."
+        onPress={() => handleSubmit(onSubmit)}
         loading={isSubmitting}
         disabled={
           isSubmitting ||

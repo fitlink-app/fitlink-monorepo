@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsOptional, IsString, IsUUID } from 'class-validator'
+import { SubscriptionType } from '../subscriptions.constants'
 export class CreateSubscriptionDto {
   @ApiProperty()
   @IsString()
@@ -8,6 +9,10 @@ export class CreateSubscriptionDto {
   @ApiProperty()
   @IsOptional()
   billing_first_name?: string
+
+  @ApiProperty()
+  @IsOptional()
+  type?: SubscriptionType
 
   @ApiProperty()
   @IsOptional()

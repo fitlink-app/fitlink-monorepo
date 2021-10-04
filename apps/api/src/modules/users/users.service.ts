@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { formatRoles } from '../../helpers/formatRoles'
@@ -20,9 +20,12 @@ import { FirebaseScrypt } from './helpers/firebase-scrypt'
 import { AuthProvider } from '../auth/entities/auth-provider.entity'
 import { ImagesService } from '../images/images.service'
 import { FilterUserDto } from './dto/search-user.dto'
+import { UserRank } from './users.constants'
+import { Roles } from '../user-roles/user-roles.constants'
 
 type EntityOwner = {
   organisationId?: string
+  subscriptionId?: string
   teamId?: string
 }
 
@@ -219,6 +222,88 @@ export class UsersService {
     })
   }
 
+  /**
+   * Finds all admins based on role
+   * @param param0
+   * @param filters
+   * @param entityOwner
+   * @returns
+   */
+
+  async findAllAdmins(
+    { limit = 10, page = 0 }: PaginationOptionsInterface,
+    filters: FilterUserDto = {},
+    entityOwner?: EntityOwner
+  ): Promise<Pagination<User>> {
+    let query = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.avatar', 'avatar')
+      .innerJoin('user.roles', 'role')
+      .take(limit)
+      .skip(page * limit)
+
+    if (entityOwner && entityOwner.organisationId) {
+      query = query.where('role.organisation.id = :organisationId', {
+        organisationId: entityOwner.organisationId
+      })
+
+      if (entityOwner.subscriptionId) {
+        query = query
+          .andWhere('role.role = :role', {
+            role: Roles.SubscriptionAdmin
+          })
+          .andWhere('role.subscription.id = :subscriptionId', {
+            subscriptionId: entityOwner.subscriptionId
+          })
+      } else {
+        query = query.andWhere('role.role = :role', {
+          role: Roles.OrganisationAdmin
+        })
+      }
+    } else if (entityOwner && entityOwner.subscriptionId) {
+      query = query.where('role.subscription.id = :subscriptionId', {
+        subscriptionId: entityOwner.organisationId
+      })
+    }
+
+    if (entityOwner && entityOwner.teamId) {
+      query = query
+        .where('role.team.id = :teamId', {
+          teamId: entityOwner.teamId
+        })
+        .andWhere('role.role = :role', {
+          role: Roles.TeamAdmin
+        })
+    }
+
+    if (
+      !entityOwner.organisationId &&
+      !entityOwner.teamId &&
+      !entityOwner.subscriptionId
+    ) {
+      query = query.where('role.role = :role', {
+        role: Roles.SuperAdmin
+      })
+    }
+
+    if (filters.q && filters.q.indexOf('@') > 0) {
+      query = query.andWhere('user.email ILIKE :email', {
+        email: `${filters.q}%`
+      })
+    } else if (filters.q) {
+      query = query.andWhere('user.name ILIKE :name', {
+        name: `%${filters.q}%`
+      })
+    }
+
+    const [results, total] = await query.getManyAndCount()
+
+    return new Pagination<User>({
+      results,
+      total
+    })
+  }
+
   async searchByNameOrEmail(
     keyword: string,
     userId: string,
@@ -343,7 +428,7 @@ export class UsersService {
   }
 
   updateBasic(id: string, { imageId, ...rest }: UpdateBasicUserDto) {
-    let update: Partial<User> = { ...rest }
+    const update: Partial<User> = { ...rest }
 
     if (imageId) {
       update.avatar = new Image()
@@ -415,7 +500,7 @@ export class UsersService {
       .getCount()
 
     if (exists) {
-      throw new Error('Requested email is already in use')
+      throw new BadRequestException('Requested email is already in use')
     }
 
     await this.sendVerificationEmail(userId, email)
@@ -438,7 +523,10 @@ export class UsersService {
   verifyEmail(token: string) {
     try {
       const payload = this.jwtService.decode(token) as EmailResetJWT
-      this.jwtService.verify(token)
+      this.jwtService.verify(token, {
+        secret: this.configService.get('EMAIL_JWT_TOKEN_SECRET')
+      })
+
       if (payload.type === 'email-reset') {
         const [id, email] = payload.sub.split('|')
         return this.userRepository.update(id, {
@@ -469,7 +557,10 @@ export class UsersService {
       type: 'email-reset'
     }
 
-    const token = this.jwtService.sign(payload)
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get('EMAIL_JWT_TOKEN_SECRET')
+    })
+
     const EMAIL_VERIFICATION_LINK = this.configService
       .get('EMAIL_VERIFICATION_URL')
       .replace('{token}', token)
@@ -551,5 +642,18 @@ export class UsersService {
     const [hashed, salt] = hash.split('__FIREBASE__')
 
     return scrypt.verify(password, salt, hashed)
+  }
+
+  async calculateUserRank(userId: string) {
+    const user = await this.userRepository.findOne(userId)
+    const average = Math.ceil(user.active_minutes_week / 7)
+
+    return isNaN(average) || !average || average <= 10
+      ? UserRank.Tier1
+      : average <= 30
+      ? UserRank.Tier2
+      : average <= 50
+      ? UserRank.Tier3
+      : UserRank.Tier4
   }
 }

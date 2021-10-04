@@ -14,13 +14,14 @@ import { RewardsModule } from '../rewards/rewards.module'
 import { FeedItemsModule } from '../feed-items/feed-items.module'
 import { NewFollowerListener } from './listeners/NewFollowerListener'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { UserActiveMinutesIncrementedListener } from './listeners/UserActiveMinutesIncrementedListener'
 
 @Module({
   imports: [
     CommonModule,
     TypeOrmModule.forFeature([User, AuthProvider]),
     ConfigModule,
-    FeedItemsModule,
+    forwardRef(() => FeedItemsModule),
     HttpModule,
     // forward ref rewards module because of the circular dependency
     forwardRef(() => RewardsModule),
@@ -43,7 +44,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
     UsersService,
     ConfigService,
     UserPointsIncrementedListener,
-    NewFollowerListener
+    NewFollowerListener,
+    UserActiveMinutesIncrementedListener
   ],
   exports: [TypeOrmModule.forFeature([User]), UsersService]
 })

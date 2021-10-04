@@ -5,7 +5,10 @@ import Select from '../elements/Select'
 import { Controller, useForm } from 'react-hook-form'
 import { CreateOrganisationDto } from '@fitlink/api/src/modules/organisations/dto/create-organisation.dto'
 import { Organisation } from '@fitlink/api/src/modules/organisations/entities/organisation.entity'
-import { OrganisationType } from '@fitlink/api/src/modules/organisations/organisations.constants'
+import {
+  OrganisationMode,
+  OrganisationType
+} from '@fitlink/api/src/modules/organisations/organisations.constants'
 import Checkbox from '../elements/Checkbox'
 import { AuthContext } from '../../context/Auth.context'
 import { useMutation } from 'react-query'
@@ -16,6 +19,7 @@ import Feedback from '../elements/Feedback'
 import useApiErrors from '../../hooks/useApiErrors'
 import AvatarSelect from '../elements/AvatarSelect'
 import { Image } from '../../../../api/src/modules/images/entities/image.entity'
+import noop from 'lodash/noop'
 
 export type CreateOrganisationProps = {
   current?: Partial<Organisation>
@@ -30,7 +34,12 @@ const organisationTypes = Object.keys(OrganisationType).map((key) => {
   }
 })
 
-const noop = () => {}
+const organisationModes = Object.keys(OrganisationMode).map((key) => {
+  return {
+    label: key,
+    value: OrganisationMode[key]
+  }
+})
 
 export default function CreateOrganisation({
   current = {},
@@ -49,7 +58,8 @@ export default function CreateOrganisation({
           invite_user: false,
           invitee: '',
           email: '',
-          image: undefined
+          image: undefined,
+          mode: OrganisationMode.Simple
         }
       : {}
   })
@@ -171,6 +181,31 @@ export default function CreateOrganisation({
               id="type"
               defaultValue={
                 organisationTypes.filter((e) => e.value === current.type)[0]
+              }
+              onChange={(option) => {
+                if (option) {
+                  field.onChange(option.value)
+                }
+              }}
+              onBlur={field.onBlur}
+            />
+          )
+        }}
+      />
+
+      <Controller
+        name="mode"
+        control={control}
+        render={({ field }) => {
+          return (
+            <Select
+              classNamePrefix="addl-class"
+              options={organisationModes}
+              label="Mode"
+              inline={false}
+              id="mode"
+              defaultValue={
+                organisationModes.filter((e) => e.value === current.mode)[0]
               }
               onChange={(option) => {
                 if (option) {

@@ -1,21 +1,40 @@
-import {Button, GoalTracker, Icon, RewardTracker} from '@components';
-import {useAuth, useMe} from '@hooks';
+import {
+  FeedFilter,
+  FeedItem,
+  GoalTracker,
+  Icon,
+  Label,
+  Modal,
+  RewardTracker,
+} from '@components';
+import {useGoals, useMe, useModal} from '@hooks';
 import {UserWidget} from '@components';
-import React from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {FlatList, RefreshControl} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {getPersistedData, persistData} from '@utils';
+import {NewsletterModal} from './components';
 
 const Wrapper = styled.View({flex: 1});
 
-const SettingsButtonContainer = styled.View({
+const TopButtonRow = styled.View({
   position: 'absolute',
   right: 20,
+  flexDirection: 'row',
 });
+
+const TopButtonSpacer = styled.View({width: 10});
 
 const SettingsButton = styled(Icon).attrs(({theme: {colors}}) => ({
   name: 'gear',
+  size: 20,
+  color: colors.accentSecondary,
+}))({});
+
+const NotificationsButton = styled(Icon).attrs(({theme: {colors}}) => ({
+  name: 'bell',
   size: 20,
   color: colors.accentSecondary,
 }))({});
@@ -27,33 +46,75 @@ const HeaderContainer = styled.View({
 
 const HeaderWidgetContainer = styled.View({marginTop: 10});
 
+const FeedContainer = styled.View({});
+
 export const Feed = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const {colors} = useTheme();
 
-  const {logout} = useAuth();
+  const {openModal, closeModal} = useModal();
 
-  const {
-    data: user,
-    isFetching: isFetchingUser,
-    refetch: refetchUser,
-  } = useMe({
+  const {data: user, refetch: refetchUser} = useMe({
     refetchOnMount: false,
+    refetchInterval: 10000,
   });
+
+  const {data: goals} = useGoals({
+    refetchOnMount: false,
+    refetchInterval: 10000,
+  });
+
+  const onFeedItemPressed = useCallback(() => {
+    navigation.navigate('HealthActivityDetails');
+  }, []);
+
+  useEffect(() => {
+    promptNewsletterModal();
+  }, [user]);
+
+  const promptNewsletterModal = async () => {
+    const newsletterKey = 'NEWSLETTER_PROMPTED';
+    const wasNewsletterModalShown = await getPersistedData(newsletterKey);
+
+    if (
+      !wasNewsletterModalShown &&
+      !user?.settings?.newsletter_subscriptions_user &&
+      !!user
+    ) {
+      await persistData(newsletterKey, 'true');
+
+      openModal(id => {
+        return (
+          <Modal title={'Newsletter'}>
+            <NewsletterModal
+              {...{user}}
+              onCloseCallback={() => {
+                closeModal(id);
+              }}
+            />
+          </Modal>
+        );
+      });
+    }
+  };
 
   if (!user) return null;
 
-  // TODO: Add followed_total count to UserWidget once the API provides it
+  const renderItem = ({item, index}) => {
+    return <FeedItem key={item} onContentPress={onFeedItemPressed} />;
+  };
 
   return (
     <Wrapper style={{paddingTop: insets.top}}>
       <FlatList
+        {...{renderItem}}
+        data={[1, 2, 3, 4, 5, 6]}
         style={{overflow: 'visible'}}
         refreshControl={
           <RefreshControl
             tintColor={colors.accent}
-            refreshing={isFetchingUser}
+            refreshing={false}
             onRefresh={refetchUser}
           />
         }
@@ -64,7 +125,8 @@ export const Feed = () => {
                 <UserWidget
                   name={user.name}
                   rank={'Newbie'}
-                  friendCount={8}
+                  avatar={user.avatar?.url_512x512}
+                  friendCount={user.following_total}
                   followerCount={user.followers_total}
                   pointCount={user.points_total}
                 />
@@ -76,31 +138,46 @@ export const Feed = () => {
                     {
                       enabled: true,
                       identifier: 'steps',
-                      goal: {value: 3476, target: 7500},
+                      goal: {
+                        value: goals?.current_steps || 0,
+                        target: goals?.target_steps || 0,
+                      },
                       icon: 'steps',
                     },
                     {
-                      enabled: false,
+                      enabled: true,
                       identifier: 'mindfulness',
-                      goal: {value: 0, target: 200},
+                      goal: {
+                        value: goals?.current_mindfulness_minutes || 0,
+                        target: goals?.target_mindfulness_minutes || 0,
+                      },
                       icon: 'yoga',
                     },
                     {
-                      enabled: false,
+                      enabled: true,
                       identifier: 'water',
-                      goal: {value: 0, target: 200},
+                      goal: {
+                        value: goals?.current_water_litres || 0,
+                        target: goals?.target_water_litres || 0,
+                      },
                       icon: 'water',
                     },
                     {
                       enabled: true,
                       identifier: 'sleep',
-                      goal: {value: 7.5, target: 8},
+                      goal: {
+                        value: goals?.current_sleep_hours || 0,
+                        target: goals?.target_sleep_hours || 0,
+                      },
                       icon: 'sleep',
                     },
                     {
                       enabled: true,
                       identifier: 'floors',
-                      goal: {value: 22, target: 15},
+                      goal: {
+                        value: goals?.current_floors_climbed || 0,
+                        target: goals?.target_floors_climbed || 0,
+                      },
                       icon: 'stairs',
                     },
                   ]}
@@ -112,32 +189,32 @@ export const Feed = () => {
                   points={177}
                   targetPoints={250}
                   claimableRewardsCount={0}
-                  onPress={() => {
-                    // TODO: Navigate to Rewards
-                  }}
+                  onPress={() => navigation.navigate('Rewards')}
                 />
               </HeaderWidgetContainer>
 
-              <SettingsButtonContainer>
+              <TopButtonRow>
+                <NotificationsButton
+                  onPress={() => {
+                    navigation.navigate('Notifications');
+                  }}
+                />
+
+                <TopButtonSpacer />
+
                 <SettingsButton
                   onPress={() => {
                     navigation.navigate('Settings');
                   }}
                 />
-              </SettingsButtonContainer>
-
-              <HeaderWidgetContainer>
-                <Button text="Log out" onPress={() => logout()} />
-              </HeaderWidgetContainer>
-
-              <HeaderWidgetContainer>
-                <Button text="Test hook" onPress={() => refetchUser()} />
-              </HeaderWidgetContainer>
+              </TopButtonRow>
             </HeaderContainer>
+
+            <FeedContainer>
+              <FeedFilter />
+            </FeedContainer>
           </>
         }
-        data={[]}
-        renderItem={() => null}
       />
     </Wrapper>
   );

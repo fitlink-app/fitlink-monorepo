@@ -1,9 +1,10 @@
 import clsx from 'clsx'
+import React from 'react'
 import IconClose from '../icons/IconClose'
 
 export type FeedbackProps = {
   type?: 'success' | 'error' | 'default'
-  message: string
+  message: string | React.ReactNode
   dismissable?: boolean
   remove?: () => void
   className?: string

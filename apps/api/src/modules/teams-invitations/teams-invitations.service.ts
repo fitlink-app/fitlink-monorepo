@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException
-} from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectRepository } from '@nestjs/typeorm'
 import { FindManyOptions, Repository } from 'typeorm'
@@ -12,6 +8,19 @@ import { TeamsInvitation } from './entities/teams-invitation.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { JwtService } from '@nestjs/jwt'
 import { TeamInvitationJWT } from '../../models/team-invitation.jwt.model'
+import { User, UserPublic } from '../users/entities/user.entity'
+import { plainToClass } from 'class-transformer'
+import { Team } from '../teams/entities/team.entity'
+
+export enum TeamsInvitationsServiceError {
+  TokenNotFound = 'The invitation cannot be found',
+  TokenExpired = 'The invitation can no longer be used'
+}
+
+type InviteeInviter = {
+  inviter: string
+  invitee: string
+}
 
 @Injectable()
 export class TeamsInvitationsService {
@@ -20,25 +29,63 @@ export class TeamsInvitationsService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     @InjectRepository(TeamsInvitation)
-    private readonly invitationsRepository: Repository<TeamsInvitation>
+    private readonly invitationsRepository: Repository<TeamsInvitation>,
+    @InjectRepository(Team)
+    private readonly teamsRepository: Repository<Team>
   ) {}
 
-  async create(createDto: CreateTeamsInvitationDto) {
-    const { email, team, invitee } = createDto
-    const invitation = await this.invitationsRepository.save(
-      this.invitationsRepository.create({
+  async create(createDto: CreateTeamsInvitationDto, ownerId: string) {
+    const { email, team, invitee, admin } = createDto
+
+    let inviteLink: string
+
+    const inviterTeam = await this.teamsRepository.findOne(team.id)
+
+    if (admin) {
+      const owner = new User()
+      owner.id = ownerId
+
+      const invitation = await this.invitationsRepository.save(
+        this.invitationsRepository.create({
+          email,
+          team,
+          name: invitee,
+          admin,
+          owner
+        })
+      )
+
+      const token = this.createToken(invitation.id)
+      inviteLink = this.createInviteLink(token)
+
+      await this.sendEmail(
+        {
+          invitee: invitee,
+          inviter: inviterTeam.name
+        },
         email,
-        team,
-        name: invitee
-      })
-    )
+        inviteLink,
+        admin
+      )
 
-    const token = this.createToken(invitation.id)
-    const inviteLink = this.createInviteLink(token)
+      return { invitation, inviteLink, token }
+    } else {
+      // Join links are not time-based and can be joined by anyone
+      // with the link. Useful for Slack integrations for e.g.
+      inviteLink = this.getJoinLink(inviterTeam).url
 
-    await this.sendEmail(invitee, email, inviteLink)
+      await this.sendEmail(
+        {
+          invitee: invitee,
+          inviter: inviterTeam.name
+        },
+        email,
+        inviteLink,
+        false
+      )
 
-    return { invitation, inviteLink, token }
+      return { inviteLink }
+    }
   }
 
   /**
@@ -51,12 +98,20 @@ export class TeamsInvitationsService {
    * @returns jwt token
    */
   async resend(id: string) {
-    const { email, name } = await this.findOne(id)
+    const { email, name, admin, team } = await this.findOne(id)
 
     const token = this.createToken(id)
     const inviteLink = this.createInviteLink(token)
 
-    await this.sendEmail(name, email, inviteLink)
+    await this.sendEmail(
+      {
+        invitee: name,
+        inviter: team.name
+      },
+      email,
+      inviteLink,
+      admin
+    )
 
     return { token, inviteLink }
   }
@@ -69,7 +124,20 @@ export class TeamsInvitationsService {
    * @returns string
    */
   createInviteLink(token: string) {
-    return this.configService.get('INVITE_TEAM_URL').replace('{token}', token)
+    return this.configService.get('INVITE_URL').replace('{token}', token)
+  }
+
+  /**
+   * Generates an team invitation url
+   * comprised of the JWT.
+   *
+   * @param token
+   * @returns string
+   */
+  getJoinLink(team: Team) {
+    return {
+      url: `${this.configService.get('SHORT_URL')}/join/${team.join_code}`
+    }
   }
 
   /**
@@ -80,11 +148,16 @@ export class TeamsInvitationsService {
    * @param inviteLink
    * @returns string (MessageId)
    */
-  sendEmail(invitee: string, email: string, inviteLink: string) {
+  sendEmail(
+    { invitee, inviter }: InviteeInviter,
+    email: string,
+    inviteLink: string,
+    isAdmin: boolean
+  ) {
     return this.emailService.sendTemplatedEmail(
-      'team-invitation',
+      isAdmin ? 'team-admin-invitation' : 'team-invitation',
       {
-        INVITER_NAME: 'Fitlink',
+        INVITER_NAME: inviter,
         INVITEE_NAME: invitee,
         INVITE_LINK: inviteLink
       },
@@ -124,11 +197,9 @@ export class TeamsInvitationsService {
     } catch (e) {
       switch (e.message) {
         case 'jwt expired':
-          throw new UnauthorizedException(
-            'The invitation can no longer be used'
-          )
+          return TeamsInvitationsServiceError.TokenExpired
         default:
-          throw new BadRequestException('Token is invalid')
+          return TeamsInvitationsServiceError.TokenNotFound
       }
     }
   }
@@ -142,15 +213,25 @@ export class TeamsInvitationsService {
    * @returns object (TeamInvitation)
    */
 
-  verifyToken(token: string) {
+  async verifyToken(token: string) {
     const payload = this.readToken(token)
-    try {
-      return this.invitationsRepository.findOne(payload.sub, {
-        where: { accepted: false },
-        relations: ['team']
-      })
-    } catch (e) {
-      return new UnauthorizedException('The invitation can no longer be used')
+
+    if (typeof payload === 'string') {
+      return payload as TeamsInvitationsServiceError
+    }
+
+    const result = await this.invitationsRepository.findOne(payload.sub, {
+      where: { accepted: false, dismissed: false },
+      relations: ['team', 'owner']
+    })
+
+    if (result) {
+      return {
+        ...result,
+        owner: plainToClass(UserPublic, result.owner)
+      } as TeamsInvitation
+    } else {
+      return null
     }
   }
 
@@ -189,7 +270,8 @@ export class TeamsInvitationsService {
     return this.invitationsRepository.findOne({
       where: {
         id: invitationId
-      }
+      },
+      relations: ['team']
     })
   }
 
@@ -205,5 +287,29 @@ export class TeamsInvitationsService {
    */
   remove(id: string) {
     return this.invitationsRepository.delete(id)
+  }
+
+  /**
+   * Decline the invitation
+   *
+   * @param invitation
+   * @returns object (TeamInvitation)
+   */
+
+  decline(invitation: TeamsInvitation) {
+    invitation.dismissed = true
+    return this.invitationsRepository.save(invitation)
+  }
+
+  /**
+   * Accept the invitation
+   *
+   * @param invitation
+   * @returns object (TeamInvitation)
+   */
+
+  accept(invitation: TeamsInvitation) {
+    invitation.accepted = true
+    return this.invitationsRepository.save(invitation)
   }
 }

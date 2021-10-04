@@ -11,6 +11,10 @@ import { Organisation } from '@fitlink/api/src/modules/organisations/entities/or
 import { timeout } from '../helpers/timeout'
 import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 import { Roles } from '../../../api/src/modules/user-roles/user-roles.constants'
+import Input from '../components/elements/Input'
+import useDebounce from '../hooks/useDebounce'
+import LoaderFullscreen from '../components/elements/LoaderFullscreen'
+import toast from 'react-hot-toast'
 
 export default function OrganisationsPage() {
   const [drawContent, setDrawContent] = useState<
@@ -19,6 +23,7 @@ export default function OrganisationsPage() {
   const [warning, setWarning] = useState(false)
   const [wide, setWide] = useState(false)
   const [refresh, setRefresh] = useState(0)
+  const [keyword, setKeyword] = useState('')
   const { switchRole } = useContext(AuthContext)
 
   const closeDrawer = (ms = 0) => async () => {
@@ -90,12 +95,15 @@ export default function OrganisationsPage() {
       </button>
       <button
         className="button small ml-1"
-        onClick={() =>
+        onClick={() => {
+          toast.loading(<b>Switching role...</b>)
           switchRole({
             id: original.id,
             role: Roles.OrganisationAdmin
+          }).finally(() => {
+            toast.dismiss()
           })
-        }>
+        }}>
         Switch
       </button>
       <button
@@ -106,17 +114,35 @@ export default function OrganisationsPage() {
     </div>
   )
 
-  const { api } = useContext(AuthContext)
+  const handleOrgSearch = async (search) => {
+    setKeyword(search)
+  }
+
+  const dbSearchTerm = useDebounce(keyword, 500)
+  const { api, fetchKey, focusRole, primary } = useContext(AuthContext)
+
+  if (focusRole !== 'app') {
+    return <LoaderFullscreen />
+  }
 
   return (
     <Dashboard title="Settings Users">
-      <div className="flex ai-c">
-        <h1 className="light mb-0 mr-2">Manage organisations</h1>
-        <button
-          className="button alt small mt-1"
-          onClick={CreateOrganisationForm}>
-          Create New Organisation
-        </button>
+      <div className="flex ai-c jc-sb">
+        <div className="flex ai-c">
+          <h1 className="light mb-0 mr-2">Manage organisations</h1>
+          <button
+            className="button alt small mt-1"
+            onClick={CreateOrganisationForm}>
+            Create New Organisation
+          </button>
+        </div>
+        <Input
+          inline={true}
+          onChange={handleOrgSearch}
+          name="orgSearch"
+          placeholder="Enter name..."
+          value=""
+        />
       </div>
 
       <div className="mt-4 overflow-x-auto">
@@ -134,14 +160,23 @@ export default function OrganisationsPage() {
             { Header: 'Updated', accessor: 'updated_at', Cell: toDateCell },
             { Header: ' ', Cell: cellActions }
           ]}
-          fetch={(limit, page) =>
-            api.list<Organisation>('/organisations', {
-              limit,
-              page
-            })
+          fetch={(limit, page, query) =>
+            api.list<Organisation>(
+              '/organisations',
+              {
+                limit,
+                page,
+                query
+              },
+              {
+                primary,
+                useRole: focusRole
+              }
+            )
           }
-          fetchName="organisations"
+          fetchName={`organisations_${fetchKey}`}
           refresh={refresh}
+          keyword={dbSearchTerm}
         />
       </div>
 

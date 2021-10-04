@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
+import { Events } from '../../../../src/events'
 import {
   FeedItemCategory,
   FeedItemType
@@ -17,7 +18,7 @@ export class DailyGoalReachedListener {
     private goalEntryService: GoalsEntriesService
   ) {}
 
-  @OnEvent('daily_goal.reached')
+  @OnEvent(Events.DAILY_GOAL_REACHED)
   async triggerGoalEntriesUpdate(payload: DailyGoalsReachedEvent) {
     const { goalEntryId, userId, goal_type } = payload
     const user = await this.userService.findOne(userId)

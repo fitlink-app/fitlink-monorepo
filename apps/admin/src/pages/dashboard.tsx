@@ -12,7 +12,7 @@ import IconWater from '../components/icons/IconWater'
 import Select from '../components/elements/Select'
 import Feedback from '../components/elements/Feedback'
 import IconDownload from '../components/icons/IconDownload'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import useHealthActivityStats from '../hooks/api/useHealthActivityStats'
 import useGoalStats from '../hooks/api/useGoalStats'
 import useRewardStats from '../hooks/api/useRewardStats'
@@ -21,6 +21,9 @@ import useLeagueStats from '../hooks/api/useLeagueStats'
 import useGlobalStats from '../hooks/api/useGlobalStats'
 import capitalize from 'lodash/capitalize'
 import { options } from '../data/date-options'
+import { useRouter } from 'next/router'
+import { LoaderChart } from '../components/elements/LoaderChart'
+import { TableLoader } from '../components/Table/TableLoader'
 
 type DateStartEnd = {
   startAt?: Date
@@ -28,14 +31,25 @@ type DateStartEnd = {
 }
 
 export default function components() {
-  const { focusRole } = useContext(AuthContext)
+  const { focusRole, modeRole } = useContext(AuthContext)
+  const router = useRouter()
+
+  useEffect(() => {
+    if (focusRole === 'subscription') {
+      router.push('/start')
+    }
+  }, [focusRole])
+
+  if (focusRole === 'subscription') {
+    return null
+  }
 
   return (
     <Dashboard title="Dashboard">
       <h1 className="light">
-        {focusRole === 'app' && 'Fitlink global statistics'}
-        {focusRole === 'organisation' && 'Your organisation at a glance'}
-        {focusRole === 'team' && 'Your team at a glance'}
+        {modeRole === 'app' && 'Fitlink global statistics'}
+        {modeRole === 'organisation' && 'Your organisation at a glance'}
+        {modeRole === 'team' && 'Your team at a glance'}
       </h1>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">
@@ -55,7 +69,7 @@ export default function components() {
           <PopularRewards />
         </div>
       </div>
-      {focusRole !== 'app' && (
+      {modeRole !== 'app' && (
         <div className="row mt-2">
           <div className="col-12 col-lg-6 mt-2">
             <GlobalInsights />
@@ -88,9 +102,9 @@ function PopularActivities() {
     endAt: new Date()
   })
 
-  const { focusRole } = useContext(AuthContext)
+  const { modeRole } = useContext(AuthContext)
 
-  const query = useHealthActivityStats(focusRole, dates.startAt, dates.endAt)
+  const query = useHealthActivityStats(modeRole, dates.startAt, dates.endAt)
 
   return (
     <Card className="p-3 card--stretch">
@@ -120,7 +134,12 @@ function PopularActivities() {
         </div>
       </div>
       <div style={{ height: '400px' }}>
-        {query.isFetched && query.data.results.length > 0 && (
+        {query.isFetching && (
+          <div className="abs-center">
+            <LoaderChart />
+          </div>
+        )}
+        {query.isFetched && !query.isFetching && query.data.results.length > 0 && (
           <VerticalBarChart
             data={{
               labels: query.data.results.map((e) => e.name),
@@ -140,117 +159,125 @@ function GoalStats() {
     endAt: new Date()
   })
 
-  const { focusRole } = useContext(AuthContext)
-  const audience = focusRole === 'app' ? 'audience' : focusRole
-  const query = useGoalStats(focusRole, dates.startAt, dates.endAt)
+  const { modeRole } = useContext(AuthContext)
+  const audience = modeRole === 'app' ? 'audience' : modeRole
+  const query = useGoalStats(modeRole, dates.startAt, dates.endAt)
 
   return (
-    query.isFetched && (
-      <Card className="p-3 card--stretch">
-        <div className="row ai-c">
-          <div className="col">
-            <h2 className="h5 color-light-grey m-0">
-              How is your {audience} doing?
-            </h2>
-          </div>
-          <div className="col flex ai-c jc-e">
-            <IconDownload
-              width="24px"
-              height="24px"
-              className="mr-1 color-light-grey hover-dark-grey"
-            />
-            <Select
-              id="team"
-              defaultValue={options[2]}
-              isSearchable={false}
-              options={options}
-              inline={true}
-              onChange={(v: any) => {
-                setDates({
-                  startAt: v.date,
-                  endAt: v.end_date
-                })
-              }}
-            />
-          </div>
+    <Card className="p-3 card--stretch">
+      <div className="row ai-c">
+        <div className="col">
+          <h2 className="h5 color-light-grey m-0">
+            How is your {audience} doing?
+          </h2>
         </div>
-        <div className="row mt-4">
-          <div className="col-4 text-center">
-            <ProgressChart
-              progress={query.data.progress_active_users}
-              icon={<IconFriends />}
-              value={query.data.user_active_count.toLocaleString()}
-              goal={query.data.user_total_count.toLocaleString()}
-              label="Active users"
-            />
-          </div>
-          <div className="col-4 text-center">
-            <ProgressChart
-              progress={query.data.progress_steps}
-              icon={<IconSteps />}
-              value={query.data.current_steps.toLocaleString()}
-              goal={query.data.goal_steps.toLocaleString()}
-              label="Average daily steps"
-              color="#4EF0C2"
-            />
-          </div>
-          <div className="col-4 text-center">
-            <ProgressChart
-              progress={query.data.progress_sleep_hours}
-              icon={<IconSleep />}
-              value={query.data.current_sleep_hours.toLocaleString()}
-              goal={query.data.goal_sleep_hours.toLocaleString()}
-              label="Average hours slept"
-              color="#7CF5AB"
-            />
-          </div>
+        <div className="col flex ai-c jc-e">
+          <IconDownload
+            width="24px"
+            height="24px"
+            className="mr-1 color-light-grey hover-dark-grey"
+          />
+          <Select
+            id="team"
+            defaultValue={options[2]}
+            isSearchable={false}
+            options={options}
+            inline={true}
+            onChange={(v: any) => {
+              setDates({
+                startAt: v.date,
+                endAt: v.end_date
+              })
+            }}
+          />
         </div>
-        <div className="row mt-2">
-          <div className="col-4 text-center">
-            <ProgressChart
-              progress={query.data.progress_mindfulness_minutes}
-              icon={<IconYoga />}
-              value={query.data.current_mindfulness_minutes.toLocaleString()}
-              goal={query.data.goal_mindfulness_minutes.toLocaleString()}
-              label="Average mindful minutes"
-              color="#A6F893"
-            />
-          </div>
-          <div className="col-4 text-center">
-            <ProgressChart
-              progress={query.data.progress_floors_climbed}
-              icon={<IconStairs />}
-              value={query.data.current_floors_climbed.toLocaleString()}
-              goal={query.data.goal_floors_climbed.toLocaleString()}
-              label="Average floors climbed"
-              color="#7CF5AB"
-            />
-          </div>
-          <div className="col-4 text-center">
-            <ProgressChart
-              progress={query.data.progress_water_litres}
-              icon={<IconWater />}
-              value={query.data.current_water_litres.toLocaleString()}
-              goal={query.data.goal_water_litres.toLocaleString()}
-              label="Average water intake"
-              color="#4EF0C2"
-            />
-          </div>
+      </div>
+      {query.isFetching && (
+        <div className="abs-center">
+          <LoaderChart />
         </div>
-      </Card>
-    )
+      )}
+
+      {query.isFetched && !query.isFetching && (
+        <>
+          <div className="row mt-4">
+            <div className="col-4 text-center">
+              <ProgressChart
+                progress={query.data.progress_active_users}
+                icon={<IconFriends />}
+                value={query.data.user_active_count.toLocaleString()}
+                goal={query.data.user_total_count.toLocaleString()}
+                label="Active users"
+              />
+            </div>
+            <div className="col-4 text-center">
+              <ProgressChart
+                progress={query.data.progress_steps}
+                icon={<IconSteps />}
+                value={query.data.current_steps.toLocaleString()}
+                goal={query.data.goal_steps.toLocaleString()}
+                label="Average daily steps"
+                color="#4EF0C2"
+              />
+            </div>
+            <div className="col-4 text-center">
+              <ProgressChart
+                progress={query.data.progress_sleep_hours}
+                icon={<IconSleep />}
+                value={query.data.current_sleep_hours.toLocaleString()}
+                goal={query.data.goal_sleep_hours.toLocaleString()}
+                label="Average hours slept"
+                color="#7CF5AB"
+              />
+            </div>
+          </div>
+          <div className="row mt-2">
+            <div className="col-4 text-center">
+              <ProgressChart
+                progress={query.data.progress_mindfulness_minutes}
+                icon={<IconYoga />}
+                value={query.data.current_mindfulness_minutes.toLocaleString()}
+                goal={query.data.goal_mindfulness_minutes.toLocaleString()}
+                label="Average mindful minutes"
+                color="#A6F893"
+              />
+            </div>
+            <div className="col-4 text-center">
+              <ProgressChart
+                progress={query.data.progress_floors_climbed}
+                icon={<IconStairs />}
+                value={query.data.current_floors_climbed.toLocaleString()}
+                goal={query.data.goal_floors_climbed.toLocaleString()}
+                label="Average floors climbed"
+                color="#7CF5AB"
+              />
+            </div>
+            <div className="col-4 text-center">
+              <ProgressChart
+                progress={query.data.progress_water_litres}
+                icon={<IconWater />}
+                value={query.data.current_water_litres.toLocaleString()}
+                goal={query.data.goal_water_litres.toLocaleString()}
+                label="Average water intake"
+                color="#4EF0C2"
+              />
+            </div>
+          </div>
+        </>
+      )}
+    </Card>
   )
 }
 
 function PopularLeagues() {
-  const { focusRole } = useContext(AuthContext)
+  const { modeRole } = useContext(AuthContext)
 
   const [dates, setDates] = useState<DateStartEnd>({
     startAt: options[2].date,
     endAt: new Date()
   })
 
-  const query = useLeagueStats(focusRole, dates.startAt, dates.endAt)
+  const query = useLeagueStats(modeRole, dates.startAt, dates.endAt)
 
   return (
     <Card className="p-3 card--stretch">
@@ -279,7 +306,12 @@ function PopularLeagues() {
           />
         </div>
       </div>
-      {query.isFetched && (
+      {query.isFetching && (
+        <div className="abs-center">
+          <LoaderChart />
+        </div>
+      )}
+      {query.isFetched && !query.isFetching && (
         <table className="static-table mt-2">
           <tbody>
             {query.data.slice(0, 6).map((e, i) => (
@@ -315,9 +347,9 @@ function PopularRewards() {
     endAt: new Date()
   })
 
-  const { focusRole } = useContext(AuthContext)
+  const { modeRole } = useContext(AuthContext)
 
-  const query = useRewardStats(focusRole, dates.startAt, dates.endAt)
+  const query = useRewardStats(modeRole, dates.startAt, dates.endAt)
 
   return (
     <Card className="p-3 card--stretch">
@@ -346,7 +378,12 @@ function PopularRewards() {
           />
         </div>
       </div>
-      {query.isFetched && (
+      {query.isFetching && (
+        <div className="abs-center">
+          <LoaderChart />
+        </div>
+      )}
+      {query.isFetched && !query.isFetching && (
         <table className="static-table mt-2">
           <tbody>
             {query.data.slice(0, 6).map((e, i) => (
@@ -377,17 +414,17 @@ function PopularRewards() {
 }
 
 function GlobalInsights() {
-  const { focusRole } = useContext(AuthContext)
-  const query = useGlobalStats(focusRole)
+  const { modeRole } = useContext(AuthContext)
+  const query = useGlobalStats(modeRole)
 
   return (
     <Card className="p-3 card--stretch">
       <h2 className="h5 color-light-grey mt-1">
-        {capitalize(focusRole)} insights
+        {capitalize(modeRole)} insights
       </h2>
       <ul className="news">
         <li className="unread">
-          <h5>Your {focusRole} isn't drinking enough water 💧</h5>
+          <h5>Your {modeRole} isn't drinking enough water 💧</h5>
           <p>
             Failing to drink enough water can cause dehydration and adverse
             symptoms, including fatigue, headache and weakened immunity. Here
@@ -408,15 +445,15 @@ function GlobalInsights() {
         </Link>
         {query.isFetched && query.data.league_count === 0 && (
           <li>
-            <h5>Create your first {focusRole} league 🏆</h5>
-            {focusRole === 'organisation' && (
+            <h5>Create your first {modeRole} league 🏆</h5>
+            {modeRole === 'organisation' && (
               <p>
                 Create an organisation league if you want anyone across your
                 company to be able to participate, regardless of their team.
               </p>
             )}
             <p>
-              Inspire your {focusRole} to get moving, why not create a simple
+              Inspire your {modeRole} to get moving, why not create a simple
               steps league so that everyone can get involved.
             </p>
           </li>
@@ -437,8 +474,8 @@ function GlobalInsights() {
 
         {query.isFetched && query.data.reward_count === 0 && (
           <li>
-            <h5>Create your first {focusRole} reward 🎁</h5>
-            {focusRole === 'organisation' && (
+            <h5>Create your first {modeRole} reward 🎁</h5>
+            {modeRole === 'organisation' && (
               <p>
                 Create an organisation reward if you want anyone across your
                 company to be able to be rewarded with it, regardless of their
@@ -446,7 +483,7 @@ function GlobalInsights() {
               </p>
             )}
             <p>
-              Encourage your {focusRole} to get active, get moving and stay
+              Encourage your {modeRole} to get active, get moving and stay
               healthy by creating rewards that fit your people. How about free
               yoga classes, a free smoothie, fitness trackers and gadgets, spa
               vouchers, lunch vouchers, 1-hour off work, a day off work, a free

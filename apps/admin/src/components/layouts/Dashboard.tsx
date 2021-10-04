@@ -4,13 +4,21 @@ import Sidebar from '../elements/Sidebar'
 import { Toaster } from 'react-hot-toast'
 import { AuthContext } from '../../context/Auth.context'
 import Button from '../elements/Button'
+import Loader from '../elements/Loader'
+import LoaderFullscreen from '../elements/LoaderFullscreen'
+import Account from '../elements/Account'
+import { useRouter } from 'next/router'
+import { useIntercom } from 'react-use-intercom'
 
 type DashboardProps = {
-  children: React.ReactNode
+  children?: React.ReactNode
   title?: string
   description?: string
   image?: string
   linkPrefix?: string
+  hideSidebar?: boolean
+  loading?: boolean
+  forceDisplay?: boolean
 }
 
 let hydrated = false
@@ -19,11 +27,17 @@ export default function Dashboard({
   children,
   title = 'Fitlink',
   description = '',
-  linkPrefix = ''
+  linkPrefix = '',
+  hideSidebar = false,
+  loading = false,
+  forceDisplay = false
 }: DashboardProps) {
   const hydratedRef = useRef(false)
   const [, rerender] = useState(false)
-  const { menu, switchMode, restoreRole } = useContext(AuthContext)
+  const scrollContainer = useRef<HTMLDivElement>()
+  const { menu, modeRole } = useContext(AuthContext)
+  const router = useRouter()
+  const { boot } = useIntercom()
 
   const url = process.env.URL
 
@@ -34,6 +48,26 @@ export default function Dashboard({
       rerender(true)
     }
   }, [])
+
+  useEffect(() => {
+    if (scrollContainer.current) {
+      document.documentElement.classList.remove('scrolled')
+      scrollContainer.current.addEventListener('scroll', scrollEvent)
+    }
+    return () => {
+      if (scrollContainer.current) {
+        scrollContainer.current.removeEventListener('scroll', scrollEvent)
+      }
+    }
+
+    function scrollEvent() {
+      if (scrollContainer.current.scrollTop > 20) {
+        document.documentElement.classList.add('scrolled')
+      } else {
+        document.documentElement.classList.remove('scrolled')
+      }
+    }
+  }, [scrollContainer.current, router.route])
 
   return (
     <>
@@ -68,12 +102,33 @@ export default function Dashboard({
           href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap"
         />
       </Head>
-      <Toaster position="top-right" />
-      <div className="layout-dashboard">
-        <Sidebar prefix={linkPrefix} menu={menu} />
-        <div className="content">{children}</div>
-      </div>
-      <div id="modal-root"></div>
+      <Toaster
+        position="top-right"
+        containerClassName="toast-wrapper"
+        toastOptions={{
+          style: {
+            padding: '12px'
+          }
+        }}
+        containerStyle={{
+          right: 30
+        }}
+      />
+
+      {(!modeRole || loading) && !forceDisplay ? (
+        <LoaderFullscreen />
+      ) : (
+        <>
+          <div className="layout-dashboard">
+            {!hideSidebar && <Sidebar prefix={linkPrefix} menu={menu} />}
+            <div className="content" ref={scrollContainer}>
+              {!hideSidebar && <Account />}
+              {children}
+            </div>
+          </div>
+          <div id="modal-root"></div>
+        </>
+      )}
     </>
   )
 }

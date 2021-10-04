@@ -9,7 +9,7 @@ type Result = {
 }
 
 export default function useLeagueStats(type: FocusRole) {
-  const { api, fetchKey, primary, focusRole } = useContext(AuthContext)
+  const { api, fetchKey, primary, modeRole } = useContext(AuthContext)
 
   const statsData: ApiResult<Result> = useQuery(
     `${fetchKey}_stats_global`,
@@ -20,7 +20,7 @@ export default function useLeagueStats(type: FocusRole) {
           {},
           {
             primary,
-            useRole: focusRole
+            useRole: modeRole
           }
         )
       }

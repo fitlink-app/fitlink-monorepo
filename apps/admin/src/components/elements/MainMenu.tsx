@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { useRouter } from 'next/dist/client/router'
+import { useRouter, Router, NextRouter } from 'next/dist/client/router'
 import MenuItem from './MenuItem'
 import IconActivities from '../icons/IconActivities'
 import IconCreditCard from '../icons/IconCreditCard'
@@ -11,7 +11,6 @@ import IconRewards from '../icons/IconRewards'
 import IconSignOut from '../icons/IconSignOut'
 import IconYoga from '../icons/IconYoga'
 import { AuthContext } from '../../context/Auth.context'
-import Button from '../elements/Button'
 
 const icons = {
   IconActivities,
@@ -26,9 +25,12 @@ const icons = {
 }
 
 export type MenuProps = {
-  label: string
-  link: string
+  label?: string
+  link?: string
   icon?: string
+  hr?: boolean
+  subMenu?: MenuProps[]
+  onClick?: () => void
 }
 
 export type MainMenuProps = {
@@ -39,31 +41,54 @@ export type MainMenuProps = {
 export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
   const router = useRouter()
   const current = router.pathname
-  const { switchMode, restoreRole } = useContext(AuthContext)
 
   if (menu.length && !prefix) {
     return (
-      <>
-        {switchMode ? (
-          <div className="top left">
-            <a href="#" className="btn small" onClick={() => restoreRole()}>
-              Back
-            </a>
-          </div>
-        ) : null}
-        {menu.map(({ label, link, icon }) => {
+      <div>
+        {menu.map((item: MenuProps, index: number) => {
+          const { label, link, icon, onClick, hr, subMenu } = item
           const Icon = icons[icon]
+          if (hr) {
+            return <hr key={index} />
+          }
+
           return (
-            <MenuItem
-              to={link}
-              label={label}
-              key={label}
-              current={current.startsWith(link)}
-              icon={Icon ? <Icon /> : null}
-            />
+            <div key={index}>
+              <MenuItem
+                to={link}
+                onClick={onClick}
+                label={label}
+                current={startsWith(router, link)}
+                icon={Icon ? <Icon /> : null}
+              />
+              {(subMenu && startsWith(router, link)) ||
+              (subMenu &&
+                subMenu.filter((e) => startsWith(router, e.link)).length) ? (
+                <div className="sub-menu">
+                  {subMenu.map((item, index) => {
+                    const { label, link, icon, onClick, hr } = item
+                    const Icon = icons[icon]
+                    if (hr) {
+                      return <hr key={index} />
+                    }
+                    return (
+                      <MenuItem
+                        to={link}
+                        onClick={onClick}
+                        label={label}
+                        key={index}
+                        current={startsWith(router, link)}
+                        icon={Icon ? <Icon /> : null}
+                      />
+                    )
+                  })}
+                  <hr />
+                </div>
+              ) : null}
+            </div>
           )
         })}
-      </>
+      </div>
     )
   }
 
@@ -149,4 +174,12 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
       />
     </>
   )
+}
+
+const startsWith = (router: NextRouter, link: string) => {
+  let pathname = router.pathname
+  Object.keys(router.query).map((k) => {
+    pathname = pathname.replace(`[${k}]`, router.query[k] as string)
+  })
+  return pathname.startsWith(link)
 }

@@ -6,9 +6,13 @@ import {
   Put,
   Param,
   Delete,
-  Request
+  Request,
+  BadRequestException
 } from '@nestjs/common'
-import { TeamsInvitationsService } from './teams-invitations.service'
+import {
+  TeamsInvitationsService,
+  TeamsInvitationsServiceError
+} from './teams-invitations.service'
 import { CreateTeamsInvitationDto } from './dto/create-teams-invitation.dto'
 import { Iam } from '../../decorators/iam.decorator'
 import { Roles } from '../user-roles/user-roles.constants'
@@ -16,6 +20,9 @@ import { VerifyTeamsInvitationDto } from './dto/verify-teams-invitation.dto'
 import { Team } from '../teams/entities/team.entity'
 import { Public } from '../../decorators/public.decorator'
 import { ApiTags } from '@nestjs/swagger'
+import { User } from '../../decorators/authenticated-user.decorator'
+import { AuthenticatedUser } from '../../models'
+import { RespondTeamsInvitationDto } from './dto/respond-teams-invitation.dto'
 
 @Controller()
 @ApiTags('teams')
@@ -38,18 +45,25 @@ export class TeamsInvitationsController {
    * @returns TeamInvitation
    */
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.TeamAdmin)
-  @Post('organisations/:organisationId/teams/:teamId/invitations')
+  @Post([
+    'organisations/:organisationId/teams/:teamId/invitations',
+    'teams/:teamId/invitations'
+  ])
   create(
     @Param('teamId') id,
-    @Body() createTeamsInvitationDto: CreateTeamsInvitationDto
+    @Body() createTeamsInvitationDto: CreateTeamsInvitationDto,
+    @User() user: AuthenticatedUser
   ) {
     const team = new Team()
     team.id = id
 
-    return this.teamsInvitationsService.create({
-      ...createTeamsInvitationDto,
-      ...{ team }
-    })
+    return this.teamsInvitationsService.create(
+      {
+        ...createTeamsInvitationDto,
+        ...{ team }
+      },
+      user.id
+    )
   }
 
   /**
@@ -133,7 +147,17 @@ export class TeamsInvitationsController {
    */
   @Public()
   @Post('teams-invitations/verify')
-  verify(@Body() { token }: VerifyTeamsInvitationDto) {
-    return this.teamsInvitationsService.verifyToken(token)
+  async verify(@Body() { token }: VerifyTeamsInvitationDto) {
+    const result = await this.teamsInvitationsService.verifyToken(token)
+
+    if (typeof result === 'string') {
+      throw new BadRequestException(result)
+    }
+
+    if (!result) {
+      throw new BadRequestException(TeamsInvitationsServiceError.TokenNotFound)
+    }
+
+    return result
   }
 }

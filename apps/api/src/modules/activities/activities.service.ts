@@ -18,6 +18,15 @@ type EntityOwner = {
   teamId?: string
 }
 
+type PublicActivity = {
+  lat: number
+  lng: number
+  date?: string
+  name?: string
+  type?: string
+  description?: string
+}
+
 @Injectable()
 export class ActivitiesService {
   constructor(
@@ -88,7 +97,7 @@ export class ActivitiesService {
         organizer_image: organizerImage,
         meeting_point: {
           type: 'Point',
-          coordinates: meeting_point.split(',')
+          coordinates: meeting_point.split(',').map((e) => Number(e))
         }
       })
     )
@@ -198,11 +207,13 @@ export class ActivitiesService {
     const geo = geoRadial.split(',')
     const query = this.queryFindAccessibleToUser(userId)
       .andWhere(
-        'ST_DistanceSphere(activity.meeting_point, ST_MakePoint(:lat,:lng)) <= :rad * 1000',
+        `((ST_DistanceSphere(activity.meeting_point, ST_MakePoint(:lat,:lng)) <= :rad * 1000)
+        OR owner.id = :userId)`,
         {
           lat: geo[0],
           lng: geo[1],
-          rad: parseInt(geo[2]) || 5
+          rad: parseInt(geo[2]) || 5,
+          userId
         }
       )
       .take(500)
@@ -500,5 +511,25 @@ export class ActivitiesService {
           userId
         }
       )
+  }
+
+  async getTeamActivitiesForPublicPage(
+    teamId: string
+  ): Promise<PublicActivity[]> {
+    const activities = await this.activityRepository
+      .createQueryBuilder('activity')
+      .where('activity.team.id = :teamId', { teamId })
+      .orWhere('activity.team IS NULL and activity.organisation IS NULL')
+      .limit(50)
+      .getMany()
+
+    return activities.map((e) => ({
+      lat: e.meeting_point.coordinates[0],
+      lng: e.meeting_point.coordinates[1],
+      date: e.date,
+      name: e.name,
+      type: e.type,
+      description: e.description
+    }))
   }
 }

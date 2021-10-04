@@ -32,6 +32,19 @@ export class UserRolesController {
   }
 
   /**
+   *
+   * @param user
+   * @param roleId
+   * @returns
+   */
+  @Get('me/role')
+  @ApiTags('me')
+  @ApiResponse({ type: UserRole, isArray: true, status: 200 })
+  getMyCurrentRole(@User() user: AuthenticatedUser) {
+    return user.roles
+  }
+
+  /**
    * Deletes a role for the self-user
    * @param roleId
    * @param userId

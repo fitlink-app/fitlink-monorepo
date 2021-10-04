@@ -151,9 +151,9 @@ describe('Activities', () => {
   it(`POST /organisations 400 Fails with validation errors if payload contains bad timezone`, async () => {
     const payload = {
       name: 'Test Organisation',
-      timezone: 'Etc/GMT+UTC',
+      timezone: 1000000000000000,
       type: 'company'
-    } as CreateOrganisationDto
+    }
 
     const data = await app.inject({
       method: 'POST',

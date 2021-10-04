@@ -1,7 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, FindOneOptions, getManager, Repository } from 'typeorm'
+import {
+  Brackets,
+  FindOneOptions,
+  getManager,
+  LessThan,
+  Repository
+} from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { QueueableEventPayload } from '../../models/queueable.model'
 import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
@@ -14,6 +20,7 @@ import { League, LeaguePublic } from './entities/league.entity'
 import { LeagueAccess } from './leagues.constants'
 import { User, UserPublic } from '../users/entities/user.entity'
 import { Image } from '../images/entities/image.entity'
+import { FeedItem } from '../feed-items/entities/feed-item.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
 import { plainToClass } from 'class-transformer'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
@@ -21,6 +28,7 @@ import { addDays } from 'date-fns'
 import { CommonService } from '../common/services/common.service'
 import { LeagueJoinedEvent } from './events/league-joined.event'
 import { LeagueWonEvent } from './events/league-won.event'
+import { Events } from '../../events'
 
 type LeagueOptions = {
   teamId?: string
@@ -158,7 +166,8 @@ export class LeaguesService {
     const [results, total] = await this.leaguesRepository.findAndCount({
       where,
       take: limit,
-      skip: page * limit
+      skip: page * limit,
+      relations: ['image', 'sport']
     })
     return new Pagination<League>({
       results,
@@ -184,11 +193,38 @@ export class LeaguesService {
     })
   }
 
-  async getAllLeaguesForTeam(teamId: string): Promise<Pagination<League>> {
+  async getAllLeaguesForTeam(
+    id: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ): Promise<Pagination<League>> {
     const [results, total] = await this.leaguesRepository.findAndCount({
       where: {
-        team: teamId
-      }
+        team: { id }
+      },
+      relations: ['image', 'sport'],
+      take: limit,
+      skip: page * limit
+    })
+
+    return new Pagination<League>({
+      results,
+      total
+    })
+  }
+
+  async getAllLeaguesForOrganisation(
+    id: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ): Promise<Pagination<League>> {
+    const [results, total] = await this.leaguesRepository.findAndCount({
+      where: {
+        organisation: {
+          id
+        }
+      },
+      relations: ['image', 'sport'],
+      take: limit,
+      skip: page * limit
     })
 
     return new Pagination<League>({
@@ -462,7 +498,7 @@ export class LeaguesService {
     const event = new LeagueJoinedEvent()
     event.leagueId = leagueId
     event.userId = userId
-    await this.eventEmitter.emitAsync('league.joined', event)
+    await this.eventEmitter.emitAsync(Events.LEAGUE_JOINED, event)
     return { success: true, league, leaderboardEntry }
   }
 
@@ -507,8 +543,14 @@ export class LeaguesService {
     updateLeagueDto: UpdateLeagueDto,
     { teamId, organisationId }: LeagueOptions = {}
   ) {
-    const { imageId, ...rest } = updateLeagueDto
+    const { imageId, sportId, ...rest } = updateLeagueDto
     const update: Partial<League> = { ...rest }
+
+    if (sportId) {
+      // Assign the sport
+      update.sport = new Sport()
+      update.sport.id = sportId
+    }
 
     // Only the image is allowed to change
     if (imageId) {
@@ -563,6 +605,11 @@ export class LeaguesService {
 
       // Delete leaderboards for league
       await entityManager.getRepository(Leaderboard).delete({
+        league: { id: league.id }
+      })
+
+      // Delete feed items for league
+      await entityManager.getRepository(FeedItem).delete({
         league: { id: league.id }
       })
 
@@ -845,5 +892,19 @@ export class LeaguesService {
       )
     }
     return { winners }
+  }
+  /**
+   * Example method for testing serverless methods.
+   */
+  async processPendingLeagues() {
+    const leagues = await this.leaguesRepository.find({
+      where: {
+        ends_at: LessThan(new Date())
+      },
+      take: 10
+    })
+
+    console.log(leagues.map((e) => e.name))
+    return leagues
   }
 }

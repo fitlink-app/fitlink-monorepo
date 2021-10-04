@@ -1,10 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsEnum, IsOptional, IsString } from 'class-validator'
+import { IsEmail, IsEnum, IsOptional, IsString } from 'class-validator'
 import { BillingPlanStatus, SubscriptionType } from '../subscriptions.constants'
 export class CreateDefaultSubscriptionDto {
   @ApiProperty()
   @IsString()
   billing_entity: string
+
+  @ApiProperty()
+  @IsOptional()
+  @IsEmail()
+  billing_email?: string
 
   @ApiProperty()
   @IsOptional()
@@ -40,6 +45,10 @@ export class CreateDefaultSubscriptionDto {
 
   @ApiProperty()
   @IsOptional()
+  billing_currency_code?: string
+
+  @ApiProperty()
+  @IsOptional()
   billing_postcode?: string
 
   @ApiProperty()
@@ -54,5 +63,5 @@ export class CreateDefaultSubscriptionDto {
   @ApiProperty()
   @IsEnum(SubscriptionType)
   @IsOptional()
-  type?: string
+  type?: SubscriptionType
 }

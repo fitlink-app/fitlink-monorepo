@@ -92,6 +92,15 @@ export default class CreateSports implements Seeder {
       })
     }
 
+    if (!exists('steps')) {
+      create.push({
+        name: 'Steps',
+        name_key: 'steps',
+        singular: 'step',
+        plural: 'steps'
+      })
+    }
+
     if (!exists('yoga')) {
       create.push({
         name: 'Yoga',
@@ -143,6 +152,24 @@ export default class CreateSports implements Seeder {
         name_key: 'tennis',
         singular: 'tennis game',
         plural: 'tennis games'
+      })
+    }
+
+    if (!exists('swimming')) {
+      create.push({
+        name: 'Swimming',
+        name_key: 'swimming',
+        singular: 'swim',
+        plural: 'swims'
+      })
+    }
+
+    if (!exists('highIntensityIntervalTraining')) {
+      create.push({
+        name: 'HIIT',
+        name_key: 'highIntensityIntervalTraining',
+        singular: 'HIIT workout',
+        plural: 'HIIIT workouts'
       })
     }
 

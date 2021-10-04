@@ -14,4 +14,8 @@ export async function getPersistedData<T>(key: string) {
   return data;
 }
 
+export async function clearData(key: string) {
+  return AsyncStorage.removeItem(key);
+}
+
 export * from './constants';

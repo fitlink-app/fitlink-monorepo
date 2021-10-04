@@ -5,6 +5,9 @@ import { UpdateTeamDto } from '@fitlink/api/src/modules/teams/dto/update-team.dt
 import { Activity } from '@fitlink/api/src/modules/activities/entities/activity.entity'
 import { CreateActivityDto } from '@fitlink/api/src/modules/activities/dto/create-activity.dto'
 import { UpdateActivityDto } from '@fitlink/api/src/modules/activities/dto/update-activity.dto'
+import { League } from '@fitlink/api/src/modules/leagues/entities/league.entity'
+import { CreateLeagueDto } from '@fitlink/api/src/modules/leagues/dto/create-league.dto'
+import { UpdateLeagueDto } from '@fitlink/api/src/modules/leagues/dto/update-league.dto'
 import { Reward } from '@fitlink/api/src/modules/rewards/entities/reward.entity'
 import { CreateRewardDto } from '@fitlink/api/src/modules/rewards/dto/create-reward.dto'
 import { UpdateRewardDto } from '@fitlink/api/src/modules/rewards/dto/update-reward.dto'
@@ -21,6 +24,7 @@ import {
 } from '@fitlink/api/src/modules/auth/dto/auth-login'
 import { AuthSwitchDto } from '@fitlink/api/src/modules/auth/dto/auth-switch'
 import { CreateUserDto } from '@fitlink/api/src/modules/users/dto/create-user.dto'
+import { CreateUserWithOrganisationDto } from '@fitlink/api/src/modules/users/dto/create-user-with-organisation.dto'
 import {
   AuthResultDto,
   AuthLogoutDto,
@@ -31,12 +35,25 @@ import {
   UpdateUserAvatarDto,
   UpdateUserDto,
   UpdateUserEmailDto,
-  UpdateUserPasswordDto
+  UpdateUserPasswordDto,
+  VerifyUserEmailDto
 } from '@fitlink/api/src/modules/users/dto/update-user.dto'
 import { CreateDefaultSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/create-default-subscription.dto'
 import { UpdateSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/update-subscription.dto'
 import { AddUserToSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/add-user-to-subscription.dto'
-import { AuthRequestResetPasswordDto } from '@fitlink/api/src/modules/auth/dto/auth-reset-password'
+import {
+  AuthRequestResetPasswordDto,
+  AuthResetPasswordDto
+} from '@fitlink/api/src/modules/auth/dto/auth-reset-password'
+import { CreateAdminDto } from '@fitlink/api/src/modules/users/dto/create-admin.dto'
+import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
+import { TeamsInvitation } from '@fitlink/api/src/modules/teams-invitations/entities/teams-invitation.entity'
+import { RespondTeamsInvitationDto } from '@fitlink/api/src/modules/teams-invitations/dto/respond-teams-invitation.dto'
+import { RespondOrganisationsInvitationDto } from '@fitlink/api/src/modules/organisations-invitations/dto/respond-organisations-invitation.dto'
+import { RespondSubscriptionsInvitationDto } from '@fitlink/api/src/modules/subscriptions/dto/respond-subscriptions-invitation.dto'
+import { UpdateUsersSettingDto } from '@fitlink/api/src/modules/users-settings/dto/update-users-setting.dto'
+import { Page } from '@fitlink/api/src/modules/pages/entities/page.entity'
+import { CreatePageDto } from '@fitlink/api/src/modules/pages/dto/create-page.dto'
 
 export type {
   AuthResultDto,
@@ -47,6 +64,7 @@ export type {
   AuthConnectDto,
   AuthRequestResetPasswordDto,
   CreateUserDto,
+  CreateUserWithOrganisationDto,
   UpdateUserDto,
   UpdateUserEmailDto,
   UpdateUserPasswordDto,
@@ -72,23 +90,52 @@ export type AuthRefresh = '/auth/refresh'
 export type AuthSignUp = '/auth/signup'
 export type AuthConnect = '/auth/connect'
 export type AuthSwitch = '/auth/switch'
+export type AuthSignUpOrganisation = '/auth/organisation'
 export type AuthRequestResetPassword = '/auth/request-password-reset'
+export type AuthResetPassword = '/auth/reset-password'
+export type TeamsInvitationsVerify = '/teams-invitations/verify'
+export type TeamsInvitationsRespond = '/teams-invitations/respond'
+export type OrganisationsInvitationsVerify = '/organisations-invitations/verify'
+export type OrganisationsInvitationsRespond = '/organisations-invitations/respond'
+export type SubscriptionsInvitationsVerify = '/subscriptions-invitations/verify'
+export type SubscriptionsInvitationsRespond = '/subscriptions-invitations/respond'
+export type CreateStravaSubscription = '/providers/strava/webhook/register'
+export type VerifyUserEmail = '/users/verify-email'
+export type RegenerateJoinCode = '/teams/:teamId/regenerate-join-code'
+export type CreatePage = '/teams/:teamId/page'
 
 export type CreatableResource =
   | AuthLogin
   | AuthLogout
   | AuthRefresh
-  | AuthSignUp
   | AuthConnect
   | AuthSwitch
+  | AuthSignUp
+  | AuthSignUpOrganisation
   | AuthRequestResetPassword
+  | AuthResetPassword
+  | TeamsInvitationsVerify
+  | TeamsInvitationsRespond
+  | OrganisationsInvitationsVerify
+  | OrganisationsInvitationsRespond
+  | SubscriptionsInvitationsVerify
+  | SubscriptionsInvitationsRespond
+  | CreateStravaSubscription
+  | VerifyUserEmail
+  | RegenerateJoinCode
+  | CreatePage
 
 export type ListResource =
   | '/organisations'
   | '/organisations/:organisationId/activities'
   | '/organisations/:organisationId/users'
+  | '/organisations/:organisationId/admins'
   | '/organisations/:organisationId/teams'
+  | '/organisations/:organisationId/teams/:teamId/admins'
+  | '/organisations/:organisationId/teams/:teamId/invitations'
   | '/organisations/:organisationId/subscriptions'
+  | '/organisations/:organisationId/subscriptions/:subscriptionId/admins'
+  | '/organisations/:organisationId/subscriptions/:subscriptionId/invitations'
   | '/organisations/:organisationId/invitations'
   | '/organisations/:organisationId/rewards'
   | '/organisations/:organisationId/leagues'
@@ -101,11 +148,13 @@ export type ListResource =
   | '/teams/:teamId/rewards'
   | '/teams/:teamId/rewards/:rewardId/redemptions'
   | '/teams/:teamId/users'
+  | '/teams/:teamId/admins'
   | '/teams/:teamId/stats'
   | '/teams/:teamId/stats/health-activities'
   | '/teams/:teamId/users/:userId/roles'
   | '/teams/:teamId/leagues'
   | '/teams/:teamId/leagues/:leagueId/leaderboards'
+  | '/admins'
   | '/users'
   | '/users/search'
   | '/activities'
@@ -115,8 +164,10 @@ export type ListResource =
   | '/queue'
   | '/sports'
   | '/subscriptions'
+  | '/subscriptions/:subscriptionId/admins'
   | '/subscriptions/:subscriptionId/users'
   | '/subscriptions/:subscriptionId/chargebee/payment-sources'
+  | '/subscriptions/:subscriptionId/chargebee/invoices'
   | '/users-invitations'
   | '/leagues'
   | '/me'
@@ -138,8 +189,11 @@ export type ListResource =
 export type ReadResource =
   | '/organisations/:organisationId'
   | '/organisations/:organisationId/activities/:activityId'
+  | '/organisations/:organisationId/admins/:userId'
   | '/organisations/:organisationId/teams/:teamId'
+  | '/organisations/:organisationId/teams/:teamId/admins/:userId'
   | '/organisations/:organisationId/subscriptions/:subscriptionId'
+  | '/organisations/:organisationId/subscriptions/:subscriptionId/admins/:userId'
   | '/organisations/:organisationId/invitations/:invitationId'
   | '/organisations/:organisationId/leagues/:leagueId'
   | '/teams/:teamId'
@@ -147,26 +201,35 @@ export type ReadResource =
   | '/teams/:teamId/invitations/:invitationId'
   | '/teams/:teamId/rewards/:rewardId'
   | '/teams/:teamId/users/:userId'
+  | '/teams/:teamId/admins/:userId'
   | '/teams/:teamId/users/:userId/roles/:roleId'
   | '/teams/:teamId/leagues/:leagueId'
   | '/teams/:teamId/leagues/:leagueId/leaderboards/:leaderboardId'
+  | '/teams/:teamId/invite-link'
   | '/activities/:activityId'
   | '/rewards/:rewardId'
   | '/leagues/:leagueId'
   | '/queue/:queueId'
   | '/sports/:sportId'
   | '/subscriptions/:subscriptionId'
+  | '/subscriptions/:subscriptionId/admins/:userId'
   | '/subscriptions/:subscriptionId/users/:userId'
   | '/subscriptions/:subscriptionId/chargebee/hosted-page'
+  | '/subscriptions/:subscriptionId/chargebee/subscription'
+  | '/subscriptions/:subscriptionId/chargebee/invoice-download-link/:invoiceId'
+  | '/admins/:userId'
   | '/users/:userId'
   | '/users-invitations/:invitationId'
   | '/me'
   | '/me/roles'
+  | '/me/role'
   | '/me/next-reward'
   | '/me/feed/:feedItemId'
   | '/me/avatar'
   | '/me/email'
   | '/me/password'
+  | '/me/settings'
+  | '/me/providers'
   | '/stats/goals'
   | '/stats/rewards'
   | '/stats/leagues'
@@ -179,6 +242,15 @@ export type ReadResource =
   | '/teams/:teamId/stats/rewards'
   | '/teams/:teamId/stats/leagues'
   | '/teams/:teamId/stats/global'
+  | '/teams/:teamId/page'
+  | '/providers/strava'
+  | '/providers/strava/webhook/view'
+  | '/providers/strava/auth'
+  | '/providers/strava/webhook/register/:id'
+  | '/providers/fitbit'
+  | '/providers/fitbit/auth'
+  | '/app/config'
+  | '/auth/reset-password'
 
 export type UploadResource = '/images'
 
@@ -199,8 +271,14 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<CreateActivityDto>
   : T extends Reward
   ? Payload<CreateRewardDto>
+  : T extends League
+  ? Payload<CreateLeagueDto>
   : T extends AuthSignUp
   ? Payload<CreateUserDto>
+  : T extends AuthSignUpOrganisation
+  ? Payload<CreateUserWithOrganisationDto>
+  : T extends UserRole
+  ? Payload<CreateAdminDto>
   : T extends AuthLogin
   ? Payload<AuthLoginDto>
   : T extends AuthConnect
@@ -213,11 +291,31 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<{}>
   : T extends AuthRequestResetPassword
   ? Payload<AuthRequestResetPasswordDto>
+  : T extends TeamsInvitationsVerify
+  ? Payload<{ token: string }>
+  : T extends TeamsInvitationsRespond
+  ? Payload<RespondTeamsInvitationDto>
+  : T extends OrganisationsInvitationsVerify
+  ? Payload<{ token: string }>
+  : T extends OrganisationsInvitationsRespond
+  ? Payload<RespondOrganisationsInvitationDto>
+  : T extends SubscriptionsInvitationsVerify
+  ? Payload<{ token: string }>
+  : T extends SubscriptionsInvitationsRespond
+  ? Payload<RespondSubscriptionsInvitationDto>
+  : T extends VerifyUserEmail
+  ? Payload<VerifyUserEmailDto>
+  : T extends RegenerateJoinCode
+  ? Payload<{}>
+  : T extends CreatePage
+  ? Payload<CreatePageDto>
   : never
 
 export type UploadResourceParams = FilePayload
 
 export type CreatableResourceResponse<T> = T extends AuthSignUp
+  ? CreateUserResult
+  : T extends AuthSignUpOrganisation
   ? CreateUserResult
   : T extends AuthLogin
   ? AuthResultDto
@@ -228,9 +326,17 @@ export type CreatableResourceResponse<T> = T extends AuthSignUp
   : T extends AuthSwitch
   ? AuthResultDto
   : T extends AuthLogout
-  ? { success: true }
+  ? { success: boolean }
   : T extends SubscriptionUser
   ? { success: boolean }
+  : T extends TeamsInvitationsVerify
+  ? TeamsInvitation
+  : T extends TeamsInvitationsRespond
+  ? TeamsInvitation
+  : T extends VerifyUserEmail
+  ? { success: boolean }
+  : T extends RegenerateJoinCode
+  ? { code: string }
   : never
 
 export type UpdateResourceParams<T> = T extends Organisation
@@ -243,6 +349,8 @@ export type UpdateResourceParams<T> = T extends Organisation
   ? Payload<UpdateActivityDto>
   : T extends Reward
   ? Payload<UpdateRewardDto>
+  : T extends League
+  ? Payload<CreateLeagueDto>
   : T extends User
   ? Payload<UpdateUserDto>
   : T extends ImageUpload
@@ -251,6 +359,10 @@ export type UpdateResourceParams<T> = T extends Organisation
   ? Payload<UpdateUserPasswordDto>
   : T extends UpdateUserEmailDto
   ? Payload<UpdateUserEmailDto>
+  : T extends UpdateUsersSettingDto
+  ? Payload<UpdateUsersSettingDto>
+  : T extends AuthResetPassword
+  ? Payload<AuthResetPasswordDto>
   : never
 
 export type ResourceParams = NodeJS.Dict<any> & {
@@ -309,4 +421,9 @@ export type RolePrimary = {
   superAdmin?: boolean
 }
 
-export type FocusRole = 'app' | 'organisation' | 'team'
+export type FocusRole =
+  | 'app'
+  | 'organisation'
+  | 'team'
+  | 'subscription'
+  | 'user'

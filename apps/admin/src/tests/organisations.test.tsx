@@ -4,13 +4,16 @@ import * as moxios from 'moxios'
 import Page from '../pages/organisations'
 import App from './mock/app'
 import { api } from '../context/Auth.context'
+import { mockSessionState } from './mock/session'
 
 const useRouter = jest.spyOn(require('next/router'), 'useRouter')
 
 useRouter.mockImplementation(() => ({
   push: jest.fn(),
   prefetch: jest.fn(() => Promise.resolve()),
-  pathname: 'testing'
+  pathname: 'testing',
+  query: {},
+  isReady: true
 }))
 
 describe('Organisations', () => {
@@ -18,6 +21,7 @@ describe('Organisations', () => {
 
   beforeEach(() => {
     moxios.install(axios)
+    mockSessionState()
   })
 
   afterEach(() => {
@@ -53,7 +57,7 @@ describe('Organisations', () => {
 
     const items = await screen.findAllByText(/Fitlink|company|2021\-07\-23|99/)
     expect(items).toHaveLength(5)
-
+    expect(screen.getAllByPlaceholderText(/Enter name\.\.\./)).toHaveLength(1)
     // Show and test the edit modal
     screen.getByRole('button', { name: /edit/i }).click()
     expect(screen.getAllByText(/save organisation/i)).toHaveLength(1)

@@ -65,7 +65,8 @@ describe('Teams', () => {
       headers: superadminHeaders,
       payload: {
         email: user.email,
-        invitee: user.name
+        invitee: user.name,
+        admin: true
       }
     })
 
@@ -113,20 +114,17 @@ describe('Teams', () => {
     }
   )
 
-  testAll(
-    `DELETE /organisations/orgId/teams/teamId/users/userId`,
-    async (_, getHeaders) => {
-      const users = team.users
-      let userId = users[0].id
-      const data = await app.inject({
-        method: 'DELETE',
-        url: `/organisations/${organisation.id}/teams/${team.id}/users/${userId}`,
-        headers: getHeaders()
-      })
-      expect(data.statusCode).toEqual(200)
-      expect(data.statusMessage).toBe('OK')
-    }
-  )
+  it(`DELETE /teamId/users/userId`, async () => {
+    const users = team.users
+    const userId = users[0].id
+    const data = await app.inject({
+      method: 'DELETE',
+      url: `/teams/${team.id}/users/${userId}`,
+      headers: teamAdminHeaders
+    })
+    expect(data.statusCode).toEqual(200)
+    expect(data.statusMessage).toBe('OK')
+  })
 
   testOrgAndSuperAdmin(
     `POST /organisations/orgId/teams`,

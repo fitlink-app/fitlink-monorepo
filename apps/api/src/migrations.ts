@@ -39,7 +39,26 @@ import { AddParticipantsCountLeagues1624549177792 } from '../database/migrations
 import { RewardsUpdates1625057321096 } from '../database/migrations/1625057321096-RewardsUpdates'
 import { RewardsRedemptionsUpdates1625572472206 } from '../database/migrations/1625572472206-RewardsRedemptionsUpdates'
 import { LeaguesStartEndDates1625649869427 } from '../database/migrations/1625649869427-LeaguesStartEndDates'
+import { PolylineNullableAndDistributedColumnAdded1625739121649 } from '../database/migrations/1625739121649-PolylineNullableAndDistributedColumnAdded'
 import { AuthProvider1625759364689 } from '../database/migrations/1625759364689-AuthProvider'
+import { SchemaUpdates1625941631377 } from '../database/migrations/1625941631377-SchemaUpdates'
+import { UpdateFeedItems1626036318957 } from '../database/migrations/1626036318957-UpdateFeedItems'
+import { FixEnums1629302813084 } from '../database/migrations/1629302813084-FixEnums'
+import { AddOrganisationToActivity1629305606334 } from '../database/migrations/1629305606334-AddOrganisationToActivity'
+import { RenameActivityUserToOwner1629363309660 } from '../database/migrations/1629363309660-RenameActivityUserToOwner'
+import { UpdateRankTiers1629463294813 } from '../database/migrations/1629463294813-UpdateRankTiers'
+import { UpdateUsersTiers1630668000965 } from '../database/migrations/1630668000965-UpdateUsersTiers'
+import { InvitationsAdmin1631085397864 } from '../database/migrations/1631085397864-InvitationsAdmin'
+import { InvitationsOwners1631087970817 } from '../database/migrations/1631087970817-InvitationsOwners'
+import { AddUserCounts1631279600063 } from '../database/migrations/1631279600063-AddUserCounts'
+import { SubscriptionsInvitations1631698836263 } from '../database/migrations/1631698836263-SubscriptionsInvitations'
+import { AddBillingEmail1632294093767 } from '../database/migrations/1632294093767-AddBillingEmail'
+import { AddBillingSubscriptionId1632316578136 } from '../database/migrations/1632316578136-AddBillingSubscriptionId'
+import { AddTeamJoinCode1632688836338 } from '../database/migrations/1632688836338-AddTeamJoinCode'
+import { AddFeedItemLikes1632753932139 } from '../database/migrations/1632753932139-AddFeedItemLikes'
+import { OrganisationMode1632771719624 } from '../database/migrations/1632771719624-OrganisationMode'
+import { AddPages1633257728285 } from '../database/migrations/1633257728285-AddPages'
+import { DomainUnique1633275502651 } from '../database/migrations/1633275502651-DomainUnique'
 
 export default [
   InitializeSchema1614887523112,
@@ -78,5 +97,24 @@ export default [
   RewardsUpdates1625057321096,
   RewardsRedemptionsUpdates1625572472206,
   LeaguesStartEndDates1625649869427,
-  AuthProvider1625759364689
+  PolylineNullableAndDistributedColumnAdded1625739121649,
+  AuthProvider1625759364689,
+  SchemaUpdates1625941631377,
+  UpdateFeedItems1626036318957,
+  FixEnums1629302813084,
+  AddOrganisationToActivity1629305606334,
+  RenameActivityUserToOwner1629363309660,
+  UpdateRankTiers1629463294813,
+  UpdateUsersTiers1630668000965,
+  InvitationsAdmin1631085397864,
+  InvitationsOwners1631087970817,
+  AddUserCounts1631279600063,
+  SubscriptionsInvitations1631698836263,
+  AddBillingEmail1632294093767,
+  AddBillingSubscriptionId1632316578136,
+  AddTeamJoinCode1632688836338,
+  AddFeedItemLikes1632753932139,
+  OrganisationMode1632771719624,
+  AddPages1633257728285,
+  DomainUnique1633275502651
 ]

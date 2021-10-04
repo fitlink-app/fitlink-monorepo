@@ -10,6 +10,7 @@ import {
 import { FeedItemsService } from '../../feed-items/feed-items.service'
 import { User } from '../entities/user.entity'
 import { NewFollowerEvent } from '../events/new-follower.event'
+import { Events } from '../../../../src/events'
 
 @Injectable()
 export class NewFollowerListener {
@@ -17,7 +18,7 @@ export class NewFollowerListener {
     @InjectRepository(User) private userRepository: Repository<User>,
     private feedItemsService: FeedItemsService
   ) {}
-  @OnEvent('user.new_follower')
+  @OnEvent(Events.USER_NEW_FOLLOWER)
   async onNewFollower(payload: NewFollowerEvent) {
     const user = await this.userRepository.findOne({ id: payload.userId })
     const targetUser = await this.userRepository.findOne({

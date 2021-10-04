@@ -4,6 +4,7 @@ import {Label, ProfileRow} from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useFollowing} from '@hooks';
 import {ActivityIndicator, FlatList, RefreshControl} from 'react-native';
+import {getResultsFromPages} from 'utils/api';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -32,12 +33,7 @@ export const Following = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
   const renderItem = ({item}: {item: UserPublic}) => {
     return (
       <ProfileRow
-        isFollowed={false}
-        actions={{
-          onFollow: async () => {},
-          onUnfollow: async () => {},
-          onPress: () => {},
-        }}
+        isFollowed={!!item.following}
         userId={item.id}
         name={item.name}
         avatarUrl={item.avatar?.url}
@@ -47,9 +43,7 @@ export const Following = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
 
   const keyExtractor = (item: UserPublic) => item.id as string;
 
-  const results = data?.pages.reduce<UserPublic[]>((acc, current) => {
-    return [...acc, ...current.results];
-  }, []);
+  const results = getResultsFromPages(data);
 
   const ListFooterComponent = isFetchingNextPage ? (
     <EmptyContainer style={{height: 72}}>
@@ -71,7 +65,7 @@ export const Following = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
           type="body"
           appearance={'accentSecondary'}
           style={{textAlign: 'center'}}>
-          {error}
+          {error.message}
         </Label>
       ) : (
         <Label
@@ -100,7 +94,9 @@ export const Following = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
         data={results}
         refreshControl={
           <RefreshControl
-            refreshing={isFetching && isFetchedAfterMount}
+            refreshing={
+              isFetching && isFetchedAfterMount && !isFetchingNextPage
+            }
             onRefresh={refetch}
             tintColor={colors.accent}
             colors={[colors.accent]}

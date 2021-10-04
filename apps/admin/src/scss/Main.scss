@@ -28,9 +28,17 @@
 @import 'components/sidebar';
 @import 'components/sort-on';
 @import 'components/static-table';
+@import 'components/role-switcher';
+@import 'components/toaster';
+@import 'components/account';
+@import 'components/avatar';
+@import 'components/billing-form';
+@import 'components/copy-text';
+@import 'components/pages';
 
 @import 'layout/layout-dashboard';
 @import 'layout/layout-login';
+@import 'layout/layout-signup';
 
 @import 'base/important';
 @import 'base/helpers';

@@ -1,4 +1,4 @@
-import { HttpModule, Module } from '@nestjs/common'
+import { HttpModule, Module, forwardRef } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { OrganisationsService } from './organisations.service'
@@ -9,16 +9,23 @@ import { AuthModule } from '../auth/auth.module'
 import { OrganisationsInvitationsModule } from '../organisations-invitations/organisations-invitations.module'
 import { User } from '../users/entities/user.entity'
 import { CommonModule } from '../common/common.module'
+import { UserRolesModule } from '../user-roles/user-roles.module'
+import { SubscriptionsModule } from '../subscriptions/subscriptions.module'
+import { TeamsModule } from '../teams/teams.module'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Organisation, User]),
-    AuthModule,
+    forwardRef(() => AuthModule),
+    forwardRef(() => SubscriptionsModule),
+    forwardRef(() => TeamsModule),
+    // SubscriptionsModule,
     ConfigModule,
     HttpModule,
     ImagesModule,
     OrganisationsInvitationsModule,
-    CommonModule
+    CommonModule,
+    UserRolesModule
   ],
   controllers: [OrganisationsController],
   providers: [OrganisationsService],

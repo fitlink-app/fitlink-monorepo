@@ -143,7 +143,7 @@ describe('Users', () => {
       payload: {
         name: 'Updated name',
         unit_system: 'meters',
-        timezone: 'Something/Wrong'
+        timezone: 100000000000000
       }
     })
 

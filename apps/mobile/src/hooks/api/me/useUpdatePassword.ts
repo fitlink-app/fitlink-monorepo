@@ -4,6 +4,6 @@ import {UpdateUserPasswordDto} from '@fitlink/api/src/modules/users/dto/update-u
 
 export function useUpdatePassword() {
   return useMutation((dto: UpdateUserPasswordDto) =>
-    api.put<any>('/me/password', dto),
+    api.put<any>('/me/password', {payload: dto}),
   );
 }

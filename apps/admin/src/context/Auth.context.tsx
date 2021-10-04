@@ -6,7 +6,9 @@ import {
   AuthResultDto,
   AuthSignupDto,
   AuthProviderType,
-  AuthSwitchDto
+  AuthSwitchDto,
+  AuthLoginDto,
+  CreateUserDto
 } from '@fitlink/api-sdk/types'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 import { Roles } from '@fitlink/api/src/modules/user-roles/user-roles.constants'
@@ -16,24 +18,43 @@ import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 import { useQuery } from 'react-query'
 import { MenuProps } from '../components/elements/MainMenu'
 import { useRouter } from 'next/router'
+import { OrganisationMode } from '@fitlink/api/src/modules/organisations/organisations.constants'
+import { AuthenticatedUserRoles } from '@fitlink/api/src/models/authenticated-user.model'
+import menuApp from '../data/menu/app'
+import {
+  MenuOrganisationComplex,
+  MenuOrganisationSimple
+} from '../data/menu/organisation'
+import menuSub from '../data/menu/subscription'
+import menuTeam from '../data/menu/team'
 
 const axios = Axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1'
+  baseURL: '/api/v1'
 })
 
 export const api = makeApi(axios)
 
-type Permissions = {
-  superAdmin: boolean
-  organisations: Partial<Organisation>[]
-  subscriptions: Partial<Subscription>[]
-  teams: Partial<Team>[]
-}
+// URLs where localStorage state can be completely
+// reset, as the user is expected to be in a clean state.
+const statelessUrls = [
+  '/signup',
+  '/login',
+  '/verify-email',
+  '/reset-password',
+  '/forgot-password'
+]
 
-type Credentials = {
-  email: string
-  password: string
+export type FocusRole =
+  | 'app'
+  | 'organisation'
+  | 'team'
+  | 'subscription'
+  | 'user'
+
+export type Primary = {
+  organisation?: string
+  subscription?: string
+  team?: string
 }
 
 type ConnectProvider = {
@@ -41,199 +62,238 @@ type ConnectProvider = {
   provider: AuthProviderType
 }
 
-type AuthSwitchTree = AuthSwitchDto & {
-  pathname: string
-}
-
-export type RolePrimary = {
-  subscription?: string
-  organisation?: string
-  team?: string
-  superAdmin?: boolean
-}
-
-export type FocusRole = 'app' | 'organisation' | 'team'
-
 export type AuthContext = {
-  user?: User
-  roles?: Permissions
+  focusRole: FocusRole
+  modeRole: FocusRole
+  primary: Primary
+  fetchKey: string
   api: Api
   menu: MenuProps[]
-  switchMode: boolean
-  primary: RolePrimary
-  focusRole: FocusRole
-  fetchKey: string
-  login: (credentials: Credentials) => Promise<AuthResultDto>
+  mode: OrganisationMode
+  user: User
+  signup: (credentials: CreateUserDto) => Promise<AuthSignupDto>
+  login: (credentials: AuthLoginDto) => Promise<AuthResultDto>
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
-  logout: () => void
+  logout: () => Promise<void>
   switchRole: (params: AuthSwitchDto) => Promise<AuthResultDto>
-  restoreRole: () => void
-  isRole: (role: Roles, id?: string) => boolean
+  refreshUser: () => Promise<void>
+  hasRole: (role: Roles) => boolean
 }
 
 export const AuthContext = React.createContext({} as AuthContext)
 
-export function AuthProvider({ children }) {
-  const [state, setState] = useState<AuthContext>({
-    primary: {}
-  } as AuthContext)
-  const [childRole, setChildRole] = useState<AuthSwitchDto>()
-  const [roleTree, setRoleTree] = useState<AuthSwitchTree[]>([])
+export type AuthProviderProps = {
+  value?: Partial<AuthContext>
+  children: React.ReactNode
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [focusRole, setFocusRole] = useState<FocusRole>()
+  const [modeRole, setModeRole] = useState<FocusRole>()
+  const [primary, setPrimary] = useState<Primary>({})
+  const [user, setUser] = useState<User>()
+  const [fetchKey, setFetchKey] = useState<string>('default')
+  const [menu, setMenu] = useState<MenuProps[]>([])
+  const [mode, setMode] = useState<OrganisationMode>(OrganisationMode.Simple)
+
   const router = useRouter()
+
   const me = useQuery('me', () => api.get<User>('/me'), {
-    enabled: false
+    enabled: false,
+    retry: false
   })
 
   const roles = useQuery('me/roles', () => api.get<UserRole[]>('/me/roles'), {
-    enabled: false
+    enabled: false,
+    retry: false
   })
 
-  useEffect(() => {
-    resume()
-  }, [])
-
-  useEffect(() => {
-    const myRoles = formatRoles(roles.data || [], childRole)
-    const primary = setPrimaryRoles(myRoles)
-    const focusRole = setFocusRole(primary)
-    const menu = setMenu(primary)
-
-    setState({
-      ...state,
-      user: me.data,
-      roles: myRoles,
-      menu,
-      primary,
-      focusRole
-    })
-  }, [me.data, roles.data, childRole])
-
-  async function resume() {
-    const { access_token, id_token, refresh_token } = localStorage
-    if (refresh_token) {
-      api.setTokens({
-        access_token,
-        id_token,
-        refresh_token
-      })
-
-      me.refetch()
-      roles.refetch()
+  const role = useQuery(
+    'me/role',
+    () => api.get<AuthenticatedUserRoles>('/me/role'),
+    {
+      enabled: false,
+      retry: false
     }
+  )
+
+  /**
+   * Redirect the user to login if you cannot authenticate.
+   */
+  useEffect(() => {
+    if (me.isError) {
+      router.push('/login', {
+        query: router.query
+      })
+    }
+  }, [me.isError])
+
+  /**
+   * Once any localStorage state has been loaded into
+   * memory, we're ready to load the user's profile
+   * and roles.
+   */
+  useEffect(() => {
+    if (router.isReady && !statelessUrls.includes(router.pathname)) {
+      resume(true)
+    }
+  }, [router.isReady])
+
+  /**
+   * Update the menu
+   *
+   */
+  useEffect(() => {
+    const menu = buildMenu(focusRole, primary, mode)
+    setMenu(menu)
+  }, [focusRole, primary])
+
+  async function resume(resumeFromRouter = false) {
+    const { data } = await roles.refetch()
+    const myData = await me.refetch()
+
+    if (!data) {
+      return
+    }
+
+    if (myData.isSuccess) {
+      setUser(myData.data)
+    }
+
+    if (resumeFromRouter && myData.isSuccess) {
+      const currentRole = await role.refetch()
+
+      if (
+        currentRole.data.subscription_admin[0] &&
+        !currentRole.data.organisation_admin[0]
+      ) {
+        setPrimary({
+          organisation: undefined,
+          subscription: currentRole.data.subscription_admin[0],
+          team: undefined
+        })
+        setModeRole('subscription')
+        setFocusRole('subscription')
+      } else if (!currentRole.data.super_admin) {
+        // Restore primary ids from current role
+        setPrimary({
+          organisation: currentRole.data.organisation_admin[0],
+          subscription: currentRole.data.subscription_admin[0],
+          team: currentRole.data.team_admin[0]
+        })
+
+        let org: Organisation
+        if (currentRole.data.organisation_admin[0]) {
+          org = await fetchOrganisation(currentRole.data.organisation_admin[0])
+
+          if (org && org.mode === OrganisationMode.Complex) {
+            setMode(OrganisationMode.Complex)
+          } else {
+            setMode(OrganisationMode.Simple)
+          }
+
+          setFocusRole('organisation')
+        } else {
+          setFocusRole('team')
+        }
+
+        if (currentRole.data.team_admin[0]) {
+          if (org && org.mode === OrganisationMode.Complex) {
+            setModeRole('organisation')
+          } else {
+            setModeRole('team')
+          }
+        }
+      } else {
+        setFocusRole('app')
+        setModeRole('app')
+      }
+
+      setFetchKey(`mode${Date.now()}`)
+      return
+    }
+
+    /**
+     * In organisation "Simple" mode we support
+     * only superadmin role and organisation role.
+     *
+     * This keeps the UX/UI simple before we introduce complexity
+     * later to support larger organisations with multiple teams.
+     *
+     */
+
+    if (data.filter((e) => e.role === Roles.SuperAdmin).length) {
+      setFocusRole('app')
+      setModeRole('app')
+    } else {
+      const orgRole = data.filter((e) => e.role === Roles.OrganisationAdmin)[0]
+      const teamRole = data.filter((e) => e.role === Roles.TeamAdmin)[0]
+
+      if (orgRole && orgRole.organisation.mode === OrganisationMode.Simple) {
+        setPrimary({
+          organisation: orgRole.organisation.id,
+          subscription: orgRole.organisation.subscriptions[0].id,
+          team: orgRole.organisation.teams[0].id
+        })
+
+        setFocusRole('organisation')
+        setModeRole('team')
+        // Set primary IDs
+      } else if (
+        orgRole &&
+        orgRole.organisation.mode === OrganisationMode.Complex
+      ) {
+        setPrimary({
+          organisation: orgRole.organisation.id,
+          subscription: orgRole.organisation.subscriptions[0].id,
+          team: orgRole.organisation.teams[0].id
+        })
+
+        setFocusRole('organisation')
+        setModeRole('organisation')
+        setMode(OrganisationMode.Complex)
+      } else if (teamRole) {
+        setPrimary({
+          organisation: undefined,
+          subscription: undefined,
+          team: teamRole.team.id
+        })
+        setFocusRole('team')
+        setModeRole('team')
+        setMode(OrganisationMode.Simple)
+      }
+    }
+
+    setFetchKey(`mode${Date.now()}`)
   }
 
   async function login({ email, password }) {
-    setRoleTree([])
-    setChildRole(null)
-
     const result = await api.login({
       email,
       password
     })
 
-    storeTokens(api.getTokens())
+    try {
+      await resume()
+    } catch (e) {
+      console.error(e)
+    }
 
-    me.refetch()
-    roles.refetch()
+    console.log('HERE', result)
 
     return result
   }
 
-  async function switchRole(params: AuthSwitchDto) {
-    storePreviousTokens(api.getTokens(), params.role)
-    const result = await api.loginWithRole(params)
-    let focusRole: FocusRole = 'app'
-
-    if (params.role === Roles.OrganisationAdmin) {
-      focusRole = 'organisation'
-    } else if (params.role === Roles.TeamAdmin) {
-      focusRole = 'team'
-    }
-
-    setState({
-      ...state,
-      switchMode: true,
-      focusRole
+  async function signup({ email, password, name }) {
+    const result = await api.signUp({
+      name,
+      email,
+      password
     })
 
-    router.push('/dashboard')
-
-    roles.refetch()
-
-    setChildRole(params)
-    setRoleTree([
-      ...roleTree,
-      {
-        ...params,
-        pathname: router.pathname
-      }
-    ])
+    await resume()
 
     return result
-  }
-
-  async function restoreRole() {
-    const prev = getPreviousTokens(childRole.role)
-    api.setTokens(prev)
-    roles.refetch()
-
-    // Set the previous role in the tree
-    const tree = [...roleTree]
-    const last = tree.pop()
-    setRoleTree(tree)
-    setChildRole(tree[tree.length - 1])
-    setState({
-      ...state,
-      switchMode: tree.length > 0
-    })
-
-    router.push(last.pathname)
-  }
-
-  function formatRoles(roles: UserRole[], childRole?: AuthSwitchDto) {
-    let permissions: Permissions = {
-      superAdmin: false,
-      organisations: [],
-      subscriptions: [],
-      teams: []
-    }
-
-    // If a child role is enabled, actual roles are ignored
-    if (childRole) {
-      if (childRole.role === Roles.OrganisationAdmin) {
-        permissions.organisations.push({
-          id: childRole.id
-        })
-        return permissions
-      }
-
-      if (childRole.role === Roles.TeamAdmin) {
-        permissions.teams.push({
-          id: childRole.id
-        })
-        return permissions
-      }
-    }
-
-    roles.forEach((role) => {
-      if (role.role === Roles.SuperAdmin) {
-        permissions.superAdmin = true
-      }
-
-      if (role.role === Roles.OrganisationAdmin) {
-        permissions.organisations.push(role.organisation)
-      }
-
-      if (role.role === Roles.SubscriptionAdmin) {
-        permissions.subscriptions.push(role.subscription)
-      }
-
-      if (role.role === Roles.TeamAdmin) {
-        permissions.teams.push(role.team)
-      }
-    })
-
-    return permissions
   }
 
   /**
@@ -251,269 +311,140 @@ export function AuthProvider({ children }) {
       provider
     })
 
-    storeTokens(api.getTokens())
-
-    const user = result.me
-
-    setState({
-      ...state,
-      user
-    })
+    setUser(result.me)
 
     return result
   }
 
-  /**
-   * TODO: A better approach is to use an http-only cookie
-   * and proxy API calls through Next.js
-   *
-   * Otherwise, we risk exposing these tokens to XSS exploits
-   * in NPM libraries or browser extensions (that would have access
-   * to localStorage)
-   *
-   * For now this is a workaround for development purposes,
-   * but will need to change for launch ASAP.
-   *
-   * Alternatively, we can store these in-memory only
-   * and prevent a user from hard-reloading a page with prompts, however
-   * this may not prevent malicious code listening to network requests.
-   *
-   * @param tokens
-   */
-  async function storeTokens(tokens: AuthResultDto) {
-    Object.keys(tokens).map((key) => {
-      localStorage.setItem(key, tokens[key])
-    })
-  }
-
-  async function storePreviousTokens(tokens: AuthResultDto, role: Roles) {
-    Object.keys(tokens).map((key) => {
-      localStorage.setItem(key + '_previous_' + role, tokens[key])
-    })
-  }
-
-  function getPreviousTokens(role: Roles) {
-    const tokens: AuthResultDto = {
-      id_token: '',
-      access_token: '',
-      refresh_token: ''
-    }
-
-    Object.keys(tokens).map((key) => {
-      tokens[key] = localStorage.getItem(key + '_previous_' + role)
-    })
-
-    return tokens
-  }
-
   async function logout() {
     await api.logout()
-    setState({
-      ...state,
-      user: null
+    setUser(null)
+  }
+
+  async function switchRole(params: AuthSwitchDto) {
+    setFocusRole(null)
+    setModeRole(null)
+
+    // storePreviousTokens(api.getTokens(), params.role)
+    const result = await api.loginWithRole(params)
+    let role: FocusRole = 'app'
+    let mode: FocusRole = 'app'
+    let organisation: string
+    let team: string
+    let subscription: string
+
+    if (params.role === Roles.OrganisationAdmin) {
+      role = 'organisation'
+      mode = 'team'
+
+      // Fetch the organisation and associated team and subscription
+      const org = await fetchOrganisation(params.id)
+      organisation = org.id
+      team = org.teams[0].id
+      subscription = org.subscriptions[0].id
+
+      if (org.mode === OrganisationMode.Complex) {
+        mode = 'organisation'
+      }
+    } else if (params.role === Roles.TeamAdmin) {
+      role = 'team'
+      mode = 'team'
+
+      // Fetch the current organisation and requested team and subscription
+      const teamEntity = await fetchTeam(params.id)
+      organisation = teamEntity.organisation.id
+      team = params.id
+      subscription = teamEntity.organisation.subscriptions[0].id
+    } else if (params.role === Roles.SubscriptionAdmin) {
+      role = 'subscription'
+    }
+
+    setFetchKey(`mode${Date.now()}`)
+    setFocusRole(role)
+    setModeRole(mode)
+    setMode(
+      mode === 'team' ? OrganisationMode.Simple : OrganisationMode.Complex
+    )
+    setPrimary({
+      organisation,
+      subscription,
+      team
+    })
+
+    if (params.role === Roles.SubscriptionAdmin) {
+      await router.push(`/subscriptions/${params.id}`)
+    } else {
+      await router.push('/dashboard')
+    }
+
+    return result
+  }
+
+  async function fetchOrganisation(id: string) {
+    return api.get<Organisation>('/organisations/:organisationId', {
+      organisationId: id
     })
   }
 
-  function isRole(role: Roles, id?: string): boolean {
-    if (role === Roles.SuperAdmin) {
-      return state.roles.superAdmin
-    }
-
-    if (role === Roles.OrganisationAdmin) {
-      if (id) {
-        return !!state.roles.organisations.filter((e) => e.id === id).length
-      }
-      return !!state.roles.organisations.length
-    }
-
-    if (role === Roles.SubscriptionAdmin) {
-      if (id) {
-        return !!state.roles.subscriptions.filter((e) => e.id === id).length
-      }
-      return !!state.roles.subscriptions.length
-    }
-
-    if (role === Roles.TeamAdmin) {
-      if (id) {
-        return !!state.roles.teams.filter((e) => e.id === id).length
-      }
-      return !!state.roles.teams.length
-    }
+  async function fetchTeam(id: string) {
+    return api.get<Team>('/teams/:teamId', {
+      teamId: id
+    })
   }
 
-  function setPrimaryRoles(roles: Permissions): RolePrimary {
-    const primary: RolePrimary = {
-      organisation: roles.organisations[0]
-        ? roles.organisations[0].id
-        : undefined,
-      team: roles.teams[0] ? roles.teams[0].id : undefined,
-      subscription: roles.subscriptions[0]
-        ? roles.subscriptions[0].id
-        : undefined
-    }
-
-    if (!primary.organisation && !primary.team && !primary.subscription) {
-      if (roles.superAdmin) {
-        primary.superAdmin = true
-      }
-    }
-
-    return primary
+  async function refreshUser() {
+    await resume()
   }
 
-  function setMenu(primary: RolePrimary): MenuProps[] {
-    let items = [
-      {
-        label: 'Overview',
-        link: '/dashboard',
-        icon: 'IconGear'
-      }
-    ]
-
-    if (primary.superAdmin) {
-      items = items.concat([
-        {
-          label: 'Organisations',
-          link: '/organisations',
-          icon: 'IconGear'
-        },
-        {
-          label: 'Subscriptions',
-          link: '/subscriptions',
-          icon: 'IconGear'
-        },
-        {
-          label: 'Users',
-          link: '/users',
-          icon: 'IconFriends'
-        },
-        {
-          label: 'Activities',
-          link: '/activities',
-          icon: 'IconActivities'
-        }
-      ])
-    }
-
-    if (primary.organisation) {
-      items = items.concat([
-        {
-          label: 'Teams',
-          link: '/teams',
-          icon: 'IconGear'
-        },
-        {
-          label: 'Users',
-          link: '/users',
-          icon: 'IconFriends'
-        },
-        {
-          label: 'Knowledge Base',
-          link: '/knowledge-base',
-          icon: 'IconYoga'
-        },
-        {
-          label: 'Activities',
-          link: '/activities',
-          icon: 'IconActivities'
-        }
-      ])
-    }
-
-    if (primary.team) {
-      items = items.concat([
-        {
-          label: 'Users',
-          link: '/users',
-          icon: 'IconFriends'
-        },
-        {
-          label: 'Stats',
-          link: '/stats',
-          icon: 'IconFriends'
-        },
-        {
-          label: 'Rewards',
-          link: '/rewards',
-          icon: 'IconRewards'
-        },
-        {
-          label: 'Leagues',
-          link: '/leagues',
-          icon: 'IconLeagues'
-        },
-        {
-          label: 'Activities',
-          link: '/activities',
-          icon: 'IconActivities'
-        },
-        {
-          label: 'Knowledge Base',
-          link: '/knowledge-base',
-          icon: 'IconYoga'
-        }
-      ])
-    }
-
-    return items.concat([
-      {
-        label: 'Sign out',
-        link: '/logout',
-        icon: 'IconSignOut'
-      }
-    ])
-  }
-
-  function setFocusRole(primary: RolePrimary): FocusRole {
-    if (primary.superAdmin) {
-      return 'app'
-    }
-
-    if (primary.organisation) {
-      return 'organisation'
-    }
-
-    if (primary.team) {
-      return 'team'
+  function hasRole(role: Roles) {
+    if (roles.isSuccess) {
+      return roles.data.filter((each) => each.role === role).length > 0
+    } else {
+      return false
     }
   }
 
   return (
     <AuthContext.Provider
       value={{
+        focusRole,
+        modeRole,
+        primary,
+        fetchKey,
         api,
-        user: state.user,
-        roles: state.roles || {
-          superAdmin: false,
-          organisations: [],
-          subscriptions: [],
-          teams: []
-        },
-        menu: state.menu,
-        switchMode: state.switchMode,
-        primary: state.primary,
-        focusRole: state.focusRole,
-
-        /**
-         * The fetch key is used to change react-query cache
-         * when session changes (e.g. with switching roles)
-         *
-         * */
-        fetchKey: [
-          state.focusRole,
-          state.primary.organisation,
-          state.primary.team,
-          state.primary.subscription,
-          state.primary.superAdmin
-        ].join('_'),
+        menu,
+        mode,
+        user,
         login,
         logout,
+        signup,
         connect,
         switchRole,
-        restoreRole,
-        isRole
+        refreshUser,
+        hasRole
       }}>
       {children}
     </AuthContext.Provider>
   )
+}
+
+function buildMenu(
+  focusRole: FocusRole,
+  primary: Primary,
+  mode: OrganisationMode
+): MenuProps[] {
+  switch (focusRole) {
+    case 'app':
+      return menuApp(primary)
+    case 'organisation':
+      if (mode === OrganisationMode.Simple) {
+        return MenuOrganisationSimple(primary)
+      } else {
+        return MenuOrganisationComplex(primary)
+      }
+    case 'subscription':
+      return menuSub(primary)
+    case 'team':
+      return menuTeam(primary)
+  }
 }

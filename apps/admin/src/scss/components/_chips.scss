@@ -11,6 +11,10 @@
   &-primary {
     background: $primary;
   }
+
+  &-overflow {
+    text-overflow: ellipsis;
+  }
 }
 
 .confirmed {

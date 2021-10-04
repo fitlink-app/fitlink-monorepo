@@ -29,7 +29,7 @@ type StyledIconParams = {
 
 const StyledIcon = styled(Icon).attrs(
   ({icon, accent, theme}: StyledIconParams & ThemeProps<DefaultTheme>) => ({
-    name: icon || 'angle-right',
+    name: icon || 'arrow-right',
     size: 16,
     color: accent
       ? theme.colors.accent

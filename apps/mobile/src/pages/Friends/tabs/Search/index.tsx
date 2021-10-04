@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import styled, {useTheme} from 'styled-components/native';
-import {Label, ProfileRow} from '@components';
+import {Label, ProfileRow, SearchBox} from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useSearchUsers} from '@hooks';
 import {ActivityIndicator, FlatList} from 'react-native';
-import {SearchBox} from './components';
+import {getResultsFromPages} from 'utils/api';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -13,6 +13,7 @@ const Wrapper = styled.View({
 
 const SearchBoxContainer = styled.View({
   paddingHorizontal: 20,
+  marginVertical: 20,
 });
 
 const EmptyContainer = styled.View({
@@ -40,12 +41,7 @@ export const Search = () => {
   const renderItem = ({item}: {item: UserPublic}) => {
     return (
       <ProfileRow
-        isFollowed={false}
-        actions={{
-          onFollow: async () => {},
-          onUnfollow: async () => {},
-          onPress: () => {},
-        }}
+        isFollowed={!!item.following}
         userId={item.id}
         name={item.name}
         avatarUrl={item.avatar?.url}
@@ -55,9 +51,7 @@ export const Search = () => {
 
   const keyExtractor = (item: UserPublic) => item.id as string;
 
-  const results = data?.pages.reduce<UserPublic[]>((acc, current) => {
-    return [...acc, ...current.results];
-  }, []);
+  const results = getResultsFromPages(data);
 
   const ListHeaderComponent = (
     <SearchBoxContainer>
@@ -90,7 +84,7 @@ export const Search = () => {
           appearance={'accentSecondary'}
           style={{textAlign: 'center'}}>
           {error
-            ? error
+            ? error.message
             : data && query.length
             ? `No results found for "${query}"`
             : `Find friends, colleagues and others.`}

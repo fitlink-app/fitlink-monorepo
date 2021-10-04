@@ -1,16 +1,25 @@
-import ReactSelect, { Props, Theme } from 'react-select'
+import ReactSelect, {
+  Props,
+  Theme,
+  components,
+  createFilter
+} from 'react-select'
 import clsx from 'clsx'
+import { CSSProperties } from 'react'
 
 export type SelectProps = Props & {
   id: string
   label?: string
+  subLabel?: string
   inline?: boolean
+  error?: string
 }
 
-const Select: React.FC<SelectProps> = (props) => {
+const Select: React.FC<SelectProps> = ({ error, ...props }) => {
   const classes = clsx({
     'input-block': true,
-    'input-block--inline': props.inline
+    'input-block--inline': props.inline,
+    'input-block--error': error
   })
 
   const theme = ({
@@ -89,8 +98,23 @@ const Select: React.FC<SelectProps> = (props) => {
         classNamePrefix="react-select"
         styles={customStyles}
         theme={theme}
+        filterOption={createFilter({
+          stringify: (option) =>
+            `${option.data.subLabel} ${option.value} ${option.label}`
+        })}
+        components={{
+          Option: ({ children, ...rest }) => (
+            <components.Option {...rest}>
+              {children}{' '}
+              {rest.data.subLabel ? (
+                <span className="sub-label">{rest.data.subLabel}</span>
+              ) : null}
+            </components.Option>
+          )
+        }}
         {...props}
       />
+      {error && error !== '' && <span>{error}</span>}
     </div>
   )
 }

@@ -3,13 +3,14 @@ import { useQuery } from 'react-query'
 import { AuthContext } from '../../context/Auth.context'
 import { ApiResult } from '@fitlink/common/react-query/types'
 import { formatISO, startOfDay, endOfDay } from 'date-fns'
+import { FocusRole } from '@fitlink/api-sdk/types'
 
 export default function useHealthActivityStats(
-  type: 'organisation' | 'team' | 'app',
+  type: FocusRole,
   startAt: Date,
   endAt?: Date
 ) {
-  const { api, fetchKey, primary, focusRole } = useContext(AuthContext)
+  const { api, fetchKey, primary, modeRole } = useContext(AuthContext)
 
   const healthActivitiesData: ApiResult<{
     results: any[]
@@ -33,7 +34,7 @@ export default function useHealthActivityStats(
           },
           {
             primary,
-            useRole: focusRole
+            useRole: modeRole
           }
         )
       }

@@ -15,6 +15,7 @@ import {
   FeedItemType
 } from '../../feed-items/feed-items.constants'
 import { UserPointsIncrementedEvent } from '../../users/events/user-points-incremented.event'
+import { Events } from '../../../../src/events'
 
 @Injectable()
 export class HealthActivityCreatedListener {
@@ -36,7 +37,7 @@ export class HealthActivityCreatedListener {
 
   // Updated method to do manual saving instead of using the increment method.
   // Because then I could give the event emitter an up to date version of the user's points
-  async updateUserPoints(points: number, userId: string) {
+  async updateUserPoints(points: number, userId: string, active_time?: number) {
     const [user, userErr] = await tryAndCatch(
       this.userRepository.findOne(userId)
     )
@@ -54,20 +55,23 @@ export class HealthActivityCreatedListener {
       (await this.triggerUserPointsIncrementedEvent(
         updatedUser.points_total,
         user.points_total,
-        user.id
+        user.id,
+        active_time
       ))
   }
 
   async triggerUserPointsIncrementedEvent(
     newPoints: number,
     prevPoints: number,
-    userId: string
+    userId: string,
+    active_time: number
   ) {
     const event = new UserPointsIncrementedEvent()
     event.new_points = newPoints
     event.prev_points = prevPoints
     event.user_id = userId
-    await this.eventEmitter.emitAsync('user.points_incremented', event)
+    event.active_time = active_time || 0
+    await this.eventEmitter.emitAsync(Events.USER_POINTS_INCREMENTED, event)
   }
 
   async updateLeaguePoints(sport: Sport, userId: string, points: number) {
@@ -126,7 +130,7 @@ export class HealthActivityCreatedListener {
     })
   }
 
-  @OnEvent('health_activity.created')
+  @OnEvent(Events.HEALTH_ACTIVITY_CREATED)
   async updateUserPointsInLeague(payload: HealthActivityCreatedEvent) {
     const healthActivity = await this.findHealthActivity(
       payload.health_activity_id
@@ -134,7 +138,7 @@ export class HealthActivityCreatedListener {
     const { sport, user, points } = healthActivity
 
     const promises = [
-      this.updateUserPoints(points, user.id),
+      this.updateUserPoints(points, user.id, healthActivity.active_time),
       this.updateLeaguePoints(sport, user.id, points),
       this.addFeedItem(user, healthActivity)
     ]

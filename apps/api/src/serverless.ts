@@ -10,6 +10,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard'
 import { IamGuard } from './guards/iam.guard'
 import { FastifyServerOptions, FastifyInstance, fastify } from 'fastify'
 import fastifyMultipart from 'fastify-multipart'
+import fastifyCors from 'fastify-cors'
 import { ConfigService } from '@nestjs/config'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import * as awsLambdaFastify from 'aws-lambda-fastify'
@@ -23,6 +24,7 @@ import { createConnection } from 'typeorm'
 import migrations from './migrations'
 import { validationExceptionFactory } from './exceptions/validation.exception.factory'
 import { UploadGuardV2 } from './guards/upload-v2.guard'
+import { LeaguesService } from './modules/leagues/leagues.service'
 
 interface NestApp {
   app: NestFastifyApplication
@@ -37,6 +39,7 @@ async function bootstrapServer(): Promise<NestApp> {
 
   const fastifyAdapter = new FastifyAdapter(instance)
   fastifyAdapter.register(fastifyMultipart)
+  fastifyAdapter.register(fastifyCors)
 
   const app = await NestFactory.create<NestFastifyApplication>(
     ApiModule,
@@ -81,8 +84,17 @@ export async function handler(
   if (!cachedNestApp) {
     cachedNestApp = await bootstrapServer()
   }
-  const proxy = awsLambdaFastify(cachedNestApp.instance)
+
+  // Fix buggy deps mismatch with Typescript
+  const fastify = (awsLambdaFastify as unknown) as CallableFunction
+  const proxy = fastify(cachedNestApp.instance)
   return proxy(event, context)
+}
+
+export async function processLeagues() {
+  const module = await NestFactory.createApplicationContext(ApiModule)
+  const leaguesService = module.get(LeaguesService)
+  return leaguesService.processPendingLeagues()
 }
 
 export async function migrate() {

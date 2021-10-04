@@ -11,6 +11,8 @@ const dotenv = config({
 
 export const env = dotenv.parsed
 
+process.env = { ...process.env, ...env }
+
 export const mockRepositoryProvider = (entity) => {
   return {
     provide: getRepositoryToken(entity),

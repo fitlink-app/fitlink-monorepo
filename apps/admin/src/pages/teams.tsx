@@ -10,6 +10,9 @@ import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 import { timeout } from '../helpers/timeout'
 import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 import { Roles } from '@fitlink/api/src/modules/user-roles/user-roles.constants'
+import { useRouter } from 'next/router'
+import { RoleContext } from '../context/Role.context'
+import toast from 'react-hot-toast'
 
 export default function TeamsPage() {
   const [drawContent, setDrawContent] = useState<
@@ -19,13 +22,8 @@ export default function TeamsPage() {
   const [wide, setWide] = useState(false)
   const [refresh, setRefresh] = useState(0)
   const { switchRole, primary } = useContext(AuthContext)
-  const organisationId = useRef<string>()
-
-  useEffect(() => {
-    if (primary.organisation) {
-      organisationId.current = primary.organisation
-    }
-  }, [primary.organisation])
+  const { organisation } = useContext(RoleContext)
+  const router = useRouter()
 
   const closeDrawer = (ms = 0) => async () => {
     if (ms) {
@@ -40,7 +38,7 @@ export default function TeamsPage() {
     setWide(false)
     setDrawContent(
       <CreateTeam
-        organisationId={organisationId.current}
+        organisationId={organisation.current}
         onSave={closeDrawer(1000)}
       />
     )
@@ -52,7 +50,7 @@ export default function TeamsPage() {
     setDrawContent(
       <CreateTeam
         onSave={closeDrawer(1000)}
-        organisationId={organisationId.current}
+        organisationId={organisation.current}
         current={fields}
       />
     )
@@ -67,8 +65,9 @@ export default function TeamsPage() {
         onCancel={closeDrawer()}
         current={fields}
         mutation={(id) =>
-          api.delete('/teams/:teamId', {
-            teamId: id
+          api.delete('/organisations/:organisationId/teams/:teamId', {
+            teamId: id,
+            organisationId: organisation.current
           })
         }
         title="Delete team"
@@ -107,13 +106,23 @@ export default function TeamsPage() {
       </button>
       <button
         className="button small ml-1"
-        onClick={() =>
+        onClick={() => {
+          router.push(`/teams/${original.id}/admins`)
+        }}>
+        Admins
+      </button>
+      <button
+        className="button small ml-1"
+        onClick={() => {
+          toast.loading(<b>Switching role...</b>)
           switchRole({
             id: original.id,
             role: Roles.TeamAdmin
+          }).finally(() => {
+            toast.dismiss()
           })
-        }>
-        Switch
+        }}>
+        Manage Team
       </button>
       <button
         className="button small ml-1"
@@ -125,8 +134,12 @@ export default function TeamsPage() {
 
   const { api, focusRole, fetchKey } = useContext(AuthContext)
 
+  if (focusRole === 'team') {
+    return null
+  }
+
   return (
-    <Dashboard title="Settings Users">
+    <Dashboard title="Teams">
       <div className="flex ai-c">
         <h1 className="light mb-0 mr-2">Manage teams</h1>
         <button className="button alt small mt-1" onClick={CreateTeamForm}>

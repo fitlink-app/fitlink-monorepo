@@ -23,6 +23,7 @@
     "db:export": "docker exec -t postgres pg_dumpall -c -U fitlink > fitlink.sql",
     "db:export:jest": "docker exec -t postgres-jest pg_dumpall -c -U jest > jest.sql",
     "db:import": "docker exec -i postgres psql -U fitlink < fitlink.sql",
+    "db:import:uat": "docker exec -i postgres psql -U fitlink < fitlink.sql",
     "db:import:jest": "docker exec -i postgres-jest psql -U jest < jest.sql",
     "migration:show": "node scripts/check-migrations.js",
     "migration:run": "yarn run typeorm migration:run -f ./ormconfig.js",
@@ -33,8 +34,8 @@
     "migration:seed:test-users": "cross-env TEST_SEED=1 yarn run migration:seed --seed CreateTestUsers",
     "migration:seed:sports": "yarn run migration:seed --seed CreateSports",
     "sls:offline:start": "cross-env API_PREFIX=\"api/v1\" && sls offline start",
-    "sls:deploy": "cross-env NODE_ENV=production && serverless deploy",
-    "sls:deploy:production": "cross-env NODE_ENV=production && serverless deploy --stage production",
+    "sls:deploy": "cross-env NODE_ENV=production && serverless deploy --alias default",
+    "sls:deploy:production": "cross-env NODE_ENV=production && serverless deploy --stage production --alias default",
     "sls:package": "serverless package",
     "sls:migrate": "serverless invoke -f migrate",
     "sls:migrate:production": "serverless invoke -f migrate --stage production",
@@ -58,6 +59,8 @@
   },
   "dependencies": {
     "@fitlink/common": "*",
-    "ts-loader": "^8.0.17"
+    "ts-loader": "^8.0.17",
+    "ts-node": "^9.1.1",
+    "ts-jest": "26.5.2"
   }
 }

@@ -85,13 +85,24 @@ export class StravaService {
     return activity
   }
 
-  stravaConfig(param: 'id' | 'secret' | 'uri' | 'scopes' | 'verify_token') {
+  stravaConfig(
+    param:
+      | 'id'
+      | 'secret'
+      | 'uri'
+      | 'scopes'
+      | 'verify_token'
+      | 'webhook_callback_url'
+  ) {
     const config = {
       id: this.configService.get('STRAVA_CLIENT_ID'),
       secret: this.configService.get('STRAVA_CLIENT_SECRET'),
       uri: this.configService.get('STRAVA_REDIRECT_URI'),
       scopes: this.configService.get('STRAVA_SCOPES'),
-      verify_token: this.configService.get('STRAVA_VERIFY_STRING')
+      verify_token: this.configService.get('STRAVA_VERIFY_STRING'),
+      webhook_callback_url: this.configService.get(
+        'STRAVA_WEBHOOK_CALLBACK_URL'
+      )
     }
     return config[param]
   }
@@ -104,6 +115,93 @@ export class StravaService {
     )}&grant_type=authorization_code&code=${code}`
   }
 
+  async registerWebhook() {
+    const url = `https://www.strava.com/api/v3/push_subscriptions?client_id=${this.stravaConfig(
+      'id'
+    )}&client_secret=${this.stravaConfig(
+      'secret'
+    )}&verify_token=${this.stravaConfig(
+      'verify_token'
+    )}&callback_url=${this.stravaConfig('webhook_callback_url')}`
+
+    try {
+      const result = await this.httpService
+        .post(url, {
+          headers: {
+            accept: 'application/json'
+          },
+          timeout: 3000
+        })
+        .pipe(map((response) => response.data))
+        .toPromise()
+
+      return [result as { id: number }, null]
+    } catch (e) {
+      return [
+        null,
+        e.response.data.errors as {
+          resource: string //'PushSubscription',
+          field: string //'callback url',
+          code: string //'not verifiable'
+        }[]
+      ]
+    }
+  }
+
+  async deregisterWebhook(subscriptionId: string) {
+    const url = `https://www.strava.com/api/v3/push_subscriptions/${subscriptionId}?client_id=${this.stravaConfig(
+      'id'
+    )}&client_secret=${this.stravaConfig('secret')}`
+
+    try {
+      const result = await this.httpService
+        .delete(url, {
+          headers: {
+            accept: 'application/json'
+          },
+          timeout: 3000
+        })
+        .pipe(map((response) => response.data))
+        .toPromise()
+
+      return [result, null]
+    } catch (e) {
+      return [
+        null,
+        e.response.data.errors as {
+          resource: string //'PushSubscription',
+          field: string //'callback url',
+          code: string //'not verifiable'
+        }[]
+      ]
+    }
+  }
+
+  async viewWebhook() {
+    const url = `https://www.strava.com/api/v3/push_subscriptions?client_id=${this.stravaConfig(
+      'id'
+    )}&client_secret=${this.stravaConfig('secret')}`
+
+    try {
+      const result = await this.httpService
+        .get(url, {
+          headers: {
+            accept: 'application/json'
+          },
+          timeout: 3000
+        })
+        .pipe(map((response) => response.data))
+        .toPromise()
+      return result[0] as {
+        id: string
+        callback_url: string
+      }
+    } catch (e) {
+      console.error(e)
+      throw new BadRequestException(e.response.data.errors)
+    }
+  }
+
   getRefreshTokenUrl(refresh_token: string) {
     return `${STRAVA_TOKEN_EXCHANGE_URL}?client_id=${this.stravaConfig(
       'id'
@@ -114,13 +212,15 @@ export class StravaService {
 
   getOAuthUrl(userId: string) {
     return {
-      oauth_url: `${STRAVA_AUTHORIZE_URL}
-    ?client_id=${this.stravaConfig('id')}
-    &client_secret=${this.stravaConfig('secret')}
-    &redirect_uri=${this.stravaConfig('uri')}
-    &scope=${this.stravaConfig('scopes')}
-    &response_type=code
-    &state=${userId}`
+      oauth_url: [
+        STRAVA_AUTHORIZE_URL,
+        `?client_id=${this.stravaConfig('id')}`,
+        `&client_secret=${this.stravaConfig('secret')}`,
+        `&redirect_uri=${this.stravaConfig('uri')}`,
+        `&scope=${this.stravaConfig('scopes')}`,
+        `&response_type=code`,
+        `&state=${userId}`
+      ].join('')
     }
   }
 
@@ -162,14 +262,12 @@ export class StravaService {
   async deAuthorize(userId: string) {
     try {
       const accessToken = await this.getFreshStravaAccessToken(userId)
-      const result = await this.revokeToken(accessToken)
-      if (result) {
-        await this.providersService.remove(userId, ProviderType.Strava)
-      }
-      return { revoked_token: result.access_token }
-    } catch (err) {
-      throw new BadRequestException(err.message)
+      await this.revokeToken(accessToken)
+    } catch (e) {
+      console.error(e)
     }
+    await this.providersService.remove(userId, ProviderType.Strava)
+    return true
   }
 
   verifyWebhook(token: string, challenge: string) {
@@ -232,7 +330,7 @@ export class StravaService {
     if (!provider) {
       throw new NotFoundException(`Provider Not found`)
     }
-    let now = new Date(Date.now())
+    const now = new Date()
     if (provider.token_expires_at < now) {
       // Token Expired Get New Token
       const {

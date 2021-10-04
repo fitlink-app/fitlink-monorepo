@@ -1,25 +1,58 @@
 import {
   Avatar,
   Button,
+  Checkbox,
   Label,
   Modal,
   Navbar,
   NAVBAR_HEIGHT,
   TouchHandler,
 } from '@components';
-import {useAuth, useModal, UserGoalPreferences, useSettings} from '@hooks';
+import {
+  ImagePickerDialogResponse,
+  useImagePicker,
+  useStrava,
+  useMe,
+  useModal,
+  useProviders,
+  useFitbit,
+} from '@hooks';
 import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {Keyboard, Platform, ScrollView, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
-import {UnitSystem} from '@fitlink/api/src/modules/users/entities/user.entity';
+import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
 import {
   CategoryLabel,
   SettingsButton,
   SettingsInput,
   SettingsDropdown,
+  SettingsHealthActivityButton,
 } from './components';
+import {SettingsItemWrapper} from './components/SettingsItemWrapper';
+import {SettingsItemLabel} from './components/SettingsItemLabel';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch} from 'redux/store';
+import {logout} from 'redux/auth/authSlice';
+import {
+  clearChanges,
+  PRIVACY_ITEMS,
+  selectDidSettingsChange,
+  selectSettings,
+  setActivitiesPrivacy,
+  setAvatar,
+  setDailyStatisticsPrivacy,
+  setGoals,
+  setName,
+  setNewsletterSubscription,
+  setState,
+  setUnitSystem,
+  submit,
+  UserGoalPreferences,
+} from 'redux/settings/settingsSlice';
+import {useEffect} from 'react';
+import {TransitionContext} from 'contexts';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -28,20 +61,10 @@ const DeleteButtonWrapper = styled.View(() => ({
   marginTop: 15,
 }));
 
-const PRIVACY_ITEMS = [
-  {
-    label: 'Private',
-    value: 'private',
-  },
-  {
-    label: 'Followers',
-    value: 'followers',
-  },
-  {
-    label: 'Public',
-    value: 'public',
-  },
-];
+const Row = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+});
 
 type UserGoalPreferencesString = {
   [K in keyof UserGoalPreferences]: string;
@@ -50,14 +73,54 @@ type UserGoalPreferencesString = {
 export const Settings = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const dispatch = useDispatch() as AppDispatch;
 
-  const settings = useSettings();
-  const {logout} = useAuth();
   const {openModal, closeModal} = useModal();
+  const {openImagePicker} = useImagePicker();
+  const {showTransition, hideTransition} = useContext(TransitionContext);
 
-  // TODO: Hook up with state
-  // TODO: Add Avatar url once API supports it
-  // TODO: Implement tracker onPress
+  const {data: user} = useMe();
+  const {providerList} = useProviders();
+
+  const {isLinking: isStravaLinking, link: linkStrava} = useStrava();
+  const {isLinking: isFitbitLinking, link: linkFitbit} = useFitbit();
+
+  const settings = useSelector(selectSettings);
+  const didSettingsChange = useSelector(selectDidSettingsChange);
+
+  const [isInitialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    if (user && providerList && !isInitialized) {
+      dispatch(clearChanges());
+
+      const newState = {
+        name: user?.name || '',
+        unitSystem: user?.unit_system || UnitSystem.Imperial,
+        timezone: user.timezone,
+        avatar: user.avatar,
+        goals: {
+          goal_mindfulness_minutes: user?.goal_mindfulness_minutes || 0,
+          goal_steps: user?.goal_steps || 0,
+          goal_floors_climbed: user?.goal_floors_climbed || 0,
+          goal_water_litres: user?.goal_water_litres || 0,
+          goal_sleep_hours: user?.goal_sleep_hours || 0,
+        },
+        userSettings: {
+          newsletter_subscriptions_user:
+            user?.settings?.newsletter_subscriptions_user,
+          privacy_activities: user?.settings?.privacy_activities,
+          privacy_daily_statistics: user?.settings?.privacy_daily_statistics,
+        },
+      };
+
+      dispatch(setState(newState));
+
+      setLocalGoals(initializeGoalsFromNumericSource(newState.goals));
+
+      setInitialized(true);
+    }
+  }, [user, providerList]);
 
   /**
    * We keep track of the goal input values in a local state
@@ -74,7 +137,7 @@ export const Settings = () => {
     };
   };
 
-  const [goals, setGoals] = useState<UserGoalPreferencesString>(
+  const [localGoals, setLocalGoals] = useState<UserGoalPreferencesString>(
     initializeGoalsFromNumericSource(settings.goals),
   );
 
@@ -86,7 +149,10 @@ export const Settings = () => {
    */
   const handleOnGoalChanged = (value: string, field: string) => {
     let formattedValue = value;
-    setGoals(prevGoals => ({...prevGoals, [field]: formattedValue}));
+    setLocalGoals(prevGoals => ({
+      ...(prevGoals || ({} as any)),
+      [field]: formattedValue,
+    }));
   };
 
   /**
@@ -96,26 +162,34 @@ export const Settings = () => {
    * to the settings hook state
    */
   const handleOnGoalSubmitted = () => {
-    let parsedGoals = settings.goals;
+    let parsedGoals = {...settings.goals};
 
-    for (const property in goals) {
+    for (const property in localGoals) {
       let parsedValue = parseFloat(
-        goals[property as keyof UserGoalPreferencesString],
+        localGoals[property as keyof UserGoalPreferencesString],
       );
+
       if (isNaN(parsedValue)) parsedValue = 0;
       parsedGoals[property as keyof UserGoalPreferences] = parsedValue;
     }
 
-    setGoals(initializeGoalsFromNumericSource(parsedGoals));
-    settings.setGoals(parsedGoals);
+    setLocalGoals(initializeGoalsFromNumericSource(parsedGoals));
+    dispatch(setGoals(parsedGoals));
+  };
+
+  const handleOnAvatarPicked = (response: ImagePickerDialogResponse) => {
+    dispatch(setAvatar(response));
   };
 
   const handleOnSavePressed = async () => {
     Keyboard.dismiss();
 
-    // TODO: Show loading overlay
+    showTransition('Saving changes...');
 
-    await settings.submit();
+    await dispatch(submit());
+
+    hideTransition();
+
     navigation.goBack();
   };
 
@@ -123,7 +197,7 @@ export const Settings = () => {
     <Wrapper>
       <Navbar
         rightComponent={
-          settings.didSettingsChange ? (
+          didSettingsChange ? (
             <TouchHandler onPress={handleOnSavePressed}>
               <Label bold appearance={'accent'}>
                 Save
@@ -144,17 +218,23 @@ export const Settings = () => {
         <CategoryLabel>Profile</CategoryLabel>
         <SettingsButton
           preLabelComponent={
-            <Avatar url={undefined} size={44} style={{marginRight: 10}} />
+            <Avatar
+              url={settings.tempAvatar?.uri || settings.avatar?.url_512x512}
+              size={44}
+              style={{marginRight: 10}}
+            />
           }
           label={'Update image'}
-          onPress={() => {
-            // TODO: Show image picker modal (take pic, select from gallery, cancel)
-          }}
+          onPress={() =>
+            openImagePicker('Select Avatar', response => {
+              handleOnAvatarPicked(response);
+            })
+          }
         />
         <SettingsInput
           label={'Display name'}
           value={settings.name}
-          onChangeText={settings.setName}
+          onChangeText={text => dispatch(setName(text))}
           autoCapitalize={'words'}
           keyboardType={'default'}
           returnKeyType={'done'}
@@ -201,7 +281,7 @@ export const Settings = () => {
                           });
                         });
 
-                        logout();
+                        dispatch(logout());
                       },
                     },
                     {
@@ -218,16 +298,48 @@ export const Settings = () => {
 
         {/* Linked Trackers */}
         <CategoryLabel>Trackers</CategoryLabel>
-        {Platform.OS === 'android' && <SettingsButton label={'Google Fit'} />}
-        {Platform.OS === 'ios' && <SettingsButton label={'Apple Health'} />}
-        <SettingsButton label={'Strava'} onPress={() => {}} />
-        <SettingsButton label={'Fitbit'} />
+
+        {Platform.OS === 'android' && (
+          <SettingsHealthActivityButton
+            label={'Google Fit'}
+            onLink={() => {}}
+            onUnlink={() => {}}
+            isLoading={false}
+            isLinked={providerList?.includes('google_fit')}
+          />
+        )}
+
+        {Platform.OS === 'ios' && (
+          <SettingsHealthActivityButton
+            label={'Apple Health'}
+            onLink={() => {}}
+            onUnlink={() => {}}
+            isLoading={false}
+            isLinked={providerList?.includes('apple_health')}
+          />
+        )}
+
+        <SettingsHealthActivityButton
+          label={'Strava'}
+          onLink={linkStrava}
+          onUnlink={() => {}}
+          isLoading={isStravaLinking}
+          isLinked={providerList?.includes('strava')}
+        />
+
+        <SettingsHealthActivityButton
+          label={'Fitbit'}
+          onLink={linkFitbit}
+          onUnlink={() => {}}
+          isLoading={isFitbitLinking}
+          isLinked={providerList?.includes('fitbit')}
+        />
 
         {/* Goals */}
         <CategoryLabel>Goals</CategoryLabel>
         <SettingsInput
           label={'Steps'}
-          value={goals.goal_steps.toString()}
+          value={localGoals.goal_steps.toString()}
           onChangeText={(text: string) =>
             handleOnGoalChanged(text, 'goal_steps')
           }
@@ -238,7 +350,7 @@ export const Settings = () => {
         />
         <SettingsInput
           label={'Floors'}
-          value={goals.goal_floors_climbed.toString()}
+          value={localGoals.goal_floors_climbed.toString()}
           onChangeText={(text: string) =>
             handleOnGoalChanged(text, 'goal_floors_climbed')
           }
@@ -249,7 +361,7 @@ export const Settings = () => {
         />
         <SettingsInput
           label={'Water (litres)'}
-          value={goals.goal_water_litres.toString()}
+          value={localGoals.goal_water_litres.toString()}
           onChangeText={(text: string) =>
             handleOnGoalChanged(text, 'goal_water_litres')
           }
@@ -260,7 +372,7 @@ export const Settings = () => {
         />
         <SettingsInput
           label={'Sleep (hours)'}
-          value={goals.goal_sleep_hours.toString()}
+          value={localGoals.goal_sleep_hours.toString()}
           onChangeText={(text: string) =>
             handleOnGoalChanged(text, 'goal_sleep_hours')
           }
@@ -271,7 +383,7 @@ export const Settings = () => {
         />
         <SettingsInput
           label={'Mindfulness (minutes)'}
-          value={goals.goal_mindfulness_minutes.toString()}
+          value={localGoals.goal_mindfulness_minutes.toString()}
           onChangeText={(text: string) =>
             handleOnGoalChanged(text, 'goal_mindfulness_minutes')
           }
@@ -288,13 +400,13 @@ export const Settings = () => {
           label={'Miles'}
           accent={settings.unitSystem === 'imperial'}
           icon={settings.unitSystem === 'imperial' ? 'check' : 'none'}
-          onPress={() => settings.setUnitSystem('imperial' as UnitSystem)}
+          onPress={() => dispatch(setUnitSystem(UnitSystem.Imperial))}
         />
         <SettingsButton
           label={'Kilometres'}
           accent={settings.unitSystem === 'metric'}
           icon={settings.unitSystem === 'metric' ? 'check' : 'none'}
-          onPress={() => settings.setUnitSystem('metric' as UnitSystem)}
+          onPress={() => dispatch(setUnitSystem(UnitSystem.Metric))}
         />
 
         {/* Privacy */}
@@ -302,15 +414,35 @@ export const Settings = () => {
         <SettingsDropdown
           label={'Daily Statistics'}
           items={PRIVACY_ITEMS}
-          value={PRIVACY_ITEMS[0].value}
+          value={settings.userSettings?.privacy_daily_statistics}
+          onValueChange={value => dispatch(setDailyStatisticsPrivacy(value))}
           prompt={'Select daily statistics privacy'}
         />
         <SettingsDropdown
           label={'Activities'}
           items={PRIVACY_ITEMS}
-          value={PRIVACY_ITEMS[0].value}
+          value={settings.userSettings?.privacy_activities}
+          onValueChange={value => dispatch(setActivitiesPrivacy(value))}
           prompt={'Select activity privacy'}
         />
+
+        {/* Newsletter */}
+        <CategoryLabel>Newsletter</CategoryLabel>
+        <SettingsItemWrapper>
+          <Row>
+            <SettingsItemLabel children={'Subscribe to newsletter'} />
+            <Checkbox
+              onPress={() =>
+                dispatch(
+                  setNewsletterSubscription(
+                    !settings.userSettings?.newsletter_subscriptions_user,
+                  ),
+                )
+              }
+              checked={!!settings.userSettings?.newsletter_subscriptions_user}
+            />
+          </Row>
+        </SettingsItemWrapper>
 
         {/* Help */}
         <CategoryLabel>Help</CategoryLabel>
@@ -367,6 +499,7 @@ export const Settings = () => {
                       {
                         text: 'Back',
                         textOnly: true,
+                        style: {marginBottom: -10},
                         onPress: () => closeModal(id),
                       },
                     ]}

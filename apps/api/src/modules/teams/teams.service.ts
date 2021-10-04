@@ -1,16 +1,26 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { AuthenticatedUser } from '../../models'
+import { Image } from '../images/entities/image.entity'
 import { Organisation } from '../organisations/entities/organisation.entity'
+import { Subscription } from '../subscriptions/entities/subscription.entity'
+import { BillingPlanStatus } from '../subscriptions/subscriptions.constants'
 import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.entity'
 import { TeamsInvitationsService } from '../teams-invitations/teams-invitations.service'
+import { UserRolesService } from '../user-roles/user-roles.service'
 import { User, UserStat } from '../users/entities/user.entity'
 import { CreateTeamDto } from './dto/create-team.dto'
 import { DateQueryDto } from './dto/date-query.dto'
 import { UpdateTeamDto } from './dto/update-team.dto'
 import { Team } from './entities/team.entity'
+
+export enum TeamServiceError {
+  AlreadyMember = 'You are already a member of this team',
+  TeamNotExist = 'Team does not exist'
+}
 
 @Injectable()
 export class TeamsService {
@@ -19,12 +29,16 @@ export class TeamsService {
     private teamRepository: Repository<Team>,
     @InjectRepository(Organisation)
     private organisationRepository: Repository<Organisation>,
+    private userRolesService: UserRolesService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(TeamsInvitation)
     private teamInvitationRepository: Repository<TeamsInvitation>,
+    @InjectRepository(Subscription)
+    private subscriptionRepository: Repository<Subscription>,
 
-    private teamInvitationService: TeamsInvitationsService
+    private teamInvitationService: TeamsInvitationsService,
+    private configService: ConfigService
   ) {}
 
   /**
@@ -36,6 +50,9 @@ export class TeamsService {
   async create(fields: Partial<Team>, organisationId: string) {
     fields.organisation = new Organisation()
     fields.organisation.id = organisationId
+
+    // Create unique join code
+    fields.join_code = await this.generateJoinCode()
 
     // Set it as the team organisation
     const team = await this.teamRepository.save(
@@ -70,17 +87,38 @@ export class TeamsService {
         where: {
           id,
           organisation: { id: organisationId }
-        }
+        },
+        relations: ['organisation', 'organisation.subscriptions', 'avatar']
       })
     }
-    return await this.teamRepository.findOne(id)
+    return await this.teamRepository.findOne(id, {
+      relations: ['organisation', 'organisation.subscriptions', 'avatar']
+    })
+  }
+
+  async findOneByCode(code: string) {
+    return await this.teamRepository.findOne(
+      {
+        join_code: code
+      },
+      {
+        relations: ['avatar']
+      }
+    )
   }
 
   async update(
     id: string,
-    updateTeamDto: UpdateTeamDto,
+    { name, imageId }: UpdateTeamDto,
     organisationId?: string
   ) {
+    let image: Image
+    const update: Partial<Team> = { name }
+    if (imageId) {
+      update.avatar = new Image()
+      update.avatar.id = imageId
+    }
+
     if (organisationId) {
       const isOwner = !!(await this.findOne(id, organisationId))
       if (!isOwner) {
@@ -90,12 +128,13 @@ export class TeamsService {
       }
       return await this.teamRepository.save({
         id,
-        ...updateTeamDto
+        image,
+        ...update
       })
     }
     return await this.teamRepository.save({
       id,
-      ...updateTeamDto
+      ...update
     })
   }
 
@@ -128,30 +167,175 @@ export class TeamsService {
     }
     return team.users
   }
-  async deleteUserFromTeam(
-    organisationId: string,
-    teamId: string,
-    userId: string
-  ) {
-    const isOwner = !!(await this.findOne(teamId, organisationId))
-    if (!isOwner) {
-      throw new UnauthorizedException(
-        "That team doesn't belong to this organisation"
-      )
-    }
-    return await this.userRepository
+
+  async deleteUserFromTeam(teamId: string, userId: string) {
+    await this.removeFromTeam(teamId, userId)
+  }
+
+  /**
+   * Join a user to a team
+   * without their express consent
+   * (e.g. for automatically generating team participation from signup)
+
+   * @param teamId
+   * @param userId
+   * @returns
+   */
+  async joinTeam(teamId: string, userId: string) {
+    await this.addToTeam(teamId, userId)
+    return true
+  }
+
+  async addToTeam(teamId: string, userId: string) {
+    await this.teamRepository
+      .createQueryBuilder('team')
+      .relation(Team, 'users')
+      .of(teamId)
+      .add(userId)
+
+    // Increment the count
+    await this.teamRepository.increment({ id: teamId }, 'user_count', 1)
+
+    // Setup subscriptions
+    await this.updateTeamUsersSubscription(teamId, userId)
+  }
+
+  async removeFromTeam(teamId: string, userId: string) {
+    await this.userRepository
       .createQueryBuilder('users')
       .relation(User, 'teams')
       .of(userId)
       .remove(teamId)
+
+    // Decrement the count
+    await this.teamRepository.decrement({ id: teamId }, 'user_count', 1)
+
+    // Remove user from a subscription if necessary
+    await this.removeTeamUserSubscription(userId)
   }
 
-  async joinTeam(token: string, authenticated_user: AuthenticatedUser) {
-    const invitation = (await this.teamInvitationService.verifyToken(
-      token
-    )) as TeamsInvitation
+  /**
+   * Ensure the user joining the team will be set to the default
+   * subscription of the organisation.
+   *
+   * If they're already part of an existing active subscription, this step
+   * is skipped.
+   *
+   * @param token
+   * @param userId
+   * @returns
+   */
+  async updateTeamUsersSubscription(teamId: string, userId: string) {
+    const team = await this.findOne(teamId)
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['subscription', 'teams', 'teams.organisation']
+    })
 
-    const user = await this.userRepository.findOne(authenticated_user.id)
+    // Skip if the user is already on an active subscription
+    // This could even be a subscription on a different organisation
+    // However this implies that a different organisation will be paying for this user.
+    // In future we may need a way to store multiple subscriptions on a single user.
+    if (
+      user.subscription &&
+      user.subscription.billing_plan_status === BillingPlanStatus.Active
+    ) {
+      return true
+    }
+
+    // If the user only belongs to this team, the organisation count should be incremented
+    if (user.teams.length === 1) {
+      await this.organisationRepository.increment(
+        { id: team.organisation.id },
+        'user_count',
+        1
+      )
+    }
+
+    // Or add them to the default subscription
+    const defaultSubscription = team.organisation.subscriptions.filter(
+      (e) => e.default
+    )[0]
+
+    if (defaultSubscription) {
+      user.subscription = defaultSubscription
+      await this.userRepository.save(user)
+      await this.subscriptionRepository.increment(
+        { id: user.subscription.id },
+        'user_count',
+        1
+      )
+      return true
+    }
+
+    return false
+  }
+
+  /**
+   * Remove team member from subscriptions
+   * @param token
+   * @param userId
+   * @returns
+   */
+  async removeTeamUserSubscription(userId: string) {
+    const user = await this.getUserWithTeams(userId)
+
+    // Remove user from subscription if they no longer belong to any teams
+    // within the subscription's organisation
+    const exists = user.teams.filter(
+      (e) => e.organisation.id === user.subscription.organisation.id
+    )
+    if (exists.length === 0) {
+      const subscription = user.subscription
+      if (subscription) {
+        user.subscription = null
+        await this.userRepository.save(user)
+        await this.subscriptionRepository.decrement(
+          { id: subscription.id },
+          'user_count',
+          1
+        )
+        await this.organisationRepository.increment(
+          { id: subscription.organisation.id },
+          'user_count',
+          1
+        )
+      }
+    }
+
+    return true
+  }
+
+  /**
+   * Join team from a token
+   *
+   * @param invitation
+   * @param userId
+   * @returns
+   */
+  async joinTeamFromToken(token: string, userId: string) {
+    const invitation = await this.teamInvitationService.verifyToken(token)
+
+    if (typeof invitation === 'string') {
+      return invitation
+    }
+
+    const user = await this.userRepository.findOne(userId)
+
+    await this.addToTeam(invitation.team.id, userId)
+
+    invitation.resolved_user = user
+    return this.teamInvitationRepository.save(invitation)
+  }
+
+  /**
+   * Join team from an invitation already provided.
+   *
+   * @param invitation
+   * @param userId
+   * @returns
+   */
+  async joinTeamFromInvitation(invitation: TeamsInvitation, userId: string) {
+    const user = await this.userRepository.findOne(userId)
 
     await this.teamRepository
       .createQueryBuilder('team')
@@ -159,10 +343,70 @@ export class TeamsService {
       .of(invitation.team.id)
       .add(user)
 
-    invitation.resolved_user = user
-    const savedInvitation = await this.teamInvitationRepository.save(invitation)
+    await this.addToTeam(invitation.team.id, userId)
 
-    return savedInvitation
+    invitation.resolved_user = user
+    return this.teamInvitationRepository.save(invitation)
+  }
+
+  /**
+   * Verifies the token and responds to the invitation
+   * either accepts or declines.
+   *
+   * @param token
+   * @returns object (TeamInvitation)
+   */
+
+  async respondToInvitation(token: string, accept: boolean, userId: string) {
+    const invitation = await this.teamInvitationService.verifyToken(token)
+
+    if (typeof invitation === 'string') {
+      return invitation
+    }
+
+    // Admin invitations do not join teams
+    if (invitation.admin) {
+      if (accept) {
+        await this.userRolesService.assignAdminRole(userId, {
+          teamId: invitation.team.id
+        })
+        return this.teamInvitationService.accept(invitation)
+      } else {
+        return this.teamInvitationService.decline(invitation)
+      }
+    }
+
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['teams']
+    })
+
+    const alreadyMember = user.teams.filter((e) => e.id === invitation.team.id)
+      .length
+
+    // Delete the invitation if the user is already a member
+    if (alreadyMember) {
+      await this.teamInvitationService.remove(invitation.id)
+      return TeamServiceError.AlreadyMember
+    }
+
+    if (accept) {
+      invitation.accepted = true
+      return this.joinTeamFromInvitation(invitation, userId)
+    } else {
+      return this.teamInvitationService.decline(invitation)
+    }
+  }
+
+  async getUserWithTeams(userId: string) {
+    const user = await this.userRepository.findOne(userId, {
+      relations: [
+        'teams',
+        'teams.organisation',
+        'teams.organisation.subscriptions'
+      ]
+    })
+
+    return user
   }
 
   async queryUserTeamStats(
@@ -274,5 +518,55 @@ export class TeamsService {
       total: results.length,
       results: results
     })
+  }
+
+  async generateJoinCode(): Promise<string> {
+    const joinCode = Math.floor(Date.now() * Math.random())
+      .toString(36)
+      .substr(0, 6)
+      .toUpperCase()
+      .replace('O', '0')
+
+    // Join code uniqueness
+    if (
+      (await this.teamRepository.count({
+        where: {
+          join_code: joinCode
+        }
+      })) > 0
+    ) {
+      return this.generateJoinCode()
+    }
+
+    return joinCode
+  }
+
+  async updateJoinCode(teamId: string) {
+    const code = await this.generateJoinCode()
+    await this.teamRepository.update(teamId, {
+      join_code: code
+    })
+    return {
+      code
+    }
+  }
+
+  async getInviteLink(teamId: string) {
+    const team = await this.teamRepository.findOne(teamId)
+    return {
+      url: `${this.configService.get('SHORT_URL')}/join/${team.join_code}`
+    }
+  }
+
+  async joinTeamFromCode(code: string, userId: string) {
+    const team = await this.teamRepository.findOne({
+      where: {
+        join_code: code
+      }
+    })
+    if (!team) {
+      return TeamServiceError.TeamNotExist
+    }
+    return this.joinTeam(team.id, userId)
   }
 }

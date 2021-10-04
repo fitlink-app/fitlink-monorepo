@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
+import { CreateManualProviderDto } from './dto/create-manual-provider.dto'
 import { CreateProviderDto } from './dto/create-provider.dto'
 import { UpdateProviderDto } from './dto/update-provider.dto'
 import { Provider } from './entities/provider.entity'
@@ -26,9 +27,21 @@ export class ProvidersService {
       provider_user_id
     } = createProviderDto
 
-    const tokenExpiresAt = new Date(token_expires_at)
     try {
+      const tokenExpiresAt = new Date(token_expires_at)
+      const user = await this.userRepository.findOne(userId, {
+        relations: ['providers']
+      })
+      const exists = user.providers.filter((e) => e.type === type)[0]
+      let id: string
+
+      if (exists) {
+        id = exists.id
+      }
+
+      // Replaces the existing data in case it needs an update
       const provider = this.providerRepository.create({
+        id,
         user: { id: userId },
         token_expires_at: tokenExpiresAt,
         type,
@@ -38,16 +51,39 @@ export class ProvidersService {
         provider_user_id
       })
 
-      await this.userRepository
-        .createQueryBuilder()
-        .relation(User, 'providers')
-        .of(userId)
-        .add(provider)
-
       return await this.providerRepository.save(provider)
     } catch (err) {
       throw new BadRequestException(err.message)
     }
+  }
+
+  /**
+   * For manually creating a provider
+   *
+   *
+   * @param param0
+   * @param userId
+   * @returns
+   */
+  async createManual({ type }: CreateManualProviderDto, userId: string) {
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['providers']
+    })
+
+    const exists = user.providers.filter((e) => e.type === type)[0]
+
+    let id: string
+    if (exists) {
+      id = exists.id
+    }
+
+    return this.providerRepository.save(
+      this.providerRepository.create({
+        id,
+        user: { id: userId },
+        type
+      })
+    )
   }
 
   async findAll(id: string) {

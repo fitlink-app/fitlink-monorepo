@@ -11,6 +11,7 @@ import { plainToClass } from 'class-transformer'
 import { Connection, Repository } from 'typeorm'
 import { AuthenticatedUser, JWTRoles } from '../../models'
 import { CreateUserDto } from '../users/dto/create-user.dto'
+import { CreateUserWithOrganisationDto } from '../users/dto/create-user-with-organisation.dto'
 import { User } from '../users/entities/user.entity'
 import { UsersService } from '../users/users.service'
 import { AuthResultDto } from './dto/auth-result'
@@ -26,6 +27,8 @@ import { v4 as uuid } from 'uuid'
 import { AuthSwitchDto } from './dto/auth-switch'
 import { Roles } from '../user-roles/user-roles.constants'
 import { Team } from '../teams/entities/team.entity'
+import { OrganisationsService } from '../organisations/organisations.service'
+import { OrganisationMode } from '../organisations/organisations.constants'
 
 type PasswordResetToken = {
   sub: string
@@ -34,7 +37,8 @@ type PasswordResetToken = {
 
 export enum AuthServiceError {
   Provider = 'The provider is not valid',
-  Email = 'An email is required'
+  Email = 'An email is required',
+  Exists = 'A user with this email already exists'
 }
 
 @Injectable()
@@ -44,6 +48,7 @@ export class AuthService {
     private jwtService: JwtService,
     private emailService: EmailService,
     private configService: ConfigService,
+    private organisationsService: OrganisationsService,
 
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: Repository<RefreshToken>,
@@ -137,20 +142,89 @@ export class AuthService {
    * @param user
    * @returns object containing 3 tokens and user object
    */
-  async signup(createUserDto: CreateUserDto) {
-    const { email, name, password } = createUserDto
-    const user = await this.usersService.create({
-      name,
-      email,
-      password: await this.usersService.hashPassword(password)
-    })
+  async signup({ email, name, password }: CreateUserDto) {
+    const existing = await this.usersService.findByEmail(email)
 
-    // Send a verification email
-    await this.usersService.sendVerificationEmail(user.id, email)
+    if (!existing) {
+      const user = await this.usersService.create({
+        name,
+        email,
+        password: await this.usersService.hashPassword(password)
+      })
 
-    return {
-      auth: await this.login(user),
-      me: plainToClass(User, user)
+      // Send a verification email
+      await this.usersService.sendVerificationEmail(user.id, email)
+
+      // Send a welcome email
+      await this.emailService.sendTemplatedEmail('welcome-email', {}, [email])
+
+      return {
+        auth: await this.login(user),
+        me: plainToClass(User, user)
+      }
+    } else {
+      return AuthServiceError.Exists
+    }
+  }
+
+  /**
+   * Signs up a user and creates organisation, and immediately
+   * creates tokens
+   *
+   * TODO: This should fail gracefully if a user already exists
+   * (it will fail already with a 500 error due to unique email column)
+   *
+   * @param user
+   * @returns object containing 3 tokens and user object
+   */
+  async signupWithOrganisation({
+    email,
+    name,
+    password,
+    agree_to_terms,
+    subscribe,
+    company,
+    type,
+    type_other,
+    date
+  }: CreateUserWithOrganisationDto) {
+    const existing = await this.usersService.findByEmail(email)
+
+    if (!existing) {
+      const user = await this.usersService.create({
+        name,
+        email,
+        password: await this.usersService.hashPassword(password)
+      })
+
+      // Send a verification email
+      await this.usersService.sendVerificationEmail(user.id, email)
+
+      // Send a welcome email
+      await this.emailService.sendTemplatedEmail('welcome-email-admin', {}, [
+        email
+      ])
+
+      // Create the organisation
+      // Also creates the default subscription and team
+      // Also assigns the owner as an admin
+      await this.organisationsService.signup(
+        {
+          name: company,
+          type,
+          type_other,
+          timezone: '',
+          mode: OrganisationMode.Simple
+        },
+        user.id
+      )
+
+      return {
+        auth: await this.login(user),
+        me: plainToClass(User, user)
+      }
+    } else {
+      return AuthServiceError.Exists
     }
   }
 
@@ -180,6 +254,11 @@ export class AuthService {
 
     // Send a verification email
     await this.usersService.sendVerificationEmail(user.id, provider.email)
+
+    // Send a welcome email
+    await this.emailService.sendTemplatedEmail('welcome-email', {}, [
+      provider.email
+    ])
 
     return {
       auth: await this.login(user),
@@ -592,31 +671,77 @@ export class AuthService {
       spr: false
     }
 
+    // Restore the user's original roles / session
+    if (!role) {
+      return this.login(user)
+    }
+
+    if (role === Roles.SuperAdmin) {
+      if (roles.spr) {
+        return this.loginWithRole(user, {
+          ...base,
+          spr: true
+        })
+      }
+    }
+
+    if (role === Roles.OrganisationAdmin) {
+      if (roles.o_a.includes(id)) {
+        const organisation = await this.organisationsService.findOne(id)
+        return this.loginWithRole(user, {
+          ...base,
+          o_a: [id],
+          t_a: [organisation.teams[0].id],
+          s_a: [organisation.subscriptions[0].id]
+        })
+      }
+    }
+
+    if (role === Roles.SubscriptionAdmin) {
+      if (roles.s_a.includes(id)) {
+        return this.loginWithRole(user, {
+          ...base,
+          s_a: [id]
+        })
+      }
+    }
+
     // Organisation admin can switch to managing a specific team
     if (role === Roles.TeamAdmin) {
-      let orgId
+      const orgs = []
+      const subs = []
       if (!roles.spr) {
         const team = await this.teamRepository.findOne(id, {
-          relations: ['organisation']
+          relations: ['organisation', 'organisation.subscriptions']
         })
-        if (!roles.o_a.includes(team.organisation.id)) {
+
+        // Organisation admins have full access to teams
+        // as well as subscriptions (billing)
+        if (roles.o_a.includes(team.organisation.id)) {
+          orgs.push(team.organisation.id)
+          subs.push(team.organisation.subscriptions[0].id)
+
+          // Allow access for team admins
+        } else if (!roles.t_a.includes(team.id)) {
           return false
-        } else {
-          orgId = team.organisation.id
         }
       }
       return this.loginWithRole(user, {
         ...base,
         t_a: [id],
-        o_a: [orgId]
+        o_a: orgs,
+        s_a: subs
       })
     }
 
     // Super admin can switch to managing a specific organisation
     if (roles.spr && role === Roles.OrganisationAdmin) {
+      const organisation = await this.organisationsService.findOne(id)
       return this.loginWithRole(user, {
         ...base,
-        o_a: [id]
+        o_a: [id],
+        t_a: [organisation.teams[0].id],
+        s_a: [organisation.subscriptions[0].id]
       })
     }
   }

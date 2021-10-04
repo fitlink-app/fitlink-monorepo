@@ -16,6 +16,7 @@ export type RewardFormProps = {
   current?: Partial<RewardEntity>
   onSave?: () => void
   onError?: (err: any) => void
+  onDelete?: (fields: Partial<RewardEntity>) => void
 }
 
 const getFields = (reward: Partial<RewardEntity>) => {
@@ -34,7 +35,7 @@ const getFields = (reward: Partial<RewardEntity>) => {
     limit_units: reward.limit_units,
     units_available: reward.units_available,
     points_required: reward.points_required,
-    image_upload: null
+    image_upload: undefined
   }
 }
 
@@ -43,9 +44,10 @@ const noop = () => {}
 export default function RewardForm({
   current,
   onSave = noop,
-  onError = noop
+  onError = noop,
+  onDelete = noop
 }: RewardFormProps) {
-  const { api, focusRole, primary } = useContext(AuthContext)
+  const { api, modeRole, primary } = useContext(AuthContext)
   const [image, setImage] = useState(current?.image?.url || '')
   const isUpdate = !!current.id
 
@@ -67,7 +69,7 @@ export default function RewardForm({
         },
         {
           primary,
-          useRole: focusRole
+          useRole: modeRole
         }
       ),
     update: (payload) =>
@@ -79,7 +81,7 @@ export default function RewardForm({
         },
         {
           primary,
-          useRole: focusRole
+          useRole: modeRole
         }
       )
   })
@@ -106,7 +108,7 @@ export default function RewardForm({
       // Handle images upload
       payload.imageId = await uploadReplaceOrKeep(
         image_upload,
-        (current.image || {}).id
+        current.image ? current.image.id : undefined
       )
 
       // Force integers
@@ -116,8 +118,6 @@ export default function RewardForm({
       } else {
         payload.units_available = 0
       }
-
-      console.log(payload)
 
       await createOrUpdate(payload)
 
@@ -130,7 +130,9 @@ export default function RewardForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h4 className="light mb-3">{current ? 'Edit reward' : 'New reward'}</h4>
+      <h4 className="light mb-3">
+        {current.id ? 'Edit reward' : 'New reward'}
+      </h4>
       <Reward
         image={image}
         brand={brand}
@@ -259,7 +261,18 @@ export default function RewardForm({
       )}
 
       <div className="text-right mt-2">
-        <button className="button">
+        {current.id && (
+          <button
+            className="button alt mr-2"
+            type="button"
+            onClick={() => {
+              onDelete(current)
+            }}>
+            Delete
+          </button>
+        )}
+
+        <button className="button" type="submit">
           {current.id ? 'Update' : 'Create reward'}
         </button>
       </div>

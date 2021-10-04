@@ -38,21 +38,28 @@ export default function CreateSubscriptionUser({
   onError = noop
 }: CreateSubscriptionProps) {
   const organisationId =
-    current && current.subscription.organisation
+    current && current.subscription && current.subscription.organisation
       ? current.subscription.organisation.id
       : ''
   const [searchTerm, setSearchTerm] = useState('')
-  const { api } = useContext(AuthContext)
+  const { api, primary, focusRole } = useContext(AuthContext)
   const { register, handleSubmit, control, watch } = useForm({
     defaultValues: getFields(current.user)
   })
 
   const add: ApiMutationResult<SubscriptionUser> = useMutation(
     (payload: AddUserToSubscriptionDto) =>
-      api.post<SubscriptionUser>('/subscriptions/:subscriptionId/users', {
-        payload,
-        subscriptionId: current.subscription.id
-      })
+      api.post<SubscriptionUser>(
+        '/subscriptions/:subscriptionId/users',
+        {
+          payload,
+          subscriptionId: current.subscription.id
+        },
+        {
+          primary,
+          useRole: focusRole
+        }
+      )
   )
 
   const dbSearchTerm = useDebounce(searchTerm, 500)

@@ -12,7 +12,6 @@
     "@fitlink/common": "*",
     "chart.js": "^3.3.0",
     "clsx": "^1.1.1",
-    "date-fns": "^2.21.3",
     "flickity": "^2.2.2",
     "framer-motion": "^4.1.17",
     "lodash": "^4.17.21",

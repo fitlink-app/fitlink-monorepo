@@ -18,6 +18,8 @@ import {
 } from './dto/reward-filters.dto'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RewardClaimedEvent } from './events/reward-claimed.event'
+import { Events } from '../../events'
+import { FeedItem } from '../feed-items/entities/feed-item.entity'
 
 type EntityOwner = {
   organisationId?: string
@@ -32,6 +34,16 @@ type ParentIds = {
 type QueryOptions = {
   checkExpiry?: boolean
   checkAvailability?: boolean
+}
+
+type PublicPageReward = {
+  photo_url: string
+  description: string
+  title: string
+  title_short: string
+  points_required: number
+  brand: string
+  reward_expires_at: Date
 }
 
 @Injectable()
@@ -197,7 +209,7 @@ export class RewardsService {
 
     // Include rewards by removing expiry date filtering
     if (include_expired_rewards === '1') {
-      filters.reward_expires_at = undefined
+      delete filters.reward_expires_at
     }
 
     const [results, total] = await this.rewardsRepository.findAndCount({
@@ -448,8 +460,25 @@ export class RewardsService {
       }
     }
 
-    return this.rewardsRepository.delete({
-      id: rewardId
+    return this.rewardsRepository.manager.transaction(async (manager) => {
+      // Delete redemptions
+      await manager.getRepository(RewardsRedemption).delete({
+        reward: {
+          id: rewardId
+        }
+      })
+
+      // Delete related feed items
+      await manager.getRepository(FeedItem).delete({
+        reward: {
+          id: rewardId
+        }
+      })
+
+      // Finally, delete the reward
+      return manager.getRepository(Reward).delete({
+        id: rewardId
+      })
     })
   }
 
@@ -517,7 +546,7 @@ export class RewardsService {
       const event = new RewardClaimedEvent()
       event.rewardId = result.reward.id
       event.userId = result.user.id
-      await this.eventEmitter.emitAsync('reward.claimed', event)
+      await this.eventEmitter.emitAsync(Events.REWARD_CLAIMED, event)
     }
     return result
   }
@@ -550,5 +579,35 @@ export class RewardsService {
       results: results.map(this.getRewardPublic),
       total
     })
+  }
+
+  async getTeamRewardsForPublicPage(
+    teamId: string
+  ): Promise<PublicPageReward[]> {
+    const rewards = await this.rewardsRepository
+      .createQueryBuilder('reward')
+      .where('reward.team.id = :teamId  AND reward.reward_expires_at > :now', {
+        teamId,
+        now: new Date()
+      })
+      .orWhere(
+        'reward.team IS NULL and reward.organisation IS NULL AND reward.reward_expires_at > :now',
+        {
+          now: new Date()
+        }
+      )
+      .leftJoinAndSelect('reward.image', 'image')
+      .limit(50)
+      .getMany()
+
+    return rewards.map((e) => ({
+      photo_url: e.image.url,
+      brand: e.brand,
+      description: e.description,
+      points_required: e.points_required,
+      reward_expires_at: e.reward_expires_at,
+      title: e.name,
+      title_short: e.name_short
+    }))
   }
 }

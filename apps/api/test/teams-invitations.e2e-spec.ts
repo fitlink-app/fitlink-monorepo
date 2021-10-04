@@ -10,6 +10,7 @@ import { Organisation } from '../src/modules/organisations/entities/organisation
 import { JwtService } from '@nestjs/jwt'
 import { useSeeding, runSeeder } from 'typeorm-seeding'
 import { TeamsSetup, TeamsTeardown } from './seeds/teams.seed'
+import { UsersSetup } from './seeds/users.seed'
 
 describe('Activities', () => {
   let app: NestFastifyApplication
@@ -29,6 +30,7 @@ describe('Activities', () => {
     // Run seed
     await useSeeding()
     const teams = await TeamsSetup('Teams Invitations Test')
+    const users = await UsersSetup('Teams Invitations Test', 1)
 
     // Retrieve a team to test with
     team = await getTeam(teams[0].id)
@@ -37,13 +39,16 @@ describe('Activities', () => {
     organisation = team.organisation
 
     // Superadmin
-    superadminHeaders = getAuthHeaders({ spr: true })
+    superadminHeaders = getAuthHeaders({ spr: true }, users[0].id)
     // Org admin
-    organisationAdminHeaders = getAuthHeaders({ o_a: [organisation.id] })
+    organisationAdminHeaders = getAuthHeaders(
+      { o_a: [organisation.id] },
+      users[0].id
+    )
     // Team admin
-    teamAdminHeaders = getAuthHeaders({ t_a: [team.id] })
+    teamAdminHeaders = getAuthHeaders({ t_a: [team.id] }, users[0].id)
     // Auth user
-    authHeaders = getAuthHeaders()
+    authHeaders = getAuthHeaders(undefined, users[0].id)
   })
 
   afterAll(async () => {
@@ -63,7 +68,8 @@ describe('Activities', () => {
     async (type, getHeaders) => {
       const payload = {
         email: 'jest@example.com',
-        invitee: 'Jest'
+        invitee: 'Jest',
+        admin: true
       }
 
       const data = await createInvitation(
@@ -96,7 +102,8 @@ describe('Activities', () => {
     async (type, getHeaders) => {
       const payload = {
         email: 'jest@example.com',
-        invitee: 'Jest'
+        invitee: 'Jest',
+        admin: true
       }
 
       await createInvitation()
@@ -128,7 +135,8 @@ describe('Activities', () => {
     async (type, getHeaders) => {
       const payload = {
         email: 'jest@example.com',
-        invitee: 'Jest'
+        invitee: 'Jest',
+        admin: true
       }
 
       const invitationData = await createInvitation()
@@ -159,7 +167,8 @@ describe('Activities', () => {
     async (type, getHeaders) => {
       const payload = {
         email: 'jest@example.com',
-        invitee: 'Jest'
+        invitee: 'Jest',
+        admin: true
       }
 
       const invitationData = await createInvitation()
@@ -188,7 +197,8 @@ describe('Activities', () => {
     async (type, getHeaders) => {
       const payload = {
         email: 'jest@example.com',
-        invitee: 'Jest'
+        invitee: 'Jest',
+        admin: true
       }
 
       const invitationData = await createInvitation()
@@ -249,7 +259,7 @@ describe('Activities', () => {
 
     const result = data.json()
     expect(data.statusCode).toEqual(400)
-    expect(result.message).toContain('Token is invalid')
+    expect(result.message).toContain('invitation cannot be found')
   })
 
   it('POST /teams-invitations/verify Throws an error when verifying a token that is expired', async () => {
@@ -275,8 +285,45 @@ describe('Activities', () => {
     })
 
     const result = data.json()
-    expect(data.statusCode).toEqual(401)
+    expect(data.statusCode).toEqual(400)
     expect(result.message).toContain('invitation can no longer be used')
+  })
+
+  it.only('POST /teams/join Allows a user to join from a team join code invited by team admin', async () => {
+    const invitationData = await createInvitation(
+      organisation.id,
+      team.id,
+      teamAdminHeaders,
+      {
+        admin: false,
+        email: 'jest@example.com',
+        invitee: 'Jest'
+      }
+    )
+
+    const url: string = invitationData.json().inviteLink
+    expect(url).toBeDefined()
+
+    const code = url.split('/').reverse()[0]
+
+    const teamByCode = await app.inject({
+      method: 'GET',
+      url: `/teams/code/${code}`,
+      headers: authHeaders
+    })
+
+    expect(teamByCode.json().id).toEqual(team.id)
+
+    const join = await app.inject({
+      method: 'POST',
+      url: `/teams/join`,
+      headers: authHeaders,
+      payload: {
+        code
+      }
+    })
+
+    expect(join.json().success).toBe(true)
   })
 
   async function getTeam(id: string) {
@@ -302,7 +349,8 @@ describe('Activities', () => {
       headers,
       payload: payload || {
         email: 'jest@example.com',
-        invitee: 'Jest'
+        invitee: 'Jest',
+        admin: true
       }
     })
   }

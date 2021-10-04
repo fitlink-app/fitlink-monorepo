@@ -30,6 +30,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, Expose } from 'class-transformer'
 import { UnitSystem, UserRank } from '../users.constants'
 import { LeaguesInvitation } from '../../leagues-invitations/entities/leagues-invitation.entity'
+import { SubscriptionsInvitation } from '../../subscriptions/entities/subscriptions-invitation.entity'
 
 @Entity()
 export class User extends CreatableEntity {
@@ -63,6 +64,9 @@ export class User extends CreatableEntity {
     onDelete: 'CASCADE'
   })
   refresh_tokens: RefreshToken[]
+
+  @ManyToMany(() => FeedItem, (feedItem) => feedItem.likes)
+  likes: FeedItem[]
 
   @ApiProperty()
   @Column({
@@ -136,7 +140,8 @@ export class User extends CreatableEntity {
   @ApiProperty({ type: Image })
   @OneToOne(() => Image, {
     cascade: ['remove'],
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
+    eager: true
   })
   @JoinColumn()
   avatar: Image
@@ -201,11 +206,29 @@ export class User extends CreatableEntity {
   )
   organisations_invitations: OrganisationsInvitation[]
 
+  @OneToMany(() => OrganisationsInvitation, (invitation) => invitation.owner)
+  organisations_invitations_sent: OrganisationsInvitation[]
+
   @OneToMany(() => TeamsInvitation, (invitation) => invitation.resolved_user)
   teams_invitations: TeamsInvitation[]
 
+  @OneToMany(() => TeamsInvitation, (invitation) => invitation.owner)
+  teams_invitations_sent: TeamsInvitation[]
+
   @OneToMany(() => LeaguesInvitation, (invitation) => invitation.to_user)
   leagues_invitations: LeaguesInvitation[]
+
+  @OneToMany(() => LeaguesInvitation, (invitation) => invitation.from_user)
+  leagues_invitations_sent: LeaguesInvitation[]
+
+  @OneToMany(
+    () => SubscriptionsInvitation,
+    (invitation) => invitation.resolved_user
+  )
+  subscriptions_invitations: SubscriptionsInvitation[]
+
+  @OneToMany(() => LeaguesInvitation, (invitation) => invitation.from_user)
+  subscriptions_invitations_sent: SubscriptionsInvitation[]
 
   @OneToMany(() => Activity, (activity) => activity.owner)
   activities: Activity[]
@@ -256,6 +279,14 @@ export class User extends CreatableEntity {
     default: 0
   })
   points_week: number
+
+  @ApiProperty()
+  @Column({ default: 0 })
+  active_minutes_week: number
+
+  @ApiProperty()
+  @Column({ nullable: true })
+  week_reset_at: Date
 
   @ApiProperty()
   @Column({

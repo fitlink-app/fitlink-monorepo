@@ -11,6 +11,7 @@ import { CreatableEntity } from '../../../classes/entity/creatable'
 import { Organisation } from '../../organisations/entities/organisation.entity'
 import { User } from '../../users/entities/user.entity'
 import { BillingPlanStatus, SubscriptionType } from '../subscriptions.constants'
+import { SubscriptionsInvitation } from './subscriptions-invitation.entity'
 
 @Entity()
 export class Subscription extends CreatableEntity {
@@ -27,6 +28,18 @@ export class Subscription extends CreatableEntity {
   })
   @JoinColumn()
   organisation: Organisation
+
+  @OneToMany(
+    () => SubscriptionsInvitation,
+    (invitation) => invitation.subscription
+  )
+  invitations: SubscriptionsInvitation[]
+
+  @Column({
+    nullable: true,
+    default: ''
+  })
+  billing_email: string
 
   @Column({
     nullable: true,
@@ -99,6 +112,12 @@ export class Subscription extends CreatableEntity {
   billing_plan_customer_id: string
 
   @Column({
+    nullable: true
+  })
+  /** Used for chargebee */
+  billing_plan_subscription_id: string
+
+  @Column({
     type: 'enum',
     nullable: true,
     enum: BillingPlanStatus
@@ -117,6 +136,11 @@ export class Subscription extends CreatableEntity {
   })
   /** Used for chargebee */
   billing_plan_last_billed_month: string
+
+  @Column({
+    default: 0
+  })
+  user_count: number
 
   @Column({
     type: 'enum',

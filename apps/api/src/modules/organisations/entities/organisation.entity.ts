@@ -15,7 +15,7 @@ import { OrganisationsInvitation } from '../../organisations-invitations/entitie
 import { ApiProperty } from '@nestjs/swagger'
 import { League } from '../../leagues/entities/league.entity'
 import { Reward } from '../../rewards/entities/reward.entity'
-import { OrganisationType } from '../organisations.constants'
+import { OrganisationMode, OrganisationType } from '../organisations.constants'
 import { Activity } from '../../activities/entities/activity.entity'
 
 @Entity()
@@ -66,6 +66,14 @@ export class Organisation extends CreatableEntity {
     default: OrganisationType.Company
   })
   type: string
+
+  @ApiProperty()
+  @Column({
+    type: 'enum',
+    enum: OrganisationMode,
+    default: OrganisationMode.Simple
+  })
+  mode: OrganisationMode
 
   @ApiProperty()
   @Column({

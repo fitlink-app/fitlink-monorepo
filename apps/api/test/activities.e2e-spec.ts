@@ -162,12 +162,20 @@ describe('Activities', () => {
     expect(result).toEqual(expect.arrayContaining(activityColumns))
   })
 
-  it(`GET /activities/map 200 Fetches activities from the database for map`, async () => {
+  it(`GET /activities/map 200 Fetches activities from the database for map, and always includes the users own activities`, async () => {
     await ActivitiesSetup('Test activity', 1, {
       meeting_point: {
         type: 'Point',
         coordinates: [51.7520131, -1.2578499]
       }
+    })
+
+    const others = await ActivitiesSetup('Test activity', 1, {
+      meeting_point: {
+        type: 'Point',
+        coordinates: [0, -1]
+      },
+      owner: { id: users[0].id } as User
     })
 
     activitiesIminService.findAllMarkers.mockReturnValue({
@@ -186,8 +194,10 @@ describe('Activities', () => {
     })
 
     const result = Object.keys(data.json().results[0])
+    const other = data.json().results.filter((e) => e.id === others[0].id)
 
     expect(result).toEqual(expect.arrayContaining(activityMapColumns))
+    expect(other).toHaveLength(1)
   })
 
   it(`GET /activities 200 Fetches real activities from the database ordered by created date and excludes imin`, async () => {

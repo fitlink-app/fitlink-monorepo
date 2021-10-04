@@ -45,11 +45,16 @@ import { JWTRoles } from '../../models'
 import { FilterUserDto, SearchUserDto } from './dto/search-user.dto'
 import { Public } from '../../decorators/public.decorator'
 import { Pagination } from '../../decorators/pagination.decorator'
+import { UserRolesService } from '../user-roles/user-roles.service'
+import { CreateAdminDto } from './dto/create-admin.dto'
 
 @Controller()
 @ApiBaseResponses()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly userRolesService: UserRolesService
+  ) {}
 
   // User endpoints (requires JWT)
   @Get('me')
@@ -165,8 +170,7 @@ export class UsersController {
     return this.usersService.findAllUsers(pagination, query)
   }
 
-  @Iam(Roles.SuperAdmin)
-  @Iam(Roles.OrganisationAdmin)
+  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin)
   @Get('/organisations/:organisationId/users')
   @ApiTags('users')
   @PaginationBody()
@@ -196,6 +200,104 @@ export class UsersController {
     })
   }
 
+  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.TeamAdmin)
+  @Get([
+    '/organisations/:organisationId/subscriptions/:subscriptionId/admins',
+    '/organisations/:organisationId/admins',
+    '/organisations/:organisationId/teams/:teamId/admins',
+    '/subscriptions/:subscriptionId/admins',
+    '/teams/:teamId/admins',
+    '/admins'
+  ])
+  @ApiTags('users')
+  @PaginationBody()
+  @ApiResponse({ type: User, isArray: true, status: 200 })
+  findAllAdmins(
+    @Pagination() pagination: PaginationQuery,
+    @Param('organisationId') organisationId: string,
+    @Param('subscriptionId') subscriptionId: string,
+    @Param('teamId') teamId: string,
+    @Query() query: FilterUserDto
+  ) {
+    return this.usersService.findAllAdmins(pagination, query, {
+      subscriptionId,
+      organisationId,
+      teamId
+    })
+  }
+
+  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.TeamAdmin)
+  @Post([
+    '/organisations/:organisationId/subscriptions/:subscriptionId/admins',
+    '/organisations/:organisationId/teams/:teamId/admins',
+    '/organisations/:organisationId/admins',
+    '/admins'
+  ])
+  @ApiTags('users')
+  @PaginationBody()
+  @ApiResponse({ type: User, isArray: true, status: 200 })
+  createAdmin(
+    @AuthUser() user: AuthenticatedUser,
+    @Param('organisationId') organisationId: string,
+    @Param('subscriptionId') subscriptionId: string,
+    @Param('teamId') teamId: string,
+    @Body() { role, userId }: CreateAdminDto
+  ) {
+    if (user.isSuperAdmin() && !organisationId) {
+      return this.userRolesService.assignSuperAdminRole(userId)
+    } else {
+      return this.userRolesService.assignAdminRole(userId, {
+        role,
+        organisationId,
+        subscriptionId,
+        teamId
+      })
+    }
+  }
+
+  @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.TeamAdmin)
+  @Delete([
+    '/organisations/:organisationId/subscriptions/:subscriptionId/admins/:userId',
+    '/organisations/:organisationId/teams/:teamId/admins/:userId',
+    '/organisations/:organisationId/admins/:userId',
+    '/admins/:userId'
+  ])
+  @ApiTags('users')
+  @PaginationBody()
+  @ApiResponse({ type: User, isArray: true, status: 200 })
+  deleteAdmin(
+    @AuthUser() user: AuthenticatedUser,
+    @Param('organisationId') organisationId: string,
+    @Param('subscriptionId') subscriptionId: string,
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string
+  ) {
+    if (user.isSuperAdmin() && !organisationId) {
+      if (user.id === userId) {
+        throw new BadRequestException(
+          'You may not remove yourself as superadmin'
+        )
+      }
+      return this.userRolesService.deleteSuperAdminRole(userId)
+    } else {
+      if (organisationId && user.id === userId) {
+        throw new BadRequestException(
+          'You may not remove yourself as organisation admin.'
+        )
+      }
+      console.log(userId, organisationId, subscriptionId, teamId)
+      return this.userRolesService.assignAdminRole(
+        userId,
+        {
+          organisationId,
+          subscriptionId,
+          teamId
+        },
+        true
+      )
+    }
+  }
+
   /**
    * Searches for users by keyword
    * and associates the search to the auth
@@ -207,7 +309,6 @@ export class UsersController {
   @Get('users/search')
   @ApiTags('users')
   @PaginationBody()
-  @ApiQuery({ type: SearchUserDto })
   @ApiResponse({ type: UserPublic, isArray: true, status: 200 })
   search(
     @Query() query: SearchUserDto,
