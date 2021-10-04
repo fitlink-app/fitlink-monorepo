@@ -12,6 +12,7 @@
 #import <AppCenterReactNativeCrashes.h>
 #import <CodePush/CodePush.h>
 #import <IntercomModule.h>
+#import <UserNotifications/UserNotifications.h>
 
 @import GooglePlaces;
 @import GoogleMaps;
@@ -70,6 +71,12 @@ static void InitializeFlipper(UIApplication *application) {
   [AppCenterReactNativeCrashes registerWithAutomaticProcessing];
   [IntercomModule initialize:@"ios_sdk-e9cecd16c2a508c21a63fd21d3b20a1fb7ada2cb" withAppId:@"jhnnkwbj"];
   
+  UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+      [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert + UNAuthorizationOptionSound)
+                            completionHandler:^(BOOL granted, NSError *_Nullable error) {
+                            }];
+      [[UIApplication sharedApplication] registerForRemoteNotifications];
+  
   return YES;
 }
 
@@ -80,6 +87,10 @@ static void InitializeFlipper(UIApplication *application) {
 #else
   return [CodePush bundleURL];
 #endif
+}
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    [IntercomModule setDeviceToken:deviceToken];
 }
 
 @end
