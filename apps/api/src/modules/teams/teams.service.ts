@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { AuthenticatedUser } from '../../models'
+import { Image } from '../images/entities/image.entity'
 import { Organisation } from '../organisations/entities/organisation.entity'
 import { Subscription } from '../subscriptions/entities/subscription.entity'
 import { BillingPlanStatus } from '../subscriptions/subscriptions.constants'
@@ -87,11 +88,11 @@ export class TeamsService {
           id,
           organisation: { id: organisationId }
         },
-        relations: ['organisation', 'organisation.subscriptions']
+        relations: ['organisation', 'organisation.subscriptions', 'avatar']
       })
     }
     return await this.teamRepository.findOne(id, {
-      relations: ['organisation', 'organisation.subscriptions']
+      relations: ['organisation', 'organisation.subscriptions', 'avatar']
     })
   }
 
@@ -108,9 +109,16 @@ export class TeamsService {
 
   async update(
     id: string,
-    updateTeamDto: UpdateTeamDto,
+    { name, imageId }: UpdateTeamDto,
     organisationId?: string
   ) {
+    let image: Image
+    const update: Partial<Team> = { name }
+    if (imageId) {
+      update.avatar = new Image()
+      update.avatar.id = imageId
+    }
+
     if (organisationId) {
       const isOwner = !!(await this.findOne(id, organisationId))
       if (!isOwner) {
@@ -120,12 +128,13 @@ export class TeamsService {
       }
       return await this.teamRepository.save({
         id,
-        ...updateTeamDto
+        image,
+        ...update
       })
     }
     return await this.teamRepository.save({
       id,
-      ...updateTeamDto
+      ...update
     })
   }
 

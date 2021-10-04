@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
-import Card from '../components/elements/Card'
-import Input from '../components/elements/Input'
-import Checkbox from '../components/elements/Checkbox'
-import Dashboard from '../components/layouts/Dashboard'
-import AvatarSelect from '../components/elements/AvatarSelect'
-import Feedback from '../components/elements/Feedback'
+import Card from '../../components/elements/Card'
+import Input from '../../components/elements/Input'
+import Checkbox from '../../components/elements/Checkbox'
+import Dashboard from '../../components/layouts/Dashboard'
+import AvatarSelect from '../../components/elements/AvatarSelect'
+import Feedback from '../../components/elements/Feedback'
 import { useMutation } from 'react-query'
-import { AuthContext } from '../context/Auth.context'
+import { AuthContext } from '../../context/Auth.context'
 import {
   DeleteResult,
   UpdateResult,
@@ -14,13 +14,13 @@ import {
   UpdateUserDto,
   UpdateUserEmailDto
 } from '@fitlink/api-sdk/types'
-import LoaderFullscreen from '../components/elements/LoaderFullscreen'
+import LoaderFullscreen from '../../components/elements/LoaderFullscreen'
 import { useForm } from 'react-hook-form'
 import { ApiMutationResult } from '@fitlink/common/react-query/types'
 import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 import { Image } from '@fitlink/api/src/modules/images/entities/image.entity'
 import toast from 'react-hot-toast'
-import useApiErrors from '../hooks/useApiErrors'
+import useApiErrors from '../../hooks/useApiErrors'
 import { UpdateUsersSettingDto } from '@fitlink/api/src/modules/users-settings/dto/update-users-setting.dto'
 import Link from 'next/link'
 

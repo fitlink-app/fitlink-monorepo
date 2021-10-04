@@ -34,6 +34,21 @@ export default function MenuTeam(primary: Primary) {
     },
     { hr: true },
     {
+      label: 'Settings',
+      link: '/settings',
+      icon: 'IconGear',
+      subMenu: [
+        {
+          label: 'Manage Page',
+          link: '/settings/page'
+        },
+        {
+          label: 'My Profile',
+          link: '/settings/profile'
+        }
+      ]
+    },
+    {
       label: 'Knowledge Base',
       link: '/knowledge-base',
       icon: 'IconYoga'

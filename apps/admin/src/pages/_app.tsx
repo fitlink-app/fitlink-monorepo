@@ -31,22 +31,45 @@ function Fitlink(appProps: AppProps) {
 }
 
 function App({ Component, pageProps }: AppProps) {
-  const { boot } = useIntercom()
+  const { boot, update } = useIntercom()
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const { user, team } = useContext(AuthContext)
+
+  useEffect(() => {
+    if (router.isReady) {
+      boot()
+    }
+  }, [router.isReady])
+
+  useEffect(() => {
+    console.log(team)
+  }, [team])
+
   useEffect(() => {
     if (router.isReady) {
       const args: IntercomProps = {}
       if (user) {
         args.name = user.name
         args.email = user.email
+        args.userId = user.id
         args.createdAt = `${Math.ceil(
           new Date(user.created_at).getTime() / 1000
         )}`
+
+        if (team) {
+          args.company = {
+            companyId: team.id,
+            name: team.name,
+            userCount: team.user_count,
+            createdAt: (team.created_at as any) as string
+          }
+        }
+
+        update(args)
+        console.log(args)
       }
-      boot(args)
     }
-  }, [router.isReady, user])
+  }, [router.isReady, user, team])
   return <Component {...pageProps} />
 }
 

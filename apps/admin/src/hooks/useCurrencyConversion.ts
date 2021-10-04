@@ -4,10 +4,7 @@ import axios from 'axios'
 
 export type Currency = 'GBP' | 'EUR' | 'USD' | 'AED' | 'AUD'
 
-export default function useCurrencyConversion(
-  amountGBP: number,
-  currency: Currency
-) {
+export default function useCurrencyConversion(currency: Currency) {
   const [rates, setRates] = useState({})
   const query = useQuery(
     'exchange_rates',
@@ -30,12 +27,11 @@ export default function useCurrencyConversion(
     }
   }, [query.isFetched])
 
-  const amount = amountGBP * (rates[currency] || 1)
-
   return {
     rates: query.data.data,
-    amount,
-    formatAmount: (amt: number) =>
-      amt.toLocaleString('en-GB', { style: 'currency', currency })
+    convertGbp: (amt: number) => {
+      const amount = amt * (rates[currency] || 1)
+      return amount.toLocaleString('en-GB', { style: 'currency', currency })
+    }
   }
 }

@@ -45,6 +45,10 @@ export class CreateDefaultSubscriptionDto {
 
   @ApiProperty()
   @IsOptional()
+  billing_currency_code?: string
+
+  @ApiProperty()
+  @IsOptional()
   billing_postcode?: string
 
   @ApiProperty()
