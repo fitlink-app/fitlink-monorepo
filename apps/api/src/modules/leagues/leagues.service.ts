@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, FindOneOptions, getManager, In, Repository } from 'typeorm'
+import { Brackets, FindOneOptions, getManager, Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { QueueableEventPayload } from '../../models/queueable.model'
 import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
@@ -17,9 +17,10 @@ import { Image } from '../images/entities/image.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
 import { plainToClass } from 'class-transformer'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
-import { addDays, formatISO } from 'date-fns'
+import { addDays } from 'date-fns'
 import { CommonService } from '../common/services/common.service'
 import { LeagueJoinedEvent } from './events/league-joined.event'
+import { LeagueWonEvent } from './events/league-won.event'
 
 type LeagueOptions = {
   teamId?: string
@@ -821,5 +822,28 @@ export class LeaguesService {
     } else {
       reject('An error has occurred')
     }
+  }
+
+  // calculate the winners of the league
+  async calculateLeagueWinners(leagueId: string) {
+    const league = await this.leaguesRepository.findOne(leagueId, {
+      relations: ['active_leaderboard', 'users']
+    })
+    const entries = (await this.leaderboardEntriesService
+      .queryLeaderboardRank(league.active_leaderboard.id)
+      .getRawMany()) as LeaderboardEntry[]
+    const winners = entries.filter((entry) => entry.rank === '1')
+
+    if (winners.length > 0) {
+      await Promise.all(
+        winners.map((w) => {
+          const event = new LeagueWonEvent()
+          event.leagueId = leagueId
+          event.userId = w.user_id
+          return this.eventEmitter.emitAsync('league.won', event)
+        })
+      )
+    }
+    return { winners }
   }
 }

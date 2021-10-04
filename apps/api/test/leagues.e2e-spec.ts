@@ -28,7 +28,8 @@ import {
   TeamAssignedLeagueSetup,
   TeamAssignedLeagueTeardown,
   OrganisationAssignedLeagueSetup,
-  OrganisationAssignedLeagueTeardown
+  OrganisationAssignedLeagueTeardown,
+  LeagueWithEntriesAndWinningUsers
 } from './seeds/leagues.seed'
 import { SportSetup, SportsTeardown } from './seeds/sport.seed'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
@@ -53,6 +54,7 @@ describe('Leagues', () => {
   let user3: string
   let user4: string
   let userData4: User
+  let leagueWithLeaderboardAndUsers: League[]
 
   beforeAll(async () => {
     app = await mockApp({
@@ -77,6 +79,12 @@ describe('Leagues', () => {
     sportId = sport.id
 
     const leagues = await LeaguesSetup('Test League')
+    const usersForLeague = await UsersSetup('Da Usas', 24)
+    leagueWithLeaderboardAndUsers = await LeagueWithEntriesAndWinningUsers(
+      'Da Leagues',
+      usersForLeague
+    )
+
     team_assigned_league = await TeamAssignedLeagueSetup('Test Team League')
     organisation_assigned_league = await OrganisationAssignedLeagueSetup(
       'Test Organisation League'
@@ -803,7 +811,6 @@ describe('Leagues', () => {
 
     // Apply leaderboard points manually
     const repo = app.get(Connection).getRepository(LeaderboardEntry)
-
     await repo.update(
       {
         leaderboard: { id: league.active_leaderboard.id },
@@ -1106,7 +1113,7 @@ describe('Leagues', () => {
     })
   }
 
-  it.only('Tests that a feed entry is created when you join a league', async () => {
+  it('Tests that a feed entry is created when you join a league', async () => {
     const league = await createPublicLeague()
 
     await app.inject({
@@ -1131,5 +1138,42 @@ describe('Leagues', () => {
     expect(feedItem.league.id).toBe(league.id)
     expect(feedItem.category).toBe(FeedItemCategory.MyUpdates)
     expect(feedItem.type).toBe(FeedItemType.LeagueJoined)
+  })
+
+  it.only('League Winners Feed Item Creation', async () => {
+    let leagueId = leagueWithLeaderboardAndUsers[0].id
+
+    const data = await app.inject({
+      method: 'GET',
+      url: `/winner/${leagueId}`,
+      headers: superadminHeaders
+    })
+    const winners = data.json().winners
+
+    let results: FeedItem[] = await Promise.all(
+      winners.map(async (w: LeaderboardEntry) => {
+        return getConnection()
+          .getRepository(FeedItem)
+          .findOne({
+            where: {
+              category: FeedItemCategory.MyUpdates,
+              type: FeedItemType.LeagueWon,
+              league: {
+                id: leagueId
+              },
+              user: {
+                id: w.user_id
+              }
+            },
+            relations: ['league', 'user']
+          })
+      })
+    )
+
+    for (const r of results) {
+      expect(r.league.id).toBe(leagueId)
+      expect(r.category).toBe(FeedItemCategory.MyUpdates)
+      expect(r.type).toBe(FeedItemType.LeagueWon)
+    }
   })
 })

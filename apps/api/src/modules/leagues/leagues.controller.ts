@@ -483,4 +483,10 @@ export class LeaguesController {
   teamDelete(@Param('teamId') teamId: string, @Param('id') id: string) {
     return this.leaguesService.remove(id, teamId)
   }
+
+  @Iam(Roles.SuperAdmin)
+  @Get('/winner/:leagueId')
+  calcWinner(@Param('leagueId') leagueId: string) {
+    return this.leaguesService.calculateLeagueWinners(leagueId)
+  }
 }

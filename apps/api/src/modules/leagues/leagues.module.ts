@@ -17,6 +17,7 @@ import { FeedItemsModule } from '../feed-items/feed-items.module'
 import { CommonModule } from '../common/common.module'
 import { LeagueJoinedListener } from './listeners/LeagueJoinedListener'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { LeagueWonListener } from './listeners/LeagueWonListener'
 
 @Module({
   imports: [
@@ -40,7 +41,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
     LeaguesService,
     LeaderboardEntriesService,
     HealthActivityCreatedListener,
-    LeagueJoinedListener
+    LeagueJoinedListener,
+    LeagueWonListener
   ],
   exports: []
 })
