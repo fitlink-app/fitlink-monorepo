@@ -257,6 +257,7 @@ export default function CreateSubscription({
           </Link>
         )}
         <button
+          type="submit"
           className="button"
           disabled={create.isLoading || update.isLoading}>
           {isUpdate ? 'Save Subscription' : 'Continue'}

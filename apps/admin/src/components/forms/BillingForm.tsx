@@ -218,7 +218,7 @@ export default function BillingForm({
         error={errors.billing_country}
       />
       <div className="text-right mt-2">
-        <button className="button" disabled={update.isLoading}>
+        <button className="button" disabled={update.isLoading} type="submit">
           Update
         </button>
       </div>

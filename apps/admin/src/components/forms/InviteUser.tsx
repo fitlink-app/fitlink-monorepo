@@ -9,17 +9,15 @@ export type InviteUserProps = {
   }
 }
 
-export default function InviteUser({
-  current
-}:InviteUserProps) {
+export default function InviteUser({ current }: InviteUserProps) {
   const [firstName, setFirstName] = useState(current?.firstName || '')
   const [lastName, setLastName] = useState(current?.lastName || '')
   const [email, setEmail] = useState(current?.email || '')
 
   return (
-    <form onSubmit={ (e) => e.preventDefault() }>
+    <form onSubmit={(e) => e.preventDefault()}>
       <h4 className="light mb-3">
-        { current ? 'Edit user details' : 'Invite a user to join your team' }
+        {current ? 'Edit user details' : 'Invite a user to join your team'}
       </h4>
       <Input
         name="firstname"
@@ -44,8 +42,8 @@ export default function InviteUser({
         onChange={(v) => setEmail(v)}
       />
       <div className="text-right mt-2">
-        <button className="button">
-          { current ? 'Edit user' : 'Invite user' }
+        <button className="button" type="submit">
+          {current ? 'Edit user' : 'Invite user'}
         </button>
       </div>
     </form>

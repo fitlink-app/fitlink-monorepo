@@ -53,6 +53,19 @@ export const mockEmailService = () => ({
   sendTemplatedEmail
 })
 
+export const mockFirebaseAdminService = () => ({
+  app: () => ({
+    messaging: () => ({
+      send: (payload: any) => {
+        console.log(payload)
+      },
+      sendMulticast: (payload: any) => {
+        console.log(payload)
+      }
+    })
+  })
+})
+
 export async function sendTemplatedEmail(
   template: TemplatesType,
   data: NodeJS.Dict<string>,

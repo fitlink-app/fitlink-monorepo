@@ -33,7 +33,14 @@ const SignupPage = () => {
   const { api } = useContext(AuthContext)
   const router = useRouter()
 
-  const words = ['people', 'business', 'building', 'team', 'school', 'transport']
+  const words = [
+    'people',
+    'business',
+    'building',
+    'team',
+    'school',
+    'transport'
+  ]
 
   const { handleSubmit, register, control, watch } = useForm({
     defaultValues: {
@@ -109,7 +116,8 @@ const SignupPage = () => {
               </div>
             </h1>
             <h2>
-              Billing is monthly and you don’t need a credit card to sign up. You'll only be charged for users once they've joined your team.
+              Billing is monthly and you don’t need a credit card to sign up.
+              You'll only be charged for users once they've joined your team.
             </h2>
             <ul>
               <li>14 day free trial</li>
@@ -231,6 +239,7 @@ const SignupPage = () => {
                   <Button
                     label="Start trial"
                     className="pointer"
+                    type="submit"
                     disabled={create.isLoading}
                   />
                 </div>
