@@ -14,6 +14,9 @@ import { User } from '../entities/user.entity'
 import { UserPointsIncrementedEvent } from '../events/user-points-incremented.event'
 import { Events } from '../../../../src/events'
 import { UserActiveMinutesWeekIncrementedEvent } from '../events/user-active-minutes-week-incremented.event'
+import { FeedItem } from '../../feed-items/entities/feed-item.entity'
+import { NotificationsService } from '../../notifications/notifications.service'
+import { NotificationAction } from '../../notifications/notifications.constants'
 
 @Injectable()
 export class UserPointsIncrementedListener {
@@ -22,7 +25,8 @@ export class UserPointsIncrementedListener {
     private usersRepository: Repository<User>,
     private rewardsService: RewardsService,
     private feedItemService: FeedItemsService,
-    private eventEmitter: EventEmitter2
+    private eventEmitter: EventEmitter2,
+    private notificationsService: NotificationsService
   ) {}
 
   @OnEvent(Events.USER_POINTS_INCREMENTED)
@@ -47,8 +51,10 @@ export class UserPointsIncrementedListener {
     }
 
     // if payload.new_points is bigger or equal to points_until_reward
-    payload.new_points >= points_until_reward &&
-      (await this.addFeedItem(user, reward))
+    if (payload.new_points >= points_until_reward) {
+      await this.addFeedItem(user, reward)
+      await this.sendNotification(user, reward)
+    }
   }
 
   async incrementWeeklyPointsAndMinutes(
@@ -76,12 +82,25 @@ export class UserPointsIncrementedListener {
   }
 
   async addFeedItem(user: User, reward: Reward) {
-    const [_, error] = await tryAndCatch(
-      await this.feedItemService.create({
+    const [_, error] = await tryAndCatch<FeedItem>(
+      this.feedItemService.create({
         category: FeedItemCategory.MyUpdates,
         type: FeedItemType.RewardUnlocked,
         user,
         reward
+      })
+    )
+    error && console.error(error)
+  }
+
+  async sendNotification(user: User, reward: Reward) {
+    const [_, error] = await tryAndCatch(
+      this.notificationsService.create({
+        action: NotificationAction.RewardUnlocked,
+        subject: reward.name,
+        subject_id: reward.id,
+        avatar: reward.image,
+        user: user
       })
     )
     error && console.error(error)

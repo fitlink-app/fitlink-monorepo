@@ -34,13 +34,6 @@ export class LeaguesInvitation extends CreatableEntity {
   league: League
 
   @ApiProperty()
-  @OneToOne(
-    () => Notification,
-    (notification) => notification.league_invitation
-  )
-  notification: Notification
-
-  @ApiProperty()
   @Column({
     default: false
   })

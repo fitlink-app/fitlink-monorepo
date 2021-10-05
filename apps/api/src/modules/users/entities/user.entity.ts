@@ -340,6 +340,12 @@ export class User extends CreatableEntity {
     nullable: true
   })
   fcm_tokens: string[]
+
+  @ApiProperty()
+  @Column({
+    default: 0
+  })
+  unread_notifications: number
 }
 
 export class UserPublic {

@@ -1,10 +1,13 @@
-import { Controller, Get, Post, Body } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
+import { Controller, Get, Post, Body, Put } from '@nestjs/common'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { AuthenticatedUser } from '../../models'
 import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { PaginationQuery } from '../../helpers/paginate'
-import { PaginationBody } from '../../decorators/swagger.decorator'
+import {
+  PaginationBody,
+  UpdateResponse
+} from '../../decorators/swagger.decorator'
 import { NotificationSeenDto } from './dto/notification-seen.dto'
 import { NotificationsService } from './notifications.service'
 
@@ -22,12 +25,20 @@ export class NotificationsController {
     return this.notificationsService.findNotifications(user.id, pagination)
   }
 
-  @Post('/me/notifications/seen')
+  @Put('/me/notifications/seen')
   @ApiTags('me')
+  @UpdateResponse()
   markRead(
     @AuthUser() user: AuthenticatedUser,
     @Body() dto: NotificationSeenDto
   ) {
     return this.notificationsService.markSeen(user.id, dto.notificationIds)
+  }
+
+  @Put('/me/notifications/seen-all')
+  @ApiTags('me')
+  @UpdateResponse()
+  updateSelf(@AuthUser() user: AuthenticatedUser) {
+    return this.notificationsService.markAllSeen(user.id)
   }
 }

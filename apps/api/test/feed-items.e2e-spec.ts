@@ -17,8 +17,9 @@ import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import { FeedItemsSetup, FeedItemsTeardown } from './seeds/feed-items.seed'
 import { UsersModule } from '../src/modules/users/users.module'
 import { AuthModule } from '../src/modules/auth/auth.module'
+import { NotificationsModule } from '../src/modules/notifications/notifications.module'
 
-describe('Followings', () => {
+describe('FeedItems', () => {
   let app: NestFastifyApplication
   let users: User[]
   let authHeaders: NodeJS.Dict<string>
@@ -26,7 +27,7 @@ describe('Followings', () => {
 
   beforeAll(async () => {
     app = await mockApp({
-      imports: [UsersModule, AuthModule, FeedItemsModule],
+      imports: [UsersModule, AuthModule, FeedItemsModule, NotificationsModule],
       providers: []
     })
 

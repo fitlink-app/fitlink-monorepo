@@ -60,6 +60,9 @@ jobs:
       # Intercom
       INTERCOM_API_KEY: ${{ secrets.PROD_INTERCOM_API_KEY }}
 
+      # Firebase
+      FIREBASE_ADMIN_CREDENTIAL: ${{ secrets.PROD_FIREBASE_ADMIN_CREDENTIAL }}
+
     steps:
       - uses: actions/checkout@v2
 

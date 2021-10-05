@@ -83,9 +83,4 @@ export class FeedItem extends CreatableEntity {
   @JoinTable()
   @JoinColumn()
   likes: User[] | UserPublic[]
-
-  @OneToOne(() => Notification, (notification) => notification.feed_item, {
-    nullable: true
-  })
-  notification: Notification
 }
