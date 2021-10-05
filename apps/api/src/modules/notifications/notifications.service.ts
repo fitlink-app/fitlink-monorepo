@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { In, Repository } from 'typeorm'
 import { Pagination, PaginationQuery } from '../../helpers/paginate'
@@ -82,9 +82,29 @@ export class NotificationsService {
     const payload = this.formatPayload(notify)
     const tokens = notification.user.fcm_tokens
     if (payload && tokens && tokens.length > 0) {
-      this.sendNotificationByFCMTokenArray(payload, tokens)
+      await this.sendNotificationByFCMTokenArray(payload, tokens)
     }
     return notify
+  }
+
+  async sendGenericMessage(
+    userId: string,
+    teamId: string,
+    payload: NotificationPayload
+  ) {
+    const user = await this.usersRepository.findOne(userId, {
+      relations: ['teams']
+    })
+    const tokens = user.fcm_tokens
+    if (!user.teams.map((e) => e.id).includes(teamId)) {
+      return false
+    }
+
+    if (payload && tokens && tokens.length > 0) {
+      return this.sendNotificationByFCMTokenArray(payload, tokens)
+    }
+
+    return false
   }
 
   /**
@@ -197,16 +217,18 @@ export class NotificationsService {
     return this.titles[action]
   }
 
-  formatPayload(notification: Notification) {
+  formatPayload(notification: Notification): NotificationPayload | false {
     let message = this.messages[notification.action]
     if (this.messages[notification.action]) {
       message = message
         .replace('{subject}', notification.subject)
         .replace('{meta_value}', notification.meta_value)
       return {
-        title: notification.title,
-        body: message
-      } as NotificationPayload
+        notification: {
+          title: notification.title,
+          body: message
+        }
+      }
     } else {
       return false
     }
