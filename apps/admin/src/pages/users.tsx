@@ -14,6 +14,7 @@ import ConfirmForm from '../components/forms/ConfirmForm'
 import InviteUserForm from '../components/forms/InviteUserForm'
 import { Roles } from '../../../api/src/modules/user-roles/user-roles.constants'
 import { OrganisationMode } from '@fitlink/api/src/modules/organisations/organisations.constants'
+import MessageUser from '../components/forms/MessageUser'
 
 export default function UsersPage() {
   const [drawContent, setDrawContent] = useState<
@@ -61,7 +62,7 @@ export default function UsersPage() {
     const { modeRole, mode } = useContext(AuthContext)
 
     return (
-      <div className="text-right">
+      <div className="text-right flex">
         {modeRole === 'app' && (
           <button
             className="button small ml-1"
@@ -74,6 +75,13 @@ export default function UsersPage() {
             className="button small ml-1"
             onClick={() => ConfirmRemoveForm(original)}>
             Remove
+          </button>
+        )}
+        {modeRole === 'team' && (
+          <button
+            className="button small ml-1"
+            onClick={() => MessageUserForm(original)}>
+            Send Message
           </button>
         )}
       </div>
@@ -104,6 +112,12 @@ export default function UsersPage() {
         }
       />
     )
+  }
+
+  const MessageUserForm = (fields) => {
+    setWarning(true)
+    setWide(false)
+    setDrawContent(<MessageUser onSave={closeDrawer(1000)} current={fields} />)
   }
 
   const handleUsernameSearch = async (search) => {

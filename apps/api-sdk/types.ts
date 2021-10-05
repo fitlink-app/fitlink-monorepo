@@ -52,8 +52,8 @@ import { RespondTeamsInvitationDto } from '@fitlink/api/src/modules/teams-invita
 import { RespondOrganisationsInvitationDto } from '@fitlink/api/src/modules/organisations-invitations/dto/respond-organisations-invitation.dto'
 import { RespondSubscriptionsInvitationDto } from '@fitlink/api/src/modules/subscriptions/dto/respond-subscriptions-invitation.dto'
 import { UpdateUsersSettingDto } from '@fitlink/api/src/modules/users-settings/dto/update-users-setting.dto'
-import { Page } from '@fitlink/api/src/modules/pages/entities/page.entity'
 import { CreatePageDto } from '@fitlink/api/src/modules/pages/dto/create-page.dto'
+import { SendNotificationDto } from '@fitlink/api/src/modules/notifications/dto/send-notification.dto'
 
 export type {
   AuthResultDto,
@@ -103,6 +103,7 @@ export type CreateStravaSubscription = '/providers/strava/webhook/register'
 export type VerifyUserEmail = '/users/verify-email'
 export type RegenerateJoinCode = '/teams/:teamId/regenerate-join-code'
 export type CreatePage = '/teams/:teamId/page'
+export type SendMessage = '/teams/:teamId/users/:userId/notifications'
 
 export type CreatableResource =
   | AuthLogin
@@ -124,6 +125,7 @@ export type CreatableResource =
   | VerifyUserEmail
   | RegenerateJoinCode
   | CreatePage
+  | SendMessage
 
 export type ListResource =
   | '/organisations'
@@ -309,6 +311,8 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<{}>
   : T extends CreatePage
   ? Payload<CreatePageDto>
+  : T extends SendMessage
+  ? Payload<SendNotificationDto>
   : never
 
 export type UploadResourceParams = FilePayload
@@ -337,6 +341,8 @@ export type CreatableResourceResponse<T> = T extends AuthSignUp
   ? { success: boolean }
   : T extends RegenerateJoinCode
   ? { code: string }
+  : T extends SendMessage
+  ? BooleanResult
   : never
 
 export type UpdateResourceParams<T> = T extends Organisation

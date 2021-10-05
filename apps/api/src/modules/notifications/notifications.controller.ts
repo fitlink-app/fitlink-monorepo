@@ -60,12 +60,12 @@ export class NotificationsController {
   @ApiTags('users')
   @SuccessResponse()
   async sendGenericNotification(
-    @AuthUser() user: AuthenticatedUser,
     @Body() { title, body }: SendNotificationDto,
-    @Param('teamId') teamId: string
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string
   ) {
     const result = await this.notificationsService.sendGenericMessage(
-      user.id,
+      userId,
       teamId,
       {
         notification: { title, body }

@@ -96,6 +96,7 @@ export class NotificationsService {
       relations: ['teams']
     })
     const tokens = user.fcm_tokens
+
     if (!user.teams.map((e) => e.id).includes(teamId)) {
       return false
     }
