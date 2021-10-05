@@ -181,7 +181,7 @@ export default function InviteUserForm({
       />
 
       <div className="flex jc-sb">
-        <button className="button mt-1" disabled={add.isLoading}>
+        <button className="button mt-1" disabled={add.isLoading} type="submit">
           Invite User
         </button>
         {role === Roles.Self && (

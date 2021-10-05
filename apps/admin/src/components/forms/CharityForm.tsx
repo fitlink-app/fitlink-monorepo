@@ -87,7 +87,7 @@ export default function CharityForm({ current }: CharityFormProps) {
             <p className="my-0">will be added to your next invoice</p>
           </div>
           <div className="text-right mt-2">
-            <button className="button" onClick={purchase}>
+            <button className="button" onClick={purchase} type="submit">
               Purchase now
             </button>
           </div>
@@ -189,7 +189,7 @@ export default function CharityForm({ current }: CharityFormProps) {
             maxDate={addYears(new Date(), 10)}
           />
           <div className="text-right mt-2">
-            <button className="button">
+            <button className="button" type="submit">
               {current ? 'Update' : 'Create reward'}
             </button>
           </div>

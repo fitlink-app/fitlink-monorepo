@@ -26,8 +26,6 @@ const pagesDomain =
 
 export default function ManagePage() {
   const { api, primary } = useContext(AuthContext)
-  const publishRef = useRef<HTMLInputElement>()
-  const tm = useRef<NodeJS.Timeout>()
 
   const loadPage = useQuery(
     'page',
@@ -84,7 +82,15 @@ export default function ManagePage() {
     }
   )
 
-  const { control, register, handleSubmit, watch, setValue, reset } = useForm({
+  const {
+    control,
+    register,
+    handleSubmit,
+    trigger,
+    watch,
+    setValue,
+    reset
+  } = useForm({
     defaultValues: loadPage.data
   })
 
@@ -138,7 +144,6 @@ export default function ManagePage() {
   useEffect(() => {
     if (loadPage.isFetched) {
       reset(loadPage.data)
-      publishRef.current.checked = loadPage.data.enabled
     }
   }, [loadPage.isFetched])
 
@@ -149,8 +154,6 @@ export default function ManagePage() {
     if (loadPage.data.id) {
       payload.id = loadPage.data.id
     }
-
-    payload.enabled = publishRef.current.checked
 
     const images: { name: string; file: File }[] = []
     if (payload.logo instanceof File) {
@@ -587,8 +590,12 @@ export default function ManagePage() {
             {!loadPage.data.enabled && (
               <button
                 className="button button-save"
+                type="button"
                 disabled={savePage.isLoading}
-                onClick={() => (publishRef.current.checked = true)}>
+                onClick={(event) => {
+                  setValue('enabled', true)
+                  handleSubmit(onSubmit)()
+                }}>
                 Save &amp; Publish Page
               </button>
             )}
@@ -596,11 +603,16 @@ export default function ManagePage() {
               <button
                 className="button alt button-save"
                 disabled={savePage.isLoading}
-                onClick={() => (publishRef.current.checked = false)}>
+                type="button"
+                onClick={(event) => {
+                  setValue('enabled', false)
+                  handleSubmit(onSubmit)()
+                }}>
                 Unpublish Page
               </button>
             )}
             <button
+              type="submit"
               disabled={savePage.isLoading}
               className={`button button-save ml-2 ${
                 !loadPage.data.enabled ? 'alt ' : ''
@@ -611,7 +623,6 @@ export default function ManagePage() {
               style={{ display: 'none' }}
               type="checkbox"
               {...register('enabled')}
-              ref={publishRef}
             />
           </div>
         </div>
