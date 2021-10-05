@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Put, Param, BadRequestException } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  BadRequestException
+} from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { AuthenticatedUser } from '../../models'
 import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
@@ -56,14 +64,20 @@ export class NotificationsController {
     @Body() { title, body }: SendNotificationDto,
     @Param('teamId') teamId: string
   ) {
-    const result = await this.notificationsService.sendGenericMessage(user.id, teamId, {
-      notification: { title, body }
-    })
+    const result = await this.notificationsService.sendGenericMessage(
+      user.id,
+      teamId,
+      {
+        notification: { title, body }
+      }
+    )
 
-    if( !result ){
-      throw new BadRequestException("Unable to send message to this user. Their device may not allow push notifications.")
+    if (!result) {
+      throw new BadRequestException(
+        'Unable to send message to this user. Their device may not allow push notifications.'
+      )
     }
 
-    return result.
+    return result
   }
 }
