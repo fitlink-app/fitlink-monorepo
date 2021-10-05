@@ -311,7 +311,10 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<{}>
   : T extends CreatePage
   ? Payload<CreatePageDto>
-  : T extends SendMessage
+  : never
+
+// Typescript bug? Means we need to split this into a second type
+export type CreateResourceParamsExtra<T> = T extends SendMessage
   ? Payload<SendNotificationDto>
   : never
 
