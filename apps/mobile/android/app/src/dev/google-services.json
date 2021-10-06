@@ -36,17 +36,17 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:196133054647:android:534231ec1c5ab98d1f4532",
+        "mobilesdk_app_id": "1:196133054647:android:ebe1e5838a92e2451f4532",
         "android_client_info": {
-          "package_name": "app.fitlink.dev"
+          "package_name": "com.fitlink.dev"
         }
       },
       "oauth_client": [
         {
-          "client_id": "196133054647-eseq2fgrcudv86jqeicm22lk0gcctpd1.apps.googleusercontent.com",
+          "client_id": "196133054647-lgdk5tum3ulag5m2a7t3khtqiountno6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "app.fitlink.dev",
+            "package_name": "com.fitlink.dev",
             "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
           }
         },

@@ -50,6 +50,8 @@
     "@react-native-async-storage/async-storage": "^1.15.5",
     "@react-native-community/clipboard": "^1.5.1",
     "@react-native-community/masked-view": "^0.1.11",
+    "@react-native-firebase/app": "^12.9.0",
+    "@react-native-firebase/messaging": "^12.9.0",
     "@react-native-google-signin/google-signin": "^6.0.1",
     "@react-native-mapbox-gl/maps": "^8.2.1",
     "@react-native-picker/picker": "^1.16.1",
