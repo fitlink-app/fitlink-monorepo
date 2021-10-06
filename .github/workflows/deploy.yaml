@@ -115,6 +115,9 @@ jobs:
       - name: Build nest for Serverless
         run: yarn run build
 
+      - name: Replace FIREBASE_ADMIN secret
+        run: yarn run sls:secrets
+
       - name: Install serverless globally
         if: github.ref == 'refs/heads/develop'
         run: yarn add global serverless@2.28.7 -W

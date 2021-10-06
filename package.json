@@ -39,6 +39,7 @@
     "sls:package": "serverless package",
     "sls:migrate": "serverless invoke -f migrate",
     "sls:migrate:production": "serverless invoke -f migrate --stage production",
+    "sls:secrets": "node ./scripts/update-secrets.js",
     "package:admin": "yarn workspace @fitlink/admin dev",
     "package:admin:ssl": "cross-env DEV_SSL=1 yarn workspace @fitlink/admin ssl",
     "package:api": "nest start --watch",
