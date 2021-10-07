@@ -13,6 +13,7 @@ import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { PaginationQuery } from '../../helpers/paginate'
 import {
+  ApiBaseResponses,
   PaginationBody,
   SuccessResponse,
   UpdateResponse
@@ -25,6 +26,7 @@ import { Iam } from '../../decorators/iam.decorator'
 import { Roles } from '../user-roles/user-roles.constants'
 
 @Controller()
+@ApiBaseResponses()
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
