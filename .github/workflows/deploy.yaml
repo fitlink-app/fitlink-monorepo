@@ -82,41 +82,41 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-pkg-
 
-      # - name: Install Dependencies
-      #   # run: yarn install --frozen-lockfile
-      #   run: yarn install
+      - name: Install Dependencies
+        # run: yarn install --frozen-lockfile
+        run: yarn install
 
-      # - name: Setup docker
-      #   run: docker-compose up -d postgres-jest s3rver
+      - name: Setup docker
+        run: docker-compose up -d postgres-jest s3rver
 
-      # - name: Allow docker postgres 10 seconds to startups
-      #   uses: jakejarvis/wait-action@v0.1.0
-      #   with:
-      #     time: '10s'
+      - name: Allow docker postgres 10 seconds to startups
+        uses: jakejarvis/wait-action@v0.1.0
+        with:
+          time: '10s'
 
-      # - name: Migrate database database
-      #   run: yarn migration:run -c jest
+      - name: Migrate database database
+        run: yarn migration:run -c jest
 
-      # - name: Test e2e
-      #   run: yarn run test
+      - name: Test e2e
+        run: yarn run test
 
-      # - name: Test sdk
-      #   run: yarn run test:sdk
+      - name: Test sdk
+        run: yarn run test:sdk
 
       # - name: Test admin
       #   run: yarn run test:admin
 
-      # - name: Stop docker
-      #   run: docker-compose down
+      - name: Stop docker
+        run: docker-compose down
 
       - name: Copy environment
         run: cp .env.staging .env
 
-      # - name: Build nest for Serverless
-      #   run: yarn run build
+      - name: Build nest for Serverless
+        run: yarn run build
 
-      # - name: Replace FIREBASE_ADMIN secret
-      #   run: yarn run sls:secrets
+      - name: Replace FIREBASE_ADMIN secret
+        run: yarn run sls:secrets
 
       - name: Install serverless globally
         if: github.ref == 'refs/heads/develop'

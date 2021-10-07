@@ -12,7 +12,3 @@ Changelog
 .taprc
 .bin
 .cmd
-@google-cloud/firestore
-@google-cloud/storage
-@firebase/database
-@firebase/database-compat

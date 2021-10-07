@@ -12,25 +12,15 @@ import {
 import { FeedItemsService } from './feed-items.service'
 import { CreateFeedItemDto } from './dto/create-feed-item.dto'
 import { UpdateFeedItemDto } from './dto/update-feed-item.dto'
-import {
-  ApiExcludeEndpoint,
-  ApiQuery,
-  ApiResponse,
-  ApiTags
-} from '@nestjs/swagger'
+import { ApiExcludeEndpoint, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { AuthenticatedUser } from '../../models'
 import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { PaginationQuery } from '../../helpers/paginate'
-import {
-  ApiBaseResponses,
-  PaginationBody
-} from '../../decorators/swagger.decorator'
+import { PaginationBody } from '../../decorators/swagger.decorator'
 import { FeedFilterDto } from './dto/feed-filter.dto'
-import { FeedItem } from './entities/feed-item.entity'
 
 @Controller()
-@ApiBaseResponses()
 export class FeedItemsController {
   constructor(private readonly feedItemsService: FeedItemsService) {}
 
@@ -42,25 +32,26 @@ export class FeedItemsController {
 
   @Get('/me/feed')
   @ApiTags('me')
-  @PaginationBody()
-  @ApiResponse({ type: FeedItem, isArray: true, status: 200 })
   findMyFeedItems(
-    @Query() query: FeedFilterDto,
     @AuthUser() user: AuthenticatedUser,
-    @Pagination() pagination: PaginationQuery
+    @Pagination() pagination: PaginationQuery,
+    @Query() { friends_activities, my_goals, my_updates }: FeedFilterDto
   ) {
     return this.feedItemsService.findAccessibleFeedItems(
       user.id,
       user.id,
       pagination,
-      query
+      {
+        friends_activities: !!Number(friends_activities),
+        my_goals: !!Number(my_goals),
+        my_updates: !!Number(my_updates)
+      }
     )
   }
 
   @Get('/users/:userId/feed')
   @ApiTags('users')
   @PaginationBody()
-  @ApiResponse({ type: FeedItem, isArray: true, status: 200 })
   async findAllUserFeedItems(
     @Param('userId') id: string,
     @AuthUser() user: AuthenticatedUser,

@@ -36,7 +36,7 @@ export class FeedItemsService {
     userId: string,
     requesterId: string,
     { limit, page }: PaginationQuery,
-    filters: FeedFilterDto = {} as FeedFilterDto
+    filters: FeedFilterDto = {}
   ) {
     const selfView = userId === requesterId
 

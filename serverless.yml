@@ -5,7 +5,7 @@ org: fitlink
 app: fitlink
 
 plugins:
-  # - serverless-layers
+  - serverless-layers
   - serverless-offline
   - serverless-dotenv-plugin
   - serverless-deployment-bucket
@@ -20,14 +20,14 @@ package:
     - serverless/yarn.lock
 
 custom:
-  # serverless-layers:
-  #   functions:
-  #     - main
-  #     - migrate
-  #     - leagues
-  #   dependenciesPath: ./serverless/package.json
-  #   packageManager: yarn
-  #   customInstallationCommand: node -e "fs.copyFileSync('../../../serverless/.yarnclean', '.yarnclean'); fs.copyFileSync('../../../serverless/yarn.lock', 'yarn.lock')" && yarn install --production --frozen-lockfile
+  serverless-layers:
+    functions:
+      - main
+      - migrate
+      - leagues
+    dependenciesPath: ./serverless/package.json
+    packageManager: yarn
+    customInstallationCommand: node -e "fs.copyFileSync('../../../serverless/.yarnclean', '.yarnclean'); fs.copyFileSync('../../../serverless/yarn.lock', 'yarn.lock')" && yarn install --production --frozen-lockfile
   customDomain:
     domainName: ${env:API_DOMAIN_NAME}
     hostedZoneId: ${env:API_DOMAIN_NAME_HOSTED_ZONE_ID}
@@ -43,19 +43,10 @@ provider:
   deploymentBucket:
     name: ${env:SERVERLESS_DEPLOYMENT_BUCKET}
     serverSideEncryption: AES256
-  ecr:
-    images:
-      appimage:
-        uri: 036044316251.dkr.ecr.eu-west-2.amazonaws.com/fitlink-nest@sha256:31c5f9ae1797b7bbbbbee47420fa2110a0ac26e75d8430eb9e5d66dfda0b8f6f
 
 functions:
-  router:
-    image:
-      name: appimage
-      command:
-        - serverless.handler
-      entryPoint:
-        - '/lambda-entrypoint.sh'
+  main:
+    handler: dist/apps/api/serverless.handler
     events:
       - http:
           method: any
@@ -71,13 +62,8 @@ functions:
     provisionedConcurrency: ${env:PROVISIONED_CONCURRENCY}
     concurrencyAutoscaling: false
 
-  migrator:
-    image:
-      name: appimage
-      command:
-        - serverless.migrate
-      entryPoint:
-        - '/lambda-entrypoint.sh'
+  migrate:
+    handler: dist/apps/api/serverless.migrate
     vpc:
       securityGroupIds:
         - ${env:VPC_SECURITY_GROUP_ID}
@@ -85,13 +71,8 @@ functions:
         - ${env:VPC_SUBNET_ID_1}
         - ${env:VPC_SUBNET_ID_2}
         - ${env:VPC_SUBNET_ID_3}
-  jobs:
-    image:
-      name: appimage
-      command:
-        - serverless.processLeagues
-      entryPoint:
-      - '/lambda-entrypoint.sh'
+  leagues:
+    handler: dist/apps/api/serverless.processLeagues
     vpc:
       securityGroupIds:
         - ${env:VPC_SECURITY_GROUP_ID}
