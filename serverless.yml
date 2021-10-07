@@ -5,7 +5,7 @@ org: fitlink
 app: fitlink
 
 plugins:
-  - serverless-layers
+  # - serverless-layers
   - serverless-offline
   - serverless-dotenv-plugin
   - serverless-deployment-bucket
@@ -20,14 +20,14 @@ package:
     - serverless/yarn.lock
 
 custom:
-  serverless-layers:
-    functions:
-      - main
-      - migrate
-      - leagues
-    dependenciesPath: ./serverless/package.json
-    packageManager: yarn
-    customInstallationCommand: node -e "fs.copyFileSync('../../../serverless/.yarnclean', '.yarnclean'); fs.copyFileSync('../../../serverless/yarn.lock', 'yarn.lock')" && yarn install --production --frozen-lockfile
+  # serverless-layers:
+  #   functions:
+  #     - main
+  #     - migrate
+  #     - leagues
+  #   dependenciesPath: ./serverless/package.json
+  #   packageManager: yarn
+  #   customInstallationCommand: node -e "fs.copyFileSync('../../../serverless/.yarnclean', '.yarnclean'); fs.copyFileSync('../../../serverless/yarn.lock', 'yarn.lock')" && yarn install --production --frozen-lockfile
   customDomain:
     domainName: ${env:API_DOMAIN_NAME}
     hostedZoneId: ${env:API_DOMAIN_NAME_HOSTED_ZONE_ID}
@@ -46,7 +46,9 @@ provider:
 
 functions:
   main:
-    handler: dist/apps/api/serverless.handler
+    image: 036044316251.dkr.ecr.eu-west-1.amazonaws.com/fitlink-nest@sha256:2eb4cf23451e31b5e952a6af2304aa6c6f2bc8204d5c3718fdd1d8b8600b5991
+    command:
+      - serverless.handler
     events:
       - http:
           method: any
@@ -63,7 +65,9 @@ functions:
     concurrencyAutoscaling: false
 
   migrate:
-    handler: dist/apps/api/serverless.migrate
+    image: 036044316251.dkr.ecr.eu-west-1.amazonaws.com/fitlink-nest@sha256:2eb4cf23451e31b5e952a6af2304aa6c6f2bc8204d5c3718fdd1d8b8600b5991
+    command:
+      - serverless.migrate
     vpc:
       securityGroupIds:
         - ${env:VPC_SECURITY_GROUP_ID}
@@ -72,7 +76,9 @@ functions:
         - ${env:VPC_SUBNET_ID_2}
         - ${env:VPC_SUBNET_ID_3}
   leagues:
-    handler: dist/apps/api/serverless.processLeagues
+    image: 036044316251.dkr.ecr.eu-west-1.amazonaws.com/fitlink-nest@sha256:2eb4cf23451e31b5e952a6af2304aa6c6f2bc8204d5c3718fdd1d8b8600b5991
+    command:
+      - serverless.processLeagues
     vpc:
       securityGroupIds:
         - ${env:VPC_SECURITY_GROUP_ID}
