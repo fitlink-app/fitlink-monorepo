@@ -46,7 +46,7 @@ provider:
   ecr:
     images:
       appimage:
-        uri: 036044316251.dkr.ecr.eu-west-1.amazonaws.com/fitlink-nest@sha256:31c5f9ae1797b7bbbbbee47420fa2110a0ac26e75d8430eb9e5d66dfda0b8f6f
+        uri: 036044316251.dkr.ecr.eu-west-2.amazonaws.com/fitlink-nest@sha256:31c5f9ae1797b7bbbbbee47420fa2110a0ac26e75d8430eb9e5d66dfda0b8f6f
 
 functions:
   router:
