@@ -45,10 +45,9 @@ provider:
     serverSideEncryption: AES256
 
 functions:
-  main:
+  router:
     image: 036044316251.dkr.ecr.eu-west-1.amazonaws.com/fitlink-nest@sha256:2eb4cf23451e31b5e952a6af2304aa6c6f2bc8204d5c3718fdd1d8b8600b5991
-    command:
-      - serverless.handler
+    handler: serverless.handler
     events:
       - http:
           method: any
@@ -64,10 +63,9 @@ functions:
     provisionedConcurrency: ${env:PROVISIONED_CONCURRENCY}
     concurrencyAutoscaling: false
 
-  migrate:
+  migrator:
     image: 036044316251.dkr.ecr.eu-west-1.amazonaws.com/fitlink-nest@sha256:2eb4cf23451e31b5e952a6af2304aa6c6f2bc8204d5c3718fdd1d8b8600b5991
-    command:
-      - serverless.migrate
+    handler: serverless.migrate
     vpc:
       securityGroupIds:
         - ${env:VPC_SECURITY_GROUP_ID}
@@ -75,10 +73,9 @@ functions:
         - ${env:VPC_SUBNET_ID_1}
         - ${env:VPC_SUBNET_ID_2}
         - ${env:VPC_SUBNET_ID_3}
-  leagues:
+  jobs:
     image: 036044316251.dkr.ecr.eu-west-1.amazonaws.com/fitlink-nest@sha256:2eb4cf23451e31b5e952a6af2304aa6c6f2bc8204d5c3718fdd1d8b8600b5991
-    command:
-      - serverless.processLeagues
+    handler: serverless.processLeagues
     vpc:
       securityGroupIds:
         - ${env:VPC_SECURITY_GROUP_ID}

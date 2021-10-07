@@ -2,7 +2,7 @@
 
 FROM public.ecr.aws/lambda/nodejs:14
 
-COPY dist/apps/api/serverless.js serverless/package.json  ${LAMBDA_TASK_ROOT}
+COPY dist/apps/api/serverless.js serverless/package.json serverless/yarn.lock  ${LAMBDA_TASK_ROOT}
 
 RUN npm install -g yarn
 
