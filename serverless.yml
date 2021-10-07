@@ -54,6 +54,8 @@ functions:
       name: appimage
       command:
         - serverless.handler
+      entryPoint:
+        - '/lambda-entrypoint.sh'
     events:
       - http:
           method: any
@@ -74,6 +76,8 @@ functions:
       name: appimage
       command:
         - serverless.migrate
+      entryPoint:
+        - '/lambda-entrypoint.sh'
     vpc:
       securityGroupIds:
         - ${env:VPC_SECURITY_GROUP_ID}
@@ -86,6 +90,8 @@ functions:
       name: appimage
       command:
         - serverless.processLeagues
+      entryPoint:
+      - '/lambda-entrypoint.sh'
     vpc:
       securityGroupIds:
         - ${env:VPC_SECURITY_GROUP_ID}
