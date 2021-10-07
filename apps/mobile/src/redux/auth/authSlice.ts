@@ -61,14 +61,6 @@ export const signIn = createAsyncThunk(
 export const signInWithGoogle = createAsyncThunk(
   SIGN_IN_GOOGLE,
   async (idToken: string, {rejectWithValue}) => {
-    // TODO: Move this to env/config file
-    GoogleSignin.configure({
-      webClientId:
-        '369193601741-o9ao2iqikmcm0fte2t4on85hrni4dsjc.apps.googleusercontent.com',
-      iosClientId:
-        '369193601741-bkluos3jpe42b0a5pqfuv7lg5f640n8t.apps.googleusercontent.com',
-    });
-
     await GoogleSignin.signOut();
 
     //Authenticate token on backend against Google, get back JWT

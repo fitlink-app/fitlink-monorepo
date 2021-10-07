@@ -19,7 +19,7 @@ import {
 } from '@hooks';
 import {useNavigation} from '@react-navigation/native';
 import React, {useContext, useState} from 'react';
-import {Keyboard, Platform, ScrollView, View} from 'react-native';
+import {Keyboard, Linking, Platform, ScrollView, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
@@ -53,6 +53,7 @@ import {
 } from 'redux/settings/settingsSlice';
 import {useEffect} from 'react';
 import {TransitionContext} from 'contexts';
+import Intercom from '@intercom/intercom-react-native';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -448,21 +449,15 @@ export const Settings = () => {
         <CategoryLabel>Help</CategoryLabel>
         <SettingsButton
           label={'FAQs'}
-          onPress={() =>
-            navigation.navigate('Webview', {
-              url: 'https://fitlinkapp.com/faq-user',
-              title: 'FAQs',
-            })
-          }
+          onPress={() => Intercom.displayHelpCenter()}
         />
         <SettingsButton
-          label={'Contact Us'}
-          onPress={() =>
-            navigation.navigate('Webview', {
-              url: 'https://fitlinkapp.com/contact-us',
-              title: 'Contact Us',
-            })
-          }
+          label={'E-mail us'}
+          onPress={() => Linking.openURL('mailto:hello@fitlinkapp.com')}
+        />
+        <SettingsButton
+          label={'Chat with us'}
+          onPress={() => Intercom.displayMessenger()}
         />
         <SettingsButton
           label={'About'}
