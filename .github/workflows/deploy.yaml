@@ -118,13 +118,13 @@ jobs:
       # - name: Replace FIREBASE_ADMIN secret
       #   run: yarn run sls:secrets
 
-      # - name: Install serverless globally
-      #   if: github.ref == 'refs/heads/develop'
-      #   run: yarn add global serverless@2.28.7 -W
+      - name: Install serverless globally
+        if: github.ref == 'refs/heads/develop'
+        run: yarn add global serverless@2.28.7 -W
 
       - name: Serverless - Run deploy
         if: github.ref == 'refs/heads/develop'
-        run: yarn run sls:deploy
+        run: NODE_ENV=production && serverless deploy --alias default
 
       - name: Serverless - Run migrations
         if: github.ref == 'refs/heads/develop'
