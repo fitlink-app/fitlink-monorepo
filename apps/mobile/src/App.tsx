@@ -15,6 +15,8 @@ import RNBootSplash from 'react-native-bootsplash';
 import codePush from 'react-native-code-push';
 import {useCodePush, useIntercomNotifications} from '@hooks';
 import {UpdateInfo} from 'components/UpdateInfo';
+import Intercom from '@intercom/intercom-react-native';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -33,6 +35,17 @@ const App = () => {
   useIntercomNotifications();
 
   useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        '369193601741-o9ao2iqikmcm0fte2t4on85hrni4dsjc.apps.googleusercontent.com',
+      iosClientId:
+        '369193601741-bkluos3jpe42b0a5pqfuv7lg5f640n8t.apps.googleusercontent.com',
+    });
+
+    console.log('sss');
+
+    Intercom.registerUnidentifiedUser();
+
     setTimeout(() => {
       RNBootSplash.hide();
       syncImmediate();
