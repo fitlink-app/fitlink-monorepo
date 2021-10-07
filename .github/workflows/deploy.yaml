@@ -124,7 +124,7 @@ jobs:
 
       - name: Serverless - Run deploy
         if: github.ref == 'refs/heads/develop'
-        run: NODE_ENV=production && serverless deploy --alias default
+        run: yarn run sls:deploy
 
       - name: Serverless - Run migrations
         if: github.ref == 'refs/heads/develop'

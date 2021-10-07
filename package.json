@@ -34,7 +34,7 @@
     "migration:seed:test-users": "cross-env TEST_SEED=1 yarn run migration:seed --seed CreateTestUsers",
     "migration:seed:sports": "yarn run migration:seed --seed CreateSports",
     "sls:offline:start": "cross-env API_PREFIX=\"api/v1\" && sls offline start",
-    "sls:deploy": "cross-env NODE_ENV=production && serverless deploy --alias default",
+    "sls:deploy": "NODE_ENV=production && serverless deploy --alias default",
     "sls:deploy:production": "cross-env NODE_ENV=production && serverless deploy --stage production --alias default",
     "sls:package": "serverless package",
     "sls:migrate": "serverless invoke -f migrate",
