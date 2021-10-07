@@ -46,7 +46,7 @@ provider:
 
 functions:
   router:
-    image: 036044316251.dkr.ecr.eu-west-1.amazonaws.com/fitlink-nest@sha256:2eb4cf23451e31b5e952a6af2304aa6c6f2bc8204d5c3718fdd1d8b8600b5991
+    image: 036044316251.dkr.ecr.eu-west-1.amazonaws.com/fitlink-nest@sha256:31c5f9ae1797b7bbbbbee47420fa2110a0ac26e75d8430eb9e5d66dfda0b8f6f
     handler: serverless.handler
     events:
       - http:
@@ -64,7 +64,7 @@ functions:
     concurrencyAutoscaling: false
 
   migrator:
-    image: 036044316251.dkr.ecr.eu-west-1.amazonaws.com/fitlink-nest@sha256:2eb4cf23451e31b5e952a6af2304aa6c6f2bc8204d5c3718fdd1d8b8600b5991
+    image: 036044316251.dkr.ecr.eu-west-1.amazonaws.com/fitlink-nest@sha256:31c5f9ae1797b7bbbbbee47420fa2110a0ac26e75d8430eb9e5d66dfda0b8f6f
     handler: serverless.migrate
     vpc:
       securityGroupIds:
@@ -74,7 +74,7 @@ functions:
         - ${env:VPC_SUBNET_ID_2}
         - ${env:VPC_SUBNET_ID_3}
   jobs:
-    image: 036044316251.dkr.ecr.eu-west-1.amazonaws.com/fitlink-nest@sha256:2eb4cf23451e31b5e952a6af2304aa6c6f2bc8204d5c3718fdd1d8b8600b5991
+    image: 036044316251.dkr.ecr.eu-west-1.amazonaws.com/fitlink-nest@sha256:31c5f9ae1797b7bbbbbee47420fa2110a0ac26e75d8430eb9e5d66dfda0b8f6f
     handler: serverless.processLeagues
     vpc:
       securityGroupIds:
