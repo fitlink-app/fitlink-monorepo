@@ -4,10 +4,12 @@ import {
   Entity,
   JoinColumn,
   Column,
-  ManyToOne
+  ManyToOne,
+  OneToOne
 } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { League } from '../../leagues/entities/league.entity'
+import { Notification } from '../../notifications/entities/notification.entity'
 import { User, UserPublic } from '../../users/entities/user.entity'
 
 @Entity()

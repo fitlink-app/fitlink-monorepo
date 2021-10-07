@@ -184,7 +184,7 @@ export default function AssignUserForm({
           />
         </div>
 
-        <button className="button mt-2" disabled={add.isLoading}>
+        <button className="button mt-2" disabled={add.isLoading} type="submit">
           Assign User
         </button>
       </div>

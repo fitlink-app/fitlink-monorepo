@@ -7,12 +7,14 @@ import { FeedItemLike } from './entities/feed-item-like.entity'
 import { AuthModule } from '../auth/auth.module'
 import { UsersModule } from '../users/users.module'
 import { ConfigModule } from '@nestjs/config'
+import { NotificationsModule } from '../notifications/notifications.module'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([FeedItem, FeedItemLike]),
     forwardRef(() => UsersModule),
-    forwardRef(() => AuthModule)
+    forwardRef(() => AuthModule),
+    NotificationsModule
   ],
   controllers: [FeedItemsController],
   providers: [FeedItemsService],

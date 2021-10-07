@@ -36,6 +36,16 @@ type QueryOptions = {
   checkAvailability?: boolean
 }
 
+type PublicPageReward = {
+  photo_url: string
+  description: string
+  title: string
+  title_short: string
+  points_required: number
+  brand: string
+  reward_expires_at: Date
+}
+
 @Injectable()
 export class RewardsService {
   constructor(
@@ -569,5 +579,35 @@ export class RewardsService {
       results: results.map(this.getRewardPublic),
       total
     })
+  }
+
+  async getTeamRewardsForPublicPage(
+    teamId: string
+  ): Promise<PublicPageReward[]> {
+    const rewards = await this.rewardsRepository
+      .createQueryBuilder('reward')
+      .where('reward.team.id = :teamId  AND reward.reward_expires_at > :now', {
+        teamId,
+        now: new Date()
+      })
+      .orWhere(
+        'reward.team IS NULL and reward.organisation IS NULL AND reward.reward_expires_at > :now',
+        {
+          now: new Date()
+        }
+      )
+      .leftJoinAndSelect('reward.image', 'image')
+      .limit(50)
+      .getMany()
+
+    return rewards.map((e) => ({
+      photo_url: e.image.url,
+      brand: e.brand,
+      description: e.description,
+      points_required: e.points_required,
+      reward_expires_at: e.reward_expires_at,
+      title: e.name,
+      title_short: e.name_short
+    }))
   }
 }

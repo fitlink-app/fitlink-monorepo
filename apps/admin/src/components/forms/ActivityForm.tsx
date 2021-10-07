@@ -284,7 +284,7 @@ export default function ActivityForm({
       )}
 
       <div className="text-right mt-2">
-        <button className="button">
+        <button className="button" type="submit">
           {current ? 'Save Activity' : 'Create Activity'}
         </button>
       </div>

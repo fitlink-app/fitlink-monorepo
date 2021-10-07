@@ -80,7 +80,9 @@ export default function ImportUsers() {
         </table>
       )}
       <div className="text-right mt-2">
-        <button className="button">Invite users</button>
+        <button className="button" type="submit">
+          Invite users
+        </button>
       </div>
     </form>
   )

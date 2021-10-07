@@ -168,7 +168,7 @@ export default function CreateSubscriptionUser({
       )}
 
       <div className="text-right mt-2">
-        <button className="button" disabled={add.isLoading}>
+        <button className="button" disabled={add.isLoading} type="submit">
           Add User
         </button>
       </div>

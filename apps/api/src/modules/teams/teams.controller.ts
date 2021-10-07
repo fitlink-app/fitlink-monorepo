@@ -182,6 +182,12 @@ export class TeamsController {
     return this.teamsService.findOne(id)
   }
 
+  @Iam(Roles.SuperAdmin, Roles.TeamAdmin)
+  @Put('/teams/:teamId')
+  updateOne(@Param('teamId') id: string, @Body() dto: UpdateTeamDto) {
+    return this.teamsService.update(id, dto)
+  }
+
   @Post('/teams-invitations/respond')
   async accept(
     @Body() { token, accept }: RespondTeamsInvitationDto,

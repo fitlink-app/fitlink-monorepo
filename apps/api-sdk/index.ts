@@ -27,7 +27,8 @@ import {
   AuthSwitch,
   FocusRole,
   RolePrimary,
-  AuthSignUpOrganisation
+  AuthSignUpOrganisation,
+  CreateResourceParamsExtra
 } from './types'
 
 const ERR_TOKEN_EXPIRED = 'Token expired'
@@ -269,7 +270,7 @@ export class Api {
    */
   async post<T>(
     url: ListResource | CreatableResource,
-    params?: CreateResourceParams<T>,
+    params?: CreateResourceParams<T> | CreateResourceParamsExtra<T>,
     config?: MethodConfig
   ) {
     const payload = params ? params.payload : {}

@@ -57,6 +57,12 @@ jobs:
       # Chargebee
       CHARGEBEE_API_KEY: ${{ secrets.DEV_CHARGEBEE_API_KEY }}
 
+      # Intercom
+      INTERCOM_API_KEY: ${{ secrets.PROD_INTERCOM_API_KEY }}
+
+      # Firebase
+      FIREBASE_ADMIN_CREDENTIAL: ${{ secrets.PROD_FIREBASE_ADMIN_CREDENTIAL }}
+
     steps:
       - uses: actions/checkout@v2
 
@@ -108,6 +114,9 @@ jobs:
 
       - name: Build nest for Serverless
         run: yarn run build
+
+      - name: Replace FIREBASE_ADMIN secret
+        run: yarn run sls:secrets
 
       - name: Install serverless globally
         if: github.ref == 'refs/heads/develop'

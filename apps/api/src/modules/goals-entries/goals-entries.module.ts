@@ -9,6 +9,8 @@ import { UsersModule } from '../users/users.module'
 import { FeedItemsModule } from '../feed-items/feed-items.module'
 import { User } from '../users/entities/user.entity'
 import { DailyGoalReachedListener } from './listeners/DailyGoalsReachedListener'
+import { CommonModule } from '../common/common.module'
+import { NotificationsModule } from '../notifications/notifications.module'
 
 @Module({
   imports: [
@@ -17,7 +19,9 @@ import { DailyGoalReachedListener } from './listeners/DailyGoalsReachedListener'
     AuthModule,
     ConfigModule,
     HttpModule,
-    FeedItemsModule
+    FeedItemsModule,
+    CommonModule,
+    NotificationsModule
   ],
   controllers: [GoalsEntriesController],
   providers: [GoalsEntriesService, DailyGoalReachedListener],

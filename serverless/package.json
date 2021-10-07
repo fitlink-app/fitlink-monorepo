@@ -47,6 +47,7 @@
     "lodash": "^4.17.21",
     "chalk": "^4.1.0",
     "fastify-swagger": "^4.3.3",
-    "chargebee-typescript": "^2.1.0"
+    "chargebee-typescript": "^2.1.0",
+    "firebase-admin": "^9.11.0"
   }
 }
