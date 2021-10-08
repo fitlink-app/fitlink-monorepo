@@ -12,6 +12,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		5B0ED20D26EE4D700098C8FB /* AppCenter-Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5B0ED20C26EE4D700098C8FB /* AppCenter-Config.plist */; };
+		5B4EEFB927045966005E7BA5 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B4EEFB827045966005E7BA5 /* HealthKit.framework */; };
 		5B679C2926EB707B00D753A7 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5B679C2826EB707B00D753A7 /* BootSplash.storyboard */; };
 		678A051648ACEC5078642F80 /* libPods-Fitlink-FitlinkTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BA441B1A21B31D9A19C70326 /* libPods-Fitlink-FitlinkTests.a */; };
 		7925E857763C45DE5ABEBDBE /* libPods-Fitlink.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D63ADCB25038AD550D2805E9 /* libPods-Fitlink.a */; };
@@ -34,6 +35,7 @@
 		00E356EE1AD99517003FC87E /* FitlinkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitlinkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* FitlinkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FitlinkTests.m; sourceTree = "<group>"; };
+		119F8001FDFB1D9D76F9743F /* Pods-Fitlink.release.codepush.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink.release.codepush.xcconfig"; path = "Target Support Files/Pods-Fitlink/Pods-Fitlink.release.codepush.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Fitlink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fitlink.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Fitlink/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = Fitlink/AppDelegate.m; sourceTree = "<group>"; };
@@ -47,6 +49,7 @@
 		5865A5FC88403F83782EE204 /* Pods-Fitlink-FitlinkTests.development.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink-FitlinkTests.development.xcconfig"; path = "Target Support Files/Pods-Fitlink-FitlinkTests/Pods-Fitlink-FitlinkTests.development.xcconfig"; sourceTree = "<group>"; };
 		5B087F492697384100D8F85D /* Fitlink.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Fitlink.entitlements; path = Fitlink/Fitlink.entitlements; sourceTree = "<group>"; };
 		5B0ED20C26EE4D700098C8FB /* AppCenter-Config.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "AppCenter-Config.plist"; sourceTree = "<group>"; };
+		5B4EEFB827045966005E7BA5 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		5B679C2826EB707B00D753A7 /* BootSplash.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = BootSplash.storyboard; path = Fitlink/BootSplash.storyboard; sourceTree = "<group>"; };
 		6C634EBD2AADFB18E8721255 /* Pods-Fitlink.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink.release.xcconfig"; path = "Target Support Files/Pods-Fitlink/Pods-Fitlink.release.xcconfig"; sourceTree = "<group>"; };
 		72C830C99202855B2D7B5754 /* Pods-Fitlink.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink.debug.xcconfig"; path = "Target Support Files/Pods-Fitlink/Pods-Fitlink.debug.xcconfig"; sourceTree = "<group>"; };
@@ -79,6 +82,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7925E857763C45DE5ABEBDBE /* libPods-Fitlink.a in Frameworks */,
+				5B4EEFB927045966005E7BA5 /* HealthKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,6 +124,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5B4EEFB827045966005E7BA5 /* HealthKit.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				D63ADCB25038AD550D2805E9 /* libPods-Fitlink.a */,
 				BA441B1A21B31D9A19C70326 /* libPods-Fitlink-FitlinkTests.a */,
