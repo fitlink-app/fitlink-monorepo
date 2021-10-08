@@ -1,0 +1,4 @@
+*
+!dist/apps/api
+!serverless/package.json
+!serverless/yarn.lock

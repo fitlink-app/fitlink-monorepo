@@ -59,3 +59,8 @@ terraform
 /serverless/serverless.js
 
 .ycache
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
