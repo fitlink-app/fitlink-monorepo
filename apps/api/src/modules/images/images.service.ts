@@ -87,7 +87,7 @@ export class ImagesService {
         secretAccessKey: this.configService.get('S3_SECRET_ACCESS_KEY')
       },
       region: this.configService.get('S3_REGION'),
-      endpoint: this.configService.get('S3_ENDPOINT'),
+      // endpoint: this.configService.get('S3_ENDPOINT'),
       forcePathStyle: this.configService.get('S3_USE_ACCESS_POINT') !== '1'
     }
 
