@@ -65,5 +65,5 @@ terraform
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 
-artifacts/*
-!artifacts/.platform
+artifacts/app.zip
+artifacts/node_modules

@@ -86,59 +86,60 @@ jobs:
         # run: yarn install --frozen-lockfile
         run: yarn install
 
-      - name: Setup docker
-        run: docker-compose up -d postgres-jest s3rver
+      # - name: Setup docker
+      #   run: docker-compose up -d postgres-jest s3rver
 
-      - name: Allow docker postgres 10 seconds to startups
-        uses: jakejarvis/wait-action@v0.1.0
-        with:
-          time: '10s'
+      # - name: Allow docker postgres 10 seconds to startups
+      #   uses: jakejarvis/wait-action@v0.1.0
+      #   with:
+      #     time: '10s'
 
-      - name: Migrate database database
-        run: yarn migration:run -c jest
+      # - name: Migrate database database
+      #   run: yarn migration:run -c jest
 
-      - name: Test e2e
-        run: yarn run test
+      # - name: Test e2e
+      #   run: yarn run test
 
-      - name: Test sdk
-        run: yarn run test:sdk
+      # - name: Test sdk
+      #   run: yarn run test:sdk
 
-      # - name: Test admin
-      #   run: yarn run test:admin
+      # # - name: Test admin
+      # #   run: yarn run test:admin
 
-      - name: Stop docker
-        run: docker-compose down
+      # - name: Stop docker
+      #   run: docker-compose down
 
       - name: Copy environment
         run: cp .env.staging .env
 
-      - name: Build nest for Serverless
+      - name: Build application
         run: yarn run build
+
+      - name: Package application for Elastic Beanstalk
+        run: |
+          cp dist/apps/api/main.js artifacts/app.js;
+          cp .env artifacts/.env;
+          chmod +x artifacts/.platform/hooks/prebuild/00_disable_npm.sh;
+          chmod +x artifacts/.platform/hooks/predeploy/00_enable_npm.sh;
+          zip artifacts/* -D artifacts/app.zip;
+          ls -lah artifacts;
 
       - name: Replace FIREBASE_ADMIN secret
         run: yarn run sls:secrets
 
-      - name: Install serverless globally
-        if: github.ref == 'refs/heads/develop'
-        run: yarn add global serverless@2.28.7 -W
+      # - name: Serverless - Run migrations
+      #   if: github.ref == 'refs/heads/develop'
+      #   run: yarn run sls:migrate
 
-      - name: Serverless - Run deploy
-        if: github.ref == 'refs/heads/develop'
-        run: yarn run sls:deploy
-
-      - name: Serverless - Run migrations
-        if: github.ref == 'refs/heads/develop'
-        run: yarn run sls:migrate
-
-      - name: Regenerate UML if entities change
-        if: github.ref == 'refs/heads/develop'
-        run: |
-          if(( $(git diff HEAD~1..HEAD apps/api/src/**/*entity.ts | LC_ALL=C.UTF-8 wc -m) != 0)); then
-            yarn run db:diagram
-            git add docs/uml.svg
-            git commit -m "Update UML diagram - skip ci"
-            git push origin develop
-          fi
+      # - name: Regenerate UML if entities change
+      #   if: github.ref == 'refs/heads/develop'
+      #   run: |
+      #     if(( $(git diff HEAD~1..HEAD apps/api/src/**/*entity.ts | LC_ALL=C.UTF-8 wc -m) != 0)); then
+      #       yarn run db:diagram
+      #       git add docs/uml.svg
+      #       git commit -m "Update UML diagram - skip ci"
+      #       git push origin develop
+      #     fi
 
   # serverless_preview:
   #   runs-on: ubuntu-18.04
