@@ -123,17 +123,17 @@ export class LeaderboardEntriesService {
    * @returns
    */
   queryLeaderboardRank(leaderboardId: string) {
-    return this.leaderboardEntryRepository.manager
+    const query = this.leaderboardEntryRepository.manager
       .createQueryBuilder()
       .select('rank.*')
       .from((q) => {
         return q
-          .select(
-            'RANK() OVER (ORDER BY points DESC, updated_at DESC) AS rank, entry.*'
-          )
+          .select('DENSE_RANK() OVER (ORDER BY points DESC) AS rank, entry.*')
           .from(LeaderboardEntry, 'entry')
           .where(`leaderboard_id = :leaderboardId`, { leaderboardId })
       }, 'rank')
+    console.log(query.getSql())
+    return query
   }
 
   /**
