@@ -125,12 +125,12 @@ jobs:
           cp .env artifacts/.env;
           chmod +x artifacts/.platform/hooks/prebuild/00_disable_npm.sh;
           chmod +x artifacts/.platform/hooks/predeploy/00_enable_npm.sh;
-          zip artifacts/app.zip artifacts/*;
-          ls -lah artifacts;
+          zip artifacts/app.zip artifacts/* artifacts/.env artifacts/.npmrc;
+          zipinfo -1 artifacts/app.zip;
 
       - uses: hmanzur/actions-aws-eb@v1.0.0
         with:
-          command: 'deploy fitlink-nest-dev'
+          command: 'deploy fitlink-nest-dev --staged'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DEV_EB_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_EB_SECRET_ACCESS_KEY }}
