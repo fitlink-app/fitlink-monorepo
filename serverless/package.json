@@ -5,8 +5,11 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "engines" : {
-    "node" : "^14"
+  "engines": {
+    "node": "^14"
+  },
+  "scripts": {
+    "start": "node app.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.8.1",

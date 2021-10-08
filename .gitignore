@@ -64,3 +64,6 @@ terraform
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+artifacts/*
+!artifacts/.platform

@@ -19,8 +19,9 @@ const env = {
   '{GITHUB_REPLACE_FIREBASE_ADMIN_CREDENTIAL}': process.env.FIREBASE_ADMIN_CREDENTIAL
 }
 
-const distPath = path.join(path.dirname(__dirname), 'dist', 'apps', 'api', 'serverless.js')
+//const distPath = path.join(path.dirname(__dirname), 'dist', 'apps', 'api', 'serverless.js')
 
+const distPath = path.join(path.dirname(__dirname), 'artifacts/app.js')
 ;(async function(){
   const file = (await fs.readFile(distPath))
   let result = file.toString()
