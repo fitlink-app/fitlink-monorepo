@@ -127,6 +127,9 @@ jobs:
       - name: Build application
         run: yarn run build
 
+      - name: Build migrations
+        run: yarn run build:migrate
+
       - name: Download dependencies
         run: yarn install --frozen-lockfile
         working-directory: artifacts
@@ -134,8 +137,9 @@ jobs:
       - name: Package application for Elastic Beanstalk
         run: |
           cp dist/apps/api/main.js artifacts/app.js;
+          cp dist/apps/api/migrate.js artifacts/migrate.js;
           cp .env artifacts/.env;
-          cd artifacts && zip -r app.zip app.js .env .npmrc .platform node_modules;
+          cd artifacts && zip -r app.zip app.js migrate.js .env .npmrc .platform node_modules;
           zipinfo -1 app.zip;
 
       - uses: hmanzur/actions-aws-eb@v1.0.0
