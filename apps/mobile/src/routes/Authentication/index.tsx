@@ -11,6 +11,7 @@ const Stack = createStackNavigator<RootStackParamList>();
 const navigatorOptions = {
   headerShown: false,
   cardShadowEnabled: true,
+  cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
 };
 
 export const AuthenticationNavigator = () => {

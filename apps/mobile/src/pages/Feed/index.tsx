@@ -7,7 +7,7 @@ import {
   Modal,
   RewardTracker,
 } from '@components';
-import {useGoals, useMe, useModal} from '@hooks';
+import {useFeed, useGoals, useMe, useModal} from '@hooks';
 import {UserWidget} from '@components';
 import React, {useCallback, useEffect} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -16,6 +16,8 @@ import {FlatList, RefreshControl} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {getPersistedData, persistData} from '@utils';
 import {NewsletterModal} from './components';
+import {getErrors} from '@api';
+import {getErrorFields, getErrorMessage} from '@fitlink/api-sdk';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -64,6 +66,12 @@ export const Feed = () => {
     refetchOnMount: false,
     refetchInterval: 10000,
   });
+
+  const {data: feed, error: feedError} = useFeed();
+
+  console.log('hi');
+  console.log(feed);
+  console.log(feedError);
 
   const onFeedItemPressed = useCallback(() => {
     navigation.navigate('HealthActivityDetails');

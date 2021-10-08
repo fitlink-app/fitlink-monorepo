@@ -132,6 +132,7 @@ export const initialState: SettingsState = {
     unitSystem: UnitSystem.Imperial,
     timezone: 'Etc/UTC',
   },
+  isSaving: false,
 };
 
 const settingsSlice = createSlice({

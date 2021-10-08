@@ -42,8 +42,6 @@ const App = () => {
         '369193601741-bkluos3jpe42b0a5pqfuv7lg5f640n8t.apps.googleusercontent.com',
     });
 
-    console.log('sss');
-
     Intercom.registerUnidentifiedUser();
 
     setTimeout(() => {

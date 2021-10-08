@@ -7,3 +7,4 @@ export * from './useUpdateEmail';
 export * from './useUpdatePassword';
 export * from './useUpdateAvatar';
 export * from './useGoals';
+export * from './useFeed';
