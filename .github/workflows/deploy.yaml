@@ -125,8 +125,8 @@ jobs:
           cp .env artifacts/.env;
           chmod +x artifacts/.platform/hooks/prebuild/00_disable_npm.sh;
           chmod +x artifacts/.platform/hooks/predeploy/00_enable_npm.sh;
-          zip artifacts/app.zip artifacts/* artifacts/.env artifacts/.npmrc;
-          zipinfo -1 artifacts/app.zip;
+          cd artifacts && zip app.zip app.js package.json package-lock.json .env .npmrc;
+          zipinfo -1 app.zip;
 
       - uses: hmanzur/actions-aws-eb@v1.0.0
         with:
