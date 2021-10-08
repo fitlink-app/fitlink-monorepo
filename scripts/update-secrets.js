@@ -20,6 +20,9 @@ const env = {
 }
 
 const distPath = path.join(path.dirname(__dirname), 'dist', 'apps', 'api', 'main.js')
+
+console.log( distPath, process.env.FIREBASE_ADMIN_CREDENTIAL)
+
 ;(async function(){
   const file = (await fs.readFile(distPath))
   let result = file.toString()
