@@ -83,6 +83,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-pkg-
 
+      - uses: actions/cache@v1
+        id: yarn-cache-server
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-pkg-artifacts-${{ hashFiles('artifacts/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-pkg-artifacts-
+
       - name: Install Dependencies
         # run: yarn install --frozen-lockfile
         run: yarn install
@@ -119,18 +127,20 @@ jobs:
       - name: Build application
         run: yarn run build
 
+      - name: Download dependencies
+        run: yarn install --frozen-lockfile
+        working-directory: artifacts
+
       - name: Package application for Elastic Beanstalk
         run: |
           cp dist/apps/api/main.js artifacts/app.js;
           cp .env artifacts/.env;
-          chmod +x artifacts/.platform/hooks/prebuild/00_disable_npm.sh;
-          chmod +x artifacts/.platform/hooks/predeploy/00_enable_npm.sh;
-          cd artifacts && zip app.zip app.js package.json package-lock.json .env .npmrc;
+          cd artifacts && zip app.zip app.js .env .npmrc node_modules;
           zipinfo -1 app.zip;
 
       - uses: hmanzur/actions-aws-eb@v1.0.0
         with:
-          command: 'deploy fitlink-nest-dev --staged --quiet'
+          command: 'deploy fitlink-nest-dev --staged'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DEV_EB_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_EB_SECRET_ACCESS_KEY }}
