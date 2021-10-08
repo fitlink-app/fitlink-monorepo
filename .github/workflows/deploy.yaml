@@ -111,7 +111,10 @@ jobs:
       #   run: docker-compose down
 
       - name: Copy environment
-        run: cp .env.staging .env
+        run: |
+          cp .env.staging .env
+          echo "\nFIREBASE_ADMIN_CREDENTIAL=\"${{ secrets.PROD_FIREBASE_ADMIN_CREDENTIAL }}"\" >> .env;
+          cat .env;
 
       - name: Build application
         run: yarn run build
@@ -130,7 +133,7 @@ jobs:
 
       - uses: hmanzur/actions-aws-eb@v1.0.0
         with:
-          command: 'deploy fitlink-nest-dev --staged'
+          command: 'deploy fitlink-nest-dev --staged --quiet'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DEV_EB_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_EB_SECRET_ACCESS_KEY }}
