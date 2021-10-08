@@ -135,7 +135,7 @@ jobs:
         run: |
           cp dist/apps/api/main.js artifacts/app.js;
           cp .env artifacts/.env;
-          cd artifacts && zip -r app.zip app.js .env .npmrc node_modules;
+          cd artifacts && zip -r app.zip app.js .env .npmrc .platform node_modules;
           zipinfo -1 app.zip;
 
       - uses: hmanzur/actions-aws-eb@v1.0.0
