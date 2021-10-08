@@ -113,14 +113,11 @@ jobs:
       - name: Copy environment
         run: |
           cp .env.staging .env
-          echo "\nFIREBASE_ADMIN_CREDENTIAL=\"${{ secrets.PROD_FIREBASE_ADMIN_CREDENTIAL }}"\" >> .env;
+          echo "FIREBASE_ADMIN_CREDENTIAL=\"${{ secrets.PROD_FIREBASE_ADMIN_CREDENTIAL }}"\" >> .env;
           cat .env;
 
       - name: Build application
         run: yarn run build
-
-      - name: Replace FIREBASE_ADMIN secret
-        run: yarn run sls:secrets
 
       - name: Package application for Elastic Beanstalk
         run: |
