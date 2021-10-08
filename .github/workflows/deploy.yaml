@@ -115,6 +115,9 @@ jobs:
       - name: Build application
         run: yarn run build
 
+      - name: Replace FIREBASE_ADMIN secret
+        run: yarn run sls:secrets
+
       - name: Package application for Elastic Beanstalk
         run: |
           cp dist/apps/api/main.js artifacts/app.js;
@@ -124,8 +127,13 @@ jobs:
           zip artifacts/* -D artifacts/app.zip;
           ls -lah artifacts;
 
-      - name: Replace FIREBASE_ADMIN secret
-        run: yarn run sls:secrets
+      - uses: hmanzur/actions-aws-eb@v1.0.0
+        with:
+          command: 'deploy fitlink-nest-dev'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DEV_EB_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_EB_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "eu-west-2"
 
       # - name: Serverless - Run migrations
       #   if: github.ref == 'refs/heads/develop'
