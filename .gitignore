@@ -60,10 +60,5 @@ terraform
 
 .ycache
 
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
-
 artifacts/app.zip
 artifacts/node_modules
