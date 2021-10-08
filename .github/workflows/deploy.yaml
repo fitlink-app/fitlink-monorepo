@@ -139,7 +139,7 @@ jobs:
           cp dist/apps/api/main.js artifacts/app.js;
           cp dist/apps/api/migrate.js artifacts/migrate.js;
           cp .env artifacts/.env;
-          chmod +x .platform/hooks/postdeploy/00_migrate.sh;
+          chmod +x artifacts/.platform/hooks/postdeploy/00_migrate.sh;
           cd artifacts && zip -r app.zip app.js migrate.js .env .npmrc .platform node_modules;
           zipinfo -1 app.zip;
 
