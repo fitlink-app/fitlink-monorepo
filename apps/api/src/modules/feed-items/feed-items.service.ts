@@ -50,6 +50,7 @@ export class FeedItemsService {
       .leftJoinAndSelect('feed_item.league', 'league')
       .leftJoinAndSelect('feed_item.health_activity', 'health_activity')
       .leftJoinAndSelect('health_activity.sport', 'sport')
+      .leftJoinAndSelect('health_activity.images', 'health_activity_images')
       .leftJoinAndSelect('feed_item.goal_entry', 'goal_entry')
       .leftJoinAndSelect('feed_item.likes', 'likes')
       .leftJoinAndSelect('likes.avatar', 'likes_avatar')
@@ -187,7 +188,7 @@ export class FeedItemsService {
 
     await this.feedItemRepository
       .createQueryBuilder()
-      .relation(FeedItem, 'users')
+      .relation(FeedItem, 'likes')
       .of(feedItemId)
       .add(userId)
 
@@ -210,7 +211,7 @@ export class FeedItemsService {
   async unLike(feedItemId: string, userId: string) {
     return this.feedItemRepository
       .createQueryBuilder()
-      .relation(FeedItem, 'users')
+      .relation(FeedItem, 'likes')
       .of(feedItemId)
       .remove(userId)
   }

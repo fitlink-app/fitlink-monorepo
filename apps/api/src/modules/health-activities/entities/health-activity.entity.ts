@@ -20,8 +20,8 @@ export class HealthActivity extends CreatableEntity {
   @ManyToOne(() => User, (user) => user.health_activities)
   user: User
 
-  @OneToMany(() => Image, (image) => image.health_activity, { nullable: true })
-  images: Image
+  @OneToMany(() => Image, (image) => image.health_activity)
+  images: Image[]
 
   @ManyToOne(() => Sport, (sport) => sport.health_activities)
   sport: Sport
@@ -30,7 +30,13 @@ export class HealthActivity extends CreatableEntity {
   provider: Provider
 
   @ManyToOne(() => FeedItem, (item) => item.health_activity)
-  feed_items: FeedItem
+  feed_items: FeedItem[]
+
+  /** Activity title, e.g. Afternoon Run, Morning Walk */
+  @Column({
+    default: 'Activity'
+  })
+  title: string
 
   @Column()
   points: number
@@ -64,7 +70,6 @@ export class HealthActivity extends CreatableEntity {
 
   @Column({ nullable: true })
   stairs: number
-
 
   @Column({ nullable: true, type: 'text' })
   polyline: string

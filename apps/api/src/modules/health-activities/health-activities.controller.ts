@@ -4,6 +4,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -20,7 +21,9 @@ import { AuthenticatedUser } from '../../models'
 import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
 import { plainToClass } from 'class-transformer'
 import { UserPublic } from '../users/entities/user.entity'
+import { ApiBaseResponses } from '../../decorators/swagger.decorator'
 
+@ApiBaseResponses()
 @Controller()
 export class HealthActivitiesController {
   constructor(
@@ -40,8 +43,10 @@ export class HealthActivitiesController {
   ) {
     const healthActivity = await this.healthActivitiesService.findOne(id)
 
-    if (healthActivity.user.id !== user.id) {
+    if (healthActivity && healthActivity.user.id !== user.id) {
       throw new ForbiddenException()
+    } else if (!healthActivity) {
+      throw new NotFoundException()
     }
 
     return this.healthActivitiesService.setHealthActivityImages(id, images)
@@ -55,8 +60,10 @@ export class HealthActivitiesController {
   ) {
     const healthActivity = await this.healthActivitiesService.findOne(id)
 
-    if (healthActivity.user.id !== user.id) {
+    if (healthActivity && healthActivity.user.id !== user.id) {
       throw new ForbiddenException()
+    } else if (!healthActivity) {
+      throw new NotFoundException()
     }
 
     return this.healthActivitiesService.removeHealthActivityImage(id, imageId)

@@ -4,7 +4,7 @@ import { File } from '../../decorators/files.decorator'
 import { Image } from '../images/entities/image.entity'
 import { ImageType } from '../images/images.constants'
 import { UploadImageDto } from '../images/dto/create-image.dto'
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBody, ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger'
 import {
   ApiBaseResponses,
   DeleteResponse
@@ -24,10 +24,23 @@ export class ImagesController {
 
   @Post()
   @ApiBody({ type: UploadImageDto })
+  @ApiConsumes('multipart/form-data')
   @ApiResponse({ type: Image, status: 201 })
   @Upload({
     maxFileSize: 10,
     fileType: 'image'
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        type: { type: 'string' },
+        image: {
+          type: 'string',
+          format: 'binary'
+        }
+      }
+    }
   })
   create(
     @File() file: Storage.MultipartFile,

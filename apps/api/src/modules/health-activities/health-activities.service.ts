@@ -129,15 +129,13 @@ export class HealthActivitiesService {
     return !!userActivities
   }
 
-  setHealthActivityImages(
-    healthActivityId: string,
-    imageId: string | string[]
-  ) {
+  setHealthActivityImages(healthActivityId: string, images: string | string[]) {
+    console.log(healthActivityId, images)
     return this.healthActivityRepository
       .createQueryBuilder()
       .relation(HealthActivity, 'images')
       .of(healthActivityId)
-      .add(imageId)
+      .add(images)
   }
 
   removeHealthActivityImage(healthActivityId: string, imageId: string) {
