@@ -15,6 +15,9 @@ import shareActivityTemplate from './health-activities.image-template'
 // import nodeHtmlToImage from 'node-html-to-image'
 import { ImagesService } from '../images/images.service'
 import { Pagination } from '../../helpers/paginate'
+import { healthActivityType } from './dto/healthActivityType'
+import { format } from 'date-fns'
+import { zonedFormat } from '../../../../common/date/helpers'
 
 @Injectable()
 export class HealthActivitiesService {
@@ -169,6 +172,33 @@ export class HealthActivitiesService {
     return this.healthActivityRepository.findOne(id, {
       relations
     })
+  }
+
+  getComputedTitle(singular: string, start_time: Date, tz: string) {
+    const hour = Number(zonedFormat(start_time, 'h', tz, {}))
+    let time = 'Early morning'
+
+    if (hour >= 7 && hour < 12) {
+      time = 'Morning'
+    }
+
+    if (hour >= 12 && hour <= 13) {
+      time = 'Midday'
+    }
+
+    if (hour >= 13) {
+      time = 'Afternoon'
+    }
+
+    if (hour >= 16) {
+      time = 'Evening'
+    }
+
+    if (hour >= 20 && hour < 4) {
+      time = 'Late evening'
+    }
+
+    return `${time} ${singular}`
   }
 
   async createShareableImage(

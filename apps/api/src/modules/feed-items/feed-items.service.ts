@@ -196,7 +196,9 @@ export class FeedItemsService {
 
     // We only support certain feed items for notifications
     // to keep things less spammy.
-    if (notifyMeta) {
+    // We also prevent the user from gettting notifications
+    // for self-likes.
+    if (notifyMeta && feedItem.user.id !== liker.id) {
       await this.notificationsService.create({
         action: NotificationAction.ActivityLiked,
         subject: liker.name,

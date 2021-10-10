@@ -26,6 +26,9 @@ import {
 } from '../../types/fitbit'
 import { FITBIT_ACTIVITY_TYPE_MAP } from '../constants'
 import { GoalsEntriesService } from '../../../goals-entries/goals-entries.service'
+import { InjectRepository } from '@nestjs/typeorm'
+import { User } from '../../../users/entities/user.entity'
+import { Repository } from 'typeorm'
 
 const FitbitApiClient: any = fitbitClient
 
@@ -35,7 +38,9 @@ export class FitbitService {
     private providersService: ProvidersService,
     private configService: ConfigService,
     private healthActivityService: HealthActivitiesService,
-    private goalsEntriesService: GoalsEntriesService
+    private goalsEntriesService: GoalsEntriesService,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>
   ) {}
 
   Fitbit = new FitbitApiClient({
@@ -176,9 +181,13 @@ export class FitbitService {
   }
 
   async saveHealthActivities(activities: FitbitActivity[], userId: string) {
+    const user = await this.usersRepository.findOne(userId)
     const promises = []
     for (const activity of activities) {
-      const normalizedActivity = this.createNormalizedHealthActivity(activity)
+      const normalizedActivity = this.createNormalizedHealthActivity(
+        activity,
+        user
+      )
       promises.push(
         this.healthActivityService.create(normalizedActivity, userId)
       )
@@ -293,7 +302,10 @@ export class FitbitService {
     return FITBIT_ACTIVITY_TYPE_MAP[activityName] || 'unknown'
   }
 
-  createNormalizedHealthActivity(activity: FitbitActivity): HealthActivityDto {
+  createNormalizedHealthActivity(
+    activity: FitbitActivity,
+    user: User
+  ): HealthActivityDto {
     const end_time = new Date(
       new Date(activity.startTime).valueOf() + activity.duration
     ).toISOString()

@@ -61,6 +61,7 @@ import { AddPages1633257728285 } from '../database/migrations/1633257728285-AddP
 import { DomainUnique1633275502651 } from '../database/migrations/1633275502651-DomainUnique'
 import { AddNotifications1633364006103 } from '../database/migrations/1633364006103-AddNotifications'
 import { AddHealthActivityTitle1633862053877 } from '../database/migrations/1633862053877-AddHealthActivityTitle'
+import { AddSportsPace1633869946687 } from '../database/migrations/1633869946687-AddSportsPace'
 
 export default [
   InitializeSchema1614887523112,
@@ -120,5 +121,6 @@ export default [
   AddPages1633257728285,
   DomainUnique1633275502651,
   AddNotifications1633364006103,
-  AddHealthActivityTitle1633862053877
+  AddHealthActivityTitle1633862053877,
+  AddSportsPace1633869946687
 ]

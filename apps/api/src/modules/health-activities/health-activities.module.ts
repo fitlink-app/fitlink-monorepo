@@ -1,6 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common'
 import { HealthActivitiesService } from './health-activities.service'
 import { HealthActivitiesController } from './health-activities.controller'
+import { HealthActivitiesSubscriber } from './health-activities.subscriber'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { HealthActivity } from './entities/health-activity.entity'
 import { ProvidersModule } from '../providers/providers.module'
@@ -14,7 +15,7 @@ import { ImagesModule } from '../images/images.module'
     ImagesModule
   ],
   controllers: [HealthActivitiesController],
-  providers: [HealthActivitiesService],
+  providers: [HealthActivitiesService, HealthActivitiesSubscriber],
   exports: [HealthActivitiesService]
 })
 export class HealthActivitiesModule {}
