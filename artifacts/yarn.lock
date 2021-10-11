@@ -1514,6 +1514,11 @@ bcrypt@^5.0.0:
     "@mapbox/node-pre-gyp" "^1.0.0"
     node-addon-api "^3.1.0"
 
+bignumber.js@^8.1.1:
+  version "8.1.1"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-8.1.1.tgz#4b072ae5aea9c20f6730e4e5d529df1271c4d885"
+  integrity sha512-QD46ppGintwPGuL1KqmwhR0O+N2cZUg8JG/VzwI2e28sM9TqHjQB10lI4QAaMHVbLzwVLLAwEglpKPViWX+5NQ==
+
 bignumber.js@^9.0.0:
   version "9.0.1"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.0.1.tgz#8d7ba124c882bfd8e43260c67475518d0689e4e5"
@@ -3279,6 +3284,13 @@ number-is-nan@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/number-is-nan/-/number-is-nan-1.0.1.tgz#097b602b53422a522c1afb8790318336941a011d"
   integrity sha1-CXtgK1NCKlIsGvuHkDGDNpQaAR0=
+
+numbro@^2.3.2:
+  version "2.3.5"
+  resolved "https://registry.yarnpkg.com/numbro/-/numbro-2.3.5.tgz#ab491bd5ee6af3731c6bdb11231ad19d2ee4fc72"
+  integrity sha512-xlKC0GIZn0iaF7LHE60/DmGfQadDNfnskXdGDGWJfaZfP4pbhc0x+nR8yIIpQkF9n7gJWS6fgBR3Pkvp/W6sDg==
+  dependencies:
+    bignumber.js "^8.1.1"
 
 oauth-sign@~0.9.0:
   version "0.9.0"
