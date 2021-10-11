@@ -53,7 +53,6 @@ export const LeagueInviteFriends = (
 
     // Handle invite
     try {
-      console.log(userId);
       await inviteToLeague({leagueId, userId});
     } catch (e) {
       console.log(getErrors(e));

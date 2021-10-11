@@ -70,8 +70,6 @@ export const submit = createAsyncThunk(
       await api.put<User>('/me', {payload: updatedSettings});
 
       if (currentState.userSettings) {
-        console.log('hi');
-        console.log(currentState.userSettings);
         await api.put<any>('/me/settings', {
           payload: currentState.userSettings,
         });

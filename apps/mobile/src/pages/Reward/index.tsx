@@ -248,8 +248,6 @@ export const Reward = (
     }
   };
 
-  console.log(reward);
-
   return (
     <>
       <Navbar

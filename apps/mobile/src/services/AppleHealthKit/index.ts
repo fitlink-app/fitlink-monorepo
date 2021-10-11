@@ -37,7 +37,6 @@ const permissions = {
   },
 } as HealthKitPermissions;
 
-// Public Methods //
 async function authenticate(): Promise<void> {
   return new Promise((resolve, reject) => {
     AppleHealthKit.initHealthKit(permissions, (error: string) => {
@@ -283,16 +282,19 @@ async function getTodayLifestyleData() {
   const mindfulness = await getTodayMindfulnessMinutes();
   const floors_climbed = await getTodayFloorsClimbed();
 
-  const lifestyleData = {
+  return {
     steps,
     sleep_hours,
     water_litres,
     mindfulness,
     floors_climbed,
   };
+}
 
-  console.log(lifestyleData);
-  //   await syncLifeStyleGoalsWithbackend(lifestyleData);
+async function syncLifestyle() {
+  const data = await getTodayLifestyleData();
+  // TODO:
+  // await syncDeviceLifestyleData()
 }
 
 async function syncActivities() {
@@ -314,30 +316,6 @@ async function syncActivities() {
   const normalizedActivities = normalizeActivities(activities);
 
   await syncDeviceActivities(normalizedActivities);
-
-  // // Get date 1 month ago
-  // var date = new Date();
-  // date.setMonth(date.getMonth() - 1);
-  // date.setHours(0, 0, 0);
-  // date.setMilliseconds(0);
-  // const startDate = date.toISOString();
-  // const activities = await getActivitiesSinceDate(startDate);
-  // if (activities.length === 0) {
-  //   console.log("No health activities found in the past 30 days.");
-  //   return;
-  // }
-  //   const normalizedActivities = activities.map((x: any) => {
-  //     return {
-  //       type: mapToFitlinkActivity(x.activityName),
-  //       provider: 'apple_healthkit',
-  //       start_time: moment(x.start).toISOString(),
-  //       end_time: moment(x.end).toISOString(),
-  //       calories: x.calories,
-  //       distance: x.distance * 1.609344 * 1000,
-  //       quantity: x.quantity,
-  //     } as HealthActivityDTO;
-  //   });
-  // await syncActivitiesWithBackend(normalizedActivities);
 }
 
 /**
@@ -351,16 +329,12 @@ async function syncAllWithBackend() {
     // Make sure Apple Healthkit is initialized
     await authenticate();
     await syncActivities();
-    // await syncLifestyle();
+    await syncLifestyle();
   } catch (e) {
     console.warn('Unable to sync Apple Health data with backend: ' + e);
   }
 }
 
 export const AppleHealthKitWrapper = {
-  authenticate,
-  getActivitiesSinceDate,
-  normalizeActivities,
-  getTodayLifestyleData,
   syncAllWithBackend,
 };

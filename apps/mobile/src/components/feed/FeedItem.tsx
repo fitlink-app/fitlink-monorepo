@@ -5,14 +5,24 @@ import {
   Avatar,
   Chip,
   Icon,
+  IcoMoonIcon,
   Label,
   ProgressCircle,
   TouchHandler,
 } from '../common';
 import {FeedCollage} from './FeedCollage';
 import {FeedStatLabel} from './FeedStatLabel';
-import {formatRelative} from 'date-fns';
+import {formatRelative, formatDistanceStrict} from 'date-fns';
+import locale from 'date-fns/locale/en-US';
 import {useNavigation} from '@react-navigation/native';
+import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
+import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
+import {
+  formatDistanceShortLocale,
+  getActivityDistance,
+  getSpeedValue,
+} from '@utils';
+import {useLike, useDislike} from '@hooks';
 
 const Wrapper = styled.View(({theme}) => ({
   paddingVertical: 15,
@@ -60,28 +70,66 @@ const ButtonSeparator = styled.View(({theme: {colors}}) => ({
 
 interface FeedItemProps {
   onContentPress: () => void;
+  item: FeedItemType;
+  unitSystem: UnitSystem;
+  isLiked: boolean;
 }
 
-export const _FeedItem = ({onContentPress}: FeedItemProps) => {
+export const _FeedItem = ({
+  onContentPress,
+  item,
+  unitSystem,
+  isLiked,
+}: FeedItemProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
 
-  // Temp variables
-  const userId = 'asd';
-  const isLiked = false;
-  const name = 'Lana Smith';
-  const title = 'Afternoon Hiking';
-  const date = formatRelative(new Date('2021-08-24'), new Date());
-  const points = 5;
-  const images = [
-    'https://source.unsplash.com/random/250%C3%97180/?hiking,woods',
-    'https://source.unsplash.com/random/254%C3%97180/?hiking,woods',
-    'https://source.unsplash.com/random/253%C3%97180/?hiking,woods',
-    'https://source.unsplash.com/random/252%C3%97180/?hiking,woods',
-    'https://source.unsplash.com/random/251%C3%97180/?hiking,woods',
-  ];
+  const {mutateAsync: like, isLoading: isLiking} = useLike();
 
-  const description = `Some pics from our hike at Bear Creek Trail. This is our favourite spot!`;
+  const {mutateAsync: dislike, isLoading: isDisliking} = useDislike();
+
+  const distance = item.health_activity?.distance
+    ? (getActivityDistance(unitSystem, item.health_activity?.distance, {
+        short: true,
+      }) as string)
+    : undefined;
+
+  const duration = item.health_activity
+    ? formatDistanceStrict(
+        new Date(item.health_activity.start_time),
+        new Date(item.health_activity.end_time),
+        {
+          locale: {
+            ...locale,
+            formatDistance: formatDistanceShortLocale,
+          },
+        },
+      )
+    : undefined;
+
+  const durationInSeconds = item.health_activity
+    ? (new Date(item.health_activity.start_time).valueOf() -
+        new Date(item.health_activity.end_time).valueOf()) /
+      1000
+    : undefined;
+
+  const speed =
+    item.health_activity?.distance && durationInSeconds
+      ? (getSpeedValue(
+          item.health_activity.sport?.name_key,
+          item.health_activity.distance,
+          durationInSeconds,
+          unitSystem,
+        ) as string)
+      : undefined;
+
+  const title = item.health_activity ? item.health_activity.title : 'Unknown';
+  const date = formatRelative(new Date(item.created_at), new Date());
+
+  //TODO: API wrong implementation
+  // const images =
+  //   item.health_activity?.images.map(image => image.url_128x128) || [];
+  const images: any = [];
 
   const LikeButton = isLiked ? (
     <Icon name={'thumb-solid'} color={colors.accent} size={16} />
@@ -89,10 +137,80 @@ export const _FeedItem = ({onContentPress}: FeedItemProps) => {
     <Icon name={'thumb'} color={colors.accentSecondary} size={16} />
   );
 
+  function getActivityIcon(sport: string) {
+    switch (sport) {
+      case 'running':
+        return 'run';
+
+      case 'cycling':
+        return 'bike';
+
+      case 'walking':
+        return 'walking-solid';
+
+      case 'sleep':
+        return 'sleep';
+
+      case 'swimming':
+        return 'swim';
+
+      case 'crossfitTraining':
+        return 'crossfit';
+
+      case 'highIntensityIntervalTraining':
+        return 'hit';
+
+      case 'skiing':
+        return 'skiing';
+
+      case 'hiking':
+        return 'hike';
+
+      case 'snowboarding':
+        return 'snowboarding';
+
+      case 'rowing':
+        return 'rowing';
+
+      case 'surfing':
+        return 'surfing';
+
+      case 'yoga':
+        return 'yoga';
+
+      case 'spinning':
+        return 'bike';
+
+      case 'weightLifting':
+        return 'crossfit';
+
+      case 'tennis':
+        return 'tennis';
+
+      case 'golf':
+        return 'golf';
+
+      default:
+        return 'generic';
+    }
+  }
+
   const renderTitleIcon = () => {
+    if (!item.health_activity) return null;
+
+    const {health_activity} = item;
+    const icon = getActivityIcon(health_activity.sport.name_key);
+    const safeIcon = icon
+      ? IcoMoonIcon.hasIcon(icon)
+        ? icon
+        : 'walking-solid'
+      : null;
+
+    if (!safeIcon) return null;
+
     return (
       <Icon
-        name={'hike'}
+        name={safeIcon}
         size={18}
         style={{marginRight: 5, marginTop: 2}}
         color={colors.accentSecondary}
@@ -101,17 +219,19 @@ export const _FeedItem = ({onContentPress}: FeedItemProps) => {
   };
 
   const renderPoints = () => {
-    return <Chip text={`${points} points`} disabled={true} />;
+    return (
+      !!item.health_activity && (
+        <Chip text={`${item.health_activity?.points} points`} disabled={true} />
+      )
+    );
   };
 
   const renderStats = () => {
     return (
       <SpacedRow>
-        <FeedStatLabel label={'Distance'} value={'16.2 km'} />
-
-        <FeedStatLabel label={'Speed'} value={'5:03/km'} />
-
-        <FeedStatLabel label={'Time'} value={'31m'} />
+        <FeedStatLabel label={'Distance'} value={distance} />
+        <FeedStatLabel label={'Speed'} value={speed} />
+        <FeedStatLabel label={'Time'} value={duration} />
       </SpacedRow>
     );
   };
@@ -121,7 +241,7 @@ export const _FeedItem = ({onContentPress}: FeedItemProps) => {
       <Row>
         <TouchHandler
           onPress={() => {
-            navigation.navigate('Profile', {id: userId});
+            navigation.navigate('Profile', {id: item.user.id});
           }}>
           <ProgressCircle
             progress={0.33}
@@ -130,7 +250,7 @@ export const _FeedItem = ({onContentPress}: FeedItemProps) => {
             bloomIntensity={0.5}
             bloomRadius={5}
             size={52}>
-            <Avatar url={'https://i.pravatar.cc/512'} size={44} />
+            <Avatar url={item.user.avatar.url_128x128} size={44} />
           </ProgressCircle>
         </TouchHandler>
 
@@ -154,7 +274,7 @@ export const _FeedItem = ({onContentPress}: FeedItemProps) => {
                 </Row>
 
                 <DateText type="caption" appearance={'secondary'}>
-                  {name} · {date}
+                  {item.user.name} · {date}
                 </DateText>
               </Col>
 
@@ -164,13 +284,6 @@ export const _FeedItem = ({onContentPress}: FeedItemProps) => {
 
             {renderStats()}
 
-            <Label
-              type={'body'}
-              appearance={'accentSecondary'}
-              style={{marginBottom: 10}}>
-              {description}
-            </Label>
-
             <SpacedRow>
               <FeedCollage images={images} />
             </SpacedRow>
@@ -179,19 +292,14 @@ export const _FeedItem = ({onContentPress}: FeedItemProps) => {
       </Row>
 
       <ButtonContainer>
-        <Button>
+        <Button
+          onPress={() => {
+            isLiked
+              ? dislike({feedItemId: item.id, userId: item.user.id})
+              : like({feedItemId: item.id, userId: item.user.id});
+          }}>
           {LikeButton}
-          <UserCounter
-            style={{marginLeft: 8}}
-            countTotal={29}
-            avatars={[
-              'https://i.pravatar.cc/101',
-              'https://i.pravatar.cc/102',
-              'https://i.pravatar.cc/103',
-              'https://i.pravatar.cc/104',
-              'https://i.pravatar.cc/105',
-            ]}
-          />
+          <UserCounter style={{marginLeft: 8}} countTotal={29} avatars={[]} />
         </Button>
         <ButtonSeparator />
         <Button>

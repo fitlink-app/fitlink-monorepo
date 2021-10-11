@@ -1,5 +1,6 @@
+import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 import {useState} from 'react';
-import {linkOauth} from '../utils';
+import {linkOauth, unlinkProvider} from '../utils';
 
 const AUTH_ENDPOINT = 'providers/strava/auth';
 const REVOKE_TOKEN_ENDPOINT = 'providers/strava/revokeToken';
@@ -13,15 +14,12 @@ export function useStrava() {
     setLinking(false);
   };
 
-  const unlink = async () => {
-    setLinking(true);
-    // TODO: To be implemented, API not working
-    setLinking(false);
-  };
+  const unlinker = unlinkProvider(ProviderType.Strava);
 
   return {
     isLinking,
     link,
-    unlink,
+    isUnlinking: unlinker.isLoading,
+    unlink: unlinker.mutateAsync,
   };
 }

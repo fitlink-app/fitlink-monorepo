@@ -6,3 +6,4 @@ export * from './images';
 export * from './sports';
 export * from './activities';
 export * from './providers';
+export * from './feed';

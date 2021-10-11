@@ -54,6 +54,9 @@ import {
 import {useEffect} from 'react';
 import {TransitionContext} from 'contexts';
 import Intercom from '@intercom/intercom-react-native';
+import {useCustomProvider} from 'hooks/api/providers/custom';
+import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
+import {GoogleFitWrapper} from 'services/GoogleFit';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -83,8 +86,33 @@ export const Settings = () => {
   const {data: user} = useMe();
   const {providerList} = useProviders();
 
-  const {isLinking: isStravaLinking, link: linkStrava} = useStrava();
-  const {isLinking: isFitbitLinking, link: linkFitbit} = useFitbit();
+  const {
+    isLinking: isStravaLinking,
+    isUnlinking: isStravaUnlinking,
+    link: linkStrava,
+    unlink: unlinkStrava,
+  } = useStrava();
+
+  const {
+    isLinking: isFitbitLinking,
+    isUnlinking: isFitbitUnlinking,
+    link: linkFitbit,
+    unlink: unlinkFitbit,
+  } = useFitbit();
+
+  const {
+    isLinking: isAppleHealthLinking,
+    isUnlinking: isAppleHealthUnlinking,
+    link: linkAppleHealth,
+    unlink: unlinkAppleHealth,
+  } = useCustomProvider(ProviderType.AppleHealthkit);
+
+  const {
+    isLinking: isGoogleFitLinking,
+    isUnlinking: isGoogleFitUnlinking,
+    link: linkGoogleFit,
+    unlink: unlinkGoogleFit,
+  } = useCustomProvider(ProviderType.GoogleFit);
 
   const settings = useSelector(selectSettings);
   const didSettingsChange = useSelector(selectDidSettingsChange);
@@ -303,9 +331,16 @@ export const Settings = () => {
         {Platform.OS === 'android' && (
           <SettingsHealthActivityButton
             label={'Google Fit'}
-            onLink={() => {}}
-            onUnlink={() => {}}
-            isLoading={false}
+            onLink={() => {
+              GoogleFitWrapper.disconnect();
+
+              GoogleFitWrapper.authenticate().then(() => {
+                linkGoogleFit();
+              });
+            }}
+            onUnlink={unlinkGoogleFit}
+            isLoading={isGoogleFitLinking || isGoogleFitUnlinking}
+            disabled={isGoogleFitLinking || isGoogleFitUnlinking}
             isLinked={providerList?.includes('google_fit')}
           />
         )}
@@ -313,26 +348,29 @@ export const Settings = () => {
         {Platform.OS === 'ios' && (
           <SettingsHealthActivityButton
             label={'Apple Health'}
-            onLink={() => {}}
-            onUnlink={() => {}}
-            isLoading={false}
-            isLinked={providerList?.includes('apple_health')}
+            onLink={linkAppleHealth}
+            onUnlink={unlinkAppleHealth}
+            isLoading={isAppleHealthLinking || isAppleHealthUnlinking}
+            disabled={isAppleHealthLinking || isAppleHealthUnlinking}
+            isLinked={providerList?.includes('apple_healthkit')}
           />
         )}
 
         <SettingsHealthActivityButton
           label={'Strava'}
           onLink={linkStrava}
-          onUnlink={() => {}}
-          isLoading={isStravaLinking}
+          onUnlink={unlinkStrava}
+          isLoading={isStravaLinking || isStravaUnlinking}
+          disabled={isStravaLinking || isStravaUnlinking}
           isLinked={providerList?.includes('strava')}
         />
 
         <SettingsHealthActivityButton
           label={'Fitbit'}
           onLink={linkFitbit}
-          onUnlink={() => {}}
-          isLoading={isFitbitLinking}
+          onUnlink={unlinkFitbit}
+          isLoading={isFitbitLinking || isFitbitUnlinking}
+          disabled={isFitbitLinking || isFitbitUnlinking}
           isLinked={providerList?.includes('fitbit')}
         />
 

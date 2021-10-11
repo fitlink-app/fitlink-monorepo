@@ -3,11 +3,10 @@ import {
   FeedItem,
   GoalTracker,
   Icon,
-  Label,
   Modal,
   RewardTracker,
 } from '@components';
-import {useFeed, useGoals, useMe, useModal} from '@hooks';
+import {useFeed, useGoals, useMe, useModal, useProviders} from '@hooks';
 import {UserWidget} from '@components';
 import React, {useCallback, useEffect} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -16,8 +15,12 @@ import {FlatList, RefreshControl} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {getPersistedData, persistData} from '@utils';
 import {NewsletterModal} from './components';
-import {getErrors} from '@api';
-import {getErrorFields, getErrorMessage} from '@fitlink/api-sdk';
+import {useSelector} from 'react-redux';
+import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
+import {getResultsFromPages} from 'utils/api';
+import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
+import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
+import {queryClient, QueryKeys} from '@query';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -57,21 +60,33 @@ export const Feed = () => {
 
   const {openModal, closeModal} = useModal();
 
+  // Preload providers
+  useProviders();
+
   const {data: user, refetch: refetchUser} = useMe({
     refetchOnMount: false,
-    refetchInterval: 10000,
+    // refetchInterval: 10000,
   });
 
   const {data: goals} = useGoals({
     refetchOnMount: false,
-    refetchInterval: 10000,
+    // refetchInterval: 10000,
   });
 
-  const {data: feed, error: feedError} = useFeed();
+  const feedPreferences = useSelector(memoSelectFeedPreferences);
 
-  console.log('hi');
-  console.log(feed);
-  console.log(feedError);
+  const {
+    data: feed,
+    refetch: refetchFeed,
+    isLoading: isFeedLoading,
+    fetchNextPage: fetchFeedNextPage,
+  } = useFeed({
+    my_goals: feedPreferences.showGoals,
+    friends_activities: feedPreferences.showFriends,
+    my_updates: feedPreferences.showUpdates,
+  });
+
+  const feedResults = getResultsFromPages<FeedItemType>(feed);
 
   const onFeedItemPressed = useCallback(() => {
     navigation.navigate('HealthActivityDetails');
@@ -110,20 +125,39 @@ export const Feed = () => {
   if (!user) return null;
 
   const renderItem = ({item, index}) => {
-    return <FeedItem key={item} onContentPress={onFeedItemPressed} />;
+    const isLiked = !!(item.likes as UserPublic[]).find(
+      (user: any) => user.id === user?.id,
+    );
+
+    console.log(isLiked);
+
+    return (
+      <FeedItem
+        key={item.id}
+        item={item}
+        unitSystem={user.unit_system}
+        isLiked={isLiked}
+        onContentPress={onFeedItemPressed}
+      />
+    );
   };
 
   return (
     <Wrapper style={{paddingTop: insets.top}}>
       <FlatList
         {...{renderItem}}
-        data={[1, 2, 3, 4, 5, 6]}
+        data={feedResults}
         style={{overflow: 'visible'}}
+        onEndReachedThreshold={0.2}
+        onEndReached={() => fetchFeedNextPage()}
         refreshControl={
           <RefreshControl
             tintColor={colors.accent}
-            refreshing={false}
-            onRefresh={refetchUser}
+            refreshing={isFeedLoading}
+            onRefresh={() => {
+              queryClient.removeQueries(QueryKeys.Feed);
+              refetchFeed();
+            }}
           />
         }
         ListHeaderComponent={

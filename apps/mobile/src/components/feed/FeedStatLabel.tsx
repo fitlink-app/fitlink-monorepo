@@ -19,9 +19,9 @@ const LabeledCounter = ({label, value}: {label: string; value: string}) => (
 
 interface FeedStatLabelProps {
   label: string;
-  value: string;
+  value?: string;
 }
 
 export const FeedStatLabel = ({label, value}: FeedStatLabelProps) => {
-  return <LabeledCounter label={label} value={value} />;
+  return value ? <LabeledCounter label={label} value={value} /> : null;
 };
