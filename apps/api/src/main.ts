@@ -67,7 +67,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService)
 
-  await app.listen(process.env.PORT || 3000)
+  await app.listen(process.env.PORT || 3000, '0.0.0.0')
 
   // Mock email service in local development
   // This writes all emails to the email-debug.log file in the root

@@ -12,9 +12,17 @@ import { HealthActivity } from './entities/health-activity.entity'
 import { HealthActivityCreatedEvent } from './events/health-activity-created.event'
 import { ShareableImageStat } from './health-activities.constants'
 import shareActivityTemplate from './health-activities.image-template'
-// import nodeHtmlToImage from 'node-html-to-image'
+import * as nodeHtmlToImage from 'node-html-to-image'
 import { ImagesService } from '../images/images.service'
 import { Pagination } from '../../helpers/paginate'
+import { healthActivityType } from './dto/healthActivityType'
+import { format, differenceInSeconds } from 'date-fns'
+import { zonedFormat } from '../../../../common/date/helpers'
+import {
+  formatDurationShort,
+  getActivityDistance,
+  getSpeedValue
+} from '../../../../common/metrics'
 
 @Injectable()
 export class HealthActivitiesService {
@@ -129,15 +137,13 @@ export class HealthActivitiesService {
     return !!userActivities
   }
 
-  setHealthActivityImages(
-    healthActivityId: string,
-    imageId: string | string[]
-  ) {
+  setHealthActivityImages(healthActivityId: string, images: string | string[]) {
+    console.log(healthActivityId, images)
     return this.healthActivityRepository
       .createQueryBuilder()
       .relation(HealthActivity, 'images')
       .of(healthActivityId)
-      .add(imageId)
+      .add(images)
   }
 
   removeHealthActivityImage(healthActivityId: string, imageId: string) {
@@ -173,30 +179,122 @@ export class HealthActivitiesService {
     })
   }
 
-  async createShareableImage(
-    stats: ShareableImageStat[] = [],
-    imageUrl: string
-  ) {
-    const formattedStats = stats.map((stat) => {
-      const value = stat.value
-        .replace('kilometers', 'km')
-        .replace('kilometer', 'km')
-        .replace('meters', 'm')
-        .replace('meter', 'm')
+  getComputedTitle(singular: string, start_time: Date, tz: string) {
+    const hour = Number(zonedFormat(start_time, 'h', tz, {}))
+    let time = 'Early morning'
 
-      return { ...stat, value }
+    if (hour >= 7 && hour < 12) {
+      time = 'Morning'
+    }
+
+    if (hour >= 12 && hour <= 13) {
+      time = 'Midday'
+    }
+
+    if (hour >= 13) {
+      time = 'Afternoon'
+    }
+
+    if (hour >= 16) {
+      time = 'Evening'
+    }
+
+    if (hour >= 20 && hour < 4) {
+      time = 'Late evening'
+    }
+
+    return `${time} ${singular}`
+  }
+
+  async createShareableImage(healthActivityId: string, imageId: string) {
+    const healthActivity = await this.healthActivityRepository.findOne(
+      healthActivityId,
+      {
+        relations: ['user', 'sport', 'images', 'user.avatar']
+      }
+    )
+
+    if (!healthActivity) {
+      return false
+    }
+
+    let image = healthActivity.images.filter((e) => e.id == imageId)[0]
+    let imageUrl: string
+
+    if (!image) {
+      image = healthActivity.user.avatar
+      imageUrl = healthActivity.sport.image_url || image.url
+    } else {
+      imageUrl = image.url
+    }
+
+    // If there's still no image available we can't proceed
+    if (!imageUrl) {
+      return false
+    }
+
+    const formattedStats = await this.getHealthActivityStatsFormatted(
+      healthActivity
+    )
+
+    return await (nodeHtmlToImage as any)({
+      type: 'jpeg',
+      quality: 95,
+      html: shareActivityTemplate,
+      content: {
+        imageUrl,
+        stats: formattedStats,
+        title: healthActivity.title
+      }
+    })
+  }
+
+  async getHealthActivityStatsFormatted(healthActivity: HealthActivity) {
+    const unitSystem = healthActivity.user.unit_system
+    const durationInSeconds = differenceInSeconds(
+      healthActivity.end_time,
+      healthActivity.start_time
+    )
+    const stats: ShareableImageStat[] = []
+
+    // DISTANCE
+    if (!!healthActivity?.distance) {
+      const value = getActivityDistance(unitSystem, healthActivity.distance, {
+        short: true
+      }) as string
+
+      stats.push({
+        value,
+        label: 'DISTANCE'
+      })
+    }
+
+    // TIME
+    stats.push({
+      value: formatDurationShort(durationInSeconds),
+      label: 'TIME'
     })
 
-    return 'nodeHtmlToImage needs to be implemented'
+    // SPEED
+    if (!!healthActivity?.distance) {
+      const value = getSpeedValue(
+        healthActivity.sport.name_key,
+        healthActivity.distance,
+        durationInSeconds,
+        unitSystem
+      ) as string
 
-    // return await nodeHtmlToImage({
-    //   type: 'jpeg',
-    //   quality: 95,
-    //   html: shareActivityTemplate,
-    //   content: {
-    //     imageUrl,
-    //     stats: formattedStats
-    //   }
-    // })
+      stats.push({
+        value,
+        label: healthActivity.sport.show_pace ? 'PACE' : 'SPEED'
+      })
+    }
+
+    stats.push({
+      value: healthActivity.points.toString(),
+      label: 'POINTS'
+    })
+
+    return stats
   }
 }

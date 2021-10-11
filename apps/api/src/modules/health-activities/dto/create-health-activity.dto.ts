@@ -13,6 +13,7 @@ export class HealthActivityDto {
   quantity?: number
   elevation?: number
   polyline?: string
+  title?: string
 }
 
 export class CreateHealthActivityDto extends HealthActivityDto {}

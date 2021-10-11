@@ -50,6 +50,7 @@ export class FeedItemsService {
       .leftJoinAndSelect('feed_item.league', 'league')
       .leftJoinAndSelect('feed_item.health_activity', 'health_activity')
       .leftJoinAndSelect('health_activity.sport', 'sport')
+      .leftJoinAndSelect('health_activity.images', 'health_activity_images')
       .leftJoinAndSelect('feed_item.goal_entry', 'goal_entry')
       .leftJoinAndSelect('feed_item.likes', 'likes')
       .leftJoinAndSelect('likes.avatar', 'likes_avatar')
@@ -182,12 +183,17 @@ export class FeedItemsService {
       relations: ['avatar']
     })
     const feedItem = await this.feedItemRepository.findOne(feedItemId, {
-      relations: ['user']
+      relations: ['user', 'likes']
     })
+
+    // If the user already likes the post, ignore this.
+    if ((feedItem.likes as User[]).filter((e) => e.id === liker.id).length) {
+      return true
+    }
 
     await this.feedItemRepository
       .createQueryBuilder()
-      .relation(FeedItem, 'users')
+      .relation(FeedItem, 'likes')
       .of(feedItemId)
       .add(userId)
 
@@ -195,7 +201,9 @@ export class FeedItemsService {
 
     // We only support certain feed items for notifications
     // to keep things less spammy.
-    if (notifyMeta) {
+    // We also prevent the user from gettting notifications
+    // for self-likes.
+    if (notifyMeta && feedItem.user.id !== liker.id) {
       await this.notificationsService.create({
         action: NotificationAction.ActivityLiked,
         subject: liker.name,
@@ -210,7 +218,7 @@ export class FeedItemsService {
   async unLike(feedItemId: string, userId: string) {
     return this.feedItemRepository
       .createQueryBuilder()
-      .relation(FeedItem, 'users')
+      .relation(FeedItem, 'likes')
       .of(feedItemId)
       .remove(userId)
   }

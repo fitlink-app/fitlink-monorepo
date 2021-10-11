@@ -4,6 +4,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -20,11 +21,16 @@ import { AuthenticatedUser } from '../../models'
 import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
 import { plainToClass } from 'class-transformer'
 import { UserPublic } from '../users/entities/user.entity'
+import { ApiBaseResponses } from '../../decorators/swagger.decorator'
+import { ImagesService } from '../images/images.service'
+import * as http from 'http'
 
+@ApiBaseResponses()
 @Controller()
 export class HealthActivitiesController {
   constructor(
-    private readonly healthActivitiesService: HealthActivitiesService
+    private readonly healthActivitiesService: HealthActivitiesService,
+    private readonly imagesService: ImagesService
   ) {}
 
   @Get('/me/health-activities')
@@ -40,8 +46,10 @@ export class HealthActivitiesController {
   ) {
     const healthActivity = await this.healthActivitiesService.findOne(id)
 
-    if (healthActivity.user.id !== user.id) {
+    if (healthActivity && healthActivity.user.id !== user.id) {
       throw new ForbiddenException()
+    } else if (!healthActivity) {
+      throw new NotFoundException()
     }
 
     return this.healthActivitiesService.setHealthActivityImages(id, images)
@@ -55,8 +63,10 @@ export class HealthActivitiesController {
   ) {
     const healthActivity = await this.healthActivitiesService.findOne(id)
 
-    if (healthActivity.user.id !== user.id) {
+    if (healthActivity && healthActivity.user.id !== user.id) {
       throw new ForbiddenException()
+    } else if (!healthActivity) {
+      throw new NotFoundException()
     }
 
     return this.healthActivitiesService.removeHealthActivityImage(id, imageId)
@@ -80,25 +90,23 @@ export class HealthActivitiesController {
   @Post('/me/health-activities/:activityId/share')
   async generateImageShare(
     @Param('activityId') id: string,
-    @Param('imageId') imageId: string,
-    @Body() { image_url, stats }: ShareHealthActivityImageDto,
+    @Body() { imageId }: ShareHealthActivityImageDto,
     @AuthUser() user: AuthenticatedUser,
-    @Response() res
+    @Response() reply: { raw: http.ServerResponse }
   ) {
     const healthActivity = await this.healthActivitiesService.findOne(id)
+    const image = await this.imagesService.findOne(imageId)
 
     if (healthActivity.user.id !== user.id) {
       throw new ForbiddenException()
     }
 
-    const image = await this.healthActivitiesService.createShareableImage(
-      stats,
-      image_url
+    const generatedImage = await this.healthActivitiesService.createShareableImage(
+      id,
+      imageId
     )
 
-    return image
-
-    // res.writeHead(200, { 'Content-Type': 'image/jpeg' })
-    // res.end(image, 'binary')
+    reply.raw.writeHead(200, { 'Content-Type': 'image/jpeg' })
+    reply.raw.end(generatedImage, 'binary')
   }
 }

@@ -60,6 +60,9 @@ import { OrganisationMode1632771719624 } from '../database/migrations/1632771719
 import { AddPages1633257728285 } from '../database/migrations/1633257728285-AddPages'
 import { DomainUnique1633275502651 } from '../database/migrations/1633275502651-DomainUnique'
 import { AddNotifications1633364006103 } from '../database/migrations/1633364006103-AddNotifications'
+import { AddHealthActivityTitle1633862053877 } from '../database/migrations/1633862053877-AddHealthActivityTitle'
+import { AddSportsPace1633869946687 } from '../database/migrations/1633869946687-AddSportsPace'
+import { AddImageUrlSport1633944959171 } from '../database/migrations/1633944959171-AddImageUrlSport'
 
 export default [
   InitializeSchema1614887523112,
@@ -118,5 +121,8 @@ export default [
   OrganisationMode1632771719624,
   AddPages1633257728285,
   DomainUnique1633275502651,
-  AddNotifications1633364006103
+  AddNotifications1633364006103,
+  AddHealthActivityTitle1633862053877,
+  AddSportsPace1633869946687,
+  AddImageUrlSport1633944959171
 ]

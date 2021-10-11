@@ -5,8 +5,11 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "engines" : {
-    "node" : "^14"
+  "engines": {
+    "node": "^14"
+  },
+  "scripts": {
+    "start": "node app.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.8.1",
@@ -39,7 +42,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.6",
     "sharp": "^0.27.2",
-    "typeorm": "^0.2.31",
+    "typeorm": "0.2.31",
     "typeorm-seeding": "^1.6.1",
     "uuid": "^8.3.2",
     "date-fns": "^2.21.3",
@@ -48,6 +51,8 @@
     "chalk": "^4.1.0",
     "fastify-swagger": "^4.3.3",
     "chargebee-typescript": "^2.1.0",
-    "firebase-admin": "^9.11.0"
+    "firebase-admin": "^9.11.0",
+    "node-html-to-image": "^3.2.0",
+    "numbro": "^2.3.2"
   }
 }
