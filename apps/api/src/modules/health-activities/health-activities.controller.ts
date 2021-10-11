@@ -79,6 +79,10 @@ export class HealthActivitiesController {
       'images',
       'sport'
     ])
+
+    if (!healthActivity) {
+      throw new NotFoundException()
+    }
     return {
       ...healthActivity,
       user: plainToClass(UserPublic, healthActivity.user, {
