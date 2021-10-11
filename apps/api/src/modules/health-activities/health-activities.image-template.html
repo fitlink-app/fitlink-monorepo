@@ -1,4 +1,4 @@
-export default `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -145,7 +145,6 @@ export default `<!DOCTYPE html>
         height: 100%;
         background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
         mix-blend-mode: multiply;
-        filter: blur(1em);
         z-index: -1;
       }
 
@@ -194,19 +193,17 @@ export default `<!DOCTYPE html>
 
   <body>
     <div class="container">
-
-    {{#if imageUrl}}
       <img
         class="bg-image"
-        src="{{imageUrl}}"
+        src="https://images.unsplash.com/photo-1573150323537-68b07a81c228?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1974&q=80"
         alt=""
       />
+
       <img
         class="bg-image-cover"
-        src="{{imageUrl}}"
+        src="https://images.unsplash.com/photo-1573150323537-68b07a81c228?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1974&q=80"
         alt=""
       />
-    {{/if}}
 
       <div class="title">Early morning run</div>
 
@@ -233,13 +230,23 @@ export default `<!DOCTYPE html>
           <div class="link">fitlinkapp.com</div>
         </div>
 
-        {{#each stats}}
-          <div class="stat">
-            <div class="stat-value">{{this.value}}</div>
-            <div class="stat-label">{{this.label}}</div>
-          </div>
-        {{/each}}
+        <div class="stat">
+          <div class="stat-value">500</div>
+          <div class="stat-label">KM</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">500</div>
+          <div class="stat-label">KM</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">500</div>
+          <div class="stat-label">KM</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">500</div>
+          <div class="stat-label">KM</div>
+        </div>
       </div>
     </div>
   </body>
-</html>`
+</html>

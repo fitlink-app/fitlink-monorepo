@@ -36,10 +36,14 @@ export class HealthActivitiesSubscriber
     const userRepository = manager.getRepository(User)
     const sport = await sportsRepository.findOne(entity.sport.id)
     const user = await userRepository.findOne(entity.user.id)
-    entity.title = this.healthActivitiesService.getComputedTitle(
-      sport.singular,
-      new Date(entity.start_time),
-      user.timezone
-    )
+
+    // The entity title is sometimes provided (e.g. by Strava)
+    if (!entity.title) {
+      entity.title = this.healthActivitiesService.getComputedTitle(
+        sport.singular,
+        new Date(entity.start_time),
+        user.timezone
+      )
+    }
   }
 }

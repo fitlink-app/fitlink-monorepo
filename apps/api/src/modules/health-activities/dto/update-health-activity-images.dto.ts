@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsArray } from 'class-validator'
+import { IsArray, IsOptional, IsUUID } from 'class-validator'
 
 export class UpdateHealthActivityImagesDto {
   @ApiProperty({
@@ -13,11 +13,9 @@ export class UpdateHealthActivityImagesDto {
 
 export class ShareHealthActivityImageDto {
   @ApiProperty()
-  image_url: string
-
-  @ApiProperty()
-  stats: {
-    value: string
-    label: string
-  }[]
+  @IsUUID(4, {
+    message: 'Must be a valid image id'
+  })
+  @IsOptional()
+  imageId?: string
 }

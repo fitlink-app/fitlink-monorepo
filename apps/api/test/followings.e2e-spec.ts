@@ -324,10 +324,10 @@ describe('Followings', () => {
       .getRepository(FeedItem)
       .findOne({
         where: {
-          user,
+          user: userData.user,
           type: FeedItemType.NewFollower,
           category: FeedItemCategory.MyUpdates,
-          related_user: { id: userData.user.id }
+          related_user: { id: user }
         },
         relations: ['related_user']
       })
@@ -335,6 +335,6 @@ describe('Followings', () => {
     expect(feedItem).toBeDefined()
     expect(feedItem.type).toBe(FeedItemType.NewFollower)
     expect(feedItem.category).toBe(FeedItemCategory.MyUpdates)
-    expect(feedItem.related_user.id).toBe(userData.user.id)
+    expect(feedItem.related_user.id).toBe(user)
   })
 })

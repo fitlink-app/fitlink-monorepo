@@ -62,6 +62,7 @@ import { DomainUnique1633275502651 } from '../database/migrations/1633275502651-
 import { AddNotifications1633364006103 } from '../database/migrations/1633364006103-AddNotifications'
 import { AddHealthActivityTitle1633862053877 } from '../database/migrations/1633862053877-AddHealthActivityTitle'
 import { AddSportsPace1633869946687 } from '../database/migrations/1633869946687-AddSportsPace'
+import { AddImageUrlSport1633944959171 } from '../database/migrations/1633944959171-AddImageUrlSport'
 
 export default [
   InitializeSchema1614887523112,
@@ -122,5 +123,6 @@ export default [
   DomainUnique1633275502651,
   AddNotifications1633364006103,
   AddHealthActivityTitle1633862053877,
-  AddSportsPace1633869946687
+  AddSportsPace1633869946687,
+  AddImageUrlSport1633944959171
 ]

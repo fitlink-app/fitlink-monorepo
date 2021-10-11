@@ -38,4 +38,9 @@ export class Sport extends CreatableEntity {
     default: false
   })
   show_pace: boolean
+
+  @Column({
+    nullable: true
+  })
+  image_url?: string
 }

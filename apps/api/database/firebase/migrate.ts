@@ -57,6 +57,7 @@ import {
 } from '../../src/modules/feed-items/feed-items.constants'
 import { Activity } from '../../src/modules/activities/entities/activity.entity'
 import { ActivityType } from '../../src/modules/activities/activities.constants'
+import { HealthActivitiesService } from '../../src/modules/health-activities/health-activities.service'
 
 // FITLINK
 const FITLINK_TEAM = 'ZxSZdl3lafZiiWiZnhlw'
@@ -89,6 +90,7 @@ const allow = Object.values(require('./trusted.json'))
   const connection = module.get(Connection)
   const usersService = module.get(UsersService)
   const httpService = module.get(HttpService)
+  const healthActivitiesService = module.get(HealthActivitiesService)
 
   if ((await connection.getRepository(Sport).count()) === 0) {
     throw new Error('Sports must be seeded first.')
@@ -552,7 +554,12 @@ const allow = Object.values(require('./trusted.json'))
                       end_time: item.end_time.toDate(),
                       distance: item.distance,
                       created_at: item.created_at.toDate(),
-                      updated_at: item.updated_at.toDate()
+                      updated_at: item.updated_at.toDate(),
+                      title: healthActivitiesService.getComputedTitle(
+                        sport.singular,
+                        item.start_time.toDate(),
+                        user.timezone
+                      )
                     })
                   )
 

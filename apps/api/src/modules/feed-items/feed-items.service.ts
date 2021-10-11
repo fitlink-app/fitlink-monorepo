@@ -183,8 +183,13 @@ export class FeedItemsService {
       relations: ['avatar']
     })
     const feedItem = await this.feedItemRepository.findOne(feedItemId, {
-      relations: ['user']
+      relations: ['user', 'likes']
     })
+
+    // If the user already likes the post, ignore this.
+    if ((feedItem.likes as User[]).filter((e) => e.id === liker.id).length) {
+      return true
+    }
 
     await this.feedItemRepository
       .createQueryBuilder()
