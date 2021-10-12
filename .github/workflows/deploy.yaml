@@ -185,6 +185,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: eb-zip
+          path: artifacts
 
       - uses: hmanzur/actions-aws-eb@v1.0.0
         with:
