@@ -10,7 +10,7 @@ import {
   IsUUID,
   MinLength
 } from 'class-validator'
-import { UnitSystem } from '../users.constants'
+import { UnitSystem, UserMobileOS } from '../users.constants'
 import { IsTimezone } from '../../../decorators/class-validator/IsTimezone'
 
 export class UpdateUserDto {
@@ -43,6 +43,11 @@ export class UpdateUserDto {
   @IsOptional()
   @IsBoolean()
   onboarded?: boolean
+
+  @ApiProperty()
+  @IsOptional()
+  @IsEnum(UserMobileOS)
+  mobile_os?: UserMobileOS
 
   @ApiProperty()
   @IsOptional()

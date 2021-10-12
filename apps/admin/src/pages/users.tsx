@@ -2,7 +2,7 @@ import { useState, useContext } from 'react'
 import Dashboard from '../components/layouts/Dashboard'
 import { AuthContext } from '../context/Auth.context'
 import TableContainer from '../components/Table/TableContainer'
-import { toDateCell } from '../components/Table/helpers'
+import { boolToIcon, toDateCell } from '../components/Table/helpers'
 import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 import { AnimatePresence } from 'framer-motion'
 import Drawer from '../components/elements/Drawer'
@@ -15,6 +15,10 @@ import InviteUserForm from '../components/forms/InviteUserForm'
 import { Roles } from '../../../api/src/modules/user-roles/user-roles.constants'
 import { OrganisationMode } from '@fitlink/api/src/modules/organisations/organisations.constants'
 import MessageUser from '../components/forms/MessageUser'
+import { ProviderTypeDisplay } from '@fitlink/api/src/modules/providers/providers.constants'
+import IconCheck from '../components/icons/IconCheck'
+import IconClose from '../components/icons/IconClose'
+import IconSearch from '../components/icons/IconSearch'
 
 export default function UsersPage() {
   const [drawContent, setDrawContent] = useState<
@@ -54,6 +58,16 @@ export default function UsersPage() {
     )
   }
 
+  const showProviders = ({ value }) => {
+    return (
+      <>
+        {!!value.length &&
+          value.map((p) => ProviderTypeDisplay[p.type]).join(', ')}
+        {!value.length && boolToIcon({ value: !!value.length })}
+      </>
+    )
+  }
+
   const cellActions = ({
     cell: {
       row: { original }
@@ -62,7 +76,7 @@ export default function UsersPage() {
     const { modeRole, mode } = useContext(AuthContext)
 
     return (
-      <div className="text-right flex">
+      <div className="text-right flex jc-e">
         {modeRole === 'app' && (
           <button
             className="button small ml-1"
@@ -79,9 +93,9 @@ export default function UsersPage() {
         )}
         {modeRole === 'team' && (
           <button
-            className="button small ml-1"
+            className="ml-1 icon-button"
             onClick={() => MessageUserForm(original)}>
-            Send Message
+            <IconSearch />
           </button>
         )}
       </div>
@@ -170,14 +184,23 @@ export default function UsersPage() {
           columns={[
             { Header: ' ', accessor: 'avatar', Cell: showAvatar },
             { Header: 'Name', accessor: 'name' },
-            { Header: 'Email', accessor: 'email' },
+            // { Header: 'Email', accessor: 'email' },
+            {
+              Header: 'Connected trackers',
+              accessor: 'providers',
+              Cell: showProviders
+            },
             {
               Header: 'Last login',
               accessor: 'last_login_at',
               Cell: toDateCell
             },
-            { Header: 'Updated', accessor: 'updated_at', Cell: toDateCell },
-            { Header: 'Created', accessor: 'created_at', Cell: toDateCell },
+            {
+              Header: 'Onboarded',
+              accessor: 'onboarded',
+              Cell: boolToIcon
+            },
+            // { Header: 'Updated', accessor: 'updated_at', Cell: toDateCell },
             { Header: ' ', Cell: cellActions }
           ]}
           fetch={(limit, page, query) =>

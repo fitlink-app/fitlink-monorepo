@@ -9,3 +9,8 @@ export enum UserRank {
   Tier3 = 'Fitlink Semi-pro',
   Tier4 = 'Fitlink Pro'
 }
+
+export enum UserMobileOS {
+  iOS = 'iOS',
+  Android = 'Android'
+}

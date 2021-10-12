@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger'
+import { Expose } from 'class-transformer'
 import {
   PrimaryGeneratedColumn,
   ManyToOne,
@@ -57,4 +59,14 @@ export class Provider extends CreatableEntity {
     { nullable: true }
   )
   health_activities: HealthActivity[]
+}
+
+export class ProviderPublic {
+  @ApiProperty()
+  @Expose()
+  id: string
+
+  @ApiProperty()
+  @Expose()
+  type: string
 }

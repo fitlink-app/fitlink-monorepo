@@ -18,9 +18,13 @@ import AvatarSelect from '../elements/AvatarSelect'
 import Feedback from '../elements/Feedback'
 import { AuthRequestResetPassword } from '@fitlink/api-sdk/types'
 import { SendNotificationDto } from '@fitlink/api/src/modules/notifications/dto/send-notification.dto'
+import { format } from 'date-fns'
+import { ProviderTypeDisplay } from '@fitlink/api/src/modules/providers/providers.constants'
+import IconClose from '../icons/IconClose'
+import IconCheck from '../icons/IconCheck'
 
 export type CreateMessageProps = {
-  current: { id: string }
+  current: Partial<User>
   onSave?: () => void
   onError?: () => void
 }
@@ -73,7 +77,7 @@ export default function MessageUser({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h4 className="light mb-3">Edit user</h4>
+      <h4 className="light mb-3">{current.name}</h4>
 
       {isError && <Feedback message={errorMessage} type="error" />}
 
@@ -99,6 +103,73 @@ export default function MessageUser({
           Send Message
         </button>
       </div>
+
+      <h6>Date joined</h6>
+      <p>{format(new Date(current.created_at), 'yyyy-MM-dd H:mm:ss OOOO')}</p>
+      <hr className="tight" />
+      <h6>Completed onboarding</h6>
+      {current.onboarded ? (
+        <p>
+          <div className="unconfirmed">
+            <IconClose />
+          </div>
+        </p>
+      ) : (
+        <p>
+          <div className="confirmed">
+            <IconCheck />
+          </div>
+        </p>
+      )}
+
+      {/* <hr className="tight" /> */}
+      {/* <h6>Mobile operating system</h6>
+      <p>{mobile_os}</p> */}
+      <hr className="tight" />
+      <h6>Connected trackers</h6>
+      {current.providers.length > 0 && (
+        <p>
+          {current.providers.map((p) => ProviderTypeDisplay[p.type]).join(', ')}
+        </p>
+      )}
+      {!current.providers.length && (
+        <p>
+          <div className="unconfirmed">
+            <IconClose />
+          </div>
+        </p>
+      )}
+
+      <hr className="tight" />
+      <h6>Last app session</h6>
+      {current.last_app_opened_at && (
+        <p>
+          {format(
+            new Date(current.last_app_opened_at),
+            'yyyy-MM-dd H:mm:ss OOOO'
+          )}
+        </p>
+      )}
+      {!current.last_app_opened_at && <p>-</p>}
+
+      <hr className="tight" />
+      <h6>Total points</h6>
+      <p>{current.points_total.toLocaleString()}</p>
+      <hr className="tight" />
+      <h6>Rank</h6>
+      <p>{current.rank}</p>
+      {/* <hr className="tight" />
+      <h6>Last activity tracked</h6>
+      <p>{last_activity}</p> */}
+      {/* <hr className="tight" />
+      <h6>Leagues joined</h6>
+      <p>{total_leagues.toLocaleString()}</p>
+      <hr className="tight" />
+      <h6>Leagues created</h6>
+      <p>{created_leagues.toLocaleString()}</p>
+      <hr className="tight" />
+      <h6>Rewards redeemed</h6>
+      <p>{rewards.toLocaleString()}</p> */}
     </form>
   )
 }

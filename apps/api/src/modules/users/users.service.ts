@@ -182,6 +182,7 @@ export class UsersService {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.settings', 'settings')
       .leftJoinAndSelect('user.avatar', 'avatar')
+      .leftJoinAndSelect('user.providers', 'providers')
       .take(limit)
       .skip(page * limit)
 
@@ -217,7 +218,13 @@ export class UsersService {
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<User>({
-      results,
+      results: results.map((result) => ({
+        ...result,
+        providers: result.providers.map((p) => ({
+          id: p.id,
+          type: p.type
+        }))
+      })),
       total
     })
   }
