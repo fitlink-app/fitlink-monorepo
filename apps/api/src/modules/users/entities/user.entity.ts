@@ -355,7 +355,7 @@ export class User extends CreatableEntity {
     nullable: true,
     type: 'varchar'
   })
-  mobile_os: UserMobileOS
+  mobile_os: string
 }
 
 export class UserPublic {

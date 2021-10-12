@@ -46,8 +46,7 @@ export class UpdateUserDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsEnum(UserMobileOS)
-  mobile_os?: UserMobileOS
+  mobile_os?: string
 
   @ApiProperty()
   @IsOptional()
