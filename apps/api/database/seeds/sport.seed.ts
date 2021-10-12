@@ -25,7 +25,8 @@ export default class CreateSports implements Seeder {
         name: 'Skiing',
         name_key: 'skiing',
         singular: 'ski',
-        plural: 'skis'
+        plural: 'skis',
+        image_url: 'https://www-dev.fitlinkapp.com/health-activities/skiing.jpg'
       })
     }
 
@@ -34,7 +35,9 @@ export default class CreateSports implements Seeder {
         name: 'Hiking',
         name_key: 'hiking',
         singular: 'hike',
-        plural: 'hikes'
+        plural: 'hikes',
+        show_pace: true,
+        image_url: 'https://www-dev.fitlinkapp.com/health-activities/hiking.jpg'
       })
     }
 
@@ -43,7 +46,10 @@ export default class CreateSports implements Seeder {
         name: 'Cycling',
         name_key: 'cycling',
         singular: 'ride',
-        plural: 'rides'
+        plural: 'rides',
+        show_pace: true,
+        image_url:
+          'https://www-dev.fitlinkapp.com/health-activities/cycling.jpg'
       })
     }
 
@@ -52,7 +58,9 @@ export default class CreateSports implements Seeder {
         name: 'Crossfit',
         name_key: 'crossfitTraining',
         singular: 'crossfit workout',
-        plural: 'crossfit workouts'
+        plural: 'crossfit workouts',
+        image_url:
+          'https://www-dev.fitlinkapp.com/health-activities/crossfit.jpg'
       })
     }
 
@@ -61,7 +69,9 @@ export default class CreateSports implements Seeder {
         name: 'Rowing',
         name_key: 'rowing',
         singular: 'row',
-        plural: 'rows'
+        plural: 'rows',
+        show_pace: true,
+        image_url: 'https://www-dev.fitlinkapp.com/health-activities/rowing.jpg'
       })
     }
 
@@ -70,7 +80,9 @@ export default class CreateSports implements Seeder {
         name: 'Snowboarding',
         name_key: 'snowboarding',
         singular: 'snowboard',
-        plural: 'snowboards'
+        plural: 'snowboards',
+        image_url:
+          'https://www-dev.fitlinkapp.com/health-activities/snowboarding.jpg'
       })
     }
 
@@ -79,7 +91,9 @@ export default class CreateSports implements Seeder {
         name: 'Surfing',
         name_key: 'surfing',
         singular: 'surf',
-        plural: 'surfs'
+        plural: 'surfs',
+        image_url:
+          'https://www-dev.fitlinkapp.com/health-activities/surfing.jpg'
       })
     }
 
@@ -88,7 +102,10 @@ export default class CreateSports implements Seeder {
         name: 'Walking',
         name_key: 'walking',
         singular: 'walk',
-        plural: 'walks'
+        plural: 'walks',
+        image_url:
+          'https://www-dev.fitlinkapp.com/health-activities/walking.jpg',
+        show_pace: true
       })
     }
 
@@ -106,7 +123,8 @@ export default class CreateSports implements Seeder {
         name: 'Yoga',
         name_key: 'yoga',
         singular: 'yoga session',
-        plural: 'yoga sessions'
+        plural: 'yoga sessions',
+        image_url: 'https://www-dev.fitlinkapp.com/health-activities/yoga.jpg'
       })
     }
 
@@ -115,7 +133,10 @@ export default class CreateSports implements Seeder {
         name: 'Running',
         name_key: 'running',
         singular: 'run',
-        plural: 'runs'
+        plural: 'runs',
+        show_pace: true,
+        image_url:
+          'https://www-dev.fitlinkapp.com/health-activities/running.jpg'
       })
     }
 
@@ -160,7 +181,10 @@ export default class CreateSports implements Seeder {
         name: 'Swimming',
         name_key: 'swimming',
         singular: 'swim',
-        plural: 'swims'
+        plural: 'swims',
+        show_pace: true,
+        image_url:
+          'https://www-dev.fitlinkapp.com/health-activities/swimming.jpg'
       })
     }
 
@@ -169,7 +193,8 @@ export default class CreateSports implements Seeder {
         name: 'HIIT',
         name_key: 'highIntensityIntervalTraining',
         singular: 'HIIT workout',
-        plural: 'HIIIT workouts'
+        plural: 'HIIIT workouts',
+        image_url: 'https://www-dev.fitlinkapp.com/health-activities/hiit.jpg'
       })
     }
 

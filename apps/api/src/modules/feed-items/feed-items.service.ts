@@ -4,19 +4,23 @@ import { plainToClass } from 'class-transformer'
 import { Brackets, Repository } from 'typeorm'
 import { Pagination, PaginationQuery } from '../../helpers/paginate'
 import { tryAndCatch } from '../../helpers/tryAndCatch'
+import { NotificationAction } from '../notifications/notifications.constants'
+import { NotificationsService } from '../notifications/notifications.service'
 import { PrivacySetting } from '../users-settings/users-settings.constants'
-import { UserPublic } from '../users/entities/user.entity'
+import { User, UserPublic } from '../users/entities/user.entity'
 import { CreateFeedItemDto } from './dto/create-feed-item.dto'
 import { FeedFilterDto } from './dto/feed-filter.dto'
-import { UpdateFeedItemDto } from './dto/update-feed-item.dto'
 import { FeedItem } from './entities/feed-item.entity'
-import { FeedItemCategory } from './feed-items.constants'
+import { FeedItemCategory, FeedItemType } from './feed-items.constants'
 
 @Injectable()
 export class FeedItemsService {
   constructor(
     @InjectRepository(FeedItem)
-    private feedItemRepository: Repository<FeedItem>
+    private feedItemRepository: Repository<FeedItem>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+    private notificationsService: NotificationsService
   ) {}
   async create(createFeedItemDto: CreateFeedItemDto) {
     const [result, resultErr] = await tryAndCatch(
@@ -32,7 +36,7 @@ export class FeedItemsService {
     userId: string,
     requesterId: string,
     { limit, page }: PaginationQuery,
-    filters: FeedFilterDto = {}
+    filters: FeedFilterDto = {} as FeedFilterDto
   ) {
     const selfView = userId === requesterId
 
@@ -46,6 +50,7 @@ export class FeedItemsService {
       .leftJoinAndSelect('feed_item.league', 'league')
       .leftJoinAndSelect('feed_item.health_activity', 'health_activity')
       .leftJoinAndSelect('health_activity.sport', 'sport')
+      .leftJoinAndSelect('health_activity.images', 'health_activity_images')
       .leftJoinAndSelect('feed_item.goal_entry', 'goal_entry')
       .leftJoinAndSelect('feed_item.likes', 'likes')
       .leftJoinAndSelect('likes.avatar', 'likes_avatar')
@@ -174,19 +179,60 @@ export class FeedItemsService {
   }
 
   async like(feedItemId: string, userId: string) {
-    return this.feedItemRepository
+    const liker = await this.usersRepository.findOne(userId, {
+      relations: ['avatar']
+    })
+    const feedItem = await this.feedItemRepository.findOne(feedItemId, {
+      relations: ['user', 'likes']
+    })
+
+    // If the user already likes the post, ignore this.
+    if ((feedItem.likes as User[]).filter((e) => e.id === liker.id).length) {
+      return true
+    }
+
+    await this.feedItemRepository
       .createQueryBuilder()
-      .relation(FeedItem, 'users')
+      .relation(FeedItem, 'likes')
       .of(feedItemId)
       .add(userId)
+
+    const notifyMeta = this.getFeedTypeForNotification(feedItem)
+
+    // We only support certain feed items for notifications
+    // to keep things less spammy.
+    // We also prevent the user from gettting notifications
+    // for self-likes.
+    if (notifyMeta && feedItem.user.id !== liker.id) {
+      await this.notificationsService.create({
+        action: NotificationAction.ActivityLiked,
+        subject: liker.name,
+        subject_id: liker.id,
+        user: feedItem.user as User,
+        avatar: liker.avatar,
+        meta_value: notifyMeta
+      })
+    }
   }
 
   async unLike(feedItemId: string, userId: string) {
     return this.feedItemRepository
       .createQueryBuilder()
-      .relation(FeedItem, 'users')
+      .relation(FeedItem, 'likes')
       .of(feedItemId)
       .remove(userId)
+  }
+
+  getFeedTypeForNotification(feedItem: FeedItem) {
+    switch (feedItem.type) {
+      case FeedItemType.DailyGoalReached:
+        return 'goal achievement'
+      case FeedItemType.HealthActivity:
+        return 'activity'
+      case FeedItemType.LeagueWon:
+        return 'league victory'
+    }
+    return false
   }
 
   async remove(feedItemId: string, userId: string) {

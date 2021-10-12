@@ -13,11 +13,6 @@ export default function MenuTeam(primary: Primary) {
       icon: 'IconFriends'
     },
     {
-      label: 'Stats',
-      link: '/stats',
-      icon: 'IconGraph'
-    },
-    {
       label: 'Rewards',
       link: '/rewards',
       icon: 'IconRewards'

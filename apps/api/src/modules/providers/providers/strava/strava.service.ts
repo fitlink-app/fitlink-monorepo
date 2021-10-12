@@ -386,7 +386,8 @@ export class StravaService {
       calories: activity.calories,
       distance: activity.distance,
       elevation: activity.total_elevation_gain,
-      active_time: activity.moving_time
+      active_time: activity.moving_time,
+      title: activity.name
     }
 
     if (activity.map && activity.map.polyline) {

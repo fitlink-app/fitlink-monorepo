@@ -1,5 +1,10 @@
 import { endOfDay, startOfDay } from 'date-fns'
-import { zonedTimeToUtc, getTimezoneOffset, format } from 'date-fns-tz'
+import {
+  zonedTimeToUtc,
+  getTimezoneOffset,
+  format,
+  OptionsWithTZ
+} from 'date-fns-tz'
 
 /**
  * Converts a date to UTC and applies the timezone difference
@@ -13,6 +18,25 @@ import { zonedTimeToUtc, getTimezoneOffset, format } from 'date-fns-tz'
  */
 export function zonedStartOfDay(tz = 'Etc/UTC', date = new Date()) {
   return zonedTimeToUtc(startOfDay(date), tz)
+}
+
+/**
+ * Returns the date in the zone
+ *
+ * @param tz e.g. Europe/London
+ * @param date (defaults to now)
+ * @returns Date
+ */
+export function zonedFormat(
+  date: Date,
+  fm: string,
+  timeZone: string = 'Etc/UTC',
+  options?: OptionsWithTZ
+) {
+  return format(date, fm, {
+    ...options,
+    timeZone
+  })
 }
 
 /**

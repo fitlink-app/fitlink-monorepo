@@ -15,6 +15,7 @@ import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-en
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
 import { CommonModule } from '../common/common.module'
 import { HealthActivity } from '../health-activities/entities/health-activity.entity'
+import { NotificationsModule } from '../notifications/notifications.module'
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { HealthActivity } from '../health-activities/entities/health-activity.en
       User,
       HealthActivity
     ]),
+    NotificationsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

@@ -1,25 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNumberString, IsOptional } from 'class-validator'
+import { ToBoolean } from '../../../classes/class-transformer/to-boolean'
+import { IsOptional } from 'class-validator'
 
 export class FeedFilterDto {
-  @ApiProperty({
-    required: false
-  })
-  @IsNumberString()
+  @ApiProperty()
   @IsOptional()
-  friends_activities?: '0' | '1' | boolean
+  @ToBoolean()
+  friends_activities: boolean
 
-  @ApiProperty({
-    required: false
-  })
-  @IsNumberString()
+  @ApiProperty()
   @IsOptional()
-  my_goals?: '0' | '1' | boolean
+  @ToBoolean()
+  my_goals: boolean
 
-  @ApiProperty({
-    required: false
-  })
-  @IsNumberString()
+  @ApiProperty()
   @IsOptional()
-  my_updates?: '0' | '1' | boolean
+  @ToBoolean()
+  my_updates: boolean
 }

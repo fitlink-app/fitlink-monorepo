@@ -33,4 +33,14 @@ export class Sport extends CreatableEntity {
 
   @OneToMany(() => League, (league) => league.sport)
   leagues: League[]
+
+  @Column({
+    default: false
+  })
+  show_pace: boolean
+
+  @Column({
+    nullable: true
+  })
+  image_url?: string
 }

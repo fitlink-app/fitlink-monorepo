@@ -50,7 +50,14 @@ export class Image extends CreatableEntity {
   @ManyToOne(() => Activity, (activity) => activity.images)
   activity?: Activity
 
-  @ManyToOne(() => HealthActivity, (health_activity) => health_activity.images)
+  @ManyToOne(
+    () => HealthActivity,
+    (health_activity) => health_activity.images,
+    {
+      nullable: true
+    }
+  )
+  @JoinColumn()
   health_activity?: HealthActivity
 
   /** Alt text for accessibility */

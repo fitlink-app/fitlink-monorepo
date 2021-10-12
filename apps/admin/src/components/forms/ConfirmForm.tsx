@@ -87,6 +87,7 @@ export default function ConfirmForm({
         </a>
         <button
           className="button ml-1 pointer"
+          type="submit"
           disabled={
             (requireConfirmText && confirmation !== requireConfirmText) ||
             update.isLoading

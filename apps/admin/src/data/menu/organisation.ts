@@ -20,11 +20,6 @@ export function MenuOrganisationComplex(primary: Primary) {
       ]
     },
     {
-      label: 'Stats',
-      link: '/stats',
-      icon: 'IconGraph'
-    },
-    {
       label: 'Teams',
       link: '/teams',
       icon: 'IconFriends'
@@ -81,11 +76,6 @@ export function MenuOrganisationSimple(primary: Primary) {
           link: '/admins/team'
         }
       ]
-    },
-    {
-      label: 'Stats',
-      link: '/stats',
-      icon: 'IconGraph'
     },
     {
       label: 'Rewards',

@@ -5,7 +5,8 @@
   "author": "Fitlink",
   "private": true,
   "scripts": {
-    "build": "nest build -c nest-cli.serverless.json --webpack --webpackPath webpack-serverless.config.js",
+    "build": "nest build",
+    "build:migrate": "nest build -c nest-cli.migrate.json",
     "prebuild": "rimraf dist",
     "start": "nest start --watch",
     "start:jest": "cross-env DB_PASSWORD=jest DB_USERNAME=jest DB_DATABASE_NAME=jest DB_PORT=5433 PORT=3001 nest start --watch --webpack",
@@ -39,6 +40,7 @@
     "sls:package": "serverless package",
     "sls:migrate": "serverless invoke -f migrate",
     "sls:migrate:production": "serverless invoke -f migrate --stage production",
+    "sls:secrets": "node ./scripts/update-secrets.js",
     "package:admin": "yarn workspace @fitlink/admin dev",
     "package:admin:ssl": "cross-env DEV_SSL=1 yarn workspace @fitlink/admin ssl",
     "package:api": "nest start --watch",

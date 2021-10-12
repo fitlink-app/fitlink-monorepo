@@ -10,7 +10,10 @@ import {
   PrimaryGeneratedColumn
 } from 'typeorm'
 import { League } from '../../leagues/entities/league.entity'
-import { Provider } from '../../providers/entities/provider.entity'
+import {
+  Provider,
+  ProviderPublic
+} from '../../providers/entities/provider.entity'
 import { Team } from '../../teams/entities/team.entity'
 import { Image } from '../../images/entities/image.entity'
 import { UsersSetting } from '../../users-settings/entities/users-setting.entity'
@@ -31,6 +34,7 @@ import { Exclude, Expose } from 'class-transformer'
 import { UnitSystem, UserRank } from '../users.constants'
 import { LeaguesInvitation } from '../../leagues-invitations/entities/leagues-invitation.entity'
 import { SubscriptionsInvitation } from '../../subscriptions/entities/subscriptions-invitation.entity'
+import { Notification } from '../../notifications/entities/notification.entity'
 
 @Entity()
 export class User extends CreatableEntity {
@@ -57,7 +61,7 @@ export class User extends CreatableEntity {
     cascade: ['remove'],
     onDelete: 'CASCADE'
   })
-  providers: Provider[]
+  providers: Provider[] | ProviderPublic[]
 
   @OneToMany(() => RefreshToken, (token) => token.user, {
     cascade: ['remove'],
@@ -67,6 +71,9 @@ export class User extends CreatableEntity {
 
   @ManyToMany(() => FeedItem, (feedItem) => feedItem.likes)
   likes: FeedItem[]
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[]
 
   @ApiProperty()
   @Column({
@@ -336,6 +343,19 @@ export class User extends CreatableEntity {
     nullable: true
   })
   fcm_tokens: string[]
+
+  @ApiProperty()
+  @Column({
+    default: 0
+  })
+  unread_notifications: number
+
+  @ApiProperty()
+  @Column({
+    nullable: true,
+    type: 'varchar'
+  })
+  mobile_os: string
 }
 
 export class UserPublic {

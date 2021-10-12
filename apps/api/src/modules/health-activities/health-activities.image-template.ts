@@ -124,6 +124,31 @@ export default `<!DOCTYPE html>
         text-transform: uppercase;
       }
 
+      .title {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding-right: 30px;
+        padding: 20px;
+        text-align: right;
+        color: #fff;
+        width: 100%;
+        z-index: 100;
+      }
+
+      .title::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+        mix-blend-mode: multiply;
+        filter: blur(1em);
+        z-index: -1;
+      }
+
       @media (max-aspect-ratio: 3/4) {
         body {
           font-size: 5.6vw;
@@ -169,19 +194,21 @@ export default `<!DOCTYPE html>
 
   <body>
     <div class="container">
-      {{#if imageUrl}}
-        <img
-          class="bg-image"
-          src="{{imageUrl}}"
-          alt=""
-        />
 
-        <img
-          class="bg-image-cover"
-          src="{{imageUrl}}"
-          alt=""
-        />
-      {{/if}}
+    {{#if imageUrl}}
+      <img
+        class="bg-image"
+        src="{{imageUrl}}"
+        alt=""
+      />
+      <img
+        class="bg-image-cover"
+        src="{{imageUrl}}"
+        alt=""
+      />
+    {{/if}}
+
+      <div class="title">Early morning run</div>
 
       <div class="content">
         <div class="logo-container">

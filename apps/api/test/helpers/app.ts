@@ -21,6 +21,7 @@ import { Leaderboard } from '../../src/modules/leaderboards/entities/leaderboard
 import { LeaderboardEntry } from '../../src/modules/leaderboard-entries/entities/leaderboard-entry.entity'
 import { LeaguesInvitation } from '../../src/modules/leagues-invitations/entities/leagues-invitation.entity'
 import { League } from '../../src/modules/leagues/entities/league.entity'
+import { Notification } from '../../src/modules/notifications/entities/notification.entity'
 import { Organisation } from '../../src/modules/organisations/entities/organisation.entity'
 import { Page } from '../../src/modules/pages/entities/page.entity'
 import { Provider } from '../../src/modules/providers/entities/provider.entity'
@@ -38,7 +39,8 @@ import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity
 import {
   mockConfigService,
   mockConfigServiceProvider,
-  mockEmailService
+  mockEmailService,
+  mockFirebaseAdminService
 } from './mocking'
 import { UploadGuard } from '../../src/guards/upload.guard'
 import { JwtAuthGuard } from '../../src/modules/auth/guards/jwt-auth.guard'
@@ -49,6 +51,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter'
 import { Queueable } from '../../src/modules/queue/entities/queueable.entity'
 import { validationExceptionFactory } from '../../src/exceptions/validation.exception.factory'
 import { UploadGuardV2 } from '../../src/guards/upload-v2.guard'
+import { FirebaseAdminService } from '../../src/modules/notifications/firebase-admin.module'
+import * as admin from 'firebase-admin'
 
 export const entities = [
   Activity,
@@ -63,6 +67,7 @@ export const entities = [
   LeaderboardEntry,
   League,
   LeaguesInvitation,
+  Notification,
   Organisation,
   OrganisationsInvitation,
   Page,
@@ -114,6 +119,8 @@ export async function mockApp({
     .useValue(mockConfigService())
     .overrideProvider(EmailService)
     .useValue(mockEmailService())
+    .overrideProvider(FirebaseAdminService)
+    .useValue(mockFirebaseAdminService())
 
   const result = await overrideRef.compile()
 

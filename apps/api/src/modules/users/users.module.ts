@@ -15,6 +15,7 @@ import { FeedItemsModule } from '../feed-items/feed-items.module'
 import { NewFollowerListener } from './listeners/NewFollowerListener'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { UserActiveMinutesIncrementedListener } from './listeners/UserActiveMinutesIncrementedListener'
+import { NotificationsModule } from '../notifications/notifications.module'
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { UserActiveMinutesIncrementedListener } from './listeners/UserActiveMinu
     UserRolesModule,
     EventEmitter2,
     UsersInvitationsModule,
+    NotificationsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

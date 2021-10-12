@@ -17,6 +17,8 @@ import { League } from '../leagues/entities/league.entity'
 import { User, UserPublic } from '../users/entities/user.entity'
 import { plainToClass } from 'class-transformer'
 import { LeagueInvitePermission } from '../leagues/leagues.constants'
+import { NotificationsService } from '../notifications/notifications.service'
+import { NotificationAction } from '../notifications/notifications.constants'
 
 @Injectable()
 export class LeaguesInvitationsService {
@@ -28,7 +30,8 @@ export class LeaguesInvitationsService {
     @InjectRepository(LeaguesInvitation)
     private readonly invitationsRepository: Repository<LeaguesInvitation>,
     @InjectRepository(User)
-    private readonly usersRepository: Repository<User>
+    private readonly usersRepository: Repository<User>,
+    private notificationsService: NotificationsService
   ) {}
 
   async create(
@@ -60,11 +63,25 @@ export class LeaguesInvitationsService {
       )
     }
 
+    if (to.fcm_tokens && to.fcm_tokens.length) {
+      await this.sendNotification(to, from, league)
+    }
+
     return {
       invitation: this.publicInvitation(invitation),
       inviteLink,
       token
     }
+  }
+
+  async sendNotification(user: User, from: User, league: League) {
+    return this.notificationsService.create({
+      user,
+      action: NotificationAction.LeagueInvitation,
+      subject: league.name,
+      subject_id: league.id,
+      avatar: from.avatar
+    })
   }
 
   publicInvitation(invitation: LeaguesInvitation) {
