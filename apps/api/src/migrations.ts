@@ -63,6 +63,7 @@ import { AddNotifications1633364006103 } from '../database/migrations/1633364006
 import { AddHealthActivityTitle1633862053877 } from '../database/migrations/1633862053877-AddHealthActivityTitle'
 import { AddSportsPace1633869946687 } from '../database/migrations/1633869946687-AddSportsPace'
 import { AddImageUrlSport1633944959171 } from '../database/migrations/1633944959171-AddImageUrlSport'
+import { AddUserMobileOS1634031981765 } from '../database/migrations/1634031981765-AddUserMobileOS'
 
 export default [
   InitializeSchema1614887523112,
@@ -124,5 +125,6 @@ export default [
   AddNotifications1633364006103,
   AddHealthActivityTitle1633862053877,
   AddSportsPace1633869946687,
-  AddImageUrlSport1633944959171
+  AddImageUrlSport1633944959171,
+  AddUserMobileOS1634031981765
 ]
