@@ -10,7 +10,7 @@ import {
   IsUUID,
   MinLength
 } from 'class-validator'
-import { UnitSystem, UserMobileOS } from '../users.constants'
+import { UnitSystem } from '../users.constants'
 import { IsTimezone } from '../../../decorators/class-validator/IsTimezone'
 
 export class UpdateUserDto {
