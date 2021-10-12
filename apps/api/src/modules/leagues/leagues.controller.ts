@@ -490,7 +490,11 @@ export class LeaguesController {
 
   @Iam(Roles.SuperAdmin)
   @Get('/winner/:leagueId')
-  calcWinner(@Param('leagueId') leagueId: string) {
-    return this.leaguesService.calculateLeagueWinners(leagueId)
+  async calcWinner(@Param('leagueId') leagueId: string) {
+    const { winners } = await this.leaguesService.calculateLeagueWinners(
+      leagueId
+    )
+    await this.leaguesService.emitWinnerFeedItems(leagueId, winners)
+    return { winners }
   }
 }

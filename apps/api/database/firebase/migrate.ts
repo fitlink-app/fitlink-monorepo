@@ -860,6 +860,11 @@ const allow = Object.values(require('./trusted.json'))
             })
           )
 
+          // Make the leaderboard the default
+          await leaguesRepository.update(league, {
+            active_leaderboard: leaderboard
+          })
+
           await Promise.all(
             entries.map(async (entry) => {
               const user = await getEntityFromFirebase(

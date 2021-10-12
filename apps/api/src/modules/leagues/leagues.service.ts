@@ -6,6 +6,7 @@ import {
   FindOneOptions,
   getManager,
   LessThan,
+  Not,
   Repository
 } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
@@ -880,7 +881,10 @@ export class LeaguesService {
       .queryLeaderboardRank(league.active_leaderboard.id)
       .getRawMany()) as LeaderboardEntry[]
     const winners = entries.filter((entry) => entry.rank === '1')
+    return { winners }
+  }
 
+  async emitWinnerFeedItems(leagueId: string, winners: LeaderboardEntry[]) {
     if (winners.length > 0) {
       await Promise.all(
         winners.map((w) => {
@@ -891,20 +895,110 @@ export class LeaguesService {
         })
       )
     }
-    return { winners }
   }
+
+  async resetLeague(league: League) {
+    // If the league repeats, create a new leaderboard
+    // and copy the users to it along with their wins
+    if (league.repeat && league.active_leaderboard) {
+      const { winners } = await this.calculateLeagueWinners(league.id)
+      const leaderboard = await this.leaderboardRepository.save(
+        this.leaderboardRepository.create({
+          league: league
+        })
+      )
+
+      await this.leaguesRepository.manager.transaction(async (manager) => {
+        const repo = manager.getRepository(LeaderboardEntry)
+        const leagueRepo = manager.getRepository(League)
+        const leaderboardRepo = manager.getRepository(Leaderboard)
+        await Promise.all(
+          league.users.map((e) => {
+            const winner = winners.filter((e) => e.id === e.user.id)[0]
+            return repo.save(
+              repo.create({
+                leaderboard,
+                leaderboard_id: leaderboard.id,
+                league_id: league.id,
+                wins: winner ? winner.wins + 1 : 0
+              })
+            )
+          })
+        )
+
+        await leaderboardRepo.update(league.active_leaderboard, {
+          completed: true
+        })
+
+        await leagueRepo.update(league, {
+          active_leaderboard: leaderboard,
+          ends_at: addDays(new Date(), league.duration)
+        })
+      })
+
+      await this.emitWinnerFeedItems(league.id, winners)
+      return {
+        winners: winners.length,
+        users: league.users.length,
+        restarted: true
+      }
+    } else if (league.active_leaderboard) {
+      const { winners } = await this.calculateLeagueWinners(league.id)
+
+      await this.leaguesRepository.manager.transaction(async (manager) => {
+        const repo = manager.getRepository(LeaderboardEntry)
+        const leagueRepo = manager.getRepository(League)
+        const leaderboardRepo = manager.getRepository(Leaderboard)
+        await Promise.all(
+          winners.map((winner) => {
+            return repo.save({
+              ...winner,
+              wins: winner.wins + 1
+            })
+          })
+        )
+
+        await leaderboardRepo.update(league.active_leaderboard, {
+          completed: true
+        })
+
+        await leagueRepo.update(league, {
+          active_leaderboard: null
+        })
+      })
+
+      await this.emitWinnerFeedItems(league.id, winners)
+      return {
+        winners: winners.length,
+        users: league.users.length,
+        restarted: false
+      }
+    }
+
+    return false
+  }
+
   /**
-   * Example method for testing serverless methods.
+   * Process leagues that are due to be ended / restarted
    */
   async processPendingLeagues() {
-    const leagues = await this.leaguesRepository.find({
-      where: {
-        ends_at: LessThan(new Date())
-      },
-      take: 10
-    })
+    const leagues = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .innerJoinAndSelect('league.active_leaderboard', 'active_leaderboard')
+      .leftJoinAndSelect('league.users', 'users')
+      .where('league.ends_at <= :date', { date: new Date() })
+      .andWhere('active_leaderboard.completed = false')
+      .limit(100)
+      .getMany()
 
-    console.log(leagues.map((e) => e.name))
-    return leagues
+    const results = await Promise.all(
+      leagues.map((league) => this.resetLeague(league))
+    )
+    const totalLeagues = results.map((e) => e !== false).length
+    const leaguesRestarted = results.map((e) => e && e.restarted).length
+    return {
+      leagues_processed: totalLeagues,
+      leagues_restarted: leaguesRestarted
+    }
   }
 }

@@ -18,6 +18,7 @@ import { CommonModule } from '../common/common.module'
 import { LeagueJoinedListener } from './listeners/LeagueJoinedListener'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { LeagueWonListener } from './listeners/LeagueWonListener'
+import { NotificationsModule } from '../notifications/notifications.module'
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { LeagueWonListener } from './listeners/LeagueWonListener'
     AuthModule,
     LeaguesInvitationModule,
     FeedItemsModule,
-    EventEmitter2
+    EventEmitter2,
+    NotificationsModule
   ],
   controllers: [LeaguesController],
   providers: [

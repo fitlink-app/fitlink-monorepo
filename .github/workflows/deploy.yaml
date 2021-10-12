@@ -12,6 +12,54 @@ on:
     - main
 
 jobs:
+  test:
+    runs-on: ubuntu-18.04
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-pkg-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-pkg-
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Setup docker
+        run: docker-compose up -d postgres-jest s3rver
+
+      - name: Allow docker postgres 10 seconds to startups
+        uses: jakejarvis/wait-action@v0.1.0
+        with:
+          time: '10s'
+
+      - name: Migrate database database
+        run: yarn migration:run -c jest
+
+      - name: Test e2e
+        run: yarn run test
+
+      - name: Test sdk
+        run: yarn run test:sdk
+
+      # - name: Test admin
+      #   run: yarn run test:admin
+
+      - name: Stop docker
+        run: docker-compose down
+
   build:
     runs-on: ubuntu-18.04
     if: "!contains(github.event.head_commit.message, 'skip ci')"
@@ -95,29 +143,6 @@ jobs:
         # run: yarn install --frozen-lockfile
         run: yarn install
 
-      # - name: Setup docker
-      #   run: docker-compose up -d postgres-jest s3rver
-
-      # - name: Allow docker postgres 10 seconds to startups
-      #   uses: jakejarvis/wait-action@v0.1.0
-      #   with:
-      #     time: '10s'
-
-      # - name: Migrate database database
-      #   run: yarn migration:run -c jest
-
-      # - name: Test e2e
-      #   run: yarn run test
-
-      # - name: Test sdk
-      #   run: yarn run test:sdk
-
-      # # - name: Test admin
-      # #   run: yarn run test:admin
-
-      # - name: Stop docker
-      #   run: docker-compose down
-
       - name: Copy environment
         run: |
           cp .env.staging .env
@@ -143,6 +168,24 @@ jobs:
           cd artifacts && zip -r app.zip app.js migrate.js .env .npmrc .platform node_modules;
           zipinfo -1 app.zip;
 
+      - name: Store Elastic Beanstalk artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: eb-zip
+          path: artifacts/app.zip
+
+  deploy:
+    runs-on: ubuntu-18.04
+    needs: [test, build]
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download Elastic Beanstalk artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: eb-zip
+
       - uses: hmanzur/actions-aws-eb@v1.0.0
         with:
           command: 'deploy fitlink-nest-dev --staged'
@@ -150,58 +193,3 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.DEV_EB_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_EB_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: "eu-west-2"
-
-      # - name: Serverless - Run migrations
-      #   if: github.ref == 'refs/heads/develop'
-      #   run: yarn run sls:migrate
-
-      # - name: Regenerate UML if entities change
-      #   if: github.ref == 'refs/heads/develop'
-      #   run: |
-      #     if(( $(git diff HEAD~1..HEAD apps/api/src/**/*entity.ts | LC_ALL=C.UTF-8 wc -m) != 0)); then
-      #       yarn run db:diagram
-      #       git add docs/uml.svg
-      #       git commit -m "Update UML diagram - skip ci"
-      #       git push origin develop
-      #     fi
-
-  # serverless_preview:
-  #   runs-on: ubuntu-18.04
-  #   if: "!contains(github.event.head_commit.message, 'skip ci')"
-  #   steps:
-  #     - uses: actions/checkout@v2
-
-  #     - uses: actions/setup-node@v1
-  #       with:
-  #         node-version: '14'
-
-  #     - name: Get yarn cache directory path
-  #       id: yarn-cache-dir-path
-  #       run: echo "::set-output name=dir::$(yarn cache dir)"
-
-  #     - uses: actions/cache@v1
-  #       id: yarn-cache
-  #       with:
-  #         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-  #         key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-yarn-
-
-  #     - name: Install Dependencies
-  #       run: yarn install --frozen-lockfile
-
-  #     - name: Build nest for Serverless
-  #       run: yarn run build
-
-  #     - name: Remove dependencies
-  #       run: rm -R node_modules
-
-  #     - name: Install dependencies for serverless build
-  #       run: cd serverless && yarn install --frozen-lockfile
-
-  #     - name: Copy serverless build
-  #       run: cp dist/apps/api/serverless.js serverless/serverless.js
-
-  #     - name: Test serverless
-  #       run: cd serverless && node test.js
-
