@@ -52,6 +52,7 @@
     "fastify-swagger": "^4.3.3",
     "chargebee-typescript": "^2.1.0",
     "firebase-admin": "^9.11.0",
+    "node-html-to-image": "^3.2.0",
     "numbro": "^2.3.2"
   }
 }
