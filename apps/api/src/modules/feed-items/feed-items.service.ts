@@ -72,10 +72,7 @@ export class FeedItemsService {
           .orWhere(
             `(
             follower.id = :userId AND user.id = following.id
-            AND (
-              health_activity.id IS NOT NULL
-                OR goal_entry.id IS NOT NULL)
-            )`,
+            AND (health_activity.id IS NOT NULL))`,
             {
               userId
             }
