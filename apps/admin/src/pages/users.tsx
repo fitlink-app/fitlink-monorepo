@@ -14,11 +14,15 @@ import ConfirmForm from '../components/forms/ConfirmForm'
 import InviteUserForm from '../components/forms/InviteUserForm'
 import { Roles } from '../../../api/src/modules/user-roles/user-roles.constants'
 import { OrganisationMode } from '@fitlink/api/src/modules/organisations/organisations.constants'
-import MessageUser from '../components/forms/MessageUser'
 import { ProviderTypeDisplay } from '@fitlink/api/src/modules/providers/providers.constants'
 import IconCheck from '../components/icons/IconCheck'
 import IconClose from '../components/icons/IconClose'
 import IconSearch from '../components/icons/IconSearch'
+import IconMobile from '../components/icons/IconMobile'
+import IconInfo from '../components/icons/IconInfo'
+import IconTrash from '../components/icons/IconTrash'
+import IconMessage from '../components/icons/IconMessage'
+import UserDetail, { UserDetailType } from '../components/forms/UserDetail'
 
 export default function UsersPage() {
   const [drawContent, setDrawContent] = useState<
@@ -79,23 +83,37 @@ export default function UsersPage() {
       <div className="text-right flex jc-e">
         {modeRole === 'app' && (
           <button
-            className="button small ml-1"
+            className="button small ml-2"
             onClick={() => EditUserForm(original)}>
             Edit
           </button>
         )}
         {modeRole === 'team' && (
           <button
-            className="button small ml-1"
+            className="ml-2 icon-button color-red"
             onClick={() => ConfirmRemoveForm(original)}>
-            Remove
+            <IconTrash />
           </button>
         )}
         {modeRole === 'team' && (
           <button
-            className="ml-1 icon-button"
-            onClick={() => MessageUserForm(original)}>
-            <IconSearch />
+            className="ml-2 icon-button color-primary"
+            onClick={() => MessageUserForm(original, 'app_activity_info')}>
+            <IconMobile viewBox={'0 0 320 512'} />
+          </button>
+        )}
+        {modeRole === 'team' && (
+          <button
+            className="ml-2 icon-button color-primary"
+            onClick={() => MessageUserForm(original, 'app_system_info')}>
+            <IconInfo viewBox={'0 0 512 512'} />
+          </button>
+        )}
+        {modeRole === 'team' && (
+          <button
+            className="ml-2 icon-button color-primary"
+            onClick={() => MessageUserForm(original, 'message_user')}>
+            <IconMessage viewBox={'0 0 512 512'} />
           </button>
         )}
       </div>
@@ -128,10 +146,12 @@ export default function UsersPage() {
     )
   }
 
-  const MessageUserForm = (fields) => {
+  const MessageUserForm = (fields, type: UserDetailType) => {
     setWarning(true)
     setWide(false)
-    setDrawContent(<MessageUser onSave={closeDrawer(1000)} current={fields} />)
+    setDrawContent(
+      <UserDetail onSave={closeDrawer(1000)} current={fields} type={type} />
+    )
   }
 
   const handleUsernameSearch = async (search) => {

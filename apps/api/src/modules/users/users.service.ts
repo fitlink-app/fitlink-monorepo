@@ -22,6 +22,7 @@ import { ImagesService } from '../images/images.service'
 import { FilterUserDto } from './dto/search-user.dto'
 import { UserRank } from './users.constants'
 import { Roles } from '../user-roles/user-roles.constants'
+import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 
 type EntityOwner = {
   organisationId?: string
@@ -227,6 +228,34 @@ export class UsersService {
       })),
       total
     })
+  }
+
+  async findUserDetail(userId: string, teamId: string) {
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['teams', 'leagues', 'rewards_redemptions']
+    })
+
+    // If the user does not exist or is missing from this team.
+    if (!user || user.teams.filter((team) => team.id === teamId).length === 0) {
+      return false
+    }
+
+    const activity = await this.userRepository.manager
+      .getRepository(HealthActivity)
+      .findOne({
+        where: {
+          user: { id: userId }
+        },
+        order: {
+          created_at: 'DESC'
+        },
+        relations: ['sport']
+      })
+
+    return {
+      user,
+      activity
+    }
   }
 
   /**

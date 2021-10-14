@@ -8,7 +8,8 @@ import {
   Delete,
   Query,
   BadRequestException,
-  HttpCode
+  HttpCode,
+  NotFoundException
 } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -200,6 +201,23 @@ export class UsersController {
     })
   }
 
+  @Iam(Roles.TeamAdmin)
+  @Get('/teams/:teamId/users/:userId')
+  @ApiTags('users')
+  @PaginationBody()
+  @ApiResponse({ type: User, status: 200 })
+  async getUserDetailInfo(
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string
+  ) {
+    const info = await this.usersService.findUserDetail(userId, teamId)
+    if (!info) {
+      throw new NotFoundException()
+    }
+
+    return info
+  }
+
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin, Roles.TeamAdmin)
   @Get([
     '/organisations/:organisationId/subscriptions/:subscriptionId/admins',
@@ -285,7 +303,6 @@ export class UsersController {
           'You may not remove yourself as organisation admin.'
         )
       }
-      console.log(userId, organisationId, subscriptionId, teamId)
       return this.userRolesService.assignAdminRole(
         userId,
         {
