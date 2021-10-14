@@ -131,23 +131,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-pkg-
 
-      - uses: actions/cache@v1
-        id: yarn-cache-server
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-pkg-artifacts-${{ hashFiles('artifacts/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-pkg-artifacts-
-
       - name: Install Dependencies
-        # run: yarn install --frozen-lockfile
-        run: yarn install
-
-      - name: Copy environment
-        run: |
-          cp .env.staging .env
-          echo "FIREBASE_ADMIN_CREDENTIAL=\"${{ secrets.PROD_FIREBASE_ADMIN_CREDENTIAL }}"\" >> .env;
-          cat .env;
+        run: yarn install --frozen-lockfile
 
       - name: Build application
         run: yarn run build
@@ -168,6 +153,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - uses: actions/cache@v1
+        id: yarn-cache-server
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-pkg-artifacts-${{ hashFiles('artifacts/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-pkg-artifacts-
+
       - name: Download Elastic Beanstalk artifact
         uses: actions/download-artifact@v2
         with:
@@ -177,6 +170,12 @@ jobs:
       - name: Download dependencies
         run: yarn install --frozen-lockfile
         working-directory: artifacts
+
+      - name: Copy environment
+        run: |
+          cp .env.staging .env
+          echo "FIREBASE_ADMIN_CREDENTIAL=\"${{ secrets.PROD_FIREBASE_ADMIN_CREDENTIAL }}"\" >> .env;
+          cat .env;
 
       - name: Package application for Elastic Beanstalk
         run: |
