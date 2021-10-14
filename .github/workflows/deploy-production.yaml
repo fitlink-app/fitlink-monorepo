@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy PRODUCTION
 
 on:
   push:
@@ -189,7 +189,7 @@ jobs:
 
       - uses: hmanzur/actions-aws-eb@v1.0.0
         with:
-          command: 'deploy fitlink-nest-prd --staged'
+          command: 'deploy fitlink-nest-prod --staged'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DEV_EB_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_EB_SECRET_ACCESS_KEY }}
