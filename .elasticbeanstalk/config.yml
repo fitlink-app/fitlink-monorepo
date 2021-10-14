@@ -3,7 +3,7 @@ branch-defaults:
     environment: fitlink-nest-dev
     group_suffix: null
   main:
-    environment: fitlink-nest-prd
+    environment: fitlink-nest-prod
     group_suffix: null
 deploy:
   artifact: artifacts/app.zip
