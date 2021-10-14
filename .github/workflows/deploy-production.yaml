@@ -3,10 +3,10 @@ name: Deploy
 on:
   push:
     branches:
-    - develop
+    - main
   pull_request:
     branches:
-    - develop
+    - main
 
 jobs:
   test:
@@ -174,7 +174,7 @@ jobs:
 
       - name: Copy environment
         run: |
-          cp .env.staging .env
+          cp .env.production .env
           echo "FIREBASE_ADMIN_CREDENTIAL=\"${{ secrets.PROD_FIREBASE_ADMIN_CREDENTIAL }}"\" >> .env;
           cat .env;
 
@@ -189,7 +189,7 @@ jobs:
 
       - uses: hmanzur/actions-aws-eb@v1.0.0
         with:
-          command: 'deploy fitlink-nest-dev --staged'
+          command: 'deploy fitlink-nest-prd --staged'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DEV_EB_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_EB_SECRET_ACCESS_KEY }}

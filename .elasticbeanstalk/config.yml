@@ -1,6 +1,6 @@
 branch-defaults:
   develop:
-    environment: fitlink-nest-prd
+    environment: fitlink-nest-dev
     group_suffix: null
   main:
     environment: fitlink-nest-prd
