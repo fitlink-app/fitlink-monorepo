@@ -7,3 +7,4 @@ export * from './sports';
 export * from './activities';
 export * from './providers';
 export * from './feed';
+export * from './healthActivities';

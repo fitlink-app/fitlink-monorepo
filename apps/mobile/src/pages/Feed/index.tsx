@@ -3,6 +3,7 @@ import {
   FeedItem,
   GoalTracker,
   Icon,
+  Label,
   Modal,
   RewardTracker,
 } from '@components';
@@ -11,7 +12,7 @@ import {UserWidget} from '@components';
 import React, {useCallback, useEffect} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
-import {FlatList, RefreshControl} from 'react-native';
+import {ActivityIndicator, FlatList, RefreshControl, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {getPersistedData, persistData} from '@utils';
 import {NewsletterModal} from './components';
@@ -21,6 +22,7 @@ import {getResultsFromPages} from 'utils/api';
 import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {queryClient, QueryKeys} from '@query';
+import {getErrorMessage} from '@fitlink/api-sdk';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -53,6 +55,12 @@ const HeaderWidgetContainer = styled.View({marginTop: 10});
 
 const FeedContainer = styled.View({});
 
+const ListFooterContainer = styled.View({
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
 export const Feed = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
@@ -65,12 +73,12 @@ export const Feed = () => {
 
   const {data: user, refetch: refetchUser} = useMe({
     refetchOnMount: false,
-    // refetchInterval: 10000,
+    refetchInterval: 10000,
   });
 
   const {data: goals} = useGoals({
     refetchOnMount: false,
-    // refetchInterval: 10000,
+    refetchInterval: 10000,
   });
 
   const feedPreferences = useSelector(memoSelectFeedPreferences);
@@ -80,21 +88,29 @@ export const Feed = () => {
     refetch: refetchFeed,
     isLoading: isFeedLoading,
     fetchNextPage: fetchFeedNextPage,
+    isFetchingNextPage: isFeedFetchingNextPage,
+    isFetchedAfterMount: isFeedFetchedAfterMount,
+    error: feedError,
   } = useFeed({
     my_goals: feedPreferences.showGoals,
     friends_activities: feedPreferences.showFriends,
     my_updates: feedPreferences.showUpdates,
   });
 
-  const feedResults = getResultsFromPages<FeedItemType>(feed);
+  const feedErrorMessage = feedError
+    ? getErrorMessage(feedError as any)
+    : undefined;
 
-  const onFeedItemPressed = useCallback(() => {
-    navigation.navigate('HealthActivityDetails');
-  }, []);
+  const feedResults = getResultsFromPages<FeedItemType>(feed);
 
   useEffect(() => {
     promptNewsletterModal();
   }, [user]);
+
+  useEffect(() => {
+    queryClient.removeQueries(QueryKeys.Feed);
+    refetchFeed();
+  }, [feedPreferences]);
 
   const promptNewsletterModal = async () => {
     const newsletterKey = 'NEWSLETTER_PROMPTED';
@@ -129,23 +145,59 @@ export const Feed = () => {
       (user: any) => user.id === user?.id,
     );
 
-    console.log(isLiked);
-
     return (
       <FeedItem
         key={item.id}
         item={item}
         unitSystem={user.unit_system}
         isLiked={isLiked}
-        onContentPress={onFeedItemPressed}
       />
     );
   };
 
+  const ListFooterComponent = isFeedFetchingNextPage ? (
+    <ListFooterContainer style={{height: 72}}>
+      <ActivityIndicator color={colors.accent} />
+    </ListFooterContainer>
+  ) : null;
+
+  const ListEmptyComponent = (
+    <View style={{paddingTop: 10}}>
+      {feedErrorMessage ? (
+        <>
+          <Label
+            type="body"
+            appearance={'accentSecondary'}
+            style={{textAlign: 'center'}}>
+            {feedErrorMessage}
+          </Label>
+        </>
+      ) : (
+        <>
+          <Label
+            type="body"
+            appearance={'accentSecondary'}
+            style={{textAlign: 'center'}}>
+            Let’s get your feed looking top notch. Start filling it up by
+            smashing some goals, following{' '}
+            <Label onPress={() => navigation.navigate('Friends')}>
+              Friends
+            </Label>{' '}
+            or participating in{' '}
+            <Label onPress={() => navigation.navigate('Leagues')}>
+              Leagues
+            </Label>
+            .
+          </Label>
+        </>
+      )}
+    </View>
+  );
+
   return (
     <Wrapper style={{paddingTop: insets.top}}>
       <FlatList
-        {...{renderItem}}
+        {...{renderItem, ListFooterComponent, ListEmptyComponent}}
         data={feedResults}
         style={{overflow: 'visible'}}
         onEndReachedThreshold={0.2}
@@ -153,9 +205,12 @@ export const Feed = () => {
         refreshControl={
           <RefreshControl
             tintColor={colors.accent}
-            refreshing={isFeedLoading}
+            refreshing={isFeedLoading && isFeedFetchedAfterMount}
             onRefresh={() => {
-              queryClient.removeQueries(QueryKeys.Feed);
+              // queryClient.setQueryData(QueryKeys.Feed, (data: any) => {
+              //   console.log(data);
+              //   return data;
+              // });
               refetchFeed();
             }}
           />

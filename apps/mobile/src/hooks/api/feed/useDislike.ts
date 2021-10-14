@@ -9,12 +9,8 @@ import {LikeParameters} from './types';
 
 export function useDislike() {
   return useMutation(
-    (params: LikeParameters) => {
-      console.log(`Unliking: ${params.feedItemId} from ${params.userId}`);
-      return api.delete(
-        `/users/${params.userId}/feed/${params.feedItemId}/like`,
-      );
-    },
+    (params: LikeParameters) =>
+      api.delete(`/users/${params.userId}/feed/${params.feedItemId}/like`),
     {
       onMutate: async params => {
         await queryClient.cancelQueries(QueryKeys.Feed);

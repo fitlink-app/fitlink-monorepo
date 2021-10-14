@@ -40,7 +40,7 @@ export function getTimeRemaining(toDate: Date): CountdownTime | 0 {
 }
 
 export function formatDistanceShortLocale(token: string, count: any) {
-  const formatDistanceLocale: {[ket: string]: string} = {
+  const formatDistanceLocale: {[key: string]: string} = {
     lessThanXSeconds: '{{count}}s',
     xSeconds: '{{count}}s',
     halfAMinute: '30s',

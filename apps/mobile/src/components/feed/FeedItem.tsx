@@ -15,7 +15,7 @@ import {FeedStatLabel} from './FeedStatLabel';
 import {formatRelative, formatDistanceStrict} from 'date-fns';
 import locale from 'date-fns/locale/en-US';
 import {useNavigation} from '@react-navigation/native';
-import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
+import {FeedItem as FeedItemClass} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
 import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
 import {
   formatDistanceShortLocale,
@@ -69,18 +69,12 @@ const ButtonSeparator = styled.View(({theme: {colors}}) => ({
 }));
 
 interface FeedItemProps {
-  onContentPress: () => void;
-  item: FeedItemType;
+  item: FeedItemClass;
   unitSystem: UnitSystem;
   isLiked: boolean;
 }
 
-export const _FeedItem = ({
-  onContentPress,
-  item,
-  unitSystem,
-  isLiked,
-}: FeedItemProps) => {
+export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
 
@@ -123,13 +117,15 @@ export const _FeedItem = ({
         ) as string)
       : undefined;
 
-  const title = item.health_activity ? item.health_activity.title : 'Unknown';
+  const title = item.health_activity ? item.health_activity.title : 'Entry';
   const date = formatRelative(new Date(item.created_at), new Date());
 
-  //TODO: API wrong implementation
-  // const images =
-  //   item.health_activity?.images.map(image => image.url_128x128) || [];
-  const images: any = [];
+  const images =
+    item.health_activity?.images.map(image => image.url_128x128) || [];
+
+  const usersLikedAvatars = item.likes
+    .map(likingUser => likingUser.avatar?.url_128x128)
+    .filter(x => !!x);
 
   const LikeButton = isLiked ? (
     <Icon name={'thumb-solid'} color={colors.accent} size={16} />
@@ -236,6 +232,11 @@ export const _FeedItem = ({
     );
   };
 
+  const onContentPress = () => {
+    if (!item.health_activity) return;
+    navigation.navigate('HealthActivityDetails', {id: item.health_activity.id});
+  };
+
   return (
     <Wrapper>
       <Row>
@@ -250,7 +251,7 @@ export const _FeedItem = ({
             bloomIntensity={0.5}
             bloomRadius={5}
             size={52}>
-            <Avatar url={item.user.avatar.url_128x128} size={44} />
+            <Avatar url={item.user.avatar?.url_128x128} size={44} />
           </ProgressCircle>
         </TouchHandler>
 
@@ -299,7 +300,11 @@ export const _FeedItem = ({
               : like({feedItemId: item.id, userId: item.user.id});
           }}>
           {LikeButton}
-          <UserCounter style={{marginLeft: 8}} countTotal={29} avatars={[]} />
+          <UserCounter
+            style={{marginLeft: 8}}
+            countTotal={item.likes.length}
+            avatars={usersLikedAvatars}
+          />
         </Button>
         <ButtonSeparator />
         <Button>
