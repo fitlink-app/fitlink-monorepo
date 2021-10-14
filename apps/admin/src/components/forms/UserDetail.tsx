@@ -64,7 +64,7 @@ export default function UserDetail({
   const {
     data
   }: ApiResult<{ user: User; activity: HealthActivity }> = useQuery(
-    'user_info',
+    `user_info_${current.id}`,
     () => {
       return api.get('/teams/:teamId/users/:userId', {
         userId: current.id,
