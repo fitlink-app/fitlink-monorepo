@@ -8,7 +8,7 @@ branch-defaults:
 deploy:
   artifact: artifacts/app.zip
 global:
-  application_name: fitlink-nest
+  application_name: fitlink-nest-dev
   branch: null
   default_ec2_keyname: fitlink-nest-dev-eb
   default_platform: Node.js 14 running on 64bit Amazon Linux 2
