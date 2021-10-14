@@ -9,6 +9,7 @@ plugins:
   - serverless-offline
   - serverless-dotenv-plugin
   - serverless-deployment-bucket
+  - serverless-provisioned-concurrency-autoscaling
 
 package:
   exclude:
@@ -23,9 +24,10 @@ custom:
     functions:
       - main
       - migrate
+      - leagues
     dependenciesPath: ./serverless/package.json
     packageManager: yarn
-    customInstallationCommand: node -e "fs.copyFileSync('../../../.yarnclean.serverless', '.yarnclean'); fs.copyFileSync('../../../serverless/yarn.lock', 'yarn.lock')" && yarn install --production --frozen-lockfile
+    customInstallationCommand: node -e "fs.copyFileSync('../../../serverless/.yarnclean', '.yarnclean'); fs.copyFileSync('../../../serverless/yarn.lock', 'yarn.lock')" && yarn install --production --frozen-lockfile
   customDomain:
     domainName: ${env:API_DOMAIN_NAME}
     hostedZoneId: ${env:API_DOMAIN_NAME_HOSTED_ZONE_ID}
@@ -36,7 +38,7 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs14.x
   region: eu-west-2
   deploymentBucket:
     name: ${env:SERVERLESS_DEPLOYMENT_BUCKET}
@@ -49,6 +51,7 @@ functions:
       - http:
           method: any
           path: /{any+}
+          cors: true
     vpc:
       securityGroupIds:
         - ${env:VPC_SECURITY_GROUP_ID}
@@ -56,6 +59,8 @@ functions:
         - ${env:VPC_SUBNET_ID_1}
         - ${env:VPC_SUBNET_ID_2}
         - ${env:VPC_SUBNET_ID_3}
+    provisionedConcurrency: ${env:PROVISIONED_CONCURRENCY}
+    concurrencyAutoscaling: false
 
   migrate:
     handler: dist/apps/api/serverless.migrate
@@ -66,5 +71,14 @@ functions:
         - ${env:VPC_SUBNET_ID_1}
         - ${env:VPC_SUBNET_ID_2}
         - ${env:VPC_SUBNET_ID_3}
-
-
+  leagues:
+    handler: dist/apps/api/serverless.processLeagues
+    vpc:
+      securityGroupIds:
+        - ${env:VPC_SECURITY_GROUP_ID}
+      subnetIds:
+        - ${env:VPC_SUBNET_ID_1}
+        - ${env:VPC_SUBNET_ID_2}
+        - ${env:VPC_SUBNET_ID_3}
+    events:
+      - schedule: rate(10 minutes)

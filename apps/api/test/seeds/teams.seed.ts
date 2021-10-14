@@ -1,7 +1,6 @@
 import { Seeder, Factory, runSeeder } from 'typeorm-seeding'
 import { Connection } from 'typeorm'
 import { Team } from '../../src/modules/teams/entities/team.entity'
-import { Organisation } from '../../src/modules/organisations/entities/organisation.entity'
 import { OrganisationsSetup, OrganisationsTeardown } from './organisations.seed'
 import { UsersSetup, UsersTeardown } from './users.seed'
 import { User } from '../../src/modules/users/entities/user.entity'
@@ -28,7 +27,24 @@ export async function TeamsSetup(
         users.map((user, index) => {
           const team = Math.floor(index / COUNT_USERS)
           user.teams = [teams[team]]
+          if (teams[team]) {
+            teams[team].users = teams[team].users || []
+            teams[team].users.push(user)
+          }
           return connection.getRepository(User).save(user)
+        })
+      )
+
+      // Init join code
+      await Promise.all(
+        teams.map((team) => {
+          return connection.getRepository(Team).update(team.id, {
+            join_code: Math.floor(Date.now() * Math.random())
+              .toString(36)
+              .substr(0, 6)
+              .toUpperCase()
+              .replace('O', '0')
+          })
         })
       )
 

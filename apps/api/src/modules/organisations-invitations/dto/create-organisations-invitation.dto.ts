@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsEmail, IsOptional } from 'class-validator'
-import { Organisation } from '../../organisations/entities/organisation.entity'
+import { IsBoolean, IsEmail, IsOptional } from 'class-validator'
 
 export class CreateOrganisationsInvitationDto {
   @ApiProperty()
@@ -12,5 +11,7 @@ export class CreateOrganisationsInvitationDto {
   invitee: string
 
   @ApiProperty()
-  organisation: Organisation
+  @IsBoolean()
+  @IsOptional()
+  admin: boolean
 }

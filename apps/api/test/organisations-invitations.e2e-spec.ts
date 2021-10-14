@@ -12,6 +12,7 @@ import {
   OrganisationsSetup,
   OrganisationsTeardown
 } from './seeds/organisations.seed'
+import { UsersSetup } from './seeds/users.seed'
 
 describe('Organisations Invitations', () => {
   let app: NestFastifyApplication
@@ -33,14 +34,18 @@ describe('Organisations Invitations', () => {
       'Test Organisation Invitation',
       1
     )
+    const users = await UsersSetup('Test Organisation Invitation')
 
     organisation = organisations[0]
     // Superadmin
-    superadminHeaders = getAuthHeaders({ spr: true })
+    superadminHeaders = getAuthHeaders({ spr: true }, users[0].id)
     // Org admin
-    organisationAdminHeaders = getAuthHeaders({ o_a: [organisation.id] })
+    organisationAdminHeaders = getAuthHeaders(
+      { o_a: [organisation.id] },
+      users[0].id
+    )
     // Auth user
-    authHeaders = getAuthHeaders()
+    authHeaders = getAuthHeaders(undefined, users[0].id)
   })
 
   afterAll(async () => {
@@ -244,7 +249,7 @@ describe('Organisations Invitations', () => {
 
     const result = data.json()
     expect(data.statusCode).toEqual(400)
-    expect(result.message).toContain('Token is invalid')
+    expect(result.message).toContain('invitation is invalid')
   })
 
   it('POST /organisations-invitations/verify Throws an error when verifying a token that is expired', async () => {
@@ -270,7 +275,7 @@ describe('Organisations Invitations', () => {
     })
 
     const result = data.json()
-    expect(data.statusCode).toEqual(401)
+    expect(data.statusCode).toEqual(400)
     expect(result.message).toContain('invitation can no longer be used')
   })
 

@@ -9,18 +9,16 @@ import {
   Index
 } from 'typeorm'
 
-import { Geometry } from 'geojson'
+import { Geometry, Point } from 'geojson'
 import { Team } from '../../teams/entities/team.entity'
 import { Image } from '../../images/entities/image.entity'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { League } from '../../leagues/entities/league.entity'
-import { User } from '../../users/entities/user.entity'
-
-export enum ActivityType {
-  Class = 'class',
-  Group = 'group',
-  Route = 'route'
-}
+import { User, UserPublic } from '../../users/entities/user.entity'
+import { ActivityType } from '../activities.constants'
+import { ApiProperty } from '@nestjs/swagger'
+import { Organisation } from '../../organisations/entities/organisation.entity'
+import { Expose } from 'class-transformer'
 
 @Entity()
 export class Activity extends CreatableEntity {
@@ -65,14 +63,14 @@ export class Activity extends CreatableEntity {
   meeting_point_text: string
 
   @Column({ type: 'geometry', spatialFeatureType: 'Point', srid: 4326 })
-  meeting_point: Geometry
+  meeting_point: Point
 
   @Column({
     type: 'enum',
     enum: ActivityType,
     default: ActivityType.Class
   })
-  type: string
+  type: ActivityType
 
   @Column({
     type: 'tsvector',
@@ -82,14 +80,39 @@ export class Activity extends CreatableEntity {
   tsv?: string
 
   @ManyToOne(() => User, (user) => user.activities, { nullable: true })
-  user?: User
+  owner?: User | UserPublic
 
   @ManyToOne(() => Team, (team) => team.activities, { nullable: true })
   team?: Team
+
+  @ManyToOne(() => Organisation, (org) => org.activities, { nullable: true })
+  organisation?: Organisation
 
   @ManyToOne(() => League, { nullable: true })
   league?: League
 
   @OneToMany(() => Image, (image) => image.activity)
   images: Image[]
+}
+
+export class ActivityForMap {
+  @ApiProperty()
+  @Expose()
+  id: string
+
+  @ApiProperty()
+  @Expose()
+  name: string
+
+  @ApiProperty()
+  @Expose()
+  type: ActivityType
+
+  @ApiProperty()
+  @Expose()
+  date: string
+
+  @ApiProperty()
+  @Expose()
+  meeting_point: Geometry
 }

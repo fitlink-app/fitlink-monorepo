@@ -8,20 +8,25 @@ import { EmailService } from '../common/email.service'
 import { CreateUsersInvitationDto } from './dto/create-users-invitation.dto'
 import { JwtService } from '@nestjs/jwt'
 import { UserInvitationJWT } from '../../models/user-invitation.jwt.model'
+import { InjectRepository } from '@nestjs/typeorm'
+import { User } from '../users/entities/user.entity'
+import { Repository } from 'typeorm'
 
 @Injectable()
 export class UsersInvitationsService {
   constructor(
     private readonly emailService: EmailService,
     private readonly configService: ConfigService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    @InjectRepository(User)
+    private userRepository: Repository<User>
   ) {}
 
-  async create(createDto: CreateUsersInvitationDto) {
-    const { email, inviter, invitee } = createDto
+  async create(inviterUserId: string, createDto: CreateUsersInvitationDto) {
+    const inviter = await this.userRepository.findOne(inviterUserId)
+    const { email, invitee } = createDto
     const token = this.createToken(inviter.id)
     const inviteLink = this.createInviteLink(token)
-
     await this.sendEmail(invitee, inviter.name, email, inviteLink)
     return { inviteLink, token }
   }
@@ -63,7 +68,7 @@ export class UsersInvitationsService {
   }
 
   /**
-   * Greates a JWT for the user invitation
+   * Creates a JWT for the user invitation
    *
    * @param id The id of the user who created the invitation (the user to follow on signup)
    * @returns string (JWT)

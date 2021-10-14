@@ -6,7 +6,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter'
 
 // Entities
 import { Activity } from './modules/activities/entities/activity.entity'
+import { AuthProvider } from './modules/auth/entities/auth-provider.entity'
 import { FeedItem } from './modules/feed-items/entities/feed-item.entity'
+import { FeedItemLike } from './modules/feed-items/entities/feed-item-like.entity'
 import { Following } from './modules/followings/entities/following.entity'
 import { GoalsEntry } from './modules/goals-entries/entities/goals-entry.entity'
 import { HealthActivity } from './modules/health-activities/entities/health-activity.entity'
@@ -17,6 +19,7 @@ import { LeaguesInvitation } from './modules/leagues-invitations/entities/league
 import { League } from './modules/leagues/entities/league.entity'
 import { Organisation } from './modules/organisations/entities/organisation.entity'
 import { OrganisationsInvitation } from './modules/organisations-invitations/entities/organisations-invitation.entity'
+import { Page } from './modules/pages/entities/page.entity'
 import { Provider } from './modules/providers/entities/provider.entity'
 import { Queueable } from './modules/queue/entities/queueable.entity'
 import { RefreshToken } from './modules/auth/entities/auth.entity'
@@ -24,11 +27,13 @@ import { Reward } from './modules/rewards/entities/reward.entity'
 import { RewardsRedemption } from './modules/rewards-redemptions/entities/rewards-redemption.entity'
 import { Sport } from './modules/sports/entities/sport.entity'
 import { Subscription } from './modules/subscriptions/entities/subscription.entity'
+import { SubscriptionsInvitation } from './modules/subscriptions/entities/subscriptions-invitation.entity'
 import { Team } from './modules/teams/entities/team.entity'
 import { TeamsInvitation } from './modules/teams-invitations/entities/teams-invitation.entity'
 import { User } from './modules/users/entities/user.entity'
 import { UserRole } from './modules/user-roles/entities/user-role.entity'
 import { UsersSetting } from './modules/users-settings/entities/users-setting.entity'
+import { Notification } from './modules/notifications/entities/notification.entity'
 
 // Modules
 import { AuthModule } from './modules/auth/auth.module'
@@ -41,10 +46,11 @@ import { HealthActivitiesModule } from './modules/health-activities/health-activ
 import { ImagesModule } from './modules/images/images.module'
 import { LeaderboardsModule } from './modules/leaderboards/leaderboards.module'
 import { LeaderboardEntriesModule } from './modules/leaderboard-entries/leaderboard-entries.module'
-import { LeaguesInvitationsModule } from './modules/leagues-invitations/leagues-invitations.module'
+import { LeaguesInvitationModule } from './modules/leagues-invitations/leagues-invitations.module'
 import { LeaguesModule } from './modules/leagues/leagues.module'
 import { OrganisationsModule } from './modules/organisations/organisations.module'
 import { OrganisationsInvitationsModule } from './modules/organisations-invitations/organisations-invitations.module'
+import { PagesModule } from './modules/pages/pages.module'
 import { ProvidersModule } from './modules/providers/providers.module'
 import { QueueModule } from './modules/queue/queue.module'
 import { RewardsModule } from './modules/rewards/rewards.module'
@@ -58,6 +64,8 @@ import { UsersSettingsModule } from './modules/users-settings/users-settings.mod
 import { UploadGuard } from './guards/upload.guard'
 import { UserRolesModule } from './modules/user-roles/user-roles.module'
 import { UsersInvitationsModule } from './modules/users-invitations/users-invitations.module'
+import { AppController } from './api.controller'
+import { NotificationsModule } from './modules/notifications/notifications.module'
 
 @Module({
   imports: [
@@ -81,8 +89,10 @@ import { UsersInvitationsModule } from './modules/users-invitations/users-invita
           dropSchema: false,
           entities: [
             Activity,
+            AuthProvider,
             Following,
             FeedItem,
+            FeedItemLike,
             HealthActivity,
             GoalsEntry,
             Image,
@@ -92,6 +102,7 @@ import { UsersInvitationsModule } from './modules/users-invitations/users-invita
             LeaguesInvitation,
             Organisation,
             OrganisationsInvitation,
+            Page,
             Provider,
             Queueable,
             RefreshToken,
@@ -99,11 +110,13 @@ import { UsersInvitationsModule } from './modules/users-invitations/users-invita
             RewardsRedemption,
             Sport,
             Subscription,
+            SubscriptionsInvitation,
             Team,
             TeamsInvitation,
             User,
             UserRole,
-            UsersSetting
+            UsersSetting,
+            Notification
           ],
           synchronize: false,
           logging: false,
@@ -120,9 +133,10 @@ import { UsersInvitationsModule } from './modules/users-invitations/users-invita
     LeaderboardsModule,
     LeaderboardEntriesModule,
     LeaguesModule,
-    LeaguesInvitationsModule,
+    LeaguesInvitationModule,
     OrganisationsModule,
     OrganisationsInvitationsModule,
+    PagesModule,
     ProvidersModule,
     QueueModule,
     RewardsModule,
@@ -136,13 +150,15 @@ import { UsersInvitationsModule } from './modules/users-invitations/users-invita
     HealthActivitiesModule,
     UserRolesModule,
     SubscriptionsModule,
-    UsersInvitationsModule
+    UsersInvitationsModule,
+    NotificationsModule
   ],
   providers: [
     {
       provide: APP_GUARD,
       useClass: UploadGuard
     }
-  ]
+  ],
+  controllers: [AppController]
 })
 export class ApiModule {}

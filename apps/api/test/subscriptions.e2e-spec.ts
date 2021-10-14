@@ -14,6 +14,9 @@ import {
   SubscriptionsTeardown
 } from './seeds/subscriptions.seed'
 import { useSeeding } from 'typeorm-seeding'
+import { UsersSetup, UsersTeardown } from './seeds/users.seed'
+import { SubscriptionsService } from '../src/modules/subscriptions/subscriptions.service'
+import { Customer } from 'chargebee-typescript/lib/resources'
 
 let connection: Connection
 
@@ -71,6 +74,8 @@ describe('Subscriptions', () => {
   let subscriptionAdminHeaders
   let authHeaders
   let subscription: Subscription
+  let subscription2: Subscription
+  let users: User[]
 
   beforeAll(async () => {
     app = await mockApp({
@@ -78,14 +83,25 @@ describe('Subscriptions', () => {
       providers: []
     })
 
+    app.get(SubscriptionsService).updateChargeBeeCustomer = jest.fn(() =>
+      Promise.resolve({
+        id: '12345'
+      } as Customer)
+    )
+
     // Retrieve an subscription to test with
     await useSeeding()
 
     connection = app.get(Connection)
 
-    const seed = await SubscriptionsSetup('Test Subscription')
+    const seed = await SubscriptionsSetup('Test Subscription', 2, {
+      default: true
+    })
+
+    users = await UsersSetup('Test Subscription', 2)
 
     subscription = seed[0]
+    subscription2 = seed[1]
     // Superadmin
     superadminHeaders = getAuthHeaders({ spr: true })
     // Org admin
@@ -100,6 +116,7 @@ describe('Subscriptions', () => {
 
   afterAll(async () => {
     await SubscriptionsTeardown('Test Subscription')
+    await UsersTeardown('Test Subscription')
     await app.close()
   })
 
@@ -116,9 +133,12 @@ describe('Subscriptions', () => {
       const payload = { ...rest } as CreateDefaultSubscriptionDto
       const result = await app.inject({
         method: 'POST',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions`,
+        url: `/organisations/${organisation.id}/subscriptions`,
         headers: getHeaders(),
-        payload
+        payload: {
+          ...payload,
+          organisationId: organisation.id
+        }
       })
 
       if (type === 'an authenticated user') {
@@ -163,7 +183,7 @@ describe('Subscriptions', () => {
       const { organisation, id, ...rest } = subscription
       const result = await app.inject({
         method: 'GET',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}`,
         headers: getHeaders()
       })
 
@@ -202,7 +222,7 @@ describe('Subscriptions', () => {
       const payload = { ...rest } as UpdateSubscriptionDto
       const result = await app.inject({
         method: 'PUT',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}`,
         headers: getHeaders(),
         payload
       })
@@ -224,7 +244,7 @@ describe('Subscriptions', () => {
       const wrongOrganisationId = '15d81974-8214-419e-a587-a49a82b19433'
       const result = await app.inject({
         method: 'PUT',
-        url: `/subscriptions/organisations/${wrongOrganisationId}/subscriptions/${id}`,
+        url: `/organisations/${wrongOrganisationId}/subscriptions/${id}`,
         headers: getHeaders(),
         payload
       })
@@ -247,14 +267,28 @@ describe('Subscriptions', () => {
   ])
 
   testSuperAdmainAndUser(
-    `DELETE /organisations/:organisationId/subscriptions/:subscriptionId deleting subscription by superAdmain`,
+    `DELETE /organisations/:organisationId/subscriptions/:subscriptionId deleting subscription by superAdmin`,
     async (type, getHeaders) => {
-      const seed = await getSubscriptions('Test Subscription')
+      const seed = await SubscriptionsSetup('Test Subscription', 1, {
+        default: false
+      })
+
       const anotherSubscription = seed[0]
-      const { organisation, id, ...rest } = anotherSubscription
+      const { organisation, id } = anotherSubscription
+
+      // Remove assigned users
+      await connection.getRepository(User).update(
+        {
+          subscription: { id }
+        },
+        {
+          subscription: null
+        }
+      )
+
       const result = await app.inject({
         method: 'DELETE',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}`,
         headers: getHeaders()
       })
 
@@ -262,22 +296,37 @@ describe('Subscriptions', () => {
         expect(result.statusCode).toEqual(403)
         return
       }
+
       expect(result.statusCode).toEqual(200)
-      expect(result.body).toEqual('subscription is deleted')
+      expect(result.json().affected).toEqual(1)
     }
   )
 
   it(`DELETE /organisations/:organisationId/subscriptions/:subscriptionId deleting subscription by organisationAdmin`, async () => {
-    const seed = await getSubscriptions('Test Subscription')
+    const seed = await SubscriptionsSetup('Test Subscription Delete', 1, {
+      default: false
+    })
+
     const anotherSubscription = seed[0]
-    const { organisation, id, ...rest } = anotherSubscription
+    const { organisation, id } = anotherSubscription
+
+    // Remove assigned users
+    await connection.getRepository(User).update(
+      {
+        subscription: { id }
+      },
+      {
+        subscription: null
+      }
+    )
+
     const result = await app.inject({
       method: 'DELETE',
-      url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}`,
+      url: `/organisations/${organisation.id}/subscriptions/${id}`,
       headers: getAuthHeaders({ o_a: [organisation.id] })
     })
     expect(result.statusCode).toEqual(200)
-    expect(result.body).toEqual('subscription is deleted')
+    expect(result.json().affected).toEqual(1)
   })
 
   testSuperOrgAdmain(
@@ -285,11 +334,11 @@ describe('Subscriptions', () => {
     async (type, getHeaders) => {
       const seed = await getSubscriptions('Test Subscription')
       const anotherSubscription = seed[0]
-      const { organisation, id, ...rest } = anotherSubscription
+      const { organisation, id } = anotherSubscription
       const wrongOrganisationId = '15d81974-8214-419e-a587-a49a82b19433'
       const result = await app.inject({
         method: 'DELETE',
-        url: `/subscriptions/organisations/${wrongOrganisationId}/subscriptions/${id}`,
+        url: `/organisations/${wrongOrganisationId}/subscriptions/${id}`,
         headers: getHeaders()
       })
 
@@ -312,18 +361,190 @@ describe('Subscriptions', () => {
     const wrongOrganisationId = '15d81974-8214-419e-a587-a49a82b19433'
     const result = await app.inject({
       method: 'DELETE',
-      url: `/subscriptions/organisations/${wrongOrganisationId}/subscriptions/${id}`,
+      url: `/organisations/${wrongOrganisationId}/subscriptions/${id}`,
       headers: getAuthHeaders({ s_a: [id] })
     })
     expect(result.statusCode).toEqual(400)
     expect(result.json().message).toContain("the subscription doesn't exist")
+  })
+
+  it('POST /subscriptions/:subscriptionId A default subscription can be set, which unsets others as default', async () => {
+    const [subscription1, subscription2] = await SubscriptionsSetup(
+      'Test Subscription',
+      2,
+      {
+        default: true
+      }
+    )
+
+    let other = await getSubscription(subscription2.id)
+    expect(other.statusCode).toBe(200)
+    expect(other.json().default).toBe(true)
+
+    const result = await app.inject({
+      method: 'PUT',
+      url: `/subscriptions/${subscription1.id}`,
+      headers: superadminHeaders,
+      payload: {
+        default: true
+      }
+    })
+
+    expect(result.statusCode).toBe(200)
+
+    other = await getSubscription(subscription2.id)
+    expect(other.statusCode).toBe(200)
+    expect(other.json().default).toBe(false)
+
+    const sub = await getSubscription(subscription1.id)
+    expect(sub.statusCode).toBe(200)
+    expect(sub.json().default).toBe(true)
+
+    async function getSubscription(id: string) {
+      return await app.inject({
+        method: 'GET',
+        url: `/subscriptions/${id}`,
+        headers: superadminHeaders
+      })
+    }
+  })
+
+  it('GET /subscriptions/:subscriptionId/users The superadmin can list the users of a subscription', async () => {
+    const sub = (await SubscriptionsSetup('Test Subscription', 1))[0]
+
+    // Add user to subscription
+    await connection
+      .getRepository(Subscription)
+      .createQueryBuilder()
+      .relation(Subscription, 'users')
+      .of(sub.id)
+      .add(users[0].id)
+
+    const result = await app.inject({
+      method: 'GET',
+      url: `/subscriptions/${sub.id}/users`,
+      headers: superadminHeaders,
+      query: {
+        limit: '1000'
+      }
+    })
+
+    expect(
+      result.json().results.filter((e) => e.id === users[0].id).length
+    ).toBe(1)
+  })
+
+  it('POST /subscriptions/:subscriptionId/users Add the user to the subscription', async () => {
+    const sub = (await SubscriptionsSetup('Test Subscription', 1))[0]
+
+    const result = await app.inject({
+      method: 'POST',
+      url: `/subscriptions/${sub.id}/users`,
+      headers: superadminHeaders,
+      payload: {
+        id: users[0].id
+      }
+    })
+
+    expect(result.statusCode).toBe(201)
+
+    const list = await app.inject({
+      method: 'GET',
+      url: `/subscriptions/${sub.id}/users`,
+      headers: superadminHeaders,
+      query: {
+        limit: '100'
+      }
+    })
+
+    expect(list.json().results.filter((e) => e.id === users[0].id).length).toBe(
+      1
+    )
+  })
+
+  it('DELETE /subscriptions/:subscriptionId/users Can remove the user from the subscription and auto reassigns to default', async () => {
+    const subs = await SubscriptionsSetup('Test Subscription', 2, {
+      default: false
+    })
+
+    const sub = subs[0]
+    const subDefault = subs[1]
+
+    // Find one user within subscription
+    const user = await connection.getRepository(User).findOne({
+      where: {
+        subscription: sub.id
+      }
+    })
+
+    // Make the other subscription the default
+    await connection.getRepository(Subscription).update(subDefault.id, {
+      default: true
+    })
+
+    const result = await app.inject({
+      method: 'DELETE',
+      url: `/subscriptions/${sub.id}/users/${user.id}`,
+      headers: superadminHeaders
+    })
+
+    expect(result.json().message).toBeUndefined()
+    expect(result.statusCode).toBe(200)
+
+    const list = await app.inject({
+      method: 'GET',
+      url: `/subscriptions/${sub.id}/users`,
+      headers: superadminHeaders
+    })
+
+    expect(list.json().results.filter((e) => e.id === user.id).length).toBe(0)
+
+    const listDefault = await app.inject({
+      method: 'GET',
+      url: `/subscriptions/${subDefault.id}/users`,
+      headers: superadminHeaders,
+      query: {
+        limit: '1000'
+      }
+    })
+
+    expect(
+      listDefault.json().results.filter((e) => e.id === user.id).length
+    ).toBe(1)
+  })
+
+  it('DELETE /subscriptions/:subscriptionId/users Cannot delete the default subscription', async () => {
+    const sub = (
+      await SubscriptionsSetup('Test Subscription', 1, {
+        default: true
+      })
+    )[0]
+
+    // Remove assigned users
+    await connection.getRepository(User).update(
+      {
+        subscription: { id: sub.id }
+      },
+      {
+        subscription: null
+      }
+    )
+
+    const result = await app.inject({
+      method: 'DELETE',
+      url: `/subscriptions/${sub.id}`,
+      headers: superadminHeaders
+    })
+
+    expect(result.statusCode).toBe(400)
+    expect(result.json().message).toContain('cannot delete')
   })
 })
 
 /**
  * Assigning users (after a subscription already exists)
  */
-describe('Assigning users to the subscriptions', () => {
+describe.skip('Assigning users to the subscriptions', () => {
   let app: NestFastifyApplication
   let superadminHeaders
   let organisationAdminHeaders
@@ -390,10 +611,15 @@ describe('Assigning users to the subscriptions', () => {
       const payload = { ...rest } as UpdateSubscriptionDto
       const result = await app.inject({
         method: 'POST',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/users`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/users`,
         headers: getHeaders(),
         payload
       })
+
+      if (type === 'a subscription admin') {
+        expect(result.statusCode).toEqual(403)
+        return
+      }
 
       if (type === 'an authenticated user') {
         expect(result.statusCode).toEqual(403)
@@ -439,10 +665,15 @@ describe('Assigning users to the subscriptions', () => {
       const payload = { ...rest } as UpdateSubscriptionDto
       const result = await app.inject({
         method: 'POST',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/${team.id}/users`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/${team.id}/users`,
         headers: getHeaders(),
         payload
       })
+
+      if (type === 'a subscription admin') {
+        expect(result.statusCode).toEqual(403)
+        return
+      }
 
       if (type === 'an authenticated user') {
         expect(result.statusCode).toEqual(403)
@@ -495,7 +726,7 @@ describe('Assigning users to the subscriptions', () => {
       const payload = { ...rest, usersIdsList } as UpdateSubscriptionDto
       const result = await app.inject({
         method: 'POST',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/usersIds`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/usersIds`,
         headers: getHeaders(),
         payload
       })
@@ -543,7 +774,7 @@ describe('Assigning users to the subscriptions', () => {
       const { organisation, id, ...rest } = subscription
       const result = await app.inject({
         method: 'GET',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/users`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/users`,
         headers: getHeaders()
       })
 
@@ -567,7 +798,7 @@ describe('Assigning users to the subscriptions', () => {
       const { organisation, id, users, ...rest } = subscription
       const result = await app.inject({
         method: 'DELETE',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/users/${users[1].id}`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/users/${users[1].id}`,
         headers: getHeaders()
       })
 
@@ -590,7 +821,7 @@ describe('Assigning users to the subscriptions', () => {
       const fakeUser = '22392f90-88b8-4d1b-a42b-eeeeeeeeeeee'
       const result = await app.inject({
         method: 'DELETE',
-        url: `/subscriptions/organisations/${organisation.id}/subscriptions/${id}/users/${fakeUser}`,
+        url: `/organisations/${organisation.id}/subscriptions/${id}/users/${fakeUser}`,
         headers: getHeaders()
       })
 

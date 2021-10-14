@@ -1,12 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsOptional } from 'class-validator'
-import { Image } from '../../images/entities/image.entity'
+import { IsOptional, IsString, IsNotEmpty, IsUUID } from 'class-validator'
 
 export class CreateTeamDto {
   @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   name: string
 
   @ApiProperty()
+  @IsUUID(4, {
+    message: 'Must be a valid image id'
+  })
   @IsOptional()
-  avatar?: Image
+  imageId?: string
 }

@@ -7,23 +7,23 @@ export class RecreateGoalsEntryDto extends PartialType(CreateGoalsEntryDto) {
   @ApiProperty()
   @IsInt()
   @IsOptional()
-  current_calories: number
+  current_mindfulness_minutes?: number
 
   @ApiProperty()
   @IsInt()
   @IsOptional()
-  current_steps: number
+  current_steps?: number
 
   @ApiProperty()
   @IsInt()
   @IsOptional()
-  current_floors_climbed: number
+  current_floors_climbed?: number
 
   @ApiProperty()
   @IsOptional()
-  current_water_litres: number
+  current_water_litres?: number
 
   @ApiProperty()
   @IsOptional()
-  current_sleep_hours: number
+  current_sleep_hours?: number
 }

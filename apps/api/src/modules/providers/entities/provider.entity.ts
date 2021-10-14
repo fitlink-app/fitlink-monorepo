@@ -1,13 +1,16 @@
-import { PrimaryGeneratedColumn, ManyToOne, Entity, Column } from 'typeorm'
+import { ApiProperty } from '@nestjs/swagger'
+import { Expose } from 'class-transformer'
+import {
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  Entity,
+  Column,
+  OneToMany
+} from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
+import { HealthActivity } from '../../health-activities/entities/health-activity.entity'
 import { User } from '../../users/entities/user.entity'
-
-export enum ProviderType {
-  Strava = 'strava',
-  Fitbit = 'fitbit',
-  GoogleFit = 'google_fit',
-  AppleHealthkit = 'apple_healthkit'
-}
+import { ProviderType } from '../providers.constants'
 
 @Entity()
 export class Provider extends CreatableEntity {
@@ -23,21 +26,47 @@ export class Provider extends CreatableEntity {
   @ManyToOne(() => User, (user) => user.providers)
   user: User
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   refresh_token: string
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   token: string
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   token_expires_at: Date
 
   @Column({
-    type: 'json'
+    type: 'json',
+    nullable: true
   })
   scopes: string[]
 
   /** External id from the service to map the user if required */
-  @Column()
+  @Column({
+    nullable: true
+  })
   provider_user_id: string
+
+  @OneToMany(
+    () => HealthActivity,
+    (healthActivity) => healthActivity.provider,
+    { nullable: true }
+  )
+  health_activities: HealthActivity[]
+}
+
+export class ProviderPublic {
+  @ApiProperty()
+  @Expose()
+  id: string
+
+  @ApiProperty()
+  @Expose()
+  type: string
 }

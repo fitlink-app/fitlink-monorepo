@@ -1,21 +1,17 @@
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { ConfigService } from '@nestjs/config'
-import { appendFile, readFile } from 'fs/promises'
+import { readFile, writeFile } from 'fs/promises'
 import { TemplatesType } from '../../src/modules/common/email.service'
+import { config } from 'dotenv'
+const path = require('path')
 
-const env = {
-  AUTH_JWT_SECRET: 'fitlink_jwt_secret',
-  S3_ACCESS_KEY_ID: 'S3RVER',
-  S3_SECRET_ACCESS_KEY: 'S3RVER',
-  S3_ENDPOINT: 'http://localhost:9191',
-  S3_BUCKET: 'test',
-  S3_REGION: 'eu-west-2',
-  IMIN_API_BASE_URL: 'https://search.imin.co',
-  IMIN_API_KEY: 'jAyxqV1IVTlcPeQV2aujF05X0483cOKu',
-  INVITE_ORGANISATION_URL: 'http://localhost:3001/signup?invite={token}',
-  INVITE_TEAM_URL: 'https://fitlinkapp.com/signup?invite={token}&team=1',
-  FIREBASE_BEARER_TOKEN: 'fitlinkLeaderboardEntryToken'
-}
+const dotenv = config({
+  path: path.join(__dirname, '../../../..', '.env.test')
+})
+
+export const env = dotenv.parsed
+
+process.env = { ...process.env, ...env }
 
 export const mockRepositoryProvider = (entity) => {
   return {
@@ -39,14 +35,35 @@ export const mockConfigServiceProvider = () => ({
   useValue: mockConfigService()
 })
 
-export const mockConfigService = () => ({
-  get(key: string) {
-    return env[key] || 'fitlink'
+export const mockConfigService = () => {
+  const env = dotenv.parsed
+
+  if (!env) {
+    throw new Error('Could not parse .env.test. Does the file exist?')
   }
-})
+
+  return {
+    get(key: string) {
+      return env[key] || 'fitlink'
+    }
+  }
+}
 
 export const mockEmailService = () => ({
   sendTemplatedEmail
+})
+
+export const mockFirebaseAdminService = () => ({
+  app: () => ({
+    messaging: () => ({
+      send: (payload: any) => {
+        console.log(payload)
+      },
+      sendMulticast: (payload: any) => {
+        console.log(payload)
+      }
+    })
+  })
 })
 
 export async function sendTemplatedEmail(
@@ -55,28 +72,55 @@ export async function sendTemplatedEmail(
   toAddresses: string[],
   fromAddress: string
 ) {
-  const email = getEmailTemplate(template, data, toAddresses, fromAddress)
-  await appendFile('email-debug.log', email)
+  const content = await appendEmailContent(
+    template,
+    data,
+    toAddresses,
+    fromAddress
+  )
+  await writeFile('email-debug.log', JSON.stringify(content, null, 2))
   return '1'
 }
 
-function getEmailTemplate(
+async function appendEmailContent(
   template: TemplatesType,
   data: NodeJS.Dict<string>,
   toAddresses: string[],
   fromAddress = 'jest@example.com'
 ) {
-  return `
--------------------------
-Template: ${template}
-To: ${toAddresses.join(',')}
-From: ${fromAddress}
--------------------------
-${JSON.stringify(data, null, 2)}
-`
+  const content = await getEmailContent()
+  content.push({
+    data,
+    template,
+    toAddresses,
+    fromAddress
+  })
+  return content
 }
 
 export async function emailHasContent(search: string) {
   const content = await readFile('email-debug.log')
   return content.toString().toLowerCase().indexOf(search.toLowerCase()) > -1
+}
+
+export async function getEmailContent() {
+  try {
+    const content = await readFile('email-debug.log')
+    return JSON.parse(content.toString()) as {
+      template: string
+      data: NodeJS.Dict<string>
+      toAddresses: string[]
+      fromAddress: string
+    }[]
+  } catch (e) {
+    return []
+  }
+}
+
+export async function timeout(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, ms)
+  })
 }

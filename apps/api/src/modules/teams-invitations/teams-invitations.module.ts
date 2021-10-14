@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common'
 import { TeamsInvitationsService } from './teams-invitations.service'
 import { TeamsInvitationsController } from './teams-invitations.controller'
-import { EmailService } from '../common/email.service'
 import { ConfigService, ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { TeamsInvitation } from './entities/teams-invitation.entity'
 import { JwtModule } from '@nestjs/jwt'
+import { CommonModule } from '../common/common.module'
+import { Team } from '../teams/entities/team.entity'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TeamsInvitation]),
+    CommonModule,
+    TypeOrmModule.forFeature([TeamsInvitation, Team]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -22,7 +24,7 @@ import { JwtModule } from '@nestjs/jwt'
     })
   ],
   controllers: [TeamsInvitationsController],
-  providers: [TeamsInvitationsService, EmailService, ConfigService],
+  providers: [TeamsInvitationsService, ConfigService],
   exports: [
     TypeOrmModule.forFeature([TeamsInvitation]),
     TeamsInvitationsService

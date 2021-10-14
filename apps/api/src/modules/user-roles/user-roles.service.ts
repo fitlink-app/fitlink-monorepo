@@ -1,15 +1,21 @@
-import {
-  BadRequestException,
-  forwardRef,
-  Inject,
-  Injectable
-} from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
+import { Organisation } from '../organisations/entities/organisation.entity'
+import { Subscription } from '../subscriptions/entities/subscription.entity'
+import { Team } from '../teams/entities/team.entity'
 import { User } from '../users/entities/user.entity'
 import { CreateUserRoleDto } from './dto/create-user-role.dto'
 import { UpdateUserRoleDto } from './dto/update-user-role.dto'
 import { UserRole } from './entities/user-role.entity'
+import { Roles } from './user-roles.constants'
+
+type EntityRole = {
+  role?: Roles
+  organisationId?: string
+  subscriptionId?: string
+  teamId?: string
+}
 
 @Injectable()
 export class UserRolesService {
@@ -54,7 +60,17 @@ export class UserRolesService {
           id
         }
       },
-      relations: ['organisation', 'team', 'subscription']
+      relations: [
+        'organisation',
+        'team',
+        'subscription',
+        'subscription.organisation',
+        'organisation.teams',
+        'organisation.subscriptions'
+      ],
+      order: {
+        created_at: 'ASC'
+      }
     })
   }
 
@@ -89,7 +105,60 @@ export class UserRolesService {
   }
 
   assignSuperAdminRole(userId: string) {
-    return `Boom just assigned super admin to #${userId}`
+    const user = new User()
+    user.id = userId
+    return this.userRoleRepository.save({
+      user,
+      role: Roles.SuperAdmin
+    })
+  }
+
+  deleteSuperAdminRole(id: string) {
+    return this.userRoleRepository.delete({
+      user: { id },
+      role: Roles.SuperAdmin
+    })
+  }
+
+  async assignAdminRole(
+    userId: string,
+    entityRole: EntityRole,
+    revoke = false
+  ) {
+    const user = new User()
+    user.id = userId
+
+    const data: Partial<UserRole> = { user }
+
+    if (entityRole.organisationId) {
+      data.organisation = new Organisation()
+      data.organisation.id = entityRole.organisationId
+      data.role = Roles.OrganisationAdmin
+    }
+
+    if (entityRole.subscriptionId) {
+      data.subscription = new Subscription()
+      data.subscription.id = entityRole.subscriptionId
+      data.role = Roles.SubscriptionAdmin
+    }
+
+    if (entityRole.teamId) {
+      data.team = new Team()
+      data.team.id = entityRole.teamId
+      data.role = Roles.TeamAdmin
+    }
+
+    if (!revoke) {
+      const existingRole = await this.userRoleRepository.findOne(data)
+
+      if (existingRole) {
+        return existingRole
+      }
+
+      return this.userRoleRepository.save(data)
+    } else {
+      return this.userRoleRepository.delete(data)
+    }
   }
 
   async checkOwnerShip(orgId: string, userId: string) {
@@ -105,7 +174,7 @@ export class UserRolesService {
   }
 
   filterDto(dto: CreateUserRoleDto) {
-    let arr = Object.keys(dto)
+    const arr = Object.keys(dto)
     let entity: {
       [key: string]: string
     } = {}

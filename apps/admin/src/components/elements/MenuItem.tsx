@@ -6,23 +6,36 @@ export type MenuItemProps = {
   to: string
   label: string
   current?: boolean
+  onClick?: () => void
 }
 
 export default function MenuItem({
   icon,
   to,
   label,
-  current = false
+  current = false,
+  onClick
 }: MenuItemProps) {
   const classes = clsx({
     'menu-item': true,
-    'current': current
+    current: current,
+    pointer: true
   })
+
+  if (onClick) {
+    return (
+      <a className={classes} onClick={onClick}>
+        {icon}
+        <span>{label}</span>
+      </a>
+    )
+  }
+
   return (
     <Link href={to}>
       <a className={classes}>
         {icon}
-        {label}
+        <span>{label}</span>
       </a>
     </Link>
   )

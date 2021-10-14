@@ -1,0 +1,130 @@
+.layout-login {
+  display: flex;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+  background: $grey-80;
+  padding: 2rem;
+  height: 100vh;
+  background-size: cover;
+  background-position: center bottom;
+  
+  .content {
+    flex: 1;
+    width: 100%;
+    max-width: 30rem;
+    display: block;
+    padding: 2rem;
+    border-radius: 1rem;
+    background: $white;
+    margin: auto;
+    box-shadow: 8px 8px 16px 0 rgba(0,0,0,0.05);
+    position: relative;
+    z-index: 2;
+  }
+
+  .circle {
+    display: block;
+    background-image: linear-gradient(136deg, #00E9D7 0%, #00E9D7 0%, #00CEBE 100%);
+    width: 100%;
+    max-width: 50rem;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 1;
+    left: 49%;
+    top: 35%;
+    z-index: 1;
+    transform: translate(-50%, -50%);
+
+    /* @media screen and (min-width: 460px) {
+      width: 94%; //626
+      right: 3%;
+    }
+
+    @media screen and (min-width: 660px) {
+      width: 78%; //626
+      right: 10%;
+    }
+    
+    @media screen and (min-width: $medium) {
+      width: 89%; //626
+      right: 2%;
+    } */
+
+    &:after {
+      display: block;
+      content: "";
+      width: 100%;
+      padding-top: 100%;
+    }
+
+    b {
+      border-radius: 50%;
+      background: $primary;
+      position: absolute;
+
+      &:after {
+        display: block;
+        content: "";
+        width: 100%;
+        padding-top: 100%;
+      }
+
+      &:first-child {
+        right: -16.93290734824281%;
+        top: -4.792332268370607%;
+        width: 33.75796178343949%;
+      }
+
+      &:last-child {
+        right: 90%;
+        bottom: 0%;
+        width: 21.24600638977636%;
+        
+        /* @media screen and (min-width: $medium) {
+          right: 97.60383386581469%;
+          bottom: 16.134185303514375%;
+        } */
+      }
+    }
+  }
+
+  .input-block--inline {
+    display: flex;
+    align-items: center;
+
+    input, input {
+      flex: 1;
+    }
+
+    label {
+      width: 96px;
+      text-align: right;
+    }
+  }
+
+  .or {
+    display: flex;
+    align-items: center;
+    color: $lightGrey;
+    line-height: 1em;
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin: 1rem 0;
+
+    &:before, &:after {
+      flex: 1;
+      content: "";
+      display: block;
+      background: $grey-300;
+      height: 1px;
+    }
+
+    &:before {
+      margin-right: 0.5rem;
+    }
+    &:after {
+      margin-left: 0.5rem;
+    }
+  }
+}

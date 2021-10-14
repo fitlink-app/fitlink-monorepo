@@ -1,0 +1,17 @@
+.pages {
+  padding-bottom: 10rem;
+  .button-bar {
+    position: absolute;
+    bottom: 0;
+    width: calc(100% - 240px);
+    left: 240px;
+    z-index: 10;
+    padding: 1rem 0;
+    display: flex;
+    justify-content: center;
+    background-image: linear-gradient(180deg, rgba(255,255,255, 0) 0%, rgba(255,255,255) 100%);
+    .button-save {
+      min-width: 10rem;
+    }
+  }
+}

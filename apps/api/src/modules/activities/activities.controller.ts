@@ -7,68 +7,70 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards
+  UseGuards,
+  ForbiddenException
 } from '@nestjs/common'
 import { ActivitiesIminService } from './activities.imin.service'
 import { ActivitiesService } from './activities.service'
 import { CreateActivityDto } from './dto/create-activity.dto'
 import { UpdateActivityDto } from './dto/update-activity.dto'
-import { FindActivitiesDto } from './dto/find-activities.dto'
-import { Pagination } from '../../helpers/paginate'
-import { Activity } from './entities/activity.entity'
-import { Files } from '../../decorators/files.decorator'
-import { ImagesService } from '../images/images.service'
-import { Uploads, UploadOptions } from '../../decorators/uploads.decorator'
+import {
+  FindActivitiesDto,
+  FindActivitiesForMapDto
+} from './dto/find-activities.dto'
+import { Pagination, PaginationQuery } from '../../helpers/paginate'
+import { Activity, ActivityForMap } from './entities/activity.entity'
 import { Public } from '../../decorators/public.decorator'
-import { AuthGuard } from '../../guards/auth.guard'
-import { ApiBearerAuth } from '@nestjs/swagger'
-import { Image, ImageType } from '../images/entities/image.entity'
+import { ApiTags } from '@nestjs/swagger'
 import { IminServiceParams } from './types/imin'
+import { ApiBaseResponses } from '../../decorators/swagger.decorator'
+import { User } from '../../decorators/authenticated-user.decorator'
+import { Pagination as PaginationParams } from '../../decorators/pagination.decorator'
+import { AuthenticatedUser } from '../../models'
+import { Iam } from '../../decorators/iam.decorator'
+import { Roles } from '../user-roles/user-roles.constants'
+import { ActivityGlobalFilterDto } from './dto/filter-activities.dto'
 
-@Public()
-@UseGuards(AuthGuard)
-@ApiBearerAuth()
-@Controller('activities')
+// @Public()
+@ApiBaseResponses()
+@ApiTags('activities')
+@Controller()
 export class ActivitiesController {
   constructor(
     private readonly activitiesService: ActivitiesService,
-    private readonly activitiesIminService: ActivitiesIminService,
-    private readonly imagesService: ImagesService
+    private readonly activitiesIminService: ActivitiesIminService
   ) {}
-
-  @Post()
-  @Uploads('images[]', 'organizer_image', UploadOptions.Nullable)
+  @Post('/activities')
   async create(
-    @Files('images[]') activityImages: Storage.MultipartFile[],
-    @Files('organizer_image') organizerImage: Storage.MultipartFile,
-    @Body() createActivityDto: CreateActivityDto
+    @User() user: AuthenticatedUser,
+    @Body() dto: CreateActivityDto
   ) {
-    const alt = createActivityDto.organizer_name || createActivityDto.name
-    const images = await this.imagesService.createMany(
-      activityImages,
-      ImageType.Standard,
-      {
-        alt
-      }
-    )
-
-    let organizer_image: Image
-    if (organizerImage) {
-      organizer_image = await this.imagesService.createOne(
-        organizerImage,
-        ImageType.Standard,
-        {
-          alt
-        }
-      )
+    let userId = user.id
+    if (user.isSuperAdmin()) {
+      userId = null
     }
+    return this.activitiesService.create(userId, dto)
+  }
 
-    return this.activitiesService.create({
-      ...createActivityDto,
-      ...{
-        images,
-        organizer_image
-      }
+  @Iam(Roles.OrganisationAdmin)
+  @Post('/organisations/:organisationId/activities')
+  async createForOrganisation(
+    @Param('organisationId') organisationId: string,
+    @Body() dto: CreateActivityDto
+  ) {
+    return this.activitiesService.create(null, dto, {
+      organisationId
+    })
+  }
+
+  @Iam(Roles.TeamAdmin)
+  @Post('/teams/:teamId/activities')
+  async createForTeam(
+    @Param('teamId') teamId: string,
+    @Body() dto: CreateActivityDto
+  ) {
+    return this.activitiesService.create(null, dto, {
+      teamId
     })
   }
 
@@ -78,12 +80,129 @@ export class ActivitiesController {
    * @param queryParams
    * @returns
    */
-  @Get('user/:userId')
-  async findUserActivities(@Param('userId') userId: string, @Query() query) {
-    return this.activitiesService.findUserActivities(userId, {
-      limit: parseInt(query.limit) || 10,
-      page: parseInt(query.page) || 0
-    })
+  @ApiTags('me')
+  @Get('/me/activities')
+  async findUserActivities(
+    @User() user: AuthenticatedUser,
+    @PaginationParams() pagination: PaginationQuery
+  ) {
+    return this.activitiesService.findUserActivities(user.id, pagination)
+  }
+
+  /**
+   * Finds activities based on coordinates
+   * for the map display.
+   *
+   * @param queryParams
+   * @returns
+   */
+  @Get('/activities/map')
+  async findAllForMap(
+    @User() user: AuthenticatedUser,
+    @Query()
+    {
+      geo_radial,
+      with_imin = '1',
+      type = '',
+      keyword = ''
+    }: FindActivitiesForMapDto
+  ): Promise<Pagination<ActivityForMap>> {
+    // Get local activities
+    const all = await this.activitiesService.findAllMarkers(
+      user.id,
+      geo_radial,
+      type,
+      keyword
+    )
+
+    if (
+      with_imin === '1' &&
+      geo_radial &&
+      (type === '' || type.indexOf('class') > -1)
+    ) {
+      // Get Imin activities
+      const params: IminServiceParams = {
+        'geo[radial]': geo_radial,
+        mode: 'discovery-geo',
+        page: 0,
+        limit: 50
+      }
+
+      if (keyword !== '') {
+        params['organizerName[textSearch]'] = keyword
+      }
+
+      const imin = await this.activitiesIminService.findAllMarkers(params)
+      const results = all.results.concat(imin.results)
+      const total = all.results.length + imin.results.length
+
+      return {
+        results,
+        total,
+        page_total: total
+      }
+    } else {
+      return all
+    }
+  }
+
+  /**
+   * Finds all global activities (for admin dashboard)
+   * Activities that don't belong to a team or organisation
+   * but may be created by a user.
+   *
+   * @param queryParams
+   * @returns
+   */
+  @Iam(Roles.SuperAdmin)
+  @Get('/activities/global')
+  async findAllGlobalActivities(
+    @PaginationParams() pagination: PaginationQuery,
+    @Query() filters: ActivityGlobalFilterDto
+  ) {
+    return this.activitiesService.findAllGlobal(pagination, filters)
+  }
+
+  /**
+   * Finds all activities within an organisation
+   *
+   * @param queryParams
+   * @returns
+   */
+  @Iam(Roles.OrganisationAdmin)
+  @Get('/organisations/:organisationId/activities')
+  async findAllOrganisationActivities(
+    @PaginationParams() pagination: PaginationQuery,
+    @Param('organisationId') organisationId: string
+  ) {
+    return this.activitiesService.findAllGlobal(
+      pagination,
+      {},
+      {
+        organisationId
+      }
+    )
+  }
+
+  /**
+   * Finds all activities within a team
+   *
+   * @param queryParams
+   * @returns
+   */
+  @Iam(Roles.TeamAdmin)
+  @Get('/teams/:teamId/activities')
+  async findAllTeamActivities(
+    @PaginationParams() pagination: PaginationQuery,
+    @Param('teamId') teamId: string
+  ) {
+    return this.activitiesService.findAllGlobal(
+      pagination,
+      {},
+      {
+        teamId
+      }
+    )
   }
 
   /**
@@ -93,8 +212,9 @@ export class ActivitiesController {
    * @param queryParams
    * @returns
    */
-  @Get()
+  @Get('/activities')
   async findAll(
+    @User() user: AuthenticatedUser,
     @Query()
     {
       geo_radial,
@@ -110,6 +230,7 @@ export class ActivitiesController {
 
     // Get local activities
     const all = await this.activitiesService.findAll(
+      user.id,
       geo_radial,
       type,
       keyword,
@@ -128,7 +249,7 @@ export class ActivitiesController {
       const params: IminServiceParams = {
         'geo[radial]': geo_radial,
         mode: 'discovery-geo',
-        page: intPage + 1,
+        page: intPage,
         limit: intLimit
       }
 
@@ -147,68 +268,85 @@ export class ActivitiesController {
     }
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.activitiesService.findOne(id)
+  @Get('/activities/:id')
+  findOne(@User() user: AuthenticatedUser, @Param('id') id: string) {
+    if (id.length === 36) {
+      if (user.isSuperAdmin()) {
+        return this.activitiesService.findOne(id)
+      }
+      return this.activitiesService.findOne(id, user.id)
+    } else {
+      return this.activitiesIminService.findOne(id)
+    }
   }
 
-  @Get(':userId/:id')
-  findOneUserActivity(
-    @Param('id') id: string,
-    @Param('userId') userId: string
-  ) {
-    return this.activitiesService.findOneUserActivity(id, userId)
-  }
-
-  @Uploads('images[]', 'organizer_image', UploadOptions.Nullable)
-  @Put(':id')
+  @Put('/activities/:id')
   async update(
-    @Files('images[]') activityImages: Storage.MultipartFile[],
-    @Files('organizer_image') organizerImage: Storage.MultipartFile,
+    @User() user: AuthenticatedUser,
     @Param('id') id: string,
     @Body() updateActivityDto: UpdateActivityDto
   ) {
-    const alt = updateActivityDto.organizer_name || updateActivityDto.name
-    const images = await this.imagesService.createMany(
-      activityImages,
-      ImageType.Standard,
-      {
-        alt
+    if (user.isSuperAdmin()) {
+      return this.activitiesService.update(id, updateActivityDto)
+    } else {
+      const activity = this.activitiesService.findOneUserActivity(id, user.id)
+      if (activity) {
+        return this.activitiesService.update(id, updateActivityDto)
+      } else {
+        throw new ForbiddenException(
+          'You do not have access to update this activity'
+        )
       }
+    }
+  }
+
+  @Iam(Roles.OrganisationAdmin)
+  @Put('/organisations/:organisationId/activities/:id')
+  async updateForOrganisation(
+    @Param('id') id: string,
+    @Param('organisationId') organisationId: string,
+    @Body() updateActivityDto: UpdateActivityDto
+  ) {
+    return this.activitiesService.update(id, updateActivityDto, {
+      organisationId
+    })
+  }
+
+  @Iam(Roles.TeamAdmin)
+  @Put('/teams/:teamId/activities/:id')
+  async updateForTeam(
+    @Param('id') id: string,
+    @Param('teamId') teamId: string,
+    @Body() updateActivityDto: UpdateActivityDto
+  ) {
+    return this.activitiesService.update(id, updateActivityDto, {
+      teamId
+    })
+  }
+
+  @Public()
+  @Get('/teams/:teamId/public/activities')
+  async getTeamActivitiesForPublicPage(@Param('teamId') teamId: string) {
+    const activities = await this.activitiesService.getTeamActivitiesForPublicPage(
+      teamId
     )
+    return activities
+  }
 
-    let organizer_image: Image
-    if (organizerImage) {
-      organizer_image = await this.imagesService.createOne(
-        organizerImage,
-        ImageType.Standard,
-        {
-          alt
-        }
-      )
-      updateActivityDto.organizer_image = organizer_image
+  @Delete('/activities/:id')
+  remove(@User() user: AuthenticatedUser, @Param('id') id: string) {
+    if (user.isSuperAdmin()) {
+      return this.activitiesService.remove(id)
+    } else {
+      const activity = this.activitiesService.findOneUserActivity(id, user.id)
+      if (activity) {
+        return this.activitiesService.remove(id)
+      } else {
+        throw new ForbiddenException(
+          'You do not have access to update this activity'
+        )
+      }
     }
-
-    if (images.length) {
-      updateActivityDto.images = images
-    }
-
-    return this.activitiesService.update(id, updateActivityDto)
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.activitiesService.remove(id)
-  }
-
-  @Delete(':id/images')
-  removeImages(@Param('id') id: string) {
-    return this.activitiesService.removeImages(id, 'images')
-  }
-
-  @Delete(':id/organizer_image')
-  removeOrganizerImage(@Param('id') id: string) {
-    return this.activitiesService.removeImages(id, 'organizer_image')
   }
 
   static mergeAndPaginate(

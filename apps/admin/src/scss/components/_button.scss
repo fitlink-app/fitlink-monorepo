@@ -1,5 +1,7 @@
-button, .button {
+.button {
+  cursor: pointer;
   display: inline-block;
+  vertical-align: middle;
   font-family: 'Lato', sans-serif;
   font-size: 0.875rem;
   font-weight: 700;
@@ -23,6 +25,11 @@ button, .button {
     transition: all 0.35s;
   }
 
+  &.small {
+    padding: 0.5625rem 1rem 0.5625rem;
+    font-size: 0.75rem;
+  }
+
   &.alt, &--alt {
     border: 1px solid $primary;
     background: $white;
@@ -36,8 +43,34 @@ button, .button {
     }
   }
 
+  &.small.alt, &--alt.small {
+    padding: 0.5rem 1rem 0.5rem;
+  }
+
   &:disabled {
     opacity: 0.5;
-    
+  }
+
+  svg {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  &.small {
+    svg {
+      height: 0.75rem;
+      width: 0.75rem;
+      margin: -1px 5px 0 -2px;
+      
+      &:last-child {
+        margin: -1px -2px 0 5px;
+      }
+    }
+  }
+
+  &.block {
+    display: block;
+    width: 100%;
+    text-align: center;
   }
 }

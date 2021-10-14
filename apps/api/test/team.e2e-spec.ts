@@ -29,7 +29,6 @@ describe('Teams', () => {
       controllers: []
     })
     connection = getConnection()
-    superadminHeaders = getAuthHeaders({ spr: true })
     // Get Seeded Organisations
 
     await useSeeding()
@@ -47,14 +46,16 @@ describe('Teams', () => {
 
     const user = team2.users[0]
 
+    superadminHeaders = getAuthHeaders({ spr: true }, user.id)
+
     organisation = await connection.getRepository(Organisation).findOne({
       where: { id: team.organisation.id },
       relations: ['teams']
     })
 
     if (organisation) {
-      orgAdminHeaders = getAuthHeaders({ o_a: [organisation.id] })
-      teamAdminHeaders = getAuthHeaders({ t_a: [team.id] })
+      orgAdminHeaders = getAuthHeaders({ o_a: [organisation.id] }, user.id)
+      teamAdminHeaders = getAuthHeaders({ t_a: [team.id] }, user.id)
     }
 
     authHeaders = getAuthHeaders(null, user.id)
@@ -64,7 +65,8 @@ describe('Teams', () => {
       headers: superadminHeaders,
       payload: {
         email: user.email,
-        invitee: user.name
+        invitee: user.name,
+        admin: true
       }
     })
 
@@ -112,20 +114,17 @@ describe('Teams', () => {
     }
   )
 
-  testAll(
-    `DELETE /organisations/orgId/teams/teamId/users/userId`,
-    async (_, getHeaders) => {
-      const users = team.users
-      let userId = users[0].id
-      const data = await app.inject({
-        method: 'DELETE',
-        url: `/organisations/${organisation.id}/teams/${team.id}/users/${userId}`,
-        headers: getHeaders()
-      })
-      expect(data.statusCode).toEqual(200)
-      expect(data.statusMessage).toBe('OK')
-    }
-  )
+  it(`DELETE /teamId/users/userId`, async () => {
+    const users = team.users
+    const userId = users[0].id
+    const data = await app.inject({
+      method: 'DELETE',
+      url: `/teams/${team.id}/users/${userId}`,
+      headers: teamAdminHeaders
+    })
+    expect(data.statusCode).toEqual(200)
+    expect(data.statusMessage).toBe('OK')
+  })
 
   testOrgAndSuperAdmin(
     `POST /organisations/orgId/teams`,
@@ -133,7 +132,7 @@ describe('Teams', () => {
       const data = await createTeamWithImage(true, getHeaders())
       expect(data.statusCode).toEqual(201)
       expect(data.json().name).toBeDefined()
-      expect(data.json().avatar.url).toBeDefined()
+      expect(data.json().avatar.id).toBeDefined()
     }
   )
 
@@ -143,7 +142,7 @@ describe('Teams', () => {
       const data = await updateTeamWithImage(true, getHeaders())
       expect(data.statusCode).toEqual(200)
       expect(data.json().name).toBeDefined()
-      expect(data.json().avatar.url).toBeDefined()
+      expect(data.json().avatar.id).toBeDefined()
     }
   )
 
@@ -155,7 +154,7 @@ describe('Teams', () => {
     })
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
-    expect(data.json().length).toBeTruthy()
+    expect(data.json().results.length).toBeTruthy()
   })
 
   it(`GET /teams`, async () => {
@@ -167,7 +166,7 @@ describe('Teams', () => {
 
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
-    expect(data.json().length).toBeTruthy()
+    expect(data.json().results.length).toBeTruthy()
   })
 
   it(`GET /organisations/:organisationId/teams/:teamId`, async () => {
@@ -196,20 +195,34 @@ describe('Teams', () => {
 
   async function updateTeamWithImage(avatar = true, headers = orgAdminHeaders) {
     const form = new FormData()
-    const image = await readFile(__dirname + `/assets/1200x1200.png`)
-    form.append('name', `Update name: ${faker.name.title()}`)
+    let imageCreate: any = {}
+    const payload: any = {
+      name: 'Test Teams'
+    }
+
     if (avatar) {
-      form.append('avatar', image)
+      const image = await readFile(__dirname + `/assets/1200x1200.png`)
+      form.append('image', image)
+      form.append('type', 'avatar')
+
+      imageCreate = await app.inject({
+        method: 'POST',
+        url: '/images',
+        payload: form,
+        headers: {
+          ...headers,
+          ...form.getHeaders()
+        }
+      })
+
+      payload.imageId = imageCreate.json().id
     }
 
     const data = await app.inject({
       method: 'PUT',
       url: `/organisations/${organisation.id}/teams/${team.id}`,
-      payload: form,
-      headers: {
-        ...form.getHeaders(),
-        ...headers
-      }
+      payload,
+      headers
     })
 
     return data
@@ -217,20 +230,34 @@ describe('Teams', () => {
 
   async function createTeamWithImage(avatar = true, headers = orgAdminHeaders) {
     const form = new FormData()
-    const image = await readFile(__dirname + `/assets/900x611.png`)
-
-    form.append('name', faker.name.title())
-    if (avatar) {
-      form.append('avatar', image)
+    let imageCreate: any = {}
+    const payload: any = {
+      name: 'Test Teams'
     }
+
+    if (avatar) {
+      const image = await readFile(__dirname + `/assets/1200x1200.png`)
+      form.append('image', image)
+      form.append('type', 'avatar')
+
+      imageCreate = await app.inject({
+        method: 'POST',
+        url: '/images',
+        payload: form,
+        headers: {
+          ...headers,
+          ...form.getHeaders()
+        }
+      })
+
+      payload.imageId = imageCreate.json().id
+    }
+
     const data = await app.inject({
       method: 'POST',
       url: `/organisations/${organisation.id}/teams`,
-      payload: form,
-      headers: {
-        ...form.getHeaders(),
-        ...headers
-      }
+      payload,
+      headers
     })
 
     return data

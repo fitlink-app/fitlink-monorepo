@@ -1,4 +1,4 @@
-import { forwardRef, Global, Module } from '@nestjs/common'
+import { forwardRef, HttpModule, Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthService } from './auth.service'
 import { LocalStrategy } from './strategy/local.strategy'
@@ -11,13 +11,20 @@ import { UsersService } from '../users/users.service'
 import { AuthController } from './auth.controller'
 import { RefreshToken } from './entities/auth.entity'
 import { UserRolesModule } from '../user-roles/user-roles.module'
+import { CommonModule } from '../common/common.module'
+import { AuthProvider } from './entities/auth-provider.entity'
+import { Team } from '../teams/entities/team.entity'
+import { OrganisationsModule } from '../organisations/organisations.module'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([RefreshToken]),
+    HttpModule,
+    TypeOrmModule.forFeature([RefreshToken, AuthProvider, Team]),
     ConfigModule,
     UsersModule,
     PassportModule,
+    CommonModule,
+    forwardRef(() => OrganisationsModule),
     forwardRef(() => UserRolesModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -32,6 +39,10 @@ import { UserRolesModule } from '../user-roles/user-roles.module'
   ],
   controllers: [AuthController],
   providers: [AuthService, UsersService, LocalStrategy, JwtStrategy],
-  exports: [TypeOrmModule.forFeature([RefreshToken]), AuthService, UsersService]
+  exports: [
+    TypeOrmModule.forFeature([RefreshToken, AuthProvider]),
+    AuthService,
+    UsersService
+  ]
 })
 export class AuthModule {}

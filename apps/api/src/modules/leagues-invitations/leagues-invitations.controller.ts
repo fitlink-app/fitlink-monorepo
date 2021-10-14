@@ -1,39 +1,66 @@
-import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  ForbiddenException
+} from '@nestjs/common'
 import { LeaguesInvitationsService } from './leagues-invitations.service'
 import { CreateLeaguesInvitationDto } from './dto/create-leagues-invitation.dto'
-import { UpdateLeaguesInvitationDto } from './dto/update-leagues-invitation.dto'
+import { AuthenticatedUser } from '../../models'
+import { User } from '../../decorators/authenticated-user.decorator'
+import { ApiBaseResponses } from '../../decorators/swagger.decorator'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { PaginationQuery } from '../../helpers/paginate'
+import { Pagination } from '../../decorators/pagination.decorator'
+import { LeagueInvitationPagination } from './entities/leagues-invitation.entity'
 
-@Controller('leagues-invitations')
+@Controller()
+@ApiTags('leagues')
+@ApiBaseResponses()
 export class LeaguesInvitationsController {
   constructor(
     private readonly leagueInvitationsService: LeaguesInvitationsService
   ) {}
 
-  @Post()
-  create(@Body() createLeaguesInvitationDto: CreateLeaguesInvitationDto) {
-    return this.leagueInvitationsService.create(createLeaguesInvitationDto)
-  }
-
-  @Get()
-  findAll() {
-    return this.leagueInvitationsService.findAll()
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.leagueInvitationsService.findOne(+id)
-  }
-
-  @Put(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateLeaguesInvitationDto: UpdateLeaguesInvitationDto
+  @Post('/leagues/:leagueId/invitations')
+  async create(
+    @Param('leagueId') leagueId: string,
+    @Body() { userId }: CreateLeaguesInvitationDto,
+    @User() authUser: AuthenticatedUser
   ) {
-    return this.leagueInvitationsService.update(+id, updateLeaguesInvitationDto)
+    const league = await this.leagueInvitationsService.getInvitableLeague(
+      leagueId,
+      authUser.id
+    )
+    if (!league) {
+      throw new ForbiddenException(
+        'You do not have permission to invite users to this league'
+      )
+    }
+
+    return this.leagueInvitationsService.create(league, authUser.id, { userId })
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.leagueInvitationsService.remove(+id)
+  @ApiTags('me')
+  @Get('/me/league-invitations')
+  @ApiResponse({ type: LeagueInvitationPagination, status: 200 })
+  async myInvitations(
+    @User() authUser: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    const invitations = await this.leagueInvitationsService.findAll(
+      {
+        to_user: { id: authUser.id },
+        dismissed: false,
+        accepted: false
+      },
+      pagination
+    )
+
+    return invitations
   }
 }

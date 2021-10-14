@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import {
   PrimaryGeneratedColumn,
   Entity,
@@ -9,12 +10,8 @@ import {
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { Organisation } from '../../organisations/entities/organisation.entity'
 import { User } from '../../users/entities/user.entity'
-
-export enum SubscriptionType {
-  Trial30day = 'Trial30day',
-  Trial90day = 'Trial90day',
-  Dynamic = 'dynamic'
-}
+import { BillingPlanStatus, SubscriptionType } from '../subscriptions.constants'
+import { SubscriptionsInvitation } from './subscriptions-invitation.entity'
 
 @Entity()
 export class Subscription extends CreatableEntity {
@@ -24,8 +21,7 @@ export class Subscription extends CreatableEntity {
   @OneToMany(() => User, (user) => user.subscription, {
     nullable: true
   })
-  users: User[];
-
+  users: User[]
 
   @ManyToOne(() => Organisation, (organisation) => organisation.subscriptions, {
     nullable: true
@@ -33,7 +29,34 @@ export class Subscription extends CreatableEntity {
   @JoinColumn()
   organisation: Organisation
 
-  @Column()
+  @OneToMany(
+    () => SubscriptionsInvitation,
+    (invitation) => invitation.subscription
+  )
+  invitations: SubscriptionsInvitation[]
+
+  @Column({
+    nullable: true,
+    default: ''
+  })
+  billing_email: string
+
+  @Column({
+    nullable: true,
+    default: ''
+  })
+  billing_first_name: string
+
+  @Column({
+    nullable: true,
+    default: ''
+  })
+  billing_last_name: string
+
+  @Column({
+    nullable: true,
+    default: ''
+  })
   billing_entity: string
 
   @Column({
@@ -78,9 +101,51 @@ export class Subscription extends CreatableEntity {
   billing_postcode?: string
 
   @Column({
+    default: 'GBP'
+  })
+  billing_currency_code: string
+
+  @Column({
+    nullable: true
+  })
+  /** Used for chargebee */
+  billing_plan_customer_id: string
+
+  @Column({
+    nullable: true
+  })
+  /** Used for chargebee */
+  billing_plan_subscription_id: string
+
+  @Column({
+    type: 'enum',
+    nullable: true,
+    enum: BillingPlanStatus
+  })
+  /** Used for chargebee */
+  billing_plan_status: BillingPlanStatus
+
+  @Column({
+    nullable: true
+  })
+  /** Used for chargebee trials */
+  billing_plan_trial_end_date: Date
+
+  @Column({
+    nullable: true
+  })
+  /** Used for chargebee */
+  billing_plan_last_billed_month: string
+
+  @Column({
+    default: 0
+  })
+  user_count: number
+
+  @Column({
     type: 'enum',
     enum: SubscriptionType,
-    default: SubscriptionType.Trial30day
+    default: SubscriptionType.Trial14day
   })
   type: string
 
@@ -89,4 +154,28 @@ export class Subscription extends CreatableEntity {
     type: 'boolean'
   })
   default: boolean
+
+  @Column({
+    default: () => 'CURRENT_TIMESTAMP'
+  })
+  subscription_starts_at: Date
+}
+
+export class SubscriptionPagination {
+  @ApiProperty()
+  page_total: number
+
+  @ApiProperty()
+  total: number
+
+  @ApiProperty({
+    type: Subscription,
+    isArray: true
+  })
+  results: Subscription[]
+}
+
+export class SubscriptionUser {
+  @ApiProperty()
+  userId: string
 }

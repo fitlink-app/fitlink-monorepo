@@ -1,0 +1,12 @@
+.sort-on {
+  display: inline-block;
+  vertical-align: middle;
+  color: $lightGrey;
+  margin: 0 0.25rem;
+  cursor: pointer;
+
+  svg {
+    display: inline-block;
+    margin: 0 0.1875rem;
+  }
+}

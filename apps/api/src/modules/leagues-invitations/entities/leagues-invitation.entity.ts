@@ -1,48 +1,61 @@
+import { ApiProperty } from '@nestjs/swagger'
 import {
   PrimaryGeneratedColumn,
   Entity,
-  OneToOne,
   JoinColumn,
-  Column
+  Column,
+  ManyToOne,
+  OneToOne
 } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
-import { Image } from '../../images/entities/image.entity'
 import { League } from '../../leagues/entities/league.entity'
-import { Team } from '../../teams/entities/team.entity'
-import { User } from '../../users/entities/user.entity'
+import { Notification } from '../../notifications/entities/notification.entity'
+import { User, UserPublic } from '../../users/entities/user.entity'
 
 @Entity()
 export class LeaguesInvitation extends CreatableEntity {
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @OneToOne(() => User)
+  @ApiProperty()
+  @ManyToOne(() => User, (user) => user.leagues_invitations)
   @JoinColumn()
-  to_user: User
+  to_user: User | UserPublic
 
-  @OneToOne(() => User)
+  @ApiProperty()
+  @ManyToOne(() => User)
   @JoinColumn()
-  from_user: User
+  from_user: User | UserPublic
 
-  @OneToOne(() => Image, { nullable: true })
-  @JoinColumn()
-  from_photo: Image
-
-  @OneToOne(() => Team)
-  @JoinColumn()
-  team: Team
-
-  @OneToOne(() => League)
+  @ApiProperty()
+  @ManyToOne(() => League, (league) => league.invitations)
   @JoinColumn()
   league: League
 
+  @ApiProperty()
   @Column({
     default: false
   })
   accepted: boolean
 
+  @ApiProperty()
   @Column({
     default: false
   })
   dismissed: boolean
+}
+
+export class LeagueInvitationPagination {
+  @ApiProperty()
+  page_total: number
+
+  @ApiProperty()
+  total: number
+
+  @ApiProperty({
+    type: LeaguesInvitation,
+    isArray: true
+  })
+  results: LeaguesInvitation[]
 }

@@ -1,0 +1,12 @@
+{
+  "name": "@fitlink/api-sdk",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "jest --config ./jest.sdk.config.js api.spec.ts"
+  },
+  "peerDependencies": {
+    "@fitlink/common": "*"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

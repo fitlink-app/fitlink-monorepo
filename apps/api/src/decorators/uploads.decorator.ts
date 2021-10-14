@@ -20,3 +20,15 @@ export enum UploadOptions {
   /** Request will throw an error if at least 1 file is not attached */
   Required = 'Required'
 }
+
+export type FileUploadOptions = {
+  /** Number in mb */
+  maxFileSize: number
+
+  /** Type of upload */
+  fileType: 'image' | 'file'
+}
+
+export const Upload = (options: FileUploadOptions) => {
+  return SetMetadata('upload', options)
+}

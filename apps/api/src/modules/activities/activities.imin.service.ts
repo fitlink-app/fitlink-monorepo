@@ -9,9 +9,11 @@ import {
   IminConvertedImage
 } from './types/imin'
 import { addDays, getISODay, setHours, setMinutes } from 'date-fns'
-import { Activity, ActivityType } from './entities/activity.entity'
+import { Activity, ActivityForMap } from './entities/activity.entity'
+import { ActivityType } from './activities.constants'
 import { Pagination } from '../../helpers/paginate'
 import { Image } from '../images/entities/image.entity'
+import { Geometry, Point } from 'geojson'
 
 @Injectable()
 export class ActivitiesIminService {
@@ -35,16 +37,38 @@ export class ActivitiesIminService {
     private configService: ConfigService
   ) {}
 
+  async findOne(id: string) {
+    const result = await this.makeRequest(`events-api/v2/event-series/${id}`)
+    return result
+      .pipe(map((data: IminItem) => ActivitiesIminService.normalizeOne(data)))
+      .toPromise()
+  }
+
   async findAll(params: IminServiceParams) {
     // events-api/v2/event-series?geo[radial]=51.7520131%2C-1.2578499%2C5&mode=upcoming-sessions&page=1&limit=10" -H "accept: application/json" -H "X-API-KEY: "
     const results = await this.makeRequest('events-api/v2/event-series', {
       mode: 'discovery-geo',
-      genderRestriction: 'oa:NoRestriction',
+      // genderRestriction: 'oa:NoRestriction',
       ...params
     })
 
     return results
       .pipe(map((data) => ActivitiesIminService.normalize(data || [])))
+      .toPromise()
+  }
+
+  async findAllMarkers(params: IminServiceParams) {
+    // events-api/v2/event-series?geo[radial]=51.7520131%2C-1.2578499%2C5&mode=upcoming-sessions&page=1&limit=10" -H "accept: application/json" -H "X-API-KEY: "
+    const results = await this.makeRequest('events-api/v2/event-series', {
+      mode: 'discovery-geo',
+      // genderRestriction: 'oa:NoRestriction',
+      ...params
+    })
+
+    return results
+      .pipe(
+        map((data) => ActivitiesIminService.normalizeForMarkers(data || []))
+      )
       .toPromise()
   }
 
@@ -55,10 +79,7 @@ export class ActivitiesIminService {
    * @param params
    * @returns an observable containing the response data
    */
-  async makeRequest(endpoint: string, params: IminServiceParams) {
-    console.log(
-      `USING IMIN KEY: ${this.configService.get('IMIN_API_BASE_URL')}`
-    )
+  async makeRequest(endpoint: string, params?: IminServiceParams) {
     return this.httpService
       .get(this.configService.get('IMIN_API_BASE_URL') + '/' + endpoint, {
         params,
@@ -78,20 +99,31 @@ export class ActivitiesIminService {
    * @returns
    */
   static normalize(responseData: IminResponseInterface) {
-    const results = (responseData['imin:item'] || []).map((each) => ({
-      id: Buffer.from(each.id).toString('base64'),
-      name: each.name,
-      description: each.description,
-      organizer_name: each.organizer.name,
-      organizer_url: each.organizer.url,
-      organizer_telephone: each.organizer.telephone,
-      organizer_email: each.organizer.email,
-      organizer_image: ActivitiesIminService.getOrganizerImageUrl(each),
-      date: ActivitiesIminService.itemScheduleToDateString(each),
-      cost: ActivitiesIminService.getCost(each),
-      images: ActivitiesIminService.getImages(each),
-      activity: ActivitiesIminService.getActivity(each),
-      ...ActivitiesIminService.getLocationData(each),
+    const results = (responseData['imin:item'] || []).map(
+      ActivitiesIminService.normalizeOne
+    )
+
+    return new Pagination<Activity>({
+      results,
+      total: responseData['imin:totalItems']
+    })
+  }
+
+  static normalizeOne(item: IminItem) {
+    return {
+      id: item.id.split('/').pop(),
+      name: item.name,
+      description: item.description,
+      organizer_name: item.organizer.name,
+      organizer_url: item.organizer.url,
+      organizer_telephone: item.organizer.telephone,
+      organizer_email: item.organizer.email,
+      organizer_image: ActivitiesIminService.getOrganizerImageUrl(item),
+      date: ActivitiesIminService.itemScheduleToDateString(item),
+      cost: ActivitiesIminService.getCost(item),
+      images: ActivitiesIminService.getImages(item),
+      activity: ActivitiesIminService.getActivity(item),
+      ...ActivitiesIminService.getLocationData(item),
 
       // Imin activities are presumed to be classes
       type: ActivityType.Class,
@@ -99,9 +131,28 @@ export class ActivitiesIminService {
       // These dates should be mocked to match the Activity entity
       created_at: new Date(),
       updated_at: new Date()
+    }
+  }
+
+  /**
+   * Normalizes a set of imin results to a standardised format
+   * for map markers
+   *
+   * @param results
+   * @returns
+   */
+  static normalizeForMarkers(responseData: IminResponseInterface) {
+    const results = (responseData['imin:item'] || []).map((each) => ({
+      id: each.id.split('/').pop(),
+      name: each.name,
+      date: ActivitiesIminService.itemScheduleToDateString(each),
+      ...ActivitiesIminService.getLocationData(each),
+
+      // Imin activities are presumed to be classes
+      type: ActivityType.Class
     }))
 
-    return new Pagination<Activity>({
+    return new Pagination<ActivityForMap>({
       results,
       total: responseData['imin:totalItems']
     })
@@ -223,10 +274,12 @@ export class ActivitiesIminService {
    * @returns string (url)
    */
   static getOrganizerImageUrl(item: IminItem) {
-    if (item.organizer && item.organizer.image) {
+    if (item.organizer && (item.organizer.image || item.organizer.logo)) {
       return ({
         id: '0',
-        url: item.organizer.image.url,
+        url: item.organizer.logo
+          ? item.organizer.logo.url
+          : item.organizer.image.url,
         alt: item.organizer.name
       } as IminConvertedImage) as Image
     } else {
@@ -264,7 +317,7 @@ export class ActivitiesIminService {
         meeting_point: {
           type: 'Point',
           coordinates: [location[0].geo.latitude, location[0].geo.longitude]
-        },
+        } as Point,
         meeting_point_text: location[0].name
       }
     }

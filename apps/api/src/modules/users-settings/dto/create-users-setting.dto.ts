@@ -1,5 +1,5 @@
 import { IsBoolean, IsEnum, IsOptional } from 'class-validator'
-import { PrivacySetting } from '../entities/users-setting.entity'
+import { PrivacySetting } from '../users-settings.constants'
 
 export class CreateUsersSettingDto {
   @IsBoolean()

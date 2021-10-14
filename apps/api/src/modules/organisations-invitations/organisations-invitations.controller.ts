@@ -6,17 +6,25 @@ import {
   Put,
   Param,
   Delete,
-  Request
+  Request,
+  BadRequestException
 } from '@nestjs/common'
-import { OrganisationsInvitationsService } from './organisations-invitations.service'
+import {
+  OrganisationsInvitationsService,
+  OrganisationsInvitationsServiceError
+} from './organisations-invitations.service'
 import { CreateOrganisationsInvitationDto } from './dto/create-organisations-invitation.dto'
 import { Iam } from '../../decorators/iam.decorator'
-import { Roles } from '../user-roles/entities/user-role.entity'
+import { Roles } from '../user-roles/user-roles.constants'
 import { VerifyOrganisationsInvitationDto } from './dto/verify-organisations-invitation.dto'
 import { Organisation } from '../organisations/entities/organisation.entity'
 import { Public } from '../../decorators/public.decorator'
+import { User } from '../../decorators/authenticated-user.decorator'
+import { ApiTags } from '@nestjs/swagger'
+import { AuthenticatedUser } from '../../models'
 
 @Controller()
+@ApiTags('organisations')
 export class OrganisationsInvitationsController {
   constructor(
     private readonly organisationsInvitationsService: OrganisationsInvitationsService
@@ -38,18 +46,17 @@ export class OrganisationsInvitationsController {
   @Iam(Roles.SuperAdmin, Roles.OrganisationAdmin)
   @Post('organisations/:organisationId/invitations')
   create(
-    @Param('organisationId') id,
-    @Body() createOrganisationsInvitationDto: CreateOrganisationsInvitationDto
+    @Param('organisationId') organisationId,
+    @Body() createOrganisationsInvitationDto: CreateOrganisationsInvitationDto,
+    @User() user: AuthenticatedUser
   ) {
-    const organisation = new Organisation()
-    organisation.id = id
-
-    return this.organisationsInvitationsService.create({
-      ...createOrganisationsInvitationDto,
-      ...{
-        organisation
-      }
-    })
+    return this.organisationsInvitationsService.create(
+      organisationId,
+      {
+        ...createOrganisationsInvitationDto
+      },
+      user.id
+    )
   }
 
   /**
@@ -117,23 +124,5 @@ export class OrganisationsInvitationsController {
   @Put('organisations/:organisationId/invitations/:id')
   resend(@Param('id') id: string) {
     return this.organisationsInvitationsService.resend(id)
-  }
-
-  /**
-   * Verifies that a token is still valid. This is useful
-   * in the UI layer to tell the user whether they can
-   * still proceed with creating an account, or alternatively
-   * with merging the organisation under their current login.
-   *
-   * Throws an UnauthorizedException if the token is no
-   * longer valid.
-   *
-   * @param token
-   * @returns boolean
-   */
-  @Public()
-  @Post('organisations-invitations/verify')
-  verify(@Body() { token }: VerifyOrganisationsInvitationDto) {
-    return this.organisationsInvitationsService.verifyToken(token)
   }
 }

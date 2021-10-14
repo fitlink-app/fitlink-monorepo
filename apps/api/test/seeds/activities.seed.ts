@@ -4,7 +4,8 @@ import { Connection } from 'typeorm'
 
 export async function ActivitiesSetup(
   name: string,
-  count = 43
+  count = 43,
+  override: Partial<Activity> = {}
 ): Promise<Activity[]> {
   class Setup implements Seeder {
     public async run(factory: Factory): Promise<any> {
@@ -12,7 +13,8 @@ export async function ActivitiesSetup(
        * Create activities
        */
       return factory(Activity)().createMany(count, {
-        name
+        name,
+        ...override
       })
     }
   }

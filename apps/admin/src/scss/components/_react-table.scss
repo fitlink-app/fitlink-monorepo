@@ -1,0 +1,245 @@
+.react-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: $white;
+  border-radius: 0.5rem;
+  box-shadow: 0 5px 8px 0 $grey-200;
+  
+  .drawer &, .invoices & {
+    box-shadow: none;
+
+    th:first-child, td:first-child {
+      padding-left: 0;
+    }
+
+    th:last-child, td:last-child {
+      padding-right: 0;
+    }
+  }
+
+  thead {
+    th {
+      padding: 0.75rem 0.5rem;
+      text-align: left;
+      border-bottom: 2px solid $grey-80;
+      font-size: 0.875rem;
+      font-weight: 400;
+
+      &:first-child {
+        padding-left: 1rem;
+      }
+
+      &:last-child {
+        padding-right: 1rem;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      transition: background 0.2s;
+    }
+    td {
+      padding: 0.5rem 0.5rem;
+      border-bottom: 1px solid $grey-80;
+      transition: border-color 0.15s;
+      
+      &:first-child {
+        padding-left: 1rem;
+      }
+  
+      &:last-child {
+        padding-right: 1rem;
+      }
+    }
+
+
+    tr:not(:last-child) {
+      &:hover {
+        background: $grey-50;
+        td {
+          //border-color: $grey-300;
+        }
+      }
+    }
+
+    tr:last-child {
+      //background: $grey-50;
+      td {
+        padding: 1rem;
+        font-size: 0.75rem;
+        text-align: right;
+      }
+    }
+  }
+
+  & + .pagination {
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+
+    select {
+      margin-right: 0;
+      margin-left: auto;
+      font-size: 0.875rem;
+    }
+
+    input, select {
+      height: 2.375rem;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    span {
+      margin-left: 1rem;
+      font-size: 0.875rem;
+    }
+
+    button {
+      background: transparent;
+      border: 1px solid $grey-300;
+      padding: 0.25rem;
+      border-radius: 0.375rem;
+      color: $lightGrey;
+      transition: all 0.1s;
+      margin-right: 0.25rem;
+      width: 1.625rem;
+      height: 1.625rem;
+      text-align: center;
+      
+      &:hover:not([disabled]) {
+        color: $grey;
+        border: $white;
+        background: $white;
+        box-shadow: 0px 2px 5px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+      }
+
+      svg {
+        display: block;
+        width: 0.75rem;
+        height: 0.75rem;
+        margin: 0 auto;
+      }
+    }
+    
+  }
+
+  .bua, .avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: block;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.1);
+    
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    span {
+      display: flex;
+      font-size: 0.75rem;
+      font-weight: 700;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      //mix-blend-mode: screen;
+      color: $white;
+    }
+  }
+  
+  .bua {
+    img {
+      filter: blur(3px);
+      -webkit-filter: blur(2px);
+    }
+    span {
+      background: rgba($primary, 0.5);
+    }
+  }
+
+  .avatar {
+    img {
+      position: relative;
+      z-index: 2;
+    }
+
+    span {
+      background: $lightGrey;
+    }
+  }
+
+  .map-preview {
+    max-width: 200px;
+    
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 1rem;
+      box-shadow: 0 5px 10px 0 rgba(0,0,0,0.1);
+    }
+  }
+
+  tr:nth-child(1n) {
+    .bua { span { background: rgba(#864A76, 0.5); } }
+  }
+
+  tr:nth-child(2n) {
+    .bua { span { background: rgba(#7E69A8, 0.5); } }
+  }
+
+  tr:nth-child(3n) {
+    .bua { span { background: rgba(#5A8BD1, 0.5); } }
+  }
+
+  tr:nth-child(4n) {
+    .bua { span { background: rgba(#00AEE8, 0.5); } }
+  }
+
+  tr:nth-child(5n) {
+    .bua { span { background: rgba(#00CDE9, 0.5); } }
+  }
+
+  tr:nth-child(6n) {
+    .bua { span { background: rgba(#00E9D7, 0.5); } }
+  }
+
+  tr:nth-child(7n) {
+    .bua { span { background: rgba(#4EF0C2, 0.5); } }
+  }
+
+  tr:nth-child(8n) {
+    .bua { span { background: rgba(#7CF5AB, 0.5); } }
+  }
+
+  tr:nth-child(9n) {
+    .bua { span { background: rgba(#A6F893, 0.5); } }
+  }
+
+  tr:nth-child(10n) {
+    .bua { span { background: rgba(#D0FA7F, 0.5); } }
+  }
+
+  tr:nth-child(11n) {
+    .bua { span { background: rgba(#F9F871, 0.5); } }
+  }
+}
+
+.drawer, .invoices {
+  .pagination {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

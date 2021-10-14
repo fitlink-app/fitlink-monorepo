@@ -1,23 +1,21 @@
 import { define } from 'typeorm-seeding'
 import Faker from 'faker'
 import { Team } from '../../src/modules/teams/entities/team.entity'
-import {
-  UserRole,
-  Roles
-} from '../../src/modules/user-roles/entities/user-role.entity'
+import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity'
+import { Roles } from '../../src/modules/user-roles/user-roles.constants'
 import { Organisation } from '../../src/modules/organisations/entities/organisation.entity'
 import { Subscription } from '../../src/modules/subscriptions/entities/subscription.entity'
 import { User } from '../../src/modules/users/entities/user.entity'
 
 interface Context {
-  user: User
+  user?: User
   organisation?: Organisation
   subscription?: Subscription
   team?: Team
-  role: Roles
+  role?: Roles
 }
 
-define(UserRole, (_faker: typeof Faker, context: Context) => {
+define(UserRole, (_faker: typeof Faker, context: Context = {}) => {
   const role = new UserRole()
   role.user = context.user
   role.role = context.role

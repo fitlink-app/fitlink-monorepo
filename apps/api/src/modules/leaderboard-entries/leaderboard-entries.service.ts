@@ -4,6 +4,7 @@ import { Repository } from 'typeorm'
 import { CreateLeaderboardEntryDto } from './dto/create-leaderboard-entry.dto'
 import { LeaderboardEntry } from './entities/leaderboard-entry.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
+import { User } from '../users/entities/user.entity'
 
 @Injectable()
 export class LeaderboardEntriesService {
@@ -50,14 +51,11 @@ export class LeaderboardEntriesService {
    * @param userId
    * @returns
    */
-  async findRankAndFlanksInLeaderboard(
-    userId: string,
-    leaderboardId: string
-  ): Promise<any> {
+  async findRankAndFlanksInLeaderboard(userId: string, leaderboardId: string) {
     let query = this.queryLeaderboardRank(leaderboardId)
     query = query.where('rank.user_id = :userId', { userId })
 
-    const userRank: any[] = await query.getRawMany()
+    const userRank = await query.getRawMany()
 
     if (userRank.length) {
       const prev = await this.queryLeaderboardFlanks(
@@ -73,10 +71,10 @@ export class LeaderboardEntriesService {
         'next'
       )
       return {
-        user: userRank[0],
+        user: userRank[0] as LeaderboardEntry,
         flanks: {
-          prev,
-          next
+          prev: prev as LeaderboardEntry,
+          next: next as LeaderboardEntry
         }
       }
     } else {

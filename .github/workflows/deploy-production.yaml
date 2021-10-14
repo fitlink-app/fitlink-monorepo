@@ -1,0 +1,196 @@
+name: Deploy PRODUCTION
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  test:
+    runs-on: ubuntu-18.04
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-pkg-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-pkg-
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Setup docker
+        run: docker-compose up -d postgres-jest s3rver
+
+      - name: Allow docker postgres 10 seconds to startups
+        uses: jakejarvis/wait-action@v0.1.0
+        with:
+          time: '10s'
+
+      - name: Migrate database database
+        run: yarn migration:run -c jest
+
+      - name: Test e2e
+        run: yarn run test
+
+      - name: Test sdk
+        run: yarn run test:sdk
+
+      # - name: Test admin
+      #   run: yarn run test:admin
+
+      - name: Stop docker
+        run: docker-compose down
+
+  build:
+    runs-on: ubuntu-18.04
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    env:
+      # Serverless
+      SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+
+      # Database
+      DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
+      DB_USERNAME: ${{ secrets.DEV_DB_USERNAME }}
+      DB_DATABASE_NAME: ${{ secrets.DEV_DB_DATABASE_NAME }}
+      DB_HOST: ${{ secrets.DEV_DB_HOST }}
+      DB_PORT: ${{ secrets.DEV_DB_PORT }}
+
+      # JWTs
+      AUTH_JWT_SECRET: ${{ secrets.DEV_AUTH_JWT_SECRET }}
+      EMAIL_JWT_TOKEN_SECRET: ${{ secrets.DEV_EMAIL_JWT_TOKEN_SECRET }}
+
+      # Strava
+      STRAVA_CLIENT_ID: ${{ secrets.DEV_STRAVA_CLIENT_ID }}
+      STRAVA_CLIENT_SECRET: ${{ secrets.DEV_STRAVA_CLIENT_SECRET }}
+
+      # Fitbit
+      FITBIT_CLIENT_ID: ${{ secrets.DEV_FITBIT_CLIENT_ID }}
+      FITBIT_CLIENT_SECRET: ${{ secrets.DEV_FITBIT_CLIENT_SECRET }}
+      FITBIT_VERIFY_WEBHOOK_DEFAULT: ${{ secrets.DEV_FITBIT_VERIFY_WEBHOOK_DEFAULT }}
+      FITBIT_VERIFY_WEBHOOK_ACTIVITIES: ${{ secrets.DEV_FITBIT_VERIFY_WEBHOOK_ACTIVITIES }}
+      FITBIT_VERIFY_WEBHOOK_SLEEP: ${{ secrets.DEV_FITBIT_VERIFY_WEBHOOK_SLEEP }}
+
+      # Google and Apple
+      GOOGLE_CLIENT_ID: ${{ secrets.PROD_GOOGLE_CLIENT_ID }}
+      APPLE_CLIENT_ID: ${{ secrets.PROD_APPLE_CLIENT_ID }}
+      APPLE_PRIVATE_KEY_B64: ${{ secrets.PROD_APPLE_PRIVATE_KEY_B64 }}
+
+      # Imin events service
+      IMIN_API_KEY: ${{ secrets.PROD_IMIN_API_KEY }}
+
+      # S3 & SES
+      S3_ACCESS_KEY_ID: ${{ secrets.DEV_S3_ACCESS_KEY_ID }}
+      S3_SECRET_ACCESS_KEY: ${{ secrets.DEV_S3_SECRET_ACCESS_KEY }}
+      SES_ACCESS_KEY_ID: ${{ secrets.DEV_SES_ACCESS_KEY_ID }}
+      SES_SECRET_ACCESS_KEY: ${{ secrets.DEV_SES_SECRET_ACCESS_KEY }}
+
+      # Chargebee
+      CHARGEBEE_API_KEY: ${{ secrets.DEV_CHARGEBEE_API_KEY }}
+
+      # Intercom
+      INTERCOM_API_KEY: ${{ secrets.PROD_INTERCOM_API_KEY }}
+
+      # Firebase
+      FIREBASE_ADMIN_CREDENTIAL: ${{ secrets.PROD_FIREBASE_ADMIN_CREDENTIAL }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-pkg-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-pkg-
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build application
+        run: yarn run build
+
+      - name: Build migrations
+        run: yarn run build:migrate
+
+      - name: Store Elastic Beanstalk artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
+
+  deploy:
+    runs-on: ubuntu-18.04
+    needs: [test, build]
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        id: yarn-cache-server
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-pkg-artifacts-${{ hashFiles('artifacts/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-pkg-artifacts-
+
+      - name: Download Elastic Beanstalk artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+
+      - name: Download dependencies
+        run: yarn install --frozen-lockfile
+        working-directory: artifacts
+
+      - name: Copy environment
+        run: |
+          cp .env.production .env
+          echo "FIREBASE_ADMIN_CREDENTIAL=\"${{ secrets.PROD_FIREBASE_ADMIN_CREDENTIAL }}"\" >> .env;
+          cat .env;
+
+      - name: Package application for Elastic Beanstalk
+        run: |
+          cp dist/apps/api/main.js artifacts/app.js;
+          cp dist/apps/api/migrate.js artifacts/migrate.js;
+          cp .env artifacts/.env;
+          chmod +x artifacts/.platform/hooks/postdeploy/00_migrate.sh;
+          cd artifacts && zip -r app.zip app.js migrate.js .env .npmrc .platform node_modules;
+          zipinfo -1 app.zip;
+
+      - uses: hmanzur/actions-aws-eb@v1.0.0
+        with:
+          command: 'deploy fitlink-nest-prod --staged'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DEV_EB_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_EB_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "eu-west-2"

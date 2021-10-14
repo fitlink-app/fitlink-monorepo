@@ -4,6 +4,7 @@ import { useSeeding } from 'typeorm-seeding'
 import { AuthModule } from '../src/modules/auth/auth.module'
 import { Organisation } from '../src/modules/organisations/entities/organisation.entity'
 import { UserRole } from '../src/modules/user-roles/entities/user-role.entity'
+import { Roles } from '../src/modules/user-roles/user-roles.constants'
 import { UserRolesModule } from '../src/modules/user-roles/user-roles.module'
 import { User } from '../src/modules/users/entities/user.entity'
 import { UsersModule } from '../src/modules/users/users.module'
@@ -96,10 +97,10 @@ describe('User Roles', () => {
     ['subscription admin', () => subAdminPayload]
   ])
 
-  it('GET /organisations/:organisationId/roles/users/:id/roles', async () => {
+  it('GET /me/roles', async () => {
     const data = await app.inject({
       method: 'GET',
-      url: `/organisations/${seededOrganisation.id}/roles/users/${seededUser.id}`,
+      url: `/me/roles`,
       headers: authHeader
     })
 
@@ -226,21 +227,21 @@ describe('User Roles', () => {
     }
   )
 
-  it('DELETE organisations/:organisationId/users/:userId/roles/:roleId', async () => {
+  it('DELETE /me/roles/:roleId', async () => {
     /**
      * A Seeder is unneccessary
      * since it's only being used once
      */
     const userRole = await userRoleRepository.save(
       userRoleRepository.create({
-        role: 'team_admin',
+        role: Roles.TeamAdmin,
         user: seededUser,
         team: seededOrganisation.teams[0]
       })
     )
     const data = await app.inject({
       method: 'DELETE',
-      url: `/organisations/${seededOrganisation.id}/users/${seededUser.id}/roles/${userRole.id}`,
+      url: `/me/roles/${userRole.id}`,
       headers: authHeader
     })
     expect(data.statusCode).toBe(200)

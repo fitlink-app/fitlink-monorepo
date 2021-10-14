@@ -1,7 +1,6 @@
 import {
   PrimaryGeneratedColumn,
   Entity,
-  OneToOne,
   JoinColumn,
   Column,
   ManyToOne
@@ -22,6 +21,22 @@ export class OrganisationsInvitation extends CreatableEntity {
     nullable: true
   })
   name: string
+
+  /**
+   * Optionally adds an admin flag to the invitation
+   * for redeeming administration of an organisation.
+   */
+  @Column({
+    default: false
+  })
+  admin: boolean
+
+  /**
+   * The user sending the invitation
+   */
+  @ManyToOne(() => User, (user) => user.organisations_invitations_sent)
+  @JoinColumn()
+  owner: User
 
   /**
    * After a user completes the invitation

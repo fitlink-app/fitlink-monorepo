@@ -1,51 +1,67 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query
+} from '@nestjs/common'
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { User } from '../../decorators/authenticated-user.decorator'
-import { Files } from '../../decorators/files.decorator'
 import { Iam } from '../../decorators/iam.decorator'
-import { UploadOptions, Uploads } from '../../decorators/uploads.decorator'
 import { AuthenticatedUser } from '../../models'
-import { Image, ImageType } from '../images/entities/image.entity'
-import { ImagesService } from '../images/images.service'
-import { Roles } from '../user-roles/entities/user-role.entity'
+import { Image } from '../images/entities/image.entity'
+import { Roles } from '../user-roles/user-roles.constants'
 import { CreateTeamDto } from './dto/create-team.dto'
 import { UpdateTeamDto } from './dto/update-team.dto'
-import { TeamsService } from './teams.service'
+import { TeamServiceError, TeamsService } from './teams.service'
+import { Pagination } from '../../decorators/pagination.decorator'
+import { PaginationQuery } from '../../helpers/paginate'
+import { Team } from './entities/team.entity'
+import { ApiBaseResponses } from '../../decorators/swagger.decorator'
+import { RespondTeamsInvitationDto } from '../teams-invitations/dto/respond-teams-invitation.dto'
+import { TeamsInvitationsServiceError } from '../teams-invitations/teams-invitations.service'
+import { JoinTeamDto } from './dto/join-team.dto'
 
 @Controller()
+@ApiTags('teams')
+@ApiBaseResponses()
 export class TeamsController {
-  constructor(
-    private readonly teamsService: TeamsService,
-    private readonly imagesService: ImagesService
-  ) {}
+  constructor(private readonly teamsService: TeamsService) {}
 
+  /**
+   * Only organisation admins can create new teams
+   *
+   * @param createTeamDto
+   * @param organisationId
+   * @returns
+   */
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
   @Post('/organisations/:organisationId/teams')
-  @Uploads('avatar', UploadOptions.Nullable)
   async teamCreate(
     @Body() createTeamDto: CreateTeamDto,
-    @Files('avatar') file: Storage.MultipartFile,
     @Param('organisationId') organisationId: string
   ) {
-    const alt = createTeamDto.name
-    let avatar: Image
-    if (file) {
-      avatar = await this.imagesService.createOne(file, ImageType.Avatar, {
-        alt
-      })
+    const create: Partial<Team> = createTeamDto
+
+    if (createTeamDto.imageId) {
+      create.avatar = new Image()
+      create.avatar.id = createTeamDto.imageId
     }
-    return this.teamsService.create(
-      {
-        ...createTeamDto,
-        avatar
-      },
-      organisationId
-    )
+
+    return this.teamsService.create(create, organisationId)
   }
 
   @Iam(Roles.OrganisationAdmin)
   @Get('/organisations/:organisationId/teams')
-  teamFindAll(@Param('organisationId') organisationId: string) {
-    return this.teamsService.findAll(organisationId)
+  teamFindAll(
+    @Param('organisationId') organisationId: string,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.teamsService.findAll(pagination, organisationId)
   }
 
   @Iam(Roles.OrganisationAdmin)
@@ -59,32 +75,21 @@ export class TeamsController {
 
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
   @Put('/organisations/:organisationId/teams/:id')
-  @Uploads('avatar', UploadOptions.Nullable)
   async teamUpdate(
     @Param('id') id: string,
     @Param('organisationId') organisationId: string,
-    @Files('avatar') file: Storage.MultipartFile,
     @Body() updateTeamDto: UpdateTeamDto
   ) {
-    const alt = updateTeamDto.name || ''
-    let avatar: Image
+    const update: Partial<Team> = updateTeamDto
 
-    if (file) {
-      avatar = await this.imagesService.createOne(file, ImageType.Avatar, {
-        alt
-      })
+    if (updateTeamDto.imageId) {
+      update.avatar = new Image()
+      update.avatar.id = updateTeamDto.imageId
+    } else if (updateTeamDto.imageId === null) {
+      update.avatar = null
     }
-    if (file === null) {
-      return this.teamsService.removeAvatar(id)
-    }
-    return this.teamsService.update(
-      id,
-      {
-        ...updateTeamDto,
-        avatar
-      },
-      organisationId
-    )
+
+    return this.teamsService.update(id, update, organisationId)
   }
 
   @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin)
@@ -105,30 +110,115 @@ export class TeamsController {
     return this.teamsService.getAllUsersFromTeam(organisationId, teamId)
   }
 
-  @Iam(Roles.OrganisationAdmin, Roles.SuperAdmin, Roles.TeamAdmin)
-  @Delete('/organisations/:organisationId/teams/:teamId/users/:userId')
+  @Iam(Roles.TeamAdmin)
+  @Delete('/teams/:teamId/users/:userId')
   deleteUserFromTeam(
-    @Param('organisationId') organisationId: string,
     @Param('teamId') teamId: string,
     @Param('userId') userId: string
   ) {
-    return this.teamsService.deleteUserFromTeam(organisationId, teamId, userId)
+    return this.teamsService.deleteUserFromTeam(teamId, userId)
   }
 
+  @Iam(Roles.TeamAdmin)
+  @Get('/teams/:teamId/stats')
+  findAllUsersAndStats(
+    @Param('teamId') teamId: string,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.teamsService.queryUserTeamStats(teamId, pagination)
+  }
+
+  @Get('/teams/code/:code')
+  @ApiResponse({ type: Team })
+  findTeamByCode(@Param('code') code: string) {
+    return this.teamsService.findOneByCode(code)
+  }
+
+  // @Iam(Roles.TeamAdmin)
+  // @Get('/teams/:teamId/stats/health-activities')
+  // findTeamHealthActivities(
+  //   @Param('teamId') teamId: string,
+  //   @Query() { start_at, end_at }: DateQueryDto
+  // ) {
+  //   return this.teamsService.queryPopularActivities(teamId, {
+  //     start_at,
+  //     end_at
+  //   })
+  // }
+
   @Post('/teams/join')
-  userJoinTeam(@Body('token') token: string, @User() user: AuthenticatedUser) {
-    return this.teamsService.joinTeam(token, user)
+  async userJoinTeam(
+    @Body() { token, code }: JoinTeamDto,
+    @User() user: AuthenticatedUser
+  ) {
+    if (token) {
+      const join = await this.teamsService.joinTeamFromToken(token, user.id)
+      if (typeof join === 'string') {
+        throw new BadRequestException(join)
+      }
+
+      return join
+    } else if (code) {
+      const join = await this.teamsService.joinTeamFromCode(code, user.id)
+      if (typeof join === 'string') {
+        throw new BadRequestException(join)
+      }
+
+      return { success: join }
+    } else {
+      throw new BadRequestException('You must specify a join code or token')
+    }
   }
 
   @Iam(Roles.SuperAdmin)
   @Get('/teams')
-  findAll() {
-    return this.teamsService.findAll()
+  findAll(@Pagination() pagination: PaginationQuery) {
+    return this.teamsService.findAll(pagination)
   }
 
-  @Iam(Roles.SuperAdmin)
-  @Get('/teams/:id')
-  findOne(@Param('id') id: string) {
+  @Iam(Roles.SuperAdmin, Roles.TeamAdmin)
+  @Get('/teams/:teamId')
+  findOne(@Param('teamId') id: string) {
     return this.teamsService.findOne(id)
+  }
+
+  @Iam(Roles.SuperAdmin, Roles.TeamAdmin)
+  @Put('/teams/:teamId')
+  updateOne(@Param('teamId') id: string, @Body() dto: UpdateTeamDto) {
+    return this.teamsService.update(id, dto)
+  }
+
+  @Post('/teams-invitations/respond')
+  async accept(
+    @Body() { token, accept }: RespondTeamsInvitationDto,
+    @User() user: AuthenticatedUser
+  ) {
+    const result = await this.teamsService.respondToInvitation(
+      token,
+      accept,
+      user.id
+    )
+
+    if (typeof result === 'string') {
+      throw new BadRequestException(result)
+    }
+
+    if (!result) {
+      throw new BadRequestException(TeamsInvitationsServiceError.TokenNotFound)
+    }
+
+    return result
+  }
+
+  @Iam(Roles.TeamAdmin)
+  @Post('/teams/:teamId/regenerate-join-code')
+  async regenerateJoinCode(@Param('teamId') teamId: string) {
+    return this.teamsService.updateJoinCode(teamId)
+  }
+
+  @Iam(Roles.TeamAdmin)
+  @Get('/teams/:teamId/invite-link')
+  async getInviteLink(@Param('teamId') teamId: string) {
+    return this.teamsService.getInviteLink(teamId)
   }
 }

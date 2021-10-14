@@ -3,65 +3,84 @@ import {
   Entity,
   ManyToOne,
   Column,
-  OneToOne,
-  JoinColumn
+  JoinColumn,
+  ManyToMany,
+  JoinTable,
+  OneToOne
 } from 'typeorm'
 
-import { Image } from '../../images/entities/image.entity'
 import { CreatableEntity } from '../../../classes/entity/creatable'
-import { User } from '../../users/entities/user.entity'
+import { User, UserPublic } from '../../users/entities/user.entity'
 import { HealthActivity } from '../../health-activities/entities/health-activity.entity'
 import { GoalsEntry } from '../../goals-entries/entities/goals-entry.entity'
-
-export enum FeedItemEventType {
-  HealthActivity = 'health_activity',
-  NewFollower = 'new_follower',
-  UserGoal = 'user_goal',
-  WonLeague = 'won_league',
-  JoinedLeague = 'joined_league',
-  GoalHit = 'goal_hit',
-  LifestyleActivity = 'lifestyle_activity',
-  RewardClaimed = 'reward_claimed'
-}
-
-export enum FeedItemGroupType {
-  UserActivity = 'user_activity',
-  UserGoal = 'user_goal'
-}
+import { League } from '../../leagues/entities/league.entity'
+import { Reward } from '../../rewards/entities/reward.entity'
+import {
+  FeedItemCategory,
+  FeedItemType,
+  FeedGoalType
+} from '../feed-items.constants'
+import { UserRank } from '../../users/users.constants'
+import { Notification } from '../../notifications/entities/notification.entity'
 
 @Entity()
 export class FeedItem extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
+  @Column({
+    type: 'enum',
+    enum: FeedItemCategory
+  })
+  category: FeedItemCategory
+
+  @Column({
+    type: 'enum',
+    enum: FeedItemType
+  })
+  type: FeedItemType
+
+  @Column({
+    type: 'enum',
+    enum: UserRank,
+    nullable: true
+  })
+  tier?: UserRank
+
+  @ManyToOne(() => HealthActivity, (activity) => activity.feed_items)
+  @JoinColumn()
+  health_activity?: HealthActivity
+
+  @ManyToOne(() => League, (league) => league.feed_items)
+  @JoinColumn()
+  league?: League
+
+  @ManyToOne(() => Reward, (reward) => reward.feed_items)
+  @JoinColumn()
+  reward?: Reward
+
+  @ManyToOne(() => User, (user) => user.related_feed_items)
+  @JoinColumn()
+  related_user?: User | UserPublic
+
+  @ManyToOne(() => GoalsEntry, (entry) => entry.feed_items)
+  @JoinColumn()
+  goal_entry?: GoalsEntry
+
+  @Column({
+    type: 'enum',
+    enum: FeedGoalType,
+    nullable: true
+  })
+  @JoinColumn()
+  goal_type?: FeedGoalType
+
   @ManyToOne(() => User, (user) => user.feed_items)
-  user: User
-
-  @Column({
-    type: 'enum',
-    enum: FeedItemEventType
-  })
-  event: FeedItemEventType
-
-  @Column({
-    type: 'enum',
-    enum: FeedItemGroupType
-  })
-  group: FeedItemGroupType
-
-  @OneToOne(() => Image, { nullable: true })
   @JoinColumn()
-  image: Image
+  user: User | UserPublic
 
-  @OneToOne(() => User, { nullable: true })
+  @ManyToMany(() => User, (user) => user.likes)
+  @JoinTable()
   @JoinColumn()
-  related_user: User
-
-  @OneToOne(() => HealthActivity, { nullable: true })
-  @JoinColumn()
-  related_health_activity: HealthActivity
-
-  @OneToOne(() => GoalsEntry, { nullable: true })
-  @JoinColumn()
-  related_goals_entry: GoalsEntry
+  likes: User[] | UserPublic[]
 }

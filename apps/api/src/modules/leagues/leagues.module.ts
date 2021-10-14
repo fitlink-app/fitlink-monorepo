@@ -6,10 +6,46 @@ import { League } from './entities/league.entity'
 import { AuthModule } from '../auth/auth.module'
 import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
 import { Team } from '../teams/entities/team.entity'
+import { Organisation } from '../organisations/entities/organisation.entity'
+import { LeaguesInvitationModule } from '../leagues-invitations/leagues-invitations.module'
+import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
+import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
+import { HealthActivity } from '../health-activities/entities/health-activity.entity'
+import { HealthActivityCreatedListener } from './listeners/HealthActivityCreatedListener'
+import { User } from '../users/entities/user.entity'
+import { FeedItemsModule } from '../feed-items/feed-items.module'
+import { CommonModule } from '../common/common.module'
+import { LeagueJoinedListener } from './listeners/LeagueJoinedListener'
+import { EventEmitter2 } from '@nestjs/event-emitter'
+import { LeagueWonListener } from './listeners/LeagueWonListener'
+import { NotificationsModule } from '../notifications/notifications.module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([League, Leaderboard, Team]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([
+      League,
+      Leaderboard,
+      LeaderboardEntry,
+      Team,
+      Organisation,
+      HealthActivity,
+      User
+    ]),
+    CommonModule,
+    AuthModule,
+    LeaguesInvitationModule,
+    FeedItemsModule,
+    EventEmitter2,
+    NotificationsModule
+  ],
   controllers: [LeaguesController],
-  providers: [LeaguesService]
+  providers: [
+    LeaguesService,
+    LeaderboardEntriesService,
+    HealthActivityCreatedListener,
+    LeagueJoinedListener,
+    LeagueWonListener
+  ],
+  exports: []
 })
 export class LeaguesModule {}

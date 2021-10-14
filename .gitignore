@@ -1,6 +1,8 @@
 # compiled output
 /dist
 /node_modules
+node_modules
+storybook-static
 
 # Logs
 logs
@@ -36,6 +38,9 @@ lerna-debug.log*
 /documentation
 /.aws
 .env*
+!.env.test
+!.env.staging
+!.env.production
 terraform
 .serverless
 /s3
@@ -45,3 +50,15 @@ terraform
 /email-debug.log
 .next
 /serverless/node_*
+/root.key
+/root.crt
+/apps/api/database/firebase/credential.json
+/apps/api/database/firebase/users.json
+/fitlink.sql
+/jest.sql
+/serverless/serverless.js
+
+.ycache
+
+artifacts/app.zip
+artifacts/node_modules

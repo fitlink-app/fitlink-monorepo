@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { ROLES } from '../decorators/iam.decorator'
-import { Roles } from '../modules/user-roles/entities/user-role.entity'
+import { Roles } from '../modules/user-roles/user-roles.constants'
 import { AuthenticatedUser } from '../models/authenticated-user.model'
 
 @Injectable()
@@ -75,10 +75,9 @@ export class IamGuard implements CanActivate {
       return user.roles.super_admin === true
     }
 
+    // Role cannot be assigned without explicitly adding the parameter to the controller
     if (!request.params[parameter]) {
-      throw new InternalServerErrorException(
-        `${role} role cannot be assigned without explicitly adding ${parameter} to the controller`
-      )
+      return false
     }
 
     // Users can edit entities they own

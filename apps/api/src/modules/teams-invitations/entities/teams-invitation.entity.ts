@@ -7,7 +7,7 @@ import {
 } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { Team } from '../../teams/entities/team.entity'
-import { User } from '../../users/entities/user.entity'
+import { User, UserPublic } from '../../users/entities/user.entity'
 
 @Entity()
 export class TeamsInvitation extends CreatableEntity {
@@ -21,6 +21,22 @@ export class TeamsInvitation extends CreatableEntity {
     nullable: true
   })
   name: string
+
+  /**
+   * Optionally adds an admin flag to the invitation
+   * for redeeming administration of a team.
+   */
+  @Column({
+    default: false
+  })
+  admin: boolean
+
+  /**
+   * The user sending the invitation
+   */
+  @ManyToOne(() => User, (user) => user.teams_invitations_sent)
+  @JoinColumn()
+  owner: User | UserPublic
 
   /**
    * After a user completes the invitation

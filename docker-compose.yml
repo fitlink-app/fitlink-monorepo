@@ -16,7 +16,7 @@ services:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./docker/uuid.sql:/docker-entrypoint-initdb.d/uuid.sql
+      - ./docker/uuid.sql:/docker-entrypoint-initdb.d/uuid.sqlbas
   postgres-jest:
     container_name: postgres-jest
     image: postgis/postgis

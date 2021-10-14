@@ -1,11 +1,13 @@
 body {
   font-family: 'Lato', sans-serif;
   font-weight: 300;
-  font-size: 0.875rem;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: $darkGrey;
-  
+}
+
+html {
+  font-size: 0.875rem;
   @media screen and (min-width: $medium) {
     font-size: 1rem;
   }
@@ -14,6 +16,12 @@ body {
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, strong {
   font-weight: 700;
   line-height: 1.2em;
+}
+
+strong {
+  &.medium {
+    font-weight: 400;
+  }
 }
 
 h3, h4, h5, h6, p, .h3, .h4, .h5, .h6 {
@@ -44,13 +52,16 @@ h6, .h6 {
 }
 
 p, .p {
-  font-weight: 300;
   font-size: 0.875rem;
   line-height: 1.4em;
   margin: 0 0 0.5em 0;
   @media screen and (min-width: $medium) {
     font-size: 1rem;
   }
+}
+
+p {
+  font-weight: 300;
 }
 
 ul, ol {
@@ -68,7 +79,7 @@ ul, ol {
   }
 }
 
-small {
+small, .small {
   font-size: 0.75em;
 }
 
@@ -93,7 +104,7 @@ code {
   vertical-align: middle;
 }
 
-label {
+label, .label {
   font-weight: 700;
   font-size: 0.875rem;
   margin: 1.5rem 0 0.5rem;
