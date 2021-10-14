@@ -94,12 +94,12 @@ export class HealthActivitiesController {
   @Post('/me/health-activities/:activityId/share')
   async generateImageShare(
     @Param('activityId') id: string,
-    @Body() { imageId }: ShareHealthActivityImageDto,
+    @Body() requestBody: ShareHealthActivityImageDto,
     @AuthUser() user: AuthenticatedUser,
     @Response() reply: { raw: http.ServerResponse }
   ) {
     const healthActivity = await this.healthActivitiesService.findOne(id)
-    const image = await this.imagesService.findOne(imageId)
+    const body = requestBody || {}
 
     if (healthActivity.user.id !== user.id) {
       throw new ForbiddenException()
@@ -107,7 +107,7 @@ export class HealthActivitiesController {
 
     const generatedImage = await this.healthActivitiesService.createShareableImage(
       id,
-      imageId
+      body.imageId
     )
 
     reply.raw.writeHead(200, { 'Content-Type': 'image/jpeg' })

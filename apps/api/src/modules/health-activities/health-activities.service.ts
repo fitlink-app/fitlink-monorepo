@@ -206,7 +206,7 @@ export class HealthActivitiesService {
     return `${time} ${singular}`
   }
 
-  async createShareableImage(healthActivityId: string, imageId: string) {
+  async createShareableImage(healthActivityId: string, imageId?: string) {
     const healthActivity = await this.healthActivityRepository.findOne(
       healthActivityId,
       {
