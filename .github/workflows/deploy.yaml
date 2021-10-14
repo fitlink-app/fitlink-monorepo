@@ -155,6 +155,25 @@ jobs:
       - name: Build migrations
         run: yarn run build:migrate
 
+      - name: Store Elastic Beanstalk artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
+
+  deploy:
+    runs-on: ubuntu-18.04
+    needs: [test, build]
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download Elastic Beanstalk artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+
       - name: Download dependencies
         run: yarn install --frozen-lockfile
         working-directory: artifacts
@@ -167,25 +186,6 @@ jobs:
           chmod +x artifacts/.platform/hooks/postdeploy/00_migrate.sh;
           cd artifacts && zip -r app.zip app.js migrate.js .env .npmrc .platform node_modules;
           zipinfo -1 app.zip;
-
-      - name: Store Elastic Beanstalk artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: eb-zip
-          path: artifacts/app.zip
-
-  deploy:
-    runs-on: ubuntu-18.04
-    needs: [test, build]
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Download Elastic Beanstalk artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: eb-zip
-          path: artifacts
 
       - uses: hmanzur/actions-aws-eb@v1.0.0
         with:
