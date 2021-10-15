@@ -45,8 +45,8 @@ export class Sport extends CreatableEntity {
   image_url?: string
 
   @Column({
-    type: 'text',
-    default: `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" fill="#ffffff" fill-opacity="0"/></svg>`
+    default:
+      'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
   })
-  icon_svg: string
+  icon_url: string
 }

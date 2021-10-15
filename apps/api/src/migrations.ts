@@ -65,6 +65,7 @@ import { AddSportsPace1633869946687 } from '../database/migrations/1633869946687
 import { AddImageUrlSport1633944959171 } from '../database/migrations/1633944959171-AddImageUrlSport'
 import { AddUserMobileOS1634031981765 } from '../database/migrations/1634031981765-AddUserMobileOS'
 import { AddIconSvgToSport1634129894631 } from '../database/migrations/1634129894631-AddIconSvgToSport'
+import { SportIconUrl1634290863881 } from '../database/migrations/1634290863881-SportIconUrl'
 
 export default [
   InitializeSchema1614887523112,
@@ -128,5 +129,6 @@ export default [
   AddSportsPace1633869946687,
   AddImageUrlSport1633944959171,
   AddUserMobileOS1634031981765,
-  AddIconSvgToSport1634129894631
+  AddIconSvgToSport1634129894631,
+  SportIconUrl1634290863881
 ]
