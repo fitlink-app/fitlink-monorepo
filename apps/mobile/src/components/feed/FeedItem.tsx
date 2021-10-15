@@ -306,10 +306,10 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
             avatars={usersLikedAvatars}
           />
         </Button>
-        <ButtonSeparator />
-        <Button>
-          <Icon name={'share'} color={colors.accentSecondary} size={16} />
-        </Button>
+        {/* <ButtonSeparator />
+          <Button>
+            <Icon name={'camera'} color={colors.accentSecondary} size={18} />
+          </Button> */}
       </ButtonContainer>
     </Wrapper>
   );

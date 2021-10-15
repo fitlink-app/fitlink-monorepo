@@ -114,8 +114,13 @@ export const ModalProvider: React.FC = ({children}) => {
   }
 
   function closeModal(id: string, callback?: () => void) {
+    console.log(components);
+    console.log(id);
     const selectedComponent = components.find(component => component.id === id);
     const newComponents = components.filter(component => component.id !== id);
+
+    console.log('selected component');
+    console.log(selectedComponent);
 
     animateClose(() => {
       selectedComponent?.onCloseCallback && selectedComponent.onCloseCallback();

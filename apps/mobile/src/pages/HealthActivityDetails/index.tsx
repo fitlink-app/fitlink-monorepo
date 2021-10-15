@@ -1,4 +1,12 @@
-import {Avatar, Dots, Icon, Label, Navbar, TouchHandler} from '@components';
+import {
+  Avatar,
+  Dots,
+  Icon,
+  Label,
+  Modal,
+  Navbar,
+  TouchHandler,
+} from '@components';
 import React, {useEffect, useRef, useState} from 'react';
 import {
   Animated,
@@ -7,6 +15,7 @@ import {
   View,
   ActivityIndicator,
   InteractionManager,
+  Alert,
 } from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
@@ -24,10 +33,20 @@ import Polyline from '@mapbox/polyline';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import {StackScreenProps} from '@react-navigation/stack';
 import {RootStackParamList} from 'routes/types';
-import {useHealthActivity, useMe, useShareHealthActivity} from '@hooks';
+import {
+  useHealthActivity,
+  useHealthActivityImage,
+  useImagePicker,
+  useMe,
+  useModal,
+  useShareHealthActivity,
+  useUploadImage,
+} from '@hooks';
 import {formatRelative, formatDistanceStrict} from 'date-fns';
 import locale from 'date-fns/locale/en-US';
 import {getErrorMessage} from '@fitlink/api-sdk';
+import {ImageType} from '@fitlink/api/src/modules/images/images.constants';
+import {Dialog} from 'components/modal';
 
 const {MapView, LineLayer, ShapeSource, Camera} = MapboxGL;
 
@@ -71,7 +90,6 @@ const StatWidgetRow = styled.View({flexDirection: 'row'});
 export const HealthActivityDetails = (
   props: StackScreenProps<RootStackParamList, 'HealthActivityDetails'>,
 ) => {
-  const insets = useSafeAreaInsets();
   const {colors} = useTheme();
   const navigation = useNavigation();
 
@@ -85,17 +103,29 @@ export const HealthActivityDetails = (
 
   const {id} = props.route.params;
 
+  const {openModal, closeModal} = useModal();
+
   const {data: user} = useMe({
     refetchOnMount: false,
   });
 
-  const {
-    data,
-    isFetchedAfterMount: isHealthActivityFetchedAfterMount,
-    refetch: refetchHealthActivity,
-  } = useHealthActivity(id, areInteractionsDone);
+  const {data} = useHealthActivity(id, areInteractionsDone);
 
-  const {mutateAsync: generateShareableContent} = useShareHealthActivity();
+  const {shareActivity, isLoading: isShareActivityLoading} =
+    useShareHealthActivity();
+
+  const {mutateAsync: uploadImage, isLoading: isUploadingImage} =
+    useUploadImage();
+
+  const {
+    addImageMutation: {
+      mutateAsync: addHealthActivityImage,
+      isLoading: isAddingHealthActivityImage,
+    },
+    deleteImageMutation: {mutateAsync: deleteHealthActivityImage},
+  } = useHealthActivityImage();
+
+  const {openImagePicker} = useImagePicker();
 
   const distance =
     user && data?.distance
@@ -141,9 +171,6 @@ export const HealthActivityDetails = (
 
   const isOwnedActivity = data?.user.id === user?.id;
 
-  // TEMP
-  const isHealthActivityImageUploading = false;
-
   const scrollAnimInterpolated = scrollAnim.interpolate({
     inputRange: [-500, 0],
     outputRange: [-500, 0],
@@ -160,24 +187,71 @@ export const HealthActivityDetails = (
     return undefined;
   };
 
-  const handleOnImagePickerPressed = () => {};
+  const handleOnImagePickerPressed = () => {
+    openImagePicker('Upload new image', async response => {
+      try {
+        const uploadResult = await uploadImage({
+          image: response,
+          type: ImageType.Cover,
+        });
+        await addHealthActivityImage({
+          activityId: data!.id,
+          images: [uploadResult.id],
+        });
+      } catch (e) {
+        Alert.alert('Failed to upload image', `Oops! Something wen't wrong.`);
+      }
+    });
+  };
 
-  const handleOnImageOptionsPressed = () => {};
-
-  const handleOnSharePressed = async () => {
+  const handleOnImageOptionsPressed = () => {
     if (!data) return;
-    console.log(data);
-    try {
-      const hurka = await generateShareableContent({
-        activityId: data?.id,
-      });
 
-      console.log('hurka');
-      console.log(hurka);
-    } catch (e) {
-      console.log('e: ', e);
-      console.log(getErrorMessage(e));
-    }
+    openModal(id => (
+      <Dialog
+        title={'Photo Options'}
+        onCloseCallback={() => {
+          closeModal(id);
+        }}
+        buttons={[
+          {
+            text: 'Delete Photo',
+            type: 'danger',
+            onPress: () => {
+              deleteHealthActivityImage({
+                activityId: data.id,
+                imageId: data.images[currentImageIndex]?.id,
+              });
+
+              setTimeout(() => {
+                openModal(id => {
+                  return (
+                    <Modal
+                      title={'Photo Deleted'}
+                      description={'Photo deleted successfully!'}
+                      buttons={[
+                        {
+                          text: 'Ok',
+                          onPress: () => closeModal(id),
+                        },
+                      ]}
+                    />
+                  );
+                });
+              }, 500);
+            },
+          },
+        ]}
+      />
+    ));
+  };
+
+  const handleOnSharePressed = () => {
+    if (!data) return;
+    shareActivity({
+      activityId: data?.id,
+      imageId: data?.images ? data.images[currentImageIndex]?.id : undefined,
+    });
   };
 
   const renderRoute = () => {
@@ -278,11 +352,11 @@ export const HealthActivityDetails = (
                   }>
                   {data.images.map(({id, url_640x360}, index) => {
                     return (
-                      <View key={url}>
+                      <View key={id}>
                         <HeaderImage
                           resizeMode={'cover'}
                           source={{
-                            uri: url,
+                            uri: url_640x360,
                           }}
                         />
                       </View>
@@ -307,9 +381,11 @@ export const HealthActivityDetails = (
                     flex: 1,
                   }}>
                   <Avatar size={60} url={userAvatarUrl} />
+
                   <Label type={'title'} style={{marginVertical: 5}}>
                     {userName}
                   </Label>
+
                   {!!data.images.length && (
                     <Dots
                       amount={data.images.length}
@@ -318,27 +394,36 @@ export const HealthActivityDetails = (
                     />
                   )}
                 </View>
-                {isOwnedActivity && (
+
+                {!!data.images.length && isOwnedActivity && (
                   <Icon
-                    name={'camera'}
-                    size={26}
+                    name={'ellipsis'}
                     color={'white'}
-                    style={{position: 'absolute', right: 0, bottom: 0}}
-                    onPress={handleOnImagePickerPressed}
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      bottom: 0,
+                    }}
+                    onPress={handleOnImageOptionsPressed}
                   />
                 )}
 
-                {!!data.images.length &&
-                  isOwnedActivity &&
-                  !isHealthActivityImageUploading && (
-                    <Icon
-                      name={'ellipsis'}
-                      color={'white'}
-                      size={26}
-                      onPress={handleOnImageOptionsPressed}
-                      style={{position: 'absolute', right: 0, top: insets.top}}
-                    />
-                  )}
+                {isOwnedActivity && (
+                  <Icon
+                    name={'camera'}
+                    style={{
+                      position: 'absolute',
+                      right: 0,
+                      bottom: 0,
+                    }}
+                    size={26}
+                    color={'white'}
+                    isLoading={isAddingHealthActivityImage || isUploadingImage}
+                    disabled={isAddingHealthActivityImage || isUploadingImage}
+                    onPress={handleOnImagePickerPressed}
+                  />
+                )}
               </HeaderContent>
             </HeaderContainer>
           </Animated.View>
@@ -376,7 +461,8 @@ export const HealthActivityDetails = (
               size={20}
               color={'white'}
               onPress={handleOnSharePressed}
-              disabled={false}
+              disabled={isShareActivityLoading}
+              isLoading={isShareActivityLoading}
             />
           </View>
 

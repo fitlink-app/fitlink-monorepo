@@ -56,7 +56,10 @@ export const UpdateEmailForm = () => {
           buttons={[
             {
               text: 'Ok',
-              onPress: () => closeModal(id),
+              onPress: () => {
+                closeModal(id);
+                navigation.goBack();
+              },
             },
           ]}
         />
