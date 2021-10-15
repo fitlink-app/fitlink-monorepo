@@ -146,6 +146,7 @@ export class NotificationsService {
         }
       },
       relations: ['user'],
+      order: { created_at: 'DESC' },
       take: limit,
       skip: limit * page
     })
