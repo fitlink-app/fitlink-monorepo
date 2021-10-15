@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { HttpService, Injectable, NotFoundException } from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
@@ -30,6 +30,8 @@ import { CommonService } from '../common/services/common.service'
 import { LeagueJoinedEvent } from './events/league-joined.event'
 import { LeagueWonEvent } from './events/league-won.event'
 import { Events } from '../../events'
+import { ConfigService } from '@nestjs/config'
+import { differenceInSeconds } from 'date-fns'
 
 type LeagueOptions = {
   teamId?: string
@@ -60,7 +62,9 @@ export class LeaguesService {
 
     private leaderboardEntriesService: LeaderboardEntriesService,
     private commonService: CommonService,
-    private eventEmitter: EventEmitter2
+    private eventEmitter: EventEmitter2,
+    private configService: ConfigService,
+    private httpService: HttpService
   ) {}
 
   async create(
@@ -982,6 +986,7 @@ export class LeaguesService {
    * Process leagues that are due to be ended / restarted
    */
   async processPendingLeagues() {
+    const started = new Date()
     const leagues = await this.leaguesRepository
       .createQueryBuilder('league')
       .innerJoinAndSelect('league.active_leaderboard', 'active_leaderboard')
@@ -996,9 +1001,25 @@ export class LeaguesService {
     )
     const totalLeagues = results.map((e) => e !== false).length
     const leaguesRestarted = results.map((e) => e && e.restarted).length
-    return {
+    const result = {
       leagues_processed: totalLeagues,
       leagues_restarted: leaguesRestarted
+    }
+
+    await this.notifySlack(differenceInSeconds(new Date(), started), result)
+    return result
+  }
+
+  async notifySlack(seconds: number, result: NodeJS.Dict<any>) {
+    try {
+      await this.httpService
+        .post(this.configService.get('SLACK_WEBHOOK_JOBS_URL'), {
+          text: `Leagues job took ${seconds} seconds to run`,
+          attachments: { text: JSON.stringify(result) }
+        })
+        .toPromise()
+    } catch (e) {
+      console.error(e)
     }
   }
 }

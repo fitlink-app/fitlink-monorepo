@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { HttpModule, HttpService, Module } from '@nestjs/common'
 import { LeaguesService } from './leagues.service'
 import { LeaguesController } from './leagues.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -36,7 +36,8 @@ import { NotificationsModule } from '../notifications/notifications.module'
     LeaguesInvitationModule,
     FeedItemsModule,
     EventEmitter2,
-    NotificationsModule
+    NotificationsModule,
+    HttpModule
   ],
   controllers: [LeaguesController],
   providers: [

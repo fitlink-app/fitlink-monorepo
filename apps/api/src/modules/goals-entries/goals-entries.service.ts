@@ -101,7 +101,7 @@ export class GoalsEntriesService {
 
     entries.forEach((each) => {
       // Only update if the incoming entry exceeds the previous entry value
-      if (each.current >= each.target) {
+      if (each.current >= goalsEntry[each.field]) {
         // Check if the current value was previously lower than target and is now "reached"
         if (goalsEntry[each.field] < each.target) {
           targetReached.push(each)
@@ -122,6 +122,15 @@ export class GoalsEntriesService {
     })
 
     await Promise.all(triggerEventPromises)
+
+    if (!goalsEntry.created_at) {
+      goalsEntry.created_at = zonedStartOfDay(user.timezone)
+      goalsEntry.updated_at = zonedStartOfDay(user.timezone)
+    }
+
+    // Ensure user is set
+    goalsEntry.user = new User()
+    goalsEntry.user.id = user.id
 
     return await this.goalsEntryRepository.save(goalsEntry)
   }
