@@ -9,7 +9,7 @@ import {
 } from '@components';
 import {useFeed, useGoals, useMe, useModal, useProviders} from '@hooks';
 import {UserWidget} from '@components';
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {ActivityIndicator, FlatList, RefreshControl, View} from 'react-native';
@@ -23,6 +23,7 @@ import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/enti
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {queryClient, QueryKeys} from '@query';
 import {getErrorMessage} from '@fitlink/api-sdk';
+import {AppleHealthKitWrapper} from 'services';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -71,7 +72,7 @@ export const Feed = () => {
   // Preload providers
   useProviders();
 
-  const {data: user, refetch: refetchUser} = useMe({
+  const {data: user} = useMe({
     refetchOnMount: false,
     refetchInterval: 10000,
   });
@@ -90,6 +91,7 @@ export const Feed = () => {
     fetchNextPage: fetchFeedNextPage,
     isFetchingNextPage: isFeedFetchingNextPage,
     isFetchedAfterMount: isFeedFetchedAfterMount,
+    isRefetching: isRefetchingFeed,
     error: feedError,
   } = useFeed({
     my_goals: feedPreferences.showGoals,
@@ -97,11 +99,21 @@ export const Feed = () => {
     my_updates: feedPreferences.showUpdates,
   });
 
+  const [isPulledDown, setIsPulledDown] = useState(false);
+
   const feedErrorMessage = feedError
     ? getErrorMessage(feedError as any)
     : undefined;
 
   const feedResults = getResultsFromPages<FeedItemType>(feed);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      refetchFeed();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   useEffect(() => {
     promptNewsletterModal();
@@ -142,7 +154,7 @@ export const Feed = () => {
 
   const renderItem = ({item, index}) => {
     const isLiked = !!(item.likes as UserPublic[]).find(
-      (user: any) => user.id === user?.id,
+      (feedItemUser: any) => feedItemUser.id === user?.id,
     );
 
     return (
@@ -161,38 +173,53 @@ export const Feed = () => {
     </ListFooterContainer>
   ) : null;
 
-  const ListEmptyComponent = (
-    <View style={{paddingTop: 10}}>
-      {feedErrorMessage ? (
-        <>
-          <Label
-            type="body"
-            appearance={'accentSecondary'}
-            style={{textAlign: 'center'}}>
-            {feedErrorMessage}
-          </Label>
-        </>
-      ) : (
-        <>
-          <Label
-            type="body"
-            appearance={'accentSecondary'}
-            style={{textAlign: 'center'}}>
-            Let’s get your feed looking top notch. Start filling it up by
-            smashing some goals, following{' '}
-            <Label onPress={() => navigation.navigate('Friends')}>
-              Friends
-            </Label>{' '}
-            or participating in{' '}
-            <Label onPress={() => navigation.navigate('Leagues')}>
-              Leagues
+  const ListEmptyComponent = () => {
+    if (isFeedLoading || !isFeedFetchedAfterMount) {
+      return (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <ActivityIndicator color={colors.accent} />
+        </View>
+      );
+    }
+
+    return (
+      <View style={{paddingTop: 10}}>
+        {feedErrorMessage ? (
+          <>
+            <Label
+              type="body"
+              appearance={'accentSecondary'}
+              style={{textAlign: 'center'}}>
+              {feedErrorMessage}
             </Label>
-            .
-          </Label>
-        </>
-      )}
-    </View>
-  );
+          </>
+        ) : (
+          <>
+            <Label
+              type="body"
+              appearance={'accentSecondary'}
+              style={{textAlign: 'center'}}>
+              Let’s get your feed looking top notch. Start filling it up by
+              smashing some goals, following{' '}
+              <Label onPress={() => navigation.navigate('Friends')}>
+                Friends
+              </Label>{' '}
+              or participating in{' '}
+              <Label onPress={() => navigation.navigate('Leagues')}>
+                Leagues
+              </Label>
+              .
+            </Label>
+          </>
+        )}
+      </View>
+    );
+  };
 
   return (
     <Wrapper style={{paddingTop: insets.top}}>
@@ -200,18 +227,19 @@ export const Feed = () => {
         {...{renderItem, ListFooterComponent, ListEmptyComponent}}
         data={feedResults}
         style={{overflow: 'visible'}}
+        contentContainerStyle={{minHeight: '100%'}}
         onEndReachedThreshold={0.2}
         onEndReached={() => fetchFeedNextPage()}
         refreshControl={
           <RefreshControl
             tintColor={colors.accent}
-            refreshing={isFeedLoading && isFeedFetchedAfterMount}
+            refreshing={isPulledDown && isFeedFetchedAfterMount}
             onRefresh={() => {
-              // queryClient.setQueryData(QueryKeys.Feed, (data: any) => {
-              //   console.log(data);
-              //   return data;
-              // });
-              refetchFeed();
+              setIsPulledDown(true);
+
+              refetchFeed().finally(() => {
+                setIsPulledDown(false);
+              });
             }}
           />
         }

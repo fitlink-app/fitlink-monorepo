@@ -1,10 +1,10 @@
 import {Navbar} from '@components';
 import {useLeague, useLeagueMembers, useMe, useRank} from '@hooks';
 import {StackScreenProps} from '@react-navigation/stack';
-import React, {useEffect, useRef} from 'react';
-import {Animated} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {ActivityIndicator, Animated, InteractionManager} from 'react-native';
 import {RootStackParamList} from 'routes/types';
-import styled from 'styled-components/native';
+import styled, {useTheme} from 'styled-components/native';
 import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/entities/leaderboard-entry.entity';
 import {Header, Leaderboard} from './components';
 import {League as LeagueType} from '@fitlink/api/src/modules/leagues/entities/league.entity';
@@ -14,9 +14,17 @@ const HEADER_HEIGHT = 250;
 
 const Wrapper = styled.View({flex: 1});
 
+const LoadingContainer = styled.View({
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
 export const League = (
   props: StackScreenProps<RootStackParamList, 'League'>,
 ) => {
+  const {colors} = useTheme();
+
   const {data: user} = useMe({
     refetchOnMount: false,
   });
@@ -25,12 +33,20 @@ export const League = (
 
   const navigation = useNavigation();
 
+  const [areInteractionsDone, setInteractionsDone] = useState(false);
+
+  useEffect(() => {
+    InteractionManager.runAfterInteractions(() => {
+      setInteractionsDone(true);
+    });
+  }, []);
+
   const {
     data: fetchedLeague,
     isFetching: isFetchingLeague,
     refetch: refetchLeague,
     isFetchedAfterMount: isLeagueFetchedAfterMount,
-  } = useLeague(id);
+  } = useLeague(id, areInteractionsDone);
 
   const {
     data: membersData,
@@ -57,8 +73,6 @@ export const League = (
 
   const activeLeague = {...league, ...fetchedLeague} as LeagueType;
 
-  if (!activeLeague) return null;
-
   const scrollValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -71,6 +85,16 @@ export const League = (
       useNativeDriver: true,
     },
   );
+
+  if (!Object.keys(activeLeague).length)
+    return (
+      <Wrapper>
+        <Navbar scrollAnimatedValue={scrollValue} iconColor={'white'} overlay />
+        <LoadingContainer>
+          <ActivityIndicator color={colors.accent} />
+        </LoadingContainer>
+      </Wrapper>
+    );
 
   return (
     <Wrapper>

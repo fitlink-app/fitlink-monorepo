@@ -456,14 +456,16 @@ export const HealthActivityDetails = (
                 })}
               </Label>
             </View>
-            <Icon
-              name={'share'}
-              size={20}
-              color={'white'}
-              onPress={handleOnSharePressed}
-              disabled={isShareActivityLoading}
-              isLoading={isShareActivityLoading}
-            />
+            {isOwnedActivity && (
+              <Icon
+                name={'share'}
+                size={20}
+                color={'white'}
+                onPress={handleOnSharePressed}
+                disabled={isShareActivityLoading}
+                isLoading={isShareActivityLoading}
+              />
+            )}
           </View>
 
           {renderRoute()}

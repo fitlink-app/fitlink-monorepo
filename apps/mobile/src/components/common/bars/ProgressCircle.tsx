@@ -26,7 +26,7 @@ export interface ProgressCircleProps {
   children?: React.ReactNode;
 }
 
-export const _ProgressCircle = (props: ProgressCircleProps) => {
+const _ProgressCircle = (props: ProgressCircleProps) => {
   const {
     size = 90,
     strokeWidth = 6,
@@ -120,4 +120,7 @@ export const _ProgressCircle = (props: ProgressCircleProps) => {
   );
 };
 
-export const ProgressCircle = React.memo(_ProgressCircle);
+export const ProgressCircle = React.memo(
+  _ProgressCircle,
+  (a, b) => a.progress === b.progress,
+);

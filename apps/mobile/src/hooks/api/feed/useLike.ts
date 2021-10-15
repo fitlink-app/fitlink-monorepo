@@ -17,8 +17,7 @@ export function useLike() {
         await queryClient.cancelQueries(QueryKeys.Feed);
         queryClient.setQueryData<InfiniteData<ListResponse<FeedItem>>>(
           QueryKeys.Feed,
-          oldFeedItems =>
-            addFeedItemLike(oldFeedItems, params.feedItemId, params.userId),
+          oldFeedItems => addFeedItemLike(oldFeedItems, params.feedItemId),
         );
       },
     },
@@ -28,7 +27,6 @@ export function useLike() {
 function addFeedItemLike(
   oldFeedItems: InfiniteData<ListResponse<FeedItem>> | undefined,
   feedItemId: string,
-  myUserId: string,
 ): InfiniteData<ListResponse<FeedItem>> {
   const feedItems = getResultsFromPages<FeedItem>(oldFeedItems);
   const result = feedItems?.find(feedItem => feedItem.id === feedItemId);
@@ -36,10 +34,10 @@ function addFeedItemLike(
   if (result) {
     let newLikes = [...(result.likes as UserPublic[])];
 
-    const myUserInLikesArray = newLikes.find(user => user.id === myUserId);
     const me = queryClient.getQueryData(QueryKeys.Me) as UserPublic;
+    const myUserInLikesArray = newLikes.find(user => user.id === me.id);
 
-    if (!myUserInLikesArray && me) {
+    if (!myUserInLikesArray) {
       newLikes.push(me);
       result.likes = newLikes;
     }

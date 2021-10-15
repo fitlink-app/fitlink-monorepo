@@ -22,7 +22,11 @@ import {
   getActivityDistance,
   getSpeedValue,
 } from '@utils';
-import {useLike, useDislike} from '@hooks';
+import {useLike, useDislike, useMe} from '@hooks';
+import {
+  FeedGoalType,
+  FeedItemType,
+} from '@fitlink/api/src/modules/feed-items/feed-items.constants';
 
 const Wrapper = styled.View(({theme}) => ({
   paddingVertical: 15,
@@ -38,6 +42,15 @@ const RightContainer = styled.View({
 const Row = styled.View({flexDirection: 'row'});
 
 const Col = styled.View({});
+
+const IconContainer = styled.View(({theme: {colors}}) => ({
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 1337,
+  height: 52,
+  width: 52,
+  backgroundColor: colors.surface,
+}));
 
 const SpacedRow = styled(Row)({
   paddingBottom: 8,
@@ -78,9 +91,11 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
 
-  const {mutateAsync: like, isLoading: isLiking} = useLike();
+  const {data: me} = useMe({enabled: false});
 
-  const {mutateAsync: dislike, isLoading: isDisliking} = useDislike();
+  const {mutateAsync: like} = useLike();
+
+  const {mutateAsync: dislike} = useDislike();
 
   const distance = item.health_activity?.distance
     ? (getActivityDistance(unitSystem, item.health_activity?.distance, {
@@ -117,21 +132,117 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
         ) as string)
       : undefined;
 
-  const title = item.health_activity ? item.health_activity.title : 'Entry';
+  const isOwned = item.user.id === me!.id;
+
+  const title = (() => {
+    const healthActivityTitle = item.health_activity?.title;
+    if (healthActivityTitle) return healthActivityTitle;
+
+    switch (item.type) {
+      case FeedItemType.LeagueJoined:
+        return `${
+          isOwned ? 'You have' : `${item.user.name} has`
+        } joined league "${item.league!.name}"`;
+
+      case FeedItemType.LeagueEnding:
+        return `League "${item.league!.name}" is ending soon!`;
+
+      case FeedItemType.LeagueReset:
+        return `League "${item.league!.name}" was just restarted!`;
+
+      case FeedItemType.LeagueWon:
+        return `${isOwned ? `You` : `${item.user.name}`} won "${
+          item.league!.name
+        }"! `;
+
+      case FeedItemType.TierUp:
+        return `${
+          isOwned ? `You've` : `${item.user.name} has`
+        } been promoted to "${item.tier}"! `;
+
+      case FeedItemType.TierDown: {
+        return `${
+          isOwned ? `You've` : `${item.user.name} has`
+        } been demoted to "${item.tier}"! `;
+      }
+
+      case FeedItemType.RewardClaimed: {
+        return `${isOwned ? `You have` : `${item.user.name} has`} claimed "${
+          item.reward!.name_short
+        }" reward! `;
+      }
+
+      case FeedItemType.RewardUnlocked: {
+        return `${isOwned ? `You have` : `${item.user.name} has`} unlocked "${
+          item.reward!.name_short
+        }" reward! `;
+      }
+
+      case FeedItemType.NewFollower: {
+        return `${item.related_user!.name} followed you. Check it out.`;
+      }
+
+      case FeedItemType.DailyGoalReached: {
+        let goalName;
+
+        switch (item.goal_type) {
+          case FeedGoalType.FloorsClimbed:
+            goalName = 'floors climbed';
+            break;
+
+          case FeedGoalType.Steps:
+            goalName = 'steps';
+            break;
+
+          case FeedGoalType.SleepHours:
+            goalName = 'sleep';
+            break;
+
+          case FeedGoalType.MindfulnessMinutes:
+            goalName = 'mindfulness';
+            break;
+
+          case FeedGoalType.WaterLitres:
+            goalName = 'hydration';
+            break;
+
+          default:
+            break;
+        }
+
+        return `You just hit your ${goalName} goal, keep it up!`;
+      }
+
+      default:
+        return 'Feed Entry';
+    }
+  })();
+
   const date = formatRelative(new Date(item.created_at), new Date());
 
   const images =
     item.health_activity?.images.map(image => image.url_128x128) || [];
 
-  const usersLikedAvatars = item.likes
-    .map(likingUser => likingUser.avatar?.url_128x128)
-    .filter(x => !!x);
+  const usersLikedAvatars = item.likes.map(
+    likingUser => likingUser.avatar?.url_128x128 || '',
+  );
 
   const LikeButton = isLiked ? (
     <Icon name={'thumb-solid'} color={colors.accent} size={16} />
   ) : (
     <Icon name={'thumb'} color={colors.accentSecondary} size={16} />
   );
+
+  const getTargetUser = () => {
+    let avatarUser = item.user;
+
+    switch (item.type) {
+      case FeedItemType.NewFollower:
+        avatarUser = item.related_user!;
+    }
+
+    return avatarUser;
+  };
 
   function getActivityIcon(sport: string) {
     switch (sport) {
@@ -233,27 +344,120 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
   };
 
   const onContentPress = () => {
-    if (!item.health_activity) return;
-    navigation.navigate('HealthActivityDetails', {id: item.health_activity.id});
+    switch (item.type) {
+      case FeedItemType.NewFollower:
+        navigation.navigate('Profile', {id: item.related_user!.id});
+        break;
+
+      case FeedItemType.HealthActivity:
+        navigation.navigate('HealthActivityDetails', {
+          id: item.health_activity!.id,
+        });
+        break;
+
+      case FeedItemType.LeagueEnding:
+      case FeedItemType.LeagueJoined:
+      case FeedItemType.LeagueReset:
+      case FeedItemType.LeagueWon:
+        navigation.navigate('League', {
+          id: item.league!.id,
+        });
+        break;
+
+      case FeedItemType.RewardClaimed:
+      case FeedItemType.RewardUnlocked:
+        navigation.navigate('Reward', {id: item.reward!.id});
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  const renderAvatar = () => {
+    let icon: string | undefined;
+
+    switch (item.type) {
+      case FeedItemType.LeagueEnding:
+      case FeedItemType.LeagueJoined:
+      case FeedItemType.LeagueReset:
+      case FeedItemType.LeagueWon:
+        icon = 'leagues';
+        break;
+
+      case FeedItemType.RewardClaimed:
+      case FeedItemType.RewardUnlocked:
+        icon = 'reward';
+        break;
+
+      case FeedItemType.TierDown:
+      case FeedItemType.TierUp:
+        icon = 'crown';
+        break;
+
+      case FeedItemType.DailyGoalReached:
+        switch (item.goal_type) {
+          case FeedGoalType.FloorsClimbed:
+            icon = 'stairs';
+            break;
+
+          case FeedGoalType.MindfulnessMinutes:
+            icon = 'yoga';
+            break;
+
+          case FeedGoalType.SleepHours:
+            icon = 'sleep';
+            break;
+
+          case FeedGoalType.Steps:
+            icon = 'steps';
+            break;
+
+          case FeedGoalType.WaterLitres:
+            icon = 'water';
+            break;
+
+          default:
+            break;
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    if (icon) {
+      return (
+        <IconContainer>
+          <Icon name={icon || 'default'} size={28} color={colors.accent} />
+        </IconContainer>
+      );
+    }
+
+    const targetUser = getTargetUser();
+
+    return (
+      <TouchHandler
+        onPress={() => {
+          navigation.navigate('Profile', {id: targetUser.id});
+        }}>
+        <ProgressCircle
+          progress={0.33}
+          strokeWidth={2.5}
+          backgroundStrokeWidth={2}
+          bloomIntensity={0.5}
+          bloomRadius={5}
+          size={52}>
+          <Avatar url={targetUser.avatar?.url_128x128} size={44} />
+        </ProgressCircle>
+      </TouchHandler>
+    );
   };
 
   return (
     <Wrapper>
       <Row>
-        <TouchHandler
-          onPress={() => {
-            navigation.navigate('Profile', {id: item.user.id});
-          }}>
-          <ProgressCircle
-            progress={0.33}
-            strokeWidth={2.5}
-            backgroundStrokeWidth={2}
-            bloomIntensity={0.5}
-            bloomRadius={5}
-            size={52}>
-            <Avatar url={item.user.avatar?.url_128x128} size={44} />
-          </ProgressCircle>
-        </TouchHandler>
+        {renderAvatar()}
 
         <RightContainer>
           <TouchHandler onPress={onContentPress}>
@@ -275,7 +479,7 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
                 </Row>
 
                 <DateText type="caption" appearance={'secondary'}>
-                  {item.user.name} · {date}
+                  {isOwned ? date : `${item.user.name} · ${date}`}
                 </DateText>
               </Col>
 
@@ -306,10 +510,10 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
             avatars={usersLikedAvatars}
           />
         </Button>
-        {/* <ButtonSeparator />
-          <Button>
-            <Icon name={'camera'} color={colors.accentSecondary} size={18} />
-          </Button> */}
+        <ButtonSeparator />
+        <Button>
+          <Icon name={'camera'} color={colors.accentSecondary} size={18} />
+        </Button>
       </ButtonContainer>
     </Wrapper>
   );

@@ -8,7 +8,7 @@ import {
 } from '@components';
 import {useFollowUser, useUnfollowUser, useUser} from '@hooks';
 import {StackScreenProps} from '@react-navigation/stack';
-import React from 'react';
+import React, {useState} from 'react';
 import {ActivityIndicator, RefreshControl, ScrollView} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
@@ -57,13 +57,14 @@ export const Profile = (
 
   const {
     data: user,
-    isFetchedAfterMount: isUserFetchedAfterMount,
+    isFetched: isUserFetched,
     refetch: refetchUser,
-    isFetching: isFetchingUser,
   } = useUser(id);
 
   const {mutate: followUser} = useFollowUser();
   const {mutate: unfollowUser} = useUnfollowUser();
+
+  const [isFetchingManually, setIsFetchingManually] = useState(false);
 
   const handleOnFollowPressed = () => {
     followUser(id);
@@ -74,7 +75,10 @@ export const Profile = (
   };
 
   const handleOnRefresh = () => {
-    refetchUser();
+    setIsFetchingManually(true);
+    refetchUser().finally(() => {
+      setIsFetchingManually(false);
+    });
   };
 
   const FollowButton = user?.following ? (
@@ -95,12 +99,12 @@ export const Profile = (
 
   return (
     <Wrapper>
-      {isUserFetchedAfterMount ? (
+      {isUserFetched ? (
         <ContentContainer
           refreshControl={
             <RefreshControl
               tintColor={colors.accent}
-              refreshing={isFetchingUser}
+              refreshing={isFetchingManually}
               onRefresh={handleOnRefresh}
             />
           }
@@ -174,7 +178,7 @@ export const Profile = (
       <Navbar
         backButtonLabel={'Back'}
         overlay
-        rightComponent={isUserFetchedAfterMount ? FollowButton : undefined}
+        rightComponent={isUserFetched ? FollowButton : undefined}
       />
     </Wrapper>
   );
