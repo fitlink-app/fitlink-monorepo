@@ -46,6 +46,7 @@ import { UserPublicPagination } from '../users/entities/user.entity'
 import { SearchUserForLeaguesDto } from '../users/dto/search-user.dto'
 import { ConfigService } from '@nestjs/config'
 import { LeagueJobDto } from './dto/league-job.dto'
+import { Public } from '../../decorators/public.decorator'
 
 @ApiTags('leagues')
 @ApiBaseResponses()
@@ -505,6 +506,7 @@ export class LeaguesController {
    * Webhook for AWS Lambda to update leagues
    * The
    */
+  @Public()
   @Post('/leagues/job')
   async processLeagues(
     @Body() { verify_token }: LeagueJobDto,
