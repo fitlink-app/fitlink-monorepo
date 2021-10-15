@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from '../../users/entities/user.entity'
-import { Not, Repository } from 'typeorm'
+import { IsNull, Not, Repository } from 'typeorm'
 import { HealthActivity } from '../../health-activities/entities/health-activity.entity'
 import { HealthActivityCreatedEvent } from '../../health-activities/events/health-activity-created.event'
 import { LeaderboardEntry } from '../../leaderboard-entries/entities/leaderboard-entry.entity'
@@ -77,7 +77,7 @@ export class HealthActivityCreatedListener {
   async updateLeaguePoints(sport: Sport, userId: string, points: number) {
     const [leagues, leaguesErr] = await tryAndCatch(
       this.leaguesRepository.find({
-        where: { sport, active_leaderboard: Not(null) },
+        where: { sport, active_leaderboard: Not(IsNull()) },
         relations: ['active_leaderboard', 'users']
       })
     )
