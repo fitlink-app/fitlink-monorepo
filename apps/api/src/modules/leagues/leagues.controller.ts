@@ -508,10 +508,7 @@ export class LeaguesController {
    */
   @Public()
   @Post('/leagues/job')
-  async processLeagues(
-    @Body() { verify_token }: LeagueJobDto,
-    @User() authUser: AuthenticatedUser
-  ) {
+  async processLeagues(@Body() { verify_token }: LeagueJobDto) {
     if (verify_token !== this.configService.get('JOBS_VERIFY_TOKEN')) {
       throw new ForbiddenException()
     }
