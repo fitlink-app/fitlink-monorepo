@@ -881,9 +881,16 @@ export class LeaguesService {
     const league = await this.leaguesRepository.findOne(leagueId, {
       relations: ['active_leaderboard', 'users']
     })
-    const entries = (await this.leaderboardEntriesService
-      .queryLeaderboardRank(league.active_leaderboard.id)
-      .getRawMany()) as LeaderboardEntry[]
+    const entries = (
+      await this.leaderboardEntriesService
+        .queryLeaderboardRank(league.active_leaderboard.id)
+        .getRawMany()
+    ).map((entry) => {
+      entry.user = new User()
+      entry.user.id = entry.userId
+      return entry as LeaderboardEntry
+    })
+
     const winners = entries.filter((entry) => entry.rank === '1')
     return { winners }
   }
@@ -917,8 +924,8 @@ export class LeaguesService {
         const leagueRepo = manager.getRepository(League)
         const leaderboardRepo = manager.getRepository(Leaderboard)
         await Promise.all(
-          league.users.map((e) => {
-            const winner = winners.filter((e) => e.id === e.user.id)[0]
+          league.users.map((leagueUser) => {
+            const winner = winners.filter((e) => leagueUser.id === e.user.id)[0]
             return repo.save(
               repo.create({
                 leaderboard,
