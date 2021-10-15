@@ -79,7 +79,7 @@ function GoogleAnalytics() {
     <Head>
       <script
         async
-        src="https://www.googletagmanager.com/gtag/js?id=G-H8ZKMENXV4"></script>
+        src="https://www.googletagmanager.com/gtag/js?id=G-8LX598EH9V"></script>
       <script
         dangerouslySetInnerHTML={{
           __html: `
@@ -87,7 +87,7 @@ function GoogleAnalytics() {
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-H8ZKMENXV4');
+          gtag('config', 'G-8LX598EH9V');
         `
         }}
       />
