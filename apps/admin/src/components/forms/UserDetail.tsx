@@ -97,14 +97,13 @@ export default function UserDetail({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h4 className="light mb-3">{current.name}</h4>
-
       {isError && <Feedback message={errorMessage} type="error" />}
 
       {type === 'message_user' && (
         <>
+          <h4 className="light mb-3">Send message</h4>
           <Feedback
-            message={"Send a push notification directly to the user's device."}
+            message={`Send a push notification directly to the user's device.`}
           />
           <Input
             register={register('title')}
@@ -117,7 +116,7 @@ export default function UserDetail({
           <Input
             register={register('body')}
             name="body"
-            placeholder="Send a message of encouragement..."
+            placeholder={`Send a message of encouragement to ${current.name}...`}
             label="Message"
             error={errors.body}
             type="textarea"
@@ -133,6 +132,7 @@ export default function UserDetail({
 
       {type === 'app_activity_info' && (
         <>
+          <h4 className="light mb-3">User status information</h4>
           <h6>Rank</h6>
           <p>{current.rank}</p>
           <hr className="tight" />
@@ -171,6 +171,7 @@ export default function UserDetail({
 
       {type === 'app_system_info' && (
         <>
+          <h4 className="light mb-3">User system information</h4>
           <h6>Date Joined</h6>
           <p>
             {format(new Date(current.created_at), 'yyyy-MM-dd H:mm:ss OOOO')}

@@ -1019,7 +1019,11 @@ export class LeaguesService {
       leagues_restarted: leaguesRestarted
     }
 
-    await this.notifySlack(differenceInSeconds(new Date(), started), result)
+    await this.notifySlack(
+      differenceInSeconds(new Date(), started),
+      result,
+      'Leagues end / restart'
+    )
     return result
   }
 
@@ -1056,7 +1060,11 @@ export class LeaguesService {
       })
     )
 
-    await this.notifySlack(differenceInSeconds(new Date(), started), result)
+    await this.notifySlack(
+      differenceInSeconds(new Date(), started),
+      result,
+      'Leagues ending reminder'
+    )
 
     return {
       total: leagues.length,
@@ -1064,12 +1072,16 @@ export class LeaguesService {
     }
   }
 
-  async notifySlack(seconds: number, result: NodeJS.Dict<any>) {
+  async notifySlack(
+    seconds: number,
+    result: NodeJS.Dict<any>,
+    name: string = 'Leagues'
+  ) {
     try {
       await this.httpService
         .post(this.configService.get('SLACK_WEBHOOK_JOBS_URL'), {
-          text: `Leagues job took ${seconds} seconds to run`,
-          attachments: { text: JSON.stringify(result) }
+          text: `${name} job took ${seconds} seconds to run`,
+          attachments: [{ text: JSON.stringify(result) }]
         })
         .toPromise()
     } catch (e) {

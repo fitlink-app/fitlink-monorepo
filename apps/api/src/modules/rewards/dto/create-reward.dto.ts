@@ -6,8 +6,10 @@ import {
   IsEnum,
   IsInt,
   IsOptional,
+  IsString,
   IsUrl,
   IsUUID,
+  Matches,
   MaxLength,
   MinLength
 } from 'class-validator'
@@ -56,13 +58,10 @@ export class CreateRewardDto {
   code: string
 
   @ApiProperty()
-  @IsUrl(
-    {},
-    {
-      message: 'Must be a valid URL'
-    }
-  )
   @IsOptional()
+  @Matches(new RegExp('^(https?)://|^$'), {
+    message: 'Must be a valid URL starting with http:// or https://'
+  })
   redeem_url?: string
 
   @ApiProperty()

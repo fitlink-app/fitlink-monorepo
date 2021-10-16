@@ -260,6 +260,16 @@ export default function RewardForm({
         />
       )}
 
+      <div>
+        {errors.imageId && (
+          <Feedback
+            type="error"
+            message="An image must be provided"
+            className="mt-2"
+          />
+        )}
+      </div>
+
       <div className="text-right mt-2">
         {current.id && (
           <button

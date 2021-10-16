@@ -10,7 +10,7 @@ import IconLeagues from '../icons/IconLeagues'
 import IconRewards from '../icons/IconRewards'
 import IconSignOut from '../icons/IconSignOut'
 import IconYoga from '../icons/IconYoga'
-import { AuthContext } from '../../context/Auth.context'
+import IconInfo from '../icons/IconInfo'
 
 const icons = {
   IconActivities,
@@ -21,7 +21,8 @@ const icons = {
   IconLeagues,
   IconRewards,
   IconSignOut,
-  IconYoga
+  IconYoga,
+  IconInfo
 }
 
 export type MenuProps = {
@@ -48,6 +49,7 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
         {menu.map((item: MenuProps, index: number) => {
           const { label, link, icon, onClick, hr, subMenu } = item
           const Icon = icons[icon]
+          console.log(Icon, icon)
           if (hr) {
             return <hr key={index} />
           }

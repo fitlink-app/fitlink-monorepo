@@ -204,23 +204,7 @@ export default function UsersPage() {
           columns={[
             { Header: ' ', accessor: 'avatar', Cell: showAvatar },
             { Header: 'Name', accessor: 'name' },
-            // { Header: 'Email', accessor: 'email' },
-            {
-              Header: 'Connected trackers',
-              accessor: 'providers',
-              Cell: showProviders
-            },
-            {
-              Header: 'Last login',
-              accessor: 'last_login_at',
-              Cell: toDateCell
-            },
-            {
-              Header: 'Onboarded',
-              accessor: 'onboarded',
-              Cell: boolToIcon
-            },
-            // { Header: 'Updated', accessor: 'updated_at', Cell: toDateCell },
+            { Header: 'Email', accessor: 'email' },
             { Header: ' ', Cell: cellActions }
           ]}
           fetch={(limit, page, query) =>

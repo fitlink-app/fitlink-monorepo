@@ -14,6 +14,9 @@ import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 import { Activity } from '../../../api/src/modules/activities/entities/activity.entity'
 import { AuthContext } from '../context/Auth.context'
 import { timeout } from '../helpers/timeout'
+import { useIntercom } from 'react-use-intercom'
+
+const ACTIVITIES_TOUR_ID = 279451
 
 export default function page() {
   const { api, primary, modeRole, fetchKey } = useContext(AuthContext)
@@ -24,6 +27,7 @@ export default function page() {
   const [wide, setWide] = useState(false)
   const [includeUsers, setIncludeUsers] = useState(true)
   const [refresh, setRefresh] = useState(0)
+  const { startTour } = useIntercom()
 
   const viewDetails = ({
     cell: {
@@ -89,8 +93,15 @@ export default function page() {
           <h1 className="light mb-0 mr-2">
             {modeRole === 'app' ? 'Global' : 'Your'} activities
           </h1>
-          <button className="button alt small mt-1" onClick={NewActivityForm}>
+          <button className="button small mt-1" onClick={NewActivityForm}>
             Add new
+          </button>
+          <button
+            className="button alt small ml-1 mt-1"
+            onClick={() => {
+              startTour(ACTIVITIES_TOUR_ID)
+            }}>
+            Show me how
           </button>
         </div>
       </div>
