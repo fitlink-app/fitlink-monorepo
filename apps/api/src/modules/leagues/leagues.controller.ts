@@ -512,6 +512,14 @@ export class LeaguesController {
     if (verify_token !== this.configService.get('JOBS_VERIFY_TOKEN')) {
       throw new ForbiddenException()
     }
-    return this.leaguesService.processPendingLeagues()
+    const [pending, ending] = await Promise.all([
+      this.leaguesService.processPendingLeagues(),
+      this.leaguesService.processLeaguesEnding()
+    ])
+
+    return {
+      pending,
+      ending
+    }
   }
 }

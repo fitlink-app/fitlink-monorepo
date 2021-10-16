@@ -1,5 +1,8 @@
+import { HttpService } from '@nestjs/common'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { AxiosResponse } from 'axios'
 import * as faker from 'faker'
+import { Observable } from 'rxjs'
 import { Connection, getConnection } from 'typeorm'
 import { useSeeding } from 'typeorm-seeding'
 import { FeedItem } from '../src/modules/feed-items/entities/feed-item.entity'
@@ -33,6 +36,8 @@ import {
 } from './seeds/leagues.seed'
 import { SportSetup, SportsTeardown } from './seeds/sport.seed'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
+import { subDays } from 'date-fns'
+import { NotificationsService } from '../src/modules/notifications/notifications.service'
 
 describe('Leagues', () => {
   let app: NestFastifyApplication
@@ -48,6 +53,7 @@ describe('Leagues', () => {
   let organisation_assigned_league: League
   let images: Image[]
   let sportId: string
+  let otherSportId: string
   let sportName: string
   let user1: string
   let user2: string
@@ -76,7 +82,15 @@ describe('Leagues', () => {
       singular: 'run'
     })
 
+    const otherSport = await SportSetup({
+      name: 'Swimming League Test ' + rand,
+      name_key: 'swimming_league_test_' + rand,
+      plural: 'swims',
+      singular: 'swim'
+    })
+
     sportId = sport.id
+    otherSportId = otherSport.id
 
     const leagues = await LeaguesSetup('Test League')
     const usersForLeague = await UsersSetup('Da Usas', 24)
@@ -308,7 +322,7 @@ describe('Leagues', () => {
     const payload: UpdateLeagueDto = {
       name: 'Test League 2',
       description: 'An updated league',
-      sportId: sportId
+      sportId: otherSportId
     }
 
     const put = await app.inject({
@@ -318,8 +332,7 @@ describe('Leagues', () => {
       payload
     })
 
-    expect(put.statusCode).toEqual(400)
-    expect(put.json().errors.sportId).toContain('cannot be changed')
+    expect(put.statusCode).toEqual(200)
 
     // Allow images to be updated
     const imageId2 = images.pop().id
@@ -343,6 +356,9 @@ describe('Leagues', () => {
     expect(data.json().name).toEqual('Test League 2')
     expect(data.json().description).toEqual('An updated league')
     expect(data.json().image.id).toEqual(imageId2)
+
+    // Sport change was ignored
+    expect(data.json().sport.id).toEqual(sportId)
 
     const myLeagues = await app.inject({
       method: 'GET',
@@ -1140,7 +1156,7 @@ describe('Leagues', () => {
     expect(feedItem.type).toBe(FeedItemType.LeagueJoined)
   })
 
-  it.only('League Winners Feed Item Creation', async () => {
+  it('League Winners Feed Item Creation', async () => {
     let leagueId = leagueWithLeaderboardAndUsers[0].id
 
     const data = await app.inject({
@@ -1175,5 +1191,63 @@ describe('Leagues', () => {
       expect(r.category).toBe(FeedItemCategory.MyUpdates)
       expect(r.type).toBe(FeedItemType.LeagueWon)
     }
+  })
+
+  it('POST /leagues/job', async () => {
+    const httpService = app.get(HttpService)
+    httpService.post = jest.fn(
+      () =>
+        ({
+          toPromise: () => Promise.resolve()
+        } as Observable<AxiosResponse>)
+    )
+
+    const notificationsService = app.get(NotificationsService)
+    notificationsService.sendAction = jest.fn(() =>
+      Promise.resolve({
+        successCount: 24,
+        failureCount: 0,
+        responses: [
+          {
+            success: true
+          }
+        ]
+      })
+    )
+
+    const usersForLeague = await UsersSetup('Leagues Job', 24)
+    const [league1, league2] = await LeagueWithEntriesAndWinningUsers(
+      'Leagues Job',
+      usersForLeague,
+      2
+    )
+
+    // Set the end date to previous day to ensure the job runs against these leagues
+    await app
+      .get(Connection)
+      .getRepository(League)
+      .update(league1.id, { ends_at: subDays(new Date(), 1), repeat: true })
+    await app
+      .get(Connection)
+      .getRepository(League)
+      .update(league2.id, { ends_at: subDays(new Date(), 1), repeat: false })
+
+    const data = await app.inject({
+      method: 'POST',
+      url: `/leagues/job`,
+      payload: {
+        verify_token: 'jest'
+      }
+    })
+
+    expect(data.json().pending.leagues_processed).toBeGreaterThan(1)
+    expect(data.json().pending.leagues_restarted).toBeGreaterThan(1)
+    expect(data.json().ending.total).toBeGreaterThan(0)
+    expect(data.json().ending.messaging[0].successCount).toBe(24)
+    expect(data.json().ending.messaging[0].failureCount).toBe(0)
+    expect(data.json().ending.messaging[0].responses).toHaveLength(1)
+
+    // Slack hook
+    expect(httpService.post).toHaveBeenCalled()
   })
 })

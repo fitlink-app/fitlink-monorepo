@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { In, Repository } from 'typeorm'
 import { Pagination, PaginationQuery } from '../../helpers/paginate'
@@ -85,6 +89,32 @@ export class NotificationsService {
       await this.sendNotificationByFCMTokenArray(payload, tokens)
     }
     return notify
+  }
+
+  async sendAction(
+    users: User[],
+    action: NotificationAction,
+    data: NodeJS.Dict<any> = {}
+  ): Promise<messaging.BatchResponse> {
+    let tokens: string[] = []
+    users.forEach((user) => tokens.concat(user.fcm_tokens))
+
+    if (!this.messages[action] || !this.titles[action]) {
+      throw new BadRequestException()
+    }
+
+    if (tokens && tokens.length) {
+      return this.sendNotificationByFCMTokenArray(
+        {
+          data: data,
+          notification: {
+            body: this.messages[action],
+            title: this.titles[action]
+          }
+        },
+        tokens
+      )
+    }
   }
 
   async sendGenericMessage(

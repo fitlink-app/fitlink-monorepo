@@ -25,13 +25,15 @@ import { FeedItem } from '../feed-items/entities/feed-item.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
 import { plainToClass } from 'class-transformer'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
-import { addDays } from 'date-fns'
+import { addDays, addHours } from 'date-fns'
 import { CommonService } from '../common/services/common.service'
 import { LeagueJoinedEvent } from './events/league-joined.event'
 import { LeagueWonEvent } from './events/league-won.event'
 import { Events } from '../../events'
 import { ConfigService } from '@nestjs/config'
 import { differenceInSeconds } from 'date-fns'
+import { NotificationsService } from '../notifications/notifications.service'
+import { NotificationAction } from '../notifications/notifications.constants'
 
 type LeagueOptions = {
   teamId?: string
@@ -64,7 +66,8 @@ export class LeaguesService {
     private commonService: CommonService,
     private eventEmitter: EventEmitter2,
     private configService: ConfigService,
-    private httpService: HttpService
+    private httpService: HttpService,
+    private notificationsService: NotificationsService
   ) {}
 
   async create(
@@ -551,11 +554,13 @@ export class LeaguesService {
     const { imageId, sportId, ...rest } = updateLeagueDto
     const update: Partial<League> = { ...rest }
 
-    if (sportId) {
-      // Assign the sport
-      update.sport = new Sport()
-      update.sport.id = sportId
-    }
+    // Sport should not be re-assignable
+    // The value is ignored
+    // if (sportId) {
+    //   // Assign the sport
+    //   update.sport = new Sport()
+    //   update.sport.id = sportId
+    // }
 
     // Only the image is allowed to change
     if (imageId) {
@@ -931,17 +936,18 @@ export class LeaguesService {
                 leaderboard,
                 leaderboard_id: leaderboard.id,
                 league_id: league.id,
+                user_id: leagueUser.id,
                 wins: winner ? winner.wins + 1 : 0
               })
             )
           })
         )
 
-        await leaderboardRepo.update(league.active_leaderboard, {
+        await leaderboardRepo.update(league.active_leaderboard.id, {
           completed: true
         })
 
-        await leagueRepo.update(league, {
+        await leagueRepo.update(league.id, {
           active_leaderboard: leaderboard,
           ends_at: addDays(new Date(), league.duration)
         })
@@ -969,11 +975,11 @@ export class LeaguesService {
           })
         )
 
-        await leaderboardRepo.update(league.active_leaderboard, {
+        await leaderboardRepo.update(league.active_leaderboard.id, {
           completed: true
         })
 
-        await leagueRepo.update(league, {
+        await leagueRepo.update(league.id, {
           active_leaderboard: null
         })
       })
@@ -1015,6 +1021,47 @@ export class LeaguesService {
 
     await this.notifySlack(differenceInSeconds(new Date(), started), result)
     return result
+  }
+
+  /**
+   * Within a one hour window period, check when leagues are
+   * ending.
+   */
+  async processLeaguesEnding() {
+    const started = new Date()
+    const leagues = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .innerJoinAndSelect('league.active_leaderboard', 'active_leaderboard')
+      .leftJoinAndSelect('league.users', 'users')
+      .where(
+        'league.ends_at >= :hoursFromNow23 AND league.ends_at <= :endDate',
+        {
+          hoursFromNow23: addHours(new Date(), 23),
+          endDate: addHours(new Date(), 24)
+        }
+      )
+      .andWhere('active_leaderboard.completed = false')
+      .limit(100)
+      .getMany()
+
+    const result = await Promise.all(
+      leagues.map(async (league) => {
+        return this.notificationsService.sendAction(
+          league.users,
+          NotificationAction.LeagueEnding,
+          {
+            leagueId: league.id
+          }
+        )
+      })
+    )
+
+    await this.notifySlack(differenceInSeconds(new Date(), started), result)
+
+    return {
+      total: leagues.length,
+      messaging: result
+    }
   }
 
   async notifySlack(seconds: number, result: NodeJS.Dict<any>) {
