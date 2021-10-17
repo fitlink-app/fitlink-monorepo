@@ -13,22 +13,22 @@ export enum NotificationAction {
   NewFollower = 'new_follower',
 
   /** 👏 Winner! You just won the league {subject}. Check it out. */
-  LeagueWon = 'league_won', //❌
+  LeagueWon = 'league_won', //
 
   /** ⏱ Heads up, the league {subject} has just reset. Go for it. */
-  LeagueReset = 'league_reset', //❌
+  LeagueReset = 'league_reset', //
 
   /** 📢 Remember, the league {subject} will end in 24 hours. You still have time. */
-  LeagueEnding = 'league_ending', //❌
+  LeagueEnding = 'league_ending', //
 
   /** 👍 Nice. You ranked up to {subject}. Keep it going. */
   RankUp = 'rank_up',
 
   /** 👎 Ouch! Your rank dropped to {subject}. You can do it. */
-  RankDown = 'rank_down', //❌
+  RankDown = 'rank_down', //
 
-  /** 👣 So close to reaching your steps goal. Just a brisk walk should do it. */
-  GoalProgressSteps = 'goal_progress_steps', //❌
+  /** 👣 So close to reaching your steps goal. Get {meta_value} more steps in today by having a brisk walk. */
+  GoalProgressSteps = 'goal_progress_steps', //
 
   /** ❤️ You've got love. {subject} just liked your {meta_value}. Check it out.	*/
   ActivityLiked = 'activity_liked',

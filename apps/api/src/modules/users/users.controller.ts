@@ -9,7 +9,8 @@ import {
   Query,
   BadRequestException,
   HttpCode,
-  NotFoundException
+  NotFoundException,
+  ForbiddenException
 } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -48,13 +49,16 @@ import { Public } from '../../decorators/public.decorator'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateAdminDto } from './dto/create-admin.dto'
+import { ConfigService } from '@nestjs/config'
+import { UserJobDto } from './dto/user-job.dto'
 
 @Controller()
 @ApiBaseResponses()
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly userRolesService: UserRolesService
+    private readonly userRolesService: UserRolesService,
+    private readonly configService: ConfigService
   ) {}
 
   // User endpoints (requires JWT)
@@ -369,5 +373,23 @@ export class UsersController {
   @ApiResponse({ type: JWTRoles, status: 200 })
   getRolesForToken(@Param('userId') userId: string) {
     return this.usersService.getRolesForToken({ id: userId } as any)
+  }
+
+  /**
+   * Webhook for AWS Lambda to update leagues
+   */
+  @Public()
+  @Post('/users/job')
+  async processRankChange(@Body() { verify_token }: UserJobDto) {
+    if (verify_token !== this.configService.get('JOBS_VERIFY_TOKEN')) {
+      throw new ForbiddenException()
+    }
+    const [rank] = await Promise.all([
+      this.usersService.processPendingRankDrops()
+    ])
+
+    return {
+      rank
+    }
   }
 }

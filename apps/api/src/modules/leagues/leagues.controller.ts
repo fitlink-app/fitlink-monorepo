@@ -504,7 +504,6 @@ export class LeaguesController {
 
   /**
    * Webhook for AWS Lambda to update leagues
-   * The
    */
   @Public()
   @Post('/leagues/job')

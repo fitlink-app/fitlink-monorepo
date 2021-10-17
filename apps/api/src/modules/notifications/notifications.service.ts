@@ -94,6 +94,10 @@ export class NotificationsService {
   async sendAction(
     users: User[],
     action: NotificationAction,
+    replace: {
+      subject?: string
+      meta_value?: string
+    } = {},
     data: NodeJS.Dict<any> = {}
   ): Promise<messaging.BatchResponse> {
     let tokens: string[] = []
@@ -104,11 +108,15 @@ export class NotificationsService {
     }
 
     if (tokens && tokens.length) {
+      const body = this.messages[action]
+        .replace('{subject}', replace.subject)
+        .replace('{meta_value', replace.meta_value)
+
       return this.sendNotificationByFCMTokenArray(
         {
           data: data,
           notification: {
-            body: this.messages[action],
+            body,
             title: this.titles[action]
           }
         },

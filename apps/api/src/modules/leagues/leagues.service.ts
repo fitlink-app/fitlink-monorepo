@@ -31,7 +31,7 @@ import { LeagueJoinedEvent } from './events/league-joined.event'
 import { LeagueWonEvent } from './events/league-won.event'
 import { Events } from '../../events'
 import { ConfigService } from '@nestjs/config'
-import { differenceInSeconds } from 'date-fns'
+import { differenceInMilliseconds } from 'date-fns'
 import { NotificationsService } from '../notifications/notifications.service'
 import { NotificationAction } from '../notifications/notifications.constants'
 
@@ -955,6 +955,7 @@ export class LeaguesService {
 
       await this.emitWinnerFeedItems(league.id, winners)
       return {
+        name: league.name,
         winners: winners.length,
         users: league.users.length,
         restarted: true
@@ -986,6 +987,7 @@ export class LeaguesService {
 
       await this.emitWinnerFeedItems(league.id, winners)
       return {
+        name: league.name,
         winners: winners.length,
         users: league.users.length,
         restarted: false
@@ -1014,16 +1016,27 @@ export class LeaguesService {
     )
     const totalLeagues = results.map((e) => e !== false).length
     const leaguesRestarted = results.map((e) => e && e.restarted).length
+    const leaguesEnded = results.map((e) => e && !e.restarted).length
     const result = {
       leagues_processed: totalLeagues,
       leagues_restarted: leaguesRestarted
     }
 
-    await this.notifySlack(
-      differenceInSeconds(new Date(), started),
-      result,
-      'Leagues end / restart'
+    await this.commonService.notifySlackJobs(
+      'Leagues ended / restarted',
+      {
+        restarted: {
+          total: leaguesRestarted,
+          leagues: results.filter((e) => e && e.restarted)
+        },
+        ended: {
+          total: leaguesEnded,
+          leagues: results.filter((e) => e && !e.restarted)
+        }
+      },
+      differenceInMilliseconds(new Date(), started)
     )
+
     return result
   }
 
@@ -1048,11 +1061,14 @@ export class LeaguesService {
       .limit(100)
       .getMany()
 
-    const result = await Promise.all(
+    const messages = await Promise.all(
       leagues.map(async (league) => {
         return this.notificationsService.sendAction(
           league.users,
           NotificationAction.LeagueEnding,
+          {
+            subject: league.name
+          },
           {
             leagueId: league.id
           }
@@ -1060,15 +1076,24 @@ export class LeaguesService {
       })
     )
 
-    await this.notifySlack(
-      differenceInSeconds(new Date(), started),
-      result,
-      'Leagues ending reminder'
+    await this.commonService.notifySlackJobs(
+      'Leagues ending reminder',
+      {
+        messages,
+        reminded: {
+          total: leagues.length,
+          leagues: leagues.map((each) => ({
+            name: each.name,
+            users: each.users.length
+          }))
+        }
+      },
+      differenceInMilliseconds(new Date(), started)
     )
 
     return {
       total: leagues.length,
-      messaging: result
+      messages
     }
   }
 

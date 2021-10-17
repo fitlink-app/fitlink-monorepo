@@ -6,7 +6,7 @@ import {
   GoalsEntryTarget
 } from './entities/goals-entry.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { MoreThanOrEqual, Repository } from 'typeorm'
+import { IsNull, MoreThan, MoreThanOrEqual, Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { zonedStartOfDay } from '../../../../common/date/helpers'
@@ -14,6 +14,11 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { DailyGoalsReachedEvent } from './events/daily-goals-reached.event'
 import { FeedGoalType } from '../feed-items/feed-items.constants'
 import { Events } from '../../events'
+import { CommonService } from '../common/services/common.service'
+import { startOfDay } from 'date-fns'
+import { NotificationsService } from '../notifications/notifications.service'
+import { NotificationAction } from '../notifications/notifications.constants'
+import { differenceInMilliseconds } from 'date-fns'
 
 interface GoalField {
   field:
@@ -35,7 +40,9 @@ export class GoalsEntriesService {
 
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private eventEmitter: EventEmitter2
+    private eventEmitter: EventEmitter2,
+    private commonService: CommonService,
+    private notificationsService: NotificationsService
   ) {}
 
   formatFields(
@@ -223,5 +230,56 @@ export class GoalsEntriesService {
     goalsEntry.current_mindfulness_minutes = 0
 
     return goalsEntry
+  }
+
+  async processPendingGoalReminders() {
+    const started = new Date()
+
+    const goals = await this.goalsEntryRepository.find({
+      where: {
+        created_at: MoreThan(startOfDay(new Date())),
+        notified_at: IsNull()
+      },
+      relations: ['user']
+    })
+
+    const notify: { user: User; steps: number }[] = []
+    goals.forEach((goal) => {
+      if (goal.current_steps > 0) {
+        const diff = goal.current_steps / goal.target_steps
+        if (diff < 1 && diff >= 0.5) {
+          notify.push({
+            user: goal.user,
+            steps: goal.target_steps - goal.current_steps
+          })
+        }
+      }
+    })
+
+    const messages = await Promise.all(
+      notify.map(({ user, steps }) => {
+        return this.notificationsService.sendAction(
+          [user],
+          NotificationAction.GoalProgressSteps,
+          {
+            meta_value: String(steps)
+          }
+        )
+      })
+    )
+
+    await this.commonService.notifySlackJobs(
+      'Steps goal reminder',
+      {
+        reminded: notify.length,
+        messages
+      },
+      differenceInMilliseconds(started, new Date())
+    )
+
+    return {
+      count: notify.length,
+      messages
+    }
   }
 }

@@ -9,10 +9,12 @@ import { User } from '../../modules/users/entities/user.entity'
 import { UserRolesModule } from '../user-roles/user-roles.module'
 import { CommonModule } from '../common/common.module'
 import { AuthProvider } from '../auth/entities/auth-provider.entity'
+import { NotificationsModule } from '../notifications/notifications.module'
 
 @Module({
   imports: [
     CommonModule,
+    NotificationsModule,
     TypeOrmModule.forFeature([User, AuthProvider]),
     JwtModule.registerAsync({
       imports: [ConfigModule],

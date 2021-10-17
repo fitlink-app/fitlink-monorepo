@@ -27,6 +27,12 @@ export class GoalsEntry {
 
   @ApiProperty()
   @Column({
+    nullable: true
+  })
+  notified_at: Date
+
+  @ApiProperty()
+  @Column({
     default: 0
   })
   current_mindfulness_minutes: number

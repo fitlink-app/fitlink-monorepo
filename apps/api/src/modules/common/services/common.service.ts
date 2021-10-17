@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common'
+import { HttpService, Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { plainToClass } from 'class-transformer'
 import { User, UserPublic } from '../../users/entities/user.entity'
 
@@ -8,7 +9,10 @@ export type UserExtended = User & {
 
 @Injectable()
 export class CommonService {
-  constructor() {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
+  ) {}
 
   /**
    * Formats a user object to UserPublic
@@ -48,5 +52,18 @@ export class CommonService {
    */
   mapUserPublic(users: UserExtended[]) {
     return users.map(this.getUserPublic)
+  }
+
+  async notifySlackJobs(title: string, result: NodeJS.Dict<any>, ms: number) {
+    try {
+      await this.httpService
+        .post(this.configService.get('SLACK_WEBHOOK_JOBS_URL'), {
+          text: `${title} job took ${ms}ms to run`,
+          attachments: [{ text: `\`\`\`${JSON.stringify(result)}\`\`\`` }]
+        })
+        .toPromise()
+    } catch (e) {
+      console.error(e)
+    }
   }
 }
