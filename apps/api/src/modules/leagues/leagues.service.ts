@@ -1096,21 +1096,4 @@ export class LeaguesService {
       messages
     }
   }
-
-  async notifySlack(
-    seconds: number,
-    result: NodeJS.Dict<any>,
-    name: string = 'Leagues'
-  ) {
-    try {
-      await this.httpService
-        .post(this.configService.get('SLACK_WEBHOOK_JOBS_URL'), {
-          text: `${name} job took ${seconds} seconds to run`,
-          attachments: [{ text: JSON.stringify(result) }]
-        })
-        .toPromise()
-    } catch (e) {
-      console.error(e)
-    }
-  }
 }
