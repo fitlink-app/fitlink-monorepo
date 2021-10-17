@@ -12,18 +12,10 @@ import { ApiProperty } from '@nestjs/swagger'
 import { FeedItem } from '../../feed-items/entities/feed-item.entity'
 
 @Entity()
-export class GoalsEntry {
+export class GoalsEntry extends CreatableEntity {
   @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string
-
-  @ApiProperty()
-  @Column()
-  created_at: Date
-
-  @ApiProperty()
-  @Column()
-  updated_at: Date
 
   @ApiProperty()
   @Column({

@@ -66,6 +66,7 @@ import { AddImageUrlSport1633944959171 } from '../database/migrations/1633944959
 import { AddUserMobileOS1634031981765 } from '../database/migrations/1634031981765-AddUserMobileOS'
 import { AddIconSvgToSport1634129894631 } from '../database/migrations/1634129894631-AddIconSvgToSport'
 import { SportIconUrl1634290863881 } from '../database/migrations/1634290863881-SportIconUrl'
+import { AddGoalsNotifyDate1634470806764 } from '../database/migrations/1634470806764-AddGoalsNotifyDate'
 
 export default [
   InitializeSchema1614887523112,
@@ -130,5 +131,6 @@ export default [
   AddImageUrlSport1633944959171,
   AddUserMobileOS1634031981765,
   AddIconSvgToSport1634129894631,
-  SportIconUrl1634290863881
+  SportIconUrl1634290863881,
+  AddGoalsNotifyDate1634470806764
 ]
