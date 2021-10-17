@@ -29,7 +29,8 @@ export class NotificationsService {
     [NotificationAction.RankDown]: `👎 Ouch! Your rank dropped to {subject}. You can do it.`,
     [NotificationAction.GoalProgressSteps]: `👣 So close to reaching your steps goal. Just a brisk walk should do it.`,
     [NotificationAction.ActivityLiked]: `❤️ {subject} just liked your {meta_value}. Check it out.`,
-    [NotificationAction.RewardUnlocked]: `🎁 You just unlocked a new reward {subject}. Check it out.`
+    [NotificationAction.RewardUnlocked]: `🎁 You just unlocked a new reward {subject}. Check it out.`,
+    [NotificationAction.MondayReminder]: `🚀 It's a new week, and you've got goals. Let's go!`
   }
 
   titles = {
@@ -43,7 +44,8 @@ export class NotificationsService {
     [NotificationAction.RankDown]: `Rank updated`,
     [NotificationAction.GoalProgressSteps]: `Steps progress`,
     [NotificationAction.ActivityLiked]: `You've got love`,
-    [NotificationAction.RewardUnlocked]: `Reward unlocked`
+    [NotificationAction.RewardUnlocked]: `Reward unlocked`,
+    [NotificationAction.MondayReminder]: `It's a new week`
   }
 
   constructor(
@@ -101,7 +103,9 @@ export class NotificationsService {
     data: NodeJS.Dict<any> = {}
   ): Promise<messaging.BatchResponse> {
     let tokens: string[] = []
-    users.forEach((user) => tokens.concat(user.fcm_tokens))
+    users.forEach((user) => {
+      tokens = tokens.concat(user.fcm_tokens)
+    })
 
     if (!this.messages[action] || !this.titles[action]) {
       throw new BadRequestException()

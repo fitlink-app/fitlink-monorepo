@@ -34,7 +34,10 @@ export enum NotificationAction {
   ActivityLiked = 'activity_liked',
 
   /** 🎁 You just unlocked a new reward {subject}. Check it out.	*/
-  RewardUnlocked = 'reward_unlocked'
+  RewardUnlocked = 'reward_unlocked',
+
+  /** 🚀 It's a new week, and you've got goals. Let's go! */
+  MondayReminder = 'monday_reminder'
 }
 
 export type NotificationPayload = Omit<messaging.Message, 'token'>

@@ -106,6 +106,8 @@ export class GoalsEntriesService {
     let targetReached: GoalField[] = []
     const entries = this.formatFields(goalsEntryDto || {}, goalsEntry)
 
+    let hasRealUpdate = false
+
     entries.forEach((each) => {
       // Only update if the incoming entry exceeds the previous entry value
       if (each.current >= goalsEntry[each.field]) {
@@ -115,6 +117,8 @@ export class GoalsEntriesService {
         }
 
         goalsEntry[each.field] = each.current
+
+        hasRealUpdate = true
       }
     })
     const goalEntryReachedEvent = new DailyGoalsReachedEvent()
@@ -139,7 +143,17 @@ export class GoalsEntriesService {
     goalsEntry.user = new User()
     goalsEntry.user.id = user.id
 
-    return await this.goalsEntryRepository.save(goalsEntry)
+    return this.goalsEntryRepository.manager.transaction(async (manager) => {
+      const repo = manager.getRepository(GoalsEntry)
+      const userRepo = manager.getRepository(User)
+      const result = await repo.save(goalsEntry)
+      if (hasRealUpdate) {
+        await userRepo.update(user.id, {
+          last_lifestyle_activity_at: new Date()
+        })
+      }
+      return result
+    })
   }
 
   async triggerEvent(

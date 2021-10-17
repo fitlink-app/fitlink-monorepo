@@ -133,6 +133,14 @@ export class UsersController {
     return result
   }
 
+  @Put('me/ping')
+  @ApiTags('me')
+  @UpdateResponse()
+  @ApiBody({ type: UpdateUserEmailDto })
+  pingUser(@AuthUser() user: AuthenticatedUser) {
+    return this.usersService.ping(user.id)
+  }
+
   @Public()
   @Post('users/verify-email')
   @UpdateResponse()
@@ -391,5 +399,19 @@ export class UsersController {
     return {
       rank
     }
+  }
+
+  /**
+   * Webhook for AWS Lambda to send a Monday
+   * reminder for inactive users.
+   */
+  @Public()
+  @Post('/users/job/mondays')
+  async mondayReminders(@Body() { verify_token }: UserJobDto) {
+    if (verify_token !== this.configService.get('JOBS_VERIFY_TOKEN')) {
+      throw new ForbiddenException()
+    }
+    const result = await this.usersService.processMondayMorningReminder()
+    return result
   }
 }

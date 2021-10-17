@@ -225,6 +225,7 @@ export type ReadResource =
   | '/me'
   | '/me/roles'
   | '/me/role'
+  | '/me/ping'
   | '/me/next-reward'
   | '/me/feed/:feedItemId'
   | '/me/avatar'

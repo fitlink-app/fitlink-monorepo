@@ -27,7 +27,8 @@ import {
   subDays,
   startOfDay,
   differenceInMilliseconds,
-  startOfWeek
+  startOfWeek,
+  isMonday
 } from 'date-fns'
 import { CommonService } from '../common/services/common.service'
 import { NotificationsService } from '../notifications/notifications.service'
@@ -470,8 +471,18 @@ export class UsersService {
     return this.getUserPublic(user)
   }
 
-  update(id: string, update: UpdateUserDto) {
+  update(id: string, payload: UpdateUserDto) {
+    const update: Partial<User> = { ...payload }
+    if (update.onboarded) {
+      update.last_onboarded_at = new Date()
+    }
     return this.userRepository.update(id, update)
+  }
+
+  ping(id: string) {
+    return this.userRepository.update(id, {
+      last_app_opened_at: new Date()
+    })
   }
 
   updateBasic(id: string, { imageId, ...rest }: UpdateBasicUserDto) {
@@ -809,6 +820,47 @@ export class UsersService {
 
     return {
       count: usersToDropRank.length
+    }
+  }
+
+  /**
+   * For users that haven't exercised in more than
+   * 4 days we push a notification on Mondays.
+   */
+  async processMondayMorningReminder() {
+    // Ensure this only ever runs on Monday
+    if (!isMonday(new Date())) {
+      return false
+    }
+
+    const started = new Date()
+    const users = await this.userRepository
+      .createQueryBuilder('user')
+      .where(
+        'last_lifestyle_activity_at IS NULL OR last_lifestyle_activity_at < :prev',
+        { prev: subDays(new Date(), 4) }
+      )
+      .andWhere('onboarded = true')
+      .getMany()
+
+    const usersWithFcm = users.filter((e) => e.fcm_tokens.length)
+    const messages = await this.notificationsService.sendAction(
+      usersWithFcm,
+      NotificationAction.MondayReminder
+    )
+
+    await this.commonService.notifySlackJobs(
+      'Monday morning update',
+      {
+        notified_total: usersWithFcm.length,
+        messages: messages
+      },
+      differenceInMilliseconds(started, new Date())
+    )
+
+    return {
+      total: usersWithFcm.length,
+      messages
     }
   }
 }
