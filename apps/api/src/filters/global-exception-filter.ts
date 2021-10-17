@@ -55,7 +55,7 @@ export class GlobalExceptionsFilter extends BaseExceptionFilter {
               },
               {
                 color: '#C22F0F',
-                text: `\`\`\`\`${JSON.stringify(body)}\`\`\``
+                text: `\`\`\`\`${JSON.stringify(body, null, 2)}\`\`\``
               },
               {
                 color: '#C22F0F',

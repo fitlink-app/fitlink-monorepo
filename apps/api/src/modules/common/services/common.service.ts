@@ -59,7 +59,9 @@ export class CommonService {
       await this.httpService
         .post(this.configService.get('SLACK_WEBHOOK_JOBS_URL'), {
           text: `${title} job took ${ms}ms to run`,
-          attachments: [{ text: `\`\`\`${JSON.stringify(result)}\`\`\`` }]
+          attachments: [
+            { text: `\`\`\`${JSON.stringify(result, null, 2)}\`\`\`` }
+          ]
         })
         .toPromise()
     } catch (e) {
