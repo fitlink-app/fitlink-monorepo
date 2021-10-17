@@ -1243,9 +1243,9 @@ describe('Leagues', () => {
     expect(data.json().pending.leagues_processed).toBeGreaterThan(1)
     expect(data.json().pending.leagues_restarted).toBeGreaterThan(1)
     expect(data.json().ending.total).toBeGreaterThan(0)
-    expect(data.json().ending.messaging[0].successCount).toBe(24)
-    expect(data.json().ending.messaging[0].failureCount).toBe(0)
-    expect(data.json().ending.messaging[0].responses).toHaveLength(1)
+    expect(data.json().ending.messages[0].successCount).toBe(24)
+    expect(data.json().ending.messages[0].failureCount).toBe(0)
+    expect(data.json().ending.messages[0].responses).toHaveLength(1)
 
     // Slack hook
     expect(httpService.post).toHaveBeenCalled()

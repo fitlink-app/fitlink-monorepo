@@ -43,14 +43,17 @@ export class GlobalExceptionsFilter extends BaseExceptionFilter {
 
       const webhookUrl = this.configService.get('SLACK_WEBHOOK_ERRORS_URL')
 
-      if (webhookUrl) {
+      if (webhookUrl && req.url.indexOf('api/v1') > -1) {
         httpService
           .post(webhookUrl, {
             text: `*500 Internal Server Error*`,
             color: '#C22F0F',
             attachments: [
               { color: '#C22F0F', text: req.url },
-              { color: '#C22F0F', text: JSON.stringify(body) },
+              {
+                color: '#C22F0F',
+                text: `\`\`\`\`${JSON.stringify(body)}\`\`\``
+              },
               { color: '#C22F0F', text: String((exception as Error).stack) }
             ]
           })
