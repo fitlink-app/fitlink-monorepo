@@ -256,13 +256,15 @@ export class GoalsEntriesService {
       }
     })
 
-    // Ensure these users aren't notified a second time today
-    await this.goalsEntryRepository.update(
-      goals.map((e) => e.id),
-      {
-        notified_at: new Date()
-      }
-    )
+    if (notify.length) {
+      // Ensure these users aren't notified a second time today
+      await this.goalsEntryRepository.update(
+        goals.map((e) => e.id),
+        {
+          notified_at: new Date()
+        }
+      )
+    }
 
     const messages = await Promise.all(
       notify.map(({ user, steps }) => {
