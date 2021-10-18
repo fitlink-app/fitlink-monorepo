@@ -22,17 +22,17 @@ export class NewFollowerListener {
   ) {}
   @OnEvent(Events.USER_NEW_FOLLOWER)
   async onNewFollower(payload: NewFollowerEvent) {
-    const userThatFollows = await this.userRepository.findOne({
-      id: payload.userId
-    })
-    const userThatIsFollowed = await this.userRepository.findOne(
+    const userThatFollows = await this.userRepository.findOne(
       {
-        id: payload.targetId
+        id: payload.userId
       },
       {
         relations: ['avatar']
       }
     )
+    const userThatIsFollowed = await this.userRepository.findOne({
+      id: payload.targetId
+    })
 
     try {
       // Create feed item

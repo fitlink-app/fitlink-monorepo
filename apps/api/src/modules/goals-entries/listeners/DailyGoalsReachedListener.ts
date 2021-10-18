@@ -43,7 +43,8 @@ export class DailyGoalReachedListener {
         action: NotificationAction.GoalAchieved,
         subject: FeedGoalTypeFormat[goal_type],
         subject_id: goal_entry.id,
-        user
+        user,
+        avatar: user.avatar
       })
     } catch (e) {
       console.error(e)

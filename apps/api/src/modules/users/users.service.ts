@@ -843,7 +843,9 @@ export class UsersService {
       .andWhere('onboarded = true')
       .getMany()
 
-    const usersWithFcm = users.filter((e) => e.fcm_tokens.length)
+    const usersWithFcm = users.filter(
+      (e) => e.fcm_tokens && e.fcm_tokens.length
+    )
     const messages = await this.notificationsService.sendAction(
       usersWithFcm,
       NotificationAction.MondayReminder

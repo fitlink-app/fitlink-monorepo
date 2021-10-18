@@ -112,7 +112,10 @@ export class GoalsEntriesService {
       // Only update if the incoming entry exceeds the previous entry value
       if (each.current >= goalsEntry[each.field]) {
         // Check if the current value was previously lower than target and is now "reached"
-        if (goalsEntry[each.field] < each.target) {
+        if (
+          goalsEntry[each.field] < each.target &&
+          each.current >= each.target
+        ) {
           targetReached.push(each)
         }
 
