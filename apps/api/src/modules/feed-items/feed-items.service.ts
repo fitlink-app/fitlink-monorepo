@@ -180,7 +180,7 @@ export class FeedItemsService {
       relations: ['avatar']
     })
     const feedItem = await this.feedItemRepository.findOne(feedItemId, {
-      relations: ['user', 'likes', 'health_activity', 'goal_entry']
+      relations: ['user', 'likes', 'health_activity', 'goal_entry', 'league']
     })
 
     // If the user already likes the post, ignore this.
