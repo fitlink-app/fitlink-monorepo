@@ -402,9 +402,9 @@ export class UsersService {
    * @param tokens
    * @returns
    */
-  async mergeFcmTokens(userId: string, tokens: string[]) {
+  async mergeFcmTokens(userId: string, token: string) {
     const user = await this.userRepository.findOne(userId)
-    const fcm_tokens = [...new Set(user.fcm_tokens.concat(tokens))]
+    const fcm_tokens = [...new Set(user.fcm_tokens.concat([token]))]
     return this.userRepository.update(userId, {
       fcm_tokens
     })

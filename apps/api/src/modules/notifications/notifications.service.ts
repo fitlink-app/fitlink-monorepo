@@ -205,10 +205,9 @@ export class NotificationsService {
    * @returns
    */
   async markSeen(userId: string, notificationIds: string[]) {
-    return this.notificationsRepository.manager.transaction(async (manager) => {
+    await this.notificationsRepository.manager.transaction(async (manager) => {
       const notificationsRepository = manager.getRepository(Notification)
-      const usersRepository = manager.getRepository(User)
-      const result = await notificationsRepository.update(
+      return notificationsRepository.update(
         {
           id: In(notificationIds),
           user: {
@@ -219,11 +218,17 @@ export class NotificationsService {
           seen: true
         }
       )
-      return usersRepository.decrement(
-        { id: userId },
-        'unread_notifications',
-        result.affected
-      )
+    })
+
+    const unreadCount = await this.notificationsRepository.count({
+      where: {
+        user: { id: userId },
+        seen: false
+      }
+    })
+
+    return this.usersRepository.update(userId, {
+      unread_notifications: unreadCount
     })
   }
 
