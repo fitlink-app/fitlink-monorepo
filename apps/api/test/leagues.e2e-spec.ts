@@ -1206,12 +1206,7 @@ describe('Leagues', () => {
     notificationsService.sendAction = jest.fn(() =>
       Promise.resolve({
         successCount: 24,
-        failureCount: 0,
-        responses: [
-          {
-            success: true
-          }
-        ]
+        failureCount: 0
       })
     )
 
@@ -1245,7 +1240,6 @@ describe('Leagues', () => {
     expect(data.json().ending.total).toBeGreaterThan(0)
     expect(data.json().ending.messages[0].successCount).toBe(24)
     expect(data.json().ending.messages[0].failureCount).toBe(0)
-    expect(data.json().ending.messages[0].responses).toHaveLength(1)
 
     // Slack hook
     expect(httpService.post).toHaveBeenCalled()

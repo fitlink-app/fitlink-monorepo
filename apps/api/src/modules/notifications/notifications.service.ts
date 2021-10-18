@@ -88,7 +88,14 @@ export class NotificationsService {
     const payload = this.formatPayload(notify)
     const tokens = notification.user.fcm_tokens
     if (payload && tokens && tokens.length > 0) {
-      await this.sendNotificationByFCMTokenArray(payload, tokens)
+      const response = await this.sendNotificationByFCMTokenArray(
+        payload,
+        tokens
+      )
+      await this.cleanTokens([notification.user], response)
+      await this.notificationsRepository.update(notify.id, {
+        push_succeeded: response.successCount > 0
+      })
     }
     return notify
   }
@@ -101,7 +108,11 @@ export class NotificationsService {
       meta_value?: string
     } = {},
     data: NodeJS.Dict<any> = {}
-  ): Promise<messaging.BatchResponse> {
+  ): Promise<{
+    failureCount: number
+    successCount: number
+    usersTokensUpdated: number
+  }> {
     let tokens: string[] = []
     users.forEach((user) => {
       tokens = tokens.concat(user.fcm_tokens)
@@ -116,7 +127,7 @@ export class NotificationsService {
         .replace('{subject}', replace.subject)
         .replace('{meta_value', replace.meta_value)
 
-      return this.sendNotificationByFCMTokenArray(
+      const response = await this.sendNotificationByFCMTokenArray(
         {
           data: data,
           notification: {
@@ -126,7 +137,52 @@ export class NotificationsService {
         },
         tokens
       )
+
+      // Format responses to find broken tokens and remove
+      // them from those users.
+      const usersTokensUpdated = await this.cleanTokens(users, response)
+
+      return {
+        failureCount: response.failureCount,
+        successCount: response.successCount,
+        usersTokensUpdated
+      }
     }
+  }
+
+  async cleanTokens(users: User[], response: messaging.BatchResponse) {
+    const indexes: { id: string; token: string }[] = []
+    users.forEach((user) => {
+      user.fcm_tokens.forEach((token) => {
+        indexes.push({ id: user.id, token })
+      })
+    })
+
+    const remove: NodeJS.Dict<string[]> = {}
+    response.responses.forEach((each, index) => {
+      if (!each.success) {
+        const match = indexes[index]
+        if (remove[indexes[index].id]) {
+          remove[indexes[index].id].push(match.token)
+        } else {
+          remove[indexes[index].id] = [match.token]
+        }
+      }
+    })
+
+    const updates = await Promise.all(
+      Object.keys(remove).map((userId) => {
+        const badTokens = remove[userId]
+        const user = users.filter((user) => user.id === userId)[0]
+        return this.usersRepository.update(userId, {
+          fcm_tokens: user.fcm_tokens.filter(
+            (t) => badTokens.includes(t) === false
+          )
+        })
+      })
+    )
+
+    return updates.length
   }
 
   async sendGenericMessage(
@@ -144,7 +200,16 @@ export class NotificationsService {
     }
 
     if (payload && tokens && tokens.length > 0) {
-      return this.sendNotificationByFCMTokenArray(payload, tokens)
+      const response = await this.sendNotificationByFCMTokenArray(
+        payload,
+        tokens
+      )
+      const usersTokensUpdated = await this.cleanTokens([user], response)
+      return {
+        failureCount: response.failureCount,
+        successCount: response.successCount,
+        usersTokensUpdated
+      }
     }
 
     return false

@@ -406,7 +406,8 @@ export class UsersService {
     const user = await this.userRepository.findOne(userId)
     const fcm_tokens = [...new Set(user.fcm_tokens.concat([token]))]
     return this.userRepository.update(userId, {
-      fcm_tokens
+      fcm_tokens,
+      last_app_opened_at: new Date()
     })
   }
 
