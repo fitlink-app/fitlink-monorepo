@@ -180,7 +180,7 @@ export class FeedItemsService {
       relations: ['avatar']
     })
     const feedItem = await this.feedItemRepository.findOne(feedItemId, {
-      relations: ['user', 'likes']
+      relations: ['user', 'likes', 'health_activity', 'goal_entry']
     })
 
     // If the user already likes the post, ignore this.
@@ -204,10 +204,10 @@ export class FeedItemsService {
       await this.notificationsService.create({
         action: NotificationAction.ActivityLiked,
         subject: liker.name,
-        subject_id: liker.id,
+        subject_id: notifyMeta.subject_id,
         user: feedItem.user as User,
         avatar: liker.avatar,
-        meta_value: notifyMeta
+        meta_value: notifyMeta.meta_value
       })
     }
   }
@@ -223,11 +223,17 @@ export class FeedItemsService {
   getFeedTypeForNotification(feedItem: FeedItem) {
     switch (feedItem.type) {
       case FeedItemType.DailyGoalReached:
-        return 'goal achievement'
+        return {
+          subject_id: feedItem.goal_entry.id,
+          meta_value: 'goal achievement'
+        }
       case FeedItemType.HealthActivity:
-        return 'activity'
+        return {
+          subject_id: feedItem.health_activity.id,
+          meta_value: 'activity'
+        }
       case FeedItemType.LeagueWon:
-        return 'league victory'
+        return { subject_id: feedItem.league.id, meta_value: 'league victory' }
     }
     return false
   }
