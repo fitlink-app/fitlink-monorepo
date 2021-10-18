@@ -397,6 +397,20 @@ export class UsersService {
   }
 
   /**
+   * Store only unique FCM tokens
+   * @param userId
+   * @param tokens
+   * @returns
+   */
+  async mergeFcmTokens(userId: string, tokens: string[]) {
+    const user = await this.userRepository.findOne(userId)
+    const fcm_tokens = [...new Set(user.fcm_tokens.concat(tokens))]
+    return this.userRepository.update(userId, {
+      fcm_tokens
+    })
+  }
+
+  /**
    * Formats the user entity as UserPublic
    * to prevent leaked sensitive data.
    *

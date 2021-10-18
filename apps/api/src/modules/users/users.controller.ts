@@ -51,6 +51,7 @@ import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateAdminDto } from './dto/create-admin.dto'
 import { ConfigService } from '@nestjs/config'
 import { UserJobDto } from './dto/user-job.dto'
+import { CreateFcmTokens } from './dto/create-fcm-tokens.dto'
 
 @Controller()
 @ApiBaseResponses()
@@ -104,6 +105,22 @@ export class UsersController {
   ) {
     try {
       return this.usersService.updateEmail(user.id, body.email)
+    } catch (e) {
+      console.error(e)
+      throw new BadRequestException(e)
+    }
+  }
+
+  @Post('me/fcm-tokens')
+  @ApiTags('me')
+  @UpdateResponse()
+  @ApiBody({ type: CreateFcmTokens })
+  updateFcmTokens(
+    @AuthUser() user: AuthenticatedUser,
+    @Body() body: CreateFcmTokens
+  ) {
+    try {
+      return this.usersService.mergeFcmTokens(user.id, body.tokens)
     } catch (e) {
       console.error(e)
       throw new BadRequestException(e)
