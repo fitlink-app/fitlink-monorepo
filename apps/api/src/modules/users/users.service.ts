@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { formatRoles } from '../../helpers/formatRoles'
-import { LessThan, MoreThan, Repository, Between, Brackets } from 'typeorm'
+import { Repository, Brackets } from 'typeorm'
 import { JWTRoles } from '../../models'
 import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -11,7 +11,6 @@ import { User, UserPublic } from './entities/user.entity'
 import { Image } from '../images/entities/image.entity'
 import { ImageType } from '../images/images.constants'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
-import { plainToClass } from 'class-transformer'
 import { JwtService } from '@nestjs/jwt'
 import { EmailService } from '../common/email.service'
 import { EmailResetJWT } from '../../models/email-reset.jwt.model'
@@ -25,7 +24,6 @@ import { Roles } from '../user-roles/user-roles.constants'
 import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 import {
   subDays,
-  startOfDay,
   differenceInMilliseconds,
   startOfWeek,
   isMonday
@@ -381,7 +379,7 @@ export class UsersService {
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<UserPublic>({
-      results: results.map(this.getUserPublic),
+      results: this.commonService.mapUserPublic(results),
       total
     })
   }
@@ -408,33 +406,6 @@ export class UsersService {
     return this.userRepository.update(userId, {
       fcm_tokens,
       last_app_opened_at: new Date()
-    })
-  }
-
-  /**
-   * Formats the user entity as UserPublic
-   * to prevent leaked sensitive data.
-   *
-   * @param user
-   * @returns UserPublic
-   */
-  getUserPublic(user: User) {
-    const userPublic = (user as unknown) as UserPublic
-
-    /**
-     * NOTE: in this scenario, following is used to determine
-     * if the authenticated user is following the given user entity.
-     */
-    userPublic.following = Boolean(user.following && user.following.length)
-
-    /**
-     * NOTE: in this scenario, follower is used to determine
-     * if the authenticated user is being followed by the
-     * given user entity.
-     */
-    userPublic.follower = Boolean(user.followers && user.followers.length)
-    return plainToClass(UserPublic, userPublic, {
-      excludeExtraneousValues: true
     })
   }
 
@@ -483,7 +454,7 @@ export class UsersService {
    */
   async findPublic(userId: string, viewerId: string) {
     const user = await this.findForViewer(userId, viewerId)
-    return this.getUserPublic(user)
+    return this.commonService.getUserPublic(user)
   }
 
   update(id: string, payload: UpdateUserDto) {

@@ -68,6 +68,7 @@ import { AddIconSvgToSport1634129894631 } from '../database/migrations/163412989
 import { SportIconUrl1634290863881 } from '../database/migrations/1634290863881-SportIconUrl'
 import { AddGoalsNotifyDate1634470806764 } from '../database/migrations/1634470806764-AddGoalsNotifyDate'
 import { AddPushSuccessBoolean1634571990161 } from '../database/migrations/1634571990161-AddPushSuccessBoolean'
+import { AddGoalPercentage1634574422239 } from '../database/migrations/1634574422239-AddGoalPercentage'
 
 export default [
   InitializeSchema1614887523112,
@@ -134,5 +135,6 @@ export default [
   AddIconSvgToSport1634129894631,
   SportIconUrl1634290863881,
   AddGoalsNotifyDate1634470806764,
-  AddPushSuccessBoolean1634571990161
+  AddPushSuccessBoolean1634571990161,
+  AddGoalPercentage1634574422239
 ]

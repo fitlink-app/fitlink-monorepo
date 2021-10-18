@@ -7,12 +7,14 @@ import { HealthActivity } from './entities/health-activity.entity'
 import { ProvidersModule } from '../providers/providers.module'
 import { Sport } from '../sports/entities/sport.entity'
 import { ImagesModule } from '../images/images.module'
+import { CommonModule } from '../common/common.module'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([HealthActivity, Sport]),
     forwardRef(() => ProvidersModule),
-    ImagesModule
+    ImagesModule,
+    CommonModule
   ],
   controllers: [HealthActivitiesController],
   providers: [HealthActivitiesService, HealthActivitiesSubscriber],

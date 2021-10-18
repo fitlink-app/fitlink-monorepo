@@ -760,7 +760,7 @@ export class LeaguesService {
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<UserPublic>({
-      results: results.map((user) => this.commonService.getUserPublic(user)),
+      results: this.commonService.mapUserPublic(results),
       total
     })
   }
@@ -814,9 +814,7 @@ export class LeaguesService {
       return {
         ...rankEntry,
         rank: entry.rank,
-        user: plainToClass(UserPublic, rankEntry.user, {
-          excludeExtraneousValues: true
-        })
+        user: this.commonService.getUserPublic(rankEntry.user as User)
       }
     })
 

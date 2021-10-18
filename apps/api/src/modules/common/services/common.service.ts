@@ -2,6 +2,7 @@ import { HttpService, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { plainToClass } from 'class-transformer'
 import { User, UserPublic } from '../../users/entities/user.entity'
+import { zonedStartOfDay } from '../../../../../common/date/helpers'
 
 export type UserExtended = User & {
   invitations?: any[]
@@ -19,23 +20,28 @@ export class CommonService {
    * @param user
    * @returns
    */
-  getUserPublic(user: UserExtended) {
+  getUserPublic(user: UserExtended | User) {
     const userPublic = (user as unknown) as UserPublic
 
     if (user.following !== undefined) {
-      userPublic.following = Boolean(
-        user.following && user.following.length === 1
-      )
+      userPublic.following = Boolean(user.following && user.following.length)
     }
 
     if (user.followers !== undefined) {
-      userPublic.follower = Boolean(
-        user.followers && user.followers.length === 1
-      )
+      userPublic.follower = Boolean(user.followers && user.followers.length)
     }
 
     if (user.leagues_invitations !== undefined) {
-      userPublic.invited = Boolean(user.leagues_invitations.length === 1)
+      userPublic.invited = Boolean(user.leagues_invitations.length)
+    }
+
+    // Convert today's goal percentage to 0
+    // if the user hasn't had a health activity today.
+    if (user.last_health_activity_at) {
+      const startOfDay = zonedStartOfDay(user.timezone)
+      if (user.last_health_activity_at < startOfDay) {
+        userPublic.goal_percentage = 0
+      }
     }
 
     return plainToClass(UserPublic, userPublic, {

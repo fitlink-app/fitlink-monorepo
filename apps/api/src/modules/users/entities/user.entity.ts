@@ -329,6 +329,13 @@ export class User extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    type: 'float',
+    default: 0
+  })
+  goal_percentage: number
+
+  @ApiProperty()
+  @Column({
     default: 0
   })
   followers_total: number
@@ -397,6 +404,10 @@ export class UserPublic {
   @Expose()
   /** Whether the authenticated user is invited (depends on API request) */
   invited?: boolean
+
+  @ApiProperty()
+  @Expose()
+  goal_percentage: number
 }
 
 export class UserPublicPagination {

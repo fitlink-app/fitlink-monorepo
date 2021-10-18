@@ -1206,7 +1206,8 @@ describe('Leagues', () => {
     notificationsService.sendAction = jest.fn(() =>
       Promise.resolve({
         successCount: 24,
-        failureCount: 0
+        failureCount: 0,
+        usersTokensUpdated: 0
       })
     )
 

@@ -153,7 +153,6 @@ export class UsersController {
   @Put('me/ping')
   @ApiTags('me')
   @UpdateResponse()
-  @ApiBody({ type: UpdateUserEmailDto })
   pingUser(@AuthUser() user: AuthenticatedUser) {
     return this.usersService.ping(user.id)
   }

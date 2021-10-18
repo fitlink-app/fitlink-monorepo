@@ -4,6 +4,7 @@ import { plainToClass } from 'class-transformer'
 import { Brackets, Repository } from 'typeorm'
 import { Pagination, PaginationQuery } from '../../helpers/paginate'
 import { tryAndCatch } from '../../helpers/tryAndCatch'
+import { CommonService } from '../common/services/common.service'
 import { NotificationAction } from '../notifications/notifications.constants'
 import { NotificationsService } from '../notifications/notifications.service'
 import { PrivacySetting } from '../users-settings/users-settings.constants'
@@ -20,7 +21,8 @@ export class FeedItemsService {
     private feedItemRepository: Repository<FeedItem>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
+    private commonService: CommonService
   ) {}
   async create(createFeedItemDto: CreateFeedItemDto) {
     const [result, resultErr] = await tryAndCatch(
@@ -153,14 +155,12 @@ export class FeedItemsService {
     return new Pagination<FeedItem>({
       results: results.map((item) => {
         if (item.user) {
-          item.user = plainToClass(UserPublic, item.user, {
-            excludeExtraneousValues: true
-          })
+          item.user = this.commonService.getUserPublic(item.user as User)
         }
         if (item.related_user) {
-          item.related_user = plainToClass(UserPublic, item.related_user, {
-            excludeExtraneousValues: true
-          })
+          item.related_user = this.commonService.getUserPublic(
+            item.related_user as User
+          )
         }
 
         item.likes = item.likes.map((e) => {
