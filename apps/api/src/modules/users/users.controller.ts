@@ -115,7 +115,7 @@ export class UsersController {
   @ApiTags('me')
   @UpdateResponse()
   @ApiBody({ type: CreateFcmTokenDto })
-  updateFcmTokens(
+  updateFcmToken(
     @AuthUser() user: AuthenticatedUser,
     @Body() body: CreateFcmTokenDto
   ) {
