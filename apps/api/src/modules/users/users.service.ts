@@ -31,6 +31,19 @@ import {
 import { CommonService } from '../common/services/common.service'
 import { NotificationsService } from '../notifications/notifications.service'
 import { NotificationAction } from '../notifications/notifications.constants'
+import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
+import { League } from '../leagues/entities/league.entity'
+import { LeaguesInvitation } from '../leagues-invitations/entities/leagues-invitation.entity'
+import { RewardsRedemption } from '../rewards-redemptions/entities/rewards-redemption.entity'
+import { Following } from '../followings/entities/following.entity'
+import { FeedItem } from '../feed-items/entities/feed-item.entity'
+import { FeedItemLike } from '../feed-items/entities/feed-item-like.entity'
+import { GoalsEntry } from '../goals-entries/entities/goals-entry.entity'
+import { Notification } from '../notifications/entities/notification.entity'
+import { UserRole } from '../user-roles/entities/user-role.entity'
+import { Provider } from '../providers/entities/provider.entity'
+import { Activity } from '../activities/entities/activity.entity'
+import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.entity'
 
 type EntityOwner = {
   organisationId?: string
@@ -648,13 +661,6 @@ export class UsersService {
     })
   }
 
-  // TODO: User removal is more complex
-  // and requires that their relationships are
-  // destroyed first in order. This will require a transaction.
-  remove(id: string) {
-    return this.userRepository.delete(id)
-  }
-
   /**
    * Hashes a password with bcrypt
    * @param password
@@ -870,5 +876,134 @@ export class UsersService {
       total: usersWithFcm.length,
       messages
     }
+  }
+
+  async remove(id: string) {
+    const user = await this.userRepository.findOne(id, {
+      relations: ['roles']
+    })
+
+    if (!user) {
+      return false
+    }
+
+    return this.userRepository.manager.transaction(async (manager) => {
+      // Remove feed items
+      await manager.getRepository(FeedItemLike).delete({
+        user: { id }
+      }),
+        // Remove associated feed items
+        await manager.getRepository(FeedItem).delete({
+          related_user: { id }
+        }),
+        // Remove feed items
+        await manager.getRepository(FeedItem).delete({
+          user: { id }
+        }),
+        // Remove notifications
+        await manager.getRepository(Notification).delete({
+          user: { id }
+        }),
+        // Remove any associated roles
+        await manager.getRepository(UserRole).delete({
+          user: { id }
+        })
+
+      // Remove any associated auth providers (Google, Apple)
+      await manager.getRepository(AuthProvider).delete({
+        user: { id }
+      })
+
+      await manager.getRepository(HealthActivity).delete({
+        user: { id }
+      })
+
+      await manager.getRepository(GoalsEntry).delete({
+        user: { id }
+      })
+
+      // Remove any associated providers (Strava, Fitbit, etc.)
+      await manager.getRepository(Provider).delete({
+        user: { id }
+      })
+
+      // Remove leaderboard entries
+      await manager.getRepository(LeaderboardEntry).delete({
+        user: { id }
+      })
+
+      // Remove league users
+      await manager
+        .getRepository(League)
+        .createQueryBuilder()
+        .relation(League, 'users')
+        .of(League)
+        .remove(id)
+
+      await Promise.all([
+        // Remove leagues invitations
+        manager.getRepository(LeaguesInvitation).delete({
+          to_user: { id }
+        }),
+
+        // Remove teams invitations
+        manager.getRepository(TeamsInvitation).delete({
+          owner: { id }
+        }),
+
+        manager.getRepository(TeamsInvitation).delete({
+          resolved_user: { id }
+        }),
+
+        // Remove rewards redemptions
+        manager.getRepository(RewardsRedemption).delete({
+          user: { id }
+        })
+      ])
+
+      await Promise.all([
+        // Remove followings
+        manager.getRepository(Following).delete({
+          following: { id }
+        }),
+
+        // Remove followings
+        manager.getRepository(Following).delete({
+          follower: { id }
+        })
+      ])
+
+      await manager.getRepository(League).update(
+        {
+          owner: { id }
+        },
+        {
+          owner: null
+        }
+      )
+
+      await manager.getRepository(Activity).update(
+        {
+          owner: { id }
+        },
+        {
+          owner: null
+        }
+      )
+
+      await manager.getRepository(Image).update(
+        {
+          owner: { id }
+        },
+        {
+          owner: null
+        }
+      )
+
+      // Finally, delete the user with cascades (for user settings)
+      await manager.getRepository(User).remove(user)
+
+      return true
+    })
   }
 }

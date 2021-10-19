@@ -270,7 +270,10 @@ export class SubscriptionsService {
    * @param subId
    */
   async deleteSubscription(subId: string, organisationId?: string) {
-    const subscription = await this.findOneSubscription(subId)
+    const subscription = await this.findOneSubscription(subId, [
+      'users',
+      'organisation'
+    ])
     if (organisationId && subscription.organisation.id !== organisationId) {
       throw new BadRequestException(
         "the subscription doesn't exist for this organisation"
@@ -285,31 +288,32 @@ export class SubscriptionsService {
       where: {
         organisation: {
           id: subscription.organisation.id
-        }
+        },
+        default: true
       }
     })
 
     // Reassign the users to the default subscription
-    if (defaultSubscription) {
-      await this.userRepository.update(
-        {
-          subscription: {
-            id: subscription.id
-          }
-        },
-        {
-          subscription: {
-            id: defaultSubscription.id
-          }
-        }
-      )
-    } else {
+    if (!defaultSubscription) {
       throw new BadRequestException(
         'No default subscription available. Please set a subscription as default and try again'
       )
     }
 
-    return this.subscriptionRepository.delete(subscription.id)
+    return this.subscriptionRepository.manager.transaction(async (manager) => {
+      await manager.getRepository(User).update(
+        {
+          subscription: { id: subscription.id }
+        },
+        {
+          subscription: defaultSubscription
+        }
+      )
+      await manager
+        .getRepository(UserRole)
+        .delete({ subscription: { id: subscription.id } })
+      return manager.getRepository(Subscription).delete(subscription.id)
+    })
   }
 
   /**

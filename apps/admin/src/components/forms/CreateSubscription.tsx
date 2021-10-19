@@ -15,6 +15,7 @@ import { Subscription } from '@fitlink/api/src/modules/subscriptions/entities/su
 import { SubscriptionType } from '@fitlink/api/src/modules/subscriptions/subscriptions.constants'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import useDebounce from '../../hooks/useDebounce'
 
 export type CreateSubscriptionProps = {
   current?: Partial<Subscription>
@@ -52,6 +53,8 @@ export default function CreateSubscription({
   const { register, handleSubmit, control, watch } = useForm({
     defaultValues: getFields(current)
   })
+  const [searchTerm, setSearchTerm] = useState('')
+  const dbSearchTerm = useDebounce(searchTerm, 500)
 
   const create: ApiMutationResult<Subscription> = useMutation(
     (payload: CreateSubscriptionDto) =>
@@ -75,9 +78,9 @@ export default function CreateSubscription({
 
   const organisations: ApiResult<{
     results: Organisation[]
-  }> = useQuery('organisations_search', () =>
+  }> = useQuery('organisations_search_' + dbSearchTerm, () =>
     api.list<Organisation>('/organisations', {
-      query: { q: 'fitlink' }
+      query: { q: dbSearchTerm }
     })
   )
 
@@ -201,6 +204,9 @@ export default function CreateSubscription({
                     if (option) {
                       field.onChange(option.value)
                     }
+                  }}
+                  onInputChange={(newValue: string) => {
+                    setSearchTerm(newValue)
                   }}
                   onBlur={field.onBlur}
                 />

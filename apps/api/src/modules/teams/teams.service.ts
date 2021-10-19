@@ -1,15 +1,24 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { EntityManager, In, Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { AuthenticatedUser } from '../../models'
+import { Activity } from '../activities/entities/activity.entity'
+import { FeedItem } from '../feed-items/entities/feed-item.entity'
 import { Image } from '../images/entities/image.entity'
+import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
+import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
+import { League } from '../leagues/entities/league.entity'
 import { Organisation } from '../organisations/entities/organisation.entity'
+import { Page } from '../pages/entities/page.entity'
+import { RewardsRedemption } from '../rewards-redemptions/entities/rewards-redemption.entity'
+import { Reward } from '../rewards/entities/reward.entity'
 import { Subscription } from '../subscriptions/entities/subscription.entity'
 import { BillingPlanStatus } from '../subscriptions/subscriptions.constants'
 import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.entity'
 import { TeamsInvitationsService } from '../teams-invitations/teams-invitations.service'
+import { UserRole } from '../user-roles/entities/user-role.entity'
 import { UserRolesService } from '../user-roles/user-roles.service'
 import { User, UserStat } from '../users/entities/user.entity'
 import { CreateTeamDto } from './dto/create-team.dto'
@@ -568,5 +577,79 @@ export class TeamsService {
       return TeamServiceError.TeamNotExist
     }
     return this.joinTeam(team.id, userId)
+  }
+
+  /**
+   * Remove a team within a transaction
+   * @param manager
+   */
+  async removeTeam(teamId: string, manager: EntityManager) {
+    const team = await this.teamRepository.findOne(teamId, {
+      relations: [
+        'invitations',
+        'leagues',
+        'leagues.leaderboards',
+        'rewards',
+        'activities'
+      ]
+    })
+
+    const id = team.id
+
+    // Delete leaderboard entries
+    await manager.getRepository(FeedItem).delete({
+      league: { id: In(team.leagues.map((each) => each.id)) }
+    })
+
+    await Promise.all(
+      team.leagues.map(async (league) => {
+        await Promise.all(
+          league.leaderboards.map(async (board) => {
+            await manager.getRepository(LeaderboardEntry).delete({
+              leaderboard: { id: board.id }
+            })
+            return manager.getRepository(Leaderboard).delete({
+              id: board.id
+            })
+          })
+        )
+
+        return manager.getRepository(League).delete({
+          team: { id }
+        })
+      })
+    )
+
+    await manager.getRepository(TeamsInvitation).delete({
+      team: { id }
+    })
+
+    await manager.getRepository(Activity).delete({
+      team: { id }
+    })
+
+    await manager.getRepository(FeedItem).delete({
+      reward: { id: In(team.rewards.map((e) => e.id)) }
+    })
+
+    await manager.getRepository(RewardsRedemption).delete({
+      reward: { id: In(team.rewards.map((e) => e.id)) }
+    })
+
+    await manager.getRepository(Reward).delete({
+      team: { id }
+    })
+
+    await manager.getRepository(UserRole).delete({
+      team: { id }
+    })
+
+    await manager.getRepository(Page).delete({
+      team: { id }
+    })
+
+    return manager.getRepository(Team).delete({
+      id
+    })
   }
 }

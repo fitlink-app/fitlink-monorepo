@@ -1,8 +1,6 @@
 import { useState, useEffect, useContext } from 'react'
 import Card from '../../components/elements/Card'
 import Input from '../../components/elements/Input'
-import Select from '../../components/elements/Select'
-import Checkbox from '../../components/elements/Checkbox'
 import Dashboard from '../../components/layouts/Dashboard'
 import ImageSelect from '../../components/elements/ImageSelect'
 import { useQuery } from 'react-query'
@@ -14,6 +12,13 @@ import { Image } from '@fitlink/api/src/modules/images/entities/image.entity'
 import toast from 'react-hot-toast'
 import Button from '../../components/elements/Button'
 import Feedback from '../../components/elements/Feedback'
+import ConfirmDeleteForm from '../../components/forms/ConfirmDeleteForm'
+import { AnimatePresence } from 'framer-motion'
+import Drawer from '../../components/elements/Drawer'
+import { useRouter } from 'next/router'
+import { timeout } from '../../helpers/timeout'
+import Link from 'next/link'
+import { Roles } from '@fitlink/api/src/modules/user-roles/user-roles.constants'
 
 type TeamFormValues = {
   id?: string
@@ -26,7 +31,13 @@ type TeamFormValues = {
 }
 
 export default function components() {
-  const { api, primary } = useContext(AuthContext)
+  const { api, primary, switchRole } = useContext(AuthContext)
+  const [warning, setWarning] = useState(false)
+  const [wide, setWide] = useState(false)
+  const [drawContent, setDrawContent] = useState<
+    React.ReactNode | undefined | false
+  >(false)
+  const router = useRouter()
 
   const { register, setValue, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -109,6 +120,41 @@ export default function components() {
     team.refetch()
   }
 
+  const closeDrawer = (ms = 0) => async () => {
+    if (ms) {
+      await timeout(ms)
+    }
+    setDrawContent(null)
+  }
+
+  const DeleteForm = () => {
+    setWarning(true)
+    setDrawContent(
+      <ConfirmDeleteForm
+        onDelete={async () => {
+          closeDrawer(1000)()
+          await switchRole({ role: Roles.Self })
+          await router.push('/start')
+        }}
+        onCancel={closeDrawer()}
+        current={{}}
+        requireConfirmText="DELETE"
+        mutation={() =>
+          api.delete(`/organisations/:organisationId`, {
+            organisationId: primary.organisation
+          })
+        }
+        title="Delete your team"
+        message={`
+          Are you sure you want to delete your team? This is irreversible,
+          and removes all team data including leagues, rewards, activities, statistics,
+          and associations with other users. This will not remove your personal profile data,
+          which you can do from the profile settings page, or from the app itself.
+        `}
+      />
+    )
+  }
+
   return (
     <Dashboard title="Settings">
       <h1 className="light">Settings</h1>
@@ -147,7 +193,41 @@ export default function components() {
             </Card>
           </form>
         </div>
+        <div className="col-12 col-md-6 col-xl-5 col-hd-4 mt-2">
+          <Card className="p-3 card--stretch pb-4">
+            <h2 className="h5 color-light-grey m-0 mb-2">Danger Zone</h2>
+            <button
+              className="button alt danger"
+              type="button"
+              onClick={() => DeleteForm()}>
+              Permanently Delete My Team
+            </button>
+            <div className="mt-2">
+              <small>
+                Please note this does not remove your personal user account. If
+                you only need to remove this, please go to{' '}
+                <Link passHref href="/settings/profile">
+                  <a href="/settings/profile" className="color-primary">
+                    Profile Settings
+                  </a>
+                </Link>
+                , or alternatively delete your account from the app.
+              </small>
+            </div>
+          </Card>
+        </div>
       </div>
+      <AnimatePresence initial={false}>
+        {drawContent && (
+          <Drawer
+            remove={() => setDrawContent(null)}
+            key="drawer"
+            warnBeforeClose={warning}
+            wide={wide}>
+            {drawContent}
+          </Drawer>
+        )}
+      </AnimatePresence>
     </Dashboard>
   )
 }

@@ -31,7 +31,9 @@ export class GlobalExceptionsFilter extends BaseExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR
 
-    if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+    const webhookUrl = this.configService.get('SLACK_WEBHOOK_ERRORS_URL')
+
+    if (status === HttpStatus.INTERNAL_SERVER_ERROR && webhookUrl) {
       const ctx = host.switchToHttp()
       const req = ctx.getRequest()
       const httpService = this.httpService
@@ -40,8 +42,6 @@ export class GlobalExceptionsFilter extends BaseExceptionFilter {
       if (body.password) {
         body.password = '*****'
       }
-
-      const webhookUrl = this.configService.get('SLACK_WEBHOOK_ERRORS_URL')
 
       if (webhookUrl && req.url.indexOf('api/v1') > -1) {
         httpService

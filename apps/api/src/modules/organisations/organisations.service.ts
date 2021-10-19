@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Brackets, ILike, Repository } from 'typeorm'
+import { Brackets, ILike, In, Repository } from 'typeorm'
 import { CreateOrganisationDto } from './dto/create-organisation.dto'
 import { UpdateOrganisationDto } from './dto/update-organisation.dto'
 import { Organisation } from './entities/organisation.entity'
@@ -19,6 +19,15 @@ import { UserRolesService } from '../user-roles/user-roles.service'
 import { Roles } from '../user-roles/user-roles.constants'
 import { SubscriptionsService } from '../subscriptions/subscriptions.service'
 import { TeamsService } from '../teams/teams.service'
+import { League } from '../leagues/entities/league.entity'
+import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
+import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
+import { Subscription } from '../subscriptions/entities/subscription.entity'
+import { Activity } from '../activities/entities/activity.entity'
+import { UserRole } from '../user-roles/entities/user-role.entity'
+import { FeedItem } from '../feed-items/entities/feed-item.entity'
+import { Reward } from '../rewards/entities/reward.entity'
+import { RewardsRedemption } from '../rewards-redemptions/entities/rewards-redemption.entity'
 
 @Injectable()
 export class OrganisationsService {
@@ -184,22 +193,106 @@ export class OrganisationsService {
 
   async remove(id: string) {
     const organisation = await this.organisationRepository.findOne(id, {
-      relations: ['subscriptions', 'invitations']
+      relations: [
+        'subscriptions',
+        'invitations',
+        'leagues',
+        'leagues.leaderboards',
+        'teams',
+        'rewards'
+      ]
     })
 
-    const result = await getManager().transaction(async (entityManager) => {
-      // TODO delete teams, subscriptions, leagues, activities, etc.
+    // First remove the Chargebee customers, as its most important
+    // to stop users billing in case anything else in deletion fails.
+    await Promise.all(
+      organisation.subscriptions.map((each) => {
+        if (each.billing_plan_subscription_id) {
+          return this.subscriptionsService.chargebeeCancelSubscription(each)
+        }
+      })
+    )
 
-      // Delete invitations
-      if (organisation.invitations.length) {
-        await entityManager.delete(
-          OrganisationsInvitation,
-          organisation.invitations.map((entity) => entity.id)
-        )
-      }
+    const result = await getManager().transaction(async (manager) => {
+      await Promise.all(
+        organisation.teams.map(async (team) => {
+          return this.teamsService.removeTeam(team.id, manager)
+        })
+      )
+
+      // Delete feed items
+      await manager.getRepository(FeedItem).delete({
+        league: { id: In(organisation.leagues.map((each) => each.id)) }
+      })
+
+      // Delete leaderboard entries
+      await Promise.all(
+        organisation.leagues.map(async (league) => {
+          await Promise.all(
+            league.leaderboards.map(async (board) => {
+              await manager.getRepository(LeaderboardEntry).delete({
+                leaderboard: { id: board.id }
+              })
+              return manager.getRepository(Leaderboard).delete({
+                id: board.id
+              })
+            })
+          )
+
+          return manager.getRepository(League).delete({
+            organisation: { id }
+          })
+        })
+      )
+
+      await manager.getRepository(OrganisationsInvitation).delete({
+        organisation: { id }
+      })
+
+      await Promise.all(
+        organisation.subscriptions.map((s) => {
+          return Promise.all([
+            manager.getRepository(User).update(
+              {
+                subscription: { id: s.id }
+              },
+              {
+                subscription: null
+              }
+            ),
+            manager.getRepository(UserRole).delete({
+              subscription: { id: s.id }
+            })
+          ])
+        })
+      )
+
+      await manager.getRepository(UserRole).delete({
+        organisation: { id }
+      })
+
+      await manager.getRepository(Subscription).delete({
+        organisation: { id }
+      })
+
+      await manager.getRepository(Activity).delete({
+        organisation: { id }
+      })
+
+      await manager.getRepository(FeedItem).delete({
+        reward: { id: In(organisation.rewards.map((e) => e.id)) }
+      })
+
+      await manager.getRepository(RewardsRedemption).delete({
+        reward: { id: In(organisation.rewards.map((e) => e.id)) }
+      })
+
+      await manager.getRepository(Reward).delete({
+        organisation: { id }
+      })
 
       // Finally, delete the organisation
-      return await entityManager.delete(Organisation, organisation.id)
+      return manager.delete(Organisation, organisation.id)
     })
 
     return result

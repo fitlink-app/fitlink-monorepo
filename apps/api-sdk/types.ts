@@ -24,7 +24,10 @@ import {
 } from '@fitlink/api/src/modules/auth/dto/auth-login'
 import { AuthSwitchDto } from '@fitlink/api/src/modules/auth/dto/auth-switch'
 import { CreateUserDto } from '@fitlink/api/src/modules/users/dto/create-user.dto'
-import { CreateUserWithOrganisationDto } from '@fitlink/api/src/modules/users/dto/create-user-with-organisation.dto'
+import {
+  CreateOrganisationAsUserDto,
+  CreateUserWithOrganisationDto
+} from '@fitlink/api/src/modules/users/dto/create-user-with-organisation.dto'
 import {
   AuthResultDto,
   AuthLogoutDto,
@@ -66,6 +69,7 @@ export type {
   AuthRequestResetPasswordDto,
   CreateUserDto,
   CreateUserWithOrganisationDto,
+  CreateOrganisationAsUserDto,
   UpdateUserDto,
   UpdateUserEmailDto,
   UpdateUserPasswordDto,
@@ -93,6 +97,7 @@ export type AuthSignUp = '/auth/signup'
 export type AuthConnect = '/auth/connect'
 export type AuthSwitch = '/auth/switch'
 export type AuthSignUpOrganisation = '/auth/organisation'
+export type AuthNewOrganisation = '/auth/new-organisation'
 export type AuthRequestResetPassword = '/auth/request-password-reset'
 export type AuthResetPassword = '/auth/reset-password'
 export type TeamsInvitationsVerify = '/teams-invitations/verify'
@@ -116,6 +121,7 @@ export type CreatableResource =
   | AuthSwitch
   | AuthSignUp
   | AuthSignUpOrganisation
+  | AuthNewOrganisation
   | AuthRequestResetPassword
   | AuthResetPassword
   | TeamsInvitationsVerify
@@ -285,6 +291,8 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<CreateUserDto>
   : T extends AuthSignUpOrganisation
   ? Payload<CreateUserWithOrganisationDto>
+  : T extends AuthNewOrganisation
+  ? Payload<CreateOrganisationAsUserDto>
   : T extends UserRole
   ? Payload<CreateAdminDto>
   : T extends AuthLogin
@@ -315,8 +323,6 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<VerifyUserEmailDto>
   : T extends RegenerateJoinCode
   ? Payload<{}>
-  : T extends CreatePage
-  ? Payload<CreatePageDto>
   : never
 
 // Typescript bug? Means we need to split this into a second type
@@ -324,6 +330,8 @@ export type CreateResourceParamsExtra<T> = T extends SendMessage
   ? Payload<SendNotificationDto>
   : T extends CreateFcmToken
   ? Payload<CreateFcmTokenDto>
+  : T extends CreatePage
+  ? Payload<CreatePageDto>
   : never
 
 export type UploadResourceParams = FilePayload
@@ -331,6 +339,8 @@ export type UploadResourceParams = FilePayload
 export type CreatableResourceResponse<T> = T extends AuthSignUp
   ? CreateUserResult
   : T extends AuthSignUpOrganisation
+  ? CreateUserResult
+  : T extends AuthNewOrganisation
   ? CreateUserResult
   : T extends AuthLogin
   ? AuthResultDto
