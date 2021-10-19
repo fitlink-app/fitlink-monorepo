@@ -69,6 +69,7 @@
     "postinstall-postinstall": "^2.1.0",
     "react": "17.0.1",
     "react-native": "0.64.1",
+    "react-native-background-fetch": "^4.0.3",
     "react-native-bootsplash": "^3.2.5",
     "react-native-code-push": "^7.0.3",
     "react-native-config": "^1.4.4",

@@ -58,14 +58,26 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>$(PRODUCT_NAME) would like to use your camera to change your profile picture.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Read and understand health data.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Share workout data with Fitlink.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Your location will be used to find nearby activities.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Your location will be used to find nearby activities.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Your location will be used to find nearby activities.</string>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.transistorsoft.fetch</string>
+	</array>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>$(PRODUCT_NAME) would like to save photos to your photo gallery.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Send photos to support center</string>
+	<string>$(PRODUCT_NAME) would like access to your photo gallery to change your profile picture.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>fitlink.ttf</string>
@@ -74,6 +86,8 @@
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>fetch</string>
+		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
@@ -90,21 +104,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSCameraUsageDescription</key>
-	<string>$(PRODUCT_NAME) would like to use your camera to change your profile picture.</string>
-	<key>NSHealthShareUsageDescription</key>
-	<string>Read and understand health data.</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>Share workout data with Fitlink.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Your location will be used to find nearby activities.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Your location will be used to find nearby activities.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Your location will be used to find nearby activities.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>$(PRODUCT_NAME) would like to save photos to your photo gallery.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>$(PRODUCT_NAME) would like access to your photo gallery to change your profile picture.</string>
 </dict>
 </plist>

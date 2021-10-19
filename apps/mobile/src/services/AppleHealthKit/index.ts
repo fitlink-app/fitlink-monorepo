@@ -9,6 +9,8 @@ import {
   WebhookEventData,
 } from '@fitlink/api/src/modules/providers/types/webhook';
 import {syncDeviceActivities, syncDeviceLifestyleData} from 'services/common';
+import {queryClient, QueryKeys} from '@query';
+import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 
 export type HealthKitActivity = {
   device: string;
@@ -329,12 +331,16 @@ async function syncActivities() {
 async function syncAllWithBackend() {
   try {
     // Check if Apple Health is linked to the user
-    // TODO ...
-
-    // Make sure Apple Healthkit is initialized
-    await authenticate();
-    await syncActivities();
-    await syncLifestyle();
+    const providers = queryClient.getQueryData(QueryKeys.MyProviders) as [];
+    if (
+      providers &&
+      providers.length &&
+      providers.find(provider => provider.type === ProviderType.AppleHealthkit)
+    ) {
+      await authenticate();
+      await syncActivities();
+      await syncLifestyle();
+    }
   } catch (e) {
     console.warn('Unable to sync Apple Health data with backend: ' + e);
   }

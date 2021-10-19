@@ -15,6 +15,7 @@
 #import <UserNotifications/UserNotifications.h>
 #import <React/RCTLinkingManager.h>
 #import <Firebase.h>
+#import <TSBackgroundFetch/TSBackgroundFetch.h>
 
 @import GooglePlaces;
 @import GoogleMaps;
@@ -80,6 +81,8 @@ static void InitializeFlipper(UIApplication *application) {
                             completionHandler:^(BOOL granted, NSError *_Nullable error) {
                             }];
       [[UIApplication sharedApplication] registerForRemoteNotifications];
+  
+  [[TSBackgroundFetch sharedInstance] didFinishLaunching];
   
   return YES;
 }
