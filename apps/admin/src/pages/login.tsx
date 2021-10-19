@@ -300,8 +300,14 @@ function GoogleLogin({ signup = false, onError }) {
 
   async function signIn() {
     const auth2 = (window as any).gapi.auth2.getAuthInstance()
-    const user = await auth2.signIn()
-    mutate(user.getAuthResponse().id_token)
+    try {
+      const user = await auth2.signIn()
+      mutate(user.getAuthResponse().id_token)
+    } catch (e) {
+      onError(
+        'Unable to login with Google. Please note this login method is not supported in Incognito mode.'
+      )
+    }
   }
 
   return (
@@ -313,7 +319,7 @@ function GoogleLogin({ signup = false, onError }) {
           content={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}
         />
         <script
-          src="https://apis.google.com/js/platform.js?onload=onLoad"
+          src="https://apis.google.com/js/platform.js?onload=onLoad&amp;v=fitlink"
           async
           defer></script>
       </Head>
@@ -371,8 +377,12 @@ function AppleLogin({ signup = false, onError }) {
   }, [isError])
 
   async function signIn() {
-    const data = await (window as any).AppleID.auth.signIn()
-    mutate(data.authorization.code)
+    try {
+      const data = await (window as any).AppleID.auth.signIn()
+      mutate(data.authorization.code)
+    } catch (e) {
+      onError(e.toString())
+    }
   }
 
   const appleClientId = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID
