@@ -1,4 +1,3 @@
-import { CreateOrganisationAsUserDto } from 'apps/api/src/modules/users/dto/create-user-with-organisation.dto'
 import { AxiosInstance, AxiosError } from 'axios'
 import {
   ListResource,
@@ -18,6 +17,7 @@ import {
   AuthSwitchDto,
   CreateUserDto,
   CreateUserWithOrganisationDto,
+  CreateOrganisationAsUserDto,
   AuthLogin,
   AuthLogout,
   AuthRefresh,

@@ -69,6 +69,7 @@ export type {
   AuthRequestResetPasswordDto,
   CreateUserDto,
   CreateUserWithOrganisationDto,
+  CreateOrganisationAsUserDto,
   UpdateUserDto,
   UpdateUserEmailDto,
   UpdateUserPasswordDto,
