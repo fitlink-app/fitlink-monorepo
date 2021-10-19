@@ -357,6 +357,7 @@ export class UsersService {
   ) {
     let query = this.userRepository
       .createQueryBuilder('user')
+      .leftJoinAndSelect('user.avatar', 'avatar')
       .leftJoinAndSelect('user.following', 'f1', 'f1.follower.id = :userId', {
         userId
       })
