@@ -11,7 +11,14 @@ import LoaderFullscreen from '../components/elements/LoaderFullscreen'
 import toast from 'react-hot-toast'
 
 export default function StartPage() {
-  const { api, fetchKey, switchRole, modeRole } = useContext(AuthContext)
+  const {
+    api,
+    fetchKey,
+    switchRole,
+    setModeRole,
+    setFocusRole,
+    modeRole
+  } = useContext(AuthContext)
   const [roles, setRoles] = useState<UserRole[]>([])
   const [refresh, setRefresh] = useState(0)
   const router = useRouter()
@@ -66,6 +73,9 @@ export default function StartPage() {
       if (data.length === 1) {
         setDefaultRole()
       }
+      if (data.length === 0) {
+        setUserRole()
+      }
     }
   }, [rolesQuery.isFetched, modeRole])
 
@@ -76,6 +86,15 @@ export default function StartPage() {
         id: getId(rolesQuery.data[0]),
         role: rolesQuery.data[0].role
       })
+    }
+  }
+
+  async function setUserRole() {
+    if (!roleSet.current) {
+      roleSet.current = true
+      console.log('HERE')
+      setModeRole('user')
+      setFocusRole('user')
     }
   }
 
@@ -96,13 +115,22 @@ export default function StartPage() {
             <Link href="/logout">
               <button className="button alt small mt-1">Logout</button>
             </Link>
+            <Link href="/settings/profile">
+              <button className="button small ml-1 mt-1">My Profile</button>
+            </Link>
           </div>
 
           {!roles.length && (
             <div className="flex ai-c jc-c mt-4">
               <p className="w-50">
                 This dashboard is for administrators. If you require access
-                please contact your organisation administrator.
+                please contact your organisation administrator. <br />
+                <br />
+                Alternatively, you can{' '}
+                <Link href="/signup?u=1" passHref>
+                  <a className="color-primary">Start a free trial</a>
+                </Link>
+                .
               </p>
             </div>
           )}

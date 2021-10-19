@@ -1,8 +1,9 @@
-import httpProxy from 'http-proxy'
+import httpProxy, { ProxyResCallback } from 'http-proxy'
 import Cookies from 'cookies'
 import url from 'url'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { timeout } from '../../helpers/timeout'
+import { IncomingMessage, ServerResponse } from 'http'
 
 /**
  * Based on https://maxschmitt.me/posts/next-js-http-only-cookie-auth-tokens/
@@ -34,7 +35,6 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
     // In case the current API request is for logging in,
     // we'll need to intercept the API response.
     // More on that in a bit.
-
     const pathname = url.parse(req.url).pathname
     const isLogin =
       pathname === '/api/v1/auth/login' ||
@@ -55,21 +55,90 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
     // ️You might want to adjust this depending
     // on the base path of your API.
     // req.url = req.url.replace(/^\/api/, '')
-    // Don't forward cookies to the API:
-    req.headers.cookie = ''
     // Set auth-token header from cookie:
+    // Don't forward cookies to the API:
     if (authToken) {
       req.headers['auth-token'] = authToken
     }
+    req.headers.cookie = ''
+
+    const interceptLoginOrSignupResponse: ProxyResCallback = (
+      proxyRes,
+      interceptReq,
+      interceptRes
+    ) => {
+      // Read the API's response body from
+      // the stream:
+      let apiResponseBody = ''
+      proxyRes.on('data', (chunk) => {
+        apiResponseBody += chunk
+      })
+
+      // Once we've read the entire API
+      // response body, we're ready to
+      // handle it:
+      proxyRes.on('end', async () => {
+        console.log(interceptReq.url)
+        try {
+          // Extract the authToken from API's response:
+          const json = JSON.parse(apiResponseBody)
+          console.log(json)
+          let { access_token, auth } = json
+          // Set the authToken as an HTTP-only cookie.
+          // We'll also set the SameSite attribute to
+          // 'lax' for some additional CSRF protection.
+          if (!access_token && auth) {
+            access_token = auth.access_token
+          }
+
+          if (access_token) {
+            const cookies = new Cookies(interceptReq, interceptRes)
+            cookies.set('auth-token', access_token, {
+              httpOnly: true,
+              sameSite: 'lax'
+            })
+            // Our response to the client won't contain
+            // the actual authToken. This way the auth token
+            // never gets exposed to the client.
+            res.status(proxyRes.statusCode).json({ loggedIn: true })
+            resolve()
+          } else {
+            res.status(proxyRes.statusCode).json(json)
+            resolve()
+          }
+        } catch (err) {
+          reject(err)
+        }
+      })
+    }
+
+    const interceptLogoutResponse: ProxyResCallback = (
+      proxyRes,
+      interceptReq,
+      interceptRes
+    ) => {
+      let apiResponseBody = ''
+      proxyRes.on('data', (chunk) => {
+        apiResponseBody += chunk
+      })
+
+      proxyRes.on('end', () => {
+        const cookies = new Cookies(interceptReq, interceptRes)
+        cookies.set('auth-token', null, {
+          httpOnly: true,
+          sameSite: 'lax'
+        })
+        res.status(200).json({ loggedOut: true })
+      })
+    }
+
     // In case the request is for login, we need to
     // intercept the API's response. It contains the
     // auth token that we want to strip out and set
     // as an HTTP-only cookie.interceptLoginResponse
     if (isLogin || isSignup) {
       proxy.once('proxyRes', interceptLoginOrSignupResponse)
-    }
-
-    if (isLogout) {
+    } else if (isLogout) {
       proxy.once('proxyRes', interceptLogoutResponse)
     }
 
@@ -92,63 +161,5 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
         Authorization: `Bearer ${authToken}`
       }
     })
-    function interceptLoginOrSignupResponse(proxyRes, req, res) {
-      // Read the API's response body from
-      // the stream:
-      let apiResponseBody = ''
-      proxyRes.on('data', (chunk) => {
-        apiResponseBody += chunk
-      })
-      // Once we've read the entire API
-      // response body, we're ready to
-      // handle it:
-      proxyRes.on('end', () => {
-        try {
-          // Extract the authToken from API's response:
-          const json = JSON.parse(apiResponseBody)
-          let { access_token, auth } = json
-          // Set the authToken as an HTTP-only cookie.
-          // We'll also set the SameSite attribute to
-          // 'lax' for some additional CSRF protection.
-          if (!access_token && auth) {
-            access_token = auth.access_token
-          }
-
-          if (access_token) {
-            const cookies = new Cookies(req, res)
-            cookies.set('auth-token', access_token, {
-              httpOnly: true,
-              sameSite: 'lax'
-            })
-            // Our response to the client won't contain
-            // the actual authToken. This way the auth token
-            // never gets exposed to the client.
-            res.status(proxyRes.statusCode).json({ loggedIn: true })
-            resolve()
-          } else {
-            res.status(proxyRes.statusCode).json(json)
-            resolve()
-          }
-        } catch (err) {
-          reject(err)
-        }
-      })
-    }
-
-    function interceptLogoutResponse(proxyRes, req, res) {
-      let apiResponseBody = ''
-      proxyRes.on('data', (chunk) => {
-        apiResponseBody += chunk
-      })
-
-      proxyRes.on('end', () => {
-        const cookies = new Cookies(req, res)
-        cookies.set('auth-token', null, {
-          httpOnly: true,
-          sameSite: 'lax'
-        })
-        res.status(200).json({ loggedOut: true })
-      })
-    }
   })
 }

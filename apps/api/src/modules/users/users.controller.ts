@@ -81,8 +81,13 @@ export class UsersController {
   @Delete('me')
   @ApiTags('me')
   @DeleteResponse()
-  deleteSelf(@AuthUser() user: AuthenticatedUser) {
-    return this.usersService.remove(user.id)
+  async deleteSelf(@AuthUser() user: AuthenticatedUser) {
+    const result = await this.usersService.remove(user.id)
+    if (!result) {
+      throw new BadRequestException(
+        'Unable to delete user, or user does not exist. Please contact support.'
+      )
+    }
   }
 
   @Put('me/avatar')

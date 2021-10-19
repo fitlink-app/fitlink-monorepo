@@ -23,9 +23,21 @@ import toast from 'react-hot-toast'
 import useApiErrors from '../../hooks/useApiErrors'
 import { UpdateUsersSettingDto } from '@fitlink/api/src/modules/users-settings/dto/update-users-setting.dto'
 import Link from 'next/link'
+import ConfirmDeleteForm from '../../components/forms/ConfirmDeleteForm'
+import { timeout } from '../../helpers/timeout'
+import { AnimatePresence } from 'framer-motion'
+import Drawer from '../../components/elements/Drawer'
+import { useRouter } from 'next/router'
 
 export default function Profile() {
-  const { api, user, refreshUser } = useContext(AuthContext)
+  const [warning, setWarning] = useState(false)
+  const [wide, setWide] = useState(false)
+  const [drawContent, setDrawContent] = useState<
+    React.ReactNode | undefined | false
+  >(false)
+
+  const { api, user, refreshUser, focusRole } = useContext(AuthContext)
+  const router = useRouter()
 
   const resendEmail = useMutation('resend_verification', () => {
     return api.put<UpdateUserEmailDto>('/me/email', {
@@ -187,6 +199,37 @@ export default function Profile() {
     )
   }
 
+  const closeDrawer = (ms = 0) => async () => {
+    if (ms) {
+      await timeout(ms)
+    }
+    setDrawContent(null)
+  }
+
+  const DeleteForm = () => {
+    setWarning(true)
+    setDrawContent(
+      <ConfirmDeleteForm
+        onDelete={() => {
+          closeDrawer(1000)()
+          router.push('/logout')
+        }}
+        onCancel={closeDrawer()}
+        current={{}}
+        requireConfirmText="DELETE"
+        mutation={() => api.delete(`/me`, {})}
+        title="Delete your profile"
+        message={`
+          Are you sure you want to delete your profile? This is irreversible,
+          and removes all your data including the removal of your account
+          and data in the app. Note that this will not remove your team,
+          organisation, or billing plan. Please use the "Permanently delete my team"
+          option for this instead under Settings.
+        `}
+      />
+    )
+  }
+
   return (
     <Dashboard title="Account Settings">
       <h1 className="light">Account Settings</h1>
@@ -273,6 +316,26 @@ export default function Profile() {
               </small>
             </em>
           </Card>
+          <Card className="p-3 card--stretch mt-3">
+            <h3 className="h5 color-light-grey mb-3">Danger Zone</h3>
+            <button
+              className="button alt danger"
+              type="button"
+              onClick={() => DeleteForm()}>
+              Permanently delete my account
+            </button>
+            <div className="mt-2">
+              <small>
+                Please note this does not remove the team and billing. If you
+                need to remove these, please go to{' '}
+                <Link passHref href="/settings">
+                  <a href="/settings" className="color-primary">
+                    Team Settings
+                  </a>
+                </Link>
+              </small>
+            </div>
+          </Card>
         </div>
         <div className="col-12 col-md-6 col-xl-5 col-hd-4 mt-2">
           <Card className="p-3 card--stretch">
@@ -322,6 +385,17 @@ export default function Profile() {
           </Card>
         </div>
       </div>
+      <AnimatePresence initial={false}>
+        {drawContent && (
+          <Drawer
+            remove={() => setDrawContent(null)}
+            key="drawer"
+            warnBeforeClose={warning}
+            wide={wide}>
+            {drawContent}
+          </Drawer>
+        )}
+      </AnimatePresence>
     </Dashboard>
   )
 }

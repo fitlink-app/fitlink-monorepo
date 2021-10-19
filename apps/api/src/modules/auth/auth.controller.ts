@@ -23,7 +23,10 @@ import {
   ValidationResponse
 } from '../../decorators/swagger.decorator'
 import { CreateUserDto } from '../users/dto/create-user.dto'
-import { CreateUserWithOrganisationDto } from '../users/dto/create-user-with-organisation.dto'
+import {
+  CreateOrganisationAsUserDto,
+  CreateUserWithOrganisationDto
+} from '../users/dto/create-user-with-organisation.dto'
 import {
   AuthResetPasswordDto,
   AuthRequestResetPasswordDto
@@ -94,6 +97,26 @@ export class AuthController {
   }
 
   @ApiTags('auth')
+  @Post('auth/new-organisation')
+  @ValidationResponse()
+  @ApiResponse({ type: AuthSignupDto, status: 200 })
+  async signupNewOrganisation(
+    @Body() createUserDto: CreateOrganisationAsUserDto,
+    @User() user: AuthenticatedUser
+  ) {
+    const result = await this.authService.signupNewOrganisation(
+      createUserDto,
+      user.id
+    )
+
+    if (typeof result === 'string') {
+      throw new BadRequestException(result)
+    }
+
+    return result
+  }
+
+  @ApiTags('auth')
   @Post('auth/request-password-reset')
   @Public()
   @SuccessResponse()
@@ -154,6 +177,8 @@ export class AuthController {
       authUser.id,
       authSwitchDto
     )
+
+    console.log(result)
 
     if (!result) {
       throw new ForbiddenException('You do not have access to this resource')

@@ -51,7 +51,6 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
         {menu.map((item: MenuProps, index: number) => {
           const { label, link, icon, onClick, hr, subMenu } = item
           const Icon = icons[icon]
-          console.log(Icon, icon)
           if (hr) {
             return <hr key={index} />
           }

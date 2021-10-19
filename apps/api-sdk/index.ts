@@ -1,3 +1,4 @@
+import { CreateOrganisationAsUserDto } from 'apps/api/src/modules/users/dto/create-user-with-organisation.dto'
 import { AxiosInstance, AxiosError } from 'axios'
 import {
   ListResource,
@@ -28,7 +29,8 @@ import {
   FocusRole,
   RolePrimary,
   AuthSignUpOrganisation,
-  CreateResourceParamsExtra
+  CreateResourceParamsExtra,
+  AuthNewOrganisation
 } from './types'
 
 const ERR_TOKEN_EXPIRED = 'Token expired'
@@ -342,6 +344,23 @@ export class Api {
   async signUpWithOrganisation(payload: CreateUserWithOrganisationDto) {
     const result = await this.post<AuthSignUpOrganisation>(
       '/auth/organisation',
+      {
+        payload
+      }
+    )
+    this.setTokens(result.auth)
+    return result
+  }
+
+  /**
+   * Creates a new organisation as a user
+   *
+   * @param dto
+   * @returns `{auth: AuthResult, me: User}`
+   */
+  async signUpNewOrganisation(payload: CreateOrganisationAsUserDto) {
+    const result = await this.post<AuthNewOrganisation>(
+      '/auth/new-organisation',
       {
         payload
       }
