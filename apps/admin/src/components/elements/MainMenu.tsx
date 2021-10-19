@@ -11,6 +11,7 @@ import IconRewards from '../icons/IconRewards'
 import IconSignOut from '../icons/IconSignOut'
 import IconYoga from '../icons/IconYoga'
 import IconInfo from '../icons/IconInfo'
+import IconMobile from '../icons/IconMobile'
 
 const icons = {
   IconActivities,
@@ -22,7 +23,8 @@ const icons = {
   IconRewards,
   IconSignOut,
   IconYoga,
-  IconInfo
+  IconInfo,
+  IconMobile
 }
 
 export type MenuProps = {

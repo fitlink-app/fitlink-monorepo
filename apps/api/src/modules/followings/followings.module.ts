@@ -7,13 +7,15 @@ import { AuthModule } from '../auth/auth.module'
 import { ConfigModule } from '@nestjs/config'
 import { HttpModule, Module } from '@nestjs/common'
 import { User } from '../users/entities/user.entity'
+import { CommonModule } from '../common/common.module'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Following, User]),
     AuthModule,
     ConfigModule,
-    HttpModule
+    HttpModule,
+    CommonModule
   ],
   controllers: [FollowingsController],
   providers: [FollowingsService, FollowingsSubscriber],

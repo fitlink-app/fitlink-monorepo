@@ -1,0 +1,173 @@
+[
+  {
+    "title": "Strava",
+    "logo": "/app-store/strava.png",
+    "body": "Strava is a popular mobile app that tracks hikes, runs, rides and swims. It will connect to other wearables.",
+    "type": "App",
+    "category": "Activity Tracker",
+    "link": "https://strava.com",
+    "group": "app"
+  },
+  {
+    "title": "Suunto",
+    "logo": "/app-store/suunto.png",
+    "body": "A watch thats very popular with trail runners. Hard wearing a durability are some of its qualities.",
+    "type": "Wearable",
+    "category": "Activity Tracker",
+    "link": "https://suunto.com",
+    "group": "wearable"
+  },
+  {
+    "title": "Fitbit",
+    "logo": "/app-store/fitbit.png",
+    "body": "With an entire family of products that work seamlessly together and with other apps, Fitbit has something for fitness beginners, pro athletes, and everyone in between.",
+    "type": "Wearable",
+    "category": "Activity Tracker, Water Tracker, Sleep Tracker, Mindfulness Tracker",
+    "link": "https://fitbit.com",
+    "group": "wearable"
+  },
+  {
+    "title": "Google Fit app",
+    "logo": "/app-store/google-fit-app.png",
+    "body": "Google Fit is a fitness tracking app available for Android and iOS devices. It's designed to act as a virtual coach to help you achieve a healthier and more active life",
+    "type": "App",
+    "category": "Activity Tracker, Water Tracker, Sleep Tracker",
+    "link": "https://www.google.com/fit/",
+    "group": "app"
+  },
+  {
+    "title": "Garmin",
+    "logo": "/app-store/garmin.png",
+    "body": "Popular activity tracking watch",
+    "type": "Wearable",
+    "category": "Activity Tracker",
+    "link": "https://garmin.com",
+    "group": "wearable"
+  },
+  {
+    "title": "Polar",
+    "logo": "/app-store/polar.png",
+    "body": "Popular activity tracking watch",
+    "type": "Wearable",
+    "category": "Activity Tracker",
+    "link": "https://polar.com",
+    "group": "wearable"
+  },
+  {
+    "title": "MyFitnessPal",
+    "logo": "/app-store/myfitnesspal.png",
+    "body": "Calorie counting app that also supports activity, hydration and sleep tracking",
+    "type": "App",
+    "category": "Activity Tracker, Water Tracker, Sleep Tracker",
+    "link": "https://myfitnesspal.com",
+    "group": "app"
+  },
+  {
+    "title": "Oak Meditation",
+    "logo": "/app-store/oak-meditation.png",
+    "body": "Guided meditation and breathing exercises. Learn mindful and loving-kindness meditation today.",
+    "type": "Activity Tracker",
+    "category": "Mindfulness Tracker",
+    "link": "https://www.oakmeditation.com",
+    "group": "app"
+  },
+  {
+    "title": "Oura",
+    "logo": "/app-store/oura-ring.png",
+    "body": "The most accurate guide on Sleep, Readiness, and Activity",
+    "type": "Wearable",
+    "category": "Activity Tracker, Water Tracker, Sleep Tracker",
+    "link": "https://ouraring.com",
+    "group": "wearable"
+  },
+  {
+    "title": "Seven",
+    "logo": "/app-store/seven.png",
+    "body": "The 7 Minute Workout App",
+    "type": "Activity Tracker",
+    "category": "HIIT",
+    "link": "https://seven.app",
+    "group": "app"
+  },
+  {
+    "title": "My Water",
+    "logo": "/app-store/my-water.png",
+    "body": "8 glasses of water a day is the basis of good nutrition. My Water» will help you reach your goal.",
+    "type": "App",
+    "category": "Water Tracker",
+    "link": "https://victorsharov.com/mywater/",
+    "group": "app"
+  },
+  {
+    "title": "Deel",
+    "logo": "/app-store/deel.png",
+    "body": "Hire the best talent in 150 countries in minutes, without worrying about compliance, payroll or HR admin. It's a world-class experience for your business and entire international team.",
+    "type": "HR Tool",
+    "category": "Payroll, Remote Work",
+    "link": "https://letsdeel.com",
+    "group": "desktop"
+  },
+  {
+    "title": "First Base",
+    "logo": "/app-store/first-base.png",
+    "body": "From startups to large enterprises, businesses of all sizes use Firstbase to setup, manage, maintain and retrieve all the physical equipment their remote workers need to do great work at home.",
+    "type": "HR Tool",
+    "category": "Equipment, Remote Work",
+    "link": "https://www.firstbasehq.com",
+    "group": "desktop"
+  },
+  {
+    "title": "Flok",
+    "logo": "/app-store/flok.png",
+    "body": "End-to-end company retreat planning.",
+    "type": "HR Tool",
+    "category": "Perks",
+    "link": "https://goflok.com/",
+    "group": "desktop"
+  },
+  {
+    "title": "Seed Legals",
+    "logo": "/app-store/seed-legals.png",
+    "body": "SeedLegals automates the legals you need to grow your business, with unlimited support along the way.",
+    "type": "Tool",
+    "category": "Legal",
+    "link": "https://seedlegals.com",
+    "group": "desktop"
+  },
+  {
+    "title": "Saftey Wing",
+    "logo": "/app-store/saftey-wing.png",
+    "body": "Remote team insurance",
+    "type": "HR Tool",
+    "category": "Insurance",
+    "link": "https://safetywing.com/",
+    "group": "desktop"
+  },
+  {
+    "title": "Active Things",
+    "logo": "/app-store/active-things.png",
+    "body": "Active Things is your Active Travel Assistant, helping you find and access (secure) bike parking, routes and more.",
+    "type": "HR Tool",
+    "category": "Active Travel",
+    "link": "https://activethings.app",
+    "group": "desktop"
+  },
+  {
+    "title": "Lift Share",
+    "logo": "/app-store/lift-share.png",
+    "body": "Join 700,000 like-minded people saving money and the planet by car sharing",
+    "type": "HR Tool",
+    "category": "Car Share",
+    "link": "https://liftshare.com/",
+    "group": "desktop"
+  },
+  {
+    "title": "Ecologi",
+    "logo": "/app-store/ecologi.png",
+    "body": "We plant trees & fund the world’s best climate crisis solutions",
+    "type": "HR Tool",
+    "category": "Climate Positive Workforce",
+    "link": "https://ecologi.com/business/overview",
+    "group": "desktop"
+  }
+]
