@@ -52,6 +52,7 @@ import { CreateAdminDto } from './dto/create-admin.dto'
 import { ConfigService } from '@nestjs/config'
 import { UserJobDto } from './dto/user-job.dto'
 import { CreateFcmTokenDto } from './dto/create-fcm-token.dto'
+import { DeleteFcmTokenDto } from './dto/delete-fcm-token.dto'
 
 @Controller()
 @ApiBaseResponses()
@@ -123,6 +124,19 @@ export class UsersController {
       return this.usersService.mergeFcmTokens(user.id, body.token)
     } catch (e) {
       console.error(e)
+      throw new BadRequestException(e)
+    }
+  }
+
+  @Post('me/remove-fcm-token')
+  @ApiTags('me')
+  removeFcmToken(
+    @Body() { token }: DeleteFcmTokenDto,
+    @AuthUser() user: AuthenticatedUser
+  ) {
+    try {
+      return this.usersService.removeFcmToken(user.id, token)
+    } catch (e) {
       throw new BadRequestException(e)
     }
   }

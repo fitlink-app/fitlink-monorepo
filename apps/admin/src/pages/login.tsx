@@ -304,6 +304,7 @@ function GoogleLogin({ signup = false, onError }) {
       const user = await auth2.signIn()
       mutate(user.getAuthResponse().id_token)
     } catch (e) {
+      console.error(e)
       onError(
         'Unable to login with Google. Please note this login method is not supported in Incognito mode.'
       )
@@ -381,7 +382,7 @@ function AppleLogin({ signup = false, onError }) {
       const data = await (window as any).AppleID.auth.signIn()
       mutate(data.authorization.code)
     } catch (e) {
-      onError(e.toString())
+      onError('Apple login not currently available.')
     }
   }
 

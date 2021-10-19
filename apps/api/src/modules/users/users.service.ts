@@ -411,6 +411,25 @@ export class UsersService {
   }
 
   /**
+   * Remove a particular token from the array
+   * (e.g. on logout)
+   * @param userId
+   * @param tokens
+   * @returns
+   */
+  async removeFcmToken(userId: string, token: string) {
+    const user = await this.userRepository.findOne(userId)
+    const fcm_tokens = user.fcm_tokens.filter((t) => t !== token)
+    await this.userRepository.update(userId, {
+      fcm_tokens
+    })
+
+    return {
+      removed: user.fcm_tokens.length - fcm_tokens.length
+    }
+  }
+
+  /**
    * Finds a user
    * @param id
    * @param options
