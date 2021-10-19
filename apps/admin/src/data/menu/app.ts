@@ -50,6 +50,22 @@ export default function MenuApp(primary: Primary) {
     },
     { hr: true },
     {
+      label: 'Knowledge Base',
+      link: '/knowledge-base',
+      icon: 'IconYoga'
+    },
+    {
+      label: 'Help Center',
+      link: 'https://support.fitlinkapp.com/en/',
+      icon: 'IconInfo'
+    },
+    {
+      label: 'App Store',
+      link: '/app-store',
+      icon: 'IconMobile'
+    },
+    { hr: true },
+    {
       label: 'Sign out',
       link: '/logout',
       icon: 'IconSignOut'
