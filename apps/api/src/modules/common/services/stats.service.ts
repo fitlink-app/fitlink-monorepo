@@ -125,9 +125,10 @@ export class StatsService {
     }
 
     const query = `
-      SELECT "league".*, "image"."url" AS "image_url"
+      SELECT "league".*, "image"."url" AS "image_url", "sport"."name" AS "sport"
       FROM "league" "league"
       LEFT JOIN "image" ON "league"."imageId" = "image"."id"
+      LEFT JOIN "sport" ON "league"."sportId" = "sport"."id"
       ${joins}
       WHERE "league"."participants_total" > 0
       AND (
@@ -136,7 +137,7 @@ export class StatsService {
         ("league"."repeat" = false AND "league"."created_at" > $1 AND "league"."ends_at" < $2 )
       )
       ${where}
-      GROUP BY "league"."id", "image_url"
+      GROUP BY "league"."id", "image"."url", "sport"."name"
       ORDER BY "league"."participants_total" DESC
     `
 

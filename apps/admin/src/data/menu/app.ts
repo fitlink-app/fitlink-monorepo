@@ -55,14 +55,14 @@ export default function MenuApp(primary: Primary) {
       icon: 'IconYoga'
     },
     {
-      label: 'Help Center',
-      link: 'https://support.fitlinkapp.com/en/',
-      icon: 'IconInfo'
-    },
-    {
       label: 'App Store',
       link: '/app-store',
       icon: 'IconMobile'
+    },
+    {
+      label: 'Help Center 🡕',
+      link: 'https://support.fitlinkapp.com/en/',
+      icon: 'IconInfo'
     },
     { hr: true },
     {

@@ -10,6 +10,11 @@ export default function MenuUser() {
       link: '/app-store',
       icon: 'IconMobile'
     },
+    {
+      label: 'Help Center 🡕',
+      link: 'https://support.fitlinkapp.com/en/collections/3158686-fitlink-app',
+      icon: 'IconInfo'
+    },
     { hr: true },
     {
       label: 'Sign out',

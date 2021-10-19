@@ -50,6 +50,16 @@ export function MenuOrganisationComplex(primary: Primary) {
       link: '/knowledge-base',
       icon: 'IconYoga'
     },
+    {
+      label: 'App Store',
+      link: '/app-store',
+      icon: 'IconMobile'
+    },
+    {
+      label: 'Help Center 🡕',
+      link: 'https://support.fitlinkapp.com/en/',
+      icon: 'IconInfo'
+    },
     { hr: true },
     {
       label: 'Sign out',
@@ -119,14 +129,14 @@ export function MenuOrganisationSimple(primary: Primary) {
       icon: 'IconYoga'
     },
     {
-      label: 'Help Center',
-      link: 'https://support.fitlinkapp.com/en/',
-      icon: 'IconInfo'
-    },
-    {
       label: 'App Store',
       link: '/app-store',
       icon: 'IconMobile'
+    },
+    {
+      label: 'Help Center 🡕',
+      link: 'https://support.fitlinkapp.com/en/',
+      icon: 'IconInfo'
     },
     { hr: true },
     {
