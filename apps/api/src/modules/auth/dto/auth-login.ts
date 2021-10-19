@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsEmail, IsNotEmpty, MinLength, IsEnum } from 'class-validator'
+import {
+  IsEmail,
+  IsNotEmpty,
+  MinLength,
+  IsEnum,
+  IsOptional
+} from 'class-validator'
 import { AuthProviderType } from '../../auth/auth.constants'
 
 export class AuthLoginDto {
@@ -31,4 +37,8 @@ export class AuthConnectDto {
     message: 'Must be one of google.com, apple.com'
   })
   provider: AuthProviderType
+
+  @ApiProperty()
+  @IsOptional()
+  signup?: boolean
 }

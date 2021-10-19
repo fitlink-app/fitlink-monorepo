@@ -60,6 +60,7 @@ export type Primary = {
 type ConnectProvider = {
   token: string
   provider: AuthProviderType
+  signup?: boolean
 }
 
 export type AuthContext = {
@@ -313,13 +314,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * @param ConnectProvider { token, provider }
    * @returns
    */
-  async function connect({ token, provider }: ConnectProvider) {
+  async function connect({ token, provider, signup }: ConnectProvider) {
     const result = await api.connect({
       token,
-      provider
+      provider,
+      signup
     })
 
-    setUser(result.me)
+    const { data } = await me.refetch()
+    if (data) {
+      setUser(data)
+    }
 
     return result
   }
