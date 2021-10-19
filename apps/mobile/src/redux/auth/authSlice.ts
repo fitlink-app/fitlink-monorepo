@@ -7,7 +7,7 @@ import {
 import {AuthResultDto} from '@fitlink/api-sdk/types';
 import {RootState} from '../reducer';
 import {REHYDRATE} from 'redux-persist';
-import api, {getErrors} from '@api';
+import api, {deleteCurrentToken, getErrors} from '@api';
 import {queryClient, QueryKeys} from '@query';
 import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {LOGOUT, SIGN_IN, SIGN_IN_APPLE, SIGN_IN_GOOGLE, SIGN_UP} from './keys';
@@ -109,6 +109,7 @@ export const logout = createAsyncThunk(
       dispatch(clearAuthResult());
       flushPersistedQueries();
       queryClient.removeQueries();
+      await deleteCurrentToken();
       await api.logout();
     } catch (e: any) {
       return getErrors(e);

@@ -31,3 +31,5 @@ export function getErrors(e: ResponseError) {
 // });
 
 export default makeApi(axios);
+
+export * from './fcmTokens';

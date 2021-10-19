@@ -14,6 +14,7 @@
 #import <IntercomModule.h>
 #import <UserNotifications/UserNotifications.h>
 #import <React/RCTLinkingManager.h>
+#import <Firebase.h>
 
 @import GooglePlaces;
 @import GoogleMaps;
@@ -41,6 +42,8 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  [FIRApp configure];
+  
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
 #endif

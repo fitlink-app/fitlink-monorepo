@@ -23,6 +23,7 @@ import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/enti
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {queryClient, QueryKeys} from '@query';
 import {getErrorMessage} from '@fitlink/api-sdk';
+import {saveCurrentToken} from '@api';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -116,6 +117,10 @@ export const Feed = () => {
     queryClient.removeQueries(QueryKeys.Feed);
     refetchFeed();
   }, [feedPreferences]);
+
+  useEffect(() => {
+    saveCurrentToken();
+  }, []);
 
   const promptNewsletterModal = async () => {
     const newsletterKey = 'NEWSLETTER_PROMPTED';
