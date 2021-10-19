@@ -3,7 +3,8 @@ import { OnEvent } from '@nestjs/event-emitter'
 import { Events } from '../../../../src/events'
 import {
   FeedItemCategory,
-  FeedItemType
+  FeedItemType,
+  FeedGoalTypeFormat
 } from '../../feed-items/feed-items.constants'
 import { FeedItemsService } from '../../feed-items/feed-items.service'
 import { NotificationAction } from '../../notifications/notifications.constants'
@@ -40,9 +41,10 @@ export class DailyGoalReachedListener {
       // Send push notification
       await this.notificationsService.create({
         action: NotificationAction.GoalAchieved,
-        subject: goal_type,
+        subject: FeedGoalTypeFormat[goal_type],
         subject_id: goal_entry.id,
-        user
+        user,
+        avatar: user.avatar
       })
     } catch (e) {
       console.error(e)

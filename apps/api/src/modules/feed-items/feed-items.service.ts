@@ -4,6 +4,7 @@ import { plainToClass } from 'class-transformer'
 import { Brackets, Repository } from 'typeorm'
 import { Pagination, PaginationQuery } from '../../helpers/paginate'
 import { tryAndCatch } from '../../helpers/tryAndCatch'
+import { CommonService } from '../common/services/common.service'
 import { NotificationAction } from '../notifications/notifications.constants'
 import { NotificationsService } from '../notifications/notifications.service'
 import { PrivacySetting } from '../users-settings/users-settings.constants'
@@ -20,7 +21,8 @@ export class FeedItemsService {
     private feedItemRepository: Repository<FeedItem>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
+    private commonService: CommonService
   ) {}
   async create(createFeedItemDto: CreateFeedItemDto) {
     const [result, resultErr] = await tryAndCatch(
@@ -68,14 +70,17 @@ export class FeedItemsService {
           .leftJoin('f1.follower', 'follower')
           .leftJoin('f1.following', 'following')
           .leftJoin('following.settings', 'settings')
-          .where('user.id = :userId', { userId })
-          .orWhere(
-            `(
-            follower.id = :userId AND user.id = following.id
-            AND (health_activity.id IS NOT NULL))`,
-            {
-              userId
-            }
+          .where(
+            new Brackets((qb) =>
+              qb.where('user.id = :userId', { userId }).orWhere(
+                `(
+              follower.id = :userId AND user.id = following.id
+              AND (health_activity.id IS NOT NULL))`,
+                {
+                  userId
+                }
+              )
+            )
           )
 
         // Alternatively, this is a friend's feed (i.e. the user is viewing someone else's feed)
@@ -153,14 +158,12 @@ export class FeedItemsService {
     return new Pagination<FeedItem>({
       results: results.map((item) => {
         if (item.user) {
-          item.user = plainToClass(UserPublic, item.user, {
-            excludeExtraneousValues: true
-          })
+          item.user = this.commonService.getUserPublic(item.user as User)
         }
         if (item.related_user) {
-          item.related_user = plainToClass(UserPublic, item.related_user, {
-            excludeExtraneousValues: true
-          })
+          item.related_user = this.commonService.getUserPublic(
+            item.related_user as User
+          )
         }
 
         item.likes = item.likes.map((e) => {
@@ -180,7 +183,7 @@ export class FeedItemsService {
       relations: ['avatar']
     })
     const feedItem = await this.feedItemRepository.findOne(feedItemId, {
-      relations: ['user', 'likes']
+      relations: ['user', 'likes', 'health_activity', 'goal_entry', 'league']
     })
 
     // If the user already likes the post, ignore this.
@@ -204,10 +207,10 @@ export class FeedItemsService {
       await this.notificationsService.create({
         action: NotificationAction.ActivityLiked,
         subject: liker.name,
-        subject_id: liker.id,
+        subject_id: notifyMeta.subject_id,
         user: feedItem.user as User,
         avatar: liker.avatar,
-        meta_value: notifyMeta
+        meta_value: notifyMeta.meta_value
       })
     }
   }
@@ -223,11 +226,17 @@ export class FeedItemsService {
   getFeedTypeForNotification(feedItem: FeedItem) {
     switch (feedItem.type) {
       case FeedItemType.DailyGoalReached:
-        return 'goal achievement'
+        return {
+          subject_id: feedItem.goal_entry.id,
+          meta_value: 'goal achievement'
+        }
       case FeedItemType.HealthActivity:
-        return 'activity'
+        return {
+          subject_id: feedItem.health_activity.id,
+          meta_value: 'activity'
+        }
       case FeedItemType.LeagueWon:
-        return 'league victory'
+        return { subject_id: feedItem.league.id, meta_value: 'league victory' }
     }
     return false
   }

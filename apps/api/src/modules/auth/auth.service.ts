@@ -38,7 +38,7 @@ type PasswordResetToken = {
 export enum AuthServiceError {
   Provider = 'The provider is not valid',
   Email = 'An email is required',
-  Exists = 'A user with this email already exists'
+  Exists = 'A user with this email already exists. Please log in instead.'
 }
 
 @Injectable()
@@ -507,7 +507,7 @@ export class AuthService {
    * @param param0
    * @returns
    */
-  async connectWithAuthProvider({ provider, token }: AuthConnectDto) {
+  async connectWithAuthProvider({ provider, token, signup }: AuthConnectDto) {
     let result: Partial<AuthProvider>
     switch (provider) {
       case AuthProviderType.Google:
@@ -531,6 +531,9 @@ export class AuthService {
 
       // Associates the existing user with the new provider
       if (user) {
+        if (signup) {
+          return { error: AuthServiceError.Exists }
+        }
         return {
           result: await this.associateWithProvider(user, result)
         }
@@ -538,6 +541,9 @@ export class AuthService {
     }
 
     if (user) {
+      if (signup) {
+        return { error: AuthServiceError.Exists }
+      }
       // Conditionally update the avatar
       const image = await this.usersService.updateAvatarFromProvider(
         user.id,

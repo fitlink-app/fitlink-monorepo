@@ -65,6 +65,11 @@ export class Notification extends CreatableEntity {
     default: false
   })
   seen: boolean
+
+  @Column({
+    nullable: true
+  })
+  push_succeeded: boolean
 }
 
 /*

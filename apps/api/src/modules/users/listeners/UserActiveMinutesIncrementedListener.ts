@@ -30,7 +30,9 @@ export class UserActiveMinutesIncrementedListener {
   async onUserActiveMinutesWeekIncremented({
     userId
   }: UserActiveMinutesWeekIncrementedEvent) {
-    const user = await this.userRepository.findOne(userId)
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['avatar']
+    })
     const calculatedRank = await this.userService.calculateUserRank(user.id)
 
     const isEligibleForPromotion = await this.isEligibleForPromotion(
@@ -61,7 +63,8 @@ export class UserActiveMinutesIncrementedListener {
       this.notificationsService.create({
         action: NotificationAction.RankUp,
         subject: newRank,
-        user
+        user,
+        avatar: user.avatar
       })
     )
     error && console.log(error)

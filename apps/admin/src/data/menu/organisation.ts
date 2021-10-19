@@ -118,6 +118,16 @@ export function MenuOrganisationSimple(primary: Primary) {
       link: '/knowledge-base',
       icon: 'IconYoga'
     },
+    {
+      label: 'Help Center',
+      link: 'https://support.fitlinkapp.com/en/',
+      icon: 'IconInfo'
+    },
+    {
+      label: 'App Store',
+      link: '/app-store',
+      icon: 'IconMobile'
+    },
     { hr: true },
     {
       label: 'Sign out',

@@ -231,14 +231,15 @@ export function OrganisationAssignedLeagueTeardown(
 
 export function LeagueWithEntriesAndWinningUsers(
   name: string,
-  users?: User[]
+  users?: User[],
+  count?: number
 ): Promise<League[]> {
   class Setup implements Seeder {
     public async run(factory: Factory, connection: Connection): Promise<any> {
       /**
        * This seeded data lives only to be tested on die and then be reborn.
        */
-      const leagues = await factory(League)().createMany(1, {
+      const leagues = await factory(League)().createMany(count || 1, {
         name
       })
       const leaderboards = await Promise.all(

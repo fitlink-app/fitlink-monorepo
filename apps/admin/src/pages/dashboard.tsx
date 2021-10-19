@@ -24,15 +24,19 @@ import { options } from '../data/date-options'
 import { useRouter } from 'next/router'
 import { LoaderChart } from '../components/elements/LoaderChart'
 import { TableLoader } from '../components/Table/TableLoader'
+import { useIntercom } from 'react-use-intercom'
 
 type DateStartEnd = {
   startAt?: Date
   endAt?: Date
 }
 
+const OVERVIEW_TOUR_ID = 279397
+
 export default function components() {
   const { focusRole, modeRole } = useContext(AuthContext)
   const router = useRouter()
+  const { startTour } = useIntercom()
 
   useEffect(() => {
     if (focusRole === 'subscription') {
@@ -46,11 +50,20 @@ export default function components() {
 
   return (
     <Dashboard title="Dashboard">
-      <h1 className="light">
-        {modeRole === 'app' && 'Fitlink global statistics'}
-        {modeRole === 'organisation' && 'Your organisation at a glance'}
-        {modeRole === 'team' && 'Your team at a glance'}
-      </h1>
+      <div className="flex ai-c">
+        <h1 className="light mb-0 mr-2">
+          {modeRole === 'app' && 'Fitlink global statistics'}
+          {modeRole === 'organisation' && 'Your organisation at a glance'}
+          {modeRole === 'team' && 'Your team at a glance'}
+        </h1>
+        <button
+          className="button small mt-1"
+          onClick={() => {
+            startTour(OVERVIEW_TOUR_ID)
+          }}>
+          Start Tour
+        </button>
+      </div>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">
           <PopularActivities />

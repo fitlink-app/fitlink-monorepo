@@ -6,7 +6,7 @@ import {
   GoalsEntryTarget
 } from './entities/goals-entry.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { MoreThanOrEqual, Repository } from 'typeorm'
+import { IsNull, MoreThan, MoreThanOrEqual, Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { zonedStartOfDay } from '../../../../common/date/helpers'
@@ -14,6 +14,11 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { DailyGoalsReachedEvent } from './events/daily-goals-reached.event'
 import { FeedGoalType } from '../feed-items/feed-items.constants'
 import { Events } from '../../events'
+import { CommonService } from '../common/services/common.service'
+import { startOfDay } from 'date-fns'
+import { NotificationsService } from '../notifications/notifications.service'
+import { NotificationAction } from '../notifications/notifications.constants'
+import { differenceInMilliseconds } from 'date-fns'
 
 interface GoalField {
   field:
@@ -35,7 +40,9 @@ export class GoalsEntriesService {
 
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private eventEmitter: EventEmitter2
+    private eventEmitter: EventEmitter2,
+    private commonService: CommonService,
+    private notificationsService: NotificationsService
   ) {}
 
   formatFields(
@@ -99,15 +106,22 @@ export class GoalsEntriesService {
     let targetReached: GoalField[] = []
     const entries = this.formatFields(goalsEntryDto || {}, goalsEntry)
 
+    let hasRealUpdate = false
+
     entries.forEach((each) => {
       // Only update if the incoming entry exceeds the previous entry value
-      if (each.current >= each.target) {
+      if (each.current >= goalsEntry[each.field]) {
         // Check if the current value was previously lower than target and is now "reached"
-        if (goalsEntry[each.field] < each.target) {
+        if (
+          goalsEntry[each.field] < each.target &&
+          each.current >= each.target
+        ) {
           targetReached.push(each)
         }
 
         goalsEntry[each.field] = each.current
+
+        hasRealUpdate = true
       }
     })
     const goalEntryReachedEvent = new DailyGoalsReachedEvent()
@@ -123,7 +137,42 @@ export class GoalsEntriesService {
 
     await Promise.all(triggerEventPromises)
 
-    return await this.goalsEntryRepository.save(goalsEntry)
+    if (!goalsEntry.created_at) {
+      goalsEntry.created_at = zonedStartOfDay(user.timezone)
+      goalsEntry.updated_at = zonedStartOfDay(user.timezone)
+    }
+
+    // Ensure user is set
+    goalsEntry.user = new User()
+    goalsEntry.user.id = user.id
+
+    return this.goalsEntryRepository.manager.transaction(async (manager) => {
+      const repo = manager.getRepository(GoalsEntry)
+      const userRepo = manager.getRepository(User)
+      const result = await repo.save(goalsEntry)
+      if (hasRealUpdate) {
+        await userRepo.update(user.id, {
+          last_lifestyle_activity_at: new Date(),
+          goal_percentage: this.calculateGoalsPercentage(goalsEntry)
+        })
+      }
+      return result
+    })
+  }
+
+  calculateGoalsPercentage(goalsEntry: GoalsEntry) {
+    const d1 = goalsEntry.current_steps / goalsEntry.target_steps
+    const d2 =
+      goalsEntry.current_floors_climbed / goalsEntry.target_floors_climbed
+    const d3 = goalsEntry.current_water_litres / goalsEntry.target_water_litres
+    const d4 = goalsEntry.current_sleep_hours / goalsEntry.target_sleep_hours
+    const d5 =
+      goalsEntry.current_mindfulness_minutes /
+      goalsEntry.target_mindfulness_minutes
+    const total = [d1, d2, d3, d4, d5]
+      .map((i) => (i > 1 ? 1 : i))
+      .reduce((a, b) => a + b, 0)
+    return Math.round((total / 5) * 100) / 100
   }
 
   async triggerEvent(
@@ -214,5 +263,66 @@ export class GoalsEntriesService {
     goalsEntry.current_mindfulness_minutes = 0
 
     return goalsEntry
+  }
+
+  async processPendingGoalReminders() {
+    const started = new Date()
+
+    const goals = await this.goalsEntryRepository.find({
+      where: {
+        created_at: MoreThan(startOfDay(new Date())),
+        notified_at: IsNull()
+      },
+      relations: ['user']
+    })
+
+    const notify: { user: User; steps: number }[] = []
+    goals.forEach((goal) => {
+      if (goal.current_steps > 0) {
+        const diff = goal.current_steps / goal.target_steps
+        if (diff < 1 && diff >= 0.5) {
+          notify.push({
+            user: goal.user,
+            steps: goal.target_steps - goal.current_steps
+          })
+        }
+      }
+    })
+
+    if (notify.length) {
+      // Ensure these users aren't notified a second time today
+      await this.goalsEntryRepository.update(
+        goals.map((e) => e.id),
+        {
+          notified_at: new Date()
+        }
+      )
+    }
+
+    const messages = await Promise.all(
+      notify.map(({ user, steps }) => {
+        return this.notificationsService.sendAction(
+          [user],
+          NotificationAction.GoalProgressSteps,
+          {
+            meta_value: String(steps)
+          }
+        )
+      })
+    )
+
+    await this.commonService.notifySlackJobs(
+      'Steps goal reminder',
+      {
+        reminded: notify.length,
+        messages
+      },
+      differenceInMilliseconds(started, new Date())
+    )
+
+    return {
+      count: notify.length,
+      messages
+    }
   }
 }

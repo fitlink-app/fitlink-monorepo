@@ -39,7 +39,9 @@ function App({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     if (router.isReady) {
-      boot()
+      boot({
+        alignment: 'left'
+      })
     }
   }, [router.isReady])
 

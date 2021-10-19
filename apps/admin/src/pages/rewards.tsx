@@ -17,10 +17,15 @@ import { Reward as RewardEntity } from '@fitlink/api/src/modules/rewards/entitie
 import { useQuery } from 'react-query'
 import { timeout } from '../helpers/timeout'
 import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
+import IconInfo from '../components/icons/IconInfo'
+import { useIntercom } from 'react-use-intercom'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
+
+const REWARD_TOUR_ID = 279440
 
 export default function page() {
   const { api, primary, modeRole, fetchKey } = useContext(AuthContext)
+  const { startTour } = useIntercom()
 
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
@@ -266,10 +271,15 @@ export default function page() {
                   {modeRole === 'organisation' ? 'Organisation' : 'Team'}{' '}
                   rewards
                 </h1>
-                <button
-                  className="button alt small mt-1"
-                  onClick={NewRewardForm}>
+                <button className="button small mt-1" onClick={NewRewardForm}>
                   Add new
+                </button>
+                <button
+                  className="button alt small ml-1 mt-1"
+                  onClick={() => {
+                    startTour(REWARD_TOUR_ID)
+                  }}>
+                  Show me how
                 </button>
               </div>
             </div>

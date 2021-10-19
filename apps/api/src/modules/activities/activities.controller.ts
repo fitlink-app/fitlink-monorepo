@@ -257,7 +257,16 @@ export class ActivitiesController {
         params['organizerName[textSearch]'] = keyword
       }
 
-      const imin = await this.activitiesIminService.findAll(params)
+      let imin: Pagination<Activity> = {
+        results: [],
+        page_total: 0,
+        total: 0
+      }
+      try {
+        imin = await this.activitiesIminService.findAll(params)
+      } catch (e) {
+        console.error(e)
+      }
 
       return ActivitiesController.mergeAndPaginate(all, imin, {
         page: intPage,

@@ -9,7 +9,8 @@ import {
   Query,
   BadRequestException,
   HttpCode,
-  NotFoundException
+  NotFoundException,
+  ForbiddenException
 } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -48,13 +49,18 @@ import { Public } from '../../decorators/public.decorator'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateAdminDto } from './dto/create-admin.dto'
+import { ConfigService } from '@nestjs/config'
+import { UserJobDto } from './dto/user-job.dto'
+import { CreateFcmTokenDto } from './dto/create-fcm-token.dto'
+import { DeleteFcmTokenDto } from './dto/delete-fcm-token.dto'
 
 @Controller()
 @ApiBaseResponses()
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly userRolesService: UserRolesService
+    private readonly userRolesService: UserRolesService,
+    private readonly configService: ConfigService
   ) {}
 
   // User endpoints (requires JWT)
@@ -106,6 +112,35 @@ export class UsersController {
     }
   }
 
+  @Post('me/fcm-token')
+  @ApiTags('me')
+  @UpdateResponse()
+  @ApiBody({ type: CreateFcmTokenDto })
+  updateFcmToken(
+    @AuthUser() user: AuthenticatedUser,
+    @Body() body: CreateFcmTokenDto
+  ) {
+    try {
+      return this.usersService.mergeFcmTokens(user.id, body.token)
+    } catch (e) {
+      console.error(e)
+      throw new BadRequestException(e)
+    }
+  }
+
+  @Post('me/remove-fcm-token')
+  @ApiTags('me')
+  removeFcmToken(
+    @Body() { token }: DeleteFcmTokenDto,
+    @AuthUser() user: AuthenticatedUser
+  ) {
+    try {
+      return this.usersService.removeFcmToken(user.id, token)
+    } catch (e) {
+      throw new BadRequestException(e)
+    }
+  }
+
   @Put('me/password')
   @ApiTags('me')
   @UpdateResponse()
@@ -127,6 +162,13 @@ export class UsersController {
     }
 
     return result
+  }
+
+  @Put('me/ping')
+  @ApiTags('me')
+  @UpdateResponse()
+  pingUser(@AuthUser() user: AuthenticatedUser) {
+    return this.usersService.ping(user.id)
   }
 
   @Public()
@@ -369,5 +411,37 @@ export class UsersController {
   @ApiResponse({ type: JWTRoles, status: 200 })
   getRolesForToken(@Param('userId') userId: string) {
     return this.usersService.getRolesForToken({ id: userId } as any)
+  }
+
+  /**
+   * Webhook for AWS Lambda to update leagues
+   */
+  @Public()
+  @Post('/users/job')
+  async processRankChange(@Body() { verify_token }: UserJobDto) {
+    if (verify_token !== this.configService.get('JOBS_VERIFY_TOKEN')) {
+      throw new ForbiddenException()
+    }
+    const [rank] = await Promise.all([
+      this.usersService.processPendingRankDrops()
+    ])
+
+    return {
+      rank
+    }
+  }
+
+  /**
+   * Webhook for AWS Lambda to send a Monday
+   * reminder for inactive users.
+   */
+  @Public()
+  @Post('/users/job/mondays')
+  async mondayReminders(@Body() { verify_token }: UserJobDto) {
+    if (verify_token !== this.configService.get('JOBS_VERIFY_TOKEN')) {
+      throw new ForbiddenException()
+    }
+    const result = await this.usersService.processMondayMorningReminder()
+    return result
   }
 }

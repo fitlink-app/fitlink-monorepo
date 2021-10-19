@@ -8,13 +8,15 @@ import { AuthModule } from '../auth/auth.module'
 import { UsersModule } from '../users/users.module'
 import { ConfigModule } from '@nestjs/config'
 import { NotificationsModule } from '../notifications/notifications.module'
+import { CommonModule } from '../common/common.module'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([FeedItem, FeedItemLike]),
     forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
-    NotificationsModule
+    NotificationsModule,
+    CommonModule
   ],
   controllers: [FeedItemsController],
   providers: [FeedItemsService],

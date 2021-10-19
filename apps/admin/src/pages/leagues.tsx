@@ -13,10 +13,14 @@ import { AuthContext } from '../context/Auth.context'
 import { useQuery } from 'react-query'
 import { timeout } from '../helpers/timeout'
 import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
+import { useIntercom } from 'react-use-intercom'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
+
+const LEAGUE_TOUR_ID = 283719
 
 export default function LeaguesPage() {
   const { api, primary, modeRole, fetchKey } = useContext(AuthContext)
+  const { startTour } = useIntercom()
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)
@@ -175,8 +179,15 @@ export default function LeaguesPage() {
             <h1 className="light mb-0 mr-2">
               {modeRole === 'app' ? 'Global' : 'Your'} leagues
             </h1>
-            <button className="button alt small mt-1" onClick={NewLeagueForm}>
+            <button className="button small mt-1" onClick={NewLeagueForm}>
               Add new
+            </button>
+            <button
+              className="button alt small ml-1 mt-1"
+              onClick={() => {
+                startTour(LEAGUE_TOUR_ID)
+              }}>
+              Show me how
             </button>
           </div>
         </div>

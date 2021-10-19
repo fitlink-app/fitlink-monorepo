@@ -37,8 +37,12 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
 
     const pathname = url.parse(req.url).pathname
     const isLogin =
-      pathname === '/api/v1/auth/login' || pathname === '/api/v1/auth/switch'
+      pathname === '/api/v1/auth/login' ||
+      pathname === '/api/v1/auth/switch' ||
+      pathname === '/api/v1/auth/connect'
+
     const isLogout = pathname === '/api/v1/auth/logout'
+
     const isSignup =
       pathname === '/api/v1/auth/signup' ||
       pathname === '/api/v1/auth/organisation'

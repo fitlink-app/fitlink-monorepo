@@ -21,7 +21,6 @@ import {
   FeedGoalType
 } from '../feed-items.constants'
 import { UserRank } from '../../users/users.constants'
-import { Notification } from '../../notifications/entities/notification.entity'
 
 @Entity()
 export class FeedItem extends CreatableEntity {

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { formatRoles } from '../../helpers/formatRoles'
-import { Repository } from 'typeorm'
+import { Repository, Brackets } from 'typeorm'
 import { JWTRoles } from '../../models'
 import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -11,7 +11,6 @@ import { User, UserPublic } from './entities/user.entity'
 import { Image } from '../images/entities/image.entity'
 import { ImageType } from '../images/images.constants'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
-import { plainToClass } from 'class-transformer'
 import { JwtService } from '@nestjs/jwt'
 import { EmailService } from '../common/email.service'
 import { EmailResetJWT } from '../../models/email-reset.jwt.model'
@@ -23,6 +22,15 @@ import { FilterUserDto } from './dto/search-user.dto'
 import { UserRank } from './users.constants'
 import { Roles } from '../user-roles/user-roles.constants'
 import { HealthActivity } from '../health-activities/entities/health-activity.entity'
+import {
+  subDays,
+  differenceInMilliseconds,
+  startOfWeek,
+  isMonday
+} from 'date-fns'
+import { CommonService } from '../common/services/common.service'
+import { NotificationsService } from '../notifications/notifications.service'
+import { NotificationAction } from '../notifications/notifications.constants'
 
 type EntityOwner = {
   organisationId?: string
@@ -41,7 +49,9 @@ export class UsersService {
     private jwtService: JwtService,
     private emailService: EmailService,
     private configService: ConfigService,
-    private imageService: ImagesService
+    private imageService: ImagesService,
+    private commonService: CommonService,
+    private notificationsService: NotificationsService
   ) {}
 
   async getRolesForToken(user: User): Promise<JWTRoles> {
@@ -347,6 +357,7 @@ export class UsersService {
   ) {
     let query = this.userRepository
       .createQueryBuilder('user')
+      .leftJoinAndSelect('user.avatar', 'avatar')
       .leftJoinAndSelect('user.following', 'f1', 'f1.follower.id = :userId', {
         userId
       })
@@ -369,7 +380,7 @@ export class UsersService {
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<UserPublic>({
-      results: results.map(this.getUserPublic),
+      results: this.commonService.mapUserPublic(results),
       total
     })
   }
@@ -385,30 +396,37 @@ export class UsersService {
   }
 
   /**
-   * Formats the user entity as UserPublic
-   * to prevent leaked sensitive data.
-   *
-   * @param user
-   * @returns UserPublic
+   * Store only unique FCM tokens
+   * @param userId
+   * @param tokens
+   * @returns
    */
-  getUserPublic(user: User) {
-    const userPublic = (user as unknown) as UserPublic
-
-    /**
-     * NOTE: in this scenario, following is used to determine
-     * if the authenticated user is following the given user entity.
-     */
-    userPublic.following = Boolean(user.following && user.following.length)
-
-    /**
-     * NOTE: in this scenario, follower is used to determine
-     * if the authenticated user is being followed by the
-     * given user entity.
-     */
-    userPublic.follower = Boolean(user.followers && user.followers.length)
-    return plainToClass(UserPublic, userPublic, {
-      excludeExtraneousValues: true
+  async mergeFcmTokens(userId: string, token: string) {
+    const user = await this.userRepository.findOne(userId)
+    const fcm_tokens = [...new Set(user.fcm_tokens.concat([token]))]
+    return this.userRepository.update(userId, {
+      fcm_tokens,
+      last_app_opened_at: new Date()
     })
+  }
+
+  /**
+   * Remove a particular token from the array
+   * (e.g. on logout)
+   * @param userId
+   * @param tokens
+   * @returns
+   */
+  async removeFcmToken(userId: string, token: string) {
+    const user = await this.userRepository.findOne(userId)
+    const fcm_tokens = user.fcm_tokens.filter((t) => t !== token)
+    await this.userRepository.update(userId, {
+      fcm_tokens
+    })
+
+    return {
+      removed: user.fcm_tokens.length - fcm_tokens.length
+    }
   }
 
   /**
@@ -456,11 +474,21 @@ export class UsersService {
    */
   async findPublic(userId: string, viewerId: string) {
     const user = await this.findForViewer(userId, viewerId)
-    return this.getUserPublic(user)
+    return this.commonService.getUserPublic(user)
   }
 
-  update(id: string, update: UpdateUserDto) {
+  update(id: string, payload: UpdateUserDto) {
+    const update: Partial<User> = { ...payload }
+    if (update.onboarded) {
+      update.last_onboarded_at = new Date()
+    }
     return this.userRepository.update(id, update)
+  }
+
+  ping(id: string) {
+    return this.userRepository.update(id, {
+      last_app_opened_at: new Date()
+    })
   }
 
   updateBasic(id: string, { imageId, ...rest }: UpdateBasicUserDto) {
@@ -682,8 +710,11 @@ export class UsersService {
 
   async calculateUserRank(userId: string) {
     const user = await this.userRepository.findOne(userId)
-    const average = Math.ceil(user.active_minutes_week / 7)
+    return this.calculateUserRankFromMinutes(user.active_minutes_week)
+  }
 
+  calculateUserRankFromMinutes(minutes: number) {
+    const average = Math.ceil(minutes / 7)
     return isNaN(average) || !average || average <= 10
       ? UserRank.Tier1
       : average <= 30
@@ -691,5 +722,153 @@ export class UsersService {
       : average <= 50
       ? UserRank.Tier3
       : UserRank.Tier4
+  }
+
+  /**
+   * We only care about changing ranks
+   * on users that have been active in the last
+   * 8 days. If they haven't been active, their rank
+   * will have already dropped to the lowest.
+   *
+   * TODO: This doesn't yet take into account the user's
+   * timezone.
+   */
+  async processPendingRankDrops() {
+    const started = new Date()
+
+    const Tier2Minutes = 10 * 7
+    const Tier3Minutes = 30 * 7
+    const Tier4Minutes = 50 * 7
+
+    const usersToDropRank = await this.userRepository
+      .createQueryBuilder('user')
+      // .where("user.last_health_activity_at >= :prev", { prev: subDays(new Date(), 8) })
+      .where('week_reset_at < :start', { start: startOfWeek(new Date()) })
+      .andWhere('user.rank != :tier1', { tier1: UserRank.Tier1 })
+      .andWhere(
+        new Brackets((qb) => {
+          return qb
+            .where(
+              'user.rank = :tier2 AND user.active_minutes_week < :tier2minutes',
+              {
+                tier2: UserRank.Tier2,
+                tier2minutes: Tier2Minutes
+              }
+            )
+            .orWhere(
+              'user.rank = :tier3 AND user.active_minutes_week < :tier3minutes',
+              {
+                tier3: UserRank.Tier3,
+                tier3minutes: Tier3Minutes
+              }
+            )
+            .orWhere(
+              'user.rank = :tier4 AND user.active_minutes_week < :tier4minutes',
+              {
+                tier4: UserRank.Tier4,
+                tier4minutes: Tier4Minutes
+              }
+            )
+        })
+      )
+      .getMany()
+
+    const { updated, users } = await this.userRepository.manager.transaction(
+      async (manager) => {
+        const repo = manager.getRepository(User)
+        const users = await Promise.all(
+          usersToDropRank.map(async (user) => {
+            const rank = this.calculateUserRankFromMinutes(
+              user.active_minutes_week
+            )
+            await repo.update(user.id, { rank })
+            return { user, rank }
+          })
+        )
+
+        const updated = await manager
+          .createQueryBuilder()
+          .update(User)
+          .set({
+            active_minutes_week: 0,
+            week_reset_at: new Date()
+          })
+          .execute()
+
+        return {
+          updated,
+          users
+        }
+      }
+    )
+
+    const messages = await Promise.all(
+      users.map((withRank) => {
+        return this.notificationsService.sendAction(
+          [withRank.user],
+          NotificationAction.RankDown,
+          {
+            subject: withRank.rank
+          }
+        )
+      })
+    )
+
+    await this.commonService.notifySlackJobs(
+      'Rank drop',
+      {
+        dropped: usersToDropRank.length,
+        updated,
+        messages: messages
+      },
+      differenceInMilliseconds(started, new Date())
+    )
+
+    return {
+      count: usersToDropRank.length
+    }
+  }
+
+  /**
+   * For users that haven't exercised in more than
+   * 4 days we push a notification on Mondays.
+   */
+  async processMondayMorningReminder() {
+    // Ensure this only ever runs on Monday
+    if (!isMonday(new Date())) {
+      return false
+    }
+
+    const started = new Date()
+    const users = await this.userRepository
+      .createQueryBuilder('user')
+      .where(
+        'last_lifestyle_activity_at IS NULL OR last_lifestyle_activity_at < :prev',
+        { prev: subDays(new Date(), 4) }
+      )
+      .andWhere('onboarded = true')
+      .getMany()
+
+    const usersWithFcm = users.filter(
+      (e) => e.fcm_tokens && e.fcm_tokens.length
+    )
+    const messages = await this.notificationsService.sendAction(
+      usersWithFcm,
+      NotificationAction.MondayReminder
+    )
+
+    await this.commonService.notifySlackJobs(
+      'Monday morning update',
+      {
+        notified_total: usersWithFcm.length,
+        messages: messages
+      },
+      differenceInMilliseconds(started, new Date())
+    )
+
+    return {
+      total: usersWithFcm.length,
+      messages
+    }
   }
 }

@@ -10,27 +10,24 @@ import {
   Put,
   Response
 } from '@nestjs/common'
-import { ApiExcludeEndpoint } from '@nestjs/swagger'
 import {
   ShareHealthActivityImageDto,
   UpdateHealthActivityImagesDto
 } from './dto/update-health-activity-images.dto'
-import { UpdateHealthActivityDto } from './dto/update-health-activity.dto'
 import { HealthActivitiesService } from './health-activities.service'
 import { AuthenticatedUser } from '../../models'
 import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
-import { plainToClass } from 'class-transformer'
-import { UserPublic } from '../users/entities/user.entity'
 import { ApiBaseResponses } from '../../decorators/swagger.decorator'
 import { ImagesService } from '../images/images.service'
 import * as http from 'http'
+import { CommonService } from '../common/services/common.service'
 
 @ApiBaseResponses()
 @Controller()
 export class HealthActivitiesController {
   constructor(
     private readonly healthActivitiesService: HealthActivitiesService,
-    private readonly imagesService: ImagesService
+    private readonly commonService: CommonService
   ) {}
 
   @Get('/me/health-activities')
@@ -85,9 +82,7 @@ export class HealthActivitiesController {
     }
     return {
       ...healthActivity,
-      user: plainToClass(UserPublic, healthActivity.user, {
-        excludeExtraneousValues: true
-      })
+      user: this.commonService.getUserPublic(healthActivity.user)
     }
   }
 

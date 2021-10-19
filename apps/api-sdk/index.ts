@@ -41,13 +41,6 @@ type MethodConfig = {
 export class Api {
   private axios: AxiosInstance = null
   private tokens: AuthResultDto
-  private role: FocusRole
-  private endpointPrefix:
-    | '/organisations/:organisationId'
-    | '/teams/:teamId'
-    | '' = ''
-  private extraParams: NodeJS.Dict<string> = {}
-  // private previousTokens: AuthResultDto
   private replay: any[] = []
   private reject: any[] = []
   private reAuthorizing = false
@@ -552,20 +545,6 @@ export class Api {
       }
     }
   }
-
-  /**
-   * Cancel role
-   */
-  cancelRole() {
-    this.role = undefined
-    this.endpointPrefix = ''
-    this.extraParams = {}
-  }
-
-  /**
-   * Get role endpoint
-   */
-  withRole() {}
 }
 
 export function makeApi(axios: AxiosInstance) {

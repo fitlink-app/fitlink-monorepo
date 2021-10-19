@@ -26,3 +26,11 @@ export enum FeedGoalType {
   SleepHours = 'sleep_hours',
   MindfulnessMinutes = 'mindfulness_minutes'
 }
+
+export const FeedGoalTypeFormat = {
+  [FeedGoalType.Steps]: 'Steps',
+  [FeedGoalType.FloorsClimbed]: 'Stairs',
+  [FeedGoalType.MindfulnessMinutes]: 'Mindfulness Minutes',
+  [FeedGoalType.WaterLitres]: 'Hydration',
+  [FeedGoalType.SleepHours]: 'Sleep'
+}

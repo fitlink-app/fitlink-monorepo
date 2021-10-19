@@ -20,12 +20,16 @@ import { CreatePage } from '@fitlink/api-sdk/types'
 import useApiErrors from '../../hooks/useApiErrors'
 import { ApiMutationResult, ApiResult } from '@fitlink/common/react-query/types'
 import useDebounce from '../../hooks/useDebounce'
+import { useIntercom } from 'react-use-intercom'
 
 const pagesDomain =
   process.env.NEXT_PUBLIC_BUSINESS_PAGEDOMAIN || 'develop-pages.fitlinkapp.com'
 
+const MANAGE_PAGE_TOUR_ID = 281356
+
 export default function ManagePage() {
   const { api, primary } = useContext(AuthContext)
+  const { startTour } = useIntercom()
 
   const loadPage = useQuery(
     'page',
@@ -260,7 +264,17 @@ export default function ManagePage() {
     <Dashboard title="Settings">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="pages">
-          <h1 className="light">Manage Team Page</h1>
+          <div className="flex ai-c mb-2">
+            <h1 className="light mb-0 mr-2">Manage Team Page</h1>
+            <button
+              className="button alt small mt-1"
+              type="button"
+              onClick={() => {
+                startTour(MANAGE_PAGE_TOUR_ID)
+              }}>
+              Show me how
+            </button>
+          </div>
           <Feedback message="The team page is used to advertise the team to your co-workers so they can download the app and join in." />
 
           {errorMessage && (
