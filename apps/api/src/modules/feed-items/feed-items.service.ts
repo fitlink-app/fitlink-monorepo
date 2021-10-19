@@ -70,14 +70,17 @@ export class FeedItemsService {
           .leftJoin('f1.follower', 'follower')
           .leftJoin('f1.following', 'following')
           .leftJoin('following.settings', 'settings')
-          .where('user.id = :userId', { userId })
-          .orWhere(
-            `(
-            follower.id = :userId AND user.id = following.id
-            AND (health_activity.id IS NOT NULL))`,
-            {
-              userId
-            }
+          .where(
+            new Brackets((qb) =>
+              qb.where('user.id = :userId', { userId }).orWhere(
+                `(
+              follower.id = :userId AND user.id = following.id
+              AND (health_activity.id IS NOT NULL))`,
+                {
+                  userId
+                }
+              )
+            )
           )
 
         // Alternatively, this is a friend's feed (i.e. the user is viewing someone else's feed)
