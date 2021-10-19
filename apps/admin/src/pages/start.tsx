@@ -9,6 +9,7 @@ import { useQuery } from 'react-query'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 import LoaderFullscreen from '../components/elements/LoaderFullscreen'
 import toast from 'react-hot-toast'
+import { timeout } from '../helpers/timeout'
 
 export default function StartPage() {
   const {
@@ -61,8 +62,12 @@ export default function StartPage() {
     </div>
   )
 
-  const rolesQuery = useQuery(`start_roles_${fetchKey}`, () =>
-    api.get<UserRole[]>('/me/roles')
+  const rolesQuery = useQuery(
+    `start_roles_${fetchKey}`,
+    () => api.get<UserRole[]>('/me/roles'),
+    {
+      cacheTime: 0
+    }
   )
 
   useEffect(() => {
@@ -77,11 +82,12 @@ export default function StartPage() {
         setUserRole()
       }
     }
-  }, [rolesQuery.isFetched, modeRole])
+  }, [rolesQuery.isFetched, modeRole, rolesQuery.data])
 
   async function setDefaultRole() {
     if (!roleSet.current) {
       roleSet.current = true
+      await timeout(100)
       await switchRole({
         id: getId(rolesQuery.data[0]),
         role: rolesQuery.data[0].role
@@ -92,7 +98,6 @@ export default function StartPage() {
   async function setUserRole() {
     if (!roleSet.current) {
       roleSet.current = true
-      console.log('HERE')
       setModeRole('user')
       setFocusRole('user')
     }
