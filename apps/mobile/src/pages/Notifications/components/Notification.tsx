@@ -1,12 +1,20 @@
-import {Label, TouchHandler, Avatar, Button} from '@components';
+import {
+  Label,
+  TouchHandler,
+  Avatar,
+  Button,
+  TouchHandlerProps,
+} from '@components';
 import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
+import {Notification as NotificationClass} from '@fitlink/api/src/modules/notifications/entities/notification.entity';
+import {formatDistanceToNow} from 'date-fns';
+import {NotificationAction} from '@fitlink/api/src/modules/notifications/notifications.constants';
 
 /** Styled Components */
 const Wrapper = styled.View({
   width: '100%',
-  minHeight: 74,
 });
 
 const BottomSeparator = styled.View({
@@ -18,18 +26,13 @@ const Flex = styled.View({
   flex: 1,
 });
 
-const ContentContainer = styled(Flex)({
+const ContentContainer = styled.View({
   marginHorizontal: 20,
   paddingVertical: 15,
 });
 
 const Row = styled.View({
   flexDirection: 'row',
-});
-
-const FlexRow = styled(Row)({
-  flex: 1,
-  alignItems: 'center',
 });
 
 const NotificationDetailsContainer = styled(Flex)({
@@ -79,31 +82,148 @@ const UnreadMark = styled.View(({theme: {colors}}) => ({
   borderWidth: 2,
 }));
 
-interface NotificationProps {}
+interface NotificationProps extends TouchHandlerProps {
+  item: NotificationClass;
+}
 
-export const Notification = (props: NotificationProps) => {
+export const Notification = ({item, ...rest}: NotificationProps) => {
   const navigation = useNavigation();
   const {colors} = useTheme();
 
-  // TEMP VARS
-  const avatar = 'https://source.unsplash.com/random/250%C3%97180/?person';
-  const isRead = Math.random() < 0.5;
-  const title = 'Ralph Edwards';
-  const user = 'Ralph Edwards';
-  const action = 'league_invite';
-  const subject = 'Run for your Live';
-  const time = '5 min ago';
+  const avatar = item.avatar?.url_128x128;
 
-  const handleOnPress = () => {
-    // TODO
+  const generateOnPressAction = (): {(): void} | null => {
+    switch (item.action) {
+      case NotificationAction.ActivityLiked:
+        return item.subject_id
+          ? () =>
+              navigation.navigate('HealthActivityDetails', {
+                id: item.subject_id,
+              })
+          : null;
+
+      case NotificationAction.LeagueWon:
+      case NotificationAction.LeagueReset:
+      case NotificationAction.LeagueEnding:
+        return item.subject_id
+          ? () =>
+              navigation.navigate('League', {
+                id: item.subject_id,
+              })
+          : null;
+
+      case NotificationAction.LeagueInvitation:
+        return () =>
+          navigation.navigate('Leagues', {
+            tab: 2,
+          });
+
+      case NotificationAction.RewardUnlocked:
+        return item.subject_id
+          ? () =>
+              navigation.navigate('Reward', {
+                id: item.subject_id,
+              })
+          : null;
+
+      case NotificationAction.GoalAchieved:
+      case NotificationAction.GoalProgressSteps:
+        return () => navigation.goBack();
+
+      case NotificationAction.NewFollower:
+        return () => navigation.navigate('Profile', {id: item.subject_id!});
+
+      default:
+        return null;
+    }
   };
 
   const renderMessage = () => {
-    switch (action) {
-      case 'league_invite':
+    switch (item.action) {
+      case NotificationAction.ActivityLiked:
         return (
           <Message>
-            {user} invited you to <Subject>{subject}</Subject> league.
+            ❤️ You've got love. <Subject>{item.subject}</Subject> just liked
+            your <Subject>{item.meta_value}</Subject>. Check it out.
+          </Message>
+        );
+
+      case NotificationAction.GoalAchieved:
+        return (
+          <Message>
+            🎉 Nailed it. You just hit your <Subject>{item.subject}</Subject>{' '}
+            goal. Keep it up.
+          </Message>
+        );
+
+      case NotificationAction.GoalProgressSteps:
+        return (
+          <Message>
+            👣 So close to reaching your steps goal. Just a brisk walk should do
+            it.
+          </Message>
+        );
+
+      case NotificationAction.LeagueEnding:
+        return (
+          <Message>
+            📢 Remember, the league <Subject>{item.subject}</Subject> will end
+            in 24 hours. You still have time.
+          </Message>
+        );
+
+      case NotificationAction.LeagueInvitation:
+        return (
+          <Message>
+            🎉 <Subject>{item.meta_value}</Subject> just invited you to join the
+            league <Subject>{item.subject}</Subject>. Let's go!
+          </Message>
+        );
+
+      case NotificationAction.LeagueReset:
+        return (
+          <Message>
+            ⏱ Heads up, the league <Subject>{item.subject}</Subject> has just
+            reset. Go for it.
+          </Message>
+        );
+
+      case NotificationAction.LeagueWon:
+        return (
+          <Message>
+            👏 Winner! You just won the league <Subject>{item.subject}</Subject>
+            . Check it out.
+          </Message>
+        );
+
+      case NotificationAction.NewFollower:
+        return (
+          <Message>
+            👋 <Subject>{item.subject}</Subject> followed you. Check it out.
+          </Message>
+        );
+
+      case NotificationAction.RankDown:
+        return (
+          <Message>
+            👎 Ouch! Your rank dropped to <Subject>{item.subject}</Subject>. You
+            can do it.
+          </Message>
+        );
+
+      case NotificationAction.RankUp:
+        return (
+          <Message>
+            👍 Nice. You ranked up to <Subject>{item.subject}</Subject>. Keep it
+            going.
+          </Message>
+        );
+
+      case NotificationAction.RewardUnlocked:
+        return (
+          <Message>
+            🎁 You just unlocked a new reward <Subject>{item.subject}</Subject>.
+            Check it out.
           </Message>
         );
 
@@ -114,47 +234,65 @@ export const Notification = (props: NotificationProps) => {
 
   // Renders additional views based on action type
   const renderAdditional = () => {
-    switch (action) {
-      case 'league_invite':
-        return (
-          <ButtonsContainer>
-            <Button
-              text={'Decline'}
-              style={{maxWidth: 100, maxHeight: 30}}
-              containerStyle={{maxHeight: 30}}
-              outline
-              textStyle={{fontSize: 12}}
-            />
+    return null;
 
-            <ButtonSpacer />
+    // TODO: Additional stuff for more complex views, buttons to take action, etc.
 
-            <Button
-              text={'Accept'}
-              style={{maxWidth: 100, maxHeight: 30}}
-              containerStyle={{maxHeight: 30}}
-              textStyle={{fontSize: 12}}
-            />
-          </ButtonsContainer>
-        );
+    // switch (item.action) {
+    //   case NotificationAction.ActivityLiked:
+    //     return (
+    //       <ButtonsContainer>
+    //         <Button
+    //           text={'Decline'}
+    //           style={{maxWidth: 100, maxHeight: 30}}
+    //           containerStyle={{maxHeight: 30}}
+    //           outline
+    //           textStyle={{fontSize: 12}}
+    //         />
 
-      default:
-        return null;
-    }
+    //         <ButtonSpacer />
+
+    //         <Button
+    //           text={'Accept'}
+    //           style={{maxWidth: 100, maxHeight: 30}}
+    //           containerStyle={{maxHeight: 30}}
+    //           textStyle={{fontSize: 12}}
+    //         />
+    //       </ButtonsContainer>
+    //     );
+
+    //   default:
+    //     return null;
+    // }
+  };
+
+  const onPressAction = generateOnPressAction();
+
+  const handleOnPress = () => {
+    if (typeof onPressAction === 'function') onPressAction();
   };
 
   return (
     <TouchHandler
+      {...rest}
       onPress={handleOnPress}
-      style={{backgroundColor: isRead ? undefined : colors.surface}}>
+      disabled={!onPressAction}
+      style={{
+        backgroundColor: item.seen ? undefined : colors.surface,
+      }}>
       <Wrapper>
         <ContentContainer>
-          <FlexRow style={{alignItems: 'flex-start'}}>
+          <Row style={{alignItems: 'flex-start'}}>
             <Avatar url={avatar} size={44} />
-            <FlexRow>
+            <Row style={{flex: 1}}>
               <NotificationDetailsContainer>
                 <Row style={{marginBottom: 5, justifyContent: 'space-between'}}>
-                  <Name>{title}</Name>
-                  <Time>{time}</Time>
+                  <Name>{item.title}</Name>
+                  <Time>
+                    {formatDistanceToNow(new Date(item.created_at), {
+                      addSuffix: true,
+                    })}
+                  </Time>
                 </Row>
 
                 {renderMessage()}
@@ -162,13 +300,14 @@ export const Notification = (props: NotificationProps) => {
                 {/* Buttons? */}
                 {renderAdditional()}
               </NotificationDetailsContainer>
-            </FlexRow>
+            </Row>
 
-            {!isRead && <UnreadMark />}
-          </FlexRow>
+            {!item.seen && <UnreadMark />}
+          </Row>
         </ContentContainer>
+
         <BottomSeparator
-          style={{backgroundColor: isRead ? '#2e2e2e' : '#3b3b3b'}}
+          style={{backgroundColor: item.seen ? '#2e2e2e' : '#3b3b3b'}}
         />
       </Wrapper>
     </TouchHandler>

@@ -8,7 +8,7 @@ import {
   WebhookEventActivity,
   WebhookEventData,
 } from '@fitlink/api/src/modules/providers/types/webhook';
-import {syncDeviceActivities} from 'services/common';
+import {syncDeviceActivities, syncDeviceLifestyleData} from 'services/common';
 
 export type HealthKitActivity = {
   device: string;
@@ -293,8 +293,13 @@ async function getTodayLifestyleData() {
 
 async function syncLifestyle() {
   const data = await getTodayLifestyleData();
-  // TODO:
-  // await syncDeviceLifestyleData()
+  await syncDeviceLifestyleData({
+    current_floors_climbed: data.floors_climbed,
+    current_mindfulness_minutes: data.mindfulness,
+    current_sleep_hours: data.sleep_hours,
+    current_steps: data.steps,
+    current_water_litres: data.water_litres,
+  });
 }
 
 async function syncActivities() {

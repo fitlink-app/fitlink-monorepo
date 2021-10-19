@@ -9,13 +9,13 @@ import {
 } from '@components';
 import {useFeed, useGoals, useMe, useModal, useProviders} from '@hooks';
 import {UserWidget} from '@components';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {ActivityIndicator, FlatList, RefreshControl, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {getPersistedData, persistData} from '@utils';
-import {NewsletterModal} from './components';
+import {NewsletterModal, NotificationsButton} from './components';
 import {useSelector} from 'react-redux';
 import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
 import {getResultsFromPages} from 'utils/api';
@@ -23,7 +23,6 @@ import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/enti
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {queryClient, QueryKeys} from '@query';
 import {getErrorMessage} from '@fitlink/api-sdk';
-import {AppleHealthKitWrapper} from 'services';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -37,12 +36,6 @@ const TopButtonSpacer = styled.View({width: 10});
 
 const SettingsButton = styled(Icon).attrs(({theme: {colors}}) => ({
   name: 'gear',
-  size: 20,
-  color: colors.accentSecondary,
-}))({});
-
-const NotificationsButton = styled(Icon).attrs(({theme: {colors}}) => ({
-  name: 'bell',
   size: 20,
   color: colors.accentSecondary,
 }))({});
@@ -237,6 +230,15 @@ export const Feed = () => {
             onRefresh={() => {
               setIsPulledDown(true);
 
+              queryClient.setQueryData(QueryKeys.Feed, (data: any) => {
+                return {
+                  pages: data.pages.length ? [data.pages[0]] : data.pages,
+                  pageParams: data.pageParams.length
+                    ? [data.pageParams[0]]
+                    : data.pageParams,
+                };
+              });
+
               refetchFeed().finally(() => {
                 setIsPulledDown(false);
               });
@@ -319,11 +321,7 @@ export const Feed = () => {
               </HeaderWidgetContainer>
 
               <TopButtonRow>
-                <NotificationsButton
-                  onPress={() => {
-                    navigation.navigate('Notifications');
-                  }}
-                />
+                <NotificationsButton count={user.unread_notifications} />
 
                 <TopButtonSpacer />
 

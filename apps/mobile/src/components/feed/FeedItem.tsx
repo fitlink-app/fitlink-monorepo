@@ -442,7 +442,7 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
           navigation.navigate('Profile', {id: targetUser.id});
         }}>
         <ProgressCircle
-          progress={0.33}
+          progress={targetUser.goal_percentage}
           strokeWidth={2.5}
           backgroundStrokeWidth={2}
           bloomIntensity={0.5}
@@ -510,10 +510,10 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
             avatars={usersLikedAvatars}
           />
         </Button>
-        <ButtonSeparator />
+        {/* <ButtonSeparator />
         <Button>
           <Icon name={'camera'} color={colors.accentSecondary} size={18} />
-        </Button>
+        </Button> */}
       </ButtonContainer>
     </Wrapper>
   );
