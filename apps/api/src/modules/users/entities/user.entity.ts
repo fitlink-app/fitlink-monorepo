@@ -35,6 +35,7 @@ import { UnitSystem, UserRank } from '../users.constants'
 import { LeaguesInvitation } from '../../leagues-invitations/entities/leagues-invitation.entity'
 import { SubscriptionsInvitation } from '../../subscriptions/entities/subscriptions-invitation.entity'
 import { Notification } from '../../notifications/entities/notification.entity'
+import { HealthActivityDebug } from '../../health-activities/entities/health-activity-debug.entity'
 
 @Entity()
 export class User extends CreatableEntity {
@@ -192,6 +193,16 @@ export class User extends CreatableEntity {
     onDelete: 'CASCADE'
   })
   health_activities: HealthActivity[]
+
+  @OneToMany(
+    () => HealthActivityDebug,
+    (HealthActivity) => HealthActivity.user,
+    {
+      cascade: ['remove'],
+      onDelete: 'CASCADE'
+    }
+  )
+  health_activities_debug: HealthActivityDebug[]
 
   /** Feed items for the user */
   @OneToMany(() => FeedItem, (feedItem) => feedItem.user)

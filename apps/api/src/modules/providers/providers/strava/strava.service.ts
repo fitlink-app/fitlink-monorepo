@@ -53,7 +53,8 @@ export class StravaService {
           const normalizedActivity = this.createNormalizedHealthActivity(result)
           const healthActivitySaveResult = await this.healthActivityService.create(
             normalizedActivity,
-            provider.user.id
+            provider.user.id,
+            result
           )
 
           return healthActivitySaveResult

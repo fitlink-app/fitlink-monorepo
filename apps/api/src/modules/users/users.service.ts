@@ -44,6 +44,7 @@ import { UserRole } from '../user-roles/entities/user-role.entity'
 import { Provider } from '../providers/entities/provider.entity'
 import { Activity } from '../activities/entities/activity.entity'
 import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.entity'
+import { HealthActivityDebug } from '../health-activities/entities/health-activity-debug.entity'
 
 type EntityOwner = {
   organisationId?: string
@@ -911,6 +912,10 @@ export class UsersService {
 
       // Remove any associated auth providers (Google, Apple)
       await manager.getRepository(AuthProvider).delete({
+        user: { id }
+      })
+
+      await manager.getRepository(HealthActivityDebug).delete({
         user: { id }
       })
 

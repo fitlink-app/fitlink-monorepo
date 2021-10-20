@@ -8,7 +8,7 @@ export default function MenuSubscription(primary: Primary) {
       icon: 'IconCreditCard'
     },
     {
-      label: 'Help Center 🡕',
+      label: 'Help Center',
       link:
         'https://support.fitlinkapp.com/en/collections/3167640-fitlink-billing',
       icon: 'IconInfo'

@@ -1,6 +1,7 @@
 .menu-item {
   display: flex;
   align-content: center;
+  align-items: center;
   text-decoration: none;
   color: $darkGrey;
   font-size: 0.875rem;
@@ -12,7 +13,7 @@
   color: $grey;
   transition: all 0.1s;
   border: 1px solid $white;
-  
+
   @media screen and (min-width: $large) {
     margin: 0 -0.3125rem;
     padding: 0.5rem 0.625rem;
@@ -20,7 +21,7 @@
 
   span {
     display: none;
-    
+
     @media screen and (min-width: $large) {
       display: block;
     }
@@ -32,16 +33,22 @@
     height: 1.25rem;
     transition: color 0.1s;
     margin: auto;
-    
+
     @media screen and (min-width: $large) {
       margin: 0 1.25rem 0 0;
+    }
+
+    &.end-icon {
+      width: .9rem;
+      height: .9rem;
+      margin-left: .5rem;
     }
   }
 
   &:hover, &.current {
     background: $grey-50;
     color: $darkGrey;
-    
+
     svg {
       color: $grey;
     }

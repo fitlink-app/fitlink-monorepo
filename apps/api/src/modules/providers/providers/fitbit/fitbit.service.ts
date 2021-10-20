@@ -189,7 +189,7 @@ export class FitbitService {
         user
       )
       promises.push(
-        this.healthActivityService.create(normalizedActivity, userId)
+        this.healthActivityService.create(normalizedActivity, userId, activity)
       )
     }
     const results = await Promise.all(promises)

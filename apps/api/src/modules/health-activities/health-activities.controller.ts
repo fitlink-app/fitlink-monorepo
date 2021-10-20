@@ -21,6 +21,10 @@ import { ApiBaseResponses } from '../../decorators/swagger.decorator'
 import { ImagesService } from '../images/images.service'
 import * as http from 'http'
 import { CommonService } from '../common/services/common.service'
+import { Pagination } from '../../decorators/pagination.decorator'
+import { PaginationQuery } from '../../helpers/paginate'
+import { Iam } from '../../decorators/iam.decorator'
+import { Roles } from '../user-roles/user-roles.constants'
 
 @ApiBaseResponses()
 @Controller()
@@ -107,5 +111,11 @@ export class HealthActivitiesController {
 
     reply.raw.writeHead(200, { 'Content-Type': 'image/jpeg' })
     reply.raw.end(generatedImage, 'binary')
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Get('/health-activities-debug')
+  async findAllDebugActivities(@Pagination() pagination: PaginationQuery) {
+    return this.healthActivitiesService.findAllDebugActivities(pagination)
   }
 }
