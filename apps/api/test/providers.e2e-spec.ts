@@ -165,8 +165,7 @@ describe('Providers', () => {
     expect(result.provider_user_id).toBe(fitbitApiMockData.user_id)
     expect(result.user.id).toBe(seededUser.id)
     expect(result.id).toBeDefined()
-    expect(data.statusCode).toBe(200)
-    expect(data.statusMessage).toBe('OK')
+    expect(data.statusCode).toBe(302)
   })
 
   it('DELETE /provider/fitbit', async () => {
