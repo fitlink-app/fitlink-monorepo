@@ -55,11 +55,6 @@ export default function MenuApp(primary: Primary) {
     },
     { hr: true },
     {
-      label: 'Knowledge Base',
-      link: '/knowledge-base',
-      icon: 'IconYoga'
-    },
-    {
       label: 'App Store',
       link: '/app-store',
       icon: 'IconMobile'

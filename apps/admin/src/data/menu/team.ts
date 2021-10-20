@@ -44,11 +44,6 @@ export default function MenuTeam(primary: Primary) {
       ]
     },
     {
-      label: 'Knowledge Base',
-      link: '/knowledge-base',
-      icon: 'IconYoga'
-    },
-    {
       label: 'App Store',
       link: '/app-store',
       icon: 'IconMobile'
