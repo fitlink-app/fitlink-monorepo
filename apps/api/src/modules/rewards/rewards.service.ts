@@ -85,6 +85,13 @@ export class RewardsService {
     return this.rewardsRepository.save(reward)
   }
 
+  async countUnclaimedForUser(userId: string) {
+    return this.queryFindAccessibleToUser(userId)
+      .andWhere('redemptions.id IS NULL')
+      .andWhere('reward.points_required <= user.points_total')
+      .getCount()
+  }
+
   /**
    * Finds rewards that are accessible to the user
    * and still available / not expired.
@@ -172,9 +179,12 @@ export class RewardsService {
       points = reward.points_required - user.points_total
     }
 
+    const unclaimed_rewards_total = await this.countUnclaimedForUser(userId)
+
     return {
       reward,
-      points_until_reward: points
+      points_until_reward: points,
+      unclaimed_rewards_total
     }
   }
 
