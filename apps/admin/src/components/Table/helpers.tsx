@@ -123,5 +123,5 @@ export const toMapImage = ({ value }) => {
 }
 
 export const toID = ({ value }) => {
-  return value ? value.id : undefined
+  return value ? value.id : '-'
 }

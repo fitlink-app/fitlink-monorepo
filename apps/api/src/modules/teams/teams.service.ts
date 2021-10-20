@@ -106,7 +106,7 @@ export class TeamsService {
   }
 
   async findOneByCode(code: string) {
-    return await this.teamRepository.findOne(
+    return this.teamRepository.findOne(
       {
         join_code: code
       },
@@ -563,7 +563,7 @@ export class TeamsService {
   async getInviteLink(teamId: string) {
     const team = await this.teamRepository.findOne(teamId)
     return {
-      url: `${this.configService.get('SHORT_URL')}/join/${team.join_code}`
+      url: `${this.configService.get('SHORT_URL')}/join?code=${team.join_code}`
     }
   }
 

@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -25,6 +26,7 @@ import { ApiBaseResponses } from '../../decorators/swagger.decorator'
 import { RespondTeamsInvitationDto } from '../teams-invitations/dto/respond-teams-invitation.dto'
 import { TeamsInvitationsServiceError } from '../teams-invitations/teams-invitations.service'
 import { JoinTeamDto } from './dto/join-team.dto'
+import { Public } from '../../decorators/public.decorator'
 
 @Controller()
 @ApiTags('teams')
@@ -128,10 +130,15 @@ export class TeamsController {
     return this.teamsService.queryUserTeamStats(teamId, pagination)
   }
 
+  @Public()
   @Get('/teams/code/:code')
   @ApiResponse({ type: Team })
-  findTeamByCode(@Param('code') code: string) {
-    return this.teamsService.findOneByCode(code)
+  async findTeamByCode(@Param('code') code: string) {
+    const team = await this.teamsService.findOneByCode(code)
+    if (!team) {
+      throw new NotFoundException()
+    }
+    return team
   }
 
   // @Iam(Roles.TeamAdmin)

@@ -219,6 +219,7 @@ export type ReadResource =
   | '/teams/:teamId/leagues/:leagueId'
   | '/teams/:teamId/leagues/:leagueId/leaderboards/:leaderboardId'
   | '/teams/:teamId/invite-link'
+  | '/teams/code/:code'
   | '/activities/:activityId'
   | '/rewards/:rewardId'
   | '/leagues/:leagueId'

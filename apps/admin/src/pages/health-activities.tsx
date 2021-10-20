@@ -5,7 +5,7 @@ import TableContainer from '../components/Table/TableContainer'
 import { boolToIcon, toID, toJSON } from '../components/Table/helpers'
 import { AnimatePresence } from 'framer-motion'
 import Drawer from '../components/elements/Drawer'
-import EditUser from '../components/forms/EditUser'
+import HealthActivityDetailForm from '../components/forms/HealthActivityDetailForm'
 import { timeout } from '../helpers/timeout'
 import { HealthActivityDebug } from '@fitlink/api/src/modules/health-activities/entities/health-activity-debug.entity'
 
@@ -17,18 +17,10 @@ export default function HealthActivitiesDebug() {
   const [wide, setWide] = useState(true)
   const [refresh, setRefresh] = useState(0)
 
-  const closeDrawer = (ms = 0) => async () => {
-    if (ms) {
-      await timeout(ms)
-    }
-    setRefresh(Date.now())
-    setDrawContent(null)
-  }
-
   const ViewDetailForm = (fields) => {
     setWarning(true)
     setWide(false)
-    setDrawContent(<EditUser onSave={closeDrawer(1000)} current={fields} />)
+    setDrawContent(<HealthActivityDetailForm current={fields} />)
   }
 
   const cellActions = ({
@@ -49,7 +41,7 @@ export default function HealthActivitiesDebug() {
 
   const { api, fetchKey } = useContext(AuthContext)
   return (
-    <Dashboard title="Settings Users">
+    <Dashboard title="Health Activities Debug">
       <div className="flex ai-c jc-sb">
         <div className="flex ai-c">
           <h1 className="light mb-0 mr-2">Health Activities Debug</h1>

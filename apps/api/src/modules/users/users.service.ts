@@ -417,7 +417,8 @@ export class UsersService {
    */
   async mergeFcmTokens(userId: string, token: string) {
     const user = await this.userRepository.findOne(userId)
-    const fcm_tokens = [...new Set(user.fcm_tokens.concat([token]))]
+    const tokens = user.fcm_tokens || []
+    const fcm_tokens = [...new Set(tokens.concat([token]))]
     return this.userRepository.update(userId, {
       fcm_tokens,
       last_app_opened_at: new Date()
@@ -433,7 +434,7 @@ export class UsersService {
    */
   async removeFcmToken(userId: string, token: string) {
     const user = await this.userRepository.findOne(userId)
-    const fcm_tokens = user.fcm_tokens.filter((t) => t !== token)
+    const fcm_tokens = (user.fcm_tokens || []).filter((t) => t !== token)
     await this.userRepository.update(userId, {
       fcm_tokens
     })
