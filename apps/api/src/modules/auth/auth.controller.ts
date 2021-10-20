@@ -178,8 +178,6 @@ export class AuthController {
       authSwitchDto
     )
 
-    console.log(result)
-
     if (!result) {
       throw new ForbiddenException('You do not have access to this resource')
     }

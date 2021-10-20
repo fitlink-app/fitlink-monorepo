@@ -56,7 +56,7 @@ export function MenuOrganisationComplex(primary: Primary) {
       icon: 'IconMobile'
     },
     {
-      label: 'Help Center 🡕',
+      label: 'Help Center',
       link: 'https://support.fitlinkapp.com/en/',
       icon: 'IconInfo'
     },
@@ -134,7 +134,7 @@ export function MenuOrganisationSimple(primary: Primary) {
       icon: 'IconMobile'
     },
     {
-      label: 'Help Center 🡕',
+      label: 'Help Center',
       link: 'https://support.fitlinkapp.com/en/',
       icon: 'IconInfo'
     },

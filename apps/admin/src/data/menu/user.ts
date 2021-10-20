@@ -11,7 +11,7 @@ export default function MenuUser() {
       icon: 'IconMobile'
     },
     {
-      label: 'Help Center 🡕',
+      label: 'Help Center',
       link: 'https://support.fitlinkapp.com/en/collections/3158686-fitlink-app',
       icon: 'IconInfo'
     },

@@ -54,7 +54,7 @@ export default function MenuTeam(primary: Primary) {
       icon: 'IconMobile'
     },
     {
-      label: 'Help Center 🡕',
+      label: 'Help Center',
       link: 'https://support.fitlinkapp.com/en/',
       icon: 'IconInfo'
     },
