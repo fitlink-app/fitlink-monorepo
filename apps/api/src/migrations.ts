@@ -69,7 +69,6 @@ import { SportIconUrl1634290863881 } from '../database/migrations/1634290863881-
 import { AddGoalsNotifyDate1634470806764 } from '../database/migrations/1634470806764-AddGoalsNotifyDate'
 import { AddPushSuccessBoolean1634571990161 } from '../database/migrations/1634571990161-AddPushSuccessBoolean'
 import { AddGoalPercentage1634574422239 } from '../database/migrations/1634574422239-AddGoalPercentage'
-import { AddHealthActivityDebugger1634714191951 } from '../database/migrations/1634714191951-AddHealthActivityDebugger'
 
 export default [
   InitializeSchema1614887523112,
@@ -137,6 +136,5 @@ export default [
   SportIconUrl1634290863881,
   AddGoalsNotifyDate1634470806764,
   AddPushSuccessBoolean1634571990161,
-  AddGoalPercentage1634574422239,
-  AddHealthActivityDebugger1634714191951
+  AddGoalPercentage1634574422239
 ]

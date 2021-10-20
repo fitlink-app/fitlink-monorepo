@@ -32,17 +32,20 @@ export class HealthActivityDebug extends CreatableEntity {
   user: User
 
   @Column({
-    type: 'json'
+    type: 'json',
+    nullable: true
   })
   processed: NodeJS.Dict<any>
 
   @Column({
-    type: 'json'
+    type: 'json',
+    nullable: true
   })
   raw: NodeJS.Dict<any>
 
   @Column({
-    type: 'json'
+    type: 'json',
+    nullable: true
   })
   log: string[]
 }
