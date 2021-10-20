@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Query,
+  Res,
   Response
 } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
@@ -65,13 +66,13 @@ export class StravaControler {
     @Query('code') code: string,
     @Query('state') state: string,
     @Query('scope') scope: string,
-    @Response() res
+    @Res() res
   ) {
     try {
       await this.stravaService.saveStravaProvider(code, state, scope)
-      res.redirect('fitlink-app://provider/strava/auth-success')
+      res.status(302).redirect('fitlink-app://provider/strava/auth-success')
     } catch (e) {
-      res.redirect('fitlink-app://provider/strava/auth-fail')
+      res.status(302).redirect('fitlink-app://provider/strava/auth-fail')
     }
   }
 
