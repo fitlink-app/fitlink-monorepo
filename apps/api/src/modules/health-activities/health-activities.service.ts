@@ -89,8 +89,8 @@ export class HealthActivitiesService {
     if (userProviderErr || type === 'unknown') {
       await this.debug({
         userId,
+        raw,
         processed: activity,
-        raw: activity,
         log: userProviderErr
           ? [`User provider ${provider} not found`]
           : ['Sport not registered']
@@ -150,8 +150,8 @@ export class HealthActivitiesService {
     } else {
       await this.debug({
         userId,
+        raw,
         processed: activity,
-        raw: activity,
         log: isDuplicate
           ? [`Activity is duplicate`]
           : [`Sport ${type} not registered`]
@@ -349,6 +349,7 @@ export class HealthActivitiesService {
 
   async findAllDebugActivities({ limit, page }: PaginationQuery) {
     const [results, total] = await this.debugRepository.findAndCount({
+      relations: ['user'],
       take: limit,
       skip: page * limit,
       order: { created_at: 'DESC' }
