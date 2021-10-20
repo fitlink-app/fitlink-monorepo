@@ -12,6 +12,7 @@ import { FeedItemLike } from './modules/feed-items/entities/feed-item-like.entit
 import { Following } from './modules/followings/entities/following.entity'
 import { GoalsEntry } from './modules/goals-entries/entities/goals-entry.entity'
 import { HealthActivity } from './modules/health-activities/entities/health-activity.entity'
+import { HealthActivityDebug } from './modules/health-activities/entities/health-activity-debug.entity'
 import { Image } from './modules/images/entities/image.entity'
 import { Leaderboard } from './modules/leaderboards/entities/leaderboard.entity'
 import { LeaderboardEntry } from './modules/leaderboard-entries/entities/leaderboard-entry.entity'
@@ -94,6 +95,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
             FeedItem,
             FeedItemLike,
             HealthActivity,
+            HealthActivityDebug,
             GoalsEntry,
             Image,
             Leaderboard,

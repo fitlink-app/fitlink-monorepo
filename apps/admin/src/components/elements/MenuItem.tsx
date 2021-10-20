@@ -3,6 +3,7 @@ import clsx from 'clsx'
 
 export type MenuItemProps = {
   icon: React.ReactNode
+  endIcon?: React.ReactNode
   to: string
   label: string
   current?: boolean
@@ -11,6 +12,7 @@ export type MenuItemProps = {
 
 export default function MenuItem({
   icon,
+  endIcon,
   to,
   label,
   current = false,
@@ -27,6 +29,7 @@ export default function MenuItem({
       <a className={classes} onClick={onClick}>
         {icon}
         <span>{label}</span>
+        {endIcon}
       </a>
     )
   }
@@ -38,6 +41,7 @@ export default function MenuItem({
         target={to.indexOf('http') === 0 ? '_blank' : '_self'}>
         {icon}
         <span>{label}</span>
+        {endIcon}
       </a>
     </Link>
   )

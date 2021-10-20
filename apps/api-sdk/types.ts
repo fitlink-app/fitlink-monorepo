@@ -197,6 +197,7 @@ export type ListResource =
   | '/me/feed'
   | '/stats/health-activities'
   | '/stats'
+  | '/health-activities-debug'
 
 export type ReadResource =
   | '/organisations/:organisationId'

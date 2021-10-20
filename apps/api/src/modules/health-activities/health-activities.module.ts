@@ -8,10 +8,11 @@ import { ProvidersModule } from '../providers/providers.module'
 import { Sport } from '../sports/entities/sport.entity'
 import { ImagesModule } from '../images/images.module'
 import { CommonModule } from '../common/common.module'
+import { HealthActivityDebug } from './entities/health-activity-debug.entity'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([HealthActivity, Sport]),
+    TypeOrmModule.forFeature([HealthActivity, HealthActivityDebug, Sport]),
     forwardRef(() => ProvidersModule),
     ImagesModule,
     CommonModule

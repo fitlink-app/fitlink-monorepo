@@ -12,6 +12,7 @@ import fastifyMultipart from 'fastify-multipart'
 import { Activity } from '../../src/modules/activities/entities/activity.entity'
 import { AuthProvider } from '../../src/modules/auth/entities/auth-provider.entity'
 import { HealthActivity } from '../../src/modules/health-activities/entities/health-activity.entity'
+import { HealthActivityDebug } from '../../src/modules/health-activities/entities/health-activity-debug.entity'
 import { FeedItem } from '../../src/modules/feed-items/entities/feed-item.entity'
 import { FeedItemLike } from '../../src/modules/feed-items/entities/feed-item-like.entity'
 import { Following } from '../../src/modules/followings/entities/following.entity'
@@ -62,6 +63,7 @@ export const entities = [
   FeedItemLike,
   GoalsEntry,
   HealthActivity,
+  HealthActivityDebug,
   Image,
   Leaderboard,
   LeaderboardEntry,
