@@ -43,4 +43,10 @@ export class Sport extends CreatableEntity {
     nullable: true
   })
   image_url?: string
+
+  @Column({
+    default:
+      'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
+  })
+  icon_url: string
 }

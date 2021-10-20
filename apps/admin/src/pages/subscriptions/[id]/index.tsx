@@ -262,7 +262,7 @@ export default function SubscriptionsBillingPage() {
   }
 
   const { convertGbp } = useCurrencyConversion(
-    chargebeeSubscription.isFetched
+    chargebeeSubscription.isSuccess
       ? (chargebeeSubscription.data.customer
           .preferred_currency_code as Currency)
       : 'GBP'

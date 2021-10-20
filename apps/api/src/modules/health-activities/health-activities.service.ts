@@ -14,7 +14,7 @@ import { ShareableImageStat } from './health-activities.constants'
 import shareActivityTemplate from './health-activities.image-template'
 import * as nodeHtmlToImage from 'node-html-to-image'
 import { ImagesService } from '../images/images.service'
-import { Pagination } from '../../helpers/paginate'
+import { Pagination, PaginationQuery } from '../../helpers/paginate'
 import { healthActivityType } from './dto/healthActivityType'
 import { format, differenceInSeconds } from 'date-fns'
 import { zonedFormat } from '../../../../common/date/helpers'
@@ -23,12 +23,24 @@ import {
   getActivityDistance,
   getSpeedValue
 } from '../../../../common/metrics'
+import { HealthActivityDebug } from './entities/health-activity-debug.entity'
+import { User } from '../../modules/users/entities/user.entity'
+
+type DebugArguments = {
+  raw: NodeJS.Dict<any>
+  processed: CreateHealthActivityDto
+  userId: string
+  log: string[]
+}
 
 @Injectable()
 export class HealthActivitiesService {
   constructor(
     @InjectRepository(HealthActivity)
     private healthActivityRepository: Repository<HealthActivity>,
+
+    @InjectRepository(HealthActivityDebug)
+    private debugRepository: Repository<HealthActivityDebug>,
 
     @InjectRepository(Sport)
     private sportsRepository: Repository<Sport>,
@@ -37,7 +49,23 @@ export class HealthActivitiesService {
     private imagesService: ImagesService
   ) {}
 
-  async create(activity: CreateHealthActivityDto, userId: string) {
+  async debug({ raw, processed, userId, log }: DebugArguments) {
+    const user = new User()
+    user.id = userId
+
+    return this.debugRepository.save({
+      raw: raw,
+      processed: processed,
+      user: user,
+      log: log
+    })
+  }
+
+  async create(
+    activity: CreateHealthActivityDto,
+    userId: string,
+    raw: NodeJS.Dict<any>
+  ) {
     const {
       end_time,
       start_time,
@@ -59,6 +87,14 @@ export class HealthActivitiesService {
     type === 'unknown' && console.error('Sport not registered')
 
     if (userProviderErr || type === 'unknown') {
+      await this.debug({
+        userId,
+        raw,
+        processed: activity,
+        log: userProviderErr
+          ? [`User provider ${provider} not found`]
+          : ['Sport not registered']
+      })
       return { healthActivity: null }
     }
 
@@ -71,7 +107,8 @@ export class HealthActivitiesService {
     const isDuplicate = await this.isActivityOverlapping(
       start_time,
       end_time,
-      userId
+      userId,
+      sport
     )
     isDuplicate && console.error('Activity is overlapping')
 
@@ -111,6 +148,14 @@ export class HealthActivitiesService {
       )
       return newHealthActivity as HealthActivity
     } else {
+      await this.debug({
+        userId,
+        raw,
+        processed: activity,
+        log: isDuplicate
+          ? [`Activity is duplicate`]
+          : [`Sport ${type} not registered`]
+      })
       return { healthActivity: null }
     }
   }
@@ -122,14 +167,18 @@ export class HealthActivitiesService {
   async isActivityOverlapping(
     startTime: string,
     endTime: string,
-    userId: string
+    userId: string,
+    sport?: Sport
   ) {
     const [userActivities, error] = await tryAndCatch(
       this.healthActivityRepository.findOne({
         where: {
           user: { id: userId },
           start_time: LessThanOrEqual(new Date(endTime)),
-          end_time: MoreThanOrEqual(new Date(startTime))
+          end_time: MoreThanOrEqual(new Date(startTime)),
+          sport: {
+            id: sport ? sport.id : undefined
+          }
         }
       })
     )
@@ -206,7 +255,7 @@ export class HealthActivitiesService {
     return `${time} ${singular}`
   }
 
-  async createShareableImage(healthActivityId: string, imageId: string) {
+  async createShareableImage(healthActivityId: string, imageId?: string) {
     const healthActivity = await this.healthActivityRepository.findOne(
       healthActivityId,
       {
@@ -296,5 +345,19 @@ export class HealthActivitiesService {
     })
 
     return stats
+  }
+
+  async findAllDebugActivities({ limit, page }: PaginationQuery) {
+    const [results, total] = await this.debugRepository.findAndCount({
+      relations: ['user'],
+      take: limit,
+      skip: page * limit,
+      order: { created_at: 'DESC' }
+    })
+
+    return new Pagination({
+      results: results,
+      total
+    })
   }
 }

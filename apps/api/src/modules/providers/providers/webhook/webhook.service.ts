@@ -4,7 +4,7 @@ import { HealthActivityDto } from '../../../health-activities/dto/create-health-
 import { healthActivityType } from '../../../health-activities/dto/healthActivityType'
 import { HealthActivitiesService } from '../../../health-activities/health-activities.service'
 import { ProvidersService } from '../../providers.service'
-import { WebhookEventActivity, WebhookEventData } from '../../types/webhook'
+import { WebhookEventActivity, WebhookEventPayload } from '../../types/webhook'
 
 @Injectable()
 export class WebhookService {
@@ -14,13 +14,20 @@ export class WebhookService {
     private healthActivityService: HealthActivitiesService
   ) {}
 
-  async processWebhookData(webhookEventData: WebhookEventData, userId: string) {
-    const normalized = webhookEventData.activities.map((e) =>
-      this.createNormalizedHealthActivity(e)
-    )
+  async processWebhookData(
+    webhookEventData: WebhookEventPayload,
+    userId: string
+  ) {
+    const normalized = webhookEventData.activities.map((e) => {
+      return { normalized: this.createNormalizedHealthActivity(e), raw: e }
+    })
     return Promise.all(
       normalized.map((activity) => {
-        return this.healthActivityService.create(activity, userId)
+        return this.healthActivityService.create(
+          activity.normalized,
+          userId,
+          activity.raw
+        )
       })
     )
   }

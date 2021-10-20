@@ -11,12 +11,14 @@ import {
   IntercomProps
 } from 'react-use-intercom'
 import { useRouter } from 'next/router'
+import Head from 'next/head'
 
 const queryClient = new QueryClient()
 
 function Fitlink(appProps: AppProps) {
   return (
     <ErrorBoundary>
+      <GoogleAnalytics />
       <IntercomProvider appId="jhnnkwbj">
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
@@ -37,7 +39,9 @@ function App({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     if (router.isReady) {
-      boot()
+      boot({
+        alignment: 'left'
+      })
     }
   }, [router.isReady])
 
@@ -66,11 +70,31 @@ function App({ Component, pageProps }: AppProps) {
         }
 
         update(args)
-        console.log(args)
       }
     }
   }, [router.isReady, user, team])
   return <Component {...pageProps} />
+}
+
+function GoogleAnalytics() {
+  return (
+    <Head>
+      <script
+        async
+        src="https://www.googletagmanager.com/gtag/js?id=G-BS42866BH1"></script>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+          <!-- Global site tag (gtag.js) - Google Analytics -->
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-BS42866BH1');
+        `
+        }}
+      />
+    </Head>
+  )
 }
 
 export default Fitlink

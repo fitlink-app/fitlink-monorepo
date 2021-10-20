@@ -20,11 +20,6 @@ export function MenuOrganisationComplex(primary: Primary) {
       ]
     },
     {
-      label: 'Stats',
-      link: '/stats',
-      icon: 'IconGraph'
-    },
-    {
       label: 'Teams',
       link: '/teams',
       icon: 'IconFriends'
@@ -51,9 +46,14 @@ export function MenuOrganisationComplex(primary: Primary) {
       icon: 'IconCreditCard'
     },
     {
-      label: 'Knowledge Base',
-      link: '/knowledge-base',
-      icon: 'IconYoga'
+      label: 'App Store',
+      link: '/app-store',
+      icon: 'IconMobile'
+    },
+    {
+      label: 'Help Center',
+      link: 'https://support.fitlinkapp.com/en/',
+      icon: 'IconInfo'
     },
     { hr: true },
     {
@@ -81,11 +81,6 @@ export function MenuOrganisationSimple(primary: Primary) {
           link: '/admins/team'
         }
       ]
-    },
-    {
-      label: 'Stats',
-      link: '/stats',
-      icon: 'IconGraph'
     },
     {
       label: 'Rewards',
@@ -124,9 +119,14 @@ export function MenuOrganisationSimple(primary: Primary) {
       icon: 'IconCreditCard'
     },
     {
-      label: 'Knowledge Base',
-      link: '/knowledge-base',
-      icon: 'IconYoga'
+      label: 'App Store',
+      link: '/app-store',
+      icon: 'IconMobile'
+    },
+    {
+      label: 'Help Center',
+      link: 'https://support.fitlinkapp.com/en/',
+      icon: 'IconInfo'
     },
     { hr: true },
     {

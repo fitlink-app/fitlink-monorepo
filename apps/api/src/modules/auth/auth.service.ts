@@ -11,7 +11,10 @@ import { plainToClass } from 'class-transformer'
 import { Connection, Repository } from 'typeorm'
 import { AuthenticatedUser, JWTRoles } from '../../models'
 import { CreateUserDto } from '../users/dto/create-user.dto'
-import { CreateUserWithOrganisationDto } from '../users/dto/create-user-with-organisation.dto'
+import {
+  CreateOrganisationAsUserDto,
+  CreateUserWithOrganisationDto
+} from '../users/dto/create-user-with-organisation.dto'
 import { User } from '../users/entities/user.entity'
 import { UsersService } from '../users/users.service'
 import { AuthResultDto } from './dto/auth-result'
@@ -38,7 +41,7 @@ type PasswordResetToken = {
 export enum AuthServiceError {
   Provider = 'The provider is not valid',
   Email = 'An email is required',
-  Exists = 'A user with this email already exists'
+  Exists = 'A user with this email already exists. Please log in instead.'
 }
 
 @Injectable()
@@ -226,6 +229,52 @@ export class AuthService {
     } else {
       return AuthServiceError.Exists
     }
+  }
+
+  /**
+   * Signs up a user and creates organisation, and immediately
+   * creates tokens
+   *
+   * TODO: This should fail gracefully if a user already exists
+   * (it will fail already with a 500 error due to unique email column)
+   *
+   * @param user
+   * @returns object containing 3 tokens and user object
+   */
+  async signupNewOrganisation(
+    {
+      name,
+      agree_to_terms,
+      subscribe,
+      company,
+      type,
+      type_other,
+      date
+    }: CreateOrganisationAsUserDto,
+    userId: string
+  ) {
+    const user = await this.usersService.findOne(userId)
+
+    // Send a welcome email
+    await this.emailService.sendTemplatedEmail('welcome-email-admin', {}, [
+      user.email
+    ])
+
+    // Create the organisation
+    // Also creates the default subscription and team
+    // Also assigns the owner as an admin
+    const organisation = await this.organisationsService.signup(
+      {
+        name: company,
+        type,
+        type_other,
+        timezone: '',
+        mode: OrganisationMode.Simple
+      },
+      user.id
+    )
+
+    return organisation
   }
 
   /**
@@ -507,7 +556,7 @@ export class AuthService {
    * @param param0
    * @returns
    */
-  async connectWithAuthProvider({ provider, token }: AuthConnectDto) {
+  async connectWithAuthProvider({ provider, token, signup }: AuthConnectDto) {
     let result: Partial<AuthProvider>
     switch (provider) {
       case AuthProviderType.Google:
@@ -531,6 +580,9 @@ export class AuthService {
 
       // Associates the existing user with the new provider
       if (user) {
+        if (signup) {
+          return { error: AuthServiceError.Exists }
+        }
         return {
           result: await this.associateWithProvider(user, result)
         }
@@ -538,6 +590,9 @@ export class AuthService {
     }
 
     if (user) {
+      if (signup) {
+        return { error: AuthServiceError.Exists }
+      }
       // Conditionally update the avatar
       const image = await this.usersService.updateAvatarFromProvider(
         user.id,
@@ -672,7 +727,7 @@ export class AuthService {
     }
 
     // Restore the user's original roles / session
-    if (!role) {
+    if (!role || role === Roles.Self) {
       return this.login(user)
     }
 

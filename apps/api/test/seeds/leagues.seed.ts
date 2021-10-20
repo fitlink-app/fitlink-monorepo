@@ -228,3 +228,49 @@ export function OrganisationAssignedLeagueTeardown(
 
   return runSeeder(Teardown)
 }
+
+export function LeagueWithEntriesAndWinningUsers(
+  name: string,
+  users?: User[],
+  count?: number
+): Promise<League[]> {
+  class Setup implements Seeder {
+    public async run(factory: Factory, connection: Connection): Promise<any> {
+      /**
+       * This seeded data lives only to be tested on die and then be reborn.
+       */
+      const leagues = await factory(League)().createMany(count || 1, {
+        name
+      })
+      const leaderboards = await Promise.all(
+        leagues.map((league) => {
+          return factory(Leaderboard)({ league }).createMany(5)
+        })
+      )
+
+      const sport = await connection
+        .getRepository(Sport)
+        .findOne({ where: { name_key: 'cycling' } })
+
+      await Promise.all(
+        leagues.map(async (league, index: number) => {
+          league.leaderboards = leaderboards[index]
+          league.active_leaderboard = leaderboards[index][index]
+          league.users = users
+          league.sport = sport
+          await Promise.all(
+            users.map((user) => {
+              return factory(LeaderboardEntry)({
+                user,
+                leaderboard: league.active_leaderboard
+              }).create({ points: 8300 })
+            })
+          )
+          return connection.getRepository(League).save(league)
+        })
+      )
+      return leagues
+    }
+  }
+  return runSeeder(Setup)
+}

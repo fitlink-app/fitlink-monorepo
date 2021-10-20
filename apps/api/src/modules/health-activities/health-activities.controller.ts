@@ -10,27 +10,28 @@ import {
   Put,
   Response
 } from '@nestjs/common'
-import { ApiExcludeEndpoint } from '@nestjs/swagger'
 import {
   ShareHealthActivityImageDto,
   UpdateHealthActivityImagesDto
 } from './dto/update-health-activity-images.dto'
-import { UpdateHealthActivityDto } from './dto/update-health-activity.dto'
 import { HealthActivitiesService } from './health-activities.service'
 import { AuthenticatedUser } from '../../models'
 import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
-import { plainToClass } from 'class-transformer'
-import { UserPublic } from '../users/entities/user.entity'
 import { ApiBaseResponses } from '../../decorators/swagger.decorator'
 import { ImagesService } from '../images/images.service'
 import * as http from 'http'
+import { CommonService } from '../common/services/common.service'
+import { Pagination } from '../../decorators/pagination.decorator'
+import { PaginationQuery } from '../../helpers/paginate'
+import { Iam } from '../../decorators/iam.decorator'
+import { Roles } from '../user-roles/user-roles.constants'
 
 @ApiBaseResponses()
 @Controller()
 export class HealthActivitiesController {
   constructor(
     private readonly healthActivitiesService: HealthActivitiesService,
-    private readonly imagesService: ImagesService
+    private readonly commonService: CommonService
   ) {}
 
   @Get('/me/health-activities')
@@ -79,23 +80,25 @@ export class HealthActivitiesController {
       'images',
       'sport'
     ])
+
+    if (!healthActivity) {
+      throw new NotFoundException()
+    }
     return {
       ...healthActivity,
-      user: plainToClass(UserPublic, healthActivity.user, {
-        excludeExtraneousValues: true
-      })
+      user: this.commonService.getUserPublic(healthActivity.user)
     }
   }
 
   @Post('/me/health-activities/:activityId/share')
   async generateImageShare(
     @Param('activityId') id: string,
-    @Body() { imageId }: ShareHealthActivityImageDto,
+    @Body() requestBody: ShareHealthActivityImageDto,
     @AuthUser() user: AuthenticatedUser,
     @Response() reply: { raw: http.ServerResponse }
   ) {
     const healthActivity = await this.healthActivitiesService.findOne(id)
-    const image = await this.imagesService.findOne(imageId)
+    const body = requestBody || {}
 
     if (healthActivity.user.id !== user.id) {
       throw new ForbiddenException()
@@ -103,10 +106,16 @@ export class HealthActivitiesController {
 
     const generatedImage = await this.healthActivitiesService.createShareableImage(
       id,
-      imageId
+      body.imageId
     )
 
     reply.raw.writeHead(200, { 'Content-Type': 'image/jpeg' })
     reply.raw.end(generatedImage, 'binary')
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Get('/health-activities-debug')
+  async findAllDebugActivities(@Pagination() pagination: PaginationQuery) {
+    return this.healthActivitiesService.findAllDebugActivities(pagination)
   }
 }

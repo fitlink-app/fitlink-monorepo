@@ -13,11 +13,6 @@ export default function MenuTeam(primary: Primary) {
       icon: 'IconFriends'
     },
     {
-      label: 'Stats',
-      link: '/stats',
-      icon: 'IconGraph'
-    },
-    {
       label: 'Rewards',
       link: '/rewards',
       icon: 'IconRewards'
@@ -49,9 +44,14 @@ export default function MenuTeam(primary: Primary) {
       ]
     },
     {
-      label: 'Knowledge Base',
-      link: '/knowledge-base',
-      icon: 'IconYoga'
+      label: 'App Store',
+      link: '/app-store',
+      icon: 'IconMobile'
+    },
+    {
+      label: 'Help Center',
+      link: 'https://support.fitlinkapp.com/en/',
+      icon: 'IconInfo'
     },
     { hr: true },
     {

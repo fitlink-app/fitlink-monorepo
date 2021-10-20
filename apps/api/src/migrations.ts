@@ -63,6 +63,13 @@ import { AddNotifications1633364006103 } from '../database/migrations/1633364006
 import { AddHealthActivityTitle1633862053877 } from '../database/migrations/1633862053877-AddHealthActivityTitle'
 import { AddSportsPace1633869946687 } from '../database/migrations/1633869946687-AddSportsPace'
 import { AddImageUrlSport1633944959171 } from '../database/migrations/1633944959171-AddImageUrlSport'
+import { AddUserMobileOS1634031981765 } from '../database/migrations/1634031981765-AddUserMobileOS'
+import { AddIconSvgToSport1634129894631 } from '../database/migrations/1634129894631-AddIconSvgToSport'
+import { SportIconUrl1634290863881 } from '../database/migrations/1634290863881-SportIconUrl'
+import { AddGoalsNotifyDate1634470806764 } from '../database/migrations/1634470806764-AddGoalsNotifyDate'
+import { AddPushSuccessBoolean1634571990161 } from '../database/migrations/1634571990161-AddPushSuccessBoolean'
+import { AddGoalPercentage1634574422239 } from '../database/migrations/1634574422239-AddGoalPercentage'
+import { AddHealthActivityDebug1634725916904 } from '../database/migrations/1634725916904-AddHealthActivityDebug'
 
 export default [
   InitializeSchema1614887523112,
@@ -124,5 +131,12 @@ export default [
   AddNotifications1633364006103,
   AddHealthActivityTitle1633862053877,
   AddSportsPace1633869946687,
-  AddImageUrlSport1633944959171
+  AddImageUrlSport1633944959171,
+  AddUserMobileOS1634031981765,
+  AddIconSvgToSport1634129894631,
+  SportIconUrl1634290863881,
+  AddGoalsNotifyDate1634470806764,
+  AddPushSuccessBoolean1634571990161,
+  AddGoalPercentage1634574422239,
+  AddHealthActivityDebug1634725916904
 ]

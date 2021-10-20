@@ -123,7 +123,7 @@ export class PagesService {
         enabled: page.enabled,
         logo: page.logo.url,
         logo_id: page.logo.id,
-        join_link: `${this.configService.get('SHORT_URL')}/join/${
+        join_link: `${this.configService.get('SHORT_URL')}/join?code=${
           page.team.join_code
         }`
       } as CreatePageDto
@@ -152,7 +152,7 @@ export class PagesService {
         enabled: page.enabled,
         logo: page.logo.url,
         logo_id: page.logo.id,
-        join_link: `${this.configService.get('SHORT_URL')}/join/${
+        join_link: `${this.configService.get('SHORT_URL')}/join?code=${
           page.team.join_code
         }`
       } as CreatePageDto

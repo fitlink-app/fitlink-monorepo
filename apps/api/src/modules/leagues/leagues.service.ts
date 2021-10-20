@@ -1,19 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { HttpService, Injectable, NotFoundException } from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
   Brackets,
   FindOneOptions,
   getManager,
-  In,
   LessThan,
+  Not,
   Repository
 } from 'typeorm'
-import {
-  Pagination,
-  PaginationOptionsInterface,
-  PaginationQuery
-} from '../../helpers/paginate'
+import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { QueueableEventPayload } from '../../models/queueable.model'
 import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
 import { Sport } from '../sports/entities/sport.entity'
@@ -29,10 +25,15 @@ import { FeedItem } from '../feed-items/entities/feed-item.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
 import { plainToClass } from 'class-transformer'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
-import { addDays, formatISO } from 'date-fns'
+import { addDays, addHours } from 'date-fns'
 import { CommonService } from '../common/services/common.service'
 import { LeagueJoinedEvent } from './events/league-joined.event'
+import { LeagueWonEvent } from './events/league-won.event'
 import { Events } from '../../events'
+import { ConfigService } from '@nestjs/config'
+import { differenceInMilliseconds } from 'date-fns'
+import { NotificationsService } from '../notifications/notifications.service'
+import { NotificationAction } from '../notifications/notifications.constants'
 
 type LeagueOptions = {
   teamId?: string
@@ -63,7 +64,10 @@ export class LeaguesService {
 
     private leaderboardEntriesService: LeaderboardEntriesService,
     private commonService: CommonService,
-    private eventEmitter: EventEmitter2
+    private eventEmitter: EventEmitter2,
+    private configService: ConfigService,
+    private httpService: HttpService,
+    private notificationsService: NotificationsService
   ) {}
 
   async create(
@@ -550,11 +554,13 @@ export class LeaguesService {
     const { imageId, sportId, ...rest } = updateLeagueDto
     const update: Partial<League> = { ...rest }
 
-    if (sportId) {
-      // Assign the sport
-      update.sport = new Sport()
-      update.sport.id = sportId
-    }
+    // Sport should not be re-assignable
+    // The value is ignored
+    // if (sportId) {
+    //   // Assign the sport
+    //   update.sport = new Sport()
+    //   update.sport.id = sportId
+    // }
 
     // Only the image is allowed to change
     if (imageId) {
@@ -754,7 +760,7 @@ export class LeaguesService {
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<UserPublic>({
-      results: results.map((user) => this.commonService.getUserPublic(user)),
+      results: this.commonService.mapUserPublic(results),
       total
     })
   }
@@ -808,9 +814,7 @@ export class LeaguesService {
       return {
         ...rankEntry,
         rank: entry.rank,
-        user: plainToClass(UserPublic, rankEntry.user, {
-          excludeExtraneousValues: true
-        })
+        user: this.commonService.getUserPublic(rankEntry.user as User)
       }
     })
 
@@ -875,18 +879,219 @@ export class LeaguesService {
     }
   }
 
-  /**
-   * Example method for testing serverless methods.
-   */
-  async processPendingLeagues() {
-    const leagues = await this.leaguesRepository.find({
-      where: {
-        ends_at: LessThan(new Date())
-      },
-      take: 10
+  // calculate the winners of the league
+  async calculateLeagueWinners(leagueId: string) {
+    const league = await this.leaguesRepository.findOne(leagueId, {
+      relations: ['active_leaderboard', 'users']
+    })
+    const entries = (
+      await this.leaderboardEntriesService
+        .queryLeaderboardRank(league.active_leaderboard.id)
+        .getRawMany()
+    ).map((entry) => {
+      entry.user = new User()
+      entry.user.id = entry.userId
+      return entry as LeaderboardEntry
     })
 
-    console.log(leagues.map((e) => e.name))
-    return leagues
+    const winners = entries.filter((entry) => entry.rank === '1')
+    return { winners }
+  }
+
+  async emitWinnerFeedItems(leagueId: string, winners: LeaderboardEntry[]) {
+    if (winners.length > 0) {
+      await Promise.all(
+        winners.map((w) => {
+          const event = new LeagueWonEvent()
+          event.leagueId = leagueId
+          event.userId = w.user_id
+          return this.eventEmitter.emitAsync('league.won', event)
+        })
+      )
+    }
+  }
+
+  async resetLeague(league: League) {
+    // If the league repeats, create a new leaderboard
+    // and copy the users to it along with their wins
+    if (league.repeat && league.active_leaderboard) {
+      const { winners } = await this.calculateLeagueWinners(league.id)
+      const leaderboard = await this.leaderboardRepository.save(
+        this.leaderboardRepository.create({
+          league: league
+        })
+      )
+
+      await this.leaguesRepository.manager.transaction(async (manager) => {
+        const repo = manager.getRepository(LeaderboardEntry)
+        const leagueRepo = manager.getRepository(League)
+        const leaderboardRepo = manager.getRepository(Leaderboard)
+        await Promise.all(
+          league.users.map((leagueUser) => {
+            const winner = winners.filter((e) => leagueUser.id === e.user.id)[0]
+            return repo.save(
+              repo.create({
+                leaderboard,
+                leaderboard_id: leaderboard.id,
+                league_id: league.id,
+                user_id: leagueUser.id,
+                wins: winner ? winner.wins + 1 : 0
+              })
+            )
+          })
+        )
+
+        await leaderboardRepo.update(league.active_leaderboard.id, {
+          completed: true
+        })
+
+        await leagueRepo.update(league.id, {
+          active_leaderboard: leaderboard,
+          ends_at: addDays(new Date(), league.duration)
+        })
+      })
+
+      await this.emitWinnerFeedItems(league.id, winners)
+      return {
+        name: league.name,
+        winners: winners.length,
+        users: league.users.length,
+        restarted: true
+      }
+    } else if (league.active_leaderboard) {
+      const { winners } = await this.calculateLeagueWinners(league.id)
+
+      await this.leaguesRepository.manager.transaction(async (manager) => {
+        const repo = manager.getRepository(LeaderboardEntry)
+        const leagueRepo = manager.getRepository(League)
+        const leaderboardRepo = manager.getRepository(Leaderboard)
+        await Promise.all(
+          winners.map((winner) => {
+            return repo.save({
+              ...winner,
+              wins: winner.wins + 1
+            })
+          })
+        )
+
+        await leaderboardRepo.update(league.active_leaderboard.id, {
+          completed: true
+        })
+
+        await leagueRepo.update(league.id, {
+          active_leaderboard: null
+        })
+      })
+
+      await this.emitWinnerFeedItems(league.id, winners)
+      return {
+        name: league.name,
+        winners: winners.length,
+        users: league.users.length,
+        restarted: false
+      }
+    }
+
+    return false
+  }
+
+  /**
+   * Process leagues that are due to be ended / restarted
+   */
+  async processPendingLeagues() {
+    const started = new Date()
+    const leagues = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .innerJoinAndSelect('league.active_leaderboard', 'active_leaderboard')
+      .leftJoinAndSelect('league.users', 'users')
+      .where('league.ends_at <= :date', { date: new Date() })
+      .andWhere('active_leaderboard.completed = false')
+      .limit(100)
+      .getMany()
+
+    const results = await Promise.all(
+      leagues.map((league) => this.resetLeague(league))
+    )
+    const totalLeagues = results.map((e) => e !== false).length
+    const leaguesRestarted = results.map((e) => e && e.restarted).length
+    const leaguesEnded = results.map((e) => e && !e.restarted).length
+    const result = {
+      leagues_processed: totalLeagues,
+      leagues_restarted: leaguesRestarted
+    }
+
+    await this.commonService.notifySlackJobs(
+      'Leagues ended / restarted',
+      {
+        restarted: {
+          total: leaguesRestarted,
+          leagues: results.filter((e) => e && e.restarted)
+        },
+        ended: {
+          total: leaguesEnded,
+          leagues: results.filter((e) => e && !e.restarted)
+        }
+      },
+      differenceInMilliseconds(new Date(), started)
+    )
+
+    return result
+  }
+
+  /**
+   * Within a one hour window period, check when leagues are
+   * ending.
+   */
+  async processLeaguesEnding() {
+    const started = new Date()
+    const leagues = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .innerJoinAndSelect('league.active_leaderboard', 'active_leaderboard')
+      .leftJoinAndSelect('league.users', 'users')
+      .where(
+        'league.ends_at >= :hoursFromNow23 AND league.ends_at <= :endDate',
+        {
+          hoursFromNow23: addHours(new Date(), 23),
+          endDate: addHours(new Date(), 24)
+        }
+      )
+      .andWhere('active_leaderboard.completed = false')
+      .limit(100)
+      .getMany()
+
+    const messages = await Promise.all(
+      leagues.map(async (league) => {
+        return this.notificationsService.sendAction(
+          league.users,
+          NotificationAction.LeagueEnding,
+          {
+            subject: league.name
+          },
+          {
+            leagueId: league.id
+          }
+        )
+      })
+    )
+
+    await this.commonService.notifySlackJobs(
+      'Leagues ending reminder',
+      {
+        messages,
+        reminded: {
+          total: leagues.length,
+          leagues: leagues.map((each) => ({
+            name: each.name,
+            users: each.users.length
+          }))
+        }
+      },
+      differenceInMilliseconds(new Date(), started)
+    )
+
+    return {
+      total: leagues.length,
+      messages
+    }
   }
 }

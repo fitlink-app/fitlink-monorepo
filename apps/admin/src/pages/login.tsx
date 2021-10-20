@@ -28,6 +28,7 @@ const LoginPage = () => {
 
   const { user, login, signup, primary } = useContext(AuthContext)
   const [redeemToken, setRedeemToken] = useState('')
+  const [connectError, setConnectError] = useState('')
 
   const { handleSubmit, register, control, watch } = useForm({
     defaultValues: {
@@ -202,12 +203,22 @@ const LoginPage = () => {
 
       <div className="text-center">
         <div className="or">Or</div>
+
+        {connectError ? (
+          <Feedback className="mb-2" message={connectError} type="error" />
+        ) : null}
         <div className="row">
           <div className="col">
-            <AppleLogin signup={!!router.query.signup} />
+            <AppleLogin
+              signup={!!router.query.signup}
+              onError={setConnectError}
+            />
           </div>
           <div className="col">
-            <GoogleLogin signup={!!router.query.signup} />
+            <GoogleLogin
+              signup={!!router.query.signup}
+              onError={setConnectError}
+            />
           </div>
         </div>
 
@@ -238,17 +249,20 @@ const LoginPage = () => {
   )
 }
 
-function GoogleLogin({ signup = false }) {
+function GoogleLogin({ signup = false, onError }) {
   const { connect } = useContext(AuthContext)
+  const router = useRouter()
   const {
     mutate,
     isError,
+    isSuccess,
     error,
     data
   }: ApiMutationResult<AuthSignupDto> = useMutation((token: string) =>
     connect({
       provider: AuthProviderType.Google,
-      token: token
+      token: token,
+      signup
     })
   )
 
@@ -263,6 +277,18 @@ function GoogleLogin({ signup = false }) {
     }
   }, [])
 
+  useEffect(() => {
+    if (isSuccess) {
+      router.push('/start')
+    }
+  }, [isSuccess])
+
+  useEffect(() => {
+    if (isError) {
+      onError(error.response.data.message)
+    }
+  }, [isError])
+
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 
   // Gracefully fail and show message
@@ -274,8 +300,15 @@ function GoogleLogin({ signup = false }) {
 
   async function signIn() {
     const auth2 = (window as any).gapi.auth2.getAuthInstance()
-    const user = await auth2.signIn()
-    mutate(user.getAuthResponse().id_token)
+    try {
+      const user = await auth2.signIn()
+      mutate(user.getAuthResponse().id_token)
+    } catch (e) {
+      console.error(e)
+      onError(
+        'Unable to login with Google. Please note this login method is not supported in Incognito mode.'
+      )
+    }
   }
 
   return (
@@ -287,34 +320,32 @@ function GoogleLogin({ signup = false }) {
           content={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}
         />
         <script
-          src="https://apis.google.com/js/platform.js?onload=onLoad"
+          src="https://apis.google.com/js/platform.js?onload=onLoad&amp;v=fitlink"
           async
           defer></script>
       </Head>
-      {isError ? JSON.stringify(error.response.data.message) : ''}
-      {data ? (
-        JSON.stringify(data.me)
-      ) : (
-        <button className="button alt block" onClick={signIn}>
-          <IconGoogle className="mr-1" />
-          {signup ? 'Signup' : 'Login'} with Google
-        </button>
-      )}
+      <button className="button alt block" onClick={signIn}>
+        <IconGoogle className="mr-1" />
+        {signup ? 'Signup' : 'Login'} with Google
+      </button>
     </>
   )
 }
 
-function AppleLogin({ signup = false }) {
+function AppleLogin({ signup = false, onError }) {
   const { connect } = useContext(AuthContext)
+  const router = useRouter()
   const {
     mutate,
     isError,
+    isSuccess,
     error,
     data
   }: ApiMutationResult<AuthSignupDto> = useMutation((token: string) =>
     connect({
       provider: AuthProviderType.Apple,
-      token: token
+      token: token,
+      signup
     })
   )
 
@@ -334,9 +365,25 @@ function AppleLogin({ signup = false }) {
     }
   }, [])
 
+  useEffect(() => {
+    if (isSuccess) {
+      router.push('/start')
+    }
+  }, [isSuccess])
+
+  useEffect(() => {
+    if (isError) {
+      onError(error.response.data.message)
+    }
+  }, [isError])
+
   async function signIn() {
-    const data = await (window as any).AppleID.auth.signIn()
-    mutate(data.authorization.code)
+    try {
+      const data = await (window as any).AppleID.auth.signIn()
+      mutate(data.authorization.code)
+    } catch (e) {
+      onError('Apple login not currently available.')
+    }
   }
 
   const appleClientId = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID
@@ -355,15 +402,10 @@ function AppleLogin({ signup = false }) {
           type="text/javascript"
           src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
       </Head>
-      {isError ? JSON.stringify(error.response.data.message) : ''}
-      {data ? (
-        JSON.stringify(data.me)
-      ) : (
-        <button className="button alt block mb-1" onClick={signIn}>
-          <IconApple className="mr-1" />
-          {signup ? 'Signup' : 'Login'} with Apple
-        </button>
-      )}
+      <button className="button alt block mb-1" onClick={signIn}>
+        <IconApple className="mr-1" />
+        {signup ? 'Signup' : 'Login'} with Apple
+      </button>
     </>
   )
 }

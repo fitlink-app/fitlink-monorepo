@@ -46,6 +46,10 @@ export class UpdateUserDto {
 
   @ApiProperty()
   @IsOptional()
+  mobile_os?: string
+
+  @ApiProperty()
+  @IsOptional()
   @IsNumber()
   goal_mindfulness_minutes?: number
 

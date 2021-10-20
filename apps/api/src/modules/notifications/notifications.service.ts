@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { In, Repository } from 'typeorm'
 import { Pagination, PaginationQuery } from '../../helpers/paginate'
@@ -25,7 +29,8 @@ export class NotificationsService {
     [NotificationAction.RankDown]: `👎 Ouch! Your rank dropped to {subject}. You can do it.`,
     [NotificationAction.GoalProgressSteps]: `👣 So close to reaching your steps goal. Just a brisk walk should do it.`,
     [NotificationAction.ActivityLiked]: `❤️ {subject} just liked your {meta_value}. Check it out.`,
-    [NotificationAction.RewardUnlocked]: `🎁 You just unlocked a new reward {subject}. Check it out.`
+    [NotificationAction.RewardUnlocked]: `🎁 You just unlocked a new reward {subject}. Check it out.`,
+    [NotificationAction.MondayReminder]: `🚀 It's a new week, and you've got goals. Let's go!`
   }
 
   titles = {
@@ -39,7 +44,8 @@ export class NotificationsService {
     [NotificationAction.RankDown]: `Rank updated`,
     [NotificationAction.GoalProgressSteps]: `Steps progress`,
     [NotificationAction.ActivityLiked]: `You've got love`,
-    [NotificationAction.RewardUnlocked]: `Reward unlocked`
+    [NotificationAction.RewardUnlocked]: `Reward unlocked`,
+    [NotificationAction.MondayReminder]: `It's a new week`
   }
 
   constructor(
@@ -82,9 +88,101 @@ export class NotificationsService {
     const payload = this.formatPayload(notify)
     const tokens = notification.user.fcm_tokens
     if (payload && tokens && tokens.length > 0) {
-      await this.sendNotificationByFCMTokenArray(payload, tokens)
+      const response = await this.sendNotificationByFCMTokenArray(
+        payload,
+        tokens
+      )
+      await this.cleanTokens([notification.user], response)
+      await this.notificationsRepository.update(notify.id, {
+        push_succeeded: response.successCount > 0
+      })
     }
     return notify
+  }
+
+  async sendAction(
+    users: User[],
+    action: NotificationAction,
+    replace: {
+      subject?: string
+      meta_value?: string
+    } = {},
+    data: NodeJS.Dict<any> = {}
+  ): Promise<{
+    failureCount: number
+    successCount: number
+    usersTokensUpdated: number
+  }> {
+    let tokens: string[] = []
+    users.forEach((user) => {
+      tokens = tokens.concat(user.fcm_tokens)
+    })
+
+    if (!this.messages[action] || !this.titles[action]) {
+      throw new BadRequestException()
+    }
+
+    if (tokens && tokens.length) {
+      const body = this.messages[action]
+        .replace('{subject}', replace.subject)
+        .replace('{meta_value', replace.meta_value)
+
+      const response = await this.sendNotificationByFCMTokenArray(
+        {
+          data: data,
+          notification: {
+            body,
+            title: this.titles[action]
+          }
+        },
+        tokens
+      )
+
+      // Format responses to find broken tokens and remove
+      // them from those users.
+      const usersTokensUpdated = await this.cleanTokens(users, response)
+
+      return {
+        failureCount: response.failureCount,
+        successCount: response.successCount,
+        usersTokensUpdated
+      }
+    }
+  }
+
+  async cleanTokens(users: User[], response: messaging.BatchResponse) {
+    const indexes: { id: string; token: string }[] = []
+    users.forEach((user) => {
+      user.fcm_tokens.forEach((token) => {
+        indexes.push({ id: user.id, token })
+      })
+    })
+
+    const remove: NodeJS.Dict<string[]> = {}
+    response.responses.forEach((each, index) => {
+      if (!each.success) {
+        const match = indexes[index]
+        if (remove[indexes[index].id]) {
+          remove[indexes[index].id].push(match.token)
+        } else {
+          remove[indexes[index].id] = [match.token]
+        }
+      }
+    })
+
+    const updates = await Promise.all(
+      Object.keys(remove).map((userId) => {
+        const badTokens = remove[userId]
+        const user = users.filter((user) => user.id === userId)[0]
+        return this.usersRepository.update(userId, {
+          fcm_tokens: user.fcm_tokens.filter(
+            (t) => badTokens.includes(t) === false
+          )
+        })
+      })
+    )
+
+    return updates.length
   }
 
   async sendGenericMessage(
@@ -102,7 +200,16 @@ export class NotificationsService {
     }
 
     if (payload && tokens && tokens.length > 0) {
-      return this.sendNotificationByFCMTokenArray(payload, tokens)
+      const response = await this.sendNotificationByFCMTokenArray(
+        payload,
+        tokens
+      )
+      const usersTokensUpdated = await this.cleanTokens([user], response)
+      return {
+        failureCount: response.failureCount,
+        successCount: response.successCount,
+        usersTokensUpdated
+      }
     }
 
     return false
@@ -146,6 +253,7 @@ export class NotificationsService {
         }
       },
       relations: ['user'],
+      order: { created_at: 'DESC' },
       take: limit,
       skip: limit * page
     })
@@ -162,10 +270,9 @@ export class NotificationsService {
    * @returns
    */
   async markSeen(userId: string, notificationIds: string[]) {
-    return this.notificationsRepository.manager.transaction(async (manager) => {
+    await this.notificationsRepository.manager.transaction(async (manager) => {
       const notificationsRepository = manager.getRepository(Notification)
-      const usersRepository = manager.getRepository(User)
-      const result = await notificationsRepository.update(
+      return notificationsRepository.update(
         {
           id: In(notificationIds),
           user: {
@@ -176,11 +283,17 @@ export class NotificationsService {
           seen: true
         }
       )
-      return usersRepository.decrement(
-        { id: userId },
-        'unread_notifications',
-        result.affected
-      )
+    })
+
+    const unreadCount = await this.notificationsRepository.count({
+      where: {
+        user: { id: userId },
+        seen: false
+      }
+    })
+
+    return this.usersRepository.update(userId, {
+      unread_notifications: unreadCount
     })
   }
 

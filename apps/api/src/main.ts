@@ -1,5 +1,9 @@
-import { NestFactory, Reflector } from '@nestjs/core'
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common'
+import { HttpAdapterHost, NestFactory, Reflector } from '@nestjs/core'
+import {
+  ClassSerializerInterceptor,
+  HttpService,
+  ValidationPipe
+} from '@nestjs/common'
 import {
   FastifyAdapter,
   NestFastifyApplication
@@ -15,7 +19,7 @@ import { IamGuard } from './guards/iam.guard'
 import { validationExceptionFactory } from './exceptions/validation.exception.factory'
 import { bgMagenta, bold } from 'chalk'
 import { UploadGuardV2 } from './guards/upload-v2.guard'
-import { readFileSync } from 'fs'
+import { GlobalExceptionsFilter } from './filters/global-exception-filter'
 
 declare const module: any
 
@@ -51,8 +55,14 @@ async function bootstrap() {
       }
     }
   })
-
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
+  app.useGlobalFilters(
+    new GlobalExceptionsFilter(
+      app.get(HttpAdapterHost).httpAdapter,
+      app.get(HttpService),
+      app.get(ConfigService)
+    )
+  )
 
   app.useGlobalPipes(
     new ValidationPipe({

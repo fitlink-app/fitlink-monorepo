@@ -1,15 +1,19 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
+import { useIntercom } from 'react-use-intercom'
 import BlogThumb from '../../components/elements/BlogThumb'
 import Loader from '../../components/elements/Loader'
 import Dashboard from '../../components/layouts/Dashboard'
 import { PostType } from './[id]'
+
+const KB_TOUR_ID = 279453
 
 export default function page() {
   const [posts, setPosts] = useState<PostType[]>([])
   const [page, setPage] = useState(1)
   const [pages, setPages] = useState(1)
   const [loading, setLoading] = useState(true)
+  const { startTour } = useIntercom()
 
   const getPosts = async () => {
     try {
@@ -48,7 +52,17 @@ export default function page() {
 
   return (
     <Dashboard title="Knowledge base">
-      <h1 className="light mb-1">Knowledge base</h1>
+      <div className="flex ai-c mb-2">
+        <h1 className="light mb-0 mr-2">Knowledge base</h1>
+        <button
+          className="button alt small mt-1"
+          type="button"
+          onClick={() => {
+            startTour(KB_TOUR_ID)
+          }}>
+          What's this for?
+        </button>
+      </div>
       {!loading && (
         <div className="row">
           {posts.map((p) => (

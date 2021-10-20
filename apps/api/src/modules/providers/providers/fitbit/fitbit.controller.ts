@@ -8,7 +8,8 @@ import {
   Param,
   NotFoundException,
   Response,
-  Delete
+  Delete,
+  Res
 } from '@nestjs/common'
 import { Public } from '../../../../decorators/public.decorator'
 import { FitbitService } from './fitbit.service'
@@ -50,16 +51,12 @@ export class FitbitController {
 
   @Public()
   @Get('/callback')
-  async oauthCallback(
-    @Query('code') code,
-    @Query('state') state,
-    @Response() res
-  ) {
+  async oauthCallback(@Query('code') code, @Query('state') state, @Res() res) {
     try {
       await this.fitbitService.saveFitbitProvider(code, state)
-      res.redirect('fitlink-app://provider/fitbit/auth-success')
+      res.status(302).redirect('fitlink-app://provider/fitbit/auth-success')
     } catch (e) {
-      res.redirect('fitlink-app://provider/fitbit/auth-fail')
+      res.status(302).redirect('fitlink-app://provider/fitbit/auth-fail')
     }
   }
 

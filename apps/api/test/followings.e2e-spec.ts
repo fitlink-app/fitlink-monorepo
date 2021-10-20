@@ -26,6 +26,7 @@ describe('Followings', () => {
     name: 1,
     points_total: 1,
     followers_total: 1,
+    goal_percentage: 1,
     following_total: 1,
     following: 1,
     follower: 1,

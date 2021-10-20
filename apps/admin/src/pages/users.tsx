@@ -2,7 +2,7 @@ import { useState, useContext } from 'react'
 import Dashboard from '../components/layouts/Dashboard'
 import { AuthContext } from '../context/Auth.context'
 import TableContainer from '../components/Table/TableContainer'
-import { toDateCell } from '../components/Table/helpers'
+import { boolToIcon, toDateCell } from '../components/Table/helpers'
 import { User } from '@fitlink/api/src/modules/users/entities/user.entity'
 import { AnimatePresence } from 'framer-motion'
 import Drawer from '../components/elements/Drawer'
@@ -14,7 +14,15 @@ import ConfirmForm from '../components/forms/ConfirmForm'
 import InviteUserForm from '../components/forms/InviteUserForm'
 import { Roles } from '../../../api/src/modules/user-roles/user-roles.constants'
 import { OrganisationMode } from '@fitlink/api/src/modules/organisations/organisations.constants'
-import MessageUser from '../components/forms/MessageUser'
+import { ProviderTypeDisplay } from '@fitlink/api/src/modules/providers/providers.constants'
+import IconCheck from '../components/icons/IconCheck'
+import IconClose from '../components/icons/IconClose'
+import IconSearch from '../components/icons/IconSearch'
+import IconMobile from '../components/icons/IconMobile'
+import IconInfo from '../components/icons/IconInfo'
+import IconTrash from '../components/icons/IconTrash'
+import IconMessage from '../components/icons/IconMessage'
+import UserDetail, { UserDetailType } from '../components/forms/UserDetail'
 
 export default function UsersPage() {
   const [drawContent, setDrawContent] = useState<
@@ -54,6 +62,16 @@ export default function UsersPage() {
     )
   }
 
+  const showProviders = ({ value }) => {
+    return (
+      <>
+        {!!value.length &&
+          value.map((p) => ProviderTypeDisplay[p.type]).join(', ')}
+        {!value.length && boolToIcon({ value: !!value.length })}
+      </>
+    )
+  }
+
   const cellActions = ({
     cell: {
       row: { original }
@@ -62,26 +80,40 @@ export default function UsersPage() {
     const { modeRole, mode } = useContext(AuthContext)
 
     return (
-      <div className="text-right flex">
+      <div className="text-right flex jc-e">
         {modeRole === 'app' && (
           <button
-            className="button small ml-1"
+            className="button small ml-2"
             onClick={() => EditUserForm(original)}>
             Edit
           </button>
         )}
         {modeRole === 'team' && (
           <button
-            className="button small ml-1"
+            className="ml-2 icon-button color-red"
             onClick={() => ConfirmRemoveForm(original)}>
-            Remove
+            <IconTrash />
           </button>
         )}
         {modeRole === 'team' && (
           <button
-            className="button small ml-1"
-            onClick={() => MessageUserForm(original)}>
-            Send Message
+            className="ml-2 icon-button color-primary"
+            onClick={() => MessageUserForm(original, 'app_activity_info')}>
+            <IconMobile viewBox={'0 0 320 512'} />
+          </button>
+        )}
+        {modeRole === 'team' && (
+          <button
+            className="ml-2 icon-button color-primary"
+            onClick={() => MessageUserForm(original, 'app_system_info')}>
+            <IconInfo viewBox={'0 0 512 512'} />
+          </button>
+        )}
+        {modeRole === 'team' && (
+          <button
+            className="ml-2 icon-button color-primary"
+            onClick={() => MessageUserForm(original, 'message_user')}>
+            <IconMessage viewBox={'0 0 512 512'} />
           </button>
         )}
       </div>
@@ -114,10 +146,12 @@ export default function UsersPage() {
     )
   }
 
-  const MessageUserForm = (fields) => {
+  const MessageUserForm = (fields, type: UserDetailType) => {
     setWarning(true)
     setWide(false)
-    setDrawContent(<MessageUser onSave={closeDrawer(1000)} current={fields} />)
+    setDrawContent(
+      <UserDetail onSave={closeDrawer(1000)} current={fields} type={type} />
+    )
   }
 
   const handleUsernameSearch = async (search) => {
@@ -171,13 +205,6 @@ export default function UsersPage() {
             { Header: ' ', accessor: 'avatar', Cell: showAvatar },
             { Header: 'Name', accessor: 'name' },
             { Header: 'Email', accessor: 'email' },
-            {
-              Header: 'Last login',
-              accessor: 'last_login_at',
-              Cell: toDateCell
-            },
-            { Header: 'Updated', accessor: 'updated_at', Cell: toDateCell },
-            { Header: 'Created', accessor: 'created_at', Cell: toDateCell },
             { Header: ' ', Cell: cellActions }
           ]}
           fetch={(limit, page, query) =>

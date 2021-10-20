@@ -304,7 +304,7 @@ describe('Activities', () => {
     const url: string = invitationData.json().inviteLink
     expect(url).toBeDefined()
 
-    const code = url.split('/').reverse()[0]
+    const code = new URL(url).searchParams.get('code')
 
     const teamByCode = await app.inject({
       method: 'GET',

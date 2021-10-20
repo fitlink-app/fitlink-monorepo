@@ -16,6 +16,7 @@ import { NewFollowerListener } from './listeners/NewFollowerListener'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { UserActiveMinutesIncrementedListener } from './listeners/UserActiveMinutesIncrementedListener'
 import { NotificationsModule } from '../notifications/notifications.module'
+import { HealthActivitiesModule } from '../health-activities/health-activities.module'
 
 @Module({
   imports: [

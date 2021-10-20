@@ -5,7 +5,8 @@ import {
   Request,
   Get,
   Query,
-  Param
+  Param,
+  ForbiddenException
 } from '@nestjs/common'
 import { GoalsEntriesService } from './goals-entries.service'
 import { RecreateGoalsEntryDto } from './dto/update-goals-entry.dto'
@@ -19,11 +20,17 @@ import { User } from '../../decorators/authenticated-user.decorator'
 import { AuthenticatedUser } from '../../models'
 import { PaginationQuery } from '../../helpers/paginate'
 import { Pagination } from '../../decorators/pagination.decorator'
+import { Public } from '../../decorators/public.decorator'
+import { ConfigService } from '@nestjs/config'
+import { GoalJobDto } from './dto/goal-job.dto'
 
 @ApiBaseResponses()
 @Controller()
 export class GoalsEntriesController {
-  constructor(private readonly goalsEntriesService: GoalsEntriesService) {}
+  constructor(
+    private readonly goalsEntriesService: GoalsEntriesService,
+    private readonly configService: ConfigService
+  ) {}
 
   @Post('me/goals')
   @ApiTags('me')
@@ -76,5 +83,19 @@ export class GoalsEntriesController {
     @Pagination() pagination: PaginationQuery
   ) {
     return this.goalsEntriesService.findAll(userId, pagination)
+  }
+
+  /**
+   * Webhook for AWS Lambda to send goal reminders
+   */
+  @Public()
+  @Post('/goals/job')
+  async processRankChange(@Body() { verify_token }: GoalJobDto) {
+    if (verify_token !== this.configService.get('JOBS_VERIFY_TOKEN')) {
+      throw new ForbiddenException()
+    }
+
+    const result = await this.goalsEntriesService.processPendingGoalReminders()
+    return result
   }
 }

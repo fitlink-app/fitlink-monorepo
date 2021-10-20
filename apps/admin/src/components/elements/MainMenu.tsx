@@ -10,7 +10,9 @@ import IconLeagues from '../icons/IconLeagues'
 import IconRewards from '../icons/IconRewards'
 import IconSignOut from '../icons/IconSignOut'
 import IconYoga from '../icons/IconYoga'
-import { AuthContext } from '../../context/Auth.context'
+import IconInfo from '../icons/IconInfo'
+import IconMobile from '../icons/IconMobile'
+import IconExternal from '../icons/IconExternal'
 
 const icons = {
   IconActivities,
@@ -21,7 +23,10 @@ const icons = {
   IconLeagues,
   IconRewards,
   IconSignOut,
-  IconYoga
+  IconYoga,
+  IconInfo,
+  IconMobile,
+  IconExternal
 }
 
 export type MenuProps = {
@@ -60,6 +65,11 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
                 label={label}
                 current={startsWith(router, link)}
                 icon={Icon ? <Icon /> : null}
+                endIcon={
+                  link.indexOf('http') === 0 ? (
+                    <IconExternal className="end-icon" />
+                  ) : null
+                }
               />
               {(subMenu && startsWith(router, link)) ||
               (subMenu &&

@@ -136,7 +136,7 @@ export class TeamsInvitationsService {
    */
   getJoinLink(team: Team) {
     return {
-      url: `${this.configService.get('SHORT_URL')}/join/${team.join_code}`
+      url: `${this.configService.get('SHORT_URL')}/join?code=${team.join_code}`
     }
   }
 

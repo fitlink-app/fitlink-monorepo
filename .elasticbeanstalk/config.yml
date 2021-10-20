@@ -1,9 +1,9 @@
 branch-defaults:
-  feature/elastic-beanstalk:
-    environment: fitlink-nest-dev
-    group_suffix: null
   develop:
     environment: fitlink-nest-dev
+    group_suffix: null
+  main:
+    environment: fitlink-nest-prod
     group_suffix: null
 deploy:
   artifact: artifacts/app.zip

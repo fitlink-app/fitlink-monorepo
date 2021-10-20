@@ -10,7 +10,10 @@ import {
   PrimaryGeneratedColumn
 } from 'typeorm'
 import { League } from '../../leagues/entities/league.entity'
-import { Provider } from '../../providers/entities/provider.entity'
+import {
+  Provider,
+  ProviderPublic
+} from '../../providers/entities/provider.entity'
 import { Team } from '../../teams/entities/team.entity'
 import { Image } from '../../images/entities/image.entity'
 import { UsersSetting } from '../../users-settings/entities/users-setting.entity'
@@ -32,6 +35,7 @@ import { UnitSystem, UserRank } from '../users.constants'
 import { LeaguesInvitation } from '../../leagues-invitations/entities/leagues-invitation.entity'
 import { SubscriptionsInvitation } from '../../subscriptions/entities/subscriptions-invitation.entity'
 import { Notification } from '../../notifications/entities/notification.entity'
+import { HealthActivityDebug } from '../../health-activities/entities/health-activity-debug.entity'
 
 @Entity()
 export class User extends CreatableEntity {
@@ -58,7 +62,7 @@ export class User extends CreatableEntity {
     cascade: ['remove'],
     onDelete: 'CASCADE'
   })
-  providers: Provider[]
+  providers: Provider[] | ProviderPublic[]
 
   @OneToMany(() => RefreshToken, (token) => token.user, {
     cascade: ['remove'],
@@ -189,6 +193,16 @@ export class User extends CreatableEntity {
     onDelete: 'CASCADE'
   })
   health_activities: HealthActivity[]
+
+  @OneToMany(
+    () => HealthActivityDebug,
+    (HealthActivity) => HealthActivity.user,
+    {
+      cascade: ['remove'],
+      onDelete: 'CASCADE'
+    }
+  )
+  health_activities_debug: HealthActivityDebug[]
 
   /** Feed items for the user */
   @OneToMany(() => FeedItem, (feedItem) => feedItem.user)
@@ -326,6 +340,13 @@ export class User extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    type: 'float',
+    default: 0
+  })
+  goal_percentage: number
+
+  @ApiProperty()
+  @Column({
     default: 0
   })
   followers_total: number
@@ -346,6 +367,13 @@ export class User extends CreatableEntity {
     default: 0
   })
   unread_notifications: number
+
+  @ApiProperty()
+  @Column({
+    nullable: true,
+    type: 'varchar'
+  })
+  mobile_os: string
 }
 
 export class UserPublic {
@@ -387,6 +415,10 @@ export class UserPublic {
   @Expose()
   /** Whether the authenticated user is invited (depends on API request) */
   invited?: boolean
+
+  @ApiProperty()
+  @Expose()
+  goal_percentage: number
 }
 
 export class UserPublicPagination {

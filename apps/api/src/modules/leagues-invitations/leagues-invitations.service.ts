@@ -40,7 +40,9 @@ export class LeaguesInvitationsService {
     createDto: CreateLeaguesInvitationDto
   ) {
     const to = await this.usersRepository.findOneOrFail(createDto.userId)
-    const from = await this.usersRepository.findOneOrFail(inviterId)
+    const from = await this.usersRepository.findOneOrFail(inviterId, {
+      relations: ['avatar']
+    })
 
     const invitation = await this.invitationsRepository.save(
       this.invitationsRepository.create({

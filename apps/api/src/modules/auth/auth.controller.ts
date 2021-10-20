@@ -23,7 +23,10 @@ import {
   ValidationResponse
 } from '../../decorators/swagger.decorator'
 import { CreateUserDto } from '../users/dto/create-user.dto'
-import { CreateUserWithOrganisationDto } from '../users/dto/create-user-with-organisation.dto'
+import {
+  CreateOrganisationAsUserDto,
+  CreateUserWithOrganisationDto
+} from '../users/dto/create-user-with-organisation.dto'
 import {
   AuthResetPasswordDto,
   AuthRequestResetPasswordDto
@@ -85,6 +88,26 @@ export class AuthController {
     @Body() createUserDto: CreateUserWithOrganisationDto
   ) {
     const result = await this.authService.signupWithOrganisation(createUserDto)
+
+    if (typeof result === 'string') {
+      throw new BadRequestException(result)
+    }
+
+    return result
+  }
+
+  @ApiTags('auth')
+  @Post('auth/new-organisation')
+  @ValidationResponse()
+  @ApiResponse({ type: AuthSignupDto, status: 200 })
+  async signupNewOrganisation(
+    @Body() createUserDto: CreateOrganisationAsUserDto,
+    @User() user: AuthenticatedUser
+  ) {
+    const result = await this.authService.signupNewOrganisation(
+      createUserDto,
+      user.id
+    )
 
     if (typeof result === 'string') {
       throw new BadRequestException(result)

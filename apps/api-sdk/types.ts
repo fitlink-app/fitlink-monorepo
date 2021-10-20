@@ -24,7 +24,10 @@ import {
 } from '@fitlink/api/src/modules/auth/dto/auth-login'
 import { AuthSwitchDto } from '@fitlink/api/src/modules/auth/dto/auth-switch'
 import { CreateUserDto } from '@fitlink/api/src/modules/users/dto/create-user.dto'
-import { CreateUserWithOrganisationDto } from '@fitlink/api/src/modules/users/dto/create-user-with-organisation.dto'
+import {
+  CreateOrganisationAsUserDto,
+  CreateUserWithOrganisationDto
+} from '@fitlink/api/src/modules/users/dto/create-user-with-organisation.dto'
 import {
   AuthResultDto,
   AuthLogoutDto,
@@ -46,6 +49,7 @@ import {
   AuthResetPasswordDto
 } from '@fitlink/api/src/modules/auth/dto/auth-reset-password'
 import { CreateAdminDto } from '@fitlink/api/src/modules/users/dto/create-admin.dto'
+import { CreateFcmTokenDto } from '@fitlink/api/src/modules/users/dto/create-fcm-token.dto'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 import { TeamsInvitation } from '@fitlink/api/src/modules/teams-invitations/entities/teams-invitation.entity'
 import { RespondTeamsInvitationDto } from '@fitlink/api/src/modules/teams-invitations/dto/respond-teams-invitation.dto'
@@ -65,10 +69,12 @@ export type {
   AuthRequestResetPasswordDto,
   CreateUserDto,
   CreateUserWithOrganisationDto,
+  CreateOrganisationAsUserDto,
   UpdateUserDto,
   UpdateUserEmailDto,
   UpdateUserPasswordDto,
-  UpdateUserAvatarDto
+  UpdateUserAvatarDto,
+  CreateFcmTokenDto
 }
 
 export enum AuthProviderType {
@@ -91,6 +97,7 @@ export type AuthSignUp = '/auth/signup'
 export type AuthConnect = '/auth/connect'
 export type AuthSwitch = '/auth/switch'
 export type AuthSignUpOrganisation = '/auth/organisation'
+export type AuthNewOrganisation = '/auth/new-organisation'
 export type AuthRequestResetPassword = '/auth/request-password-reset'
 export type AuthResetPassword = '/auth/reset-password'
 export type TeamsInvitationsVerify = '/teams-invitations/verify'
@@ -104,6 +111,7 @@ export type VerifyUserEmail = '/users/verify-email'
 export type RegenerateJoinCode = '/teams/:teamId/regenerate-join-code'
 export type CreatePage = '/teams/:teamId/page'
 export type SendMessage = '/teams/:teamId/users/:userId/notifications'
+export type CreateFcmToken = '/me/fcm-token'
 
 export type CreatableResource =
   | AuthLogin
@@ -113,6 +121,7 @@ export type CreatableResource =
   | AuthSwitch
   | AuthSignUp
   | AuthSignUpOrganisation
+  | AuthNewOrganisation
   | AuthRequestResetPassword
   | AuthResetPassword
   | TeamsInvitationsVerify
@@ -126,6 +135,7 @@ export type CreatableResource =
   | RegenerateJoinCode
   | CreatePage
   | SendMessage
+  | CreateFcmToken
 
 export type ListResource =
   | '/organisations'
@@ -187,6 +197,7 @@ export type ListResource =
   | '/me/feed'
   | '/stats/health-activities'
   | '/stats'
+  | '/health-activities-debug'
 
 export type ReadResource =
   | '/organisations/:organisationId'
@@ -208,6 +219,7 @@ export type ReadResource =
   | '/teams/:teamId/leagues/:leagueId'
   | '/teams/:teamId/leagues/:leagueId/leaderboards/:leaderboardId'
   | '/teams/:teamId/invite-link'
+  | '/teams/code/:code'
   | '/activities/:activityId'
   | '/rewards/:rewardId'
   | '/leagues/:leagueId'
@@ -225,6 +237,7 @@ export type ReadResource =
   | '/me'
   | '/me/roles'
   | '/me/role'
+  | '/me/ping'
   | '/me/next-reward'
   | '/me/feed/:feedItemId'
   | '/me/avatar'
@@ -232,6 +245,7 @@ export type ReadResource =
   | '/me/password'
   | '/me/settings'
   | '/me/providers'
+  | '/me/fcm-token'
   | '/stats/goals'
   | '/stats/rewards'
   | '/stats/leagues'
@@ -279,6 +293,8 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<CreateUserDto>
   : T extends AuthSignUpOrganisation
   ? Payload<CreateUserWithOrganisationDto>
+  : T extends AuthNewOrganisation
+  ? Payload<CreateOrganisationAsUserDto>
   : T extends UserRole
   ? Payload<CreateAdminDto>
   : T extends AuthLogin
@@ -309,13 +325,15 @@ export type CreateResourceParams<T> = T extends Organisation
   ? Payload<VerifyUserEmailDto>
   : T extends RegenerateJoinCode
   ? Payload<{}>
-  : T extends CreatePage
-  ? Payload<CreatePageDto>
   : never
 
 // Typescript bug? Means we need to split this into a second type
 export type CreateResourceParamsExtra<T> = T extends SendMessage
   ? Payload<SendNotificationDto>
+  : T extends CreateFcmToken
+  ? Payload<CreateFcmTokenDto>
+  : T extends CreatePage
+  ? Payload<CreatePageDto>
   : never
 
 export type UploadResourceParams = FilePayload
@@ -323,6 +341,8 @@ export type UploadResourceParams = FilePayload
 export type CreatableResourceResponse<T> = T extends AuthSignUp
   ? CreateUserResult
   : T extends AuthSignUpOrganisation
+  ? CreateUserResult
+  : T extends AuthNewOrganisation
   ? CreateUserResult
   : T extends AuthLogin
   ? AuthResultDto
@@ -346,6 +366,8 @@ export type CreatableResourceResponse<T> = T extends AuthSignUp
   ? { code: string }
   : T extends SendMessage
   ? BooleanResult
+  : T extends CreateFcmToken
+  ? UpdateResult
   : never
 
 export type UpdateResourceParams<T> = T extends Organisation

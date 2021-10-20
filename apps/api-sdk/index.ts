@@ -17,6 +17,7 @@ import {
   AuthSwitchDto,
   CreateUserDto,
   CreateUserWithOrganisationDto,
+  CreateOrganisationAsUserDto,
   AuthLogin,
   AuthLogout,
   AuthRefresh,
@@ -28,7 +29,8 @@ import {
   FocusRole,
   RolePrimary,
   AuthSignUpOrganisation,
-  CreateResourceParamsExtra
+  CreateResourceParamsExtra,
+  AuthNewOrganisation
 } from './types'
 
 const ERR_TOKEN_EXPIRED = 'Token expired'
@@ -41,13 +43,6 @@ type MethodConfig = {
 export class Api {
   private axios: AxiosInstance = null
   private tokens: AuthResultDto
-  private role: FocusRole
-  private endpointPrefix:
-    | '/organisations/:organisationId'
-    | '/teams/:teamId'
-    | '' = ''
-  private extraParams: NodeJS.Dict<string> = {}
-  // private previousTokens: AuthResultDto
   private replay: any[] = []
   private reject: any[] = []
   private reAuthorizing = false
@@ -358,6 +353,23 @@ export class Api {
   }
 
   /**
+   * Creates a new organisation as a user
+   *
+   * @param dto
+   * @returns `{auth: AuthResult, me: User}`
+   */
+  async signUpNewOrganisation(payload: CreateOrganisationAsUserDto) {
+    const result = await this.post<AuthNewOrganisation>(
+      '/auth/new-organisation',
+      {
+        payload
+      }
+    )
+    this.setTokens(result.auth)
+    return result
+  }
+
+  /**
    * Logs in and stores tokens
    *
    * @param emailPass An object of `{ email, password }`
@@ -552,20 +564,6 @@ export class Api {
       }
     }
   }
-
-  /**
-   * Cancel role
-   */
-  cancelRole() {
-    this.role = undefined
-    this.endpointPrefix = ''
-    this.extraParams = {}
-  }
-
-  /**
-   * Get role endpoint
-   */
-  withRole() {}
 }
 
 export function makeApi(axios: AxiosInstance) {

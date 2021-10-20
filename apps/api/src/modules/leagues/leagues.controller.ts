@@ -44,6 +44,9 @@ import { LeaguesInvitationsService } from '../leagues-invitations/leagues-invita
 import { Pagination } from '../../decorators/pagination.decorator'
 import { UserPublicPagination } from '../users/entities/user.entity'
 import { SearchUserForLeaguesDto } from '../users/dto/search-user.dto'
+import { ConfigService } from '@nestjs/config'
+import { LeagueJobDto } from './dto/league-job.dto'
+import { Public } from '../../decorators/public.decorator'
 
 @ApiTags('leagues')
 @ApiBaseResponses()
@@ -51,7 +54,8 @@ import { SearchUserForLeaguesDto } from '../users/dto/search-user.dto'
 export class LeaguesController {
   constructor(
     private readonly leaguesService: LeaguesService,
-    private readonly leaguesInvitationsService: LeaguesInvitationsService
+    private readonly leaguesInvitationsService: LeaguesInvitationsService,
+    private readonly configService: ConfigService
   ) {}
 
   /**
@@ -486,5 +490,35 @@ export class LeaguesController {
   @DeleteResponse()
   teamDelete(@Param('teamId') teamId: string, @Param('id') id: string) {
     return this.leaguesService.remove(id, teamId)
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Get('/winner/:leagueId')
+  async calcWinner(@Param('leagueId') leagueId: string) {
+    const { winners } = await this.leaguesService.calculateLeagueWinners(
+      leagueId
+    )
+    await this.leaguesService.emitWinnerFeedItems(leagueId, winners)
+    return { winners }
+  }
+
+  /**
+   * Webhook for AWS Lambda to update leagues
+   */
+  @Public()
+  @Post('/leagues/job')
+  async processLeagues(@Body() { verify_token }: LeagueJobDto) {
+    if (verify_token !== this.configService.get('JOBS_VERIFY_TOKEN')) {
+      throw new ForbiddenException()
+    }
+    const [pending, ending] = await Promise.all([
+      this.leaguesService.processPendingLeagues(),
+      this.leaguesService.processLeaguesEnding()
+    ])
+
+    return {
+      pending,
+      ending
+    }
   }
 }

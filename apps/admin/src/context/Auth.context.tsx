@@ -27,6 +27,7 @@ import {
 } from '../data/menu/organisation'
 import menuSub from '../data/menu/subscription'
 import menuTeam from '../data/menu/team'
+import menuUser from '../data/menu/user'
 
 const axios = Axios.create({
   baseURL: '/api/v1'
@@ -60,6 +61,7 @@ export type Primary = {
 type ConnectProvider = {
   token: string
   provider: AuthProviderType
+  signup?: boolean
 }
 
 export type AuthContext = {
@@ -77,8 +79,11 @@ export type AuthContext = {
   connect: (provider: ConnectProvider) => Promise<AuthSignupDto>
   logout: () => Promise<void>
   switchRole: (params: AuthSwitchDto) => Promise<AuthResultDto>
+  setModeRole: (role: FocusRole) => void
+  setFocusRole: (role: FocusRole) => void
   refreshUser: () => Promise<void>
   hasRole: (role: Roles) => boolean
+  fetchUser: () => Promise<void>
 }
 
 export const AuthContext = React.createContext({} as AuthContext)
@@ -313,13 +318,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * @param ConnectProvider { token, provider }
    * @returns
    */
-  async function connect({ token, provider }: ConnectProvider) {
+  async function connect({ token, provider, signup }: ConnectProvider) {
     const result = await api.connect({
       token,
-      provider
+      provider,
+      signup
     })
 
-    setUser(result.me)
+    const { data } = await me.refetch()
+    if (data) {
+      setUser(data)
+    }
 
     return result
   }
@@ -329,11 +338,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null)
   }
 
-  async function switchRole(params: AuthSwitchDto) {
-    setFocusRole(null)
-    setModeRole(null)
+  async function fetchUser() {
+    const { data } = await me.refetch()
+    if (data) {
+      setUser(data)
+    }
+  }
 
-    // storePreviousTokens(api.getTokens(), params.role)
+  async function switchRole(params: AuthSwitchDto) {
+    if (params.role === Roles.Self) {
+      await api.loginWithRole(params)
+      setFetchKey(`mode${Date.now()}`)
+      setFocusRole('user')
+      setModeRole('user')
+      return
+    } else {
+      setFocusRole(null)
+      setModeRole(null)
+    }
+
     const result = await api.loginWithRole(params)
     let role: FocusRole = 'app'
     let mode: FocusRole = 'app'
@@ -349,7 +372,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const org = await fetchOrganisation(params.id)
       organisation = org.id
       team = org.teams[0].id
-      subscription = org.subscriptions[0].id
+      subscription = org.subscriptions.filter((e) => e.default)[0].id
 
       if (org.mode === OrganisationMode.Complex) {
         mode = 'organisation'
@@ -363,7 +386,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const teamEntity = await fetchTeam(params.id)
       organisation = teamEntity.organisation.id
       team = params.id
-      subscription = teamEntity.organisation.subscriptions[0].id
+      subscription = teamEntity.organisation.subscriptions.filter(
+        (e) => e.default
+      )[0].id
       setTeam(teamEntity)
     } else if (params.role === Roles.SubscriptionAdmin) {
       role = 'subscription'
@@ -380,6 +405,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       subscription,
       team
     })
+
+    const myData = await me.refetch()
+    setUser(myData.data)
 
     if (params.role === Roles.SubscriptionAdmin) {
       await router.push(`/subscriptions/${params.id}`)
@@ -431,8 +459,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         signup,
         connect,
         switchRole,
+        setModeRole,
+        setFocusRole,
         refreshUser,
-        hasRole
+        hasRole,
+        fetchUser
       }}>
       {children}
     </AuthContext.Provider>
@@ -457,5 +488,7 @@ function buildMenu(
       return menuSub(primary)
     case 'team':
       return menuTeam(primary)
+    case 'user':
+      return menuUser()
   }
 }

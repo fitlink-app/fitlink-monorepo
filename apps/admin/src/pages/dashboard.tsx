@@ -11,7 +11,7 @@ import ProgressChart from '../components/charts/ProgressChart'
 import IconWater from '../components/icons/IconWater'
 import Select from '../components/elements/Select'
 import Feedback from '../components/elements/Feedback'
-import IconDownload from '../components/icons/IconDownload'
+//import IconDownload from '../components/icons/IconDownload'
 import { useContext, useEffect, useState } from 'react'
 import useHealthActivityStats from '../hooks/api/useHealthActivityStats'
 import useGoalStats from '../hooks/api/useGoalStats'
@@ -23,16 +23,20 @@ import capitalize from 'lodash/capitalize'
 import { options } from '../data/date-options'
 import { useRouter } from 'next/router'
 import { LoaderChart } from '../components/elements/LoaderChart'
-import { TableLoader } from '../components/Table/TableLoader'
+//import { TableLoader } from '../components/Table/TableLoader'
+import { useIntercom } from 'react-use-intercom'
 
 type DateStartEnd = {
   startAt?: Date
   endAt?: Date
 }
 
+const OVERVIEW_TOUR_ID = 279397
+
 export default function components() {
   const { focusRole, modeRole } = useContext(AuthContext)
   const router = useRouter()
+  const { startTour } = useIntercom()
 
   useEffect(() => {
     if (focusRole === 'subscription') {
@@ -46,11 +50,20 @@ export default function components() {
 
   return (
     <Dashboard title="Dashboard">
-      <h1 className="light">
-        {modeRole === 'app' && 'Fitlink global statistics'}
-        {modeRole === 'organisation' && 'Your organisation at a glance'}
-        {modeRole === 'team' && 'Your team at a glance'}
-      </h1>
+      <div className="flex ai-c">
+        <h1 className="light mb-0 mr-2">
+          {modeRole === 'app' && 'Fitlink global statistics'}
+          {modeRole === 'organisation' && 'Your organisation at a glance'}
+          {modeRole === 'team' && 'Your team at a glance'}
+        </h1>
+        <button
+          className="button small mt-1"
+          onClick={() => {
+            startTour(OVERVIEW_TOUR_ID)
+          }}>
+          Start Tour
+        </button>
+      </div>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">
           <PopularActivities />
@@ -113,11 +126,11 @@ function PopularActivities() {
           <h2 className="h5 color-light-grey m-0">Most popular activities</h2>
         </div>
         <div className="col flex ai-c jc-e">
-          <IconDownload
+          {/* <IconDownload
             width="24px"
             height="24px"
             className="mr-1 color-light-grey hover-dark-grey"
-          />
+          /> */}
           <Select
             id="activities"
             defaultValue={options[2]}
@@ -172,11 +185,11 @@ function GoalStats() {
           </h2>
         </div>
         <div className="col flex ai-c jc-e">
-          <IconDownload
+          {/* <IconDownload
             width="24px"
             height="24px"
             className="mr-1 color-light-grey hover-dark-grey"
-          />
+          /> */}
           <Select
             id="team"
             defaultValue={options[2]}
@@ -286,11 +299,11 @@ function PopularLeagues() {
           <h2 className="h5 color-light-grey m-0">Popular leagues</h2>
         </div>
         <div className="col flex ai-c jc-e">
-          <IconDownload
+          {/* <IconDownload
             width="24px"
             height="24px"
             className="mr-1 color-light-grey hover-dark-grey"
-          />
+          /> */}
           <Select
             id="leagues"
             defaultValue={options[8]}
@@ -358,11 +371,11 @@ function PopularRewards() {
           <h2 className="h5 color-light-grey m-0">Popular rewards</h2>
         </div>
         <div className="col flex ai-c jc-e">
-          <IconDownload
+          {/* <IconDownload
             width="24px"
             height="24px"
             className="mr-1 color-light-grey hover-dark-grey"
-          />
+          /> */}
           <Select
             id="rewards"
             defaultValue={options[8]}
@@ -424,7 +437,7 @@ function GlobalInsights() {
       </h2>
       <ul className="news">
         <li className="unread">
-          <h5>Your {modeRole} isn't drinking enough water 💧</h5>
+          <h5>Keep your {modeRole} hydrated 💧</h5>
           <p>
             Failing to drink enough water can cause dehydration and adverse
             symptoms, including fatigue, headache and weakened immunity. Here
@@ -515,15 +528,16 @@ function FitlinkNews() {
       <h2 className="h5 color-light-grey mt-1">Fitlink News</h2>
       <ul className="news">
         <li className="unread">
-          <h5>App version 2.1.0 release</h5>
+          <h5>Latest Fitlink App updates</h5>
           <p>
-            We've made a few under the hood improvements to performace. This
-            update will happen automatically when your team launches the app.
+            We've added 👍 <strong className="color-primary">likes</strong> to
+            feed items &amp; the ability to upload multiple images to your
+            health activity when it appears in your feed.
           </p>
         </li>
         <li className="unread">
           <img src="/temp/ecologi.svg" alt="" />
-          <h5>Give back with Ecologi 🌱</h5>
+          <h5>Coming soon: Give back with Ecologi 🌱</h5>
           <p>
             We've partnered with Ecologi to offer all Fitlink teams the
             opportunity to reward their users with carbon offsetting and

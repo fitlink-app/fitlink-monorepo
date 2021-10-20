@@ -48,6 +48,22 @@ export default function MenuApp(primary: Primary) {
       link: '/global-config',
       icon: 'IconGear'
     },
+    {
+      label: 'Debug Trackers',
+      link: '/health-activities',
+      icon: 'IconGear'
+    },
+    { hr: true },
+    {
+      label: 'App Store',
+      link: '/app-store',
+      icon: 'IconMobile'
+    },
+    {
+      label: 'Help Center',
+      link: 'https://support.fitlinkapp.com/en/',
+      icon: 'IconInfo'
+    },
     { hr: true },
     {
       label: 'Sign out',

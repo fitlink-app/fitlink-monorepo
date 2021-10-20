@@ -94,7 +94,7 @@ describe('Providers', () => {
       url: `/providers/strava/callback?code=10291823&state=${seededUser.id}&scope=${STRAVA_SCOPES}`
     })
 
-    expect(data.statusCode).toBe(200)
+    expect(data.statusCode).toBe(302)
     expect(data.headers.location).toBe(
       'fitlink-app://provider/strava/auth-success'
     )
@@ -146,7 +146,7 @@ describe('Providers', () => {
       url: `/providers/fitbit/callback?code=1012098123&state=${seededUser.id}`
     })
 
-    expect(data.statusCode).toBe(200)
+    expect(data.statusCode).toBe(302)
     expect(data.headers.location).toBe(
       'fitlink-app://provider/fitbit/auth-success'
     )
@@ -165,8 +165,7 @@ describe('Providers', () => {
     expect(result.provider_user_id).toBe(fitbitApiMockData.user_id)
     expect(result.user.id).toBe(seededUser.id)
     expect(result.id).toBeDefined()
-    expect(data.statusCode).toBe(200)
-    expect(data.statusMessage).toBe('OK')
+    expect(data.statusCode).toBe(302)
   })
 
   it('DELETE /provider/fitbit', async () => {

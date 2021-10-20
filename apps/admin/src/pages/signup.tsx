@@ -21,6 +21,7 @@ import {
 import { AuthContext } from '../context/Auth.context'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
+import { CreateOrganisationAsUserDto } from '@fitlink/api/src/modules/users/dto/create-user-with-organisation.dto'
 
 const organisationTypes = Object.keys(OrganisationType).map((key) => {
   return {
@@ -30,7 +31,7 @@ const organisationTypes = Object.keys(OrganisationType).map((key) => {
 })
 
 const SignupPage = () => {
-  const { api } = useContext(AuthContext)
+  const { api, user, fetchUser } = useContext(AuthContext)
   const router = useRouter()
 
   const words = [
@@ -42,9 +43,9 @@ const SignupPage = () => {
     'transport'
   ]
 
-  const { handleSubmit, register, control, watch } = useForm({
+  const { handleSubmit, register, control, watch, setValue } = useForm({
     defaultValues: {
-      name: undefined,
+      name: user ? user.name : undefined,
       company: undefined,
       email: undefined,
       password: undefined,
@@ -61,6 +62,22 @@ const SignupPage = () => {
     (payload: CreateUserWithOrganisationDto) =>
       api.signUpWithOrganisation(payload)
   )
+
+  const createNew: ApiMutationResult<AuthSignupDto> = useMutation(
+    (payload: CreateOrganisationAsUserDto) => api.signUpNewOrganisation(payload)
+  )
+
+  useEffect(() => {
+    if (user && user.name) {
+      setValue('name', user.name)
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (router.isReady && router.query.u) {
+      fetchUser()
+    }
+  }, [router])
 
   const {
     errors,
@@ -82,8 +99,16 @@ const SignupPage = () => {
 
     clearErrors()
 
+    let method = create
+
+    // An already signed in user creates a new organisation
+    if (user && router.query.u) {
+      method = createNew
+    }
+
     try {
-      await toast.promise(create.mutateAsync(payload), {
+      console.log(payload)
+      await toast.promise(method.mutateAsync(payload), {
         error: <b>Error</b>,
         loading: <b>Signing you up...</b>,
         success: <b>Account created!</b>
@@ -208,20 +233,26 @@ const SignupPage = () => {
                     error={errors.type_other}
                   />
                 )}
-                <Input
-                  label="Email address"
-                  type="email"
-                  name="email"
-                  register={register('email')}
-                  error={errors.email}
-                />
-                <Input
-                  label="Password"
-                  type="password"
-                  name="password"
-                  register={register('password')}
-                  error={errors.password}
-                />
+
+                {!user && (
+                  <>
+                    <Input
+                      label="Email address"
+                      type="email"
+                      name="email"
+                      register={register('email')}
+                      error={errors.email}
+                    />
+                    <Input
+                      label="Password"
+                      type="password"
+                      name="password"
+                      register={register('password')}
+                      error={errors.password}
+                    />
+                  </>
+                )}
+
                 <Checkbox
                   register={register('agree_to_terms')}
                   name="terms"
@@ -240,7 +271,7 @@ const SignupPage = () => {
                     label="Start trial"
                     className="pointer"
                     type="submit"
-                    disabled={create.isLoading}
+                    disabled={create.isLoading || createNew.isLoading}
                   />
                 </div>
               </form>

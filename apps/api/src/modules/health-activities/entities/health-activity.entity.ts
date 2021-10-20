@@ -3,6 +3,7 @@ import {
   Entity,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn
 } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
@@ -11,6 +12,7 @@ import { Image } from '../../images/entities/image.entity'
 import { Provider } from '../../providers/entities/provider.entity'
 import { Sport } from '../../sports/entities/sport.entity'
 import { User } from '../../users/entities/user.entity'
+import { HealthActivityDebug } from './health-activity-debug.entity'
 
 @Entity()
 export class HealthActivity extends CreatableEntity {
@@ -76,4 +78,9 @@ export class HealthActivity extends CreatableEntity {
 
   @Column({ default: false })
   distributed: boolean
+
+  @OneToOne(() => HealthActivityDebug, (debug) => debug.health_activity, {
+    nullable: true
+  })
+  debug: HealthActivityDebug
 }

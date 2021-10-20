@@ -58,6 +58,7 @@ import {
 import { Activity } from '../../src/modules/activities/entities/activity.entity'
 import { ActivityType } from '../../src/modules/activities/activities.constants'
 import { HealthActivitiesService } from '../../src/modules/health-activities/health-activities.service'
+import { GoalsEntriesService } from 'apps/api/src/modules/goals-entries/goals-entries.service'
 
 // FITLINK
 const FITLINK_TEAM = 'ZxSZdl3lafZiiWiZnhlw'
@@ -91,6 +92,7 @@ const allow = Object.values(require('./trusted.json'))
   const usersService = module.get(UsersService)
   const httpService = module.get(HttpService)
   const healthActivitiesService = module.get(HealthActivitiesService)
+  const goalsService = module.get(GoalsEntriesService)
 
   if ((await connection.getRepository(Sport).count()) === 0) {
     throw new Error('Sports must be seeded first.')
@@ -859,6 +861,11 @@ const allow = Object.values(require('./trusted.json'))
               completed: fLeaderboard.completed
             })
           )
+
+          // Make the leaderboard the default
+          await leaguesRepository.update(league, {
+            active_leaderboard: leaderboard
+          })
 
           await Promise.all(
             entries.map(async (entry) => {

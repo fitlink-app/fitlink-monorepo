@@ -54,7 +54,7 @@ export class UserRolesService {
   }
 
   async getAllUserRoles(id: string) {
-    return await this.userRoleRepository.find({
+    const results = await this.userRoleRepository.find({
       where: {
         user: {
           id
@@ -72,6 +72,8 @@ export class UserRolesService {
         created_at: 'ASC'
       }
     })
+
+    return results
   }
 
   async update(
