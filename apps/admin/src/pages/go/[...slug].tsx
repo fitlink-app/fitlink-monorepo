@@ -26,7 +26,7 @@ const api = makeApi(ax)
 export const getServerSideProps = async function getServerSideProps({
   req
 }: NextPageContext) {
-  const parse = new URL(req.headers.host + req.url)
+  const parse = new URL(`https://${req.headers.host}${req.url}`)
   const code = parse.searchParams.get('code')
 
   if (code) {
