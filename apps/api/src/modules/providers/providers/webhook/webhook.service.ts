@@ -18,7 +18,6 @@ export class WebhookService {
     webhookEventData: WebhookEventPayload,
     userId: string
   ) {
-    console.log(webhookEventData)
     const normalized = webhookEventData.activities.map((e) => {
       return { normalized: this.createNormalizedHealthActivity(e), raw: e }
     })

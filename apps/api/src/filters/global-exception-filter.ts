@@ -51,7 +51,7 @@ export class GlobalExceptionsFilter extends BaseExceptionFilter {
             attachments: [
               {
                 color: '#C22F0F',
-                text: req.url
+                text: `${req.url} (${req.headers.host})`
               },
               {
                 color: '#C22F0F',
