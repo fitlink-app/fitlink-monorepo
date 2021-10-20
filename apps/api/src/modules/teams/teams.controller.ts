@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -132,8 +133,12 @@ export class TeamsController {
   @Public()
   @Get('/teams/code/:code')
   @ApiResponse({ type: Team })
-  findTeamByCode(@Param('code') code: string) {
-    return this.teamsService.findOneByCode(code)
+  async findTeamByCode(@Param('code') code: string) {
+    const team = await this.teamsService.findOneByCode(code)
+    if (!team) {
+      throw new NotFoundException()
+    }
+    return team
   }
 
   // @Iam(Roles.TeamAdmin)

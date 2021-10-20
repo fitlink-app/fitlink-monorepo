@@ -106,7 +106,7 @@ export class TeamsService {
   }
 
   async findOneByCode(code: string) {
-    return await this.teamRepository.findOne(
+    return this.teamRepository.findOne(
       {
         join_code: code
       },
