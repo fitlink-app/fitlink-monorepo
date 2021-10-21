@@ -12,7 +12,7 @@ const API_URL = Config.API_URL;
 export const linkOauth = async (endpoint: string) => {
   try {
     const response = await api.get<any>(endpoint);
-
+    console.log(response.oauth_url);
     if ((await InAppBrowser.isAvailable()) && response.oauth_url) {
       const browserResponse = await InAppBrowser.openAuth(
         response.oauth_url,
@@ -21,6 +21,9 @@ export const linkOauth = async (endpoint: string) => {
           ephemeralWebSession: false,
         },
       );
+
+      console.log('browser response');
+      console.log(browserResponse);
 
       if (browserResponse.type === 'success' && browserResponse.url) {
         if (!browserResponse.url.includes('auth-success')) {

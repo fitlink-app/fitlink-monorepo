@@ -210,7 +210,9 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
             break;
         }
 
-        return `You just hit your ${goalName} goal, keep it up!`;
+        return `${isOwned ? 'You have just' : `${item.user.name}`} hit ${
+          isOwned ? 'your' : 'their'
+        } ${goalName} goal${isOwned ? ', keep it up!' : `.`}`;
       }
 
       default:
@@ -438,8 +440,11 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
 
     return (
       <TouchHandler
+        disabled={me!.id === targetUser.id}
         onPress={() => {
-          navigation.navigate('Profile', {id: targetUser.id});
+          if (me!.id !== targetUser.id) {
+            navigation.navigate('Profile', {id: targetUser.id});
+          }
         }}>
         <ProgressCircle
           progress={targetUser.goal_percentage}

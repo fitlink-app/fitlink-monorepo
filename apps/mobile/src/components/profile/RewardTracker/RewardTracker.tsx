@@ -11,6 +11,7 @@ import {
   Label,
 } from '../../common';
 import {LayoutUtils} from '@utils';
+import {ActivityIndicator} from 'react-native';
 
 const Wrapper = styled(Card)({
   padding: 20,
@@ -43,6 +44,8 @@ interface RewardTrackerProps extends Omit<TouchHandlerProps, 'disabled'> {
 
   /** Show next reward available label*/
   showNextReward?: boolean;
+
+  isLoading?: boolean;
 }
 
 export const _RewardTracker = ({
@@ -50,6 +53,7 @@ export const _RewardTracker = ({
   targetPoints,
   claimableRewardsCount,
   showNextReward,
+  isLoading,
   ...rest
 }: RewardTrackerProps) => {
   const {colors} = useTheme();
@@ -80,29 +84,38 @@ export const _RewardTracker = ({
           />
 
           <ContentContainer>
-            <CardLabelRow>
-              {renderCardLabel()}
-              {showNextReward ? (
-                !claimableRewardsCount && (
-                  <Label type={'caption'}>
-                    Next reward at{' '}
-                    <Label type={'caption'} appearance={'accent'}>
-                      {targetPoints}
-                    </Label>{' '}
-                    points
-                  </Label>
-                )
-              ) : (
-                <CardButton text={'View Rewards'} disabled />
-              )}
-            </CardLabelRow>
+            {isLoading ? (
+              <ActivityIndicator
+                color={colors.accent}
+                style={{marginLeft: -LayoutUtils.getPercentageSize(9)}}
+              />
+            ) : (
+              <>
+                <CardLabelRow>
+                  {renderCardLabel()}
+                  {showNextReward ? (
+                    !claimableRewardsCount && (
+                      <Label type={'caption'}>
+                        Next reward at{' '}
+                        <Label type={'caption'} appearance={'accent'}>
+                          {targetPoints}
+                        </Label>{' '}
+                        points
+                      </Label>
+                    )
+                  ) : (
+                    <CardButton text={'View Rewards'} disabled />
+                  )}
+                </CardLabelRow>
 
-            <ProgressBar
-              {...{progress}}
-              height={10}
-              bloomIntensity={0.5}
-              bloomRadius={8}
-            />
+                <ProgressBar
+                  {...{progress}}
+                  height={10}
+                  bloomIntensity={0.5}
+                  bloomRadius={8}
+                />
+              </>
+            )}
           </ContentContainer>
         </Row>
       </Wrapper>

@@ -6,3 +6,5 @@ export * from './user';
 export * from './league';
 export * from './feed';
 export * from './LifeCycleEvents';
+export * from './TeamInvitation';
+export * from './DeepLinkHandler';

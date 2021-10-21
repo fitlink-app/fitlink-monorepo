@@ -48,6 +48,10 @@
 		55091BABC1AFFECEF0A66158 /* Pods-Fitlink-FitlinkTests.release.development.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink-FitlinkTests.release.development.xcconfig"; path = "Target Support Files/Pods-Fitlink-FitlinkTests/Pods-Fitlink-FitlinkTests.release.development.xcconfig"; sourceTree = "<group>"; };
 		5865A5FC88403F83782EE204 /* Pods-Fitlink-FitlinkTests.development.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink-FitlinkTests.development.xcconfig"; path = "Target Support Files/Pods-Fitlink-FitlinkTests/Pods-Fitlink-FitlinkTests.development.xcconfig"; sourceTree = "<group>"; };
 		5B087F492697384100D8F85D /* Fitlink.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Fitlink.entitlements; path = Fitlink/Fitlink.entitlements; sourceTree = "<group>"; };
+		5B0B72F927200D3300467453 /* FitlinkDevelopment.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = FitlinkDevelopment.entitlements; path = Fitlink/FitlinkDevelopment.entitlements; sourceTree = "<group>"; };
+		5B0B73CA272085ED00467453 /* FitlinkRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = FitlinkRelease.entitlements; path = Fitlink/FitlinkRelease.entitlements; sourceTree = "<group>"; };
+		5B0B73CD2720860B00467453 /* FitlinkRelease.Codepush.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = FitlinkRelease.Codepush.entitlements; path = Fitlink/FitlinkRelease.Codepush.entitlements; sourceTree = "<group>"; };
+		5B0B73D02720860F00467453 /* FitlinkRelease.Development.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = FitlinkRelease.Development.entitlements; path = Fitlink/FitlinkRelease.Development.entitlements; sourceTree = "<group>"; };
 		5B0ED20C26EE4D700098C8FB /* AppCenter-Config.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "AppCenter-Config.plist"; sourceTree = "<group>"; };
 		5B4EEFB827045966005E7BA5 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		5B679C2826EB707B00D753A7 /* BootSplash.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = BootSplash.storyboard; path = Fitlink/BootSplash.storyboard; sourceTree = "<group>"; };
@@ -110,6 +114,10 @@
 		13B07FAE1A68108700A75B9A /* Fitlink */ = {
 			isa = PBXGroup;
 			children = (
+				5B0B73D02720860F00467453 /* FitlinkRelease.Development.entitlements */,
+				5B0B73CD2720860B00467453 /* FitlinkRelease.Codepush.entitlements */,
+				5B0B73CA272085ED00467453 /* FitlinkRelease.entitlements */,
+				5B0B72F927200D3300467453 /* FitlinkDevelopment.entitlements */,
 				5B087F492697384100D8F85D /* Fitlink.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -582,7 +590,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = Fitlink/Fitlink.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Fitlink/FitlinkRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -678,7 +686,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = Fitlink/Fitlink.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Fitlink/FitlinkDevelopment.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -796,7 +804,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = Fitlink/Fitlink.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Fitlink/FitlinkRelease.Development.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -909,7 +917,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = Fitlink/Fitlink.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Fitlink/FitlinkRelease.Codepush.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

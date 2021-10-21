@@ -83,7 +83,7 @@ export const submit = createAsyncThunk(
 
         payload.append('image', {
           // @ts-ignore
-          uri: state.tempAvatar.uri,
+          uri: currentState.tempAvatar.uri,
           type: currentState.tempAvatar.type,
           name:
             currentState.tempAvatar.fileName || new Date().getTime().toString(),

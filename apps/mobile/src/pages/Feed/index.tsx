@@ -7,7 +7,14 @@ import {
   Modal,
   RewardTracker,
 } from '@components';
-import {useFeed, useGoals, useMe, useModal, useProviders} from '@hooks';
+import {
+  useFeed,
+  useGoals,
+  useMe,
+  useModal,
+  useNextReward,
+  useProviders,
+} from '@hooks';
 import {UserWidget} from '@components';
 import React, {useEffect, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -75,6 +82,8 @@ export const Feed = () => {
     refetchOnMount: false,
     refetchInterval: 10000,
   });
+
+  const {data: nextReward, isFetched: isNextRewardFetched} = useNextReward();
 
   const feedPreferences = useSelector(memoSelectFeedPreferences);
 
@@ -150,7 +159,7 @@ export const Feed = () => {
 
   if (!user) return null;
 
-  const renderItem = ({item, index}) => {
+  const renderItem = ({item}: {item: FeedItemType}) => {
     const isLiked = !!(item.likes as UserPublic[]).find(
       (feedItemUser: any) => feedItemUser.id === user?.id,
     );
@@ -256,7 +265,7 @@ export const Feed = () => {
               <HeaderWidgetContainer style={{marginBottom: 5}}>
                 <UserWidget
                   name={user.name}
-                  rank={'Newbie'}
+                  rank={user.rank}
                   avatar={user.avatar?.url_512x512}
                   friendCount={user.following_total}
                   followerCount={user.followers_total}
@@ -318,9 +327,12 @@ export const Feed = () => {
 
               <HeaderWidgetContainer>
                 <RewardTracker
-                  points={177}
-                  targetPoints={250}
-                  claimableRewardsCount={0}
+                  points={user.points_total}
+                  targetPoints={nextReward?.reward.points_required || 0}
+                  isLoading={!isNextRewardFetched}
+                  claimableRewardsCount={
+                    nextReward?.unclaimed_rewards_total || 0
+                  }
                   onPress={() => navigation.navigate('Rewards')}
                 />
               </HeaderWidgetContainer>

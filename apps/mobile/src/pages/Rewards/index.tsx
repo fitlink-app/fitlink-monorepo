@@ -115,7 +115,6 @@ export const Rewards = () => {
   ].length;
 
   const pointsTotal = user?.points_total;
-  const claimableRewardsCount = unclaimedRewards?.pages[0]?.total || 0;
 
   useEffect(() => {
     Promise.all([refetchNextReward(), refetchAllRewards()]);
@@ -191,7 +190,7 @@ export const Rewards = () => {
               <RewardTracker
                 points={user?.points_total || 0}
                 targetPoints={nextReward?.reward?.points_required || 0}
-                claimableRewardsCount={claimableRewardsCount}
+                claimableRewardsCount={nextReward?.unclaimed_rewards_total || 0}
                 showNextReward={true}
               />
             )}

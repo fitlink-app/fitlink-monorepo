@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {AppBackground, LifeCycleEvents} from '@components';
+import {AppBackground, DeeplinkHandler, LifeCycleEvents} from '@components';
 import {withQueryClient} from '@query';
 import {ModalProvider, Transition} from './contexts';
 import {Provider} from 'react-redux';
@@ -61,6 +61,7 @@ const App = () => {
                 <Transition>
                   <ModalProvider>
                     <QueryPersistor>
+                      <DeeplinkHandler />
                       <Router />
                     </QueryPersistor>
                   </ModalProvider>

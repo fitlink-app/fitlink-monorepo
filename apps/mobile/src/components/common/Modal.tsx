@@ -35,7 +35,7 @@ const ButtonsContainer = styled.View({paddingTop: 20});
 const ButtonSpacer = styled.View({height: 5});
 
 interface ModalProps {
-  title: string;
+  title?: string;
   description?: string;
   buttons?: Partial<ButtonProps>[];
 }
@@ -63,7 +63,7 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <Wrapper>
       <ContentContainer>
-        <Title>{title}</Title>
+        {!!title && <Title>{title}</Title>}
 
         {!!description && <Description>{description}</Description>}
 

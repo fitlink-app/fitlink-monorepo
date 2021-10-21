@@ -40,11 +40,25 @@
 				<string>fitlink-app</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>fitlink-app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.fathomux.Fit-Link</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>CodePushDeploymentKey</key>
 	<string>$(CODEPUSH_KEY)</string>
+	<key>FirebaseDynamicLinksCustomDomains</key>
+	<array>
+		<string>https://go.fitlinkapp.com</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -70,10 +84,6 @@
 	<string>Your location will be used to find nearby activities.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location will be used to find nearby activities.</string>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
-	<array>
-		<string>com.transistorsoft.fetch</string>
-	</array>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>$(PRODUCT_NAME) would like to save photos to your photo gallery.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

@@ -20,7 +20,6 @@ import {
 import styled, {useTheme} from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 import LinearGradient from 'react-native-linear-gradient';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {StatWidget} from './components';
 import {useNavigation} from '@react-navigation/native';
 import {
@@ -44,7 +43,6 @@ import {
 } from '@hooks';
 import {formatRelative, formatDistanceStrict} from 'date-fns';
 import locale from 'date-fns/locale/en-US';
-import {getErrorMessage} from '@fitlink/api-sdk';
 import {ImageType} from '@fitlink/api/src/modules/images/images.constants';
 import {Dialog} from 'components/modal';
 

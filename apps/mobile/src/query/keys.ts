@@ -27,4 +27,5 @@ export enum QueryKeys {
   MyProviders = 'me/providers',
   HealthActivity = 'health-activity',
   Notifications = 'me/notifications',
+  UserFeed = 'users/feed',
 }
