@@ -56,6 +56,7 @@ export default function HealthActivitiesDebug() {
               Cell: boolToIcon
             },
             { Header: 'UID', accessor: 'user', Cell: toID },
+            { Header: 'Log', accessor: 'log', Cell: toJSON },
             { Header: ' ', Cell: cellActions }
           ]}
           fetch={(limit, page) =>

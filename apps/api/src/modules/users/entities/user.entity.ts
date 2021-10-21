@@ -370,6 +370,12 @@ export class User extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    default: 0
+  })
+  league_invitations_total: number
+
+  @ApiProperty()
+  @Column({
     nullable: true,
     type: 'varchar'
   })
@@ -419,6 +425,14 @@ export class UserPublic {
   @ApiProperty()
   @Expose()
   goal_percentage: number
+
+  @ApiProperty()
+  @Expose()
+  team_name?: string
+
+  @ApiProperty()
+  @Expose()
+  league_names?: string[]
 }
 
 export class UserPublicPagination {

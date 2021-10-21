@@ -36,6 +36,14 @@ export class CommonService {
       userPublic.invited = Boolean(user.leagues_invitations.length)
     }
 
+    if (user.leagues && user.leagues.length) {
+      userPublic.league_names = user.leagues.map((e) => e.name)
+    }
+
+    if (user.teams && user.teams.length) {
+      userPublic.team_name = user.teams[0].name
+    }
+
     // Convert today's goal percentage to 0
     // if the user hasn't had a health activity today.
     if (user.last_lifestyle_activity_at) {

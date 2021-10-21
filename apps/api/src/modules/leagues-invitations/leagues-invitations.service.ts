@@ -69,6 +69,13 @@ export class LeaguesInvitationsService {
       await this.sendNotification(to, from, league)
     }
 
+    // Also increment the user's invitations
+    await this.usersRepository.increment(
+      { id: to.id },
+      'league_invitations_total',
+      1
+    )
+
     return {
       invitation: this.publicInvitation(invitation),
       inviteLink,
@@ -125,7 +132,8 @@ export class LeaguesInvitationsService {
 
   /**
    * Generates a league invitation url
-   * comprised of the JWT.
+   * which simply deep links to the invitations
+   * within the app.
    *
    * @param token
    * @returns string

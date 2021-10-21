@@ -35,7 +35,6 @@ import { OrganisationsService } from '../organisations/organisations.service'
 import { OrganisationMode } from '../organisations/organisations.constants'
 import { UserSettingsService } from '../users-settings/users-settings.service'
 import { CommonService } from '../common/services/common.service'
-import { DeepLinkType } from '../../constants/deep-links'
 
 type PasswordResetToken = {
   sub: string
@@ -509,22 +508,14 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email)
     if (user) {
       const token = this.getResetPasswordToken(user)
-      const resetPasswordUrl = this.configService
+      const link = this.configService
         .get('RESET_PASSWORD_URL')
         .replace('{token}', token)
-
-      const dynamicLink = this.commonService.generateDynamicLink(
-        DeepLinkType.PasswordReset,
-        {
-          token: token
-        },
-        resetPasswordUrl
-      )
 
       await this.emailService.sendTemplatedEmail(
         'password-reset',
         {
-          PASSWORD_RESET_LINK: dynamicLink
+          PASSWORD_RESET_LINK: link
         },
         [email]
       )
