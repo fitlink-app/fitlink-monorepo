@@ -1,4 +1,4 @@
-import { HttpModule, Module } from '@nestjs/common'
+import { forwardRef, HttpModule, Module } from '@nestjs/common'
 import { UserSettingsService } from './users-settings.service'
 import { UserSettingsController } from './users-settings.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -10,11 +10,12 @@ import { ConfigModule } from '@nestjs/config'
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, UsersSetting]),
-    AuthModule,
+    forwardRef(() => AuthModule),
     HttpModule,
     ConfigModule
   ],
   controllers: [UserSettingsController],
-  providers: [UserSettingsService]
+  providers: [UserSettingsService],
+  exports: [UserSettingsService]
 })
 export class UsersSettingsModule {}

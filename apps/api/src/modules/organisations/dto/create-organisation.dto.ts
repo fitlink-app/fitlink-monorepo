@@ -44,6 +44,9 @@ export class CreateOrganisationDto {
   @ApiProperty()
   @IsOptional()
   invitee?: string
+
+  terms_agreed: boolean
+  terms_agreed_at: Date
 }
 
 export class CreateOrganisationDtoResult {

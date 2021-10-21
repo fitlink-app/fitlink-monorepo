@@ -16,6 +16,7 @@ import { AuthProvider } from './entities/auth-provider.entity'
 import { Team } from '../teams/entities/team.entity'
 import { OrganisationsModule } from '../organisations/organisations.module'
 import { NotificationsModule } from '../notifications/notifications.module'
+import { UsersSettingsModule } from '../users-settings/users-settings.module'
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { NotificationsModule } from '../notifications/notifications.module'
     PassportModule,
     CommonModule,
     NotificationsModule,
+    forwardRef(() => UsersSettingsModule),
     forwardRef(() => OrganisationsModule),
     forwardRef(() => UserRolesModule),
     JwtModule.registerAsync({
