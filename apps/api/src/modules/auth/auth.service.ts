@@ -34,6 +34,8 @@ import { Team } from '../teams/entities/team.entity'
 import { OrganisationsService } from '../organisations/organisations.service'
 import { OrganisationMode } from '../organisations/organisations.constants'
 import { UserSettingsService } from '../users-settings/users-settings.service'
+import { CommonService } from '../common/services/common.service'
+import { DeepLinkType } from '../../constants/deep-links'
 
 type PasswordResetToken = {
   sub: string
@@ -65,7 +67,8 @@ export class AuthService {
     private teamRepository: Repository<Team>,
     private connection: Connection,
     private httpService: HttpService,
-    private userSettingsService: UserSettingsService
+    private userSettingsService: UserSettingsService,
+    private commonService: CommonService
   ) {}
 
   /**
@@ -493,19 +496,35 @@ export class AuthService {
 
   /**
    * Sends user a password reset link in an email
+   *
+   * This is a deep link which on desktop will be
+   * routed to the browser app at https://my.fitlinkapp.com
+   *
+   * On mobile, it will deep link into the app
+   *
    * @param email
    * @returns
    */
   async requestPasswordReset(email: string) {
     const user = await this.usersService.findByEmail(email)
     if (user) {
+      const token = this.getResetPasswordToken(user)
       const resetPasswordUrl = this.configService
         .get('RESET_PASSWORD_URL')
-        .replace('{token}', this.getResetPasswordToken(user))
+        .replace('{token}', token)
+
+      const dynamicLink = this.commonService.generateDynamicLink(
+        DeepLinkType.PasswordReset,
+        {
+          token: token
+        },
+        resetPasswordUrl
+      )
+
       await this.emailService.sendTemplatedEmail(
         'password-reset',
         {
-          PASSWORD_RESET_LINK: resetPasswordUrl
+          PASSWORD_RESET_LINK: dynamicLink
         },
         [email]
       )

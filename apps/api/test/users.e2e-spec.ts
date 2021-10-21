@@ -207,11 +207,14 @@ describe('Users', () => {
       return each.toAddresses.includes(email)
     })
 
-    const query = emailData[0].data.EMAIL_VERIFICATION_LINK.split('?token=')
+    const desktopLink = decodeURIComponent(
+      new URL(emailData[0].data.EMAIL_VERIFICATION_LINK).searchParams.get('ofl')
+    )
+    const token = new URL(desktopLink).searchParams.get('token')
     const verify = await app.inject({
       method: 'POST',
       url: `/users/verify-email`,
-      payload: { token: query[1] }
+      payload: { token: token }
     })
 
     expect(verify.statusCode).toEqual(200)

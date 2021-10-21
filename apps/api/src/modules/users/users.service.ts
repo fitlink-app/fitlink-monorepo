@@ -45,6 +45,7 @@ import { Provider } from '../providers/entities/provider.entity'
 import { Activity } from '../activities/entities/activity.entity'
 import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.entity'
 import { HealthActivityDebug } from '../health-activities/entities/health-activity-debug.entity'
+import { DeepLinkType } from '../../constants/deep-links'
 
 type EntityOwner = {
   organisationId?: string
@@ -622,7 +623,13 @@ export class UsersService {
   }
 
   /**
-   * Sends a JWT-based email verification link to the email address
+   * Sends a JWT-based email verification link to the email address.
+   *
+   * This is a deep link which on desktop will be
+   * routed to the browser app at https://my.fitlinkapp.com
+   *
+   * On mobile, it will deep link into the app
+   *
    * @param id
    * @param email
    * @returns
@@ -640,13 +647,21 @@ export class UsersService {
       secret: this.configService.get('EMAIL_JWT_TOKEN_SECRET')
     })
 
-    const EMAIL_VERIFICATION_LINK = this.configService
+    const desktopFallback = this.configService
       .get('EMAIL_VERIFICATION_URL')
       .replace('{token}', token)
 
+    const dynamicLink = this.commonService.generateDynamicLink(
+      DeepLinkType.EmailVerification,
+      {
+        token: token
+      },
+      desktopFallback
+    )
+
     return this.emailService.sendTemplatedEmail(
       'email-verification',
-      { EMAIL_VERIFICATION_LINK },
+      { EMAIL_VERIFICATION_LINK: dynamicLink },
       [email]
     )
   }
