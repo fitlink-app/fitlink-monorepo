@@ -719,8 +719,8 @@ export class LeaguesService {
       .leftJoinAndSelect(
         'user.leagues_invitations',
         'invitation',
-        'i1.id = invitation.id AND invitation.from_user.id = :userId',
-        { userId }
+        'i1.id = invitation.id AND invitation.to_user.id = user.id AND invitation.league.id = :leagueId',
+        { userId, leagueId }
       )
       .leftJoin('user.following', 'f1')
       .leftJoin('user.followers', 'f2')
