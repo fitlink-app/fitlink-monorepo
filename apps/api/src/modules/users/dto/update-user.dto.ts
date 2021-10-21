@@ -127,6 +127,9 @@ export class VerifyUserEmailResultDto {
   @ApiProperty()
   @IsString()
   success: boolean
+
+  @ApiProperty()
+  link: string
 }
 
 export class UpdateUserPasswordDto {

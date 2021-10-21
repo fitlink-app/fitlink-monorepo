@@ -370,6 +370,12 @@ export class User extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    default: 0
+  })
+  league_invitations_total: number
+
+  @ApiProperty()
+  @Column({
     nullable: true,
     type: 'varchar'
   })

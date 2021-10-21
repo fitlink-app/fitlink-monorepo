@@ -134,7 +134,8 @@ export class AuthController {
   async resetPassword(@Body() resetPasswordDto: AuthResetPasswordDto) {
     try {
       const result = await this.authService.resetPassword(resetPasswordDto)
-      return result
+      const link = this.authService.generatePostPasswordResetLink()
+      return { ...result, link }
     } catch (e) {
       throw new BadRequestException(e.message)
     }

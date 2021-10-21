@@ -1,5 +1,7 @@
 export enum DeepLinkType {
   TeamInvitation = 'team-invitation',
+  LeagueInvitation = 'league-invitation',
   PasswordReset = 'password-reset',
-  EmailVerification = 'email-verification'
+  EmailVerification = 'email-verification',
+  LaunchApp = 'launch-app'
 }

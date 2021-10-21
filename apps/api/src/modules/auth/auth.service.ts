@@ -509,22 +509,14 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email)
     if (user) {
       const token = this.getResetPasswordToken(user)
-      const resetPasswordUrl = this.configService
+      const link = this.configService
         .get('RESET_PASSWORD_URL')
         .replace('{token}', token)
-
-      const dynamicLink = this.commonService.generateDynamicLink(
-        DeepLinkType.PasswordReset,
-        {
-          token: token
-        },
-        resetPasswordUrl
-      )
 
       await this.emailService.sendTemplatedEmail(
         'password-reset',
         {
-          PASSWORD_RESET_LINK: dynamicLink
+          PASSWORD_RESET_LINK: link
         },
         [email]
       )
@@ -562,6 +554,14 @@ export class AuthService {
     } else {
       throw new Error('User not found')
     }
+  }
+
+  generatePostPasswordResetLink() {
+    return this.commonService.generateDynamicLink(
+      DeepLinkType.PasswordReset,
+      {},
+      this.configService.get('DASHBOARD_URL') + '/login'
+    )
   }
 
   /**

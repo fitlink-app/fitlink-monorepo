@@ -19,6 +19,8 @@ import { plainToClass } from 'class-transformer'
 import { LeagueInvitePermission } from '../leagues/leagues.constants'
 import { NotificationsService } from '../notifications/notifications.service'
 import { NotificationAction } from '../notifications/notifications.constants'
+import { CommonService } from '../common/services/common.service'
+import { DeepLinkType } from '../../constants/deep-links'
 
 @Injectable()
 export class LeaguesInvitationsService {
@@ -31,7 +33,8 @@ export class LeaguesInvitationsService {
     private readonly invitationsRepository: Repository<LeaguesInvitation>,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
+    private commonService: CommonService
   ) {}
 
   async create(
@@ -53,7 +56,18 @@ export class LeaguesInvitationsService {
     )
 
     const token = this.createToken(invitation.id)
-    const inviteLink = this.createInviteLink(token)
+    const fallbackLink =
+      this.configService.get('SHORT_URL') +
+      '/launch?type=' +
+      DeepLinkType.LeagueInvitation
+    const inviteLink = this.commonService.generateDynamicLink(
+      DeepLinkType.LeagueInvitation,
+      {},
+      fallbackLink
+    )
+
+    // Deprecated method of invitation
+    // const inviteLink = this.createInviteLink(token)
 
     if (to.email) {
       await this.sendEmail(
@@ -68,6 +82,13 @@ export class LeaguesInvitationsService {
     if (to.fcm_tokens && to.fcm_tokens.length) {
       await this.sendNotification(to, from, league)
     }
+
+    // Also increment the user's invitations
+    await this.usersRepository.increment(
+      { id: to.id },
+      'league_invitations_total',
+      1
+    )
 
     return {
       invitation: this.publicInvitation(invitation),
@@ -125,7 +146,8 @@ export class LeaguesInvitationsService {
 
   /**
    * Generates a league invitation url
-   * comprised of the JWT.
+   * which simply deep links to the invitations
+   * within the app.
    *
    * @param token
    * @returns string
