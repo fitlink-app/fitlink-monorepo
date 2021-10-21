@@ -3,16 +3,19 @@ import styled from 'styled-components/native';
 import {Card} from './Card';
 import {Button, ButtonProps} from './Button';
 import {Label} from './Label';
+import {StyleProp, ViewStyle} from 'react-native';
 
 const Wrapper = styled.View({
   width: '100%',
 });
 
-const ContentContainer = styled(Card)({
+const StyledCard = styled(Card)({
   margin: 20,
   padding: 20,
   alignItems: 'center',
 });
+
+const ContentContainer = styled.View({});
 
 const ChildrenContainer = styled.View({paddingTop: 10});
 
@@ -38,6 +41,7 @@ interface ModalProps {
   title?: string;
   description?: string;
   buttons?: Partial<ButtonProps>[];
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -45,6 +49,7 @@ export const Modal: React.FC<ModalProps> = ({
   title,
   description,
   buttons,
+  containerStyle,
 }) => {
   const renderButtons = () =>
     buttons?.length ? (
@@ -62,18 +67,20 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <Wrapper>
-      <ContentContainer>
-        {!!title && <Title>{title}</Title>}
+      <StyledCard>
+        <ContentContainer style={containerStyle}>
+          {!!title && <Title>{title}</Title>}
 
-        {!!description && <Description>{description}</Description>}
+          {!!description && <Description>{description}</Description>}
 
-        {!!children && (
-          <>
-            <ChildrenContainer>{children}</ChildrenContainer>
-          </>
-        )}
-        {renderButtons()}
-      </ContentContainer>
+          {!!children && (
+            <>
+              <ChildrenContainer>{children}</ChildrenContainer>
+            </>
+          )}
+          {renderButtons()}
+        </ContentContainer>
+      </StyledCard>
     </Wrapper>
   );
 };

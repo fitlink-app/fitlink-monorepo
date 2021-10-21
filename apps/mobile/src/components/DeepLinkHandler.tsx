@@ -2,15 +2,20 @@ import React, {useEffect, useState} from 'react';
 import dynamicLinks from '@react-native-firebase/dynamic-links';
 import {DeepLinkType} from '@fitlink/api/src/constants/deep-links';
 import messaging from '@react-native-firebase/messaging';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {memoSelectIsAuthenticated} from 'redux/auth/authSlice';
 import {getUrlParams} from 'utils/api';
 import {navigationRef} from 'routes/router';
 import api from '@api';
-import {Team} from '@fitlink/api/src/modules/teams/entities/team.entity';
 import {Button, Modal, TeamInvitation} from '@components';
-import {useModal} from '@hooks';
-import {InteractionManager, View} from 'react-native';
+import {useJoinTeamByCode, useMe, useModal} from '@hooks';
+import {AppDispatch} from 'redux/store';
+import {
+  getInvitationData,
+  resetTeamInvitation,
+  selectTeamInvitation,
+} from 'redux/teamInvitation/teamInvitationSlice';
+import {View} from 'react-native';
 
 export enum DEEP_LINK_TYPES {
   TeamInvitation = 'team_invitation',
@@ -20,10 +25,13 @@ export enum DEEP_LINK_TYPES {
 
 export const DeeplinkHandler = () => {
   const navigation = navigationRef;
-  const isAuthenticated = useSelector(memoSelectIsAuthenticated);
   const {openModal, closeModal} = useModal();
+  const dispatch = useDispatch() as AppDispatch;
 
-  const [areInteractionsDone, setInteractionsDone] = useState(false);
+  const isAuthenticated = useSelector(memoSelectIsAuthenticated);
+  const {invitation, code} = useSelector(selectTeamInvitation);
+
+  const {data: me, refetch: refetchUser} = useMe({enabled: isAuthenticated});
 
   //   useEffect(() => {
   //     messaging().onNotificationOpenedApp(remoteMessage => {
@@ -38,24 +46,14 @@ export const DeeplinkHandler = () => {
   //   }, []);
 
   useEffect(() => {
-    InteractionManager.runAfterInteractions(() => {
-      setTimeout(() => {
-        setInteractionsDone(true);
-      }, 250);
-    });
+    dynamicLinks()
+      .getInitialLink()
+      .then(link => {
+        if (link) {
+          handleDynamicLink(link.url, 'background');
+        }
+      });
   }, []);
-
-  useEffect(() => {
-    if (areInteractionsDone) {
-      dynamicLinks()
-        .getInitialLink()
-        .then(link => {
-          if (link) {
-            handleDynamicLink(link.url, 'background');
-          }
-        });
-    }
-  }, [areInteractionsDone]);
 
   useEffect(() => {
     // Create listener
@@ -63,7 +61,7 @@ export const DeeplinkHandler = () => {
       handleDynamicLink(link.url, 'foreground');
     });
     return () => unsubscribe();
-  }, []);
+  }, [isAuthenticated, invitation, code, me, openModal]);
 
   const handleDynamicLink = async (
     url: string,
@@ -113,42 +111,13 @@ export const DeeplinkHandler = () => {
   //   };
 
   const handleTeamInvitation = async (code: string) => {
-    if (isAuthenticated) {
-      try {
-        const result = await api.get<Team>(`/teams/code/${code}`);
-
-        openModal(id => {
-          return (
-            <Modal>
-              <TeamInvitation
-                style={{marginBottom: 40}}
-                teamName={result.name}
-                avatar={result.avatar?.url_512x512}
-              />
-
-              <Button
-                text={'Accept Invitation'}
-                onPress={() => {
-                  closeModal(id);
-                }}
-              />
-              <View style={{height: 10}} />
-              <Button
-                textOnly
-                text={'Not now'}
-                onPress={() => {
-                  closeModal(id);
-                }}
-              />
-            </Modal>
-          );
-        });
-      } catch (e) {
-        console.log(e);
-      }
-    } else {
-      // NO - Store code in state to show team info
+    try {
+      await dispatch(getInvitationData(code));
+    } catch (e) {
+      console.log('Failed to get team invitation data');
     }
+
+    showTeamInvitationModal();
   };
 
   //   const handlePasswordReset = async () => {
@@ -188,6 +157,64 @@ export const DeeplinkHandler = () => {
 
   //     navigationRef.current?.dispatch(StackActions.push('Profile', {id: userId}));
   //   };
+
+  const showTeamInvitationModal = async () => {
+    if (!invitation || !isAuthenticated || !me?.onboarded || !code) return;
+
+    const userQuery = await refetchUser();
+
+    if (
+      !userQuery.data ||
+      userQuery.data.teams?.find(team => team.id === invitation?.id)
+    ) {
+      console.log('User already member of team.');
+      return;
+    }
+
+    setTimeout(() => {
+      openModal(
+        id => {
+          return (
+            <Modal containerStyle={{marginVertical: 30}}>
+              <TeamInvitation
+                teamName={invitation.name}
+                avatar={invitation.avatar?.url_512x512}
+                code={code}
+                showButtons={true}
+                onClose={(success: boolean) => {
+                  closeModal(id);
+                  dispatch(resetTeamInvitation());
+
+                  if (success) {
+                    setTimeout(() => {
+                      openModal(id => {
+                        return (
+                          <Modal
+                            title={'Joined Team'}
+                            description={`You have joined ${invitation.name}`}
+                            buttons={[
+                              {
+                                text: 'Ok',
+                                onPress: () => closeModal(id),
+                              },
+                            ]}
+                          />
+                        );
+                      });
+                    }, 250);
+                  }
+                }}
+              />
+            </Modal>
+          );
+        },
+        () => {
+          dispatch(resetTeamInvitation());
+        },
+        'teamInvitationModal',
+      );
+    }, 500);
+  };
 
   return null;
 };

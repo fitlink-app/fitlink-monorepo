@@ -438,6 +438,8 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
 
     const targetUser = getTargetUser();
 
+    console.log(targetUser);
+
     return (
       <TouchHandler
         disabled={me!.id === targetUser.id}

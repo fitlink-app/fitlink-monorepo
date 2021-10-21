@@ -251,7 +251,7 @@ async function getActivitiesSinceDate(
       if (err) {
         reject('Unable to retrieve activities from HealthKit.');
       }
-
+      console.log(results);
       resolve(results);
     });
   });

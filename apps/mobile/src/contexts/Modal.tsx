@@ -40,12 +40,14 @@ type ModalComponent = {
   id: string;
   component: JSX.Element;
   onCloseCallback?: () => void;
+  key: string;
 };
 
 interface ModalContextType {
   openModal: (
     content: (componentId: string) => JSX.Element,
     onCloseCallback?: () => void,
+    key?: string,
   ) => string;
   closeModal: (id: string, callback?: () => void) => void;
 }
@@ -96,7 +98,13 @@ export const ModalProvider: React.FC = ({children}) => {
   function openModal(
     content: (componentId: string) => JSX.Element,
     onCloseCallback?: () => void,
+    key?: string,
   ) {
+    if (components.find(component => component.key === key)) {
+      console.log('Component with key already exists.');
+      return;
+    }
+
     const componentId = uuidv4();
 
     const wrappedComponent = (
@@ -106,6 +114,7 @@ export const ModalProvider: React.FC = ({children}) => {
       id: componentId,
       component: wrappedComponent,
       onCloseCallback,
+      key: key || componentId,
     };
 
     setComponents(prevComponents => [newModalComponent, ...prevComponents]);
@@ -114,13 +123,8 @@ export const ModalProvider: React.FC = ({children}) => {
   }
 
   function closeModal(id: string, callback?: () => void) {
-    console.log(components);
-    console.log(id);
     const selectedComponent = components.find(component => component.id === id);
     const newComponents = components.filter(component => component.id !== id);
-
-    console.log('selected component');
-    console.log(selectedComponent);
 
     animateClose(() => {
       selectedComponent?.onCloseCallback && selectedComponent.onCloseCallback();

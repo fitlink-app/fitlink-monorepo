@@ -108,9 +108,12 @@ export const logout = createAsyncThunk(
     try {
       dispatch(clearAuthResult());
       flushPersistedQueries();
-      queryClient.removeQueries();
-      await deleteCurrentToken();
-      await api.logout();
+
+      await Promise.all([
+        queryClient.removeQueries(),
+        deleteCurrentToken(),
+        api.logout(),
+      ]);
     } catch (e: any) {
       return getErrors(e);
     }
@@ -137,6 +140,7 @@ const authSlice = createSlice({
       state.authResult = payload;
     },
     clearAuthResult: state => {
+      console.log('should clear');
       state.authResult = null;
     },
   },

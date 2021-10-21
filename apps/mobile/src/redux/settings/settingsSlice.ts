@@ -127,6 +127,10 @@ export const initialState: SettingsState = {
       goal_water_litres: 0,
       goal_sleep_hours: 0,
     },
+    userSettings: {
+      privacy_daily_statistics: PrivacySetting.Private,
+      privacy_activities: PrivacySetting.Private,
+    },
     unitSystem: UnitSystem.Imperial,
     timezone: 'Etc/UTC',
   },

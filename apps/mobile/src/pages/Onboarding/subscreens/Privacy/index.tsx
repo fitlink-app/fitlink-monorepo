@@ -48,7 +48,8 @@ const SettingDropdown = styled(FormDropdown)({
 export const Privacy = () => {
   const dispatch = useDispatch();
   const settings = useSelector(selectSettings);
-
+  console.log('cs');
+  console.log(settings);
   return (
     <Wrapper>
       <ContentContainer>
