@@ -29,7 +29,10 @@ export const SettingsHealthActivityButton = ({
         buttons={[
           {
             text: 'Unlink',
-            onPress: onUnlink,
+            onPress: () => {
+              closeModal(id);
+              onUnlink();
+            },
             type: 'danger',
           },
           {

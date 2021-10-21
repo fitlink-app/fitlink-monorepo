@@ -14,7 +14,7 @@ import {SignUpForm, Background} from './components';
 const Wrapper = styled.ScrollView.attrs(() => ({
   contentContainerStyle: {
     flex: 1,
-    marginBottom: 30,
+    paddingBottom: 30,
   },
   keyboardShouldPersistTaps: 'handled',
   scrollEnabled: false,

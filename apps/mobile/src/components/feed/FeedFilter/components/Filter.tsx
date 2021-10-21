@@ -34,7 +34,6 @@ export const Filter = ({onSavePreferences}: FilterProps) => {
   const setFilterValue = (filter: keyof FeedPreferences, value: boolean) => {
     const newPreferences = {...localPreferences};
     newPreferences[filter] = value;
-    console.log(newPreferences);
     setLocalPreferences(newPreferences);
   };
 

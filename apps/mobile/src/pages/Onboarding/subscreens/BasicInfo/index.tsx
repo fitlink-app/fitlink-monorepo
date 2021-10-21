@@ -11,6 +11,7 @@ import {AvatarPicker} from './components';
 const Wrapper = styled.View({
   height: '100%',
   padding: 20,
+  backgroundColor: 'transparent',
 });
 
 const ContentContainer = styled(ScrollView).attrs(() => ({

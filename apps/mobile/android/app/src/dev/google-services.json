@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "196133054647",
+    "project_id": "fitlink-rn-development",
+    "storage_bucket": "fitlink-rn-development.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196133054647:android:dceea0b9542f33861f4532",
+        "android_client_info": {
+          "package_name": "app.fitlink"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "196133054647-8l0dmvjbhh4gvkahfs1tni4ke4rbcv0a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7P-l0WXd-SOCjlgbIp9Xx_PyRxIeG0EU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "196133054647-8l0dmvjbhh4gvkahfs1tni4ke4rbcv0a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "196133054647-77vn0tt3delskjlc9t9t73ts4jcgm472.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.fathomux.Fit-Link"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196133054647:android:ee23ee2ac8b85cb71f4532",
+        "android_client_info": {
+          "package_name": "app.fitlink.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "196133054647-eseq2fgrcudv86jqeicm22lk0gcctpd1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.fitlink.dev",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "196133054647-8l0dmvjbhh4gvkahfs1tni4ke4rbcv0a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7P-l0WXd-SOCjlgbIp9Xx_PyRxIeG0EU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "196133054647-8l0dmvjbhh4gvkahfs1tni4ke4rbcv0a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "196133054647-77vn0tt3delskjlc9t9t73ts4jcgm472.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.fathomux.Fit-Link"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

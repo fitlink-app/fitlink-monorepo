@@ -20,3 +20,15 @@ export const getResultsFromPages = <T>(
 
   return results;
 };
+
+export const getUrlParams = (url: string) => {
+  let regex = /[?&]([^=#]+)=([^&#]*)/g;
+  let params: {[key: string]: string} = {};
+  let match;
+
+  while ((match = regex.exec(url))) {
+    params[match[1]] = decodeURIComponent(decodeURIComponent(match[2])); // ¯\_(ツ)_/¯
+  }
+
+  return params;
+};

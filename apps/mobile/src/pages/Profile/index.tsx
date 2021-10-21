@@ -1,4 +1,5 @@
 import {
+  FeedItem,
   GoalTracker,
   Icon,
   Label,
@@ -6,22 +7,34 @@ import {
   NAVBAR_HEIGHT,
   UserWidget,
 } from '@components';
-import {useFollowUser, useUnfollowUser, useUser} from '@hooks';
+import {
+  useFollowUser,
+  useMe,
+  useUnfollowUser,
+  useUser,
+  useUserFeed,
+  useUserGoals,
+} from '@hooks';
 import {StackScreenProps} from '@react-navigation/stack';
-import React from 'react';
-import {ActivityIndicator, RefreshControl, ScrollView} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  ActivityIndicator,
+  RefreshControl,
+  FlatList,
+  View,
+  InteractionManager,
+  Platform,
+} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {RootStackParamList} from 'routes/types';
+import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
+import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
+import {getResultsFromPages} from 'utils/api';
+import {queryClient, QueryKeys} from '@query';
 
 const Wrapper = styled.View({
   flex: 1,
-});
-
-const ContentContainer = styled(ScrollView).attrs({
-  contentContainerStyle: {},
-})({
-  overflow: 'visible',
 });
 
 const HeaderContainer = styled.View({
@@ -55,15 +68,39 @@ export const Profile = (
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
 
+  const {data: me} = useMe({enabled: false});
+
+  const [areInteractionsDone, setInteractionsDone] = useState(false);
+
   const {
     data: user,
-    isFetchedAfterMount: isUserFetchedAfterMount,
+    isFetched: isUserFetched,
     refetch: refetchUser,
-    isFetching: isFetchingUser,
-  } = useUser(id);
+  } = useUser({userId: id, options: {enabled: areInteractionsDone}});
+
+  const {
+    data: feedData,
+    isLoading: isFeedLoading,
+    isFetchedAfterMount: isFeedFetchedAfterMount,
+    refetch: refetchFeed,
+    fetchNextPage: fetchFeedNextPage,
+    isFetchingNextPage: isFetchingFeedNextPage,
+  } = useUserFeed(id);
+
+  const feedItems = getResultsFromPages<FeedItemType>(feedData);
+
+  const {data: goals, refetch: refetchGoals} = useUserGoals(id);
 
   const {mutate: followUser} = useFollowUser();
   const {mutate: unfollowUser} = useUnfollowUser();
+
+  const [isFetchingManually, setIsFetchingManually] = useState(false);
+
+  useEffect(() => {
+    InteractionManager.runAfterInteractions(() => {
+      setInteractionsDone(true);
+    });
+  }, []);
 
   const handleOnFollowPressed = () => {
     followUser(id);
@@ -73,8 +110,21 @@ export const Profile = (
     unfollowUser(id);
   };
 
-  const handleOnRefresh = () => {
-    refetchUser();
+  const handleOnRefresh = async () => {
+    setIsFetchingManually(true);
+
+    queryClient.setQueryData([QueryKeys.UserFeed, id], (data: any) => {
+      return {
+        pages: data.pages.length ? [data.pages[0]] : data.pages,
+        pageParams: data.pageParams.length
+          ? [data.pageParams[0]]
+          : data.pageParams,
+      };
+    });
+
+    Promise.all([refetchUser, refetchFeed, refetchGoals]).finally(() => {
+      setIsFetchingManually(false);
+    });
   };
 
   const FollowButton = user?.following ? (
@@ -93,78 +143,150 @@ export const Profile = (
     />
   );
 
+  const renderFeedItem = ({item}: {item: FeedItemType}) => {
+    const isLiked = !!(item.likes as UserPublic[]).find(
+      (feedItemUser: any) => feedItemUser.id === me?.id,
+    );
+
+    return (
+      <FeedItem
+        key={item.id}
+        item={item}
+        unitSystem={me!.unit_system}
+        isLiked={isLiked}
+      />
+    );
+  };
+
+  const ListHeaderComponent = !!user ? (
+    <>
+      <HeaderContainer>
+        <WidgetContainer>
+          <UserWidget
+            avatar={user!.avatar?.url_512x512}
+            name={user!.name}
+            rank={user!.rank}
+            friendCount={user!.following_total}
+            followerCount={user!.followers_total}
+            pointCount={user!.points_total}
+          />
+        </WidgetContainer>
+
+        <WidgetContainer>
+          <GoalTracker
+            trackers={[
+              {
+                enabled: true,
+                identifier: 'steps',
+                goal: {
+                  value: goals?.current_steps || 0,
+                  target: goals?.target_steps || 0,
+                },
+                icon: 'steps',
+              },
+              {
+                enabled: true,
+                identifier: 'mindfulness',
+                goal: {
+                  value: goals?.current_mindfulness_minutes || 0,
+                  target: goals?.target_mindfulness_minutes || 0,
+                },
+                icon: 'yoga',
+              },
+              {
+                enabled: true,
+                identifier: 'water',
+                goal: {
+                  value: goals?.current_water_litres || 0,
+                  target: goals?.target_water_litres || 0,
+                },
+                icon: 'water',
+              },
+              {
+                enabled: true,
+                identifier: 'sleep',
+                goal: {
+                  value: goals?.current_sleep_hours || 0,
+                  target: goals?.target_sleep_hours || 0,
+                },
+                icon: 'sleep',
+              },
+              {
+                enabled: true,
+                identifier: 'floors',
+                goal: {
+                  value: goals?.current_floors_climbed || 0,
+                  target: goals?.target_floors_climbed || 0,
+                },
+                icon: 'stairs',
+              },
+            ]}
+          />
+        </WidgetContainer>
+      </HeaderContainer>
+
+      <WidgetContainer>
+        <FeedHeaderWrapper>
+          <Label type={'subheading'} appearance={'primary'}>
+            Recent Activities
+          </Label>
+        </FeedHeaderWrapper>
+      </WidgetContainer>
+    </>
+  ) : null;
+
+  const ListEmptyComponent = () => {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        {isFeedLoading || !isFeedFetchedAfterMount ? (
+          <ActivityIndicator color={colors.accent} />
+        ) : (
+          <Label
+            type="body"
+            appearance={'accentSecondary'}
+            style={{textAlign: 'center'}}>
+            No recent activities.
+          </Label>
+        )}
+      </View>
+    );
+  };
+
+  const ListFooterComponent = isFetchingFeedNextPage ? (
+    <View style={{height: 72, alignItems: 'center', justifyContent: 'center'}}>
+      <ActivityIndicator color={colors.accent} />
+    </View>
+  ) : null;
+
   return (
     <Wrapper>
-      {isUserFetchedAfterMount ? (
-        <ContentContainer
+      {isUserFetched ? (
+        <FlatList
+          {...{ListHeaderComponent, ListEmptyComponent, ListFooterComponent}}
+          renderItem={renderFeedItem}
+          data={feedItems}
+          onEndReachedThreshold={0.2}
+          onEndReached={() => fetchFeedNextPage()}
           refreshControl={
             <RefreshControl
               tintColor={colors.accent}
-              refreshing={isFetchingUser}
+              refreshing={isFetchingManually}
               onRefresh={handleOnRefresh}
             />
           }
-          style={{
-            marginTop: NAVBAR_HEIGHT + insets.top,
-          }}>
-          <HeaderContainer>
-            <WidgetContainer>
-              <UserWidget
-                avatar={user!.avatar?.url_512x512}
-                name={user!.name}
-                rank={user!.rank}
-                friendCount={user!.following_total}
-                followerCount={user!.followers_total}
-                pointCount={user!.points_total}
-              />
-            </WidgetContainer>
-
-            <WidgetContainer>
-              <GoalTracker
-                trackers={[
-                  {
-                    enabled: true,
-                    identifier: 'steps',
-                    goal: {value: 3476, target: 7500},
-                    icon: 'steps',
-                  },
-                  {
-                    enabled: false,
-                    identifier: 'mindfulness',
-                    goal: {value: 0, target: 200},
-                    icon: 'yoga',
-                  },
-                  {
-                    enabled: false,
-                    identifier: 'water',
-                    goal: {value: 0, target: 200},
-                    icon: 'water',
-                  },
-                  {
-                    enabled: true,
-                    identifier: 'sleep',
-                    goal: {value: 7.5, target: 8},
-                    icon: 'sleep',
-                  },
-                  {
-                    enabled: true,
-                    identifier: 'floors',
-                    goal: {value: 22, target: 15},
-                    icon: 'stairs',
-                  },
-                ]}
-              />
-            </WidgetContainer>
-          </HeaderContainer>
-
-          <WidgetContainer>
-            <FeedHeaderWrapper>
-              <Label type={'subheading'} appearance={'primary'}>
-                Recent Activities
-              </Label>
-            </FeedHeaderWrapper>
-          </WidgetContainer>
-        </ContentContainer>
+          contentInset={{top: NAVBAR_HEIGHT + insets.top}}
+          contentOffset={{x: 0, y: -(NAVBAR_HEIGHT + insets.top)}}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: insets.bottom,
+            paddingTop: Platform.OS === 'ios' ? 0 : NAVBAR_HEIGHT + insets.top,
+          }}
+        />
       ) : (
         <LoadingContainer>
           <ActivityIndicator color={colors.accent} />
@@ -174,7 +296,7 @@ export const Profile = (
       <Navbar
         backButtonLabel={'Back'}
         overlay
-        rightComponent={isUserFetchedAfterMount ? FollowButton : undefined}
+        rightComponent={isUserFetched ? FollowButton : undefined}
       />
     </Wrapper>
   );

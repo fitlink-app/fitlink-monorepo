@@ -30,8 +30,12 @@ export function getErrors(e: ResponseError) {
 //   return response;
 // });
 
-axios.interceptors.request.use(
-  config => new Promise(resolve => setTimeout(() => resolve(config), 600)),
-);
+// axios.interceptors.response.use(async response => {
+//   console.warn('Remember to remove `sleep` from axios interceptors');
+//   await new Promise(resolve => setTimeout(resolve, 2000));
+//   return response;
+// });
 
 export default makeApi(axios);
+
+export * from './fcmTokens';

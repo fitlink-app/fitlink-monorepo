@@ -8,7 +8,7 @@ export type FeedPreferences = {
 };
 
 export const initialState: FeedPreferences = {
-  showFriends: false,
+  showFriends: true,
   showGoals: true,
   showUpdates: true,
 };

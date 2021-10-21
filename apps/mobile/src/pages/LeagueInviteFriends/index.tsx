@@ -2,7 +2,12 @@ import React, {useState} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {RootStackParamList} from 'routes/types';
 import {StackScreenProps} from '@react-navigation/stack';
-import {ActivityIndicator, FlatList, RefreshControl} from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Platform,
+  RefreshControl,
+} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Label, Navbar, NAVBAR_HEIGHT} from '@components';
 import {InviteRow} from './components';
@@ -53,7 +58,6 @@ export const LeagueInviteFriends = (
 
     // Handle invite
     try {
-      console.log(userId);
       await inviteToLeague({leagueId, userId});
     } catch (e) {
       console.log(getErrors(e));
@@ -79,6 +83,8 @@ export const LeagueInviteFriends = (
       <InviteRow
         userId={item.id as string}
         name={item.name as string}
+        teamName={item.team_name}
+        leagueNames={item.league_names}
         isInvited={!!item.invited}
         onInvitePressed={handleInvitePressed}
         avatarSource={item.avatar?.url_128x128}
@@ -118,7 +124,12 @@ export const LeagueInviteFriends = (
             ListFooterComponent,
           }}
           data={results}
-          contentContainerStyle={{paddingBottom: 20, flexGrow: 1}}
+          contentContainerStyle={{
+            paddingBottom: 20,
+            flexGrow: 1,
+
+            paddingTop: Platform.OS === 'ios' ? 0 : NAVBAR_HEIGHT + insets.top,
+          }}
           contentInset={{top: paddingTop, left: 0, bottom: 0, right: 0}}
           contentOffset={{x: 0, y: -paddingTop}}
           automaticallyAdjustContentInsets={false}
@@ -127,6 +138,7 @@ export const LeagueInviteFriends = (
           onEndReached={() => fetchNextPage()}
           refreshControl={
             <RefreshControl
+              progressViewOffset={NAVBAR_HEIGHT + insets.top}
               tintColor={colors.accent}
               refreshing={
                 isFetching && isFetchedAfterMount && !isFetchingNextPage

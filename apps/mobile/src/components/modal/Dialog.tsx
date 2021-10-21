@@ -3,12 +3,11 @@ import {Animated, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Button, Card, Label} from '../../components';
 import styled, {useTheme} from 'styled-components/native';
+import {ButtonProps} from 'components/common';
 
-type DialogButton = {
-  label: string;
+interface DialogButton extends Omit<ButtonProps, 'onPress'> {
   onPress: () => any;
-  closeWithoutAnimation?: boolean;
-};
+}
 
 // ---------- Styled Components --------- //
 const Wrapper = styled.View.attrs(() => ({
@@ -91,12 +90,12 @@ export const Dialog: React.FC<DialogProps> = ({
   }
 
   function renderButtons() {
-    return buttons.map((button, index) => (
+    return buttons.map(({onPress, ...rest}, index) => (
       <Button
-        key={button.label + index}
+        {...rest}
+        key={index}
         style={{marginBottom: index === buttons.length - 1 ? 0 : 5}}
-        text={button.label}
-        onPress={() => handleDialogButtonPress(button.onPress)}
+        onPress={() => handleDialogButtonPress(onPress)}
       />
     ));
   }
