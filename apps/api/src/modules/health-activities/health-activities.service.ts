@@ -148,14 +148,14 @@ export class HealthActivitiesService {
       )
       return newHealthActivity as HealthActivity
     } else {
-      await this.debug({
-        userId,
-        raw,
-        processed: activity,
-        log: isDuplicate
-          ? [`Activity is duplicate`]
-          : [`Sport ${type} not registered`]
-      })
+      if (!isDuplicate) {
+        await this.debug({
+          userId,
+          raw,
+          processed: activity,
+          log: [`Sport ${type} not registered`]
+        })
+      }
       return { healthActivity: null }
     }
   }
