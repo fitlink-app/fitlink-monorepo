@@ -91,7 +91,7 @@ export class TeamsInvitationsService {
           invitee: invitee,
           inviter: inviter.name,
           avatar: inviter.avatar ? inviter.avatar.url_128x128 : undefined,
-          team: team.name
+          team: inviterTeam.name
         },
         email,
         inviteLink,
