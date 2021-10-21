@@ -92,7 +92,7 @@ export const generateTeamLink = async (code: string) => {
   const dynamicLinkWithoutFallback = generateDynamicLink(
     DeepLinkType.TeamInvitation,
     {
-      avatar_url: team.avatar ? team.avatar.url_128x128 : null,
+      avatar_url: team.avatar ? team.avatar.url_128x128 : undefined,
       name: team.name,
       code: team.join_code
     }
@@ -101,7 +101,7 @@ export const generateTeamLink = async (code: string) => {
   const dynamicLinkWithFallback = generateDynamicLink(
     DeepLinkType.TeamInvitation,
     {
-      avatar_url: team.avatar ? team.avatar.url_128x128 : null,
+      avatar_url: team.avatar ? team.avatar.url_128x128 : undefined,
       name: team.name,
       code: team.join_code
     },
@@ -135,7 +135,9 @@ export const generateDynamicLink = (
 
   // Add params to the "link", this URL will be received by the mobile app
   for (const key in params) {
-    link.searchParams.append(key, params[key])
+    if (params[key] !== undefined) {
+      link.searchParams.append(key, params[key])
+    }
   }
 
   // Construct the dynamic link
