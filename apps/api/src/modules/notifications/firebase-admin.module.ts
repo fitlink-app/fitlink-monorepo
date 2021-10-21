@@ -47,6 +47,9 @@ export class FirebaseAdminCoreModule {
     return {
       provide: FirebaseAdminService,
       useFactory: (options: FirebaseAdminModuleOptions) => {
+        if (process.env.MIGRATION === 'firebase') {
+          return new FirebaseAdminService({} as admin.app.App)
+        }
         const app =
           admin.apps.length === 0 ? admin.initializeApp(options) : admin.apps[0]
         return new FirebaseAdminService(app)

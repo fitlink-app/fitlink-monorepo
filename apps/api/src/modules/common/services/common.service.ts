@@ -37,11 +37,15 @@ export class CommonService {
 
     // Convert today's goal percentage to 0
     // if the user hasn't had a health activity today.
-    if (user.last_health_activity_at) {
+    if (user.last_lifestyle_activity_at) {
       const startOfDay = zonedStartOfDay(user.timezone)
-      if (user.last_health_activity_at < startOfDay) {
+      if (user.last_lifestyle_activity_at < startOfDay) {
         userPublic.goal_percentage = 0
       }
+      // As a fallback, if their lifestyle activity isn't set
+      // e.g. due to data migration, this should be zero.
+    } else {
+      userPublic.goal_percentage = 0
     }
 
     return plainToClass(UserPublic, userPublic, {
