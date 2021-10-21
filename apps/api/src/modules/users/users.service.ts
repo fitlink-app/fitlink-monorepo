@@ -45,7 +45,6 @@ import { Provider } from '../providers/entities/provider.entity'
 import { Activity } from '../activities/entities/activity.entity'
 import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.entity'
 import { HealthActivityDebug } from '../health-activities/entities/health-activity-debug.entity'
-import { DeepLinkType } from '../../constants/deep-links'
 import { zonedStartOfDay } from '../../../../common/date/helpers'
 import { addHours } from 'date-fns'
 
@@ -388,9 +387,9 @@ export class UsersService {
 
     // Precision search by email
     if (keyword.indexOf('@') > 0) {
-      query = query.where('email = :keyword', { keyword })
+      query = query.where('user.email = :keyword', { keyword })
     } else if (keyword) {
-      query = query.where('name ILIKE :keyword AND user.id != :userId', {
+      query = query.where('user.name ILIKE :keyword AND user.id != :userId', {
         keyword: `%${keyword}%`,
         userId
       })
@@ -651,21 +650,13 @@ export class UsersService {
       secret: this.configService.get('EMAIL_JWT_TOKEN_SECRET')
     })
 
-    const desktopFallback = this.configService
+    const link = this.configService
       .get('EMAIL_VERIFICATION_URL')
       .replace('{token}', token)
 
-    const dynamicLink = this.commonService.generateDynamicLink(
-      DeepLinkType.EmailVerification,
-      {
-        token: token
-      },
-      desktopFallback
-    )
-
     return this.emailService.sendTemplatedEmail(
       'email-verification',
-      { EMAIL_VERIFICATION_LINK: dynamicLink },
+      { EMAIL_VERIFICATION_LINK: link },
       [email]
     )
   }
