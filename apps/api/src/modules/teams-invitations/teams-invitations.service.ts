@@ -21,6 +21,7 @@ type InviteeInviter = {
   inviter: string
   invitee: string
   team: string
+  avatar?: string
 }
 
 @Injectable()
@@ -61,12 +62,15 @@ export class TeamsInvitationsService {
       const token = this.createToken(invitation.id)
       inviteLink = this.createInviteLink(token)
 
-      const inviter = await this.usersRepository.findOne(owner.id)
+      const inviter = await this.usersRepository.findOne(owner.id, {
+        relations: ['avatar']
+      })
 
       await this.sendEmail(
         {
           invitee: invitee,
           inviter: inviter.name,
+          avatar: owner.avatar ? owner.avatar.url_128x128 : undefined,
           team: inviterTeam.name
         },
         email,
@@ -86,6 +90,7 @@ export class TeamsInvitationsService {
         {
           invitee: invitee,
           inviter: inviter.name,
+          avatar: inviter.avatar ? inviter.avatar.url_128x128 : undefined,
           team: team.name
         },
         email,
@@ -116,6 +121,7 @@ export class TeamsInvitationsService {
       {
         invitee: name,
         inviter: owner.name,
+        avatar: owner.avatar ? owner.avatar.url_128x128 : undefined,
         team: team.name
       },
       email,
@@ -159,7 +165,7 @@ export class TeamsInvitationsService {
    * @returns string (MessageId)
    */
   sendEmail(
-    { invitee, inviter, team }: InviteeInviter,
+    { invitee, inviter, team, avatar }: InviteeInviter,
     email: string,
     inviteLink: string,
     isAdmin: boolean
@@ -168,6 +174,7 @@ export class TeamsInvitationsService {
       isAdmin ? 'team-admin-invitation' : 'team-invitation',
       {
         INVITER_NAME: inviter,
+        INVITER_AVATAR: avatar,
         INVITEE_NAME: invitee,
         INVITE_LINK: inviteLink,
         TEAM_NAME: team
@@ -282,7 +289,7 @@ export class TeamsInvitationsService {
       where: {
         id: invitationId
       },
-      relations: ['team', 'owner']
+      relations: ['team', 'owner', 'owner.avatar']
     })
   }
 
