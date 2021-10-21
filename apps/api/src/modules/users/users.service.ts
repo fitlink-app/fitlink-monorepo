@@ -454,7 +454,7 @@ export class UsersService {
    * @param options
    * @returns
    */
-  findOne(id: string) {
+  async findOne(id: string) {
     return this.userRepository.findOne(id, {
       relations: ['settings', 'avatar', 'teams']
     })

@@ -34,6 +34,7 @@ import { ConfigService } from '@nestjs/config'
 import { differenceInMilliseconds } from 'date-fns'
 import { NotificationsService } from '../notifications/notifications.service'
 import { NotificationAction } from '../notifications/notifications.constants'
+import { LeaguesInvitation } from '../leagues-invitations/entities/leagues-invitation.entity'
 
 type LeagueOptions = {
   teamId?: string
@@ -487,6 +488,8 @@ export class LeaguesService {
         const leaderboardEntryRepository = manager.getRepository(
           LeaderboardEntry
         )
+        const invitationRepository = manager.getRepository(LeaguesInvitation)
+        const userRepository = manager.getRepository(User)
         await repository
           .createQueryBuilder()
           .relation(League, 'users')
@@ -499,6 +502,34 @@ export class LeaguesService {
           leaderboardEntryRepository
         )
         await repository.increment({ id: leagueId }, 'participants_total', 1)
+
+        // Update the invitation to accepted
+        await invitationRepository.update(
+          {
+            to_user: {
+              id: userId
+            },
+            league: {
+              id: leagueId
+            }
+          },
+          {
+            accepted: true
+          }
+        )
+
+        // Update the user's total invitation count
+        await userRepository.update(
+          {
+            id: userId
+          },
+          {
+            league_invitations_total: await invitationRepository.count({
+              to_user: { id: userId }
+            })
+          }
+        )
+
         return leaderboardEntry
       }
     )
@@ -678,8 +709,9 @@ export class LeaguesService {
   ): Promise<Pagination<UserPublic>> {
     let query = this.userRepository
       .createQueryBuilder('user')
-      .leftJoin('user.teams', 'userTeam')
-      .leftJoin('user.avatar', 'avatar')
+      .leftJoinAndSelect('user.teams', 'userTeam')
+      .leftJoinAndSelect('user.avatar', 'avatar')
+      .leftJoinAndSelect('user.leagues', 'userLeagues')
       .leftJoin('userTeam.organisation', 'userOrganisation')
       .leftJoin('league', 'league', 'league.id = :leagueId', { leagueId })
       .leftJoin('league.users', 'leagueUser', 'leagueUser.id = user.id')
