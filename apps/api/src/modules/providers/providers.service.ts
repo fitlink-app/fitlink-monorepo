@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
+import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 import { User } from '../users/entities/user.entity'
 import { CreateManualProviderDto } from './dto/create-manual-provider.dto'
 import { CreateProviderDto } from './dto/create-provider.dto'
@@ -117,10 +118,30 @@ export class ProvidersService {
     })
   }
 
+  /**
+   * Detaches existing health activities from provider
+   * Removes provider
+   *
+   * @param userId
+   * @param providerType
+   * @returns
+   */
   async remove(userId: string, providerType: ProviderType) {
-    return await this.providerRepository.delete({
-      type: providerType,
-      user: { id: userId }
+    return this.providerRepository.manager.transaction(async (manager) => {
+      await manager.getRepository(HealthActivity).update(
+        {
+          user: { id: userId },
+          provider: { type: providerType }
+        },
+        {
+          provider: null
+        }
+      )
+
+      return manager.getRepository(Provider).delete({
+        type: providerType,
+        user: { id: userId }
+      })
     })
   }
 
