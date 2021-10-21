@@ -100,6 +100,8 @@ export class FollowingsService {
     const query = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.avatar', 'avatar')
+      .leftJoinAndSelect('user.leagues', 'leagues')
+      .leftJoinAndSelect('user.teams', 'teams')
 
       // Look for any users that this user is following
       // Use an inner join, since results must only include following
@@ -145,6 +147,8 @@ export class FollowingsService {
     const query = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.avatar', 'avatar')
+      .leftJoinAndSelect('user.leagues', 'leagues')
+      .leftJoinAndSelect('user.teams', 'teams')
 
       // Look for any users that are following this user
       // Use an inner join, since results must only include followers

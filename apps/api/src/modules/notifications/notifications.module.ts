@@ -21,6 +21,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
         const configCredential = configService.get<string>(
           'FIREBASE_ADMIN_CREDENTIAL'
         )
+
+        if (process.env.MIGRATION === 'firebase') {
+          return { credential: {} as admin.credential.Credential }
+        }
+
         const credential = admin.credential.cert(
           JSON.parse(
             Buffer.from(

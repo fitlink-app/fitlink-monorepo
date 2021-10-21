@@ -94,6 +94,18 @@ export class Organisation extends CreatableEntity {
   user_count: number
 
   @ApiProperty()
+  @Column({
+    default: false
+  })
+  terms_agreed: boolean
+
+  @ApiProperty()
+  @Column({
+    nullable: true
+  })
+  terms_agreed_at: Date
+
+  @ApiProperty()
   @OneToOne(() => Image, {
     cascade: ['remove'],
     onDelete: 'CASCADE'

@@ -45,6 +45,9 @@ import { Provider } from '../providers/entities/provider.entity'
 import { Activity } from '../activities/entities/activity.entity'
 import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.entity'
 import { HealthActivityDebug } from '../health-activities/entities/health-activity-debug.entity'
+import { DeepLinkType } from '../../constants/deep-links'
+import { zonedStartOfDay } from '../../../../common/date/helpers'
+import { addHours } from 'date-fns'
 
 type EntityOwner = {
   organisationId?: string
@@ -378,6 +381,8 @@ export class UsersService {
       .leftJoinAndSelect('user.followers', 'f2', 'f2.following.id = :userId', {
         userId
       })
+      .leftJoinAndSelect('user.leagues', 'leagues')
+      .leftJoinAndSelect('user.teams', 'teams')
       .take(limit)
       .skip(page * limit)
 
@@ -622,7 +627,13 @@ export class UsersService {
   }
 
   /**
-   * Sends a JWT-based email verification link to the email address
+   * Sends a JWT-based email verification link to the email address.
+   *
+   * This is a deep link which on desktop will be
+   * routed to the browser app at https://my.fitlinkapp.com
+   *
+   * On mobile, it will deep link into the app
+   *
    * @param id
    * @param email
    * @returns
@@ -640,13 +651,21 @@ export class UsersService {
       secret: this.configService.get('EMAIL_JWT_TOKEN_SECRET')
     })
 
-    const EMAIL_VERIFICATION_LINK = this.configService
+    const desktopFallback = this.configService
       .get('EMAIL_VERIFICATION_URL')
       .replace('{token}', token)
 
+    const dynamicLink = this.commonService.generateDynamicLink(
+      DeepLinkType.EmailVerification,
+      {
+        token: token
+      },
+      desktopFallback
+    )
+
     return this.emailService.sendTemplatedEmail(
       'email-verification',
-      { EMAIL_VERIFICATION_LINK },
+      { EMAIL_VERIFICATION_LINK: dynamicLink },
       [email]
     )
   }
@@ -842,8 +861,10 @@ export class UsersService {
    * 4 days we push a notification on Mondays.
    */
   async processMondayMorningReminder() {
+    const now = new Date()
+
     // Ensure this only ever runs on Monday
-    if (!isMonday(new Date())) {
+    if (!isMonday(now)) {
       return false
     }
 
@@ -857,25 +878,29 @@ export class UsersService {
       .andWhere('onboarded = true')
       .getMany()
 
-    const usersWithFcm = users.filter(
-      (e) => e.fcm_tokens && e.fcm_tokens.length
-    )
+    const eligible = users.filter((e) => {
+      // Notify users between 7am - 9am.
+      const am7 = addHours(zonedStartOfDay(e.timezone, now), 7)
+      const am9 = addHours(zonedStartOfDay(e.timezone, now), 9)
+      return now >= am7 && now < am9 && e.fcm_tokens && e.fcm_tokens.length
+    })
+
     const messages = await this.notificationsService.sendAction(
-      usersWithFcm,
+      eligible,
       NotificationAction.MondayReminder
     )
 
     await this.commonService.notifySlackJobs(
       'Monday morning update',
       {
-        notified_total: usersWithFcm.length,
+        notified_total: eligible.length,
         messages: messages
       },
       differenceInMilliseconds(started, new Date())
     )
 
     return {
-      total: usersWithFcm.length,
+      total: eligible.length,
       messages
     }
   }

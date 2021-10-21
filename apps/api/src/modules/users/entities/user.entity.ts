@@ -419,6 +419,14 @@ export class UserPublic {
   @ApiProperty()
   @Expose()
   goal_percentage: number
+
+  @ApiProperty()
+  @Expose()
+  team_name?: string
+
+  @ApiProperty()
+  @Expose()
+  league_names?: string[]
 }
 
 export class UserPublicPagination {
