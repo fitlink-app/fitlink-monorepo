@@ -1,5 +1,6 @@
 export enum QueryKeys {
   Me = 'me',
+  Feed = 'me/feed',
   Following = 'me/following',
   Followers = 'me/followers',
   MyLeagues = 'me/leagues',
@@ -24,4 +25,7 @@ export enum QueryKeys {
   Activity = 'activity',
   MyActivities = 'me/activities',
   MyProviders = 'me/providers',
+  HealthActivity = 'health-activity',
+  Notifications = 'me/notifications',
+  UserFeed = 'users/feed',
 }

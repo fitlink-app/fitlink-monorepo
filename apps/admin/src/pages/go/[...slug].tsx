@@ -32,8 +32,31 @@ export const getServerSideProps = async function getServerSideProps({
   if (code) {
     return generateTeamLink(code)
   } else {
-    return {
-      notFound: true
+    return generateOpenLink()
+  }
+}
+
+export const generateOpenLink = () => {
+  const local = !process.env.API_BASE_URL
+  let link = local
+    ? 'https://localhost:3001/launch'
+    : 'https://fitlinkapp.com/launch'
+
+  const dynamicLinkWithoutFallback = generateDynamicLink(
+    DeepLinkType.LaunchApp,
+    {}
+  )
+
+  const dynamicLinkWithFallback = generateDynamicLink(
+    DeepLinkType.LaunchApp,
+    {},
+    link + '?url=' + encodeURIComponent(dynamicLinkWithoutFallback)
+  )
+
+  return {
+    redirect: {
+      permanent: false,
+      destination: dynamicLinkWithFallback
     }
   }
 }

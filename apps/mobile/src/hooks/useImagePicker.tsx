@@ -26,13 +26,11 @@ export function useImagePicker() {
         onCloseCallback={() => closeModal(id)}
         buttons={[
           {
-            label: 'Take Picture',
-            closeWithoutAnimation: true,
+            text: 'Take Picture',
             onPress: () => openCamera(callback),
           },
           {
-            label: 'Select From Gallery',
-            closeWithoutAnimation: true,
+            text: 'Select From Gallery',
             onPress: () => openGallery(callback),
           },
         ]}
@@ -70,8 +68,13 @@ export function useImagePicker() {
 
   function handlePickerResponse(response: ImagePickerResponse) {
     const {didCancel, errorCode, assets} = response;
-    const {uri, type, fileName} = (assets || [])[0];
-    if (didCancel || errorCode || !uri || !type || !fileName) return;
+    const file = (assets || [])[0];
+
+    if (!file || didCancel || errorCode) return;
+
+    const {uri, type, fileName} = file;
+
+    if (!uri || !type || !fileName) return;
 
     return {uri, type, fileName} as ImagePickerDialogResponse;
   }

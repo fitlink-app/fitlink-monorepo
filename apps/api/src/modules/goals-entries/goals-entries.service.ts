@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { RecreateGoalsEntryDto } from './dto/update-goals-entry.dto'
 import {
   GoalsEntry,
@@ -231,6 +231,9 @@ export class GoalsEntriesService {
    */
   async getLatest(userId: string): Promise<GoalsEntry> {
     const user = await this.userRepository.findOne(userId)
+    if (!user) {
+      throw new NotFoundException()
+    }
     const result = await this.getExistingEntry(user)
 
     if (!result) {

@@ -65,7 +65,10 @@ export const UpdatePasswordForm = () => {
           buttons={[
             {
               text: 'Ok',
-              onPress: () => closeModal(id),
+              onPress: () => {
+                closeModal(id);
+                navigation.goBack();
+              },
             },
           ]}
         />

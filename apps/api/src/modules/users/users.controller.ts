@@ -187,7 +187,8 @@ export class UsersController {
     if (!result) {
       throw new BadRequestException('The token is expired or invalid')
     } else {
-      return result
+      const link = this.usersService.generatePostEmailVerifyLink()
+      return { ...result, link }
     }
   }
 

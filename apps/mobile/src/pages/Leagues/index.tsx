@@ -11,6 +11,7 @@ import {
 import {RootStackParamList} from 'routes/types';
 import {ExploreLeagues, Invitations, MyLeagues} from './tabs';
 import {TabView} from '@components';
+import {useMe} from '@hooks';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -25,6 +26,8 @@ export const Leagues = (
   const navigation = useNavigation();
 
   const tabViewRef = useRef<any>(null);
+
+  const {data: me} = useMe({enabled: false});
 
   useFocusEffect(
     useCallback(() => {
@@ -58,7 +61,11 @@ export const Leagues = (
         routes={[
           {key: 'my_leagues', title: 'My Leagues'},
           {key: 'explore', title: 'Explore'},
-          {key: 'invitations', title: 'Invitations'},
+          {
+            key: 'invitations',
+            title: 'Invitations',
+            badgeCount: me?.league_invitations_total || 0,
+          },
         ]}
         renderScene={renderTabs}
       />

@@ -39,13 +39,15 @@ import {
   UpdateUserDto,
   UpdateUserEmailDto,
   UpdateUserPasswordDto,
-  VerifyUserEmailDto
+  VerifyUserEmailDto,
+  VerifyUserEmailResultDto
 } from '@fitlink/api/src/modules/users/dto/update-user.dto'
 import { CreateDefaultSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/create-default-subscription.dto'
 import { UpdateSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/update-subscription.dto'
 import { AddUserToSubscriptionDto } from '@fitlink/api/src/modules/subscriptions/dto/add-user-to-subscription.dto'
 import {
   AuthRequestResetPasswordDto,
+  AuthResetPasswordResultDto,
   AuthResetPasswordDto
 } from '@fitlink/api/src/modules/auth/dto/auth-reset-password'
 import { CreateAdminDto } from '@fitlink/api/src/modules/users/dto/create-admin.dto'
@@ -361,7 +363,7 @@ export type CreatableResourceResponse<T> = T extends AuthSignUp
   : T extends TeamsInvitationsRespond
   ? TeamsInvitation
   : T extends VerifyUserEmail
-  ? { success: boolean }
+  ? VerifyUserEmailResultDto
   : T extends RegenerateJoinCode
   ? { code: string }
   : T extends SendMessage
@@ -425,6 +427,7 @@ export type DeleteResult = {
 
 export type UpdateResult = {
   affected: number
+  link?: string
 }
 
 export type BooleanResult = {

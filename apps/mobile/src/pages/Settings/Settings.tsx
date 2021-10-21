@@ -19,7 +19,7 @@ import {
 } from '@hooks';
 import {useNavigation} from '@react-navigation/native';
 import React, {useContext, useState} from 'react';
-import {Keyboard, Platform, ScrollView, View} from 'react-native';
+import {Keyboard, Linking, Platform, ScrollView, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
@@ -29,6 +29,7 @@ import {
   SettingsInput,
   SettingsDropdown,
   SettingsHealthActivityButton,
+  DeleteAccountModal,
 } from './components';
 import {SettingsItemWrapper} from './components/SettingsItemWrapper';
 import {SettingsItemLabel} from './components/SettingsItemLabel';
@@ -53,6 +54,10 @@ import {
 } from 'redux/settings/settingsSlice';
 import {useEffect} from 'react';
 import {TransitionContext} from 'contexts';
+import Intercom from '@intercom/intercom-react-native';
+import {useCustomProvider} from 'hooks/api/providers/custom';
+import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
+import {GoogleFitWrapper} from 'services/GoogleFit';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -82,8 +87,33 @@ export const Settings = () => {
   const {data: user} = useMe();
   const {providerList} = useProviders();
 
-  const {isLinking: isStravaLinking, link: linkStrava} = useStrava();
-  const {isLinking: isFitbitLinking, link: linkFitbit} = useFitbit();
+  const {
+    isLinking: isStravaLinking,
+    isUnlinking: isStravaUnlinking,
+    link: linkStrava,
+    unlink: unlinkStrava,
+  } = useStrava();
+
+  const {
+    isLinking: isFitbitLinking,
+    isUnlinking: isFitbitUnlinking,
+    link: linkFitbit,
+    unlink: unlinkFitbit,
+  } = useFitbit();
+
+  const {
+    isLinking: isAppleHealthLinking,
+    isUnlinking: isAppleHealthUnlinking,
+    link: linkAppleHealth,
+    unlink: unlinkAppleHealth,
+  } = useCustomProvider(ProviderType.AppleHealthkit);
+
+  const {
+    isLinking: isGoogleFitLinking,
+    isUnlinking: isGoogleFitUnlinking,
+    link: linkGoogleFit,
+    unlink: unlinkGoogleFit,
+  } = useCustomProvider(ProviderType.GoogleFit);
 
   const settings = useSelector(selectSettings);
   const didSettingsChange = useSelector(selectDidSettingsChange);
@@ -302,9 +332,16 @@ export const Settings = () => {
         {Platform.OS === 'android' && (
           <SettingsHealthActivityButton
             label={'Google Fit'}
-            onLink={() => {}}
-            onUnlink={() => {}}
-            isLoading={false}
+            onLink={() => {
+              GoogleFitWrapper.disconnect();
+
+              GoogleFitWrapper.authenticate().then(() => {
+                linkGoogleFit();
+              });
+            }}
+            onUnlink={unlinkGoogleFit}
+            isLoading={isGoogleFitLinking || isGoogleFitUnlinking}
+            disabled={isGoogleFitLinking || isGoogleFitUnlinking}
             isLinked={providerList?.includes('google_fit')}
           />
         )}
@@ -312,26 +349,29 @@ export const Settings = () => {
         {Platform.OS === 'ios' && (
           <SettingsHealthActivityButton
             label={'Apple Health'}
-            onLink={() => {}}
-            onUnlink={() => {}}
-            isLoading={false}
-            isLinked={providerList?.includes('apple_health')}
+            onLink={linkAppleHealth}
+            onUnlink={unlinkAppleHealth}
+            isLoading={isAppleHealthLinking || isAppleHealthUnlinking}
+            disabled={isAppleHealthLinking || isAppleHealthUnlinking}
+            isLinked={providerList?.includes('apple_healthkit')}
           />
         )}
 
         <SettingsHealthActivityButton
           label={'Strava'}
           onLink={linkStrava}
-          onUnlink={() => {}}
-          isLoading={isStravaLinking}
+          onUnlink={unlinkStrava}
+          isLoading={isStravaLinking || isStravaUnlinking}
+          disabled={isStravaLinking || isStravaUnlinking}
           isLinked={providerList?.includes('strava')}
         />
 
         <SettingsHealthActivityButton
           label={'Fitbit'}
           onLink={linkFitbit}
-          onUnlink={() => {}}
-          isLoading={isFitbitLinking}
+          onUnlink={unlinkFitbit}
+          isLoading={isFitbitLinking || isFitbitUnlinking}
+          disabled={isFitbitLinking || isFitbitUnlinking}
           isLinked={providerList?.includes('fitbit')}
         />
 
@@ -448,21 +488,15 @@ export const Settings = () => {
         <CategoryLabel>Help</CategoryLabel>
         <SettingsButton
           label={'FAQs'}
-          onPress={() =>
-            navigation.navigate('Webview', {
-              url: 'https://fitlinkapp.com/faq-user',
-              title: 'FAQs',
-            })
-          }
+          onPress={() => Intercom.displayHelpCenter()}
         />
         <SettingsButton
-          label={'Contact Us'}
-          onPress={() =>
-            navigation.navigate('Webview', {
-              url: 'https://fitlinkapp.com/contact-us',
-              title: 'Contact Us',
-            })
-          }
+          label={'E-mail us'}
+          onPress={() => Linking.openURL('mailto:hello@fitlinkapp.com')}
+        />
+        <SettingsButton
+          label={'Chat with us'}
+          onPress={() => Intercom.displayMessenger()}
         />
         <SettingsButton
           label={'About'}
@@ -489,21 +523,17 @@ export const Settings = () => {
                     title={'Delete Account?'}
                     description={
                       'Are you sure you want to delete your account? This action is irreversible.'
-                    }
-                    buttons={[
-                      {
-                        text: 'Delete My Account',
-                        type: 'danger',
-                        onPress: () => closeModal(id),
-                      },
-                      {
-                        text: 'Back',
-                        textOnly: true,
-                        style: {marginBottom: -10},
-                        onPress: () => closeModal(id),
-                      },
-                    ]}
-                  />
+                    }>
+                    <DeleteAccountModal
+                      onCloseCallback={isDeleted => {
+                        if (isDeleted) {
+                        } else {
+                        }
+
+                        closeModal(id);
+                      }}
+                    />
+                  </Modal>
                 );
               })
             }

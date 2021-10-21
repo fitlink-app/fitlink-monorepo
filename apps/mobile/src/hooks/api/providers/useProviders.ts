@@ -1,8 +1,8 @@
 import {useQuery} from 'react-query';
 import {QueryKeys} from '@query';
 import api from '@api';
-import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useEffect, useState} from 'react';
+import {Provider} from '@fitlink/api/src/modules/providers/entities/provider.entity';
 
 // TODO: Typings
 export function useProviders() {
@@ -10,7 +10,7 @@ export function useProviders() {
 
   const query = useQuery<any, Error>(
     QueryKeys.MyProviders,
-    () => api.get<User>('/me/providers'),
+    () => api.get<Provider[]>('/me/providers'),
     {
       onSuccess: data => {
         if (!data) return;
@@ -25,7 +25,7 @@ export function useProviders() {
     }
   }, [query.data]);
 
-  const setProviderListFromData = (data: any) => {
+  const setProviderListFromData = (data: Provider[]) => {
     setProviderList(data.map(provider => provider.type));
   };
 

@@ -35,6 +35,7 @@ import { OrganisationsService } from '../organisations/organisations.service'
 import { OrganisationMode } from '../organisations/organisations.constants'
 import { UserSettingsService } from '../users-settings/users-settings.service'
 import { CommonService } from '../common/services/common.service'
+import { DeepLinkType } from '../../constants/deep-links'
 
 type PasswordResetToken = {
   sub: string
@@ -553,6 +554,14 @@ export class AuthService {
     } else {
       throw new Error('User not found')
     }
+  }
+
+  generatePostPasswordResetLink() {
+    return this.commonService.generateDynamicLink(
+      DeepLinkType.PasswordReset,
+      {},
+      this.configService.get('DASHBOARD_URL') + '/login'
+    )
   }
 
   /**

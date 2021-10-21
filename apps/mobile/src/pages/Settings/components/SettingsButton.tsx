@@ -6,7 +6,7 @@ import styled, {
 } from 'styled-components/native';
 import {ActivityIndicator, View} from 'react-native';
 
-import {Icon, TouchHandler} from '@components';
+import {Icon, TouchHandler, TouchHandlerProps} from '@components';
 import {SettingsItemWrapper} from './SettingsItemWrapper';
 import {SettingsItemLabel} from './SettingsItemLabel';
 
@@ -39,7 +39,7 @@ const StyledIcon = styled(Icon).attrs(
   }),
 )<StyledIconParams>({});
 
-export interface SettingsButtonProps {
+export interface SettingsButtonProps extends TouchHandlerProps {
   /** Display label of this button */
   label: string;
 

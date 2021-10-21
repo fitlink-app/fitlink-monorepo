@@ -1,15 +1,50 @@
-import {Avatar, Dots, Icon, Label, Navbar, TouchHandler} from '@components';
-import React, {useRef, useState} from 'react';
-import {Animated, StyleSheet, Image, View} from 'react-native';
+import {
+  Avatar,
+  Dots,
+  Icon,
+  Label,
+  Modal,
+  Navbar,
+  TouchHandler,
+} from '@components';
+import React, {useEffect, useRef, useState} from 'react';
+import {
+  Animated,
+  StyleSheet,
+  Image,
+  View,
+  ActivityIndicator,
+  InteractionManager,
+  Alert,
+} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 import LinearGradient from 'react-native-linear-gradient';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {StatWidget} from './components';
 import {useNavigation} from '@react-navigation/native';
-import {getBounds} from '@utils';
+import {
+  formatDistanceShortLocale,
+  getActivityDistance,
+  getBounds,
+  getSpeedValue,
+} from '@utils';
 import Polyline from '@mapbox/polyline';
 import MapboxGL from '@react-native-mapbox-gl/maps';
+import {StackScreenProps} from '@react-navigation/stack';
+import {RootStackParamList} from 'routes/types';
+import {
+  useHealthActivity,
+  useHealthActivityImage,
+  useImagePicker,
+  useMe,
+  useModal,
+  useShareHealthActivity,
+  useUploadImage,
+} from '@hooks';
+import {formatRelative, formatDistanceStrict} from 'date-fns';
+import locale from 'date-fns/locale/en-US';
+import {ImageType} from '@fitlink/api/src/modules/images/images.constants';
+import {Dialog} from 'components/modal';
 
 const {MapView, LineLayer, ShapeSource, Camera} = MapboxGL;
 
@@ -50,26 +85,89 @@ const StatsContainer = styled.View({
 
 const StatWidgetRow = styled.View({flexDirection: 'row'});
 
-export const HealthActivityDetails = () => {
-  const insets = useSafeAreaInsets();
+export const HealthActivityDetails = (
+  props: StackScreenProps<RootStackParamList, 'HealthActivityDetails'>,
+) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [areInteractionsDone, setInteractionsDone] = useState(false);
 
   const mapViewRef = useRef() as React.MutableRefObject<MapboxGL.MapView>;
   const cameraRef = useRef() as React.MutableRefObject<MapboxGL.Camera>;
 
   const scrollAnim = useRef(new Animated.Value(0)).current;
 
-  // TEMP
-  const images: Array<{key: string; url: string}> = [];
-  const user_avatar_url = undefined;
-  const user_name = 'Placeholder Name';
-  const isOwned = true;
-  const isHealthActivityImageUploading = false;
-  const polyline =
-    'kpd`IcyoEIE?]Fi@FKAIFOAOBA?MDKAEB[DMDw@FUAYKO?IDMTUDw@Le@?_@BSCEGDq@UOMCMDCNJn@Tb@ZFBBADHPDLRRPFDN@PK@MDECLMHEAV]PIGHEAA@BHGNELOHEVe@Xu@B?@DACBKRe@FIJ]JMJWRo@NSVaA|@gCRs@Je@Vw@FK@MJYFE@H@MD@IFMVFUHIB@?@CAAEJFD@DCDMHKRs@p@{A^s@NSFCDKb@g@BC?@@?PSj@e@~@m@LOHATQNIHIPAFHHh@L`@ZrAr@fCNt@N^Jj@Ld@BHB?HVZxADh@HXVvAAFHLJXP|@HPdBLB?@M?VVhAz@vCHFPAFJFXDJNn@X`A@NLVHj@N^Lj@DHDXFJFV?RLVLn@FBBPJJ^In@CHGR?XC`@BRCHEH@DAT?LEd@?FCL@FEPBFEN@PEL@d@G@GCEHSHE?BB?P`DED?DXzA@Z?BIKGcABEGWD@DLAADAYWEMGo@IQKi@IMY@ABI@OAEBMCUDGAKBk@DKAk@JWBgBDGBk@BGBOAQ[K]Ii@Qc@QaAGKU}@Mw@O[Ki@m@sBEGONEGEACEMu@ECm@mCY{@EYY_AAYW_AE_@Ww@E[GMUyA]yAq@yBkAmEQ}@U{@Sm@ICgAp@CFSJMNSHKLIFIJg@QTE?]f@KFQUWp@GHSn@Uh@EBIGCDGAGFAJYr@C?Mp@KRQ~@CDCAMh@S`@I^C@G^UZKj@M`@GDITSOh@E?@JAHYZ@C@ACL[p@GRUZa@SFO@]LEFE@S^E@GA?GCDIGUYKUCC[IKKYGYOGAMIUEAAB?CDHPPHZH@DPLFP?JAr@Ob@Gb@GBM@LDFBn@Mz@Ed@GNMrAG?D@';
+  const {id} = props.route.params;
+
+  const {openModal, closeModal} = useModal();
+
+  const {data: user} = useMe({
+    refetchOnMount: false,
+  });
+
+  const {data} = useHealthActivity(id, areInteractionsDone);
+
+  const {shareActivity, isLoading: isShareActivityLoading} =
+    useShareHealthActivity();
+
+  const {mutateAsync: uploadImage, isLoading: isUploadingImage} =
+    useUploadImage();
+
+  const {
+    addImageMutation: {
+      mutateAsync: addHealthActivityImage,
+      isLoading: isAddingHealthActivityImage,
+    },
+    deleteImageMutation: {mutateAsync: deleteHealthActivityImage},
+  } = useHealthActivityImage();
+
+  const {openImagePicker} = useImagePicker();
+
+  const distance =
+    user && data?.distance
+      ? (getActivityDistance(user.unit_system, data.distance, {
+          short: true,
+        }) as string)
+      : undefined;
+
+  const durationInSeconds = data
+    ? (new Date(data.start_time).valueOf() -
+        new Date(data.end_time).valueOf()) /
+      1000
+    : undefined;
+
+  const speed =
+    data?.distance && user && durationInSeconds
+      ? (getSpeedValue(
+          data.sport?.name_key,
+          data.distance,
+          durationInSeconds,
+          user.unit_system,
+        ) as string)
+      : undefined;
+
+  const points = data?.points.toString();
+
+  const calories = data?.calories.toString();
+
+  const time = data
+    ? formatDistanceStrict(new Date(data.start_time), new Date(data.end_time), {
+        locale: {
+          ...locale,
+          formatDistance: formatDistanceShortLocale,
+        },
+      })
+    : undefined;
+
+  const polyline = data?.polyline;
+
+  const userName = data?.user.name;
+
+  const userAvatarUrl = data?.user.avatar?.url_512x512;
+
+  const isOwnedActivity = data?.user.id === user?.id;
 
   const scrollAnimInterpolated = scrollAnim.interpolate({
     inputRange: [-500, 0],
@@ -77,15 +175,82 @@ export const HealthActivityDetails = () => {
     extrapolate: 'clamp',
   });
 
+  useEffect(() => {
+    InteractionManager.runAfterInteractions(() => {
+      setInteractionsDone(true);
+    });
+  }, []);
+
   const getDefaultActivityImage = () => {
-    return 'https://reactnativecode.com/wp-content/uploads/2018/02/Default_Image_Thumbnail.png';
+    return data?.sport.image_url;
   };
 
-  const handleOnImagePickerPressed = () => {};
+  const handleOnImagePickerPressed = () => {
+    openImagePicker('Upload new image', async response => {
+      try {
+        const uploadResult = await uploadImage({
+          image: response,
+          type: ImageType.Cover,
+        });
+        await addHealthActivityImage({
+          activityId: data!.id,
+          images: [uploadResult.id],
+        });
+      } catch (e) {
+        Alert.alert('Failed to upload image', `Oops! Something wen't wrong.`);
+      }
+    });
+  };
 
-  const handleOnImageOptionsPressed = () => {};
+  const handleOnImageOptionsPressed = () => {
+    if (!data) return;
 
-  const handleOnSharePressed = () => {};
+    openModal(id => (
+      <Dialog
+        title={'Photo Options'}
+        onCloseCallback={() => {
+          closeModal(id);
+        }}
+        buttons={[
+          {
+            text: 'Delete Photo',
+            type: 'danger',
+            onPress: () => {
+              deleteHealthActivityImage({
+                activityId: data.id,
+                imageId: data.images[currentImageIndex]?.id,
+              });
+
+              setTimeout(() => {
+                openModal(id => {
+                  return (
+                    <Modal
+                      title={'Photo Deleted'}
+                      description={'Photo deleted successfully!'}
+                      buttons={[
+                        {
+                          text: 'Ok',
+                          onPress: () => closeModal(id),
+                        },
+                      ]}
+                    />
+                  );
+                });
+              }, 500);
+            },
+          },
+        ]}
+      />
+    ));
+  };
+
+  const handleOnSharePressed = () => {
+    if (!data) return;
+    shareActivity({
+      activityId: data?.id,
+      imageId: data?.images ? data.images[currentImageIndex]?.id : undefined,
+    });
+  };
 
   const renderRoute = () => {
     if (!polyline) return null;
@@ -147,7 +312,7 @@ export const HealthActivityDetails = () => {
     <>
       <Navbar
         scrollAnimatedValue={scrollAnim}
-        title={'Title Placeholder'}
+        title={data?.title || 'Loading activity...'}
         iconColor={'white'}
         overlay
         titleProps={{
@@ -156,136 +321,175 @@ export const HealthActivityDetails = () => {
         }}
       />
 
-      <Animated.ScrollView
-        onScroll={Animated.event(
-          [{nativeEvent: {contentOffset: {y: scrollAnim}}}],
-          {useNativeDriver: true},
-        )}>
-        <Animated.View
+      {!data ? (
+        <View
           style={{
-            transform: [{translateY: scrollAnimInterpolated}],
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
           }}>
-          <HeaderContainer>
-            {!!images.length ? (
-              <PagerView
-                style={{flex: 1}}
-                initialPage={0}
-                onPageSelected={({nativeEvent: {position}}) =>
-                  setCurrentImageIndex(position)
-                }>
-                {images.map(({key, url}, index) => {
-                  return (
-                    <View key={url}>
-                      <HeaderImage
-                        resizeMode={'cover'}
-                        source={{
-                          uri: url,
-                        }}
-                      />
-                    </View>
-                  );
-                })}
-              </PagerView>
-            ) : (
-              <HeaderImage
-                resizeMode={'cover'}
-                source={{
-                  uri: getDefaultActivityImage(),
-                }}
-              />
-            )}
-            <ImageOverlay pointerEvents={'none'} />
-            <HeaderContent pointerEvents={'box-none'}>
-              <View
-                pointerEvents={'none'}
-                style={{
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                  flex: 1,
-                }}>
-                <Avatar size={60} url={user_avatar_url} />
-                <Label type={'title'} style={{marginVertical: 5}}>
-                  {user_name}
-                </Label>
-                {!!images.length && (
-                  <Dots
-                    amount={images.length}
-                    current={currentImageIndex}
-                    size={4}
-                  />
-                )}
-              </View>
-              {isOwned && (
-                <Icon
-                  name={'camera'}
-                  size={26}
-                  color={'white'}
-                  style={{position: 'absolute', right: 0, bottom: 0}}
-                  onPress={handleOnImagePickerPressed}
+          <ActivityIndicator color={colors.accent} />
+        </View>
+      ) : (
+        <Animated.ScrollView
+          onScroll={Animated.event(
+            [{nativeEvent: {contentOffset: {y: scrollAnim}}}],
+            {useNativeDriver: true},
+          )}>
+          <Animated.View
+            style={{
+              transform: [{translateY: scrollAnimInterpolated}],
+            }}>
+            <HeaderContainer>
+              {!!data.images.length ? (
+                <PagerView
+                  style={{flex: 1}}
+                  initialPage={0}
+                  onPageSelected={({nativeEvent: {position}}) =>
+                    setCurrentImageIndex(position)
+                  }>
+                  {data.images.map(({id, url_640x360}, index) => {
+                    return (
+                      <View key={id}>
+                        <HeaderImage
+                          resizeMode={'cover'}
+                          source={{
+                            uri: url_640x360,
+                          }}
+                        />
+                      </View>
+                    );
+                  })}
+                </PagerView>
+              ) : (
+                <HeaderImage
+                  resizeMode={'cover'}
+                  source={{
+                    uri: getDefaultActivityImage(),
+                  }}
                 />
               )}
+              <ImageOverlay pointerEvents={'none'} />
+              <HeaderContent pointerEvents={'box-none'}>
+                <View
+                  pointerEvents={'none'}
+                  style={{
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                    flex: 1,
+                  }}>
+                  <Avatar size={60} url={userAvatarUrl} />
 
-              {!!images.length &&
-                isOwned &&
-                !isHealthActivityImageUploading && (
+                  <Label type={'title'} style={{marginVertical: 5}}>
+                    {userName}
+                  </Label>
+
+                  {!!data.images.length && (
+                    <Dots
+                      amount={data.images.length}
+                      current={currentImageIndex}
+                      size={4}
+                    />
+                  )}
+                </View>
+
+                {!!data.images.length && isOwnedActivity && (
                   <Icon
                     name={'ellipsis'}
                     color={'white'}
                     size={26}
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      bottom: 0,
+                    }}
                     onPress={handleOnImageOptionsPressed}
-                    style={{position: 'absolute', right: 0, top: insets.top}}
                   />
                 )}
-            </HeaderContent>
-          </HeaderContainer>
-        </Animated.View>
 
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginHorizontal: 20,
-            marginTop: 10,
-            marginBottom: polyline ? 10 : 0,
-          }}>
-          <View>
-            <Label type={'title'}>Activity Details</Label>
-            <Label type="caption" style={{marginTop: 5}}>
-              Render End Date here with format
-            </Label>
+                {isOwnedActivity && (
+                  <Icon
+                    name={'camera'}
+                    style={{
+                      position: 'absolute',
+                      right: 0,
+                      bottom: 0,
+                    }}
+                    size={26}
+                    color={'white'}
+                    isLoading={isAddingHealthActivityImage || isUploadingImage}
+                    disabled={isAddingHealthActivityImage || isUploadingImage}
+                    onPress={handleOnImagePickerPressed}
+                  />
+                )}
+              </HeaderContent>
+            </HeaderContainer>
+          </Animated.View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginHorizontal: 20,
+              marginTop: 10,
+              marginBottom: polyline ? 10 : 0,
+            }}>
+            <View>
+              <Label type={'title'}>{data.title}</Label>
+              <Label type="caption" style={{marginTop: 5}}>
+                {formatRelative(new Date(new Date(data.end_time)), new Date(), {
+                  locale: {
+                    ...locale,
+                    formatRelative: token => {
+                      const formattings: {[key: string]: string} = {
+                        lastWeek: "EEEE 'at' h:mm a",
+                      };
+
+                      return (
+                        formattings[token] ||
+                        (locale.formatRelative && locale.formatRelative(token))
+                      );
+                    },
+                  },
+                })}
+              </Label>
+            </View>
+            {isOwnedActivity && (
+              <Icon
+                name={'share'}
+                size={20}
+                color={'white'}
+                onPress={handleOnSharePressed}
+                disabled={isShareActivityLoading}
+                isLoading={isShareActivityLoading}
+              />
+            )}
           </View>
-          <Icon
-            name={'share'}
-            size={20}
-            color={'white'}
-            onPress={handleOnSharePressed}
-            disabled={false}
-          />
-        </View>
 
-        {renderRoute()}
+          {renderRoute()}
 
-        <ContentContainer>
-          <StatsContainer>
-            <StatWidgetRow
-              style={{
-                paddingBottom: 10,
-                borderBottomWidth: 1,
-                borderColor: colors.separator,
-              }}>
-              <StatWidget label={'Distance'} value={'3km'} />
-              <StatWidget label={'Speed'} value={'14km/h'} />
-              <StatWidget label={'Points'} value={'12'} />
-            </StatWidgetRow>
+          <ContentContainer>
+            <StatsContainer>
+              <StatWidgetRow
+                style={{
+                  paddingBottom: 10,
+                  borderBottomWidth: 1,
+                  borderColor: colors.separator,
+                }}>
+                <StatWidget label={'Distance'} value={distance} />
+                <StatWidget label={'Speed'} value={speed} />
+                <StatWidget label={'Points'} value={points} />
+              </StatWidgetRow>
 
-            <StatWidgetRow style={{marginTop: 10}}>
-              <StatWidget label={'Calories'} value={'23'} />
-              <StatWidget label={'Time'} value={'1h 42m'} />
-            </StatWidgetRow>
-          </StatsContainer>
-        </ContentContainer>
-        <View style={{flex: 1}} />
-      </Animated.ScrollView>
+              <StatWidgetRow style={{marginTop: 10}}>
+                <StatWidget label={'Calories'} value={calories} />
+                <StatWidget label={'Time'} value={time} />
+              </StatWidgetRow>
+            </StatsContainer>
+          </ContentContainer>
+          <View style={{flex: 1}} />
+        </Animated.ScrollView>
+      )}
     </>
   );
 };

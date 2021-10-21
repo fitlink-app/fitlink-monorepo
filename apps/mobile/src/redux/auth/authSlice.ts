@@ -7,7 +7,7 @@ import {
 import {AuthResultDto} from '@fitlink/api-sdk/types';
 import {RootState} from '../reducer';
 import {REHYDRATE} from 'redux-persist';
-import api, {getErrors} from '@api';
+import api, {deleteCurrentToken, getErrors} from '@api';
 import {queryClient, QueryKeys} from '@query';
 import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {LOGOUT, SIGN_IN, SIGN_IN_APPLE, SIGN_IN_GOOGLE, SIGN_UP} from './keys';
@@ -61,14 +61,6 @@ export const signIn = createAsyncThunk(
 export const signInWithGoogle = createAsyncThunk(
   SIGN_IN_GOOGLE,
   async (idToken: string, {rejectWithValue}) => {
-    // TODO: Move this to env/config file
-    GoogleSignin.configure({
-      webClientId:
-        '369193601741-o9ao2iqikmcm0fte2t4on85hrni4dsjc.apps.googleusercontent.com',
-      iosClientId:
-        '369193601741-bkluos3jpe42b0a5pqfuv7lg5f640n8t.apps.googleusercontent.com',
-    });
-
     await GoogleSignin.signOut();
 
     //Authenticate token on backend against Google, get back JWT
@@ -116,8 +108,12 @@ export const logout = createAsyncThunk(
     try {
       dispatch(clearAuthResult());
       flushPersistedQueries();
-      queryClient.removeQueries();
-      await api.logout();
+
+      await Promise.all([
+        queryClient.removeQueries(),
+        deleteCurrentToken(),
+        api.logout(),
+      ]);
     } catch (e: any) {
       return getErrors(e);
     }
@@ -144,6 +140,7 @@ const authSlice = createSlice({
       state.authResult = payload;
     },
     clearAuthResult: state => {
+      console.log('should clear');
       state.authResult = null;
     },
   },

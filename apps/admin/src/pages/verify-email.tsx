@@ -59,11 +59,11 @@ const RedeemPage = () => {
             type="success"
             className="mt-2 mb-2"
           />
+          <Link href={verify.data.link}>
+            <a className="button alt">Launch App</a>
+          </Link>
         </>
       )}
-      <Link href="/login">
-        <a className="button alt">Login</a>
-      </Link>
     </Login>
   )
 }

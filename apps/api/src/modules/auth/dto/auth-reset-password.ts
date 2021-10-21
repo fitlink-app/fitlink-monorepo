@@ -18,3 +18,12 @@ export class AuthResetPasswordDto {
   @IsString()
   token: string
 }
+
+export class AuthResetPasswordResultDto {
+  @ApiProperty()
+  affected: number
+
+  @ApiProperty()
+  @IsString()
+  link?: string
+}
