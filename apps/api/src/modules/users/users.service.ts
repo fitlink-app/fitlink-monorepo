@@ -46,6 +46,8 @@ import { Activity } from '../activities/entities/activity.entity'
 import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.entity'
 import { HealthActivityDebug } from '../health-activities/entities/health-activity-debug.entity'
 import { DeepLinkType } from '../../constants/deep-links'
+import { zonedStartOfDay } from 'apps/common/date/helpers'
+import { addHours } from 'date-fns'
 
 type EntityOwner = {
   organisationId?: string
@@ -857,8 +859,10 @@ export class UsersService {
    * 4 days we push a notification on Mondays.
    */
   async processMondayMorningReminder() {
+    const now = new Date()
+
     // Ensure this only ever runs on Monday
-    if (!isMonday(new Date())) {
+    if (!isMonday(now)) {
       return false
     }
 
@@ -872,25 +876,29 @@ export class UsersService {
       .andWhere('onboarded = true')
       .getMany()
 
-    const usersWithFcm = users.filter(
-      (e) => e.fcm_tokens && e.fcm_tokens.length
-    )
+    const eligible = users.filter((e) => {
+      // Notify users between 7am - 9am.
+      const am7 = addHours(zonedStartOfDay(e.timezone, now), 7)
+      const am9 = addHours(zonedStartOfDay(e.timezone, now), 9)
+      return now >= am7 && now < am9 && e.fcm_tokens && e.fcm_tokens.length
+    })
+
     const messages = await this.notificationsService.sendAction(
-      usersWithFcm,
+      eligible,
       NotificationAction.MondayReminder
     )
 
     await this.commonService.notifySlackJobs(
       'Monday morning update',
       {
-        notified_total: usersWithFcm.length,
+        notified_total: eligible.length,
         messages: messages
       },
       differenceInMilliseconds(started, new Date())
     )
 
     return {
-      total: usersWithFcm.length,
+      total: eligible.length,
       messages
     }
   }
