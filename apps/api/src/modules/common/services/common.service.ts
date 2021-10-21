@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { plainToClass } from 'class-transformer'
 import { User, UserPublic } from '../../users/entities/user.entity'
 import { zonedStartOfDay } from '../../../../../common/date/helpers'
+import { DeepLinkType } from 'apps/api/src/constants/deep-links'
 
 export type UserExtended = User & {
   invitations?: any[]
@@ -77,5 +78,40 @@ export class CommonService {
     } catch (e) {
       console.error(e)
     }
+  }
+
+  generateDynamicLink = (
+    type: DeepLinkType,
+    params: { [key: string]: string },
+    otherPlatformLink?: string,
+    skipAppPreview?: boolean
+  ) => {
+    const link = new URL(this.configService.get('DEEP_LINK_URL'))
+
+    // Add type param to the link
+    link.searchParams.append('type', type)
+
+    // Add params to the "link", this URL will be received by the mobile app
+    for (const key in params) {
+      link.searchParams.append(key, params[key])
+    }
+
+    // Construct the dynamic link
+    const url = new URL(this.configService.get('DEEP_LINK_URL'))
+
+    const linkEncoded = encodeURI(link.toString())
+    url.searchParams.append('link', linkEncoded)
+
+    // Android values
+    url.searchParams.append('apn', this.configService.get('ANDROID_BUNDLE_ID'))
+
+    // iOS Values
+    url.searchParams.append('ibi', this.configService.get('IOS_BUNDLE_ID'))
+    url.searchParams.append('isi', this.configService.get('IOS_APP_ID'))
+
+    if (otherPlatformLink) url.searchParams.append('ofl', otherPlatformLink)
+    if (skipAppPreview) url.searchParams.append('efr', '1')
+
+    return url.toString()
   }
 }

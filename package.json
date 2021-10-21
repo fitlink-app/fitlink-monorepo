@@ -53,7 +53,8 @@
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "firebase:migration:jest": "cross-env DB_PASSWORD=jest DB_USERNAME=jest DB_DATABASE_NAME=jest DB_PORT=5433 ts-node ./apps/api/database/firebase/migrate.ts",
     "firebase:migration": "cross-env MIGRATION=firebase ts-node ./apps/api/database/firebase/migrate.ts",
-    "ssl:generate": "openssl genrsa -out root.key 4096 && openssl req -x509 -new -nodes -key root.key -sha256 -days 1024 -out root.crt"
+    "ssl:generate": "openssl genrsa -out root.key 4096 && openssl req -x509 -new -nodes -key root.key -sha256 -days 1024 -out root.crt",
+    "test:timezones": "ts-node ./apps/common/date/test.ts"
   },
   "workspaces": {
     "packages": [

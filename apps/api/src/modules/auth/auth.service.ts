@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpService,
   HttpStatus,
@@ -32,6 +33,9 @@ import { Roles } from '../user-roles/user-roles.constants'
 import { Team } from '../teams/entities/team.entity'
 import { OrganisationsService } from '../organisations/organisations.service'
 import { OrganisationMode } from '../organisations/organisations.constants'
+import { UserSettingsService } from '../users-settings/users-settings.service'
+import { CommonService } from '../common/services/common.service'
+import { DeepLinkType } from '../../constants/deep-links'
 
 type PasswordResetToken = {
   sub: string
@@ -62,7 +66,9 @@ export class AuthService {
     @InjectRepository(Team)
     private teamRepository: Repository<Team>,
     private connection: Connection,
-    private httpService: HttpService
+    private httpService: HttpService,
+    private userSettingsService: UserSettingsService,
+    private commonService: CommonService
   ) {}
 
   /**
@@ -208,6 +214,15 @@ export class AuthService {
         email
       ])
 
+      // If the user chose to subscribe, add them to settings
+      // Which invokes Intercom update
+      if (subscribe) {
+        await this.userSettingsService.update(user.id, {
+          newsletter_subscriptions_admin: true,
+          newsletter_subscriptions_user: true
+        })
+      }
+
       // Create the organisation
       // Also creates the default subscription and team
       // Also assigns the owner as an admin
@@ -217,7 +232,9 @@ export class AuthService {
           type,
           type_other,
           timezone: '',
-          mode: OrganisationMode.Simple
+          mode: OrganisationMode.Simple,
+          terms_agreed: agree_to_terms,
+          terms_agreed_at: new Date()
         },
         user.id
       )
@@ -255,10 +272,23 @@ export class AuthService {
   ) {
     const user = await this.usersService.findOne(userId)
 
+    if (!agree_to_terms) {
+      throw new BadRequestException('You must agree to terms to continue')
+    }
+
     // Send a welcome email
     await this.emailService.sendTemplatedEmail('welcome-email-admin', {}, [
       user.email
     ])
+
+    // If the user chose to subscribe, add them to settings
+    // Which invokes Intercom update
+    if (subscribe) {
+      await this.userSettingsService.update(user.id, {
+        newsletter_subscriptions_admin: true,
+        newsletter_subscriptions_user: true
+      })
+    }
 
     // Create the organisation
     // Also creates the default subscription and team
@@ -269,7 +299,9 @@ export class AuthService {
         type,
         type_other,
         timezone: '',
-        mode: OrganisationMode.Simple
+        mode: OrganisationMode.Simple,
+        terms_agreed: agree_to_terms,
+        terms_agreed_at: new Date()
       },
       user.id
     )
@@ -464,19 +496,35 @@ export class AuthService {
 
   /**
    * Sends user a password reset link in an email
+   *
+   * This is a deep link which on desktop will be
+   * routed to the browser app at https://my.fitlinkapp.com
+   *
+   * On mobile, it will deep link into the app
+   *
    * @param email
    * @returns
    */
   async requestPasswordReset(email: string) {
     const user = await this.usersService.findByEmail(email)
     if (user) {
+      const token = this.getResetPasswordToken(user)
       const resetPasswordUrl = this.configService
         .get('RESET_PASSWORD_URL')
-        .replace('{token}', this.getResetPasswordToken(user))
+        .replace('{token}', token)
+
+      const dynamicLink = this.commonService.generateDynamicLink(
+        DeepLinkType.PasswordReset,
+        {
+          token: token
+        },
+        resetPasswordUrl
+      )
+
       await this.emailService.sendTemplatedEmail(
         'password-reset',
         {
-          PASSWORD_RESET_LINK: resetPasswordUrl
+          PASSWORD_RESET_LINK: dynamicLink
         },
         [email]
       )
