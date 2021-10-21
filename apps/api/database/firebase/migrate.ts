@@ -1,7 +1,8 @@
 import { Connection, Repository } from 'typeorm'
 import { User } from '../../src/modules/users/entities/user.entity'
 import { UnitSystem, UserRank } from '../../src/modules/users/users.constants'
-import { initializeApp, credential, firestore } from 'firebase-admin'
+import * as admin from 'firebase-admin'
+import { firestore, credential } from 'firebase-admin'
 import { NestFactory } from '@nestjs/core'
 import { Image } from '../../src/modules/images/entities/image.entity'
 import { ImageType } from '../../src/modules/images/images.constants'
@@ -58,7 +59,7 @@ import {
 import { Activity } from '../../src/modules/activities/entities/activity.entity'
 import { ActivityType } from '../../src/modules/activities/activities.constants'
 import { HealthActivitiesService } from '../../src/modules/health-activities/health-activities.service'
-import { GoalsEntriesService } from 'apps/api/src/modules/goals-entries/goals-entries.service'
+import { GoalsEntriesService } from '../../src/modules/goals-entries/goals-entries.service'
 
 // FITLINK
 const FITLINK_TEAM = 'ZxSZdl3lafZiiWiZnhlw'
@@ -98,7 +99,7 @@ const allow = Object.values(require('./trusted.json'))
     throw new Error('Sports must be seeded first.')
   }
 
-  const app = initializeApp({
+  const app = admin.initializeApp({
     storageBucket: 'fitlink-rn.appspot.com',
     credential: credential.cert(require('./credential.json'))
   })
@@ -122,9 +123,11 @@ const allow = Object.values(require('./trusted.json'))
       } as LegacyLeague
     }
   )
-  const fUsers = JSON.parse(
+  const fUsers = (JSON.parse(
     (await readFile(__dirname + '/users.json')).toString()
-  ).users as LegacyUser[]
+  ).users as LegacyUser[]).filter(
+    (e) => !e.photoUrl || e.photoUrl.indexOf('robohash') === -1
+  )
 
   connection.manager.transaction(async (manager) => {
     /**
@@ -340,7 +343,7 @@ const allow = Object.values(require('./trusted.json'))
 
       return Promise.all(
         fUsers
-          //.filter((e) => allow.includes(e.localId))
+          .filter((e) => allow.includes(e.localId))
           .map(async (userEntry) => {
             const id = userEntry.localId
 

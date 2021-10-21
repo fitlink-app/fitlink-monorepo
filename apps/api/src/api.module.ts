@@ -18,6 +18,7 @@ import { Leaderboard } from './modules/leaderboards/entities/leaderboard.entity'
 import { LeaderboardEntry } from './modules/leaderboard-entries/entities/leaderboard-entry.entity'
 import { LeaguesInvitation } from './modules/leagues-invitations/entities/leagues-invitation.entity'
 import { League } from './modules/leagues/entities/league.entity'
+import { Notification } from './modules/notifications/entities/notification.entity'
 import { Organisation } from './modules/organisations/entities/organisation.entity'
 import { OrganisationsInvitation } from './modules/organisations-invitations/entities/organisations-invitation.entity'
 import { Page } from './modules/pages/entities/page.entity'
@@ -34,7 +35,6 @@ import { TeamsInvitation } from './modules/teams-invitations/entities/teams-invi
 import { User } from './modules/users/entities/user.entity'
 import { UserRole } from './modules/user-roles/entities/user-role.entity'
 import { UsersSetting } from './modules/users-settings/entities/users-setting.entity'
-import { Notification } from './modules/notifications/entities/notification.entity'
 
 // Modules
 import { AuthModule } from './modules/auth/auth.module'

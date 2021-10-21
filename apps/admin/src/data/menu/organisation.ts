@@ -46,11 +46,6 @@ export function MenuOrganisationComplex(primary: Primary) {
       icon: 'IconCreditCard'
     },
     {
-      label: 'Knowledge Base',
-      link: '/knowledge-base',
-      icon: 'IconYoga'
-    },
-    {
       label: 'App Store',
       link: '/app-store',
       icon: 'IconMobile'
@@ -122,11 +117,6 @@ export function MenuOrganisationSimple(primary: Primary) {
       label: 'Billing',
       link: `/subscriptions/${primary.subscription}`,
       icon: 'IconCreditCard'
-    },
-    {
-      label: 'Knowledge Base',
-      link: '/knowledge-base',
-      icon: 'IconYoga'
     },
     {
       label: 'App Store',
