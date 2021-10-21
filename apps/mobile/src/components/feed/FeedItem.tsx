@@ -1,11 +1,11 @@
 import {UserCounter} from 'components/common/UserCounter';
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
+import {Image} from 'react-native';
 import {
   Avatar,
   Chip,
   Icon,
-  IcoMoonIcon,
   Label,
   ProgressCircle,
   TouchHandler,
@@ -306,25 +306,14 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
 
   const renderTitleIcon = () => {
     if (!item.health_activity) return null;
-
     const {health_activity} = item;
-    const icon = getActivityIcon(health_activity.sport.name_key);
-    const safeIcon = icon
-      ? IcoMoonIcon.hasIcon(icon)
-        ? icon
-        : 'walking-solid'
-      : null;
 
-    if (!safeIcon) return null;
-
-    return (
-      <Icon
-        name={safeIcon}
-        size={18}
-        style={{marginRight: 5, marginTop: 2}}
-        color={colors.accentSecondary}
+    return health_activity.sport.icon_url ? (
+      <Image
+        style={{height: 18, width: 18, marginRight: 5, marginTop: 2}}
+        source={{uri: health_activity.sport.icon_url}}
       />
-    );
+    ) : null;
   };
 
   const renderPoints = () => {
@@ -437,8 +426,6 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
     }
 
     const targetUser = getTargetUser();
-
-    console.log(targetUser);
 
     return (
       <TouchHandler

@@ -19,6 +19,11 @@ export function useLike() {
           QueryKeys.Feed,
           oldFeedItems => addFeedItemLike(oldFeedItems, params.feedItemId),
         );
+
+        queryClient.setQueryData<InfiniteData<ListResponse<FeedItem>>>(
+          [QueryKeys.UserFeed, params.userId],
+          oldFeedItems => addFeedItemLike(oldFeedItems, params.feedItemId),
+        );
       },
     },
   );

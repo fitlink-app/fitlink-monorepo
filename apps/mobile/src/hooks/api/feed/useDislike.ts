@@ -20,6 +20,11 @@ export function useDislike() {
           QueryKeys.Feed,
           oldFeedItems => deleteFeedItemLike(oldFeedItems, params.feedItemId),
         );
+
+        queryClient.setQueryData<InfiniteData<ListResponse<FeedItem>>>(
+          [QueryKeys.UserFeed, params.userId],
+          oldFeedItems => deleteFeedItemLike(oldFeedItems, params.feedItemId),
+        );
       },
     },
   );

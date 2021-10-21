@@ -10,3 +10,4 @@ export * from './feed';
 export * from './healthActivities';
 export * from './notifications';
 export * from './teams';
+export * from './auth';

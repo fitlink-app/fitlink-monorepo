@@ -182,7 +182,7 @@ export const HealthActivityDetails = (
   }, []);
 
   const getDefaultActivityImage = () => {
-    return undefined;
+    return data?.sport.image_url;
   };
 
   const handleOnImagePickerPressed = () => {

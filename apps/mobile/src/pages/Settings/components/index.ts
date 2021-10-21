@@ -4,3 +4,4 @@ export * from './SettingsItemCheckbox';
 export * from './SettingsInput';
 export * from './SettingsDropdown';
 export * from './SettingsHealthActivityButton';
+export * from './DeleteAccountModal';

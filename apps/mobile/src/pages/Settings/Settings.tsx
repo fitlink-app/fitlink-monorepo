@@ -29,6 +29,7 @@ import {
   SettingsInput,
   SettingsDropdown,
   SettingsHealthActivityButton,
+  DeleteAccountModal,
 } from './components';
 import {SettingsItemWrapper} from './components/SettingsItemWrapper';
 import {SettingsItemLabel} from './components/SettingsItemLabel';
@@ -522,21 +523,17 @@ export const Settings = () => {
                     title={'Delete Account?'}
                     description={
                       'Are you sure you want to delete your account? This action is irreversible.'
-                    }
-                    buttons={[
-                      {
-                        text: 'Delete My Account',
-                        type: 'danger',
-                        onPress: () => closeModal(id),
-                      },
-                      {
-                        text: 'Back',
-                        textOnly: true,
-                        style: {marginBottom: -10},
-                        onPress: () => closeModal(id),
-                      },
-                    ]}
-                  />
+                    }>
+                    <DeleteAccountModal
+                      onCloseCallback={isDeleted => {
+                        if (isDeleted) {
+                        } else {
+                        }
+
+                        closeModal(id);
+                      }}
+                    />
+                  </Modal>
                 );
               })
             }
