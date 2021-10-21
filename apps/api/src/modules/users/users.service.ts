@@ -47,6 +47,7 @@ import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.
 import { HealthActivityDebug } from '../health-activities/entities/health-activity-debug.entity'
 import { zonedStartOfDay } from '../../../../common/date/helpers'
 import { addHours } from 'date-fns'
+import { DeepLinkType } from '../../constants/deep-links'
 
 type EntityOwner = {
   organisationId?: string
@@ -625,6 +626,14 @@ export class UsersService {
     return false
   }
 
+  generatePostEmailVerifyLink() {
+    return this.commonService.generateDynamicLink(
+      DeepLinkType.EmailVerification,
+      {},
+      this.configService.get('DASHBOARD_URL') + '/login'
+    )
+  }
+
   /**
    * Sends a JWT-based email verification link to the email address.
    *
@@ -966,6 +975,10 @@ export class UsersService {
         // Remove leagues invitations
         manager.getRepository(LeaguesInvitation).delete({
           to_user: { id }
+        }),
+
+        manager.getRepository(LeaguesInvitation).delete({
+          from_user: { id }
         }),
 
         // Remove teams invitations
