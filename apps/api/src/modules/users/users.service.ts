@@ -46,7 +46,7 @@ import { Activity } from '../activities/entities/activity.entity'
 import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.entity'
 import { HealthActivityDebug } from '../health-activities/entities/health-activity-debug.entity'
 import { DeepLinkType } from '../../constants/deep-links'
-import { zonedStartOfDay } from 'apps/common/date/helpers'
+import { zonedStartOfDay } from '../../../../common/date/helpers'
 import { addHours } from 'date-fns'
 
 type EntityOwner = {
