@@ -2,13 +2,18 @@ import {Card, FormDropdown, Label} from '@components';
 import React from 'react';
 import {
   PRIVACY_ITEMS,
-  UserPrivacySettingsValue,
+  selectSettings,
+  setActivitiesPrivacy,
+  setDailyStatisticsPrivacy,
 } from 'redux/settings/settingsSlice';
+import {PrivacySetting} from '@fitlink/api/src/modules/users-settings/users-settings.constants';
 
 import styled from 'styled-components/native';
+import {useDispatch, useSelector} from 'react-redux';
 
 const Wrapper = styled.View({
   height: '100%',
+  backgroundColor: 'transparent',
 });
 
 const ContentContainer = styled.View({
@@ -41,19 +46,10 @@ const SettingDropdown = styled(FormDropdown)({
 });
 
 export const Privacy = () => {
-  const privacySettings = {};
-
-  const handlePrivacyChange = (
-    value: UserPrivacySettingsValue,
-    field: string,
-  ) => {
-    const newPrivacySettings: {[key: string]: UserPrivacySettingsValue} = {
-      ...privacySettings,
-    };
-    newPrivacySettings[field] = value;
-    // dispatch(setPrivacySettings(newPrivacySettings as UserPrivacySettings));
-  };
-
+  const dispatch = useDispatch();
+  const settings = useSelector(selectSettings);
+  console.log('cs');
+  console.log(settings);
   return (
     <Wrapper>
       <ContentContainer>
@@ -71,12 +67,12 @@ export const Privacy = () => {
             <SettingRow>
               <SettingLabel>Daily Statistics</SettingLabel>
               <SettingDropdown
-                prompt={'Select daily statistics privacy'}
                 items={PRIVACY_ITEMS}
-                value={PRIVACY_ITEMS[0].value}
+                value={settings.userSettings?.privacy_daily_statistics}
                 onValueChange={value =>
-                  handlePrivacyChange(value, 'daily_statistics')
+                  dispatch(setDailyStatisticsPrivacy(value))
                 }
+                prompt={'Select daily statistics privacy'}
               />
             </SettingRow>
 
@@ -84,10 +80,8 @@ export const Privacy = () => {
               <SettingLabel>Activities</SettingLabel>
               <SettingDropdown
                 items={PRIVACY_ITEMS}
-                value={PRIVACY_ITEMS[0].value}
-                onValueChange={value =>
-                  handlePrivacyChange(value, 'activities')
-                }
+                value={settings.userSettings?.privacy_activities}
+                onValueChange={value => dispatch(setActivitiesPrivacy(value))}
                 prompt={'Select activity privacy'}
               />
             </SettingRow>

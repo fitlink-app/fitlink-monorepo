@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>369193601741-bkluos3jpe42b0a5pqfuv7lg5f640n8t.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.369193601741-bkluos3jpe42b0a5pqfuv7lg5f640n8t</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>369193601741-5lktfsjujrrursm157kf81va1bnqet99.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBKRsLCsm4LI6RDnmJOZkKz5ASJ_IpvXO0</string>
+	<key>GCM_SENDER_ID</key>
+	<string>369193601741</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.fathomux.Fit-Link</string>
+	<key>PROJECT_ID</key>
+	<string>fitlink-rn</string>
+	<key>STORAGE_BUCKET</key>
+	<string>fitlink-rn.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:369193601741:ios:752043a2bc2b6da03ff784</string>
+	<key>DATABASE_URL</key>
+	<string>https://fitlink-rn.firebaseio.com</string>
+</dict>
+</plist>

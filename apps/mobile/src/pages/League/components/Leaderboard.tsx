@@ -161,10 +161,6 @@ export const Leaderboard = ({
       renderItem={({item, index}) =>
         renderItem({item, index, sourceLength: displayResults?.length || 0})
       }
-      contentContainerStyle={{
-        paddingTop: 20,
-        paddingBottom: insets.bottom,
-      }}
       initialNumToRender={25}
       onEndReachedThreshold={0.1}
       onEndReached={() => {

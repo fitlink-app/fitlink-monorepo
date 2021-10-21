@@ -49,7 +49,8 @@ const Team = styled(Label).attrs(() => ({
   appearance: 'primary',
 }))({});
 
-const League = styled(Team).attrs(() => ({
+const League = styled(Label).attrs(() => ({
+  type: 'caption',
   bold: false,
   appearance: 'secondary',
   numberOfLines: 1,
@@ -65,6 +66,10 @@ interface ProfileRowProps {
   name: string;
 
   avatarUrl?: string;
+
+  teamName?: string;
+
+  leagueNames?: string[];
 
   /** Is this user being followed by us? */
   isFollowed: boolean;
@@ -89,6 +94,23 @@ const _ProfileRow = (props: ProfileRowProps) => {
     navigation.navigate('Profile', {id: userId});
   };
 
+  function renderTeam() {
+    if (!props.teamName) return null;
+
+    return <Team>{props.teamName} </Team>;
+  }
+
+  function renderLeagues() {
+    if (!props.leagueNames || Object.values(props.leagueNames).length === 0)
+      return null;
+
+    const commaSeparatedLeagues = Object.values(props.leagueNames).map(
+      (x, index) => `${index !== 0 || !!props.teamName ? ', ' : ''}${x}`,
+    );
+
+    return <League>{commaSeparatedLeagues}</League>;
+  }
+
   return (
     <TouchHandler onPress={handleOnPress}>
       <Wrapper>
@@ -99,10 +121,10 @@ const _ProfileRow = (props: ProfileRowProps) => {
               <UserDetailsContainer>
                 <Name>{name}</Name>
 
-                {/* <Row>
+                <Row>
                   {renderTeam()}
                   {renderLeagues()}
-                </Row> */}
+                </Row>
               </UserDetailsContainer>
 
               <UserIconButton

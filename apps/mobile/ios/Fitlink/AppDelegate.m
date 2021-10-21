@@ -11,6 +11,11 @@
 #import <AppCenterReactNativeAnalytics.h>
 #import <AppCenterReactNativeCrashes.h>
 #import <CodePush/CodePush.h>
+#import <IntercomModule.h>
+#import <UserNotifications/UserNotifications.h>
+#import <React/RCTLinkingManager.h>
+#import <Firebase.h>
+#import <TSBackgroundFetch/TSBackgroundFetch.h>
 
 @import GooglePlaces;
 @import GoogleMaps;
@@ -38,6 +43,8 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  [FIRApp configure];
+  
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
 #endif
@@ -67,6 +74,15 @@ static void InitializeFlipper(UIApplication *application) {
   [AppCenterReactNative register];
   [AppCenterReactNativeAnalytics registerWithInitiallyEnabled:true];
   [AppCenterReactNativeCrashes registerWithAutomaticProcessing];
+  [IntercomModule initialize:@"ios_sdk-e9cecd16c2a508c21a63fd21d3b20a1fb7ada2cb" withAppId:@"jhnnkwbj"];
+  
+  UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+      [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert + UNAuthorizationOptionSound)
+                            completionHandler:^(BOOL granted, NSError *_Nullable error) {
+                            }];
+      [[UIApplication sharedApplication] registerForRemoteNotifications];
+  
+  [[TSBackgroundFetch sharedInstance] didFinishLaunching];
   
   return YES;
 }
@@ -78,6 +94,33 @@ static void InitializeFlipper(UIApplication *application) {
 #else
   return [CodePush bundleURL];
 #endif
+}
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    [IntercomModule setDeviceToken:deviceToken];
+}
+
+- (BOOL)application:(UIApplication *)application
+   openURL:(NSURL *)url
+   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+{
+  return [RCTLinkingManager application:application openURL:url options:options];
+}
+
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+  return [RCTLinkingManager application:application openURL:url
+                      sourceApplication:sourceApplication annotation:annotation];
+}
+
+- (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity
+ restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
+{
+ return [RCTLinkingManager application:application
+                  continueUserActivity:userActivity
+                    restorationHandler:restorationHandler];
 }
 
 @end

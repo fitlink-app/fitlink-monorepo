@@ -58,7 +58,7 @@ export default function Router() {
       }}>
       <Stack.Navigator screenOptions={navigatorOptions}>
         {isAuthenticated ? (
-          isUserFetched && me?.onboarded ? (
+          me?.onboarded ? (
             <>
               <Stack.Screen name={'HomeNavigator'} component={HomeNavigator} />
               <Stack.Screen

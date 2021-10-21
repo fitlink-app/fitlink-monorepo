@@ -1,18 +1,35 @@
 import React from 'react';
-import {Button} from '@components';
+import {Button, Logo, TeamInvitation} from '@components';
 import {useNavigation} from '@react-navigation/native';
-import styled from 'styled-components/native';
+import styled, {useTheme} from 'styled-components/native';
 import {Background, GradientUnderlay, WelcomeHeader} from './components';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Platform} from 'react-native';
+import {ActivityIndicator, Platform} from 'react-native';
 import {useState} from 'react';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {signInWithApple, signInWithGoogle} from 'redux/auth/authSlice';
 import {AppDispatch} from 'redux/store';
 import appleAuth from '@invertase/react-native-apple-authentication';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {
+  resetTeamInvitation,
+  selectTeamInvitation,
+} from 'redux/teamInvitation/teamInvitationSlice';
 
 const Wrapper = styled.View({flex: 1, alignItems: 'center'});
+
+const InvitationContainer = styled.View({
+  flex: 1,
+  justifyContent: 'flex-end',
+  alignItems: 'center',
+  marginBottom: '20%',
+  width: '100%',
+});
+
+const InvitationLogoContainer = styled.View({
+  position: 'absolute',
+  left: 30,
+});
 
 const HeaderContainer = styled.View({
   flex: 1,
@@ -31,10 +48,20 @@ const SpacedButton = styled(Button)({
   marginBottom: 10,
 });
 
+const Center = styled.View({
+  flex: 1,
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
 export const Welcome = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const {colors} = useTheme();
   const dispatch = useDispatch() as AppDispatch;
+
+  const {invitation, isLoading: isLoadingTeamInvitation} =
+    useSelector(selectTeamInvitation);
 
   const [isGoogleLoading, setGoogleLoading] = useState(false);
   const [isAppleLoading, setAppleLoading] = useState(false);
@@ -77,37 +104,61 @@ export const Welcome = () => {
     <Wrapper style={{paddingBottom: insets.bottom}}>
       <GradientUnderlay />
 
-      <HeaderContainer>
-        <WelcomeHeader>
-          Join a global health and fitness club by connecting the activity
-          trackers you are already using
-        </WelcomeHeader>
-      </HeaderContainer>
+      {isLoadingTeamInvitation ? (
+        <Center>
+          <ActivityIndicator color={colors.accent} />
+        </Center>
+      ) : (
+        <>
+          {invitation ? (
+            <InvitationContainer>
+              <InvitationLogoContainer style={{top: insets.top + 40}}>
+                <Logo />
+              </InvitationLogoContainer>
+              <TeamInvitation
+                teamName={invitation.name}
+                avatar={invitation.avatar?.url_512x512}
+              />
+            </InvitationContainer>
+          ) : (
+            <HeaderContainer>
+              <WelcomeHeader>
+                Join a global health and fitness club by connecting the activity
+                trackers you are already using
+              </WelcomeHeader>
+            </HeaderContainer>
+          )}
 
-      <ButtonContainer>
-        <SpacedButton text={'Sign up'} onPress={handleOnSignUpPressed} />
-        <SpacedButton
-          disabled={isGoogleLoading}
-          loading={isGoogleLoading}
-          text={'Continue with Google'}
-          outline
-          icon={'google'}
-          onPress={handleOnGooglePressed}
-        />
-        {Platform.OS === 'ios' && appleAuth.isSupported && (
-          <SpacedButton
-            disabled={isAppleLoading}
-            loading={isAppleLoading}
-            text={'Continue with Apple'}
-            outline
-            icon={'apple'}
-            onPress={handleOnApplePressed}
-          />
-        )}
-        <SpacedButton text={'Log in'} textOnly onPress={handleOnLoginPressed} />
-      </ButtonContainer>
+          <ButtonContainer>
+            <SpacedButton text={'Sign up'} onPress={handleOnSignUpPressed} />
+            <SpacedButton
+              disabled={isGoogleLoading}
+              loading={isGoogleLoading}
+              text={'Continue with Google'}
+              outline
+              icon={'google'}
+              onPress={handleOnGooglePressed}
+            />
+            {Platform.OS === 'ios' && appleAuth.isSupported && (
+              <SpacedButton
+                disabled={isAppleLoading}
+                loading={isAppleLoading}
+                text={'Continue with Apple'}
+                outline
+                icon={'apple'}
+                onPress={handleOnApplePressed}
+              />
+            )}
+            <SpacedButton
+              text={'Log in'}
+              textOnly
+              onPress={handleOnLoginPressed}
+            />
+          </ButtonContainer>
+        </>
+      )}
 
-      <Background />
+      <Background isInvitationalBackground={!!invitation} />
     </Wrapper>
   );
 };

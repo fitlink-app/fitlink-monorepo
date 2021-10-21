@@ -32,7 +32,7 @@ export const UserCounter = ({
       {avatars.map((url, index) => (
         <Avatar
           {...{url}}
-          key={url}
+          key={url + index.toString()}
           size={AVATAR_SIZE}
           style={{
             left: index === 0 ? 0 : -index * 6,

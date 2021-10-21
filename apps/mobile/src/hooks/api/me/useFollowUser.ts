@@ -33,7 +33,6 @@ export function useFollowUser() {
 
         // Mutate Me
         queryClient.setQueryData<User>(QueryKeys.Me, oldUser => {
-          console.log(oldUser);
           return {
             ...oldUser!,
             following_total: oldUser!.following_total + 1,

@@ -1,17 +1,9 @@
 import {TouchHandler} from '@components';
 import React, {createContext, Fragment, useRef, useState} from 'react';
 import {useEffect} from 'react';
-import {Animated, Dimensions, StyleSheet} from 'react-native';
+import {Animated, BackHandler, Dimensions, StyleSheet} from 'react-native';
 import styled from 'styled-components/native';
-import {v4 as uuidv4} from 'uuid';
-
-if (__DEV__ && typeof global.crypto !== 'object') {
-  global.crypto = {
-    //@ts-ignore
-    getRandomValues: (array: any[]) =>
-      array.map(() => Math.floor(Math.random() * 256)),
-  };
-}
+import uuid from 'react-native-uuid';
 
 const {height: screenHeight} = Dimensions.get('screen');
 
@@ -40,12 +32,14 @@ type ModalComponent = {
   id: string;
   component: JSX.Element;
   onCloseCallback?: () => void;
+  key: string;
 };
 
 interface ModalContextType {
   openModal: (
     content: (componentId: string) => JSX.Element,
     onCloseCallback?: () => void,
+    key?: string,
   ) => string;
   closeModal: (id: string, callback?: () => void) => void;
 }
@@ -56,6 +50,24 @@ export const ModalContext = createContext<ModalContextType>(
 
 export const ModalProvider: React.FC = ({children}) => {
   const [components, setComponents] = useState<ModalComponent[]>([]);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackPress,
+    );
+
+    return () => backHandler.remove();
+  }, [components]);
+
+  const handleBackPress = () => {
+    if (components.length) {
+      closeTopModal();
+      return true;
+    }
+
+    return false;
+  };
 
   /** Animated values */
   const opacity = useRef(new Animated.Value(0)).current;
@@ -96,8 +108,15 @@ export const ModalProvider: React.FC = ({children}) => {
   function openModal(
     content: (componentId: string) => JSX.Element,
     onCloseCallback?: () => void,
+    key?: string,
   ) {
-    const componentId = uuidv4();
+    if (components.find(component => component.key === key)) {
+      console.log('Component with key already exists.');
+      return;
+    }
+
+    const componentId = uuid.v4() as string;
+    console.log(componentId);
 
     const wrappedComponent = (
       <ModalWrapper>{content(componentId)}</ModalWrapper>
@@ -106,6 +125,7 @@ export const ModalProvider: React.FC = ({children}) => {
       id: componentId,
       component: wrappedComponent,
       onCloseCallback,
+      key: key || componentId,
     };
 
     setComponents(prevComponents => [newModalComponent, ...prevComponents]);

@@ -4,3 +4,4 @@ export * from './usePersistedState';
 export * from './useModal';
 export * from './useImagePicker';
 export * from './useCodePush';
+export * from './useIntercomNotifications';

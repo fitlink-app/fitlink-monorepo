@@ -49,7 +49,6 @@ export const QueryPersistor: React.FC = ({children}) => {
   }, []);
 
   const hydrate = async () => {
-    console.log('hydrating');
     const queries = await getPersistedData<StorableQuery[]>(
       AsyncStorageKeys.QUERY_CACHE,
     );

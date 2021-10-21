@@ -1,7 +1,9 @@
 import React from 'react';
-import {Button, FormError, InputField, Label} from '@components';
-import {useForm} from '@hooks';
+import {Button, FormError, InputField, Label, Modal} from '@components';
+import {useForm, useModal, useRequestPasswordReset} from '@hooks';
 import styled from 'styled-components/native';
+import {RequestError} from '@api';
+import {useNavigation} from '@react-navigation/core';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -29,6 +31,10 @@ interface ForgotPasswordFormProps {
 }
 
 export const ForgotPasswordForm = ({email = ''}: ForgotPasswordFormProps) => {
+  const navigation = useNavigation();
+  const {openModal, closeModal} = useModal();
+
+  const {mutateAsync: requestPasswordReset} = useRequestPasswordReset();
   const initialValues: ForgotPasswordFormValues = {email};
 
   const {
@@ -41,7 +47,28 @@ export const ForgotPasswordForm = ({email = ''}: ForgotPasswordFormProps) => {
   } = useForm(initialValues);
 
   const onSubmit = async () => {
-    return {message: 'Not implemented.'} as any;
+    try {
+      await requestPasswordReset(values.email);
+
+      openModal((id: string) => {
+        return (
+          <Modal
+            title={'Password reset email sent'}
+            description={`We have sent you an email containing password reset instructions.`}
+            buttons={[
+              {
+                text: 'Close',
+                onPress: () => closeModal(id),
+              },
+            ]}
+          />
+        );
+      });
+
+      navigation.goBack();
+    } catch (e) {
+      return e as RequestError;
+    }
   };
 
   return (
@@ -61,6 +88,16 @@ export const ForgotPasswordForm = ({email = ''}: ForgotPasswordFormProps) => {
       />
 
       {!!errorMessage && <FormError>{errorMessage}</FormError>}
+
+      <Label
+        type={'subheading'}
+        appearance={'secondary'}
+        style={{
+          textAlign: 'center',
+          marginTop: 20,
+        }}>
+        We will send you instructions to reset your password
+      </Label>
 
       <SubmitButton
         text="Send reset instructions"
