@@ -12,6 +12,7 @@ import {queryClient, QueryKeys} from '@query';
 import {ResponseError} from '@fitlink/api-sdk/types';
 import {PrivacySetting} from '@fitlink/api/src/modules/users-settings/users-settings.constants';
 import {UpdateUsersSettingDto} from '@fitlink/api/src/modules/users-settings/dto/update-users-setting.dto';
+import {Platform} from 'react-native';
 
 export const PRIVACY_ITEMS = [
   {
@@ -64,6 +65,7 @@ export const submit = createAsyncThunk(
         unit_system: currentState.unitSystem,
         timezone: currentState.timezone,
         onboarded: true,
+        mobile_os: Platform.OS === 'ios' ? 'ios' : 'android',
         ...currentState.goals,
       };
 
