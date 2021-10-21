@@ -381,6 +381,8 @@ export class UsersService {
       .leftJoinAndSelect('user.followers', 'f2', 'f2.following.id = :userId', {
         userId
       })
+      .leftJoinAndSelect('user.leagues', 'leagues')
+      .leftJoinAndSelect('user.teams', 'teams')
       .take(limit)
       .skip(page * limit)
 
