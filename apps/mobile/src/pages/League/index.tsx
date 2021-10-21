@@ -2,13 +2,19 @@ import {Navbar} from '@components';
 import {useLeague, useLeagueMembers, useMe, useRank} from '@hooks';
 import {StackScreenProps} from '@react-navigation/stack';
 import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Animated, InteractionManager} from 'react-native';
+import {
+  ActivityIndicator,
+  Animated,
+  InteractionManager,
+  Platform,
+} from 'react-native';
 import {RootStackParamList} from 'routes/types';
 import styled, {useTheme} from 'styled-components/native';
 import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/entities/leaderboard-entry.entity';
 import {Header, Leaderboard} from './components';
 import {League as LeagueType} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {useNavigation} from '@react-navigation/native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const HEADER_HEIGHT = 250;
 
@@ -24,6 +30,7 @@ export const League = (
   props: StackScreenProps<RootStackParamList, 'League'>,
 ) => {
   const {colors} = useTheme();
+  const insets = useSafeAreaInsets();
 
   const {data: user} = useMe({
     refetchOnMount: false,
@@ -113,6 +120,7 @@ export const League = (
         fetchingNextPage={isFetchingMembersNextPage}
         isRepeat={activeLeague.repeat}
         endDate={activeLeague.ends_at}
+        hasNextPage={!!membersHasNextPage}
         fetchNextPage={() => membersHasNextPage && fetchMoreMembers()}
         isLoaded={areMembersFetchedAfterMount || !!members?.length}
         description={activeLeague.description}
@@ -129,6 +137,11 @@ export const League = (
           refetchLeague();
           refetchMembers();
           refetchFlanks();
+        }}
+        style={{flex: 1}}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom,
+          paddingTop: Platform.OS === 'ios' ? 20 : HEADER_HEIGHT + 20,
         }}
         contentInset={{top: HEADER_HEIGHT}}
         contentOffset={{x: 0, y: -HEADER_HEIGHT}}

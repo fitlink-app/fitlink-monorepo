@@ -210,7 +210,7 @@ export const Feed = () => {
             <Label
               type="body"
               appearance={'accentSecondary'}
-              style={{textAlign: 'center'}}>
+              style={{textAlign: 'center', paddingHorizontal: 20}}>
               Let’s get your feed looking top notch. Start filling it up by
               smashing some goals, following{' '}
               <Label onPress={() => navigation.navigate('Friends')}>

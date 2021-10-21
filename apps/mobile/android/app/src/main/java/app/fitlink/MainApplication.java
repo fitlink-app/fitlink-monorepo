@@ -1,4 +1,4 @@
-package com.fitlink;
+package app.fitlink;
 
 import android.app.Application;
 import android.content.Context;
@@ -9,6 +9,7 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.soloader.SoLoader;
+import app.fitlink.BuildConfig;
 import com.intercom.reactnative.IntercomModule;
 import com.microsoft.codepush.react.CodePush;
 import com.swmansion.reanimated.ReanimatedJSIModulePackage;

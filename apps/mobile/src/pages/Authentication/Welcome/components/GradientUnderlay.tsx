@@ -5,7 +5,7 @@ import styled from 'styled-components/native';
 const Wrapper = styled.View({
   position: 'absolute',
   width: '100%',
-  height: '64%',
+  height: '65%',
   bottom: 0,
 });
 

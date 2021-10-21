@@ -3,15 +3,7 @@ import React, {createContext, Fragment, useRef, useState} from 'react';
 import {useEffect} from 'react';
 import {Animated, Dimensions, StyleSheet} from 'react-native';
 import styled from 'styled-components/native';
-import {v4 as uuidv4} from 'uuid';
-
-if (__DEV__ && typeof global.crypto !== 'object') {
-  global.crypto = {
-    //@ts-ignore
-    getRandomValues: (array: any[]) =>
-      array.map(() => Math.floor(Math.random() * 256)),
-  };
-}
+import uuid from 'react-native-uuid';
 
 const {height: screenHeight} = Dimensions.get('screen');
 
@@ -105,7 +97,8 @@ export const ModalProvider: React.FC = ({children}) => {
       return;
     }
 
-    const componentId = uuidv4();
+    const componentId = uuid.v4() as string;
+    console.log(componentId);
 
     const wrappedComponent = (
       <ModalWrapper>{content(componentId)}</ModalWrapper>

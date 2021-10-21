@@ -144,10 +144,10 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.fitlink"
+        applicationId "app.fitlink"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-      resValue "string", "build_config_package", "com.fitlink"
+      resValue "string", "build_config_package", "app.fitlink"
       resValue 'string', "CODE_PUSH_APK_BUILD_TIME", String.format("\"%d\"", System.currentTimeMillis())
       versionCode 1
         versionName "1.0.0"
@@ -197,7 +197,6 @@ android {
     prd {
       minSdkVersion rootProject.ext.minSdkVersion
       dimension "default"
-      applicationIdSuffix ".prd"
       resValue "string", "CodePushDeploymentKey", '"MYgbPTJTPLiJdtz_mDKS4GohmXJihhwzsBadA"'
     }
   }
@@ -229,8 +228,8 @@ dependencies {
   implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
   implementation project(path: ":@react-native-firebase_messaging")
-  
-  implementation "com.google.firebase:firebase-messaging"
+
+  implementation 'com.google.firebase:firebase-messaging:20.2.+'
 
   implementation(project(":react-native-google-signin"))
 

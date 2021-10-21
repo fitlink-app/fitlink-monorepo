@@ -1,4 +1,4 @@
-package com.fitlink;
+package app.fitlink;
 
 import io.invertase.firebase.messaging.ReactNativeFirebaseMessagingService;
 import com.intercom.reactnative.IntercomModule;
