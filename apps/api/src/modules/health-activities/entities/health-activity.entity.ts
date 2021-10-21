@@ -28,7 +28,9 @@ export class HealthActivity extends CreatableEntity {
   @ManyToOne(() => Sport, (sport) => sport.health_activities)
   sport: Sport
 
-  @ManyToOne(() => Provider, (provider) => provider.health_activities)
+  @ManyToOne(() => Provider, (provider) => provider.health_activities, {
+    createForeignKeyConstraints: false
+  })
   provider: Provider
 
   @ManyToOne(() => FeedItem, (item) => item.health_activity)
