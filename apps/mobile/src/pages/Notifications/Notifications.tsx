@@ -128,10 +128,10 @@ export const Notifications = () => {
           paddingTop: Platform.OS === 'ios' ? 0 : NAVBAR_HEIGHT + insets.top,
           paddingBottom: insets.bottom + 20,
         }}
-        onEndReached={() => fetchNextPage()}
-        onEndReachedThreshold={0.25}
         contentInset={{top: NAVBAR_HEIGHT + insets.top}}
         contentOffset={{x: 0, y: -(NAVBAR_HEIGHT + insets.top)}}
+        onEndReached={() => fetchNextPage()}
+        onEndReachedThreshold={0.25}
         refreshControl={
           <RefreshControl
             tintColor={colors.accent}

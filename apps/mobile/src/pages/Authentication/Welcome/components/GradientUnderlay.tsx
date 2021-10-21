@@ -14,7 +14,7 @@ const UpperAreaGradient = styled(LinearGradient).attrs(({theme: {colors}}) => ({
 }))({
   width: '100%',
   height: '100%',
-  bottom: '45%',
+  bottom: '44%',
 });
 
 const LowerAreaSolid = styled.View(({theme: {colors}}) => ({

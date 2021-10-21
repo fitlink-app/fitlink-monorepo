@@ -4,11 +4,13 @@ import {useTheme} from 'styled-components/native';
 import {Icon} from '@components';
 import {BottomTabBar} from './components';
 import {Discover, Feed, Friends, Leagues, Rewards} from 'pages';
+import {useMe} from '@hooks';
 
 const Tab = createBottomTabNavigator();
 
 export const HomeNavigator = () => {
   const {colors} = useTheme();
+  const {data: me} = useMe({enabled: false});
 
   const renderTabIcon = (focused: boolean, name: string) => {
     return (
@@ -44,7 +46,7 @@ export const HomeNavigator = () => {
         name="Leagues"
         component={Leagues}
         options={{
-          tabBarBadge: 8,
+          tabBarBadge: me?.league_invitations_total || 0,
           tabBarIcon: ({focused}) => renderTabIcon(focused, 'leagues'),
         }}
       />

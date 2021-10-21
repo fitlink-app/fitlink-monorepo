@@ -2,6 +2,7 @@ package app.fitlink;
 
 import android.os.Bundle;
 import android.view.View;
+import com.zoontek.rnbootsplash.RNBootSplash;
 
 import com.facebook.react.ReactActivity;
 
@@ -23,5 +24,8 @@ public class MainActivity extends ReactActivity {
     View decorView = getWindow().getDecorView();
     decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
       | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
+    RNBootSplash.init(R.drawable.bootsplash, MainActivity.this);
+
   }
 }

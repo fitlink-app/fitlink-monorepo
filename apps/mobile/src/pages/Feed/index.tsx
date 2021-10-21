@@ -233,6 +233,7 @@ export const Feed = () => {
       <FlatList
         {...{renderItem, ListFooterComponent, ListEmptyComponent}}
         data={feedResults}
+        showsVerticalScrollIndicator={false}
         style={{overflow: 'visible'}}
         contentContainerStyle={{minHeight: '100%'}}
         onEndReachedThreshold={0.2}

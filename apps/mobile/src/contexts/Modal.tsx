@@ -1,7 +1,7 @@
 import {TouchHandler} from '@components';
 import React, {createContext, Fragment, useRef, useState} from 'react';
 import {useEffect} from 'react';
-import {Animated, Dimensions, StyleSheet} from 'react-native';
+import {Animated, BackHandler, Dimensions, StyleSheet} from 'react-native';
 import styled from 'styled-components/native';
 import uuid from 'react-native-uuid';
 
@@ -50,6 +50,24 @@ export const ModalContext = createContext<ModalContextType>(
 
 export const ModalProvider: React.FC = ({children}) => {
   const [components, setComponents] = useState<ModalComponent[]>([]);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackPress,
+    );
+
+    return () => backHandler.remove();
+  }, [components]);
+
+  const handleBackPress = () => {
+    if (components.length) {
+      closeTopModal();
+      return true;
+    }
+
+    return false;
+  };
 
   /** Animated values */
   const opacity = useRef(new Animated.Value(0)).current;

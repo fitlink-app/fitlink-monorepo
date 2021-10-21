@@ -83,6 +83,8 @@ export const LeagueInviteFriends = (
       <InviteRow
         userId={item.id as string}
         name={item.name as string}
+        teamName={item.team_name}
+        leagueNames={item.league_names}
         isInvited={!!item.invited}
         onInvitePressed={handleInvitePressed}
         avatarSource={item.avatar?.url_128x128}

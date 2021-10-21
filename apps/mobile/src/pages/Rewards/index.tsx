@@ -160,14 +160,18 @@ export const Rewards = () => {
 
   return (
     <Wrapper
-      contentContainerStyle={{paddingBottom: 20, flexGrow: 1}}
+      contentContainerStyle={{
+        paddingBottom: 20,
+        flexGrow: 1,
+        paddingTop: Platform.OS === 'ios' ? 0 : insets.top,
+      }}
       contentInset={{top: insets.top, left: 0, bottom: 0, right: 0}}
       contentOffset={{x: 0, y: -insets.top}}
       automaticallyAdjustContentInsets={false}
       contentInsetAdjustmentBehavior={'never'}
       refreshControl={
         <RefreshControl
-          // progressViewOffset={insets.top}
+          progressViewOffset={insets.top + 20}
           tintColor={colors.accent}
           refreshing={isLoading && isFetchedAfterMount && isManualRefresh}
           onRefresh={handleRefresh}
@@ -186,7 +190,7 @@ export const Rewards = () => {
             </PointsLabelContainer>
 
             {(!!nextReward?.reward?.points_required ||
-              !!claimableRewardsCount) && (
+              !!nextReward?.unclaimed_rewards_total) && (
               <RewardTracker
                 points={user?.points_total || 0}
                 targetPoints={nextReward?.reward?.points_required || 0}
