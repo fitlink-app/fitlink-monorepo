@@ -20,6 +20,7 @@ export enum TeamsInvitationsServiceError {
 type InviteeInviter = {
   inviter: string
   invitee: string
+  team: string
 }
 
 @Injectable()
@@ -31,7 +32,9 @@ export class TeamsInvitationsService {
     @InjectRepository(TeamsInvitation)
     private readonly invitationsRepository: Repository<TeamsInvitation>,
     @InjectRepository(Team)
-    private readonly teamsRepository: Repository<Team>
+    private readonly teamsRepository: Repository<Team>,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>
   ) {}
 
   async create(createDto: CreateTeamsInvitationDto, ownerId: string) {
@@ -58,10 +61,13 @@ export class TeamsInvitationsService {
       const token = this.createToken(invitation.id)
       inviteLink = this.createInviteLink(token)
 
+      const inviter = await this.usersRepository.findOne(owner.id)
+
       await this.sendEmail(
         {
           invitee: invitee,
-          inviter: inviterTeam.name
+          inviter: inviter.name,
+          team: inviterTeam.name
         },
         email,
         inviteLink,
@@ -74,10 +80,13 @@ export class TeamsInvitationsService {
       // with the link. Useful for Slack integrations for e.g.
       inviteLink = this.getJoinLink(inviterTeam).url
 
+      const inviter = await this.usersRepository.findOne(ownerId)
+
       await this.sendEmail(
         {
           invitee: invitee,
-          inviter: inviterTeam.name
+          inviter: inviter.name,
+          team: team.name
         },
         email,
         inviteLink,
@@ -98,7 +107,7 @@ export class TeamsInvitationsService {
    * @returns jwt token
    */
   async resend(id: string) {
-    const { email, name, admin, team } = await this.findOne(id)
+    const { email, name, admin, team, owner } = await this.findOne(id)
 
     const token = this.createToken(id)
     const inviteLink = this.createInviteLink(token)
@@ -106,7 +115,8 @@ export class TeamsInvitationsService {
     await this.sendEmail(
       {
         invitee: name,
-        inviter: team.name
+        inviter: owner.name,
+        team: team.name
       },
       email,
       inviteLink,
@@ -149,7 +159,7 @@ export class TeamsInvitationsService {
    * @returns string (MessageId)
    */
   sendEmail(
-    { invitee, inviter }: InviteeInviter,
+    { invitee, inviter, team }: InviteeInviter,
     email: string,
     inviteLink: string,
     isAdmin: boolean
@@ -159,7 +169,8 @@ export class TeamsInvitationsService {
       {
         INVITER_NAME: inviter,
         INVITEE_NAME: invitee,
-        INVITE_LINK: inviteLink
+        INVITE_LINK: inviteLink,
+        TEAM_NAME: team
       },
       [email]
     )
@@ -271,7 +282,7 @@ export class TeamsInvitationsService {
       where: {
         id: invitationId
       },
-      relations: ['team']
+      relations: ['team', 'owner']
     })
   }
 
