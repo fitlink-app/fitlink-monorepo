@@ -72,6 +72,7 @@ import { AddGoalPercentage1634574422239 } from '../database/migrations/163457442
 import { AddHealthActivityDebug1634725916904 } from '../database/migrations/1634725916904-AddHealthActivityDebug'
 import { AddTermsOrgs1634801771315 } from '../database/migrations/1634801771315-AddTermsOrgs'
 import { AddLeagueInvitationsCount1634817986873 } from '../database/migrations/1634817986873-AddLeagueInvitationsCount'
+import { DropForeignKeyConstraintsProvider1634852256096 } from '../database/migrations/1634852256096-DropForeignKeyConstraintsProvider'
 
 export default [
   InitializeSchema1614887523112,
@@ -142,5 +143,6 @@ export default [
   AddGoalPercentage1634574422239,
   AddHealthActivityDebug1634725916904,
   AddTermsOrgs1634801771315,
-  AddLeagueInvitationsCount1634817986873
+  AddLeagueInvitationsCount1634817986873,
+  DropForeignKeyConstraintsProvider1634852256096
 ]
