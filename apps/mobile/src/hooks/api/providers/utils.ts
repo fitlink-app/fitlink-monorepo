@@ -9,7 +9,10 @@ import {Provider} from '@fitlink/api/src/modules/providers/entities/provider.ent
 
 const API_URL = Config.API_URL;
 
-export const linkOauth = async (endpoint: string) => {
+export const linkOauth = async (
+  endpoint: string,
+  providerType: ProviderType,
+) => {
   try {
     const response = await api.get<any>(endpoint);
     console.log(response.oauth_url);
@@ -22,13 +25,20 @@ export const linkOauth = async (endpoint: string) => {
         },
       );
 
-      console.log('browser response');
-      console.log(browserResponse);
-
       if (browserResponse.type === 'success' && browserResponse.url) {
         if (!browserResponse.url.includes('auth-success')) {
           throw Error('Something went wrong.');
         }
+
+        // Mutate query
+        const data = {
+          type: providerType,
+        };
+
+        queryClient.setQueriesData<Provider[]>(
+          QueryKeys.MyProviders,
+          oldActivities => [...(oldActivities || []), data as Provider],
+        );
       }
     } else Linking.openURL(API_URL + endpoint);
   } catch (e) {
