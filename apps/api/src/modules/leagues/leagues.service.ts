@@ -521,14 +521,16 @@ export class LeaguesService {
           }
         )
 
-        // Update the user's total invitation count
+        // Update the user's total unread invitation count
         await userRepository.update(
           {
             id: userId
           },
           {
             league_invitations_total: await invitationRepository.count({
-              to_user: { id: userId }
+              to_user: { id: userId },
+              dismissed: false,
+              accepted: false
             })
           }
         )
