@@ -14,6 +14,6 @@ define(User, (faker: typeof Faker, context: Context) => {
     faker.internet.userName().toLowerCase() +
     faker.random.number(100) +
     '-example@fitlinkapp.com'
-  user.password = '$2a$10$SxsiyEPj2gjEgufzMiWTWuej0Cld6IzPT/59.0.Y6xSEosQ856u6m'
+  user.password = '$2b$10$q094HiCKPD8anURpGzim7eRdSRAKlp806SY9SnD9bbWIenXf1w3yC'
   return user
 })
