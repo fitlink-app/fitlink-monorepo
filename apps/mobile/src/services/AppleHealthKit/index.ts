@@ -11,6 +11,7 @@ import {
 import {syncDeviceActivities, syncDeviceLifestyleData} from 'services/common';
 import {queryClient, QueryKeys} from '@query';
 import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
+import {parseISO} from 'date-fns';
 
 export type HealthKitActivity = {
   device: string;
@@ -251,7 +252,7 @@ async function getActivitiesSinceDate(
       if (err) {
         reject('Unable to retrieve activities from HealthKit.');
       }
-      console.log(results);
+
       resolve(results);
     });
   });
@@ -266,8 +267,8 @@ function normalizeActivities(activities: any[]): WebhookEventData {
     return {
       type: mapToFitlinkActivity(x.activityName),
       provider: 'apple_healthkit',
-      start_time: new Date(x.start).toISOString(),
-      end_time: new Date(x.end).toISOString(),
+      start_time: parseISO(x.start).toISOString(),
+      end_time: parseISO(x.end).toISOString(),
       calories: x.calories,
       distance: x.distance * 1.609344 * 1000,
       quantity: x.quantity,
@@ -337,9 +338,7 @@ async function syncAllWithBackend() {
       providers.length &&
       providers.find(provider => provider.type === ProviderType.AppleHealthkit)
     ) {
-      await authenticate();
-      await syncActivities();
-      await syncLifestyle();
+      await Promise.all([syncActivities(), syncLifestyle()]);
     }
   } catch (e) {
     console.warn('Unable to sync Apple Health data with backend: ' + e);

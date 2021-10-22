@@ -159,18 +159,15 @@ export const Feed = () => {
 
   if (!user) return null;
 
+  const keyExtractor = (item: FeedItemType) => item.id as string;
+
   const renderItem = ({item}: {item: FeedItemType}) => {
     const isLiked = !!(item.likes as UserPublic[]).find(
       (feedItemUser: any) => feedItemUser.id === user?.id,
     );
 
     return (
-      <FeedItem
-        key={item.id}
-        item={item}
-        unitSystem={user.unit_system}
-        isLiked={isLiked}
-      />
+      <FeedItem item={item} unitSystem={user.unit_system} isLiked={isLiked} />
     );
   };
 
@@ -231,7 +228,7 @@ export const Feed = () => {
   return (
     <Wrapper style={{paddingTop: insets.top}}>
       <FlatList
-        {...{renderItem, ListFooterComponent, ListEmptyComponent}}
+        {...{renderItem, ListFooterComponent, ListEmptyComponent, keyExtractor}}
         data={feedResults}
         showsVerticalScrollIndicator={false}
         style={{overflow: 'visible'}}
