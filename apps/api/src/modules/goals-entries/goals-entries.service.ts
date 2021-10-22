@@ -165,25 +165,24 @@ export class GoalsEntriesService {
 
         // If steps need to be processed onto steps leagues
         if (nextSteps > currentSteps) {
-          const stepsLeagues = await leagueRepo.find({
-            where: {
-              users: In([user.id]),
-              sport: { name_key: 'steps' }
-            }
-          })
+          const stepsLeagues = await leagueRepo
+            .createQueryBuilder('league')
+            .innerJoin('league.active_leaderboard', 'leaderboard')
+            .leftJoin('leaderboard.entries', 'entries')
+            .where('entries.user.id = :userId', { userId: user.id })
+            .getMany()
+
           await Promise.all(
             stepsLeagues.map((each) => {
-              if (each.active_leaderboard) {
-                return leaderboardEntry.update(
-                  {
-                    leaderboard: { id: each.active_leaderboard.id },
-                    user: { id: user.id }
-                  },
-                  {
-                    points: nextSteps
-                  }
-                )
-              }
+              return leaderboardEntry.update(
+                {
+                  leaderboard: { id: each.active_leaderboard.id },
+                  user: { id: user.id }
+                },
+                {
+                  points: nextSteps
+                }
+              )
             })
           )
         }
