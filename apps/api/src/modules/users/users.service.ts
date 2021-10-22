@@ -439,13 +439,14 @@ export class UsersService {
    */
   async removeFcmToken(userId: string, token: string) {
     const user = await this.userRepository.findOne(userId)
-    const fcm_tokens = (user.fcm_tokens || []).filter((t) => t !== token)
+    const tokens = user.fcm_tokens || []
+    const fcm_tokens = tokens.filter((t) => t !== token)
     await this.userRepository.update(userId, {
       fcm_tokens
     })
 
     return {
-      removed: user.fcm_tokens.length - fcm_tokens.length
+      removed: tokens.length - fcm_tokens.length
     }
   }
 

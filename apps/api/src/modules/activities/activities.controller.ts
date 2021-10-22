@@ -132,7 +132,21 @@ export class ActivitiesController {
         params['organizerName[textSearch]'] = keyword
       }
 
-      const imin = await this.activitiesIminService.findAllMarkers(params)
+      let imin: Pagination<ActivityForMap> = {
+        results: [],
+        page_total: 0,
+        total: 0
+      }
+
+      // TODO:
+      // Our Imin API key is currently "paused"
+
+      // try {
+      //   imin = await this.activitiesIminService.findAllMarkers(params)
+      // } catch(e){
+      //   console.error(e)
+      // }
+
       const results = all.results.concat(imin.results)
       const total = all.results.length + imin.results.length
 
@@ -262,11 +276,15 @@ export class ActivitiesController {
         page_total: 0,
         total: 0
       }
-      try {
-        imin = await this.activitiesIminService.findAll(params)
-      } catch (e) {
-        console.error(e)
-      }
+
+      // TODO:
+      // Our Imin API key is currently "paused"
+
+      // try {
+      //   imin = await this.activitiesIminService.findAll(params)
+      // } catch (e) {
+      //   console.error(e)
+      // }
 
       return ActivitiesController.mergeAndPaginate(all, imin, {
         page: intPage,

@@ -25,9 +25,16 @@ export class FeedItemsService {
     private commonService: CommonService
   ) {}
   async create(createFeedItemDto: CreateFeedItemDto) {
+    let date = new Date()
+    if (createFeedItemDto.health_activity) {
+      date = createFeedItemDto.health_activity.start_time
+    }
     const [result, resultErr] = await tryAndCatch(
       this.feedItemRepository.save(
-        this.feedItemRepository.create(createFeedItemDto)
+        this.feedItemRepository.create({
+          ...createFeedItemDto,
+          date
+        })
       )
     )
     resultErr && console.error(resultErr.message)
@@ -56,7 +63,7 @@ export class FeedItemsService {
       .leftJoinAndSelect('feed_item.goal_entry', 'goal_entry')
       .leftJoinAndSelect('feed_item.likes', 'likes')
       .leftJoinAndSelect('likes.avatar', 'likes_avatar')
-      .orderBy('feed_item.created_at', 'DESC')
+      .orderBy('feed_item.date', 'DESC')
       .take(limit)
       .skip(limit * page)
 

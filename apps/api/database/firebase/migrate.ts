@@ -568,7 +568,7 @@ const allow = Object.values(require('./trusted.json'))
                     })
                   )
 
-                  // Store a reference to the migrated user
+                  // Store a reference to the migrated health activity
                   await firebaseRepository.save({
                     firebase_id: each.id,
                     entity_id: healthActivity.id
@@ -651,7 +651,8 @@ const allow = Object.values(require('./trusted.json'))
                         category: FeedItemCategory.MyGoals,
                         goal_type: type,
                         created_at: goalEntry.created_at,
-                        updated_at: goalEntry.updated_at
+                        updated_at: goalEntry.updated_at,
+                        date: goalEntry.created_at
                       })
                     )
                   })
@@ -964,7 +965,10 @@ const allow = Object.values(require('./trusted.json'))
                     FeedItemCategory.MyUpdates,
                   goal_type: (item.goal as unknown) as FeedGoalType,
                   created_at: item.created_at.toDate(),
-                  updated_at: item.updated_at.toDate()
+                  updated_at: item.updated_at.toDate(),
+                  date: health_activity
+                    ? health_activity.start_time
+                    : item.created_at.toDate()
                 })
               )
             })
