@@ -678,7 +678,7 @@ export class LeaguesService {
       .innerJoin('entryLeaderboard.league', 'league')
       .innerJoin('league.active_leaderboard', 'leaderboard')
       .innerJoinAndSelect('entry.user', 'user')
-      .leftJoinAndSelect('user.avatar', 'user.avatar')
+      .leftJoinAndSelect('user.avatar', 'avatar')
       .where('league.id = :leagueId AND leaderboard.id = entryLeaderboard.id', {
         leagueId
       })
