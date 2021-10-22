@@ -241,8 +241,6 @@ describe('Users', () => {
       }
     })
 
-    console.log(result.json())
-
     expect(result.statusCode).toEqual(200)
     expect(result.json().affected).toEqual(1)
 

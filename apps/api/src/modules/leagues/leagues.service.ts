@@ -63,6 +63,9 @@ export class LeaguesService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
 
+    @InjectRepository(LeaguesInvitation)
+    private invitationRepository: Repository<LeaguesInvitation>,
+
     private leaderboardEntriesService: LeaderboardEntriesService,
     private commonService: CommonService,
     private eventEmitter: EventEmitter2,
@@ -690,6 +693,18 @@ export class LeaguesService {
       results: results.map(this.getLeaderboardEntryPublic),
       total
     })
+  }
+
+  async getLeagueIfInvited(leagueId: string, userId: string) {
+    const league = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .innerJoin('league.invitations', 'invitation')
+      .where('invitation.to_user.id = :userId AND league.id = :leagueId', {
+        userId,
+        leagueId
+      })
+      .getOne()
+    return league
   }
 
   /**
