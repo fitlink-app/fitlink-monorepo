@@ -331,8 +331,7 @@ async function syncAllWithBackend() {
       const isAuthorized = await checkIsAuthorized();
       if (!isAuthorized) await authenticate();
 
-      await syncActivities();
-      await syncLifestyle();
+      await Promise.all([syncActivities(), syncLifestyle()]);
     }
   } catch (e) {
     console.warn('Unable to sync Google Fit data with backend: ' + e);

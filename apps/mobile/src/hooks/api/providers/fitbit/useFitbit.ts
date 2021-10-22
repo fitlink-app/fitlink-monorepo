@@ -10,7 +10,7 @@ export function useFitbit() {
 
   const link = async () => {
     setLinking(true);
-    await linkOauth(AUTH_ENDPOINT);
+    await linkOauth(AUTH_ENDPOINT, ProviderType.Fitbit);
     setLinking(false);
   };
 

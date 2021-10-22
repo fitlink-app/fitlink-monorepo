@@ -32,7 +32,7 @@ export const useNotifications = () => {
     {
       onMutate: ids => {
         queryClient.setQueryData<InfiniteData<ListResponse<Notification>>>(
-          QueryKeys.Feed,
+          QueryKeys.Notifications,
           oldFeedItems => setNotificationsSeenById(oldFeedItems, ids),
         );
 
@@ -55,12 +55,10 @@ export const useNotifications = () => {
           unread_notifications: 0,
         }));
 
-        queryClient.setQueryData<User>(QueryKeys.Me, oldUser => {
-          return {
-            ...oldUser!,
-            unread_notifications: 0,
-          };
-        });
+        queryClient.setQueryData<InfiniteData<ListResponse<Notification>>>(
+          QueryKeys.Notifications,
+          oldFeedItems => setAllNotifications(oldFeedItems),
+        );
       },
     },
   );
@@ -86,8 +84,22 @@ function setNotificationsSeenById(
   );
 
   for (const result of results) {
-    console.log('here');
-    console.log(result);
+    result.seen = true;
+  }
+
+  return newFeedItems as InfiniteData<ListResponse<Notification>>;
+}
+
+function setAllNotifications(
+  oldFeedItems: InfiniteData<ListResponse<Notification>> | undefined,
+): InfiniteData<ListResponse<Notification>> {
+  const newFeedItems = JSON.parse(JSON.stringify(oldFeedItems)) as
+    | InfiniteData<ListResponse<Notification>>
+    | undefined;
+
+  const notifications = getResultsFromPages<Notification>(newFeedItems);
+
+  for (const result of notifications) {
     result.seen = true;
   }
 
