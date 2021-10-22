@@ -111,7 +111,7 @@ export class GoalsEntriesService {
     let hasRealUpdate = false
 
     const currentSteps = goalsEntry.current_steps
-    const nextSteps = goalsEntryDto.current_steps
+    const nextSteps = (goalsEntryDto || {}).current_steps || 0
 
     entries.forEach((each) => {
       // Only update if the incoming entry exceeds the previous entry value
@@ -190,6 +190,22 @@ export class GoalsEntriesService {
 
       return result
     })
+  }
+
+  async updateTargets(userId: string) {
+    const user = await this.userRepository.findOne(userId)
+    const latest = await this.getLatest(userId)
+    if (latest.id) {
+      return this.goalsEntryRepository.update(latest.id, {
+        target_floors_climbed: user.goal_floors_climbed,
+        target_steps: user.goal_steps,
+        target_mindfulness_minutes: user.goal_mindfulness_minutes,
+        target_water_litres: user.goal_water_litres,
+        target_sleep_hours: user.goal_sleep_hours
+      })
+    } else {
+      return false
+    }
   }
 
   calculateGoalsPercentage(goalsEntry: GoalsEntry) {

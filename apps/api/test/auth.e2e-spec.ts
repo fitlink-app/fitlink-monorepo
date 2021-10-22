@@ -9,6 +9,7 @@ import { emailHasContent, timeout } from './helpers/mocking'
 import { createTokenFromPayload } from './helpers/auth'
 import { AuthService } from '../src/modules/auth/auth.service'
 import { AuthProviderType } from '../src/modules/auth/auth.constants'
+import { User } from '../src/modules/users/entities/user.entity'
 
 // Inspect this token at https://jwt.io/
 const expiredToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJmaXRsaW5rLmNvbSIsImlzcyI6ImZpdGxpbmsuY29tIiwic3ViIjoiMTFhOWYxNzQtMDg2NS00MGU1LThmM2UtMWI2NDQwNTIwMGM4IiwiaWF0IjoxNjE1NTgwMTExNjU1LCJyb2xlcyI6eyJvX2EiOlsiMzk4NzIzODcyMzk4NTcyNDAiXSwidF9hIjpbIjM5ODcyMzg3MjM5ODU3MjM5Il0sInNfYSI6dHJ1ZX0sImV4cCI6MTAxNTU4MDExNTI1NX0.eNJIV7D6NFE8s3uOa5No3XgQmXBEMB9QNybE97qkTnk`
@@ -24,6 +25,7 @@ describe('Auth', () => {
   let name = ''
   const password = 'password'
   let passwordToken
+  let connection: Connection
 
   beforeAll(async () => {
     app = await mockApp({
@@ -32,9 +34,19 @@ describe('Auth', () => {
       controllers: []
     })
 
+    connection = app.get(Connection)
+
     // Seed the user and use in tests
     await useSeeding()
     const users = await UsersSetup('Auth User', 1)
+    await Promise.all(
+      users.map((each) => {
+        return connection.getRepository(User).update(each.id, {
+          password:
+            '$2a$10$SxsiyEPj2gjEgufzMiWTWuej0Cld6IzPT/59.0.Y6xSEosQ856u6m'
+        })
+      })
+    )
 
     // Set credentials
     userId = users[0].id
