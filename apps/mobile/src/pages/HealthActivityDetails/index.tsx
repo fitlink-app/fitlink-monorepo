@@ -482,7 +482,10 @@ export const HealthActivityDetails = (
               </StatWidgetRow>
 
               <StatWidgetRow style={{marginTop: 10}}>
-                <StatWidget label={'Calories'} value={calories} />
+                <StatWidget
+                  label={'Calories'}
+                  value={parseFloat(calories || '0').toFixed(0)}
+                />
                 <StatWidget label={'Time'} value={time} />
               </StatWidgetRow>
             </StatsContainer>
