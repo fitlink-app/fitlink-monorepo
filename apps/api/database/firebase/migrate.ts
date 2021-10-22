@@ -364,13 +364,13 @@ const allow = Object.values(require('./trusted.json'))
             let originalEmail = userEntry.email || auth.email
 
             if (!originalEmail) {
-              originalEmail = id + '-sanitized@fitlinkapp.com'
+              originalEmail = id + '-safe@fitlinkapp.com'
             }
 
             let userEmail = auth.email || originalEmail
             let fcmTokens = data.fcmTokens
             if (allow.indexOf(id) === -1) {
-              userEmail = id + '-sanitized@fitlinkapp.com'
+              userEmail = id + '-safe@fitlinkapp.com'
               userEntry.email = userEmail
               if (userEntry.providerUserInfo) {
                 userEntry.providerUserInfo = userEntry.providerUserInfo.map(
