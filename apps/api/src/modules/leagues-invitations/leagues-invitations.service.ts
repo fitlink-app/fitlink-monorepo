@@ -103,7 +103,8 @@ export class LeaguesInvitationsService {
       action: NotificationAction.LeagueInvitation,
       subject: league.name,
       subject_id: league.id,
-      avatar: from.avatar
+      avatar: league.image ? league.image : from.avatar,
+      meta_value: from.name
     })
   }
 

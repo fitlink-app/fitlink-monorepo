@@ -252,7 +252,7 @@ export class NotificationsService {
           id: userId
         }
       },
-      relations: ['user'],
+      relations: ['user', 'avatar'],
       order: { created_at: 'DESC' },
       take: limit,
       skip: limit * page

@@ -36,6 +36,7 @@ import { LeaguesInvitation } from '../../leagues-invitations/entities/leagues-in
 import { SubscriptionsInvitation } from '../../subscriptions/entities/subscriptions-invitation.entity'
 import { Notification } from '../../notifications/entities/notification.entity'
 import { HealthActivityDebug } from '../../health-activities/entities/health-activity-debug.entity'
+import { PrivacySetting } from '../../users-settings/users-settings.constants'
 
 @Entity()
 export class User extends CreatableEntity {
@@ -433,6 +434,14 @@ export class UserPublic {
   @ApiProperty()
   @Expose()
   league_names?: string[]
+
+  @ApiProperty()
+  @Expose()
+  privacy_daily_statistics?: PrivacySetting
+
+  @ApiProperty()
+  @Expose()
+  privacy_activities?: PrivacySetting
 }
 
 export class UserPublicPagination {
