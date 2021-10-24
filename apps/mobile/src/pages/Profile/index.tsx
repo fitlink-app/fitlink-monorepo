@@ -32,6 +32,7 @@ import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/enti
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {getResultsFromPages} from 'utils/api';
 import {queryClient, QueryKeys} from '@query';
+import {PrivacySetting} from '@fitlink/api/src/modules/users-settings/users-settings.constants';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -127,6 +128,42 @@ export const Profile = (
     });
   };
 
+  const shouldRenderGoals = () => {
+    if (!user) return false;
+
+    switch (user.privacy_daily_statistics) {
+      case PrivacySetting.Public:
+        return true;
+
+      case PrivacySetting.Private:
+        return false;
+
+      case PrivacySetting.Following:
+        return user.following;
+
+      default:
+        return false;
+    }
+  };
+
+  const shouldRenderFeed = () => {
+    if (!user) return false;
+
+    switch (user.privacy_activities) {
+      case PrivacySetting.Public:
+        return true;
+
+      case PrivacySetting.Private:
+        return false;
+
+      case PrivacySetting.Following:
+        return user.following;
+
+      default:
+        return false;
+    }
+  };
+
   const FollowButton = user?.following ? (
     <Icon
       name={'user-minus'}
@@ -173,55 +210,57 @@ export const Profile = (
         </WidgetContainer>
 
         <WidgetContainer>
-          <GoalTracker
-            trackers={[
-              {
-                enabled: true,
-                identifier: 'steps',
-                goal: {
-                  value: goals?.current_steps || 0,
-                  target: goals?.target_steps || 0,
+          {shouldRenderGoals() && (
+            <GoalTracker
+              trackers={[
+                {
+                  enabled: true,
+                  identifier: 'steps',
+                  goal: {
+                    value: goals?.current_steps || 0,
+                    target: goals?.target_steps || 0,
+                  },
+                  icon: 'steps',
                 },
-                icon: 'steps',
-              },
-              {
-                enabled: true,
-                identifier: 'mindfulness',
-                goal: {
-                  value: goals?.current_mindfulness_minutes || 0,
-                  target: goals?.target_mindfulness_minutes || 0,
+                {
+                  enabled: true,
+                  identifier: 'mindfulness',
+                  goal: {
+                    value: goals?.current_mindfulness_minutes || 0,
+                    target: goals?.target_mindfulness_minutes || 0,
+                  },
+                  icon: 'yoga',
                 },
-                icon: 'yoga',
-              },
-              {
-                enabled: true,
-                identifier: 'water',
-                goal: {
-                  value: goals?.current_water_litres || 0,
-                  target: goals?.target_water_litres || 0,
+                {
+                  enabled: true,
+                  identifier: 'water',
+                  goal: {
+                    value: goals?.current_water_litres || 0,
+                    target: goals?.target_water_litres || 0,
+                  },
+                  icon: 'water',
                 },
-                icon: 'water',
-              },
-              {
-                enabled: true,
-                identifier: 'sleep',
-                goal: {
-                  value: goals?.current_sleep_hours || 0,
-                  target: goals?.target_sleep_hours || 0,
+                {
+                  enabled: true,
+                  identifier: 'sleep',
+                  goal: {
+                    value: goals?.current_sleep_hours || 0,
+                    target: goals?.target_sleep_hours || 0,
+                  },
+                  icon: 'sleep',
                 },
-                icon: 'sleep',
-              },
-              {
-                enabled: true,
-                identifier: 'floors',
-                goal: {
-                  value: goals?.current_floors_climbed || 0,
-                  target: goals?.target_floors_climbed || 0,
+                {
+                  enabled: true,
+                  identifier: 'floors',
+                  goal: {
+                    value: goals?.current_floors_climbed || 0,
+                    target: goals?.target_floors_climbed || 0,
+                  },
+                  icon: 'stairs',
                 },
-                icon: 'stairs',
-              },
-            ]}
-          />
+              ]}
+            />
+          )}
         </WidgetContainer>
       </HeaderContainer>
 
@@ -242,6 +281,7 @@ export const Profile = (
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
+          marginTop: -100,
         }}>
         {isFeedLoading || !isFeedFetchedAfterMount ? (
           <ActivityIndicator color={colors.accent} />
@@ -250,12 +290,16 @@ export const Profile = (
             type="body"
             appearance={'accentSecondary'}
             style={{textAlign: 'center'}}>
-            No recent activities.
+            {shouldRenderFeed()
+              ? 'No recent activities.'
+              : 'This feed is set to private.'}
           </Label>
         )}
       </View>
     );
   };
+
+  console.log(user);
 
   const ListFooterComponent = isFetchingFeedNextPage ? (
     <View style={{height: 72, alignItems: 'center', justifyContent: 'center'}}>
@@ -263,13 +307,15 @@ export const Profile = (
     </View>
   ) : null;
 
+  const visibleFeedData = shouldRenderFeed() ? feedItems : ([] as any);
+
   return (
     <Wrapper>
       {isUserFetched ? (
         <FlatList
           {...{ListHeaderComponent, ListEmptyComponent, ListFooterComponent}}
           renderItem={renderFeedItem}
-          data={feedItems}
+          data={visibleFeedData}
           onEndReachedThreshold={0.2}
           onEndReached={() => fetchFeedNextPage()}
           refreshControl={
@@ -279,12 +325,14 @@ export const Profile = (
               onRefresh={handleOnRefresh}
             />
           }
-          contentInset={{top: NAVBAR_HEIGHT + insets.top}}
+          contentInset={{
+            top: NAVBAR_HEIGHT + insets.top,
+            bottom: -(NAVBAR_HEIGHT + insets.top),
+          }}
           contentOffset={{x: 0, y: -(NAVBAR_HEIGHT + insets.top)}}
           contentContainerStyle={{
             flexGrow: 1,
-            paddingBottom: insets.bottom,
-            paddingTop: Platform.OS === 'ios' ? 0 : NAVBAR_HEIGHT + insets.top,
+            paddingBottom: insets.bottom + 75,
           }}
         />
       ) : (

@@ -99,9 +99,9 @@ export const UserWidget = (props: UserWidgetProps) => {
         <Separator />
 
         <StatContainer>
-          <UserStat value={props.friendCount} label={'Friends'} />
-          <UserStat value={props.followerCount} label={'Followers'} />
-          <UserStat value={props.pointCount} label={'Points'} />
+          <UserStat value={props.friendCount || 0} label={'Friends'} />
+          <UserStat value={props.followerCount || 0} label={'Followers'} />
+          <UserStat value={props.pointCount || 0} label={'Points'} />
         </StatContainer>
       </ContentContainer>
     </Wrapper>

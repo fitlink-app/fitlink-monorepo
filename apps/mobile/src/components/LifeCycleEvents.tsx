@@ -21,7 +21,10 @@ export const LifeCycleEvents = () => {
   }, []);
 
   useEffect(() => {
-    pingBackend();
+    if (isAuthenticated) {
+      pingBackend();
+      syncHealthData();
+    }
   }, [isAuthenticated]);
 
   const _handleAppStateChange = (nextAppState: AppStateStatus) => {

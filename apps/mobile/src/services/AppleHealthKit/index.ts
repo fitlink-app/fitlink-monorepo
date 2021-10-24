@@ -331,6 +331,7 @@ async function syncActivities() {
  */
 async function syncAllWithBackend() {
   try {
+    await authenticate();
     // Check if Apple Health is linked to the user
     const providers = queryClient.getQueryData(QueryKeys.MyProviders) as [];
     if (
