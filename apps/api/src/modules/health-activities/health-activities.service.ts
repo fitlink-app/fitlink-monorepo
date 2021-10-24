@@ -15,8 +15,7 @@ import shareActivityTemplate from './health-activities.image-template'
 import * as nodeHtmlToImage from 'node-html-to-image'
 import { ImagesService } from '../images/images.service'
 import { Pagination, PaginationQuery } from '../../helpers/paginate'
-import { healthActivityType } from './dto/healthActivityType'
-import { format, differenceInSeconds } from 'date-fns'
+import { differenceInSeconds } from 'date-fns'
 import { zonedFormat } from '../../../../common/date/helpers'
 import {
   formatDurationShort,
@@ -87,15 +86,18 @@ export class HealthActivitiesService {
     type === 'unknown' && console.error('Sport not registered')
 
     if (userProviderErr || type === 'unknown') {
+      const log = userProviderErr
+        ? [`User provider ${provider} not found`]
+        : ['Sport not registered']
+
       await this.debug({
         userId,
         raw,
         processed: activity,
-        log: userProviderErr
-          ? [`User provider ${provider} not found`]
-          : ['Sport not registered']
+        log
       })
-      return { healthActivity: null }
+
+      return { healthActivity: null, log }
     }
 
     const sport = await this.sportsRepository.findOne({
@@ -148,15 +150,17 @@ export class HealthActivitiesService {
       )
       return newHealthActivity as HealthActivity
     } else {
+      let log = ['Duplicate']
       if (!isDuplicate) {
+        log = [`Sport ${type} not registered`]
         await this.debug({
           userId,
           raw,
           processed: activity,
-          log: [`Sport ${type} not registered`]
+          log
         })
       }
-      return { healthActivity: null }
+      return { healthActivity: null, log }
     }
   }
 
