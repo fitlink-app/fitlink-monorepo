@@ -12,6 +12,7 @@ import FormData = require('form-data')
 import { ImagesModule } from '../src/modules/images/images.module'
 import { FollowingsSetup } from './seeds/followings.seed'
 import { emailHasContent, getEmailContent } from './helpers/mocking'
+import { GoalsEntriesModule } from '../src/modules/goals-entries/goals-entries.module'
 
 describe('Users', () => {
   let app: NestFastifyApplication
@@ -34,6 +35,14 @@ describe('Users', () => {
     // Seed the user and use in tests
     await useSeeding()
     const users = await UsersSetup('Test Users Unique Name')
+    await Promise.all(
+      users.map((each) => {
+        return connection.getRepository(User).update(each.id, {
+          password:
+            '$2a$10$SxsiyEPj2gjEgufzMiWTWuej0Cld6IzPT/59.0.Y6xSEosQ856u6m'
+        })
+      })
+    )
     user = users[0]
     userAuthHeaders = getAuthHeaders({}, users[0].id)
     otherUser = users[1]

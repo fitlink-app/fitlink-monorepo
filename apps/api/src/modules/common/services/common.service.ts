@@ -44,6 +44,13 @@ export class CommonService {
       userPublic.team_name = user.teams[0].name
     }
 
+    // If available, store user's privacy settings
+    if (user.settings) {
+      userPublic.privacy_daily_statistics =
+        user.settings.privacy_daily_statistics
+      userPublic.privacy_activities = user.settings.privacy_activities
+    }
+
     // Convert today's goal percentage to 0
     // if the user hasn't had a health activity today.
     if (user.last_lifestyle_activity_at) {

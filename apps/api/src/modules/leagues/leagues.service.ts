@@ -63,6 +63,9 @@ export class LeaguesService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
 
+    @InjectRepository(LeaguesInvitation)
+    private invitationRepository: Repository<LeaguesInvitation>,
+
     private leaderboardEntriesService: LeaderboardEntriesService,
     private commonService: CommonService,
     private eventEmitter: EventEmitter2,
@@ -518,14 +521,16 @@ export class LeaguesService {
           }
         )
 
-        // Update the user's total invitation count
+        // Update the user's total unread invitation count
         await userRepository.update(
           {
             id: userId
           },
           {
             league_invitations_total: await invitationRepository.count({
-              to_user: { id: userId }
+              to_user: { id: userId },
+              dismissed: false,
+              accepted: false
             })
           }
         )
@@ -675,7 +680,7 @@ export class LeaguesService {
       .innerJoin('entryLeaderboard.league', 'league')
       .innerJoin('league.active_leaderboard', 'leaderboard')
       .innerJoinAndSelect('entry.user', 'user')
-      .leftJoinAndSelect('user.avatar', 'user.avatar')
+      .leftJoinAndSelect('user.avatar', 'avatar')
       .where('league.id = :leagueId AND leaderboard.id = entryLeaderboard.id', {
         leagueId
       })
@@ -690,6 +695,18 @@ export class LeaguesService {
       results: results.map(this.getLeaderboardEntryPublic),
       total
     })
+  }
+
+  async getLeagueIfInvited(leagueId: string, userId: string) {
+    const league = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .innerJoin('league.invitations', 'invitation')
+      .where('invitation.to_user.id = :userId AND league.id = :leagueId', {
+        userId,
+        leagueId
+      })
+      .getOne()
+    return league
   }
 
   /**

@@ -322,11 +322,19 @@ export class LeaguesController {
     @User() authUser: AuthenticatedUser
   ) {
     if (!authUser.isSuperAdmin()) {
-      const result = await this.leaguesService.findOneAccessibleToUser(
+      let league = await this.leaguesService.getLeagueIfInvited(
         leagueId,
         authUser.id
       )
-      if (!result) {
+
+      if (!league) {
+        league = await this.leaguesService.findOneAccessibleToUser(
+          leagueId,
+          authUser.id
+        )
+      }
+
+      if (!league) {
         throw new ForbiddenException(
           'You do not have permission to view this league'
         )
@@ -386,11 +394,18 @@ export class LeaguesController {
     @Param('leagueId') leagueId: string,
     @User() authUser: AuthenticatedUser
   ) {
-    // A non-superadmin tries to create a public league
-    const league = await this.leaguesService.findOneAccessibleToUser(
+    // Most users trying to join a league will be invited
+    let league = await this.leaguesService.getLeagueIfInvited(
       leagueId,
       authUser.id
     )
+
+    if (!league) {
+      league = await this.leaguesService.findOneAccessibleToUser(
+        leagueId,
+        authUser.id
+      )
+    }
 
     if (!league) {
       throw new ForbiddenException(

@@ -73,6 +73,8 @@ import { AddHealthActivityDebug1634725916904 } from '../database/migrations/1634
 import { AddTermsOrgs1634801771315 } from '../database/migrations/1634801771315-AddTermsOrgs'
 import { AddLeagueInvitationsCount1634817986873 } from '../database/migrations/1634817986873-AddLeagueInvitationsCount'
 import { DropForeignKeyConstraintsProvider1634852256096 } from '../database/migrations/1634852256096-DropForeignKeyConstraintsProvider'
+import { AddDateToFeedItem1634895631070 } from '../database/migrations/1634895631070-AddDateToFeedItem'
+import { FixAvatarId1634980861273 } from '../database/migrations/1634980861273-FixAvatarId'
 
 export default [
   InitializeSchema1614887523112,
@@ -144,5 +146,7 @@ export default [
   AddHealthActivityDebug1634725916904,
   AddTermsOrgs1634801771315,
   AddLeagueInvitationsCount1634817986873,
-  DropForeignKeyConstraintsProvider1634852256096
+  DropForeignKeyConstraintsProvider1634852256096,
+  AddDateToFeedItem1634895631070,
+  FixAvatarId1634980861273
 ]

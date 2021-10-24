@@ -16,7 +16,7 @@ import { NewFollowerListener } from './listeners/NewFollowerListener'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { UserActiveMinutesIncrementedListener } from './listeners/UserActiveMinutesIncrementedListener'
 import { NotificationsModule } from '../notifications/notifications.module'
-import { HealthActivitiesModule } from '../health-activities/health-activities.module'
+import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
 
 @Module({
   imports: [
@@ -31,6 +31,7 @@ import { HealthActivitiesModule } from '../health-activities/health-activities.m
     EventEmitter2,
     UsersInvitationsModule,
     NotificationsModule,
+    forwardRef(() => GoalsEntriesModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

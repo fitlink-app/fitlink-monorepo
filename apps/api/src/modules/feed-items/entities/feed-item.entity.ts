@@ -27,6 +27,9 @@ export class FeedItem extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
+  @Column({ default: () => 'now()' })
+  date: Date
+
   @Column({
     type: 'enum',
     enum: FeedItemCategory

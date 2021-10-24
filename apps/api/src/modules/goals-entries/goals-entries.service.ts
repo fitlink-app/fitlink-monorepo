@@ -6,7 +6,7 @@ import {
   GoalsEntryTarget
 } from './entities/goals-entry.entity'
 import { InjectRepository } from '@nestjs/typeorm'
-import { IsNull, MoreThan, MoreThanOrEqual, Repository } from 'typeorm'
+import { In, IsNull, MoreThan, MoreThanOrEqual, Repository } from 'typeorm'
 import { User } from '../users/entities/user.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { zonedStartOfDay } from '../../../../common/date/helpers'
@@ -19,6 +19,8 @@ import { startOfDay } from 'date-fns'
 import { NotificationsService } from '../notifications/notifications.service'
 import { NotificationAction } from '../notifications/notifications.constants'
 import { differenceInMilliseconds } from 'date-fns'
+import { League } from '../leagues/entities/league.entity'
+import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
 
 interface GoalField {
   field:
@@ -108,6 +110,9 @@ export class GoalsEntriesService {
 
     let hasRealUpdate = false
 
+    const currentSteps = goalsEntry.current_steps
+    const nextSteps = (goalsEntryDto || {}).current_steps || 0
+
     entries.forEach((each) => {
       // Only update if the incoming entry exceeds the previous entry value
       if (each.current >= goalsEntry[each.field]) {
@@ -149,15 +154,58 @@ export class GoalsEntriesService {
     return this.goalsEntryRepository.manager.transaction(async (manager) => {
       const repo = manager.getRepository(GoalsEntry)
       const userRepo = manager.getRepository(User)
+      const leagueRepo = manager.getRepository(League)
+      const leaderboardEntry = manager.getRepository(LeaderboardEntry)
       const result = await repo.save(goalsEntry)
       if (hasRealUpdate) {
         await userRepo.update(user.id, {
           last_lifestyle_activity_at: new Date(),
           goal_percentage: this.calculateGoalsPercentage(goalsEntry)
         })
+
+        // If steps need to be processed onto steps leagues
+        if (nextSteps > currentSteps) {
+          const stepsLeagues = await leagueRepo
+            .createQueryBuilder('league')
+            .innerJoin('league.active_leaderboard', 'leaderboard')
+            .leftJoin('leaderboard.entries', 'entries')
+            .where('entries.user.id = :userId', { userId: user.id })
+            .getMany()
+
+          await Promise.all(
+            stepsLeagues.map((each) => {
+              return leaderboardEntry.update(
+                {
+                  leaderboard: { id: each.active_leaderboard.id },
+                  user: { id: user.id }
+                },
+                {
+                  points: nextSteps
+                }
+              )
+            })
+          )
+        }
       }
+
       return result
     })
+  }
+
+  async updateTargets(userId: string) {
+    const user = await this.userRepository.findOne(userId)
+    const latest = await this.getLatest(userId)
+    if (latest.id) {
+      return this.goalsEntryRepository.update(latest.id, {
+        target_floors_climbed: user.goal_floors_climbed,
+        target_steps: user.goal_steps,
+        target_mindfulness_minutes: user.goal_mindfulness_minutes,
+        target_water_litres: user.goal_water_litres,
+        target_sleep_hours: user.goal_sleep_hours
+      })
+    } else {
+      return false
+    }
   }
 
   calculateGoalsPercentage(goalsEntry: GoalsEntry) {

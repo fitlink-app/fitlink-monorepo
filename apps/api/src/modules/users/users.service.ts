@@ -48,6 +48,7 @@ import { HealthActivityDebug } from '../health-activities/entities/health-activi
 import { zonedStartOfDay } from '../../../../common/date/helpers'
 import { addHours } from 'date-fns'
 import { DeepLinkType } from '../../constants/deep-links'
+import { GoalsEntriesService } from '../goals-entries/goals-entries.service'
 
 type EntityOwner = {
   organisationId?: string
@@ -68,7 +69,8 @@ export class UsersService {
     private configService: ConfigService,
     private imageService: ImagesService,
     private commonService: CommonService,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
+    private goalsService: GoalsEntriesService
   ) {}
 
   async getRolesForToken(user: User): Promise<JWTRoles> {
@@ -439,13 +441,14 @@ export class UsersService {
    */
   async removeFcmToken(userId: string, token: string) {
     const user = await this.userRepository.findOne(userId)
-    const fcm_tokens = (user.fcm_tokens || []).filter((t) => t !== token)
+    const tokens = user.fcm_tokens || []
+    const fcm_tokens = tokens.filter((t) => t !== token)
     await this.userRepository.update(userId, {
       fcm_tokens
     })
 
     return {
-      removed: user.fcm_tokens.length - fcm_tokens.length
+      removed: tokens.length - fcm_tokens.length
     }
   }
 
@@ -497,12 +500,15 @@ export class UsersService {
     return this.commonService.getUserPublic(user)
   }
 
-  update(id: string, payload: UpdateUserDto) {
+  async update(id: string, payload: UpdateUserDto) {
     const update: Partial<User> = { ...payload }
     if (update.onboarded) {
       update.last_onboarded_at = new Date()
     }
-    return this.userRepository.update(id, update)
+
+    const result = await this.userRepository.update(id, update)
+    await this.goalsService.updateTargets(id)
+    return result
   }
 
   ping(id: string) {

@@ -1,4 +1,4 @@
-import { HttpModule, Module } from '@nestjs/common'
+import { forwardRef, HttpModule, Module } from '@nestjs/common'
 import { GoalsEntriesService } from './goals-entries.service'
 import { GoalsEntriesController } from './goals-entries.controller'
 import { AuthModule } from '../auth/auth.module'
@@ -15,11 +15,11 @@ import { NotificationsModule } from '../notifications/notifications.module'
 @Module({
   imports: [
     TypeOrmModule.forFeature([GoalsEntry, User]),
-    UsersModule,
-    AuthModule,
+    forwardRef(() => UsersModule),
+    forwardRef(() => AuthModule),
+    forwardRef(() => FeedItemsModule),
     ConfigModule,
     HttpModule,
-    FeedItemsModule,
     CommonModule,
     NotificationsModule
   ],

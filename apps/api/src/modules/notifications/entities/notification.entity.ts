@@ -28,6 +28,7 @@ export class Notification extends CreatableEntity {
     createForeignKeyConstraints: false,
     nullable: true
   })
+  @JoinColumn()
   avatar?: Image
 
   @Column({

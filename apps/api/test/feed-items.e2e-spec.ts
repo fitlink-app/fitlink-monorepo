@@ -18,6 +18,7 @@ import { FeedItemsSetup, FeedItemsTeardown } from './seeds/feed-items.seed'
 import { UsersModule } from '../src/modules/users/users.module'
 import { AuthModule } from '../src/modules/auth/auth.module'
 import { NotificationsModule } from '../src/modules/notifications/notifications.module'
+import { GoalsEntriesModule } from '../src/modules/goals-entries/goals-entries.module'
 
 describe('FeedItems', () => {
   let app: NestFastifyApplication
@@ -27,7 +28,13 @@ describe('FeedItems', () => {
 
   beforeAll(async () => {
     app = await mockApp({
-      imports: [UsersModule, AuthModule, FeedItemsModule, NotificationsModule],
+      imports: [
+        UsersModule,
+        AuthModule,
+        FeedItemsModule,
+        NotificationsModule,
+        GoalsEntriesModule
+      ],
       providers: []
     })
 

@@ -293,7 +293,10 @@ export class ActivitiesService {
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<Activity>({
-      results,
+      results: results.map((result) => ({
+        ...result,
+        owner: plainToClass(UserPublic, result.owner)
+      })),
       total
     })
   }
