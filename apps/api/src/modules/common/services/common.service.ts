@@ -32,6 +32,10 @@ export class CommonService {
       userPublic.follower = Boolean(user.followers && user.followers.length)
     }
 
+    if (user.leagues !== undefined) {
+      userPublic.invited = Boolean(user.leagues.length)
+    }
+
     if (user.leagues_invitations !== undefined) {
       userPublic.invited = Boolean(user.leagues_invitations.length)
     }

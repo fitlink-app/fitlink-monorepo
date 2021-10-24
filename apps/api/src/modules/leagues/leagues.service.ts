@@ -342,10 +342,10 @@ export class LeaguesService {
    * @returns
    */
   async findOneAccessibleToUser(leagueId: string, userId: string) {
-    const query = this.queryFindAccessibleToUser(userId)
-    const { entities, raw } = await query
-      .andWhere('league.id = :leagueId', { leagueId })
-      .getRawAndEntities()
+    let query = this.queryFindAccessibleToUser(userId)
+    query = query.andWhere('league.id = :leagueId', { leagueId })
+
+    const { entities, raw } = await query.getRawAndEntities()
 
     const [results] = this.applyRawResults(entities, raw)
 
@@ -728,7 +728,12 @@ export class LeaguesService {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.teams', 'userTeam')
       .leftJoinAndSelect('user.avatar', 'avatar')
-      .leftJoinAndSelect('user.leagues', 'userLeagues')
+      .leftJoinAndSelect(
+        'user.leagues',
+        'userLeague',
+        'userLeague.id = :leagueId',
+        { leagueId }
+      )
       .leftJoin('userTeam.organisation', 'userOrganisation')
       .leftJoin('league', 'league', 'league.id = :leagueId', { leagueId })
       .leftJoin('league.users', 'leagueUser', 'leagueUser.id = user.id')

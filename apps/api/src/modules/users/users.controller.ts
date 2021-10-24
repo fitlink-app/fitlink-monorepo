@@ -67,8 +67,12 @@ export class UsersController {
   @Get('me')
   @ApiTags('me')
   @ApiResponse({ type: User, status: 200 })
-  findSelf(@AuthUser() user: AuthenticatedUser) {
-    return this.usersService.findOne(user.id)
+  async findSelf(@AuthUser() authUser: AuthenticatedUser) {
+    const user = await this.usersService.findOne(authUser.id)
+    if (!user) {
+      throw new NotFoundException()
+    }
+    return user
   }
 
   @Put('me')
