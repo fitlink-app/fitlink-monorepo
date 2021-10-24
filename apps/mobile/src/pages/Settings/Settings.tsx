@@ -508,9 +508,12 @@ export const Settings = () => {
           }
         />
 
-        <SettingsButton label={'Report an Issue'} />
+        <SettingsButton
+          label={'Report an Issue'}
+          onPress={() => Intercom.displayMessenger()}
+        />
 
-        <SettingsButton label={`Version 3.0.0`} />
+        <SettingsButton label={`Version 3.0.0`} disabled={true} />
 
         <DeleteButtonWrapper>
           <Button
