@@ -29,6 +29,7 @@ describe('Followings', () => {
     goal_percentage: 1,
     following_total: 1,
     following: 1,
+    invited: 1,
     follower: 1,
     avatar: 1
   }).sort()

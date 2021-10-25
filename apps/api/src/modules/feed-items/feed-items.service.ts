@@ -68,7 +68,7 @@ export class FeedItemsService {
       .skip(limit * page)
 
     if (!selfView || filters.friends_activities) {
-      if (filters.friends_activities) {
+      if (selfView && filters.friends_activities) {
         // Where friends are included, only their health activities
         // & their daily goals are retrieved. This is only going
         // to be needed when a user views their own feed.
