@@ -130,8 +130,8 @@ export const initialState: SettingsState = {
       goal_sleep_hours: 0,
     },
     userSettings: {
-      privacy_daily_statistics: PrivacySetting.Private,
-      privacy_activities: PrivacySetting.Private,
+      privacy_daily_statistics: PrivacySetting.Following,
+      privacy_activities: PrivacySetting.Following,
     },
     unitSystem: UnitSystem.Imperial,
     timezone: 'Etc/UTC',
