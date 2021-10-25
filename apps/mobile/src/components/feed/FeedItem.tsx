@@ -117,8 +117,8 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
     : undefined;
 
   const durationInSeconds = item.health_activity
-    ? (new Date(item.health_activity.start_time).valueOf() -
-        new Date(item.health_activity.end_time).valueOf()) /
+    ? (new Date(item.health_activity.end_time).valueOf() -
+        new Date(item.health_activity.start_time).valueOf()) /
       1000
     : undefined;
 
@@ -220,7 +220,7 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
     }
   })();
 
-  const date = formatRelative(new Date(item.created_at), new Date());
+  const date = formatRelative(new Date(item.date), new Date());
 
   const images =
     item.health_activity?.images.map(image => image.url_128x128) || [];
@@ -245,64 +245,6 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
 
     return avatarUser;
   };
-
-  function getActivityIcon(sport: string) {
-    switch (sport) {
-      case 'running':
-        return 'run';
-
-      case 'cycling':
-        return 'bike';
-
-      case 'walking':
-        return 'walking-solid';
-
-      case 'sleep':
-        return 'sleep';
-
-      case 'swimming':
-        return 'swim';
-
-      case 'crossfitTraining':
-        return 'crossfit';
-
-      case 'highIntensityIntervalTraining':
-        return 'hit';
-
-      case 'skiing':
-        return 'skiing';
-
-      case 'hiking':
-        return 'hike';
-
-      case 'snowboarding':
-        return 'snowboarding';
-
-      case 'rowing':
-        return 'rowing';
-
-      case 'surfing':
-        return 'surfing';
-
-      case 'yoga':
-        return 'yoga';
-
-      case 'spinning':
-        return 'bike';
-
-      case 'weightLifting':
-        return 'crossfit';
-
-      case 'tennis':
-        return 'tennis';
-
-      case 'golf':
-        return 'golf';
-
-      default:
-        return 'generic';
-    }
-  }
 
   const renderTitleIcon = () => {
     if (!item.health_activity) return null;
