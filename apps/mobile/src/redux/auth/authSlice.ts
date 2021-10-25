@@ -182,6 +182,11 @@ const authSlice = createSlice({
         if (payload) state.authResult = payload;
       })
 
+      // Apple Signin reducers
+      .addCase(signInWithApple.fulfilled, (state, {payload}) => {
+        if (payload) state.authResult = payload;
+      })
+
       // Rehydrate reducer
       .addCase(REHYDRATE, (state, {payload}: any) => {
         if (!!payload?.auth?.authResult) api.setTokens(payload.auth.authResult);

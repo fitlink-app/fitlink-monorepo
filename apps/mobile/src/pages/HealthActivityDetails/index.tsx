@@ -133,8 +133,8 @@ export const HealthActivityDetails = (
       : undefined;
 
   const durationInSeconds = data
-    ? (new Date(data.start_time).valueOf() -
-        new Date(data.end_time).valueOf()) /
+    ? (new Date(data.end_time).valueOf() -
+        new Date(data.start_time).valueOf()) /
       1000
     : undefined;
 

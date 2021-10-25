@@ -6,7 +6,7 @@ import {
   WebhookEventActivity,
   WebhookEventData,
 } from '@fitlink/api/src/modules/providers/types/webhook';
-import {syncDeviceActivities} from 'services/common';
+import {syncDeviceActivities, syncDeviceLifestyleData} from 'services/common';
 import {queryClient, QueryKeys} from '@query';
 import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 
@@ -302,35 +302,35 @@ async function syncLifestyle() {
   const water_litres = await getTodayHydration();
   const mindfulness = await getTodayMindfulnessMinutes();
 
-  return {
-    sleep_hours,
-    steps,
-    water_litres,
-    mindfulness,
-    floors_climbed: 0,
-  };
+  await syncDeviceLifestyleData({
+    current_floors_climbed: 0,
+    current_mindfulness_minutes: mindfulness,
+    current_sleep_hours: sleep_hours,
+    current_steps: steps,
+    current_water_litres: water_litres,
+  });
 }
 
 /**
  * Synchronize Google Fit data with backend.
  */
 async function syncAllWithBackend() {
-  // Check if Google Fit is linked to the user
   try {
+    // Make sure Google Fit singleton is instantiated
+    const isAuthorized = await checkIsAuthorized();
+    if (!isAuthorized) await authenticate();
+
+    // Make sure Google Fit is installed
+    const isAvailable = await checkIsAvailable();
+    if (!isAvailable) return;
+
+    // Check if Google Fit is linked to the user
     const providers = queryClient.getQueryData(QueryKeys.MyProviders) as [];
     if (
       providers &&
       providers.length &&
       providers.find(provider => provider.type === ProviderType.GoogleFit)
     ) {
-      // Make sure Google Fit is installed
-      const isAvailable = await checkIsAvailable();
-      if (!isAvailable) return;
-
-      // Make sure Google Fit singleton is instantiated
-      const isAuthorized = await checkIsAuthorized();
-      if (!isAuthorized) await authenticate();
-
       await Promise.all([syncActivities(), syncLifestyle()]);
     }
   } catch (e) {

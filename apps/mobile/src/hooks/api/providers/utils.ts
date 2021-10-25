@@ -15,13 +15,15 @@ export const linkOauth = async (
 ) => {
   try {
     const response = await api.get<any>(endpoint);
-    console.log(response.oauth_url);
+
     if ((await InAppBrowser.isAvailable()) && response.oauth_url) {
       const browserResponse = await InAppBrowser.openAuth(
         response.oauth_url,
-        '/',
+        'fitlink-app://',
         {
           ephemeralWebSession: false,
+          forceCloseOnRedirection: false,
+          showInRecents: true,
         },
       );
 
