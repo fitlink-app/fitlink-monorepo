@@ -1,4 +1,6 @@
 import api from '@api';
+import {UpdateUserDto} from '@fitlink/api/src/modules/users/dto/update-user.dto';
+import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useEffect, useRef} from 'react';
 import {AppState, AppStateStatus, Platform} from 'react-native';
 import BackgroundFetch from 'react-native-background-fetch';
@@ -23,6 +25,7 @@ export const LifeCycleEvents = () => {
   useEffect(() => {
     if (isAuthenticated) {
       pingBackend();
+      storeDeviceInfo();
       syncHealthData();
     }
   }, [isAuthenticated]);
@@ -44,6 +47,16 @@ export const LifeCycleEvents = () => {
   const pingBackend = () => {
     if (!isAuthenticated) return;
     api.put('/me/ping').catch(e => console.log('Failed to ping backend: ', e));
+  };
+
+  const storeDeviceInfo = () => {
+    const updatedSettings: UpdateUserDto = {
+      mobile_os: Platform.OS === 'ios' ? 'ios' : 'android',
+    };
+
+    api
+      .put<User>('/me', {payload: updatedSettings})
+      .catch(e => console.log('Failed to save mobile_os for the user: ', e));
   };
 
   const runBackgroundSyncTasks = () => {
