@@ -10,7 +10,14 @@ import {REHYDRATE} from 'redux-persist';
 import api, {deleteCurrentToken, getErrors} from '@api';
 import {queryClient, QueryKeys} from '@query';
 import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
-import {LOGOUT, SIGN_IN, SIGN_IN_APPLE, SIGN_IN_GOOGLE, SIGN_UP} from './keys';
+import {
+  DELETE_ACCOUNT,
+  LOGOUT,
+  SIGN_IN,
+  SIGN_IN_APPLE,
+  SIGN_IN_GOOGLE,
+  SIGN_UP,
+} from './keys';
 import {AuthProviderType} from '@fitlink/api/src/modules/auth/auth.constants';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {AppleRequestResponse} from '@invertase/react-native-apple-authentication';
@@ -120,6 +127,21 @@ export const logout = createAsyncThunk(
   },
 );
 
+export const deleteAccount = createAsyncThunk(
+  DELETE_ACCOUNT,
+  async (_, {dispatch}) => {
+    try {
+      dispatch(clearAuthResult());
+      flushPersistedQueries();
+      await api.delete(`/me`);
+      queryClient.removeQueries();
+      api.logout();
+    } catch (e: any) {
+      return getErrors(e);
+    }
+  },
+);
+
 // Functions
 async function connect({token, provider}: ConnectProvider) {
   const {me, auth} = await api.connect({
@@ -140,7 +162,6 @@ const authSlice = createSlice({
       state.authResult = payload;
     },
     clearAuthResult: state => {
-      console.log('should clear');
       state.authResult = null;
     },
   },

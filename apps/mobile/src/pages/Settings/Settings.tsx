@@ -529,11 +529,26 @@ export const Settings = () => {
                     }>
                     <DeleteAccountModal
                       onCloseCallback={isDeleted => {
-                        if (isDeleted) {
-                        } else {
-                        }
-
                         closeModal(id);
+                        if (!isDeleted) return;
+
+                        setTimeout(() => {
+                          openModal(confirmationModalId => {
+                            return (
+                              <Modal
+                                title={'Account Deleted'}
+                                description={'Your account has been deleted!'}
+                                buttons={[
+                                  {
+                                    text: 'Ok',
+                                    onPress: () =>
+                                      closeModal(confirmationModalId),
+                                  },
+                                ]}
+                              />
+                            );
+                          });
+                        }, 250);
                       }}
                     />
                   </Modal>
