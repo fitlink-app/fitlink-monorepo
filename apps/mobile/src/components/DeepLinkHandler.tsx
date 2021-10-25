@@ -15,6 +15,7 @@ import {
   resetTeamInvitation,
   selectTeamInvitation,
 } from 'redux/teamInvitation/teamInvitationSlice';
+import {useNavigation} from '@react-navigation/core';
 
 export const DeeplinkHandler = () => {
   const navigation = navigationRef;
@@ -61,7 +62,6 @@ export const DeeplinkHandler = () => {
     source: 'background' | 'foreground',
   ) => {
     const {type} = getUrlParams(url);
-    console.log(getUrlParams(url));
 
     switch (type) {
       case DeepLinkType.TeamInvitation:
@@ -71,6 +71,10 @@ export const DeeplinkHandler = () => {
 
       case DeepLinkType.PasswordReset:
         handlePasswordReset();
+        break;
+
+      case DeepLinkType.LeagueInvitation:
+        handleLeagueInvitation();
         break;
 
       default:
@@ -121,6 +125,14 @@ export const DeeplinkHandler = () => {
         ]}
       />
     ));
+  };
+
+  const handleLeagueInvitation = () => {
+    if (!isAuthenticated) return;
+
+    navigation.current?.navigate('Leagues', {
+      tab: 2,
+    });
   };
 
   const showTeamInvitationModal = async () => {
