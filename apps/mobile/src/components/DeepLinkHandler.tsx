@@ -77,6 +77,10 @@ export const DeeplinkHandler = () => {
         handleLeagueInvitation();
         break;
 
+      case DeepLinkType.EmailVerification:
+        handleEmailVerified();
+        break;
+
       default:
         break;
     }
@@ -133,6 +137,21 @@ export const DeeplinkHandler = () => {
     navigation.current?.navigate('Leagues', {
       tab: 2,
     });
+  };
+
+  const handleEmailVerified = async () => {
+    openModal(id => (
+      <Modal
+        title={'Email Verified'}
+        description={'Your email address has been verified!'}
+        buttons={[
+          {
+            text: 'Ok',
+            onPress: () => closeModal(id),
+          },
+        ]}
+      />
+    ));
   };
 
   const showTeamInvitationModal = async () => {
