@@ -14,6 +14,7 @@ import {
   useModal,
   useNextReward,
   useProviders,
+  useUpdateIntercomUser,
 } from '@hooks';
 import {UserWidget} from '@components';
 import React, {useEffect, useState} from 'react';
@@ -72,6 +73,9 @@ export const Feed = () => {
 
   // Preload providers
   useProviders();
+
+  // Update intercom on user change
+  useUpdateIntercomUser();
 
   const {data: user} = useMe({
     refetchOnMount: false,
