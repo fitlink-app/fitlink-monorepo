@@ -167,7 +167,7 @@ export class GoalsEntriesService {
         if (nextSteps > currentSteps) {
           const stepsLeagues = await leagueRepo
             .createQueryBuilder('league')
-            .innerJoin('league.active_leaderboard', 'leaderboard')
+            .innerJoinAndSelect('league.active_leaderboard', 'leaderboard')
             .leftJoin('leaderboard.entries', 'entries')
             .where('entries.user.id = :userId', { userId: user.id })
             .getMany()
