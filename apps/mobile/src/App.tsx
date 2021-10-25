@@ -9,7 +9,6 @@ import Router from './routes/router';
 import ThemeProvider from './theme/ThemeProvider';
 import {QueryPersistor} from 'query/QueryPersistor';
 import {Platform, UIManager} from 'react-native';
-import MapboxGL from '@react-native-mapbox-gl/maps';
 import {persistor, store} from 'redux/store';
 import RNBootSplash from 'react-native-bootsplash';
 import codePush from 'react-native-code-push';
@@ -23,10 +22,6 @@ if (Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
 }
-
-MapboxGL.setAccessToken(
-  'pk.eyJ1IjoibHVrZS1maXRsaW5rYXBwIiwiYSI6ImNrbzBhOHVpeDA5Y2gyd253MncxOGxoZjgifQ.Vyr2eDUhaZgR1VFoLaatbA',
-);
 
 const App = () => {
   const {syncImmediate, isUpToDate, isError, syncMessage, progressFraction} =

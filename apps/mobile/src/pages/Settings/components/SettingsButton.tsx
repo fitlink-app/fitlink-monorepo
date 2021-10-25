@@ -60,7 +60,8 @@ export interface SettingsButtonProps extends TouchHandlerProps {
 }
 
 export const SettingsButton = (props: SettingsButtonProps) => {
-  const {label, icon, onPress, accent, preLabelComponent, loading} = props;
+  const {label, icon, onPress, accent, preLabelComponent, loading, disabled} =
+    props;
   const {colors} = useTheme();
 
   const renderIcon = () => {
@@ -69,7 +70,7 @@ export const SettingsButton = (props: SettingsButtonProps) => {
 
   return (
     <SettingsItemWrapper>
-      <StyledTouchHandler {...{onPress}} disabled={loading}>
+      <StyledTouchHandler {...{onPress}} disabled={loading || disabled}>
         <Row>
           <Row>
             {preLabelComponent}

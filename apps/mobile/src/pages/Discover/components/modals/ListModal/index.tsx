@@ -42,10 +42,11 @@ interface ListModalProps
   > {
   onActivityPressed: (id: string) => void;
   onExpand?: () => void;
+  isFetchingMarkers: boolean;
 }
 
 export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
-  ({onActivityPressed, onExpand, ...rest}, ref) => {
+  ({onActivityPressed, onExpand, isFetchingMarkers, ...rest}, ref) => {
     const {colors} = useTheme();
     const dispatch = useDispatch() as AppDispatch;
     const snapPoints = useMemo(() => [HANDLE_HEIGHT, '90%'], []);
@@ -89,6 +90,10 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
       () => [{flex: 1}, scrollViewAnimatedStyle],
       [scrollViewAnimatedStyle],
     );
+
+    useEffect(() => {
+      if (isFetchingMarkers) refetch();
+    }, [isFetchingMarkers]);
 
     useEffect(() => {
       if (searchLocation && !isFetchedAfterMount) handleFetchResults();

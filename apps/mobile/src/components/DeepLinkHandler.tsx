@@ -15,13 +15,7 @@ import {
   resetTeamInvitation,
   selectTeamInvitation,
 } from 'redux/teamInvitation/teamInvitationSlice';
-import {View} from 'react-native';
-
-export enum DEEP_LINK_TYPES {
-  TeamInvitation = 'team_invitation',
-  PasswordReset = 'password_reset',
-  ReonboardEmailConfirmation = 'reonboard_email_confirmation',
-}
+import {useNavigation} from '@react-navigation/core';
 
 export const DeeplinkHandler = () => {
   const navigation = navigationRef;
@@ -75,15 +69,17 @@ export const DeeplinkHandler = () => {
         handleTeamInvitation(code);
         break;
 
-      // TODO:
-      //   case DeepLinkType.PasswordReset:
-      //     handlePasswordReset();
-      //     break;
+      case DeepLinkType.PasswordReset:
+        handlePasswordReset();
+        break;
 
-      //   case DeepLinkType.ReonboardEmailConfirmation:
-      //     const { email, token } = getUrlParams(url);
-      //     handleReonboardEmailConfirmation(email, token);
-      //     break;
+      case DeepLinkType.LeagueInvitation:
+        handleLeagueInvitation();
+        break;
+
+      case DeepLinkType.EmailVerification:
+        handleEmailVerified();
+        break;
 
       default:
         break;
@@ -120,43 +116,43 @@ export const DeeplinkHandler = () => {
     showTeamInvitationModal();
   };
 
-  //   const handlePasswordReset = async () => {
-  //     openModal(
-  //       <SimpleDialog
-  //         title={'Password Reset'}
-  //         text={'Your password has been reset successfully!'}
-  //       />,
-  //     );
-  //   };
+  const handlePasswordReset = async () => {
+    openModal(id => (
+      <Modal
+        title={'Password Reset'}
+        description={'Your password has been reset successfully!'}
+        buttons={[
+          {
+            text: 'Ok',
+            onPress: () => closeModal(id),
+          },
+        ]}
+      />
+    ));
+  };
 
-  //   const handleReonboardEmailConfirmation = (email: string, token: string) => {
-  //     navigationRef.current?.dispatch(
-  //       StackActions.push('ReonboardingNewPassword', {email, token}),
-  //     );
-  //   };
+  const handleLeagueInvitation = () => {
+    if (!isAuthenticated) return;
 
-  //   const handleRewardOpen = async (rewardId: string) => {
-  //     if (!isAuthenticated) return;
+    navigation.current?.navigate('Leagues', {
+      tab: 2,
+    });
+  };
 
-  //     navigationRef.current?.navigate('Reward', {rewardId});
-  //   };
-
-  //   const handleLeagueOpen = async (leagueId: string) => {
-  //     if (!isAuthenticated) return;
-
-  //     navigationRef.current?.dispatch(
-  //       StackActions.push('League', {
-  //         league: undefined,
-  //         leagueId: leagueId,
-  //       }),
-  //     );
-  //   };
-
-  //   const handleProfileOpen = async (userId: string) => {
-  //     if (!isAuthenticated) return;
-
-  //     navigationRef.current?.dispatch(StackActions.push('Profile', {id: userId}));
-  //   };
+  const handleEmailVerified = async () => {
+    openModal(id => (
+      <Modal
+        title={'Email Verified'}
+        description={'Your email address has been verified!'}
+        buttons={[
+          {
+            text: 'Ok',
+            onPress: () => closeModal(id),
+          },
+        ]}
+      />
+    ));
+  };
 
   const showTeamInvitationModal = async () => {
     if (!invitation || !isAuthenticated || !me?.onboarded || !code) return;

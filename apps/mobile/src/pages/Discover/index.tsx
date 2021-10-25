@@ -4,7 +4,6 @@ import {
   StyleSheet,
   View,
   Image,
-  ScrollView,
   ActivityIndicator,
 } from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
@@ -33,7 +32,6 @@ import {
   setSearchLocation,
 } from 'redux/discover/discoverSlice';
 import {AppDispatch} from 'redux/store';
-import {queryClient, QueryKeys} from '@query';
 
 const MAP_MARKER_ICON = require('../../../../assets/images/map/map_marker.png');
 const MAP_MARKER_USER_ACTIVITY = require('../../../../assets/images/map/map-marker-user-activity.png');
@@ -63,7 +61,12 @@ const {
   Images,
   FillLayer,
   CircleLayer,
+  setAccessToken,
 } = MapboxGL;
+
+setAccessToken(
+  'pk.eyJ1IjoibHVrZS1maXRsaW5rYXBwIiwiYSI6ImNrbzBhOHVpeDA5Y2gyd253MncxOGxoZjgifQ.Vyr2eDUhaZgR1VFoLaatbA',
+);
 
 const MAPBOX_BLUE = 'rgba(51, 181, 229, 100)';
 
@@ -281,6 +284,7 @@ export const Discover = () => {
 
   useEffect(() => {
     listModalRef.current?.present();
+    MapboxGL.requestAndroidLocationPermissions();
   }, []);
 
   useEffect(() => {
@@ -352,7 +356,6 @@ export const Discover = () => {
       locationDelta === undefined || locationDelta > MIN_SEARCH_LOCATION_DELTA;
 
     if (isNewLocationFar) {
-      queryClient.refetchQueries(QueryKeys.SearchActivities);
       fetchActivityMarkers();
       lastSearchLocation.current = searchLocation;
     }
@@ -877,6 +880,7 @@ export const Discover = () => {
             />
           </MapboxGL.Animated.ShapeSource>
         )}
+
         <UserLocation onUpdate={handleOnUserLocationChange} visible={false} />
       </MapView>
 
@@ -950,6 +954,7 @@ export const Discover = () => {
       <ListModal
         ref={listModalRef}
         onActivityPressed={id => handleOnActivityPressed(id)}
+        isFetchingMarkers={isFetchingMarkers}
       />
 
       <ActivityDetailsModal

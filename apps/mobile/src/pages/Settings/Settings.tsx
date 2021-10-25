@@ -508,9 +508,12 @@ export const Settings = () => {
           }
         />
 
-        <SettingsButton label={'Report an Issue'} />
+        <SettingsButton
+          label={'Report an Issue'}
+          onPress={() => Intercom.displayMessenger()}
+        />
 
-        <SettingsButton label={`Version 3.0.0`} />
+        <SettingsButton label={`Version 3.0.0`} disabled={true} />
 
         <DeleteButtonWrapper>
           <Button
@@ -526,11 +529,26 @@ export const Settings = () => {
                     }>
                     <DeleteAccountModal
                       onCloseCallback={isDeleted => {
-                        if (isDeleted) {
-                        } else {
-                        }
-
                         closeModal(id);
+                        if (!isDeleted) return;
+
+                        setTimeout(() => {
+                          openModal(confirmationModalId => {
+                            return (
+                              <Modal
+                                title={'Account Deleted'}
+                                description={'Your account has been deleted!'}
+                                buttons={[
+                                  {
+                                    text: 'Ok',
+                                    onPress: () =>
+                                      closeModal(confirmationModalId),
+                                  },
+                                ]}
+                              />
+                            );
+                          });
+                        }, 250);
                       }}
                     />
                   </Modal>
