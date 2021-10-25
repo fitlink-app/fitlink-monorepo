@@ -79,8 +79,8 @@ function calculateSleepDuration(samples: any[]) {
   const samplesFiltered = samples.filter(x => x.value === 'ASLEEP');
 
   const samplesMapped = samplesFiltered.map(sample => ({
-    start: new Date(sample.startDate).valueOf(),
-    end: new Date(sample.endDate).valueOf(),
+    start: parseISO(sample.startDate).valueOf(),
+    end: parseISO(sample.endDate).valueOf(),
   }));
 
   const samplesSorted = [...samplesMapped].sort((a, b) => a.start - b.start);
@@ -127,7 +127,7 @@ async function getTodaysSleepHours() {
     minStartDate.setHours(18, 0, 0);
 
     const adjustedSleepSamples = sleepSamples.map(x => {
-      const sampleStartDate = new Date(x.startDate);
+      const sampleStartDate = parseISO(x.startDate);
       if (sampleStartDate < minStartDate) {
         return {...x, startDate: minStartDate.toISOString()};
       }
@@ -136,7 +136,7 @@ async function getTodaysSleepHours() {
 
     // Filter out incorrect samples after adjustment
     const filteredSamples = adjustedSleepSamples.filter(
-      x => new Date(x.startDate) < new Date(x.endDate),
+      x => parseISO(x.startDate) < parseISO(x.endDate),
     );
 
     return calculateSleepDuration(filteredSamples);
@@ -188,8 +188,8 @@ async function getTodayMindfulnessMinutes() {
     });
 
     const mindfulSessionDurations = mindfulSessions.map(x => {
-      const startDate = new Date(x.startDate);
-      const endDate = new Date(x.endDate);
+      const startDate = parseISO(x.startDate);
+      const endDate = parseISO(x.endDate);
 
       const mindfulnessDurationMinutes =
         (endDate.getTime() - startDate.getTime()) / (60 * 1000);
