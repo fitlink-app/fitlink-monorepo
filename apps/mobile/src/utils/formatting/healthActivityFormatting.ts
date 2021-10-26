@@ -36,9 +36,13 @@ export const getSpeedValue = (
         duration /
         (unitSystem === 'metric' ? distance / 1000 : distanceInYards / 1760);
 
-      const formattedDuration = durationToCountDown(
+      let formattedDuration = durationToCountDown(
         intervalToDuration({start: 0, end: secondsPerDistance * 1000}),
       );
+
+      if (secondsPerDistance < 1) {
+        formattedDuration = '<1s';
+      }
 
       if (!asArray)
         return formattedDuration + (unitSystem === 'metric' ? '/km' : '/mile');
@@ -54,9 +58,13 @@ export const getSpeedValue = (
         duration /
         (unitSystem === 'metric' ? distance / 100 : distanceInYards / 100);
 
-      const formattedDuration = durationToCountDown(
+      let formattedDuration = durationToCountDown(
         intervalToDuration({start: 0, end: secondsPerDistance * 1000}),
       );
+
+      if (secondsPerDistance < 1) {
+        formattedDuration = '<1s';
+      }
 
       if (!asArray)
         return (
