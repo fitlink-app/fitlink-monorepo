@@ -333,6 +333,7 @@ export const Profile = (
           contentContainerStyle={{
             flexGrow: 1,
             paddingBottom: insets.bottom + 75,
+            paddingTop: Platform.OS === 'ios' ? 0 : NAVBAR_HEIGHT + insets.top,
           }}
         />
       ) : (
