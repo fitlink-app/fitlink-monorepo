@@ -12,7 +12,6 @@ import {syncDeviceActivities, syncDeviceLifestyleData} from 'services/common';
 import {queryClient, QueryKeys} from '@query';
 import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 import {parseISO} from 'date-fns';
-import Analytics from 'appcenter-analytics';
 
 export type HealthKitActivity = {
   device: string;
@@ -52,6 +51,7 @@ async function authenticate(): Promise<void> {
 
 async function getTodaysSteps() {
   let stepsTotal = 0;
+
   try {
     let date = getTodayTimeframe().startDate;
     let options = {
@@ -71,6 +71,7 @@ async function getTodaysSteps() {
   } catch (e) {
     console.log(e);
   }
+
   return stepsTotal;
 }
 
@@ -296,35 +297,44 @@ async function getTodayLifestyleData() {
 }
 
 async function syncLifestyle() {
-  const data = await getTodayLifestyleData();
-  await syncDeviceLifestyleData({
-    current_floors_climbed: data.floors_climbed,
-    current_mindfulness_minutes: data.mindfulness,
-    current_sleep_hours: data.sleep_hours,
-    current_steps: data.steps,
-    current_water_litres: data.water_litres,
-  });
+  try {
+    const data = await getTodayLifestyleData();
+
+    await syncDeviceLifestyleData({
+      current_floors_climbed: data.floors_climbed,
+      current_mindfulness_minutes: data.mindfulness,
+      current_sleep_hours: data.sleep_hours,
+      current_steps: data.steps,
+      current_water_litres: data.water_litres,
+    });
+  } catch (e) {
+    console.log('Unable to sync Apple lifestyle data.');
+  }
 }
 
 async function syncActivities() {
-  // Get date 1 month ago
-  var date = new Date();
+  try {
+    // Get date 1 month ago
+    var date = new Date();
 
-  date.setMonth(date.getMonth() - 1);
-  date.setHours(0, 0, 0);
-  date.setMilliseconds(0);
+    date.setMonth(date.getMonth() - 1);
+    date.setHours(0, 0, 0);
+    date.setMilliseconds(0);
 
-  const startDate = date.toISOString();
+    const startDate = date.toISOString();
 
-  const activities = await getActivitiesSinceDate(startDate);
+    const activities = await getActivitiesSinceDate(startDate);
 
-  if (activities.length === 0) {
-    console.log('No health activities found in the past 30 days.');
-    return;
+    if (activities.length === 0) {
+      console.log('No health activities found in the past 30 days.');
+      return;
+    }
+    const normalizedActivities = normalizeActivities(activities);
+
+    await syncDeviceActivities(normalizedActivities);
+  } catch (e) {
+    console.log('Unable to sync Apple health activity data.');
   }
-  const normalizedActivities = normalizeActivities(activities);
-
-  await syncDeviceActivities(normalizedActivities);
 }
 
 /**
@@ -332,9 +342,6 @@ async function syncActivities() {
  */
 async function syncAllWithBackend() {
   try {
-    await Analytics.setEnabled(true);
-    Analytics.trackEvent('Starting sync activities');
-
     await authenticate();
     // Check if Apple Health is linked to the user
     const providers = queryClient.getQueryData(QueryKeys.MyProviders) as [];
@@ -346,9 +353,6 @@ async function syncAllWithBackend() {
       await Promise.all([syncActivities(), syncLifestyle()]);
     }
   } catch (e) {
-    Analytics.trackEvent('Syncing apple activities error', e);
-    Analytics.trackEvent('Syncing apple activities error', e.message);
-
     console.warn('Unable to sync Apple Health data with backend: ' + e);
   }
 }
