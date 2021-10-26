@@ -20,7 +20,13 @@ import {UserWidget} from '@components';
 import React, {useEffect, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
-import {ActivityIndicator, FlatList, RefreshControl, View} from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Platform,
+  RefreshControl,
+  View,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {getPersistedData, persistData} from '@utils';
 import {NewsletterModal, NotificationsButton} from './components';
@@ -60,7 +66,6 @@ const HeaderWidgetContainer = styled.View({marginTop: 10});
 const FeedContainer = styled.View({});
 
 const ListFooterContainer = styled.View({
-  flex: 1,
   justifyContent: 'center',
   alignItems: 'center',
 });
@@ -240,7 +245,11 @@ export const Feed = () => {
         data={feedResults}
         showsVerticalScrollIndicator={false}
         style={{overflow: 'visible'}}
-        contentContainerStyle={{minHeight: '100%'}}
+        contentContainerStyle={{
+          minHeight: '100%',
+          paddingBottom:
+            Platform.OS === 'ios' ? 0 : isFeedFetchingNextPage ? 0 : 72,
+        }}
         onEndReachedThreshold={0.2}
         onEndReached={() => fetchFeedNextPage()}
         refreshControl={

@@ -1,6 +1,7 @@
 import {InputField, KeyboardAvoidingView, Label} from '@components';
 import {ImagePickerDialogResponse} from '@hooks';
 import React from 'react';
+import {Platform} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {useDispatch, useSelector} from 'react-redux';
 import {selectSettings, setAvatar, setName} from 'redux/settings/settingsSlice';
@@ -44,7 +45,7 @@ export const BasicInfo = () => {
 
   return (
     <Wrapper>
-      <KeyboardAvoidingView>
+      <KeyboardAvoidingView enabled={Platform.OS === 'ios'}>
         <ContentContainer>
           <AvatarPicker
             onImagePicked={handleOnImagePicked}
