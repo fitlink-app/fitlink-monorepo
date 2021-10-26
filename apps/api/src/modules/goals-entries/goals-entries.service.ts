@@ -174,16 +174,17 @@ export class GoalsEntriesService {
             .andWhere('sport.name_key = :steps', { steps: 'steps' })
             .getMany()
 
+          let stepsAdd = nextSteps - currentSteps
+
           await Promise.all(
             stepsLeagues.map((each) => {
-              return leaderboardEntry.update(
+              return leaderboardEntry.increment(
                 {
                   leaderboard: { id: each.active_leaderboard.id },
                   user: { id: user.id }
                 },
-                {
-                  points: nextSteps
-                }
+                'points',
+                stepsAdd
               )
             })
           )
