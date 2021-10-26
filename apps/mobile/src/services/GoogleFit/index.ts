@@ -316,14 +316,6 @@ async function syncLifestyle() {
  */
 async function syncAllWithBackend() {
   try {
-    // Make sure Google Fit singleton is instantiated
-    const isAuthorized = await checkIsAuthorized();
-    if (!isAuthorized) await authenticate();
-
-    // Make sure Google Fit is installed
-    const isAvailable = await checkIsAvailable();
-    if (!isAvailable) return;
-
     // Check if Google Fit is linked to the user
     const providers = queryClient.getQueryData(QueryKeys.MyProviders) as [];
     if (
@@ -331,6 +323,14 @@ async function syncAllWithBackend() {
       providers.length &&
       providers.find(provider => provider.type === ProviderType.GoogleFit)
     ) {
+      // Make sure Google Fit singleton is instantiated
+      const isAuthorized = await checkIsAuthorized();
+      if (!isAuthorized) await authenticate();
+
+      // Make sure Google Fit is installed
+      const isAvailable = await checkIsAvailable();
+      if (!isAvailable) return;
+
       await Promise.all([syncActivities(), syncLifestyle()]);
     }
   } catch (e) {

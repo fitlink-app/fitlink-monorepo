@@ -358,5 +358,6 @@ async function syncAllWithBackend() {
 }
 
 export const AppleHealthKitWrapper = {
+  authenticate,
   syncAllWithBackend,
 };
