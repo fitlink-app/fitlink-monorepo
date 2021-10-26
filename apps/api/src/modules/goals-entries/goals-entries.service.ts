@@ -168,8 +168,10 @@ export class GoalsEntriesService {
           const stepsLeagues = await leagueRepo
             .createQueryBuilder('league')
             .innerJoinAndSelect('league.active_leaderboard', 'leaderboard')
+            .innerJoinAndSelect('league.sport', 'sport')
             .leftJoin('leaderboard.entries', 'entries')
             .where('entries.user.id = :userId', { userId: user.id })
+            .andWhere('sport.name_key = :steps', { steps: 'steps' })
             .getMany()
 
           await Promise.all(
