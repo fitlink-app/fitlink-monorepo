@@ -78,11 +78,9 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
       // response body, we're ready to
       // handle it:
       proxyRes.on('end', async () => {
-        console.log(interceptReq.url)
         try {
           // Extract the authToken from API's response:
           const json = JSON.parse(apiResponseBody)
-          console.log(json)
           let { access_token, auth } = json
           // Set the authToken as an HTTP-only cookie.
           // We'll also set the SameSite attribute to

@@ -322,7 +322,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const result = await api.connect({
       token,
       provider,
-      signup
+      signup,
+      desktop: true
     })
 
     const { data } = await me.refetch()

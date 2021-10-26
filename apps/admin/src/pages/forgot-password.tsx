@@ -99,7 +99,9 @@ export default function ForgotPassword() {
             </Link>
           </div>
           <div className="col text-right">
-            <button className="button" disabled={loading}>
+            <button
+              className="button"
+              disabled={requestPasswordReset.isLoading}>
               Send reset e-mail
             </button>
           </div>

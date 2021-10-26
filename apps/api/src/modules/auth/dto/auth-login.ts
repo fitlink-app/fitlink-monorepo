@@ -41,4 +41,8 @@ export class AuthConnectDto {
   @ApiProperty()
   @IsOptional()
   signup?: boolean
+
+  @ApiProperty()
+  @IsOptional()
+  desktop?: boolean
 }

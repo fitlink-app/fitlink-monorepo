@@ -251,6 +251,7 @@ const LoginPage = () => {
 
 function GoogleLogin({ signup = false, onError }) {
   const { connect } = useContext(AuthContext)
+  const [ready, setReady] = useState(false)
   const router = useRouter()
   const {
     mutate,
@@ -270,8 +271,9 @@ function GoogleLogin({ signup = false, onError }) {
     if (typeof window != 'undefined') {
       ;(window as any).onLoad = function onLoad() {
         const gapi = (window as any).gapi
-        gapi.load('auth2', function () {
-          gapi.auth2.init()
+        gapi.load('auth2', async function () {
+          await gapi.auth2.init()
+          setReady(true)
         })
       }
     }
@@ -324,7 +326,7 @@ function GoogleLogin({ signup = false, onError }) {
           async
           defer></script>
       </Head>
-      <button className="button alt block" onClick={signIn}>
+      <button className="button alt block" onClick={signIn} disabled={!ready}>
         <IconGoogle className="mr-1" />
         {signup ? 'Signup' : 'Login'} with Google
       </button>
@@ -334,6 +336,7 @@ function GoogleLogin({ signup = false, onError }) {
 
 function AppleLogin({ signup = false, onError }) {
   const { connect } = useContext(AuthContext)
+  const [ready, setReady] = useState(false)
   const router = useRouter()
   const {
     mutate,
@@ -361,6 +364,7 @@ function AppleLogin({ signup = false, onError }) {
           nonce: '[NONCE]',
           usePopup: true //or false defaults to false
         })
+        setReady(true)
       }
     }
   }, [])
@@ -402,7 +406,10 @@ function AppleLogin({ signup = false, onError }) {
           type="text/javascript"
           src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
       </Head>
-      <button className="button alt block mb-1" onClick={signIn}>
+      <button
+        className="button alt block mb-1"
+        onClick={signIn}
+        disabled={!ready}>
         <IconApple className="mr-1" />
         {signup ? 'Signup' : 'Login'} with Apple
       </button>

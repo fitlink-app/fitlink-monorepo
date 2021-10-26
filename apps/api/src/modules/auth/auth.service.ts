@@ -604,14 +604,19 @@ export class AuthService {
    * @param param0
    * @returns
    */
-  async connectWithAuthProvider({ provider, token, signup }: AuthConnectDto) {
+  async connectWithAuthProvider({
+    provider,
+    token,
+    signup,
+    desktop
+  }: AuthConnectDto) {
     let result: Partial<AuthProvider>
     switch (provider) {
       case AuthProviderType.Google:
         result = await this.verifyProviderGoogle(token)
         break
       case AuthProviderType.Apple:
-        result = await this.verifyProviderApple(token)
+        result = await this.verifyProviderApple(token, desktop)
         break
       default:
         return { error: AuthServiceError.Provider }
@@ -688,9 +693,16 @@ export class AuthService {
     }
   }
 
-  async verifyProviderApple(token: string): Promise<Partial<AuthProvider>> {
-    const clientId = this.configService.get('APPLE_CLIENT_ID')
-    const clientSecret = await this.generateClientSecret()
+  async verifyProviderApple(
+    token: string,
+    desktop = false
+  ): Promise<Partial<AuthProvider>> {
+    let clientId = this.configService.get('IOS_BUNDLE_ID')
+    if (desktop) {
+      clientId = this.configService.get('APPLE_CLIENT_ID')
+    }
+
+    const clientSecret = await this.generateClientSecret(clientId)
 
     if (!clientId) {
       throw new InternalServerErrorException('Apple not configured')
@@ -725,10 +737,9 @@ export class AuthService {
     }
   }
 
-  async generateClientSecret() {
+  async generateClientSecret(clientId: string) {
     const keyId = '667D87STU7'
     const teamId = '58US58KL26'
-    const clientId = this.configService.get('APPLE_CLIENT_ID')
     const b64 = this.configService.get('APPLE_PRIVATE_KEY_B64')
 
     if (!clientId || !b64) {
