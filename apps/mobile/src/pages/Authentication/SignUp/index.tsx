@@ -10,6 +10,7 @@ import {useNavigation} from '@react-navigation/native';
 import styled from 'styled-components/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {SignUpForm, Background} from './components';
+import {Platform} from 'react-native';
 
 const Wrapper = styled.ScrollView.attrs(() => ({
   contentContainerStyle: {
@@ -41,7 +42,9 @@ export const SignUp = () => {
     <Wrapper>
       <Navbar centerComponent={<Logo />} />
       <ContentContainer>
-        <KeyboardAvoidingView keyboardVerticalOffset={NAVBAR_HEIGHT}>
+        <KeyboardAvoidingView
+          keyboardVerticalOffset={NAVBAR_HEIGHT}
+          enabled={Platform.OS === 'ios'}>
           <FormContainer>
             <SignUpForm />
           </FormContainer>

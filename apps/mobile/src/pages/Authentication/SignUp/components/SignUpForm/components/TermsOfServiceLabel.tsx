@@ -15,7 +15,10 @@ export const TermsOfServiceLabel = () => {
   const navigation = useNavigation();
 
   const handleOnTermsOfServicePressed = () => {
-    navigation.navigate('TermsOfService');
+    navigation.navigate('Webview', {
+      url: 'https://fitlinkapp.com/terms-and-conditions/',
+      title: 'Terms & Conditions',
+    });
   };
 
   return (

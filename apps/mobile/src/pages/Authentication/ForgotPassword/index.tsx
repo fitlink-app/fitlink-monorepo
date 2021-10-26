@@ -12,11 +12,12 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {ForgotPasswordForm} from './components';
 import {StackScreenProps} from '@react-navigation/stack';
 import {RootStackParamList} from 'routes/types';
+import {Platform} from 'react-native';
+import {Background} from '../SignIn/components/Background';
 
 const Wrapper = styled.ScrollView.attrs(() => ({
   contentContainerStyle: {
     flex: 1,
-    marginBottom: 30,
   },
   keyboardShouldPersistTaps: 'handled',
   scrollEnabled: false,
@@ -47,17 +48,24 @@ export const ForgotPassword = ({
     <Wrapper>
       <Navbar centerComponent={<Logo />} />
       <ContentContainer>
-        <KeyboardAvoidingView keyboardVerticalOffset={NAVBAR_HEIGHT}>
+        <KeyboardAvoidingView
+          keyboardVerticalOffset={NAVBAR_HEIGHT}
+          enabled={Platform.OS === 'ios'}>
           <FormContainer>
             <ForgotPasswordForm {...{email}} />
           </FormContainer>
         </KeyboardAvoidingView>
         <Button
+          style={{
+            marginBottom: 30,
+          }}
           text={'Back to sign in'}
           textOnly
           onPress={handleOnBackToSignInPress}
         />
       </ContentContainer>
+
+      <Background />
     </Wrapper>
   );
 };

@@ -1,14 +1,18 @@
 import {queryClient, QueryKeys} from '@query';
 import {useMutation} from 'react-query';
 import api from '@api';
-import {RewardPublic} from '@fitlink/api/src/modules/rewards/entities/reward.entity';
+import {
+  Reward,
+  RewardPublic,
+} from '@fitlink/api/src/modules/rewards/entities/reward.entity';
+import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 
 export function useClaimReward() {
   return useMutation(
     (id: string) =>
-      api.post<any>(`/rewards/${id}/redeem`, {payload: {rewardId: id}}),
+      api.post<Reward>(`/rewards/${id}/redeem`, {payload: {rewardId: id}}),
     {
-      onSuccess: (data, id) => {
+      onSuccess: (data: Reward, id) => {
         // Invalidate All Rewards
         queryClient.invalidateQueries(QueryKeys.Rewards);
 
@@ -21,8 +25,17 @@ export function useClaimReward() {
               redeemed: true,
             } as RewardPublic),
         );
-        // Invalidate user
-        queryClient.invalidateQueries(QueryKeys.User);
+
+        queryClient.setQueryData<User>(
+          QueryKeys.User,
+          oldUser =>
+            ({
+              ...oldUser,
+              points_total: oldUser!.points_total - data.points_required,
+            } as User),
+        );
+
+        queryClient.invalidateQueries(QueryKeys.NextReward);
       },
     },
   );

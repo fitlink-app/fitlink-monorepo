@@ -47,6 +47,7 @@ export default function Router() {
     cardShadowEnabled: true,
     cardOverlayEnabled: true,
     headerShown: false,
+    cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
   };
 
   return (
@@ -88,7 +89,6 @@ export default function Router() {
               />
               <Stack.Screen name={'Route'} component={Route} />
               <Stack.Screen name={'Reward'} component={Reward} />
-              <Stack.Screen name={'Webview'} component={Webview} />
               <Stack.Screen
                 name={'Notifications'}
                 component={Notifications}
@@ -119,6 +119,8 @@ export default function Router() {
             }}
           />
         )}
+
+        <Stack.Screen name={'Webview'} component={Webview} />
       </Stack.Navigator>
     </NavigationContainer>
   );

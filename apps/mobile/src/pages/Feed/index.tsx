@@ -20,7 +20,13 @@ import {UserWidget} from '@components';
 import React, {useEffect, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
-import {ActivityIndicator, FlatList, RefreshControl, View} from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Platform,
+  RefreshControl,
+  View,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {getPersistedData, persistData} from '@utils';
 import {NewsletterModal, NotificationsButton} from './components';
@@ -32,6 +38,7 @@ import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {queryClient, QueryKeys} from '@query';
 import {getErrorMessage} from '@fitlink/api-sdk';
 import {saveCurrentToken} from '@api';
+import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -59,7 +66,6 @@ const HeaderWidgetContainer = styled.View({marginTop: 10});
 const FeedContainer = styled.View({});
 
 const ListFooterContainer = styled.View({
-  flex: 1,
   justifyContent: 'center',
   alignItems: 'center',
 });
@@ -87,7 +93,10 @@ export const Feed = () => {
     refetchInterval: 10000,
   });
 
-  const {data: nextReward, isFetched: isNextRewardFetched} = useNextReward();
+  const {data: nextReward, isFetched: isNextRewardFetched} = useNextReward({
+    refetchOnMount: false,
+    refetchInterval: 10000,
+  });
 
   const feedPreferences = useSelector(memoSelectFeedPreferences);
 
@@ -236,7 +245,11 @@ export const Feed = () => {
         data={feedResults}
         showsVerticalScrollIndicator={false}
         style={{overflow: 'visible'}}
-        contentContainerStyle={{minHeight: '100%'}}
+        contentContainerStyle={{
+          minHeight: '100%',
+          paddingBottom:
+            Platform.OS === 'ios' ? 0 : isFeedFetchingNextPage ? 0 : 72,
+        }}
         onEndReachedThreshold={0.2}
         onEndReached={() => fetchFeedNextPage()}
         refreshControl={
@@ -277,9 +290,14 @@ export const Feed = () => {
 
               <HeaderWidgetContainer>
                 <GoalTracker
+                  isLocalUser={true}
                   trackers={[
                     {
-                      enabled: true,
+                      supportedProviders: [
+                        ProviderType.GoogleFit,
+                        ProviderType.AppleHealthkit,
+                        ProviderType.Fitbit,
+                      ],
                       identifier: 'steps',
                       goal: {
                         value: goals?.current_steps || 0,
@@ -288,7 +306,10 @@ export const Feed = () => {
                       icon: 'steps',
                     },
                     {
-                      enabled: true,
+                      supportedProviders: [
+                        ProviderType.GoogleFit,
+                        ProviderType.AppleHealthkit,
+                      ],
                       identifier: 'mindfulness',
                       goal: {
                         value: goals?.current_mindfulness_minutes || 0,
@@ -297,7 +318,10 @@ export const Feed = () => {
                       icon: 'yoga',
                     },
                     {
-                      enabled: true,
+                      supportedProviders: [
+                        ProviderType.GoogleFit,
+                        ProviderType.AppleHealthkit,
+                      ],
                       identifier: 'water',
                       goal: {
                         value: goals?.current_water_litres || 0,
@@ -306,7 +330,10 @@ export const Feed = () => {
                       icon: 'water',
                     },
                     {
-                      enabled: true,
+                      supportedProviders: [
+                        ProviderType.AppleHealthkit,
+                        ProviderType.Fitbit,
+                      ],
                       identifier: 'sleep',
                       goal: {
                         value: goals?.current_sleep_hours || 0,
@@ -315,7 +342,11 @@ export const Feed = () => {
                       icon: 'sleep',
                     },
                     {
-                      enabled: true,
+                      supportedProviders: [
+                        ProviderType.GoogleFit,
+                        ProviderType.AppleHealthkit,
+                        ProviderType.Fitbit,
+                      ],
                       identifier: 'floors',
                       goal: {
                         value: goals?.current_floors_climbed || 0,

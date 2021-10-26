@@ -1,6 +1,6 @@
 import {Card, KeyboardAvoidingView, Label} from '@components';
 import React, {useState} from 'react';
-import {ScrollView, View} from 'react-native';
+import {Platform, ScrollView, View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   selectSettings,
@@ -86,7 +86,7 @@ export const Goals = () => {
 
   return (
     <Wrapper>
-      <KeyboardAvoidingView>
+      <KeyboardAvoidingView enabled={Platform.OS === 'ios'}>
         <GoalChooserContainer>
           <View style={{marginBottom: 20, alignItems: 'center'}}>
             <Label type={'title'} style={{textAlign: 'center'}}>

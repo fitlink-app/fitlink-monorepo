@@ -5,7 +5,7 @@ import {useCustomProvider} from 'hooks/api/providers/custom';
 import React from 'react';
 import {Platform} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
-import {GoogleFitWrapper} from 'services';
+import {AppleHealthKitWrapper, GoogleFitWrapper} from 'services';
 import styled from 'styled-components/native';
 import {TrackerButton} from './components/TrackerButton';
 
@@ -52,12 +52,11 @@ export const Trackers = () => {
         {Platform.OS === 'android' && (
           <TrackerButton
             label={'Google Fit'}
-            isLinked={providerList.includes('google_fit')}
+            isLinked={providerList.includes(ProviderType.GoogleFit)}
             onPress={() => {
-              GoogleFitWrapper.disconnect();
-
-              GoogleFitWrapper.authenticate().then(() => {
-                linkGoogleFit();
+              linkGoogleFit(() => {
+                GoogleFitWrapper.disconnect();
+                return GoogleFitWrapper.authenticate();
               });
             }}
             isLoading={isGoogleFitLinking}
@@ -66,21 +65,23 @@ export const Trackers = () => {
         {Platform.OS === 'ios' && (
           <TrackerButton
             label={'Apple Health'}
-            isLinked={providerList.includes('apple_healthkit')}
-            onPress={() => linkAppleHealth()}
+            isLinked={providerList.includes(ProviderType.AppleHealthkit)}
+            onPress={() =>
+              linkAppleHealth(() => AppleHealthKitWrapper.authenticate())
+            }
             isLoading={isAppleHealthLinking}
           />
         )}
 
         <TrackerButton
           label={'Strava'}
-          isLinked={providerList.includes('strava')}
+          isLinked={providerList.includes(ProviderType.Strava)}
           isLoading={isStravaLinking}
           onPress={linkStrava}
         />
         <TrackerButton
           label={'Fitbit'}
-          isLinked={providerList.includes('fitbit')}
+          isLinked={providerList.includes(ProviderType.Fitbit)}
           isLoading={isFitbitLinking}
           onPress={linkFitbit}
         />

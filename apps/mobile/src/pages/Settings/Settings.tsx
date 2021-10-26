@@ -58,6 +58,7 @@ import Intercom from '@intercom/intercom-react-native';
 import {useCustomProvider} from 'hooks/api/providers/custom';
 import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 import {GoogleFitWrapper} from 'services/GoogleFit';
+import {AppleHealthKitWrapper} from 'services';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -333,27 +334,31 @@ export const Settings = () => {
           <SettingsHealthActivityButton
             label={'Google Fit'}
             onLink={() => {
-              GoogleFitWrapper.disconnect();
-
-              GoogleFitWrapper.authenticate().then(() => {
-                linkGoogleFit();
+              linkGoogleFit(() => {
+                GoogleFitWrapper.disconnect();
+                return GoogleFitWrapper.authenticate();
               });
             }}
-            onUnlink={unlinkGoogleFit}
+            onUnlink={() => {
+              GoogleFitWrapper.disconnect();
+              unlinkGoogleFit();
+            }}
             isLoading={isGoogleFitLinking || isGoogleFitUnlinking}
             disabled={isGoogleFitLinking || isGoogleFitUnlinking}
-            isLinked={providerList?.includes('google_fit')}
+            isLinked={providerList?.includes(ProviderType.GoogleFit)}
           />
         )}
 
         {Platform.OS === 'ios' && (
           <SettingsHealthActivityButton
             label={'Apple Health'}
-            onLink={linkAppleHealth}
+            onLink={() => {
+              linkAppleHealth(() => AppleHealthKitWrapper.authenticate());
+            }}
             onUnlink={unlinkAppleHealth}
             isLoading={isAppleHealthLinking || isAppleHealthUnlinking}
             disabled={isAppleHealthLinking || isAppleHealthUnlinking}
-            isLinked={providerList?.includes('apple_healthkit')}
+            isLinked={providerList?.includes(ProviderType.AppleHealthkit)}
           />
         )}
 
@@ -363,7 +368,7 @@ export const Settings = () => {
           onUnlink={unlinkStrava}
           isLoading={isStravaLinking || isStravaUnlinking}
           disabled={isStravaLinking || isStravaUnlinking}
-          isLinked={providerList?.includes('strava')}
+          isLinked={providerList?.includes(ProviderType.Strava)}
         />
 
         <SettingsHealthActivityButton
@@ -372,7 +377,7 @@ export const Settings = () => {
           onUnlink={unlinkFitbit}
           isLoading={isFitbitLinking || isFitbitUnlinking}
           disabled={isFitbitLinking || isFitbitUnlinking}
-          isLinked={providerList?.includes('fitbit')}
+          isLinked={providerList?.includes(ProviderType.Fitbit)}
         />
 
         {/* Goals */}

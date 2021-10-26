@@ -209,6 +209,7 @@ export const ActivityForm = (
   return (
     <>
       <KeyboardAvoidingView
+        enabled={Platform.OS === 'ios'}
         behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
         style={{flex: 1}}>
         <ScrollView
