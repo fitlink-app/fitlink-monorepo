@@ -8,10 +8,14 @@ import {unlinkProvider} from '../utils';
 
 export function useCustomProvider(type: ProviderType) {
   const linker = useMutation(
-    () =>
-      api.post<Provider>(`me/providers`, {
+    async (authMethod?: () => Promise<any>) => {
+      // Method to be ran before saving the link on backend (e.g. authenticating against Apple Healthkit)
+      if (!!authMethod) await authMethod();
+
+      return api.post<Provider>(`me/providers`, {
         payload: {type},
-      }),
+      });
+    },
     {
       onSuccess: data => {
         queryClient.setQueriesData<Provider[]>(

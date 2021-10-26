@@ -3,10 +3,11 @@ import {QueryKeys} from '@query';
 import api from '@api';
 import {useEffect, useState} from 'react';
 import {Provider} from '@fitlink/api/src/modules/providers/entities/provider.entity';
+import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 
 // TODO: Typings
 export function useProviders() {
-  const [providerList, setProviderList] = useState<string[]>([]);
+  const [providerList, setProviderList] = useState<ProviderType[]>([]);
 
   const query = useQuery<any, Error>(
     QueryKeys.MyProviders,
@@ -26,7 +27,7 @@ export function useProviders() {
   }, [query.data]);
 
   const setProviderListFromData = (data: Provider[]) => {
-    setProviderList(data.map(provider => provider.type));
+    setProviderList(data.map(provider => provider.type as ProviderType));
   };
 
   return {query, providerList};

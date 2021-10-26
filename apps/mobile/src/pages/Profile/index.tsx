@@ -212,9 +212,9 @@ export const Profile = (
         <WidgetContainer>
           {shouldRenderGoals() && (
             <GoalTracker
+              isLocalUser={false}
               trackers={[
                 {
-                  enabled: true,
                   identifier: 'steps',
                   goal: {
                     value: goals?.current_steps || 0,
@@ -223,7 +223,6 @@ export const Profile = (
                   icon: 'steps',
                 },
                 {
-                  enabled: true,
                   identifier: 'mindfulness',
                   goal: {
                     value: goals?.current_mindfulness_minutes || 0,
@@ -232,7 +231,6 @@ export const Profile = (
                   icon: 'yoga',
                 },
                 {
-                  enabled: true,
                   identifier: 'water',
                   goal: {
                     value: goals?.current_water_litres || 0,
@@ -241,7 +239,6 @@ export const Profile = (
                   icon: 'water',
                 },
                 {
-                  enabled: true,
                   identifier: 'sleep',
                   goal: {
                     value: goals?.current_sleep_hours || 0,
@@ -250,7 +247,6 @@ export const Profile = (
                   icon: 'sleep',
                 },
                 {
-                  enabled: true,
                   identifier: 'floors',
                   goal: {
                     value: goals?.current_floors_climbed || 0,
@@ -333,6 +329,7 @@ export const Profile = (
           contentContainerStyle={{
             flexGrow: 1,
             paddingBottom: insets.bottom + 75,
+            paddingTop: Platform.OS === 'ios' ? 0 : NAVBAR_HEIGHT + insets.top,
           }}
         />
       ) : (
