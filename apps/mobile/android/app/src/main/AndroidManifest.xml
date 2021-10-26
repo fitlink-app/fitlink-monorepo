@@ -31,7 +31,6 @@
           <category android:name="android.intent.category.DEFAULT"/>
           <category android:name="android.intent.category.BROWSABLE"/>
 
-          <data android:scheme="http" android:host="https://fitlinkapp.com/"/>
           <data android:scheme="fitlink-app"/>
         </intent-filter>
       </activity>
