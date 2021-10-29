@@ -195,7 +195,7 @@ describe('Auth', () => {
       aud: 'fitlink.com',
       iss: 'fitlink.com',
       sub: email,
-      iat: new Date().getTime()
+      iat: Math.floor(new Date().getTime() / 1000)
     })
 
     await timeout(1000)

@@ -555,7 +555,7 @@ export class AuthService {
     const user = await this.usersService.findByEmail(tokenData.sub)
 
     if (user) {
-      const issuedAt = new Date(tokenData.iat)
+      const issuedAt = new Date(Number(tokenData.iat) * 1000)
       if (user.password_reset_at > issuedAt) {
         throw new Error('You have already reset your password')
       }

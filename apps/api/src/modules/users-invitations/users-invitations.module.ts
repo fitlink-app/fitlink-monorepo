@@ -11,13 +11,14 @@ import { CommonModule } from '../common/common.module'
 import { AuthProvider } from '../auth/entities/auth-provider.entity'
 import { NotificationsModule } from '../notifications/notifications.module'
 import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
+import { RefreshToken } from '../auth/entities/auth.entity'
 
 @Module({
   imports: [
     CommonModule,
     NotificationsModule,
     forwardRef(() => GoalsEntriesModule),
-    TypeOrmModule.forFeature([User, AuthProvider]),
+    TypeOrmModule.forFeature([User, AuthProvider, RefreshToken]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

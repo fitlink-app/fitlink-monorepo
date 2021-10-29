@@ -30,12 +30,15 @@ import menuTeam from '../data/menu/team'
 import menuUser from '../data/menu/user'
 
 const axios = Axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1'
+  baseURL: '/api/v1'
+  ///process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/v1'
 })
 
 export const api = makeApi(axios, {
-  onRefreshTokenFail: () => console.log('Refresh token failed')
+  onRefreshTokenFail: () => {
+    console.log('Refresh token failed')
+    window.location.href = '/login'
+  }
 })
 
 // URLs where localStorage state can be completely
