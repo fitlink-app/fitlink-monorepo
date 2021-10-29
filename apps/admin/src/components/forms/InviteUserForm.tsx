@@ -181,19 +181,20 @@ export default function InviteUserForm({
       />
 
       <div className="flex jc-sb">
-        <button className="button mt-1" disabled={add.isLoading}>
+        <button className="button mt-1" disabled={add.isLoading} type="submit">
           Invite User
         </button>
-
-        <button
-          className="button alt mt-1 ml-2"
-          disabled={regenerate.isLoading}
-          type="button"
-          onClick={() => {
-            regenerate.mutate()
-          }}>
-          Regenerate Join Code
-        </button>
+        {role === Roles.Self && (
+          <button
+            className="button alt mt-1 ml-2"
+            disabled={regenerate.isLoading}
+            type="button"
+            onClick={() => {
+              regenerate.mutate()
+            }}>
+            Regenerate Join Code
+          </button>
+        )}
       </div>
 
       {role === Roles.Self && inviteLink.isFetched && (

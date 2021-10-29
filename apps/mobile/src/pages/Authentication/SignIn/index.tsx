@@ -10,11 +10,12 @@ import {useNavigation} from '@react-navigation/native';
 import styled from 'styled-components/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {SignInForm, Background} from './components';
+import {Platform} from 'react-native';
 
 const Wrapper = styled.ScrollView.attrs(() => ({
   contentContainerStyle: {
     flex: 1,
-    marginBottom: 30,
+    paddingBottom: 30,
   },
   keyboardShouldPersistTaps: 'handled',
   scrollEnabled: false,
@@ -55,7 +56,9 @@ export const SignIn = () => {
     <Wrapper>
       <Navbar centerComponent={<Logo />} />
       <ContentContainer>
-        <KeyboardAvoidingView keyboardVerticalOffset={NAVBAR_HEIGHT}>
+        <KeyboardAvoidingView
+          keyboardVerticalOffset={NAVBAR_HEIGHT}
+          enabled={Platform.OS === 'ios'}>
           <FormContainer>
             <SignInForm onEmailChanged={text => (email.current = text)} />
             <ForgotPasswordButton

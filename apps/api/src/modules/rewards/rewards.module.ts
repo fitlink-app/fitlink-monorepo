@@ -16,7 +16,7 @@ import { FeedItemsModule } from '../feed-items/feed-items.module'
     // circualr dependency with user module for some reason this fixes it.
     forwardRef(() => AuthModule),
     EventEmitter2,
-    FeedItemsModule
+    forwardRef(() => FeedItemsModule)
   ],
   controllers: [RewardsController],
   providers: [RewardsService, RewardClaimedListener],

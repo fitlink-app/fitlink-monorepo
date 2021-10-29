@@ -53,7 +53,8 @@ export class StravaService {
           const normalizedActivity = this.createNormalizedHealthActivity(result)
           const healthActivitySaveResult = await this.healthActivityService.create(
             normalizedActivity,
-            provider.user.id
+            provider.user.id,
+            result
           )
 
           return healthActivitySaveResult
@@ -212,13 +213,15 @@ export class StravaService {
 
   getOAuthUrl(userId: string) {
     return {
-      oauth_url: `${STRAVA_AUTHORIZE_URL}
-    ?client_id=${this.stravaConfig('id')}
-    &client_secret=${this.stravaConfig('secret')}
-    &redirect_uri=${this.stravaConfig('uri')}
-    &scope=${this.stravaConfig('scopes')}
-    &response_type=code
-    &state=${userId}`
+      oauth_url: [
+        STRAVA_AUTHORIZE_URL,
+        `?client_id=${this.stravaConfig('id')}`,
+        `&client_secret=${this.stravaConfig('secret')}`,
+        `&redirect_uri=${this.stravaConfig('uri')}`,
+        `&scope=${this.stravaConfig('scopes')}`,
+        `&response_type=code`,
+        `&state=${userId}`
+      ].join('')
     }
   }
 
@@ -260,14 +263,12 @@ export class StravaService {
   async deAuthorize(userId: string) {
     try {
       const accessToken = await this.getFreshStravaAccessToken(userId)
-      const result = await this.revokeToken(accessToken)
-      if (result) {
-        await this.providersService.remove(userId, ProviderType.Strava)
-      }
-      return { revoked_token: result.access_token }
-    } catch (err) {
-      throw new BadRequestException(err.message)
+      await this.revokeToken(accessToken)
+    } catch (e) {
+      console.error(e)
     }
+    await this.providersService.remove(userId, ProviderType.Strava)
+    return true
   }
 
   verifyWebhook(token: string, challenge: string) {
@@ -330,7 +331,7 @@ export class StravaService {
     if (!provider) {
       throw new NotFoundException(`Provider Not found`)
     }
-    let now = new Date(Date.now())
+    const now = new Date()
     if (provider.token_expires_at < now) {
       // Token Expired Get New Token
       const {
@@ -386,7 +387,8 @@ export class StravaService {
       calories: activity.calories,
       distance: activity.distance,
       elevation: activity.total_elevation_gain,
-      active_time: activity.moving_time
+      active_time: activity.moving_time,
+      title: activity.name
     }
 
     if (activity.map && activity.map.polyline) {

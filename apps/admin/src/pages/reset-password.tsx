@@ -18,7 +18,10 @@ import {
 import toast from 'react-hot-toast'
 import { ApiMutationResult } from '../../../common/react-query/types'
 import useApiErrors from '../hooks/useApiErrors'
-import { AuthResetPasswordDto } from '../../../api/src/modules/auth/dto/auth-reset-password'
+import {
+  AuthResetPasswordDto,
+  AuthResetPasswordResultDto
+} from '../../../api/src/modules/auth/dto/auth-reset-password'
 
 export default function ForgotPassword() {
   const { api } = useContext(AuthContext)
@@ -31,7 +34,7 @@ export default function ForgotPassword() {
     }
   })
 
-  const resetPassword: ApiMutationResult<UpdateResult> = useMutation(
+  const resetPassword: ApiMutationResult<AuthResetPasswordResultDto> = useMutation(
     'reset_password',
     (payload: AuthResetPasswordDto) => {
       return api.put<AuthResetPassword>('/auth/reset-password', {
@@ -110,22 +113,19 @@ export default function ForgotPassword() {
           />
         )}
         <div className="row ai-c mt-2">
-          {resetPassword.isSuccess && (
-            <div className="col">
-              <Link href="/login">
-                <a className="small-link inline-block">
-                  Login here
-                  <IconArrowRight />
-                </a>
-              </Link>
-            </div>
-          )}
           {!resetPassword.isSuccess && (
             <div className="col text-right">
               <button className="button" disabled={resetPassword.isLoading}>
                 Reset Password
               </button>
             </div>
+          )}
+          {resetPassword.isSuccess && (
+            <Link href={resetPassword.data.link}>
+              <div className="col text-right">
+                <a className="button">Continue</a>
+              </div>
+            </Link>
           )}
         </div>
       </form>

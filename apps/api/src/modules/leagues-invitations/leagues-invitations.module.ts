@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { HttpModule, Module } from '@nestjs/common'
 import { LeaguesInvitationsService } from './leagues-invitations.service'
 import { LeaguesInvitationsController } from './leagues-invitations.controller'
 import { ConfigService, ConfigModule } from '@nestjs/config'
@@ -15,10 +15,12 @@ import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-en
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
 import { CommonModule } from '../common/common.module'
 import { HealthActivity } from '../health-activities/entities/health-activity.entity'
+import { NotificationsModule } from '../notifications/notifications.module'
 
 @Module({
   imports: [
     CommonModule,
+    HttpModule,
     TypeOrmModule.forFeature([
       LeaguesInvitation,
       League,
@@ -29,6 +31,7 @@ import { HealthActivity } from '../health-activities/entities/health-activity.en
       User,
       HealthActivity
     ]),
+    NotificationsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

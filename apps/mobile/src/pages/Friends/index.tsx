@@ -28,8 +28,6 @@ export const Friends = (
 
   useFocusEffect(
     useCallback(() => {
-      console.log(tabViewRef.current.jumpToIndex);
-      console.log(tab);
       if (!!tabViewRef.current?.jumpToIndex && tab !== undefined)
         tabViewRef.current.jumpToIndex(tab);
 

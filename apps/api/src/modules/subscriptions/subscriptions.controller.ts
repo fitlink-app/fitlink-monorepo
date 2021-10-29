@@ -36,6 +36,7 @@ import { AddUserToSubscriptionDto } from './dto/add-user-to-subscription.dto'
 import { User as AuthUser } from '../../decorators/authenticated-user.decorator'
 import { AuthenticatedUser } from '../../models'
 import { RespondSubscriptionsInvitationDto } from './dto/respond-subscriptions-invitation.dto'
+import { SubscriptionType } from './subscriptions.constants'
 
 @Controller()
 @ApiTags('subscriptions')
@@ -47,12 +48,25 @@ export class SubscriptionsController {
   @Post(['/subscriptions', '/organisations/:organisationId/subscriptions'])
   createOne(
     @Body() { organisationId, ...dto }: CreateSubscriptionDto,
-    @Param('organisationId') paramOrganisationId: string
+    @Param('organisationId') paramOrganisationId: string,
+    @AuthUser() user: AuthenticatedUser
   ) {
     if (paramOrganisationId) {
       organisationId = paramOrganisationId
     }
-    return this.subscriptionsService.createDefault(dto, organisationId)
+
+    const override: Partial<Subscription> = {}
+    if (!user.isSuperAdmin()) {
+      // Force dynamic type for all others,
+      // they can't create trials for themselves
+      override.type = SubscriptionType.Dynamic
+    }
+
+    return this.subscriptionsService.createDefault(
+      dto,
+      organisationId,
+      override
+    )
   }
 
   @Iam(Roles.SuperAdmin, Roles.SubscriptionAdmin)

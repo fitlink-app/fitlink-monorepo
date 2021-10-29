@@ -3,11 +3,14 @@ import {
   Entity,
   ManyToOne,
   Column,
-  JoinColumn
+  JoinColumn,
+  ManyToMany,
+  JoinTable,
+  OneToOne
 } from 'typeorm'
 
 import { CreatableEntity } from '../../../classes/entity/creatable'
-import { User } from '../../users/entities/user.entity'
+import { User, UserPublic } from '../../users/entities/user.entity'
 import { HealthActivity } from '../../health-activities/entities/health-activity.entity'
 import { GoalsEntry } from '../../goals-entries/entities/goals-entry.entity'
 import { League } from '../../leagues/entities/league.entity'
@@ -23,6 +26,9 @@ import { UserRank } from '../../users/users.constants'
 export class FeedItem extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
+
+  @Column({ default: () => 'now()' })
+  date: Date
 
   @Column({
     type: 'enum',
@@ -57,7 +63,7 @@ export class FeedItem extends CreatableEntity {
 
   @ManyToOne(() => User, (user) => user.related_feed_items)
   @JoinColumn()
-  related_user?: User
+  related_user?: User | UserPublic
 
   @ManyToOne(() => GoalsEntry, (entry) => entry.feed_items)
   @JoinColumn()
@@ -73,5 +79,10 @@ export class FeedItem extends CreatableEntity {
 
   @ManyToOne(() => User, (user) => user.feed_items)
   @JoinColumn()
-  user: User
+  user: User | UserPublic
+
+  @ManyToMany(() => User, (user) => user.likes)
+  @JoinTable()
+  @JoinColumn()
+  likes: User[] | UserPublic[]
 }

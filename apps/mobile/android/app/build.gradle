@@ -3,9 +3,12 @@ apply plugin: "com.android.application"
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 project.ext.envConfigFiles = [
-  dev: ".env.development",
-  prd: ".env.production",
-  codepush: ".env.production"
+  devDebug: ".env.development",
+  devRelease: ".env.development",
+  prdDebug: ".env.production",
+  prdRelease: ".env.production",
+  codepushDebug: ".env.production",
+  codepushRelease: ".env.production"
 ]
 
 import com.android.build.OutputFile
@@ -141,13 +144,13 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.fitlink"
+        applicationId "app.fitlink"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-      resValue "string", "build_config_package", "com.fitlink"
+      resValue "string", "build_config_package", "app.fitlink"
       resValue 'string', "CODE_PUSH_APK_BUILD_TIME", String.format("\"%d\"", System.currentTimeMillis())
-      versionCode 1
-        versionName "1.0.0"
+      versionCode 90
+        versionName "3.0.0"
     }
     splits {
         abi {
@@ -194,7 +197,6 @@ android {
     prd {
       minSdkVersion rootProject.ext.minSdkVersion
       dimension "default"
-      applicationIdSuffix ".prd"
       resValue "string", "CodePushDeploymentKey", '"MYgbPTJTPLiJdtz_mDKS4GohmXJihhwzsBadA"'
     }
   }
@@ -224,10 +226,14 @@ dependencies {
   implementation project(':react-native-config')
 
   implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
-    implementation(project(":react-native-google-signin"))
 
+  implementation project(path: ":@react-native-firebase_messaging")
 
-    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
+  implementation 'com.google.firebase:firebase-messaging:20.2.+'
+
+  implementation(project(":react-native-google-signin"))
+
+  debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
     }
 
@@ -249,13 +255,13 @@ dependencies {
     }
 }
 
-apply plugin: 'com.google.gms.google-services'
-
 // Run this once to be able to run the application with BUCK
 // puts all compile dependencies into folder libs for BUCK to use
 task copyDownloadableDepsToLibs(type: Copy) {
     from configurations.compile
     into 'libs'
 }
+
+apply plugin: 'com.google.gms.google-services'
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

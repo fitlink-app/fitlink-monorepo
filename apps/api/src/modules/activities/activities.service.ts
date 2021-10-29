@@ -18,6 +18,15 @@ type EntityOwner = {
   teamId?: string
 }
 
+type PublicActivity = {
+  lat: number
+  lng: number
+  date?: string
+  name?: string
+  type?: string
+  description?: string
+}
+
 @Injectable()
 export class ActivitiesService {
   constructor(
@@ -284,7 +293,10 @@ export class ActivitiesService {
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<Activity>({
-      results,
+      results: results.map((result) => ({
+        ...result,
+        owner: plainToClass(UserPublic, result.owner)
+      })),
       total
     })
   }
@@ -502,5 +514,25 @@ export class ActivitiesService {
           userId
         }
       )
+  }
+
+  async getTeamActivitiesForPublicPage(
+    teamId: string
+  ): Promise<PublicActivity[]> {
+    const activities = await this.activityRepository
+      .createQueryBuilder('activity')
+      .where('activity.team.id = :teamId', { teamId })
+      .orWhere('activity.team IS NULL and activity.organisation IS NULL')
+      .limit(50)
+      .getMany()
+
+    return activities.map((e) => ({
+      lat: e.meeting_point.coordinates[0],
+      lng: e.meeting_point.coordinates[1],
+      date: e.date,
+      name: e.name,
+      type: e.type,
+      description: e.description
+    }))
   }
 }

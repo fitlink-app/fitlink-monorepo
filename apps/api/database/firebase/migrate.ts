@@ -1,7 +1,8 @@
 import { Connection, Repository } from 'typeorm'
 import { User } from '../../src/modules/users/entities/user.entity'
 import { UnitSystem, UserRank } from '../../src/modules/users/users.constants'
-import { initializeApp, credential, firestore } from 'firebase-admin'
+import * as admin from 'firebase-admin'
+import { firestore, credential } from 'firebase-admin'
 import { NestFactory } from '@nestjs/core'
 import { Image } from '../../src/modules/images/entities/image.entity'
 import { ImageType } from '../../src/modules/images/images.constants'
@@ -57,6 +58,8 @@ import {
 } from '../../src/modules/feed-items/feed-items.constants'
 import { Activity } from '../../src/modules/activities/entities/activity.entity'
 import { ActivityType } from '../../src/modules/activities/activities.constants'
+import { HealthActivitiesService } from '../../src/modules/health-activities/health-activities.service'
+import { GoalsEntriesService } from '../../src/modules/goals-entries/goals-entries.service'
 
 // FITLINK
 const FITLINK_TEAM = 'ZxSZdl3lafZiiWiZnhlw'
@@ -89,12 +92,14 @@ const allow = Object.values(require('./trusted.json'))
   const connection = module.get(Connection)
   const usersService = module.get(UsersService)
   const httpService = module.get(HttpService)
+  const healthActivitiesService = module.get(HealthActivitiesService)
+  const goalsService = module.get(GoalsEntriesService)
 
   if ((await connection.getRepository(Sport).count()) === 0) {
     throw new Error('Sports must be seeded first.')
   }
 
-  const app = initializeApp({
+  const app = admin.initializeApp({
     storageBucket: 'fitlink-rn.appspot.com',
     credential: credential.cert(require('./credential.json'))
   })
@@ -118,9 +123,11 @@ const allow = Object.values(require('./trusted.json'))
       } as LegacyLeague
     }
   )
-  const fUsers = JSON.parse(
+  const fUsers = (JSON.parse(
     (await readFile(__dirname + '/users.json')).toString()
-  ).users as LegacyUser[]
+  ).users as LegacyUser[]).filter(
+    (e) => !e.photoUrl || e.photoUrl.indexOf('robohash') === -1
+  )
 
   connection.manager.transaction(async (manager) => {
     /**
@@ -336,7 +343,7 @@ const allow = Object.values(require('./trusted.json'))
 
       return Promise.all(
         fUsers
-          //.filter((e) => allow.includes(e.localId))
+          .filter((e) => allow.includes(e.localId))
           .map(async (userEntry) => {
             const id = userEntry.localId
 
@@ -357,13 +364,13 @@ const allow = Object.values(require('./trusted.json'))
             let originalEmail = userEntry.email || auth.email
 
             if (!originalEmail) {
-              originalEmail = id + '-sanitized@fitlinkapp.com'
+              originalEmail = id + '-safe@fitlinkapp.com'
             }
 
             let userEmail = auth.email || originalEmail
             let fcmTokens = data.fcmTokens
             if (allow.indexOf(id) === -1) {
-              userEmail = id + '-sanitized@fitlinkapp.com'
+              userEmail = id + '-safe@fitlinkapp.com'
               userEntry.email = userEmail
               if (userEntry.providerUserInfo) {
                 userEntry.providerUserInfo = userEntry.providerUserInfo.map(
@@ -552,11 +559,16 @@ const allow = Object.values(require('./trusted.json'))
                       end_time: item.end_time.toDate(),
                       distance: item.distance,
                       created_at: item.created_at.toDate(),
-                      updated_at: item.updated_at.toDate()
+                      updated_at: item.updated_at.toDate(),
+                      title: healthActivitiesService.getComputedTitle(
+                        sport.singular,
+                        item.start_time.toDate(),
+                        user.timezone
+                      )
                     })
                   )
 
-                  // Store a reference to the migrated user
+                  // Store a reference to the migrated health activity
                   await firebaseRepository.save({
                     firebase_id: each.id,
                     entity_id: healthActivity.id
@@ -639,7 +651,8 @@ const allow = Object.values(require('./trusted.json'))
                         category: FeedItemCategory.MyGoals,
                         goal_type: type,
                         created_at: goalEntry.created_at,
-                        updated_at: goalEntry.updated_at
+                        updated_at: goalEntry.updated_at,
+                        date: goalEntry.created_at
                       })
                     )
                   })
@@ -853,6 +866,11 @@ const allow = Object.values(require('./trusted.json'))
             })
           )
 
+          // Make the leaderboard the default
+          await leaguesRepository.update(league, {
+            active_leaderboard: leaderboard
+          })
+
           await Promise.all(
             entries.map(async (entry) => {
               const user = await getEntityFromFirebase(
@@ -947,7 +965,10 @@ const allow = Object.values(require('./trusted.json'))
                     FeedItemCategory.MyUpdates,
                   goal_type: (item.goal as unknown) as FeedGoalType,
                   created_at: item.created_at.toDate(),
-                  updated_at: item.updated_at.toDate()
+                  updated_at: item.updated_at.toDate(),
+                  date: health_activity
+                    ? health_activity.start_time
+                    : item.created_at.toDate()
                 })
               )
             })

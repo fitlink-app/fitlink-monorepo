@@ -67,7 +67,8 @@ describe('Activities', () => {
     await app.close()
   })
 
-  it(`GET /activities 200 Allows the fetching of merged paginated activities from local & imin service`, async () => {
+  // Skip this as Imin is currently disabled in our service
+  it.skip(`GET /activities 200 Allows the fetching of merged paginated activities from local & imin service`, async () => {
     const page0 = await getPage('0', 20, 43, 20, 87) // 130 - 40   = 90 remaining
     const page1 = await getPage('1', 20, 43, 20, 87) // 90 - 40   = 50 remaining
     const page2 = await getPage('2', 3, 43, 20, 87) // 50 - 23  = 27 remaining

@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, HttpService } from '@nestjs/common'
+import {
+  Injectable,
+  BadRequestException,
+  HttpService,
+  HttpException
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Not, Repository } from 'typeorm'
 import { CreateDefaultSubscriptionDto } from './dto/create-default-subscription.dto'
@@ -71,7 +76,8 @@ export class SubscriptionsService {
    */
   async createDefault(
     createDefaultDto: CreateDefaultSubscriptionDto,
-    organisationId: string
+    organisationId: string,
+    override?: Partial<Subscription>
   ): Promise<Subscription> {
     const { billing_entity, ...rest } = createDefaultDto
     const org = await this.organisationRepository.findOne(organisationId, {
@@ -94,7 +100,8 @@ export class SubscriptionsService {
     const result = await this.subscriptionRepository.findOne(subscription)
     return await this.subscriptionRepository.save({
       ...result,
-      ...subscription
+      ...subscription,
+      ...override
     })
   }
 
@@ -263,24 +270,13 @@ export class SubscriptionsService {
    * @param subId
    */
   async deleteSubscription(subId: string, organisationId?: string) {
-    const subscription = await this.findOneSubscription(subId)
+    const subscription = await this.findOneSubscription(subId, [
+      'users',
+      'organisation'
+    ])
     if (organisationId && subscription.organisation.id !== organisationId) {
       throw new BadRequestException(
         "the subscription doesn't exist for this organisation"
-      )
-    }
-
-    const user = await this.userRepository.findOne({
-      where: {
-        subscription: {
-          id: subId
-        }
-      }
-    })
-
-    if (user) {
-      throw new BadRequestException(
-        "Can't delete a subscription that still has users assigned to it."
       )
     }
 
@@ -288,7 +284,36 @@ export class SubscriptionsService {
       return SubscriptionServiceError.CannotDeleteDefault
     }
 
-    return this.subscriptionRepository.delete(subscription.id)
+    const defaultSubscription = await this.subscriptionRepository.findOne({
+      where: {
+        organisation: {
+          id: subscription.organisation.id
+        },
+        default: true
+      }
+    })
+
+    // Reassign the users to the default subscription
+    if (!defaultSubscription) {
+      throw new BadRequestException(
+        'No default subscription available. Please set a subscription as default and try again'
+      )
+    }
+
+    return this.subscriptionRepository.manager.transaction(async (manager) => {
+      await manager.getRepository(User).update(
+        {
+          subscription: { id: subscription.id }
+        },
+        {
+          subscription: defaultSubscription
+        }
+      )
+      await manager
+        .getRepository(UserRole)
+        .delete({ subscription: { id: subscription.id } })
+      return manager.getRepository(Subscription).delete(subscription.id)
+    })
   }
 
   /**
@@ -802,6 +827,8 @@ export class SubscriptionsService {
         billing_plan_subscription_id: chargebeeSubscription.id,
         billing_plan_customer_id: customer.id
       })
+
+      return customer
     }
   }
 
@@ -913,13 +940,16 @@ export class SubscriptionsService {
   }
 
   async getChargebeeSubscription(subscription: Subscription) {
-    const result: {
-      subscription: ChargebeeSubscription
-    } = await this.chargeBeeGetRequest<any>(
-      `/subscriptions/${subscription.billing_plan_subscription_id}`
-    )
-
-    return result
+    try {
+      const result: {
+        subscription: ChargebeeSubscription
+      } = await this.chargeBeeGetRequest<any>(
+        `/subscriptions/${subscription.billing_plan_subscription_id}`
+      )
+      return result
+    } catch (e) {
+      throw new BadRequestException(e)
+    }
   }
 
   /**
@@ -1117,7 +1147,8 @@ export class SubscriptionsService {
         company: subscription.billing_entity,
         first_name: subscription.billing_first_name,
         last_name: subscription.billing_last_name,
-        email: subscription.billing_email
+        email: subscription.billing_email,
+        preferred_currency_code: subscription.billing_currency_code
       }),
       this.chargeBeePostRequest<any>(
         `/customers/${customerId}/update_billing_info`,
@@ -1180,7 +1211,12 @@ export class SubscriptionsService {
         .toPromise()
       return result.data as T
     } catch (e) {
-      throw new BadRequestException(e)
+      if (e.response) {
+        console.error(e.response.data)
+        throw new HttpException(e, e.response.data.http_status_code)
+      } else {
+        throw new BadRequestException(e)
+      }
     }
   }
 
@@ -1204,11 +1240,11 @@ export class SubscriptionsService {
       return result.data as T
     } catch (e) {
       if (e.response) {
-        console.log(e.response.data)
-        throw new BadRequestException(e.response.data)
+        console.error(e.response.data)
+        throw new HttpException(e, e.response.data.http_status_code)
+      } else {
+        throw new BadRequestException(e)
       }
-      console.log(e)
-      throw new BadRequestException(e)
     }
   }
 }

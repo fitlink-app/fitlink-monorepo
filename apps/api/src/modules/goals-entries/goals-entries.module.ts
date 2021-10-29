@@ -1,4 +1,4 @@
-import { HttpModule, Module } from '@nestjs/common'
+import { forwardRef, HttpModule, Module } from '@nestjs/common'
 import { GoalsEntriesService } from './goals-entries.service'
 import { GoalsEntriesController } from './goals-entries.controller'
 import { AuthModule } from '../auth/auth.module'
@@ -9,15 +9,19 @@ import { UsersModule } from '../users/users.module'
 import { FeedItemsModule } from '../feed-items/feed-items.module'
 import { User } from '../users/entities/user.entity'
 import { DailyGoalReachedListener } from './listeners/DailyGoalsReachedListener'
+import { CommonModule } from '../common/common.module'
+import { NotificationsModule } from '../notifications/notifications.module'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([GoalsEntry, User]),
-    UsersModule,
-    AuthModule,
+    forwardRef(() => UsersModule),
+    forwardRef(() => AuthModule),
+    forwardRef(() => FeedItemsModule),
     ConfigModule,
     HttpModule,
-    FeedItemsModule
+    CommonModule,
+    NotificationsModule
   ],
   controllers: [GoalsEntriesController],
   providers: [GoalsEntriesService, DailyGoalReachedListener],

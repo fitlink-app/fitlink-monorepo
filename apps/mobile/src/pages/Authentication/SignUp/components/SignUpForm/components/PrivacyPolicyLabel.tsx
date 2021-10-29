@@ -14,8 +14,11 @@ const StyledLabel = styled(Label)({
 export const PrivacyPolicyLabel = () => {
   const navigation = useNavigation();
 
-  const handleOnTermsOfServicePressed = () => {
-    navigation.navigate('TermsOfService');
+  const handlePrivacyPolicyPressed = () => {
+    navigation.navigate('Webview', {
+      url: 'https://fitlinkapp.com/privacy-policy/',
+      title: 'Privacy Policy',
+    });
   };
 
   return (
@@ -26,7 +29,7 @@ export const PrivacyPolicyLabel = () => {
         type={'caption'}
         appearance={'accentSecondary'}
         bold
-        onPress={handleOnTermsOfServicePressed}>
+        onPress={handlePrivacyPolicyPressed}>
         Privacy Policy
       </Label>
       .

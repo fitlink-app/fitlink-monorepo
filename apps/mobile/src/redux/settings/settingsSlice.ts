@@ -12,6 +12,7 @@ import {queryClient, QueryKeys} from '@query';
 import {ResponseError} from '@fitlink/api-sdk/types';
 import {PrivacySetting} from '@fitlink/api/src/modules/users-settings/users-settings.constants';
 import {UpdateUsersSettingDto} from '@fitlink/api/src/modules/users-settings/dto/update-users-setting.dto';
+import {Platform} from 'react-native';
 
 export const PRIVACY_ITEMS = [
   {
@@ -64,14 +65,13 @@ export const submit = createAsyncThunk(
         unit_system: currentState.unitSystem,
         timezone: currentState.timezone,
         onboarded: true,
+        mobile_os: Platform.OS === 'ios' ? 'ios' : 'android',
         ...currentState.goals,
       };
 
       await api.put<User>('/me', {payload: updatedSettings});
 
       if (currentState.userSettings) {
-        console.log('hi');
-        console.log(currentState.userSettings);
         await api.put<any>('/me/settings', {
           payload: currentState.userSettings,
         });
@@ -85,7 +85,7 @@ export const submit = createAsyncThunk(
 
         payload.append('image', {
           // @ts-ignore
-          uri: state.tempAvatar.uri,
+          uri: currentState.tempAvatar.uri,
           type: currentState.tempAvatar.type,
           name:
             currentState.tempAvatar.fileName || new Date().getTime().toString(),
@@ -129,9 +129,14 @@ export const initialState: SettingsState = {
       goal_water_litres: 0,
       goal_sleep_hours: 0,
     },
+    userSettings: {
+      privacy_daily_statistics: PrivacySetting.Following,
+      privacy_activities: PrivacySetting.Following,
+    },
     unitSystem: UnitSystem.Imperial,
     timezone: 'Etc/UTC',
   },
+  isSaving: false,
 };
 
 const settingsSlice = createSlice({

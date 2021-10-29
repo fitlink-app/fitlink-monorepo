@@ -132,7 +132,21 @@ export class ActivitiesController {
         params['organizerName[textSearch]'] = keyword
       }
 
-      const imin = await this.activitiesIminService.findAllMarkers(params)
+      let imin: Pagination<ActivityForMap> = {
+        results: [],
+        page_total: 0,
+        total: 0
+      }
+
+      // TODO:
+      // Our Imin API key is currently "paused"
+
+      // try {
+      //   imin = await this.activitiesIminService.findAllMarkers(params)
+      // } catch(e){
+      //   console.error(e)
+      // }
+
       const results = all.results.concat(imin.results)
       const total = all.results.length + imin.results.length
 
@@ -257,7 +271,20 @@ export class ActivitiesController {
         params['organizerName[textSearch]'] = keyword
       }
 
-      const imin = await this.activitiesIminService.findAll(params)
+      let imin: Pagination<Activity> = {
+        results: [],
+        page_total: 0,
+        total: 0
+      }
+
+      // TODO:
+      // Our Imin API key is currently "paused"
+
+      // try {
+      //   imin = await this.activitiesIminService.findAll(params)
+      // } catch (e) {
+      //   console.error(e)
+      // }
 
       return ActivitiesController.mergeAndPaginate(all, imin, {
         page: intPage,
@@ -322,6 +349,15 @@ export class ActivitiesController {
     return this.activitiesService.update(id, updateActivityDto, {
       teamId
     })
+  }
+
+  @Public()
+  @Get('/teams/:teamId/public/activities')
+  async getTeamActivitiesForPublicPage(@Param('teamId') teamId: string) {
+    const activities = await this.activitiesService.getTeamActivitiesForPublicPage(
+      teamId
+    )
+    return activities
   }
 
   @Delete('/activities/:id')

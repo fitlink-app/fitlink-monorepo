@@ -35,6 +35,7 @@ const ContentRow = styled(Row)({
 const UserDetailsContainer = styled(Flex)({
   justifyContent: 'center',
   marginLeft: 15,
+  paddingRight: 10,
 });
 
 const Name = styled(Label).attrs(() => ({
@@ -48,10 +49,27 @@ const IconContainer = styled.View({
   width: 40,
 });
 
+const Team = styled(Label).attrs(() => ({
+  type: 'caption',
+  bold: true,
+  appearance: 'primary',
+}))({});
+
+const League = styled(Label).attrs(() => ({
+  type: 'caption',
+  bold: false,
+  appearance: 'secondary',
+  numberOfLines: 1,
+}))({
+  flex: 1,
+});
+
 interface InviteRowProps {
   userId: string;
   name: string;
   isInvited: boolean;
+  teamName?: string;
+  leagueNames?: string[];
   avatarSource?: string;
   onInvitePressed: (userId: string) => void;
   isLoading?: boolean;
@@ -76,6 +94,23 @@ export const InviteRow = (props: InviteRowProps) => {
     );
   };
 
+  function renderTeam() {
+    if (!props.teamName) return null;
+
+    return <Team>{props.teamName} </Team>;
+  }
+
+  function renderLeagues() {
+    if (!props.leagueNames || Object.values(props.leagueNames).length === 0)
+      return null;
+
+    const commaSeparatedLeagues = Object.values(props.leagueNames).map(
+      (x, index) => `${index !== 0 || !!props.teamName ? ', ' : ''}${x}`,
+    );
+
+    return <League>{commaSeparatedLeagues}</League>;
+  }
+
   return (
     <Wrapper>
       <ContentContainer>
@@ -84,6 +119,11 @@ export const InviteRow = (props: InviteRowProps) => {
           <ContentRow>
             <UserDetailsContainer>
               <Name>{name}</Name>
+
+              <Row>
+                {renderTeam()}
+                {renderLeagues()}
+              </Row>
             </UserDetailsContainer>
 
             {isInvited ? (

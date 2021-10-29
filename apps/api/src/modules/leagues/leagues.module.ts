@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { HttpModule, HttpService, Module } from '@nestjs/common'
 import { LeaguesService } from './leagues.service'
 import { LeaguesController } from './leagues.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -17,6 +17,8 @@ import { FeedItemsModule } from '../feed-items/feed-items.module'
 import { CommonModule } from '../common/common.module'
 import { LeagueJoinedListener } from './listeners/LeagueJoinedListener'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { LeagueWonListener } from './listeners/LeagueWonListener'
+import { NotificationsModule } from '../notifications/notifications.module'
 
 @Module({
   imports: [
@@ -33,14 +35,17 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
     AuthModule,
     LeaguesInvitationModule,
     FeedItemsModule,
-    EventEmitter2
+    EventEmitter2,
+    NotificationsModule,
+    HttpModule
   ],
   controllers: [LeaguesController],
   providers: [
     LeaguesService,
     LeaderboardEntriesService,
     HealthActivityCreatedListener,
-    LeagueJoinedListener
+    LeagueJoinedListener,
+    LeagueWonListener
   ],
   exports: []
 })

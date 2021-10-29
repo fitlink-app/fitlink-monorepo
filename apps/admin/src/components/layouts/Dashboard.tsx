@@ -8,6 +8,7 @@ import Loader from '../elements/Loader'
 import LoaderFullscreen from '../elements/LoaderFullscreen'
 import Account from '../elements/Account'
 import { useRouter } from 'next/router'
+import { useIntercom } from 'react-use-intercom'
 
 type DashboardProps = {
   children?: React.ReactNode
@@ -17,6 +18,7 @@ type DashboardProps = {
   linkPrefix?: string
   hideSidebar?: boolean
   loading?: boolean
+  forceDisplay?: boolean
 }
 
 let hydrated = false
@@ -27,13 +29,15 @@ export default function Dashboard({
   description = '',
   linkPrefix = '',
   hideSidebar = false,
-  loading = false
+  loading = false,
+  forceDisplay = false
 }: DashboardProps) {
   const hydratedRef = useRef(false)
   const [, rerender] = useState(false)
   const scrollContainer = useRef<HTMLDivElement>()
-  const { menu, focusRole } = useContext(AuthContext)
-  const { route } = useRouter()
+  const { menu, modeRole } = useContext(AuthContext)
+  const router = useRouter()
+  const { boot } = useIntercom()
 
   const url = process.env.URL
 
@@ -63,7 +67,7 @@ export default function Dashboard({
         document.documentElement.classList.remove('scrolled')
       }
     }
-  }, [scrollContainer.current, route])
+  }, [scrollContainer.current, router.route])
 
   return (
     <>
@@ -111,7 +115,7 @@ export default function Dashboard({
         }}
       />
 
-      {!focusRole || loading ? (
+      {(!modeRole || loading) && !forceDisplay ? (
         <LoaderFullscreen />
       ) : (
         <>

@@ -51,7 +51,7 @@ export const Goal = ({
       </ProgressCircle>
 
       <Value appearance={progress >= 1 ? 'accent' : 'secondary'}>
-        {NumberFormatterUtils.toCommaSeparated(goal.value.toString())}
+        {NumberFormatterUtils.toCommaSeparated(goal.value.toString(), 1)}
       </Value>
     </Wrapper>
   );

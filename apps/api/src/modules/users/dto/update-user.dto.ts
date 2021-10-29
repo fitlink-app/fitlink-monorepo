@@ -46,6 +46,10 @@ export class UpdateUserDto {
 
   @ApiProperty()
   @IsOptional()
+  mobile_os?: string
+
+  @ApiProperty()
+  @IsOptional()
   @IsNumber()
   goal_mindfulness_minutes?: number
 
@@ -123,6 +127,9 @@ export class VerifyUserEmailResultDto {
   @ApiProperty()
   @IsString()
   success: boolean
+
+  @ApiProperty()
+  link: string
 }
 
 export class UpdateUserPasswordDto {

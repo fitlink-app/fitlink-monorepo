@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpService,
   HttpStatus,
@@ -11,7 +12,10 @@ import { plainToClass } from 'class-transformer'
 import { Connection, Repository } from 'typeorm'
 import { AuthenticatedUser, JWTRoles } from '../../models'
 import { CreateUserDto } from '../users/dto/create-user.dto'
-import { CreateUserWithOrganisationDto } from '../users/dto/create-user-with-organisation.dto'
+import {
+  CreateOrganisationAsUserDto,
+  CreateUserWithOrganisationDto
+} from '../users/dto/create-user-with-organisation.dto'
 import { User } from '../users/entities/user.entity'
 import { UsersService } from '../users/users.service'
 import { AuthResultDto } from './dto/auth-result'
@@ -28,6 +32,10 @@ import { AuthSwitchDto } from './dto/auth-switch'
 import { Roles } from '../user-roles/user-roles.constants'
 import { Team } from '../teams/entities/team.entity'
 import { OrganisationsService } from '../organisations/organisations.service'
+import { OrganisationMode } from '../organisations/organisations.constants'
+import { UserSettingsService } from '../users-settings/users-settings.service'
+import { CommonService } from '../common/services/common.service'
+import { DeepLinkType } from '../../constants/deep-links'
 
 type PasswordResetToken = {
   sub: string
@@ -37,7 +45,7 @@ type PasswordResetToken = {
 export enum AuthServiceError {
   Provider = 'The provider is not valid',
   Email = 'An email is required',
-  Exists = 'A user with this email already exists'
+  Exists = 'A user with this email already exists. Please log in instead.'
 }
 
 @Injectable()
@@ -58,7 +66,9 @@ export class AuthService {
     @InjectRepository(Team)
     private teamRepository: Repository<Team>,
     private connection: Connection,
-    private httpService: HttpService
+    private httpService: HttpService,
+    private userSettingsService: UserSettingsService,
+    private commonService: CommonService
   ) {}
 
   /**
@@ -204,6 +214,15 @@ export class AuthService {
         email
       ])
 
+      // If the user chose to subscribe, add them to settings
+      // Which invokes Intercom update
+      if (subscribe) {
+        await this.userSettingsService.update(user.id, {
+          newsletter_subscriptions_admin: true,
+          newsletter_subscriptions_user: true
+        })
+      }
+
       // Create the organisation
       // Also creates the default subscription and team
       // Also assigns the owner as an admin
@@ -212,7 +231,10 @@ export class AuthService {
           name: company,
           type,
           type_other,
-          timezone: ''
+          timezone: '',
+          mode: OrganisationMode.Simple,
+          terms_agreed: agree_to_terms,
+          terms_agreed_at: new Date()
         },
         user.id
       )
@@ -224,6 +246,67 @@ export class AuthService {
     } else {
       return AuthServiceError.Exists
     }
+  }
+
+  /**
+   * Signs up a user and creates organisation, and immediately
+   * creates tokens
+   *
+   * TODO: This should fail gracefully if a user already exists
+   * (it will fail already with a 500 error due to unique email column)
+   *
+   * @param user
+   * @returns object containing 3 tokens and user object
+   */
+  async signupNewOrganisation(
+    {
+      name,
+      agree_to_terms,
+      subscribe,
+      company,
+      type,
+      type_other,
+      date
+    }: CreateOrganisationAsUserDto,
+    userId: string
+  ) {
+    const user = await this.usersService.findOne(userId)
+
+    if (!agree_to_terms) {
+      throw new BadRequestException('You must agree to terms to continue')
+    }
+
+    // Send a welcome email
+    await this.emailService.sendTemplatedEmail('welcome-email-admin', {}, [
+      user.email
+    ])
+
+    // If the user chose to subscribe, add them to settings
+    // Which invokes Intercom update
+    if (subscribe) {
+      await this.userSettingsService.update(user.id, {
+        newsletter_subscriptions_admin: true,
+        newsletter_subscriptions_user: true
+      })
+    }
+
+    // Create the organisation
+    // Also creates the default subscription and team
+    // Also assigns the owner as an admin
+    const organisation = await this.organisationsService.signup(
+      {
+        name: company,
+        type,
+        type_other,
+        timezone: '',
+        mode: OrganisationMode.Simple,
+        terms_agreed: agree_to_terms,
+        terms_agreed_at: new Date()
+      },
+      user.id
+    )
+
+    return organisation
   }
 
   /**
@@ -413,19 +496,27 @@ export class AuthService {
 
   /**
    * Sends user a password reset link in an email
+   *
+   * This is a deep link which on desktop will be
+   * routed to the browser app at https://my.fitlinkapp.com
+   *
+   * On mobile, it will deep link into the app
+   *
    * @param email
    * @returns
    */
   async requestPasswordReset(email: string) {
     const user = await this.usersService.findByEmail(email)
     if (user) {
-      const resetPasswordUrl = this.configService
+      const token = this.getResetPasswordToken(user)
+      const link = this.configService
         .get('RESET_PASSWORD_URL')
-        .replace('{token}', this.getResetPasswordToken(user))
+        .replace('{token}', token)
+
       await this.emailService.sendTemplatedEmail(
         'password-reset',
         {
-          PASSWORD_RESET_LINK: resetPasswordUrl
+          PASSWORD_RESET_LINK: link
         },
         [email]
       )
@@ -463,6 +554,14 @@ export class AuthService {
     } else {
       throw new Error('User not found')
     }
+  }
+
+  generatePostPasswordResetLink() {
+    return this.commonService.generateDynamicLink(
+      DeepLinkType.PasswordReset,
+      {},
+      this.configService.get('DASHBOARD_URL') + '/login'
+    )
   }
 
   /**
@@ -505,14 +604,19 @@ export class AuthService {
    * @param param0
    * @returns
    */
-  async connectWithAuthProvider({ provider, token }: AuthConnectDto) {
+  async connectWithAuthProvider({
+    provider,
+    token,
+    signup,
+    desktop
+  }: AuthConnectDto) {
     let result: Partial<AuthProvider>
     switch (provider) {
       case AuthProviderType.Google:
         result = await this.verifyProviderGoogle(token)
         break
       case AuthProviderType.Apple:
-        result = await this.verifyProviderApple(token)
+        result = await this.verifyProviderApple(token, desktop)
         break
       default:
         return { error: AuthServiceError.Provider }
@@ -529,6 +633,9 @@ export class AuthService {
 
       // Associates the existing user with the new provider
       if (user) {
+        if (signup) {
+          return { error: AuthServiceError.Exists }
+        }
         return {
           result: await this.associateWithProvider(user, result)
         }
@@ -536,6 +643,9 @@ export class AuthService {
     }
 
     if (user) {
+      if (signup) {
+        return { error: AuthServiceError.Exists }
+      }
       // Conditionally update the avatar
       const image = await this.usersService.updateAvatarFromProvider(
         user.id,
@@ -583,9 +693,16 @@ export class AuthService {
     }
   }
 
-  async verifyProviderApple(token: string): Promise<Partial<AuthProvider>> {
-    const clientId = this.configService.get('APPLE_CLIENT_ID')
-    const clientSecret = await this.generateClientSecret()
+  async verifyProviderApple(
+    token: string,
+    desktop = false
+  ): Promise<Partial<AuthProvider>> {
+    let clientId = this.configService.get('IOS_BUNDLE_ID')
+    if (desktop) {
+      clientId = this.configService.get('APPLE_CLIENT_ID')
+    }
+
+    const clientSecret = await this.generateClientSecret(clientId)
 
     if (!clientId) {
       throw new InternalServerErrorException('Apple not configured')
@@ -620,10 +737,9 @@ export class AuthService {
     }
   }
 
-  async generateClientSecret() {
+  async generateClientSecret(clientId: string) {
     const keyId = '667D87STU7'
     const teamId = '58US58KL26'
-    const clientId = this.configService.get('APPLE_CLIENT_ID')
     const b64 = this.configService.get('APPLE_PRIVATE_KEY_B64')
 
     if (!clientId || !b64) {
@@ -670,7 +786,7 @@ export class AuthService {
     }
 
     // Restore the user's original roles / session
-    if (!role) {
+    if (!role || role === Roles.Self) {
       return this.login(user)
     }
 
@@ -685,9 +801,12 @@ export class AuthService {
 
     if (role === Roles.OrganisationAdmin) {
       if (roles.o_a.includes(id)) {
+        const organisation = await this.organisationsService.findOne(id)
         return this.loginWithRole(user, {
           ...base,
-          o_a: [id]
+          o_a: [id],
+          t_a: [organisation.teams[0].id],
+          s_a: [organisation.subscriptions[0].id]
         })
       }
     }
@@ -703,15 +822,18 @@ export class AuthService {
 
     // Organisation admin can switch to managing a specific team
     if (role === Roles.TeamAdmin) {
-      let orgs = []
+      const orgs = []
+      const subs = []
       if (!roles.spr) {
         const team = await this.teamRepository.findOne(id, {
-          relations: ['organisation']
+          relations: ['organisation', 'organisation.subscriptions']
         })
 
         // Organisation admins have full access to teams
+        // as well as subscriptions (billing)
         if (roles.o_a.includes(team.organisation.id)) {
           orgs.push(team.organisation.id)
+          subs.push(team.organisation.subscriptions[0].id)
 
           // Allow access for team admins
         } else if (!roles.t_a.includes(team.id)) {
@@ -721,15 +843,19 @@ export class AuthService {
       return this.loginWithRole(user, {
         ...base,
         t_a: [id],
-        o_a: orgs
+        o_a: orgs,
+        s_a: subs
       })
     }
 
     // Super admin can switch to managing a specific organisation
     if (roles.spr && role === Roles.OrganisationAdmin) {
+      const organisation = await this.organisationsService.findOne(id)
       return this.loginWithRole(user, {
         ...base,
-        o_a: [id]
+        o_a: [id],
+        t_a: [organisation.teams[0].id],
+        s_a: [organisation.subscriptions[0].id]
       })
     }
   }

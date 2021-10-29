@@ -4,7 +4,7 @@ import PagerView from 'react-native-pager-view';
 import {ActivityIndicator, Image} from 'react-native';
 import {BasicInfo, Goals} from './subscreens';
 import {Button, Dots} from '@components';
-import {useMe} from '@hooks';
+import {useJoinTeamByCode, useMe} from '@hooks';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   clearChanges,
@@ -19,6 +19,10 @@ import {Trackers} from './subscreens/Trackers';
 import {Privacy} from './subscreens/Privacy';
 import {Navigation} from './components';
 import {logout} from 'redux/auth/authSlice';
+import {
+  resetTeamInvitation,
+  selectTeamInvitation,
+} from 'redux/teamInvitation/teamInvitationSlice';
 
 const BACKGROUND_IMAGE = require('../../../../assets/images/BackgroundOnboarding.png');
 
@@ -64,10 +68,12 @@ export const Onboarding = () => {
 
   // queries
   const {data: user} = useMe();
+  const {mutateAsync: joinTeam} = useJoinTeamByCode();
 
   // redux
   const settings = useSelector(selectSettings);
   const isSaving = useSelector(selectIsSavingSettings);
+  const {code} = useSelector(selectTeamInvitation);
 
   // local state
   const [isInitialized, setInitialized] = useState(false);
@@ -129,8 +135,12 @@ export const Onboarding = () => {
 
     switch (currentPage) {
       case OnboardingPages.Privacy:
-        await dispatch(submit());
+        dispatch(submit());
 
+        if (code) {
+          joinTeam(code);
+          dispatch(resetTeamInvitation());
+        }
         break;
 
       default:

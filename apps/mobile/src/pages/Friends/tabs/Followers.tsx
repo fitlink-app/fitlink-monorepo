@@ -34,6 +34,8 @@ export const Followers = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
     return (
       <ProfileRow
         isFollowed={!!item.following}
+        teamName={item.team_name}
+        leagueNames={item.league_names}
         userId={item.id}
         name={item.name}
         avatarUrl={item.avatar?.url}

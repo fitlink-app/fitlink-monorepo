@@ -26,8 +26,10 @@ describe('Followings', () => {
     name: 1,
     points_total: 1,
     followers_total: 1,
+    goal_percentage: 1,
     following_total: 1,
     following: 1,
+    invited: 1,
     follower: 1,
     avatar: 1
   }).sort()
@@ -324,10 +326,10 @@ describe('Followings', () => {
       .getRepository(FeedItem)
       .findOne({
         where: {
-          user,
+          user: userData.user,
           type: FeedItemType.NewFollower,
           category: FeedItemCategory.MyUpdates,
-          related_user: { id: userData.user.id }
+          related_user: { id: user }
         },
         relations: ['related_user']
       })
@@ -335,6 +337,6 @@ describe('Followings', () => {
     expect(feedItem).toBeDefined()
     expect(feedItem.type).toBe(FeedItemType.NewFollower)
     expect(feedItem.category).toBe(FeedItemCategory.MyUpdates)
-    expect(feedItem.related_user.id).toBe(userData.user.id)
+    expect(feedItem.related_user.id).toBe(user)
   })
 })

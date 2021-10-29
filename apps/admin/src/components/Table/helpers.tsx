@@ -3,7 +3,7 @@ import IconCheck from '../icons/IconCheck'
 import IconClose from '../icons/IconClose'
 
 export const toDateCell = ({ value }) => {
-  if (value === '') return '-'
+  if (value === '' || !value) return '-'
   return format(new Date(value), 'yyyy-MM-dd')
 }
 
@@ -84,6 +84,10 @@ export const toJoinCells = (accessors: string[], separator = ' ') => {
   }
 }
 
+export const toJSON = ({ value }) => {
+  return JSON.stringify(value)
+}
+
 export const toOwnerCell = ({
   cell: {
     row: { original }
@@ -116,4 +120,8 @@ export const toMapImage = ({ value }) => {
       />
     </div>
   )
+}
+
+export const toID = ({ value }) => {
+  return value ? value.id : '-'
 }

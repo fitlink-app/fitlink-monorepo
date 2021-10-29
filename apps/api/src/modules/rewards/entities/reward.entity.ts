@@ -145,4 +145,7 @@ export class RewardNext {
 
   @ApiProperty()
   points_until_reward: number
+
+  @ApiProperty()
+  unclaimed_rewards_total: number
 }

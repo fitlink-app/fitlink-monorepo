@@ -20,6 +20,8 @@ export enum TeamsInvitationsServiceError {
 type InviteeInviter = {
   inviter: string
   invitee: string
+  team: string
+  avatar?: string
 }
 
 @Injectable()
@@ -31,7 +33,9 @@ export class TeamsInvitationsService {
     @InjectRepository(TeamsInvitation)
     private readonly invitationsRepository: Repository<TeamsInvitation>,
     @InjectRepository(Team)
-    private readonly teamsRepository: Repository<Team>
+    private readonly teamsRepository: Repository<Team>,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>
   ) {}
 
   async create(createDto: CreateTeamsInvitationDto, ownerId: string) {
@@ -58,10 +62,16 @@ export class TeamsInvitationsService {
       const token = this.createToken(invitation.id)
       inviteLink = this.createInviteLink(token)
 
+      const inviter = await this.usersRepository.findOne(owner.id, {
+        relations: ['avatar']
+      })
+
       await this.sendEmail(
         {
           invitee: invitee,
-          inviter: inviterTeam.name
+          inviter: inviter.name,
+          avatar: owner.avatar ? owner.avatar.url_128x128 : undefined,
+          team: inviterTeam.name
         },
         email,
         inviteLink,
@@ -74,10 +84,14 @@ export class TeamsInvitationsService {
       // with the link. Useful for Slack integrations for e.g.
       inviteLink = this.getJoinLink(inviterTeam).url
 
+      const inviter = await this.usersRepository.findOne(ownerId)
+
       await this.sendEmail(
         {
           invitee: invitee,
-          inviter: inviterTeam.name
+          inviter: inviter.name,
+          avatar: inviter.avatar ? inviter.avatar.url_128x128 : undefined,
+          team: inviterTeam.name
         },
         email,
         inviteLink,
@@ -98,7 +112,7 @@ export class TeamsInvitationsService {
    * @returns jwt token
    */
   async resend(id: string) {
-    const { email, name, admin, team } = await this.findOne(id)
+    const { email, name, admin, team, owner } = await this.findOne(id)
 
     const token = this.createToken(id)
     const inviteLink = this.createInviteLink(token)
@@ -106,7 +120,9 @@ export class TeamsInvitationsService {
     await this.sendEmail(
       {
         invitee: name,
-        inviter: team.name
+        inviter: owner.name,
+        avatar: owner.avatar ? owner.avatar.url_128x128 : undefined,
+        team: team.name
       },
       email,
       inviteLink,
@@ -136,7 +152,7 @@ export class TeamsInvitationsService {
    */
   getJoinLink(team: Team) {
     return {
-      url: `${this.configService.get('SHORT_URL')}/join/${team.join_code}`
+      url: `${this.configService.get('SHORT_URL')}/join?code=${team.join_code}`
     }
   }
 
@@ -149,7 +165,7 @@ export class TeamsInvitationsService {
    * @returns string (MessageId)
    */
   sendEmail(
-    { invitee, inviter }: InviteeInviter,
+    { invitee, inviter, team, avatar }: InviteeInviter,
     email: string,
     inviteLink: string,
     isAdmin: boolean
@@ -158,8 +174,10 @@ export class TeamsInvitationsService {
       isAdmin ? 'team-admin-invitation' : 'team-invitation',
       {
         INVITER_NAME: inviter,
+        INVITER_AVATAR: avatar,
         INVITEE_NAME: invitee,
-        INVITE_LINK: inviteLink
+        INVITE_LINK: inviteLink,
+        TEAM_NAME: team
       },
       [email]
     )
@@ -271,7 +289,7 @@ export class TeamsInvitationsService {
       where: {
         id: invitationId
       },
-      relations: ['team']
+      relations: ['team', 'owner', 'owner.avatar']
     })
   }
 

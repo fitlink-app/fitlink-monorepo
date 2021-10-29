@@ -6,7 +6,7 @@ import styled from 'styled-components/native';
 const Wrapper = styled.View({
   alignItems: 'flex-end',
   width: 180,
-  top: 30,
+  top: 70,
   right: -10,
 });
 

@@ -5,7 +5,7 @@ import styled from 'styled-components/native';
 const Wrapper = styled.View({
   position: 'absolute',
   width: '100%',
-  height: '100%',
+  height: '65%',
   bottom: 0,
 });
 
@@ -14,13 +14,13 @@ const UpperAreaGradient = styled(LinearGradient).attrs(({theme: {colors}}) => ({
 }))({
   width: '100%',
   height: '100%',
-  bottom: '28%',
+  bottom: '44%',
 });
 
 const LowerAreaSolid = styled.View(({theme: {colors}}) => ({
   position: 'absolute',
   width: '100%',
-  height: '28%',
+  height: '45%',
   bottom: 0,
   backgroundColor: colors.background,
 }));

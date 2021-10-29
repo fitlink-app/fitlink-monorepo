@@ -139,6 +139,7 @@ export default function CreateOrganisation({
 
       <div className="text-right mt-2">
         <button
+          type="submit"
           className="button"
           disabled={create.isLoading || update.isLoading || upload.isLoading}>
           {isUpdate ? 'Save Team' : 'Create Team'}

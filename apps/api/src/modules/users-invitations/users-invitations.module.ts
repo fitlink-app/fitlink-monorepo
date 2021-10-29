@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { UsersInvitationsService } from './users-invitations.service'
 import { UsersInvitationsController } from './users-invitations.controller'
 import { ConfigService, ConfigModule } from '@nestjs/config'
@@ -9,10 +9,14 @@ import { User } from '../../modules/users/entities/user.entity'
 import { UserRolesModule } from '../user-roles/user-roles.module'
 import { CommonModule } from '../common/common.module'
 import { AuthProvider } from '../auth/entities/auth-provider.entity'
+import { NotificationsModule } from '../notifications/notifications.module'
+import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
 
 @Module({
   imports: [
     CommonModule,
+    NotificationsModule,
+    forwardRef(() => GoalsEntriesModule),
     TypeOrmModule.forFeature([User, AuthProvider]),
     JwtModule.registerAsync({
       imports: [ConfigModule],

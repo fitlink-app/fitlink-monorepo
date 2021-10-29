@@ -12,6 +12,7 @@ import FormData = require('form-data')
 import { ImagesModule } from '../src/modules/images/images.module'
 import { FollowingsSetup } from './seeds/followings.seed'
 import { emailHasContent, getEmailContent } from './helpers/mocking'
+import { GoalsEntriesModule } from '../src/modules/goals-entries/goals-entries.module'
 
 describe('Users', () => {
   let app: NestFastifyApplication
@@ -34,6 +35,14 @@ describe('Users', () => {
     // Seed the user and use in tests
     await useSeeding()
     const users = await UsersSetup('Test Users Unique Name')
+    await Promise.all(
+      users.map((each) => {
+        return connection.getRepository(User).update(each.id, {
+          password:
+            '$2a$10$SxsiyEPj2gjEgufzMiWTWuej0Cld6IzPT/59.0.Y6xSEosQ856u6m'
+        })
+      })
+    )
     user = users[0]
     userAuthHeaders = getAuthHeaders({}, users[0].id)
     otherUser = users[1]
@@ -207,11 +216,13 @@ describe('Users', () => {
       return each.toAddresses.includes(email)
     })
 
-    const query = emailData[0].data.EMAIL_VERIFICATION_LINK.split('?token=')
+    const token = new URL(
+      emailData[0].data.EMAIL_VERIFICATION_LINK
+    ).searchParams.get('token')
     const verify = await app.inject({
       method: 'POST',
       url: `/users/verify-email`,
-      payload: { token: query[1] }
+      payload: { token: token }
     })
 
     expect(verify.statusCode).toEqual(200)

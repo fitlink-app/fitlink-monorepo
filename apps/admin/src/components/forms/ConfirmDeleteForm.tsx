@@ -14,6 +14,7 @@ import { DeleteResult } from '@fitlink/api-sdk/types'
 import { getErrorMessage } from '../../../../api-sdk'
 import Feedback from '../elements/Feedback'
 import useApiErrors from '../../hooks/useApiErrors'
+import router from 'next/router'
 
 export type ConfirmDeleteProps = {
   title?: string
@@ -53,9 +54,6 @@ export default function ConfirmDeleteForm({
         success: <b>Item deleted</b>,
         error: <b>Error</b>
       })
-      if (!remove.isError) {
-        onDelete()
-      }
     } catch (e) {
       onError()
     }
@@ -66,6 +64,12 @@ export default function ConfirmDeleteForm({
   const confirmation = watch('confirm_text')
 
   const { isError, errorMessage } = useApiErrors(remove.isError, remove.error)
+
+  useEffect(() => {
+    if (remove.isSuccess) {
+      onDelete()
+    }
+  }, [remove.isSuccess])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -90,6 +94,7 @@ export default function ConfirmDeleteForm({
         </a>
         <button
           className="button ml-1 pointer"
+          type="submit"
           disabled={
             (requireConfirmText && confirmation !== requireConfirmText) ||
             remove.isLoading

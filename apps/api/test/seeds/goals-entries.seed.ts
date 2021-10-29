@@ -30,11 +30,11 @@ export async function GoalsEntriesSetup(
       const users = await UsersSetup(name, count)
       return Promise.all(
         users.map((user) => {
-          user.goal_mindfulness_minutes = faker.random.number(59)
-          user.goal_steps = faker.random.number(100000)
-          user.goal_floors_climbed = faker.random.number(15)
-          user.goal_water_litres = faker.random.number(5)
-          user.goal_sleep_hours = faker.random.number(14)
+          user.goal_mindfulness_minutes = faker.datatype.number(59)
+          user.goal_steps = faker.datatype.number(100000)
+          user.goal_floors_climbed = faker.datatype.number(15)
+          user.goal_water_litres = faker.datatype.number(5)
+          user.goal_sleep_hours = faker.datatype.number(14)
           return this.connection.getRepository(User).save(user)
         })
       )

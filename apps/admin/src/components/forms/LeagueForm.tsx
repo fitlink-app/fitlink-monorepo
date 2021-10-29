@@ -63,7 +63,7 @@ export default function LeagueForm({
   onDelete = noop,
   onError = noop
 }: LeagueFormProps) {
-  const { api, focusRole, primary } = useContext(AuthContext)
+  const { api, modeRole, primary } = useContext(AuthContext)
   const [image, setImage] = useState(current?.image?.url || '')
   const isUpdate = !!current.id
   const { sportsOptionsList } = useSports()
@@ -86,7 +86,7 @@ export default function LeagueForm({
         },
         {
           primary,
-          useRole: focusRole
+          useRole: modeRole
         }
       ),
     update: (payload) =>
@@ -98,7 +98,7 @@ export default function LeagueForm({
         },
         {
           primary,
-          useRole: focusRole
+          useRole: modeRole
         }
       )
   })
@@ -243,6 +243,7 @@ export default function LeagueForm({
         {current.id && (
           <button
             className="button alt mr-2"
+            type="button"
             onClick={() => {
               onDelete(current)
             }}>

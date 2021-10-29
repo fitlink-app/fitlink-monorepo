@@ -329,7 +329,9 @@ describe('list', () => {
         name: 'Test',
         timezone: 'Etc/UTC',
         type: OrganisationType.School,
-        email: 'test@example.com'
+        email: 'test@example.com',
+        terms_agreed: true,
+        terms_agreed_at: new Date()
       }
     })
 

@@ -11,7 +11,7 @@ import ProgressChart from '../components/charts/ProgressChart'
 import IconWater from '../components/icons/IconWater'
 import Select from '../components/elements/Select'
 import Feedback from '../components/elements/Feedback'
-import IconDownload from '../components/icons/IconDownload'
+//import IconDownload from '../components/icons/IconDownload'
 import { useContext, useEffect, useState } from 'react'
 import useHealthActivityStats from '../hooks/api/useHealthActivityStats'
 import useGoalStats from '../hooks/api/useGoalStats'
@@ -23,16 +23,20 @@ import capitalize from 'lodash/capitalize'
 import { options } from '../data/date-options'
 import { useRouter } from 'next/router'
 import { LoaderChart } from '../components/elements/LoaderChart'
-import { TableLoader } from '../components/Table/TableLoader'
+//import { TableLoader } from '../components/Table/TableLoader'
+import { useIntercom } from 'react-use-intercom'
 
 type DateStartEnd = {
   startAt?: Date
   endAt?: Date
 }
 
+const OVERVIEW_TOUR_ID = 279397
+
 export default function components() {
-  const { focusRole } = useContext(AuthContext)
+  const { focusRole, modeRole } = useContext(AuthContext)
   const router = useRouter()
+  const { startTour } = useIntercom()
 
   useEffect(() => {
     if (focusRole === 'subscription') {
@@ -46,11 +50,20 @@ export default function components() {
 
   return (
     <Dashboard title="Dashboard">
-      <h1 className="light">
-        {focusRole === 'app' && 'Fitlink global statistics'}
-        {focusRole === 'organisation' && 'Your organisation at a glance'}
-        {focusRole === 'team' && 'Your team at a glance'}
-      </h1>
+      <div className="flex ai-c">
+        <h1 className="light mb-0 mr-2">
+          {modeRole === 'app' && 'Fitlink global statistics'}
+          {modeRole === 'organisation' && 'Your organisation at a glance'}
+          {modeRole === 'team' && 'Your team at a glance'}
+        </h1>
+        <button
+          className="button small mt-1"
+          onClick={() => {
+            startTour(OVERVIEW_TOUR_ID)
+          }}>
+          Start Tour
+        </button>
+      </div>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">
           <PopularActivities />
@@ -69,7 +82,7 @@ export default function components() {
           <PopularRewards />
         </div>
       </div>
-      {focusRole !== 'app' && (
+      {modeRole !== 'app' && (
         <div className="row mt-2">
           <div className="col-12 col-lg-6 mt-2">
             <GlobalInsights />
@@ -102,9 +115,9 @@ function PopularActivities() {
     endAt: new Date()
   })
 
-  const { focusRole } = useContext(AuthContext)
+  const { modeRole } = useContext(AuthContext)
 
-  const query = useHealthActivityStats(focusRole, dates.startAt, dates.endAt)
+  const query = useHealthActivityStats(modeRole, dates.startAt, dates.endAt)
 
   return (
     <Card className="p-3 card--stretch">
@@ -113,11 +126,11 @@ function PopularActivities() {
           <h2 className="h5 color-light-grey m-0">Most popular activities</h2>
         </div>
         <div className="col flex ai-c jc-e">
-          <IconDownload
+          {/* <IconDownload
             width="24px"
             height="24px"
             className="mr-1 color-light-grey hover-dark-grey"
-          />
+          /> */}
           <Select
             id="activities"
             defaultValue={options[2]}
@@ -159,9 +172,9 @@ function GoalStats() {
     endAt: new Date()
   })
 
-  const { focusRole } = useContext(AuthContext)
-  const audience = focusRole === 'app' ? 'audience' : focusRole
-  const query = useGoalStats(focusRole, dates.startAt, dates.endAt)
+  const { modeRole } = useContext(AuthContext)
+  const audience = modeRole === 'app' ? 'audience' : modeRole
+  const query = useGoalStats(modeRole, dates.startAt, dates.endAt)
 
   return (
     <Card className="p-3 card--stretch">
@@ -172,11 +185,11 @@ function GoalStats() {
           </h2>
         </div>
         <div className="col flex ai-c jc-e">
-          <IconDownload
+          {/* <IconDownload
             width="24px"
             height="24px"
             className="mr-1 color-light-grey hover-dark-grey"
-          />
+          /> */}
           <Select
             id="team"
             defaultValue={options[2]}
@@ -270,14 +283,14 @@ function GoalStats() {
 }
 
 function PopularLeagues() {
-  const { focusRole } = useContext(AuthContext)
+  const { modeRole } = useContext(AuthContext)
 
   const [dates, setDates] = useState<DateStartEnd>({
     startAt: options[2].date,
     endAt: new Date()
   })
 
-  const query = useLeagueStats(focusRole, dates.startAt, dates.endAt)
+  const query = useLeagueStats(modeRole, dates.startAt, dates.endAt)
 
   return (
     <Card className="p-3 card--stretch">
@@ -286,11 +299,11 @@ function PopularLeagues() {
           <h2 className="h5 color-light-grey m-0">Popular leagues</h2>
         </div>
         <div className="col flex ai-c jc-e">
-          <IconDownload
+          {/* <IconDownload
             width="24px"
             height="24px"
             className="mr-1 color-light-grey hover-dark-grey"
-          />
+          /> */}
           <Select
             id="leagues"
             defaultValue={options[8]}
@@ -347,9 +360,9 @@ function PopularRewards() {
     endAt: new Date()
   })
 
-  const { focusRole } = useContext(AuthContext)
+  const { modeRole } = useContext(AuthContext)
 
-  const query = useRewardStats(focusRole, dates.startAt, dates.endAt)
+  const query = useRewardStats(modeRole, dates.startAt, dates.endAt)
 
   return (
     <Card className="p-3 card--stretch">
@@ -358,11 +371,11 @@ function PopularRewards() {
           <h2 className="h5 color-light-grey m-0">Popular rewards</h2>
         </div>
         <div className="col flex ai-c jc-e">
-          <IconDownload
+          {/* <IconDownload
             width="24px"
             height="24px"
             className="mr-1 color-light-grey hover-dark-grey"
-          />
+          /> */}
           <Select
             id="rewards"
             defaultValue={options[8]}
@@ -414,17 +427,17 @@ function PopularRewards() {
 }
 
 function GlobalInsights() {
-  const { focusRole } = useContext(AuthContext)
-  const query = useGlobalStats(focusRole)
+  const { modeRole } = useContext(AuthContext)
+  const query = useGlobalStats(modeRole)
 
   return (
     <Card className="p-3 card--stretch">
       <h2 className="h5 color-light-grey mt-1">
-        {capitalize(focusRole)} insights
+        {capitalize(modeRole)} insights
       </h2>
       <ul className="news">
         <li className="unread">
-          <h5>Your {focusRole} isn't drinking enough water 💧</h5>
+          <h5>Keep your {modeRole} hydrated 💧</h5>
           <p>
             Failing to drink enough water can cause dehydration and adverse
             symptoms, including fatigue, headache and weakened immunity. Here
@@ -445,15 +458,15 @@ function GlobalInsights() {
         </Link>
         {query.isFetched && query.data.league_count === 0 && (
           <li>
-            <h5>Create your first {focusRole} league 🏆</h5>
-            {focusRole === 'organisation' && (
+            <h5>Create your first {modeRole} league 🏆</h5>
+            {modeRole === 'organisation' && (
               <p>
                 Create an organisation league if you want anyone across your
                 company to be able to participate, regardless of their team.
               </p>
             )}
             <p>
-              Inspire your {focusRole} to get moving, why not create a simple
+              Inspire your {modeRole} to get moving, why not create a simple
               steps league so that everyone can get involved.
             </p>
           </li>
@@ -474,8 +487,8 @@ function GlobalInsights() {
 
         {query.isFetched && query.data.reward_count === 0 && (
           <li>
-            <h5>Create your first {focusRole} reward 🎁</h5>
-            {focusRole === 'organisation' && (
+            <h5>Create your first {modeRole} reward 🎁</h5>
+            {modeRole === 'organisation' && (
               <p>
                 Create an organisation reward if you want anyone across your
                 company to be able to be rewarded with it, regardless of their
@@ -483,7 +496,7 @@ function GlobalInsights() {
               </p>
             )}
             <p>
-              Encourage your {focusRole} to get active, get moving and stay
+              Encourage your {modeRole} to get active, get moving and stay
               healthy by creating rewards that fit your people. How about free
               yoga classes, a free smoothie, fitness trackers and gadgets, spa
               vouchers, lunch vouchers, 1-hour off work, a day off work, a free
@@ -515,15 +528,16 @@ function FitlinkNews() {
       <h2 className="h5 color-light-grey mt-1">Fitlink News</h2>
       <ul className="news">
         <li className="unread">
-          <h5>App version 2.1.0 release</h5>
+          <h5>Latest Fitlink App updates</h5>
           <p>
-            We've made a few under the hood improvements to performace. This
-            update will happen automatically when your team launches the app.
+            We've added 👍 <strong className="color-primary">likes</strong> to
+            feed items &amp; the ability to upload multiple images to your
+            health activity when it appears in your feed.
           </p>
         </li>
         <li className="unread">
           <img src="/temp/ecologi.svg" alt="" />
-          <h5>Give back with Ecologi 🌱</h5>
+          <h5>Coming soon: Give back with Ecologi 🌱</h5>
           <p>
             We've partnered with Ecologi to offer all Fitlink teams the
             opportunity to reward their users with carbon offsetting and

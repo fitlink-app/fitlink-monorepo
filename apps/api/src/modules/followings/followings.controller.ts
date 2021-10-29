@@ -12,14 +12,16 @@ import { FollowingsService } from './followings.service'
 import { CreateFollowingDto } from './dto/create-following.dto'
 import { AuthenticatedUser } from '../../models'
 import { User } from '../../decorators/authenticated-user.decorator'
-import { PaginationDto } from '../../helpers/paginate'
+import { PaginationDto, PaginationQuery } from '../../helpers/paginate'
 import {
   ApiBaseResponses,
-  DeleteResponse
+  DeleteResponse,
+  PaginationBody
 } from '../../decorators/swagger.decorator'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Following } from './entities/following.entity'
 import { UserPublic } from '../users/entities/user.entity'
+import { Pagination } from '../../decorators/pagination.decorator'
 
 @ApiBaseResponses()
 @Controller()
@@ -44,14 +46,12 @@ export class FollowingsController {
   @ApiTags('me')
   @Get('me/following')
   @ApiResponse({ type: UserPublic, isArray: true, status: 201 })
+  @PaginationBody()
   findAllFollowing(
-    @Query() query: PaginationDto,
-    @User() user: AuthenticatedUser
+    @User() user: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery
   ) {
-    return this.followingsService.findAllFollowing(user.id, {
-      limit: parseInt(query.limit) || 10,
-      page: parseInt(query.page) || 0
-    })
+    return this.followingsService.findAllFollowing(user.id, pagination)
   }
 
   /**
@@ -60,14 +60,12 @@ export class FollowingsController {
   @ApiTags('me')
   @Get('me/followers')
   @ApiResponse({ type: UserPublic, isArray: true, status: 201 })
+  @PaginationBody()
   findAllFollowers(
-    @Query() query: PaginationDto,
-    @User() user: AuthenticatedUser
+    @User() user: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery
   ) {
-    return this.followingsService.findAllFollowers(user.id, {
-      limit: parseInt(query.limit) || 10,
-      page: parseInt(query.page) || 0
-    })
+    return this.followingsService.findAllFollowers(user.id, pagination)
   }
 
   /**

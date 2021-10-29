@@ -100,7 +100,6 @@ export default function EditUser({
   )
 
   const sendPasswordResetEmail = async () => {
-    console.log(current.email)
     await toast.promise(
       api.post<AuthRequestResetPassword>('/auth/request-password-reset', {
         payload: { email: current.email }

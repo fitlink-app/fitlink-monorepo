@@ -1,7 +1,11 @@
 import {Label} from '@components';
+import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
+import {useFitbit, useProviders, useStrava} from '@hooks';
+import {useCustomProvider} from 'hooks/api/providers/custom';
 import React from 'react';
 import {Platform} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
+import {AppleHealthKitWrapper, GoogleFitWrapper} from 'services';
 import styled from 'styled-components/native';
 import {TrackerButton} from './components/TrackerButton';
 
@@ -31,28 +35,58 @@ const LabelWrapper = styled.View({
 });
 
 export const Trackers = () => {
+  const {providerList} = useProviders();
+
+  const {isLinking: isStravaLinking, link: linkStrava} = useStrava();
+  const {isLinking: isFitbitLinking, link: linkFitbit} = useFitbit();
+
+  const {isLinking: isAppleHealthLinking, link: linkAppleHealth} =
+    useCustomProvider(ProviderType.AppleHealthkit);
+
+  const {isLinking: isGoogleFitLinking, link: linkGoogleFit} =
+    useCustomProvider(ProviderType.GoogleFit);
+
   function renderButtons() {
-    const buttons = [];
+    return (
+      <ButtonWrapper>
+        {Platform.OS === 'android' && (
+          <TrackerButton
+            label={'Google Fit'}
+            isLinked={providerList.includes(ProviderType.GoogleFit)}
+            onPress={() => {
+              linkGoogleFit(() => {
+                GoogleFitWrapper.disconnect();
+                return GoogleFitWrapper.authenticate();
+              });
+            }}
+            isLoading={isGoogleFitLinking}
+          />
+        )}
+        {Platform.OS === 'ios' && (
+          <TrackerButton
+            label={'Apple Health'}
+            isLinked={providerList.includes(ProviderType.AppleHealthkit)}
+            onPress={() =>
+              linkAppleHealth(() => AppleHealthKitWrapper.authenticate())
+            }
+            isLoading={isAppleHealthLinking}
+          />
+        )}
 
-    if (Platform.OS === 'android') {
-      buttons.push(
-        <TrackerButton label={'Google Fit'} providerType={'google_fit'} />,
-      );
-    }
-
-    if (Platform.OS === 'ios') {
-      buttons.push(
         <TrackerButton
-          label={'Apple Health'}
-          providerType={'apple_healthkit'}
-        />,
-      );
-    }
-
-    buttons.push(<TrackerButton label={'Strava'} providerType={'strava'} />);
-    buttons.push(<TrackerButton label={'Fitbit'} providerType={'fitbit'} />);
-
-    return <ButtonWrapper>{buttons}</ButtonWrapper>;
+          label={'Strava'}
+          isLinked={providerList.includes(ProviderType.Strava)}
+          isLoading={isStravaLinking}
+          onPress={linkStrava}
+        />
+        <TrackerButton
+          label={'Fitbit'}
+          isLinked={providerList.includes(ProviderType.Fitbit)}
+          isLoading={isFitbitLinking}
+          onPress={linkFitbit}
+        />
+      </ButtonWrapper>
+    );
   }
   return (
     <Wrapper>

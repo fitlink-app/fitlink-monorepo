@@ -73,95 +73,97 @@ export default function TeamsPage() {
     return healthActivity.sport_name + distance
   }
 
-  const { api, focusRole } = useContext(AuthContext)
+  const { api, modeRole, focusRole, fetchKey } = useContext(AuthContext)
 
-  return (
-    <Dashboard title="Settings Users">
-      <div className="row ai-c">
-        <div className="col">
-          <h1 className="light mb-0">User performance</h1>
-        </div>
-        <div className="col text-right">
-          <Link href="/users">
-            <a className="button alt">Manage users</a>
-          </Link>
-        </div>
-      </div>
-      <p className="mt-1">
-        To comply with GDPR regulations, user information is anonymous.
-      </p>
+  return null
 
-      <div className="mt-4 overflow-x-auto">
-        <TableContainer
-          columns={[
-            { Header: 'User', Cell: showAvatar },
-            {
-              Header: 'Date Joined',
-              accessor: 'created_at',
-              Cell: toDateCell
-            },
-            // { Header: 'Mobile OS', accessor: 'mobile_os' },
-            {
-              Header: 'Tracker',
-              accessor: 'provider_types',
-              Cell: arrayToDisplayValue(providersMapping)
-            },
-            {
-              Header: 'Total Points',
-              accessor: 'points_total',
-              Cell: toLocaleCell
-            },
-            { Header: 'Rank', accessor: 'rank', Cell: toChipCell },
-            {
-              Header: 'Last activity',
-              accessor: 'latest_health_activity',
-              Cell: toHealthActivity
-            },
-            { Header: 'Total leagues', accessor: 'league_count' },
-            {
-              Header: 'Reward redeemed',
-              accessor: 'reward_count',
-              Cell: toLocaleCell
-            }
-            // { Header: ' ', Cell: viewDetails }
-          ]}
-          fetch={(limit, page) => {
-            if (primary.team) {
-              return api.list<UserStat>(
-                '/stats',
-                {
-                  limit,
-                  page
-                },
-                {
-                  primary,
-                  useRole: focusRole
-                }
-              )
-            }
+  // return (
+  //   <Dashboard title="Settings Users">
+  //     <div className="row ai-c">
+  //       <div className="col">
+  //         <h1 className="light mb-0">User performance</h1>
+  //       </div>
+  //       <div className="col text-right">
+  //         <Link href="/users">
+  //           <a className="button alt">Manage users</a>
+  //         </Link>
+  //       </div>
+  //     </div>
+  //     <p className="mt-1">
+  //       To comply with GDPR regulations, user information is anonymous.
+  //     </p>
 
-            return Promise.resolve({
-              results: [],
-              page_total: 0,
-              total: 0
-            })
-          }}
-          fetchName={`team_users_${primary.team}`}
-          refresh={refresh}
-        />
-      </div>
+  //     <div className="mt-4 overflow-x-auto">
+  //       <TableContainer
+  //         columns={[
+  //           { Header: 'User', Cell: showAvatar },
+  //           {
+  //             Header: 'Date Joined',
+  //             accessor: 'created_at',
+  //             Cell: toDateCell
+  //           },
+  //           // { Header: 'Mobile OS', accessor: 'mobile_os' },
+  //           {
+  //             Header: 'Tracker',
+  //             accessor: 'provider_types',
+  //             Cell: arrayToDisplayValue(providersMapping)
+  //           },
+  //           {
+  //             Header: 'Total Points',
+  //             accessor: 'points_total',
+  //             Cell: toLocaleCell
+  //           },
+  //           { Header: 'Rank', accessor: 'rank', Cell: toChipCell },
+  //           {
+  //             Header: 'Last activity',
+  //             accessor: 'latest_health_activity',
+  //             Cell: toHealthActivity
+  //           },
+  //           { Header: 'Total leagues', accessor: 'league_count' },
+  //           {
+  //             Header: 'Reward redeemed',
+  //             accessor: 'reward_count',
+  //             Cell: toLocaleCell
+  //           }
+  //           // { Header: ' ', Cell: viewDetails }
+  //         ]}
+  //         fetch={(limit, page) => {
+  //           if (primary.team) {
+  //             return api.list<UserStat>(
+  //               '/stats',
+  //               {
+  //                 limit,
+  //                 page
+  //               },
+  //               {
+  //                 primary,
+  //                 useRole: modeRole
+  //               }
+  //             )
+  //           }
 
-      <AnimatePresence initial={false}>
-        {drawContent && (
-          <Drawer
-            remove={() => setDrawContent(null)}
-            key="drawer"
-            warnBeforeClose={warning}
-            wide={wide}>
-            {drawContent}
-          </Drawer>
-        )}
-      </AnimatePresence>
-    </Dashboard>
-  )
+  //           return Promise.resolve({
+  //             results: [],
+  //             page_total: 0,
+  //             total: 0
+  //           })
+  //         }}
+  //         fetchName={`team_users_${primary.team}_${fetchKey}`}
+  //         refresh={refresh}
+  //       />
+  //     </div>
+
+  //     <AnimatePresence initial={false}>
+  //       {drawContent && (
+  //         <Drawer
+  //           remove={() => setDrawContent(null)}
+  //           key="drawer"
+  //           warnBeforeClose={warning}
+  //           wide={wide}>
+  //           {drawContent}
+  //         </Drawer>
+  //       )}
+  //     </AnimatePresence>
+  //   </Dashboard>
+  // )
 }

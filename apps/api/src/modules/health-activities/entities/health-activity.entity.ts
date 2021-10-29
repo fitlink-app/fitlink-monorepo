@@ -3,6 +3,7 @@ import {
   Entity,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn
 } from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
@@ -11,6 +12,7 @@ import { Image } from '../../images/entities/image.entity'
 import { Provider } from '../../providers/entities/provider.entity'
 import { Sport } from '../../sports/entities/sport.entity'
 import { User } from '../../users/entities/user.entity'
+import { HealthActivityDebug } from './health-activity-debug.entity'
 
 @Entity()
 export class HealthActivity extends CreatableEntity {
@@ -20,17 +22,26 @@ export class HealthActivity extends CreatableEntity {
   @ManyToOne(() => User, (user) => user.health_activities)
   user: User
 
-  @OneToMany(() => Image, (image) => image.health_activity, { nullable: true })
-  images: Image
+  @OneToMany(() => Image, (image) => image.health_activity)
+  images: Image[]
 
   @ManyToOne(() => Sport, (sport) => sport.health_activities)
   sport: Sport
 
-  @ManyToOne(() => Provider, (provider) => provider.health_activities)
+  @ManyToOne(() => Provider, (provider) => provider.health_activities, {
+    createForeignKeyConstraints: false,
+    nullable: true
+  })
   provider: Provider
 
   @ManyToOne(() => FeedItem, (item) => item.health_activity)
-  feed_items: FeedItem
+  feed_items: FeedItem[]
+
+  /** Activity title, e.g. Afternoon Run, Morning Walk */
+  @Column({
+    default: 'Activity'
+  })
+  title: string
 
   @Column()
   points: number
@@ -65,10 +76,14 @@ export class HealthActivity extends CreatableEntity {
   @Column({ nullable: true })
   stairs: number
 
-
   @Column({ nullable: true, type: 'text' })
   polyline: string
 
   @Column({ default: false })
   distributed: boolean
+
+  @OneToOne(() => HealthActivityDebug, (debug) => debug.health_activity, {
+    nullable: true
+  })
+  debug: HealthActivityDebug
 }

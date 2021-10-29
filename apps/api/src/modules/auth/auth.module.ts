@@ -15,6 +15,9 @@ import { CommonModule } from '../common/common.module'
 import { AuthProvider } from './entities/auth-provider.entity'
 import { Team } from '../teams/entities/team.entity'
 import { OrganisationsModule } from '../organisations/organisations.module'
+import { NotificationsModule } from '../notifications/notifications.module'
+import { UsersSettingsModule } from '../users-settings/users-settings.module'
+import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
 
 @Module({
   imports: [
@@ -24,8 +27,11 @@ import { OrganisationsModule } from '../organisations/organisations.module'
     UsersModule,
     PassportModule,
     CommonModule,
+    NotificationsModule,
+    forwardRef(() => UsersSettingsModule),
     forwardRef(() => OrganisationsModule),
     forwardRef(() => UserRolesModule),
+    forwardRef(() => GoalsEntriesModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

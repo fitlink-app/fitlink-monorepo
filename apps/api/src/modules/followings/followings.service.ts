@@ -5,10 +5,10 @@ import { Repository } from 'typeorm'
 import { Following } from './entities/following.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { User, UserPublic } from '../users/entities/user.entity'
-import { plainToClass } from 'class-transformer'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { NewFollowerEvent } from '../users/events/new-follower.event'
 import { Events } from '../../events'
+import { CommonService } from '../common/services/common.service'
 
 @Injectable()
 export class FollowingsService {
@@ -17,7 +17,8 @@ export class FollowingsService {
     private followingRepository: Repository<Following>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private eventEmitter: EventEmitter2
+    private eventEmitter: EventEmitter2,
+    private commonService: CommonService
   ) {}
 
   /**
@@ -54,10 +55,7 @@ export class FollowingsService {
     event.userId = userId
     event.targetId = createFollowingDto.targetId
     await this.eventEmitter.emitAsync(Events.USER_NEW_FOLLOWER, event)
-
-    return plainToClass(UserPublic, saved.following, {
-      excludeExtraneousValues: true
-    })
+    return this.commonService.getUserPublic(saved.following)
   }
 
   /**
@@ -81,9 +79,7 @@ export class FollowingsService {
 
     return new Pagination<UserPublic>({
       results: results.map((each) =>
-        plainToClass(UserPublic, each.following, {
-          excludeExtraneousValues: true
-        })
+        this.commonService.getUserPublic(each.following)
       ),
       total
     })
@@ -104,6 +100,8 @@ export class FollowingsService {
     const query = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.avatar', 'avatar')
+      .leftJoinAndSelect('user.leagues', 'leagues')
+      .leftJoinAndSelect('user.teams', 'teams')
 
       // Look for any users that this user is following
       // Use an inner join, since results must only include following
@@ -129,7 +127,7 @@ export class FollowingsService {
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<UserPublic>({
-      results: results.map(this.getFollowersPublic),
+      results: this.commonService.mapUserPublic(results),
       total
     })
   }
@@ -149,6 +147,8 @@ export class FollowingsService {
     const query = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.avatar', 'avatar')
+      .leftJoinAndSelect('user.leagues', 'leagues')
+      .leftJoinAndSelect('user.teams', 'teams')
 
       // Look for any users that are following this user
       // Use an inner join, since results must only include followers
@@ -174,17 +174,8 @@ export class FollowingsService {
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<UserPublic>({
-      results: results.map(this.getFollowersPublic),
+      results: this.commonService.mapUserPublic(results),
       total
-    })
-  }
-
-  getFollowersPublic(user: User) {
-    const userPublic = (user as unknown) as UserPublic
-    userPublic.following = Boolean(user.following.length)
-    userPublic.follower = Boolean(user.followers.length)
-    return plainToClass(UserPublic, userPublic, {
-      excludeExtraneousValues: true
     })
   }
 

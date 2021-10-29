@@ -17,10 +17,15 @@ import { Reward as RewardEntity } from '@fitlink/api/src/modules/rewards/entitie
 import { useQuery } from 'react-query'
 import { timeout } from '../helpers/timeout'
 import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
+import IconInfo from '../components/icons/IconInfo'
+import { useIntercom } from 'react-use-intercom'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 
+const REWARD_TOUR_ID = 279440
+
 export default function page() {
-  const { api, primary, focusRole, fetchKey } = useContext(AuthContext)
+  const { api, primary, modeRole, fetchKey } = useContext(AuthContext)
+  const { startTour } = useIntercom()
 
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
@@ -61,10 +66,10 @@ export default function page() {
   ]
 
   useEffect(() => {
-    if (focusRole === 'app') {
+    if (modeRole === 'app') {
       setShowFL(true)
     }
-  }, [focusRole])
+  }, [modeRole])
 
   useEffect(() => {
     const rewards = fitlinkRewards
@@ -162,7 +167,7 @@ export default function page() {
     total: number
     page_total: number
   }> = useQuery(`global_rewards`, async () => {
-    if (focusRole) {
+    if (modeRole) {
       return api.list<RewardEntity>('/rewards', {
         query: {
           limit: 100,
@@ -183,7 +188,7 @@ export default function page() {
     total: number
     page_total: number
   }> = useQuery(`${fetchKey}_rewards`, async () => {
-    if (focusRole === 'organisation' || focusRole === 'team') {
+    if (modeRole === 'organisation' || modeRole === 'team') {
       return api.list<RewardEntity>(
         '/rewards',
         {
@@ -194,7 +199,7 @@ export default function page() {
         },
         {
           primary,
-          useRole: focusRole
+          useRole: modeRole
         }
       )
     }
@@ -243,7 +248,7 @@ export default function page() {
             },
             {
               primary,
-              useRole: focusRole
+              useRole: modeRole
             }
           )
         }
@@ -257,19 +262,24 @@ export default function page() {
 
   return (
     <Dashboard title="Rewards">
-      {focusRole !== 'app' && (
+      {modeRole !== 'app' && (
         <>
           <div className="row ai-c mb-2">
             <div className="col-12 col-lg-8">
               <div className="flex ai-c">
                 <h1 className="light mb-0 mr-2">
-                  {focusRole === 'organisation' ? 'Organisation' : 'Team'}{' '}
+                  {modeRole === 'organisation' ? 'Organisation' : 'Team'}{' '}
                   rewards
                 </h1>
-                <button
-                  className="button alt small mt-1"
-                  onClick={NewRewardForm}>
+                <button className="button small mt-1" onClick={NewRewardForm}>
                   Add new
+                </button>
+                <button
+                  className="button alt small ml-1 mt-1"
+                  onClick={() => {
+                    startTour(REWARD_TOUR_ID)
+                  }}>
+                  Show me how
                 </button>
               </div>
             </div>
@@ -307,7 +317,7 @@ export default function page() {
             <div className="col-12 col-lg-8 flex ai-c">
               <h2 className="h1 light mb-0">Fitlink sponsored rewards</h2>
 
-              {focusRole !== 'app' && (
+              {modeRole !== 'app' && (
                 <p
                   className="ml-1 mt-3 pointer color-light-grey hover-dark-grey flex ai-c"
                   onClick={() => setShowFL(false)}>
@@ -316,7 +326,7 @@ export default function page() {
                 </p>
               )}
 
-              {focusRole === 'app' && (
+              {modeRole === 'app' && (
                 <button
                   className="button alt small ml-1 mt-1"
                   onClick={NewRewardForm}>
@@ -338,7 +348,7 @@ export default function page() {
             </div>
           </div>
           <div className="rewards flex">
-            {focusRole === 'app' && (
+            {modeRole === 'app' && (
               <div className="p-1">
                 <div className="rewards__add" onClick={NewRewardForm}>
                   <IconPlus />
@@ -353,7 +363,7 @@ export default function page() {
                   <Reward
                     {...reward}
                     onClick={() =>
-                      focusRole === 'app'
+                      modeRole === 'app'
                         ? loadReward(r)
                         : loadReadonlyReward(reward)
                     }

@@ -1,3 +1,5 @@
+import locale from 'date-fns/locale/en-US';
+
 type CountdownTime = {
   d: number;
   h: number;
@@ -35,4 +37,42 @@ export function getTimeRemaining(toDate: Date): CountdownTime | 0 {
   };
 
   return timeLeft;
+}
+
+export function formatDistanceShortLocale(token: string, count: any) {
+  const formatDistanceLocale: {[key: string]: string} = {
+    lessThanXSeconds: '{{count}}s',
+    xSeconds: '{{count}}s',
+    halfAMinute: '30s',
+    lessThanXMinutes: '{{count}}m',
+    xMinutes: '{{count}}m',
+    aboutXHours: '{{count}}h',
+    xHours: '{{count}}h',
+    xDays: '{{count}}d',
+    aboutXWeeks: '{{count}}w',
+    xWeeks: '{{count}}w',
+    aboutXMonths: '{{count}}m',
+    xMonths: '{{count}}m',
+    aboutXYears: '{{count}}y',
+    xYears: '{{count}}y',
+    overXYears: '{{count}}y',
+    almostXYears: '{{count}}y',
+  };
+
+  const result = formatDistanceLocale[token].replace('{{count}}', count);
+
+  return result as any;
+}
+
+export function durationToCountDown(duration: Duration) {
+  let result = '';
+
+  function addToResult(amount?: string) {
+    result += (result.length ? ':' : '') + amount;
+  }
+
+  addToResult(duration.minutes?.toString());
+  addToResult(duration.seconds?.toString().padStart(2, '0'));
+
+  return result;
 }

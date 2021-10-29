@@ -31,13 +31,13 @@ export class EmailService {
       template,
       'email-is-sent'
     )
-    console.log(GOOGLE_ANALYTICS_OPEN_EMAIL_URL)
+
     data['GOOGLE_ANALYTICS_OPEN_EMAIL_URL'] = GOOGLE_ANALYTICS_OPEN_EMAIL_URL
     const templatedEmail = new SendTemplatedEmailCommand({
       Destination: {
         ToAddresses: toAddresses
       },
-      Source: fromAddress,
+      Source: `Fitlink <${fromAddress}>`,
       Template: template,
       TemplateData: JSON.stringify(data),
       ReplyToAddresses: [fromAddress],

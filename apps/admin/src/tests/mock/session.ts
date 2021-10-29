@@ -17,4 +17,14 @@ export const mockSessionState = () => {
       }
     ]
   })
+
+  moxios.stubRequest('/me/role', {
+    status: 200,
+    response: {
+      organisation_admin: [],
+      subscription_admin: [],
+      super_admin: true,
+      team_admin: []
+    }
+  })
 }

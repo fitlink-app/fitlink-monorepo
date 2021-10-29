@@ -11,12 +11,15 @@ import {
 import {
   ImagePickerDialogResponse,
   useImagePicker,
+  useStrava,
   useMe,
   useModal,
+  useProviders,
+  useFitbit,
 } from '@hooks';
 import {useNavigation} from '@react-navigation/native';
 import React, {useContext, useState} from 'react';
-import {Keyboard, Platform, ScrollView, View} from 'react-native';
+import {Keyboard, Linking, Platform, ScrollView, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
@@ -25,6 +28,8 @@ import {
   SettingsButton,
   SettingsInput,
   SettingsDropdown,
+  SettingsHealthActivityButton,
+  DeleteAccountModal,
 } from './components';
 import {SettingsItemWrapper} from './components/SettingsItemWrapper';
 import {SettingsItemLabel} from './components/SettingsItemLabel';
@@ -49,6 +54,11 @@ import {
 } from 'redux/settings/settingsSlice';
 import {useEffect} from 'react';
 import {TransitionContext} from 'contexts';
+import Intercom from '@intercom/intercom-react-native';
+import {useCustomProvider} from 'hooks/api/providers/custom';
+import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
+import {GoogleFitWrapper} from 'services/GoogleFit';
+import {AppleHealthKitWrapper} from 'services';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -76,8 +86,35 @@ export const Settings = () => {
   const {showTransition, hideTransition} = useContext(TransitionContext);
 
   const {data: user} = useMe();
+  const {providerList} = useProviders();
 
-  console.log(user?.settings);
+  const {
+    isLinking: isStravaLinking,
+    isUnlinking: isStravaUnlinking,
+    link: linkStrava,
+    unlink: unlinkStrava,
+  } = useStrava();
+
+  const {
+    isLinking: isFitbitLinking,
+    isUnlinking: isFitbitUnlinking,
+    link: linkFitbit,
+    unlink: unlinkFitbit,
+  } = useFitbit();
+
+  const {
+    isLinking: isAppleHealthLinking,
+    isUnlinking: isAppleHealthUnlinking,
+    link: linkAppleHealth,
+    unlink: unlinkAppleHealth,
+  } = useCustomProvider(ProviderType.AppleHealthkit);
+
+  const {
+    isLinking: isGoogleFitLinking,
+    isUnlinking: isGoogleFitUnlinking,
+    link: linkGoogleFit,
+    unlink: unlinkGoogleFit,
+  } = useCustomProvider(ProviderType.GoogleFit);
 
   const settings = useSelector(selectSettings);
   const didSettingsChange = useSelector(selectDidSettingsChange);
@@ -85,12 +122,8 @@ export const Settings = () => {
   const [isInitialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    if (user && !isInitialized) {
+    if (user && providerList && !isInitialized) {
       dispatch(clearChanges());
-
-      console.log('hey');
-      console.log(user?.settings?.newsletter_subscriptions_user);
-      console.log(user.settings);
 
       const newState = {
         name: user?.name || '',
@@ -118,7 +151,7 @@ export const Settings = () => {
 
       setInitialized(true);
     }
-  }, [user]);
+  }, [user, providerList]);
 
   /**
    * We keep track of the goal input values in a local state
@@ -296,10 +329,56 @@ export const Settings = () => {
 
         {/* Linked Trackers */}
         <CategoryLabel>Trackers</CategoryLabel>
-        {Platform.OS === 'android' && <SettingsButton label={'Google Fit'} />}
-        {Platform.OS === 'ios' && <SettingsButton label={'Apple Health'} />}
-        <SettingsButton label={'Strava'} onPress={() => {}} />
-        <SettingsButton label={'Fitbit'} />
+
+        {Platform.OS === 'android' && (
+          <SettingsHealthActivityButton
+            label={'Google Fit'}
+            onLink={() => {
+              linkGoogleFit(() => {
+                GoogleFitWrapper.disconnect();
+                return GoogleFitWrapper.authenticate();
+              });
+            }}
+            onUnlink={() => {
+              GoogleFitWrapper.disconnect();
+              unlinkGoogleFit();
+            }}
+            isLoading={isGoogleFitLinking || isGoogleFitUnlinking}
+            disabled={isGoogleFitLinking || isGoogleFitUnlinking}
+            isLinked={providerList?.includes(ProviderType.GoogleFit)}
+          />
+        )}
+
+        {Platform.OS === 'ios' && (
+          <SettingsHealthActivityButton
+            label={'Apple Health'}
+            onLink={() => {
+              linkAppleHealth(() => AppleHealthKitWrapper.authenticate());
+            }}
+            onUnlink={unlinkAppleHealth}
+            isLoading={isAppleHealthLinking || isAppleHealthUnlinking}
+            disabled={isAppleHealthLinking || isAppleHealthUnlinking}
+            isLinked={providerList?.includes(ProviderType.AppleHealthkit)}
+          />
+        )}
+
+        <SettingsHealthActivityButton
+          label={'Strava'}
+          onLink={linkStrava}
+          onUnlink={unlinkStrava}
+          isLoading={isStravaLinking || isStravaUnlinking}
+          disabled={isStravaLinking || isStravaUnlinking}
+          isLinked={providerList?.includes(ProviderType.Strava)}
+        />
+
+        <SettingsHealthActivityButton
+          label={'Fitbit'}
+          onLink={linkFitbit}
+          onUnlink={unlinkFitbit}
+          isLoading={isFitbitLinking || isFitbitUnlinking}
+          disabled={isFitbitLinking || isFitbitUnlinking}
+          isLinked={providerList?.includes(ProviderType.Fitbit)}
+        />
 
         {/* Goals */}
         <CategoryLabel>Goals</CategoryLabel>
@@ -414,21 +493,15 @@ export const Settings = () => {
         <CategoryLabel>Help</CategoryLabel>
         <SettingsButton
           label={'FAQs'}
-          onPress={() =>
-            navigation.navigate('Webview', {
-              url: 'https://fitlinkapp.com/faq-user',
-              title: 'FAQs',
-            })
-          }
+          onPress={() => Intercom.displayHelpCenter()}
         />
         <SettingsButton
-          label={'Contact Us'}
-          onPress={() =>
-            navigation.navigate('Webview', {
-              url: 'https://fitlinkapp.com/contact-us',
-              title: 'Contact Us',
-            })
-          }
+          label={'E-mail us'}
+          onPress={() => Linking.openURL('mailto:hello@fitlinkapp.com')}
+        />
+        <SettingsButton
+          label={'Chat with us'}
+          onPress={() => Intercom.displayMessenger()}
         />
         <SettingsButton
           label={'About'}
@@ -440,9 +513,12 @@ export const Settings = () => {
           }
         />
 
-        <SettingsButton label={'Report an Issue'} />
+        <SettingsButton
+          label={'Report an Issue'}
+          onPress={() => Intercom.displayMessenger()}
+        />
 
-        <SettingsButton label={`Version 3.0.0`} />
+        <SettingsButton label={`Version 3.0.0`} disabled={true} />
 
         <DeleteButtonWrapper>
           <Button
@@ -455,21 +531,32 @@ export const Settings = () => {
                     title={'Delete Account?'}
                     description={
                       'Are you sure you want to delete your account? This action is irreversible.'
-                    }
-                    buttons={[
-                      {
-                        text: 'Delete My Account',
-                        type: 'danger',
-                        onPress: () => closeModal(id),
-                      },
-                      {
-                        text: 'Back',
-                        textOnly: true,
-                        style: {marginBottom: -10},
-                        onPress: () => closeModal(id),
-                      },
-                    ]}
-                  />
+                    }>
+                    <DeleteAccountModal
+                      onCloseCallback={isDeleted => {
+                        closeModal(id);
+                        if (!isDeleted) return;
+
+                        setTimeout(() => {
+                          openModal(confirmationModalId => {
+                            return (
+                              <Modal
+                                title={'Account Deleted'}
+                                description={'Your account has been deleted!'}
+                                buttons={[
+                                  {
+                                    text: 'Ok',
+                                    onPress: () =>
+                                      closeModal(confirmationModalId),
+                                  },
+                                ]}
+                              />
+                            );
+                          });
+                        }, 250);
+                      }}
+                    />
+                  </Modal>
                 );
               })
             }

@@ -33,13 +33,18 @@ import useCurrencyConversion, {
   Currency
 } from '../../../hooks/useCurrencyConversion'
 import toast from 'react-hot-toast'
+import { SubscriptionType } from '@fitlink/api/src/modules/subscriptions/subscriptions.constants'
+
+const PER_UNIT_PRICE = 5 // 5.00 GBP
 
 export default function SubscriptionsBillingPage() {
   const [drawContent, setDrawContent] = useState<
     React.ReactNode | undefined | false
   >(false)
   const [warning, setWarning] = useState(false)
-  const { api, focusRole, primary, fetchKey } = useContext(AuthContext)
+  const { api, focusRole, modeRole, primary, fetchKey } = useContext(
+    AuthContext
+  )
   const router = useRouter()
   const subscriptionId = useRef<string>()
   const chargeBee = useRef(null)
@@ -60,6 +65,7 @@ export default function SubscriptionsBillingPage() {
         onSave={async () => {
           await closeDrawer()()
           subscription.refetch()
+          chargebeeSubscription.refetch()
         }}
       />
     )
@@ -91,7 +97,7 @@ export default function SubscriptionsBillingPage() {
   })
 
   const chargebeeSubscription = useQuery(
-    `get_chargebee_subscription_${fetchKey}`,
+    `get_chargebee_subscription`,
     () => {
       return api.get<{
         subscription: ChargebeeSubscription
@@ -109,7 +115,9 @@ export default function SubscriptionsBillingPage() {
       )
     },
     {
-      enabled: false
+      enabled: false,
+      retry: false,
+      cacheTime: 0
     }
   )
 
@@ -141,7 +149,7 @@ export default function SubscriptionsBillingPage() {
   }
 
   const paymentSources = useQuery(
-    `payment_sources_${fetchKey}`,
+    `payment_sources`,
     () => {
       return api.list<PaymentSource>(
         '/subscriptions/:subscriptionId/chargebee/payment-sources',
@@ -155,12 +163,14 @@ export default function SubscriptionsBillingPage() {
       )
     },
     {
-      enabled: false
+      enabled: false,
+      retry: false,
+      cacheTime: 0
     }
   )
 
   const invoices = useQuery(
-    `invoices_${fetchKey}`,
+    `invoices`,
     () => {
       return api.list<Invoice>(
         '/subscriptions/:subscriptionId/chargebee/invoices',
@@ -174,12 +184,14 @@ export default function SubscriptionsBillingPage() {
       )
     },
     {
-      enabled: false
+      enabled: false,
+      retry: false,
+      cacheTime: 0
     }
   )
 
   const subscription = useQuery(
-    `subscription_${fetchKey}`,
+    `subscription`,
     () => {
       return api.get<Subscription>(
         '/subscriptions/:subscriptionId',
@@ -194,25 +206,24 @@ export default function SubscriptionsBillingPage() {
     },
     {
       enabled: false,
-      initialData: {} as Subscription
+      initialData: {} as Subscription,
+      cacheTime: 0
     }
   )
 
   useEffect(() => {
-    if (router.isReady && focusRole) {
-      console.log(JSON.stringify([focusRole, primary]))
+    if (router.isReady && modeRole) {
       subscriptionId.current = router.query.id as string
       paymentSources.refetch()
       subscription.refetch()
       invoices.refetch()
       chargebeeSubscription.refetch()
     }
-  }, [router.isReady, focusRole])
+  }, [router.isReady, modeRole])
 
   useEffect(() => {
     if (typeof window !== 'undefined' && chargeBeeStatus === 'ready') {
       const chargebee = (window as any).Chargebee
-      console.log(chargebee)
       if (chargebee) {
         chargeBee.current = chargebee.init({
           site: 'fitlinkapp-test',
@@ -250,22 +261,37 @@ export default function SubscriptionsBillingPage() {
     }
   }
 
-  const { formatAmount, amount } = useCurrencyConversion(
-    5,
-    chargebeeSubscription.isFetched
-      ? (chargebeeSubscription.data.subscription.currency_code as Currency)
+  const { convertGbp } = useCurrencyConversion(
+    chargebeeSubscription.isSuccess
+      ? (chargebeeSubscription.data.customer
+          .preferred_currency_code as Currency)
       : 'GBP'
   )
 
   const userCount = subscription.data.user_count || 1
 
+  if (
+    !subscription.isFetching &&
+    subscription.isSuccess &&
+    subscription.data.type === SubscriptionType.Free
+  ) {
+    return (
+      <Dashboard title="Billing">
+        <h1 className="light">Billing</h1>
+        <div className="row mt-2">
+          <Feedback message="You are on a free subscription. No billing information is required." />
+        </div>
+      </Dashboard>
+    )
+  }
+
   return (
-    <Dashboard title="Billing">
+    <Dashboard title="Billing" loading={subscription.isFetching}>
       <h1 className="light">Billing</h1>
       <div className="row mt-2">
         <div className="col-12 col-lg-6 mt-2">
           <Card className="p-3 card--stretch">
-            {chargebeeSubscription.isFetched &&
+            {chargebeeSubscription.isSuccess &&
               !chargebeeSubscription.data.subscription && (
                 <div>
                   <Feedback
@@ -275,44 +301,51 @@ export default function SubscriptionsBillingPage() {
                   />
                 </div>
               )}
-            {chargebeeSubscription.isSuccess && (
-              <>
-                <div className="flex ai-c mt-1">
-                  <p className="mb-0 mr-2">
-                    <small>
-                      Estimated monthly bill for period ending:{' '}
-                      {format(
-                        endOfMonth(
-                          chargebeeSubscription.data.subscription
-                            .next_billing_at * 1000
-                        ),
-                        'do MMMM, yyyy'
-                      )}
-                    </small>
-                  </p>
-                  <h2 className="h1 light mb-0 ml-a unbilled-amount">
-                    {formatAmount(
-                      (chargebeeSubscription.data.subscription.plan_unit_price /
-                        100) *
-                        chargebeeSubscription.data.subscription.plan_quantity
-                    )}
-                  </h2>
-                </div>
-                <table className="static-table static-table--invoice">
-                  <tbody>
-                    <tr>
-                      <td>Active users</td>
-                      <td>{userCount}</td>
-                      <td className="text-right">{formatAmount(amount)}</td>
-                      <td className="text-right pr-1">
-                        {formatAmount(amount * userCount)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <hr />
-              </>
-            )}
+            {chargebeeSubscription.isSuccess &&
+              !chargebeeSubscription.isLoading && (
+                <>
+                  {chargebeeSubscription.data.subscription.next_billing_at && (
+                    <div className="flex ai-c mt-1">
+                      <p className="mb-0 mr-2">
+                        <small>
+                          Estimated monthly bill for period ending:{' '}
+                          {format(
+                            endOfMonth(
+                              chargebeeSubscription.data.subscription
+                                .next_billing_at * 1000
+                            ),
+                            'do MMMM, yyyy'
+                          )}
+                        </small>
+                      </p>
+                      <h2 className="h1 light mb-0 ml-a unbilled-amount">
+                        {convertGbp(
+                          (chargebeeSubscription.data.subscription
+                            .plan_unit_price /
+                            100) *
+                            chargebeeSubscription.data.subscription
+                              .plan_quantity
+                        )}
+                      </h2>
+                    </div>
+                  )}
+                  <table className="static-table static-table--invoice">
+                    <tbody>
+                      <tr>
+                        <td>Active users</td>
+                        <td>{userCount}</td>
+                        <td className="text-right">
+                          {convertGbp(PER_UNIT_PRICE)}
+                        </td>
+                        <td className="text-right pr-1">
+                          {convertGbp(PER_UNIT_PRICE * userCount)}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <hr />
+                </>
+              )}
             <h3 className="h5 color-light-grey m-0">Latest invoices</h3>
             <div className="invoices mt-2">
               <TableContainer
@@ -333,7 +366,7 @@ export default function SubscriptionsBillingPage() {
                 ]}
                 hidePagination={true}
                 fetch={() => {
-                  if (invoices.isFetched) {
+                  if (invoices.isSuccess && !invoices.isStale) {
                     return Promise.resolve(invoices.data)
                   }
                   return Promise.resolve({
@@ -349,13 +382,13 @@ export default function SubscriptionsBillingPage() {
         </div>
         <div className="col-12 col-lg-6 mt-2">
           <Card className="p-3 card--stretch">
-            {subscription.isFetched &&
+            {subscription.isSuccess &&
               subscription.data.billing_plan_customer_id && (
                 <>
                   <h2 className="h5 color-light-grey m-0">
                     Payment information
                   </h2>
-                  {paymentSources.isFetched &&
+                  {paymentSources.isSuccess &&
                   paymentSources.data.results.length === 0 ? (
                     <Feedback
                       type="error"
@@ -363,9 +396,9 @@ export default function SubscriptionsBillingPage() {
                       message="No payment method enabled. Please update your payment information."
                     />
                   ) : null}
-                  {paymentSources.isFetched
+                  {paymentSources.isSuccess
                     ? paymentSources.data.results.map((e) => (
-                        <div className="row mt-2">
+                        <div className="row mt-2" key={e.id}>
                           {e.card && (
                             <>
                               <div className="col-2 text-center color-light-grey">
@@ -415,6 +448,10 @@ export default function SubscriptionsBillingPage() {
               className={`static-table static-table--billing mt-2 billing-form`}>
               <tbody>
                 <tr>
+                  <th>Company / Entity</th>
+                  <td>{subscription.data.billing_entity || '-'}</td>
+                </tr>
+                <tr>
                   <th>First name</th>
                   <td>{subscription.data.billing_first_name || '-'}</td>
                 </tr>
@@ -461,7 +498,7 @@ export default function SubscriptionsBillingPage() {
               <button
                 className="button"
                 onClick={EditBilling}
-                disabled={!subscription.isFetched}>
+                disabled={subscription.isLoading}>
                 Update billing information
               </button>
             </div>

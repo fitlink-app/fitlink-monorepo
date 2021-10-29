@@ -8,6 +8,7 @@ export type ButtonProps = {
   className?: string
   external?: boolean
   disabled?: boolean
+  type?: 'button' | 'submit' | 'reset'
   onClick?: () => void
 }
 
@@ -18,6 +19,7 @@ export default function Button({
   className = '',
   external = false,
   disabled = false,
+  type = 'button',
   onClick = () => false
 }: ButtonProps) {
   const classes = clsx({
@@ -47,7 +49,11 @@ export default function Button({
   }
 
   return (
-    <button disabled={disabled} className={classes} onClick={onClick}>
+    <button
+      disabled={disabled}
+      className={classes}
+      onClick={onClick}
+      type={type}>
       {label}
     </button>
   )

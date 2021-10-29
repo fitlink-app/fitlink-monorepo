@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { PrimaryGeneratedColumn, Entity, ManyToOne, Column } from 'typeorm'
+import {
+  PrimaryGeneratedColumn,
+  Entity,
+  ManyToOne,
+  Column,
+  JoinColumn
+} from 'typeorm'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 import { Organisation } from '../../organisations/entities/organisation.entity'
 import { Subscription } from '../../subscriptions/entities/subscription.entity'
@@ -14,6 +20,7 @@ export class UserRole extends CreatableEntity {
   id: string
 
   @ManyToOne(() => User, (user) => user.roles)
+  @JoinColumn()
   user: User
 
   @ApiProperty({

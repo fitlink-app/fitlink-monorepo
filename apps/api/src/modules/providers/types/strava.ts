@@ -98,6 +98,9 @@ export type StravaActivity = {
     id: number
   }
 
+  /** The name of the activity, e.g. "Chill day" */
+  name: string
+
   /** Activity type */
   type: StravaActivityType
 

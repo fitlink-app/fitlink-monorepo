@@ -7,13 +7,20 @@ import {
 import {AuthResultDto} from '@fitlink/api-sdk/types';
 import {RootState} from '../reducer';
 import {REHYDRATE} from 'redux-persist';
-import api, {getErrors} from '@api';
+import api, {deleteCurrentToken, getErrors} from '@api';
 import {queryClient, QueryKeys} from '@query';
 import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
-import {LOGOUT, SIGN_IN, SIGN_IN_APPLE, SIGN_IN_GOOGLE, SIGN_UP} from './keys';
+import {
+  DELETE_ACCOUNT,
+  LOGOUT,
+  SIGN_IN,
+  SIGN_IN_APPLE,
+  SIGN_IN_GOOGLE,
+  SIGN_UP,
+} from './keys';
 import {AuthProviderType} from '@fitlink/api/src/modules/auth/auth.constants';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import appleAuth from '@invertase/react-native-apple-authentication';
+import {AppleRequestResponse} from '@invertase/react-native-apple-authentication';
 import {flushPersistedQueries} from 'query/QueryPersistor';
 
 type Credentials = {
@@ -60,19 +67,8 @@ export const signIn = createAsyncThunk(
 
 export const signInWithGoogle = createAsyncThunk(
   SIGN_IN_GOOGLE,
-  async (_, {rejectWithValue}) => {
-    // TODO: Move this to env/config file
-    GoogleSignin.configure({
-      webClientId:
-        '369193601741-o9ao2iqikmcm0fte2t4on85hrni4dsjc.apps.googleusercontent.com',
-      iosClientId:
-        '369193601741-bkluos3jpe42b0a5pqfuv7lg5f640n8t.apps.googleusercontent.com',
-    });
-
+  async (idToken: string, {rejectWithValue}) => {
     await GoogleSignin.signOut();
-
-    // Get the users ID token
-    const {idToken} = await GoogleSignin.signIn();
 
     //Authenticate token on backend against Google, get back JWT
     if (idToken) {
@@ -82,7 +78,7 @@ export const signInWithGoogle = createAsyncThunk(
           provider: AuthProviderType.Google,
         });
         return auth;
-      } catch (e) {
+      } catch (e: any) {
         return rejectWithValue(getErrors(e).message);
       }
     }
@@ -91,18 +87,12 @@ export const signInWithGoogle = createAsyncThunk(
 
 export const signInWithApple = createAsyncThunk(
   SIGN_IN_APPLE,
-  async (_, {rejectWithValue}) => {
-    // Start the sign-in request
-    const appleAuthRequestResponse = await appleAuth.performRequest({
-      requestedOperation: appleAuth.Operation.LOGIN,
-      requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
-    });
-
+  async (authRequestResponse: AppleRequestResponse, {rejectWithValue}) => {
     // Ensure Apple returned a user identityToken
-    if (!appleAuthRequestResponse.identityToken)
+    if (!authRequestResponse.identityToken)
       throw Error('Apple Sign-In failed - no identify token returned');
 
-    const {authorizationCode} = appleAuthRequestResponse;
+    const {authorizationCode} = authRequestResponse;
 
     if (authorizationCode) {
       try {
@@ -112,7 +102,7 @@ export const signInWithApple = createAsyncThunk(
         });
 
         return auth;
-      } catch (e) {
+      } catch (e: any) {
         return rejectWithValue(getErrors(e).message);
       }
     }
@@ -125,9 +115,28 @@ export const logout = createAsyncThunk(
     try {
       dispatch(clearAuthResult());
       flushPersistedQueries();
+
+      await Promise.all([
+        queryClient.removeQueries(),
+        deleteCurrentToken(),
+        api.logout(),
+      ]);
+    } catch (e: any) {
+      return getErrors(e);
+    }
+  },
+);
+
+export const deleteAccount = createAsyncThunk(
+  DELETE_ACCOUNT,
+  async (_, {dispatch}) => {
+    try {
+      dispatch(clearAuthResult());
+      flushPersistedQueries();
+      await api.delete(`/me`);
       queryClient.removeQueries();
-      await api.logout();
-    } catch (e) {
+      api.logout();
+    } catch (e: any) {
       return getErrors(e);
     }
   },
@@ -170,6 +179,11 @@ const authSlice = createSlice({
 
       // Google Signin reducers
       .addCase(signInWithGoogle.fulfilled, (state, {payload}) => {
+        if (payload) state.authResult = payload;
+      })
+
+      // Apple Signin reducers
+      .addCase(signInWithApple.fulfilled, (state, {payload}) => {
         if (payload) state.authResult = payload;
       })
 

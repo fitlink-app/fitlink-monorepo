@@ -55,6 +55,26 @@ import { SubscriptionsInvitations1631698836263 } from '../database/migrations/16
 import { AddBillingEmail1632294093767 } from '../database/migrations/1632294093767-AddBillingEmail'
 import { AddBillingSubscriptionId1632316578136 } from '../database/migrations/1632316578136-AddBillingSubscriptionId'
 import { AddTeamJoinCode1632688836338 } from '../database/migrations/1632688836338-AddTeamJoinCode'
+import { AddFeedItemLikes1632753932139 } from '../database/migrations/1632753932139-AddFeedItemLikes'
+import { OrganisationMode1632771719624 } from '../database/migrations/1632771719624-OrganisationMode'
+import { AddPages1633257728285 } from '../database/migrations/1633257728285-AddPages'
+import { DomainUnique1633275502651 } from '../database/migrations/1633275502651-DomainUnique'
+import { AddNotifications1633364006103 } from '../database/migrations/1633364006103-AddNotifications'
+import { AddHealthActivityTitle1633862053877 } from '../database/migrations/1633862053877-AddHealthActivityTitle'
+import { AddSportsPace1633869946687 } from '../database/migrations/1633869946687-AddSportsPace'
+import { AddImageUrlSport1633944959171 } from '../database/migrations/1633944959171-AddImageUrlSport'
+import { AddUserMobileOS1634031981765 } from '../database/migrations/1634031981765-AddUserMobileOS'
+import { AddIconSvgToSport1634129894631 } from '../database/migrations/1634129894631-AddIconSvgToSport'
+import { SportIconUrl1634290863881 } from '../database/migrations/1634290863881-SportIconUrl'
+import { AddGoalsNotifyDate1634470806764 } from '../database/migrations/1634470806764-AddGoalsNotifyDate'
+import { AddPushSuccessBoolean1634571990161 } from '../database/migrations/1634571990161-AddPushSuccessBoolean'
+import { AddGoalPercentage1634574422239 } from '../database/migrations/1634574422239-AddGoalPercentage'
+import { AddHealthActivityDebug1634725916904 } from '../database/migrations/1634725916904-AddHealthActivityDebug'
+import { AddTermsOrgs1634801771315 } from '../database/migrations/1634801771315-AddTermsOrgs'
+import { AddLeagueInvitationsCount1634817986873 } from '../database/migrations/1634817986873-AddLeagueInvitationsCount'
+import { DropForeignKeyConstraintsProvider1634852256096 } from '../database/migrations/1634852256096-DropForeignKeyConstraintsProvider'
+import { AddDateToFeedItem1634895631070 } from '../database/migrations/1634895631070-AddDateToFeedItem'
+import { FixAvatarId1634980861273 } from '../database/migrations/1634980861273-FixAvatarId'
 
 export default [
   InitializeSchema1614887523112,
@@ -108,5 +128,25 @@ export default [
   SubscriptionsInvitations1631698836263,
   AddBillingEmail1632294093767,
   AddBillingSubscriptionId1632316578136,
-  AddTeamJoinCode1632688836338
+  AddTeamJoinCode1632688836338,
+  AddFeedItemLikes1632753932139,
+  OrganisationMode1632771719624,
+  AddPages1633257728285,
+  DomainUnique1633275502651,
+  AddNotifications1633364006103,
+  AddHealthActivityTitle1633862053877,
+  AddSportsPace1633869946687,
+  AddImageUrlSport1633944959171,
+  AddUserMobileOS1634031981765,
+  AddIconSvgToSport1634129894631,
+  SportIconUrl1634290863881,
+  AddGoalsNotifyDate1634470806764,
+  AddPushSuccessBoolean1634571990161,
+  AddGoalPercentage1634574422239,
+  AddHealthActivityDebug1634725916904,
+  AddTermsOrgs1634801771315,
+  AddLeagueInvitationsCount1634817986873,
+  DropForeignKeyConstraintsProvider1634852256096,
+  AddDateToFeedItem1634895631070,
+  FixAvatarId1634980861273
 ]

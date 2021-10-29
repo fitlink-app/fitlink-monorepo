@@ -68,11 +68,6 @@ describe('Login', () => {
       }
     })
 
-    moxios.stubRequest('/me/roles', {
-      status: 200,
-      response: []
-    })
-
     const push = jest.fn()
     useRouter.mockImplementation(() => ({
       push,

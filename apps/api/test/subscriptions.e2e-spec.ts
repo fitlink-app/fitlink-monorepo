@@ -276,6 +276,12 @@ describe('Subscriptions', () => {
       const anotherSubscription = seed[0]
       const { organisation, id } = anotherSubscription
 
+      // Add a default to allow deletion
+      await SubscriptionsSetup('Test Subscription', 1, {
+        default: true,
+        organisation: organisation
+      })
+
       // Remove assigned users
       await connection.getRepository(User).update(
         {
@@ -309,6 +315,12 @@ describe('Subscriptions', () => {
 
     const anotherSubscription = seed[0]
     const { organisation, id } = anotherSubscription
+
+    // Add a default to allow deletion
+    await SubscriptionsSetup('Test Subscription', 1, {
+      default: true,
+      organisation: organisation
+    })
 
     // Remove assigned users
     await connection.getRepository(User).update(
@@ -389,8 +401,6 @@ describe('Subscriptions', () => {
         default: true
       }
     })
-
-    console.log(result.json())
 
     expect(result.statusCode).toBe(200)
 

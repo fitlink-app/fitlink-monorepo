@@ -15,19 +15,23 @@ import { FeedItemsModule } from '../feed-items/feed-items.module'
 import { NewFollowerListener } from './listeners/NewFollowerListener'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { UserActiveMinutesIncrementedListener } from './listeners/UserActiveMinutesIncrementedListener'
+import { NotificationsModule } from '../notifications/notifications.module'
+import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
 
 @Module({
   imports: [
     CommonModule,
     TypeOrmModule.forFeature([User, AuthProvider]),
     ConfigModule,
-    FeedItemsModule,
+    forwardRef(() => FeedItemsModule),
     HttpModule,
     // forward ref rewards module because of the circular dependency
     forwardRef(() => RewardsModule),
     UserRolesModule,
     EventEmitter2,
     UsersInvitationsModule,
+    NotificationsModule,
+    forwardRef(() => GoalsEntriesModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

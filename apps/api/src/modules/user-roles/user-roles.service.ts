@@ -54,7 +54,7 @@ export class UserRolesService {
   }
 
   async getAllUserRoles(id: string) {
-    return await this.userRoleRepository.find({
+    const results = await this.userRoleRepository.find({
       where: {
         user: {
           id
@@ -64,9 +64,16 @@ export class UserRolesService {
         'organisation',
         'team',
         'subscription',
-        'subscription.organisation'
-      ]
+        'subscription.organisation',
+        'organisation.teams',
+        'organisation.subscriptions'
+      ],
+      order: {
+        created_at: 'ASC'
+      }
     })
+
+    return results
   }
 
   async update(
@@ -169,7 +176,7 @@ export class UserRolesService {
   }
 
   filterDto(dto: CreateUserRoleDto) {
-    let arr = Object.keys(dto)
+    const arr = Object.keys(dto)
     let entity: {
       [key: string]: string
     } = {}

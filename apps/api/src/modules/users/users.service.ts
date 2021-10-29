@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { formatRoles } from '../../helpers/formatRoles'
-import { Repository } from 'typeorm'
+import { Repository, Brackets } from 'typeorm'
 import { JWTRoles } from '../../models'
 import { UserRolesService } from '../user-roles/user-roles.service'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -11,7 +11,6 @@ import { User, UserPublic } from './entities/user.entity'
 import { Image } from '../images/entities/image.entity'
 import { ImageType } from '../images/images.constants'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
-import { plainToClass } from 'class-transformer'
 import { JwtService } from '@nestjs/jwt'
 import { EmailService } from '../common/email.service'
 import { EmailResetJWT } from '../../models/email-reset.jwt.model'
@@ -22,6 +21,34 @@ import { ImagesService } from '../images/images.service'
 import { FilterUserDto } from './dto/search-user.dto'
 import { UserRank } from './users.constants'
 import { Roles } from '../user-roles/user-roles.constants'
+import { HealthActivity } from '../health-activities/entities/health-activity.entity'
+import {
+  subDays,
+  differenceInMilliseconds,
+  startOfWeek,
+  isMonday
+} from 'date-fns'
+import { CommonService } from '../common/services/common.service'
+import { NotificationsService } from '../notifications/notifications.service'
+import { NotificationAction } from '../notifications/notifications.constants'
+import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
+import { League } from '../leagues/entities/league.entity'
+import { LeaguesInvitation } from '../leagues-invitations/entities/leagues-invitation.entity'
+import { RewardsRedemption } from '../rewards-redemptions/entities/rewards-redemption.entity'
+import { Following } from '../followings/entities/following.entity'
+import { FeedItem } from '../feed-items/entities/feed-item.entity'
+import { FeedItemLike } from '../feed-items/entities/feed-item-like.entity'
+import { GoalsEntry } from '../goals-entries/entities/goals-entry.entity'
+import { Notification } from '../notifications/entities/notification.entity'
+import { UserRole } from '../user-roles/entities/user-role.entity'
+import { Provider } from '../providers/entities/provider.entity'
+import { Activity } from '../activities/entities/activity.entity'
+import { TeamsInvitation } from '../teams-invitations/entities/teams-invitation.entity'
+import { HealthActivityDebug } from '../health-activities/entities/health-activity-debug.entity'
+import { zonedStartOfDay } from '../../../../common/date/helpers'
+import { addHours } from 'date-fns'
+import { DeepLinkType } from '../../constants/deep-links'
+import { GoalsEntriesService } from '../goals-entries/goals-entries.service'
 
 type EntityOwner = {
   organisationId?: string
@@ -40,7 +67,10 @@ export class UsersService {
     private jwtService: JwtService,
     private emailService: EmailService,
     private configService: ConfigService,
-    private imageService: ImagesService
+    private imageService: ImagesService,
+    private commonService: CommonService,
+    private notificationsService: NotificationsService,
+    private goalsService: GoalsEntriesService
   ) {}
 
   async getRolesForToken(user: User): Promise<JWTRoles> {
@@ -182,6 +212,7 @@ export class UsersService {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.settings', 'settings')
       .leftJoinAndSelect('user.avatar', 'avatar')
+      .leftJoinAndSelect('user.providers', 'providers')
       .take(limit)
       .skip(page * limit)
 
@@ -217,9 +248,43 @@ export class UsersService {
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<User>({
-      results,
+      results: results.map((result) => ({
+        ...result,
+        providers: result.providers.map((p) => ({
+          id: p.id,
+          type: p.type
+        }))
+      })),
       total
     })
+  }
+
+  async findUserDetail(userId: string, teamId: string) {
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['teams', 'leagues', 'rewards_redemptions']
+    })
+
+    // If the user does not exist or is missing from this team.
+    if (!user || user.teams.filter((team) => team.id === teamId).length === 0) {
+      return false
+    }
+
+    const activity = await this.userRepository.manager
+      .getRepository(HealthActivity)
+      .findOne({
+        where: {
+          user: { id: userId }
+        },
+        order: {
+          created_at: 'DESC'
+        },
+        relations: ['sport']
+      })
+
+    return {
+      user,
+      activity
+    }
   }
 
   /**
@@ -311,20 +376,23 @@ export class UsersService {
   ) {
     let query = this.userRepository
       .createQueryBuilder('user')
+      .leftJoinAndSelect('user.avatar', 'avatar')
       .leftJoinAndSelect('user.following', 'f1', 'f1.follower.id = :userId', {
         userId
       })
       .leftJoinAndSelect('user.followers', 'f2', 'f2.following.id = :userId', {
         userId
       })
+      .leftJoinAndSelect('user.leagues', 'leagues')
+      .leftJoinAndSelect('user.teams', 'teams')
       .take(limit)
       .skip(page * limit)
 
     // Precision search by email
     if (keyword.indexOf('@') > 0) {
-      query = query.where('email = :keyword', { keyword })
+      query = query.where('user.email = :keyword', { keyword })
     } else if (keyword) {
-      query = query.where('name ILIKE :keyword AND user.id != :userId', {
+      query = query.where('user.name ILIKE :keyword AND user.id != :userId', {
         keyword: `%${keyword}%`,
         userId
       })
@@ -333,7 +401,7 @@ export class UsersService {
     const [results, total] = await query.getManyAndCount()
 
     return new Pagination<UserPublic>({
-      results: results.map(this.getUserPublic),
+      results: this.commonService.mapUserPublic(results),
       total
     })
   }
@@ -349,30 +417,39 @@ export class UsersService {
   }
 
   /**
-   * Formats the user entity as UserPublic
-   * to prevent leaked sensitive data.
-   *
-   * @param user
-   * @returns UserPublic
+   * Store only unique FCM tokens
+   * @param userId
+   * @param tokens
+   * @returns
    */
-  getUserPublic(user: User) {
-    const userPublic = (user as unknown) as UserPublic
-
-    /**
-     * NOTE: in this scenario, following is used to determine
-     * if the authenticated user is following the given user entity.
-     */
-    userPublic.following = Boolean(user.following && user.following.length)
-
-    /**
-     * NOTE: in this scenario, follower is used to determine
-     * if the authenticated user is being followed by the
-     * given user entity.
-     */
-    userPublic.follower = Boolean(user.followers && user.followers.length)
-    return plainToClass(UserPublic, userPublic, {
-      excludeExtraneousValues: true
+  async mergeFcmTokens(userId: string, token: string) {
+    const user = await this.userRepository.findOne(userId)
+    const tokens = user.fcm_tokens || []
+    const fcm_tokens = [...new Set(tokens.concat([token]))]
+    return this.userRepository.update(userId, {
+      fcm_tokens,
+      last_app_opened_at: new Date()
     })
+  }
+
+  /**
+   * Remove a particular token from the array
+   * (e.g. on logout)
+   * @param userId
+   * @param tokens
+   * @returns
+   */
+  async removeFcmToken(userId: string, token: string) {
+    const user = await this.userRepository.findOne(userId)
+    const tokens = user.fcm_tokens || []
+    const fcm_tokens = tokens.filter((t) => t !== token)
+    await this.userRepository.update(userId, {
+      fcm_tokens
+    })
+
+    return {
+      removed: tokens.length - fcm_tokens.length
+    }
   }
 
   /**
@@ -381,9 +458,9 @@ export class UsersService {
    * @param options
    * @returns
    */
-  findOne(id: string) {
+  async findOne(id: string) {
     return this.userRepository.findOne(id, {
-      relations: ['settings', 'avatar']
+      relations: ['settings', 'avatar', 'teams']
     })
   }
 
@@ -420,15 +497,28 @@ export class UsersService {
    */
   async findPublic(userId: string, viewerId: string) {
     const user = await this.findForViewer(userId, viewerId)
-    return this.getUserPublic(user)
+    return this.commonService.getUserPublic(user)
   }
 
-  update(id: string, update: UpdateUserDto) {
-    return this.userRepository.update(id, update)
+  async update(id: string, payload: UpdateUserDto) {
+    const update: Partial<User> = { ...payload }
+    if (update.onboarded) {
+      update.last_onboarded_at = new Date()
+    }
+
+    const result = await this.userRepository.update(id, update)
+    await this.goalsService.updateTargets(id)
+    return result
+  }
+
+  ping(id: string) {
+    return this.userRepository.update(id, {
+      last_app_opened_at: new Date()
+    })
   }
 
   updateBasic(id: string, { imageId, ...rest }: UpdateBasicUserDto) {
-    let update: Partial<User> = { ...rest }
+    const update: Partial<User> = { ...rest }
 
     if (imageId) {
       update.avatar = new Image()
@@ -542,8 +632,22 @@ export class UsersService {
     return false
   }
 
+  generatePostEmailVerifyLink() {
+    return this.commonService.generateDynamicLink(
+      DeepLinkType.EmailVerification,
+      {},
+      this.configService.get('DASHBOARD_URL') + '/login'
+    )
+  }
+
   /**
-   * Sends a JWT-based email verification link to the email address
+   * Sends a JWT-based email verification link to the email address.
+   *
+   * This is a deep link which on desktop will be
+   * routed to the browser app at https://my.fitlinkapp.com
+   *
+   * On mobile, it will deep link into the app
+   *
    * @param id
    * @param email
    * @returns
@@ -561,13 +665,13 @@ export class UsersService {
       secret: this.configService.get('EMAIL_JWT_TOKEN_SECRET')
     })
 
-    const EMAIL_VERIFICATION_LINK = this.configService
+    const link = this.configService
       .get('EMAIL_VERIFICATION_URL')
       .replace('{token}', token)
 
     return this.emailService.sendTemplatedEmail(
       'email-verification',
-      { EMAIL_VERIFICATION_LINK },
+      { EMAIL_VERIFICATION_LINK: link },
       [email]
     )
   }
@@ -582,13 +686,6 @@ export class UsersService {
     return this.userRepository.update(id, {
       avatar: null
     })
-  }
-
-  // TODO: User removal is more complex
-  // and requires that their relationships are
-  // destroyed first in order. This will require a transaction.
-  remove(id: string) {
-    return this.userRepository.delete(id)
   }
 
   /**
@@ -646,8 +743,11 @@ export class UsersService {
 
   async calculateUserRank(userId: string) {
     const user = await this.userRepository.findOne(userId)
-    const average = Math.ceil(user.active_minutes_week / 7)
+    return this.calculateUserRankFromMinutes(user.active_minutes_week)
+  }
 
+  calculateUserRankFromMinutes(minutes: number) {
+    const average = Math.ceil(minutes / 7)
     return isNaN(average) || !average || average <= 10
       ? UserRank.Tier1
       : average <= 30
@@ -655,5 +755,296 @@ export class UsersService {
       : average <= 50
       ? UserRank.Tier3
       : UserRank.Tier4
+  }
+
+  /**
+   * We only care about changing ranks
+   * on users that have been active in the last
+   * 8 days. If they haven't been active, their rank
+   * will have already dropped to the lowest.
+   *
+   * TODO: This doesn't yet take into account the user's
+   * timezone.
+   */
+  async processPendingRankDrops() {
+    const started = new Date()
+
+    const Tier2Minutes = 10 * 7
+    const Tier3Minutes = 30 * 7
+    const Tier4Minutes = 50 * 7
+
+    const usersToDropRank = await this.userRepository
+      .createQueryBuilder('user')
+      // .where("user.last_health_activity_at >= :prev", { prev: subDays(new Date(), 8) })
+      .where('week_reset_at < :start', { start: startOfWeek(new Date()) })
+      .andWhere('user.rank != :tier1', { tier1: UserRank.Tier1 })
+      .andWhere(
+        new Brackets((qb) => {
+          return qb
+            .where(
+              'user.rank = :tier2 AND user.active_minutes_week < :tier2minutes',
+              {
+                tier2: UserRank.Tier2,
+                tier2minutes: Tier2Minutes
+              }
+            )
+            .orWhere(
+              'user.rank = :tier3 AND user.active_minutes_week < :tier3minutes',
+              {
+                tier3: UserRank.Tier3,
+                tier3minutes: Tier3Minutes
+              }
+            )
+            .orWhere(
+              'user.rank = :tier4 AND user.active_minutes_week < :tier4minutes',
+              {
+                tier4: UserRank.Tier4,
+                tier4minutes: Tier4Minutes
+              }
+            )
+        })
+      )
+      .getMany()
+
+    const { updated, users } = await this.userRepository.manager.transaction(
+      async (manager) => {
+        const repo = manager.getRepository(User)
+        const users = await Promise.all(
+          usersToDropRank.map(async (user) => {
+            const rank = this.calculateUserRankFromMinutes(
+              user.active_minutes_week
+            )
+            await repo.update(user.id, { rank })
+            return { user, rank }
+          })
+        )
+
+        const updated = await manager
+          .createQueryBuilder()
+          .update(User)
+          .set({
+            active_minutes_week: 0,
+            week_reset_at: new Date()
+          })
+          .execute()
+
+        return {
+          updated,
+          users
+        }
+      }
+    )
+
+    const messages = await Promise.all(
+      users.map((withRank) => {
+        return this.notificationsService.sendAction(
+          [withRank.user],
+          NotificationAction.RankDown,
+          {
+            subject: withRank.rank
+          }
+        )
+      })
+    )
+
+    await this.commonService.notifySlackJobs(
+      'Rank drop',
+      {
+        dropped: usersToDropRank.length,
+        updated,
+        messages: messages
+      },
+      differenceInMilliseconds(started, new Date())
+    )
+
+    return {
+      count: usersToDropRank.length
+    }
+  }
+
+  /**
+   * For users that haven't exercised in more than
+   * 4 days we push a notification on Mondays.
+   */
+  async processMondayMorningReminder() {
+    const now = new Date()
+
+    // Ensure this only ever runs on Monday
+    if (!isMonday(now)) {
+      return false
+    }
+
+    const started = new Date()
+    const users = await this.userRepository
+      .createQueryBuilder('user')
+      .where(
+        'last_lifestyle_activity_at IS NULL OR last_lifestyle_activity_at < :prev',
+        { prev: subDays(new Date(), 4) }
+      )
+      .andWhere('onboarded = true')
+      .getMany()
+
+    const eligible = users.filter((e) => {
+      // Notify users between 7am - 9am.
+      const am7 = addHours(zonedStartOfDay(e.timezone, now), 7)
+      const am9 = addHours(zonedStartOfDay(e.timezone, now), 9)
+      return now >= am7 && now < am9 && e.fcm_tokens && e.fcm_tokens.length
+    })
+
+    const messages = await this.notificationsService.sendAction(
+      eligible,
+      NotificationAction.MondayReminder
+    )
+
+    await this.commonService.notifySlackJobs(
+      'Monday morning update',
+      {
+        notified_total: eligible.length,
+        messages: messages
+      },
+      differenceInMilliseconds(started, new Date())
+    )
+
+    return {
+      total: eligible.length,
+      messages
+    }
+  }
+
+  async remove(id: string) {
+    const user = await this.userRepository.findOne(id, {
+      relations: ['roles']
+    })
+
+    if (!user) {
+      return false
+    }
+
+    return this.userRepository.manager.transaction(async (manager) => {
+      // Remove feed items
+      await manager.getRepository(FeedItemLike).delete({
+        user: { id }
+      }),
+        // Remove associated feed items
+        await manager.getRepository(FeedItem).delete({
+          related_user: { id }
+        }),
+        // Remove feed items
+        await manager.getRepository(FeedItem).delete({
+          user: { id }
+        }),
+        // Remove notifications
+        await manager.getRepository(Notification).delete({
+          user: { id }
+        }),
+        // Remove any associated roles
+        await manager.getRepository(UserRole).delete({
+          user: { id }
+        })
+
+      // Remove any associated auth providers (Google, Apple)
+      await manager.getRepository(AuthProvider).delete({
+        user: { id }
+      })
+
+      await manager.getRepository(HealthActivityDebug).delete({
+        user: { id }
+      })
+
+      await manager.getRepository(HealthActivity).delete({
+        user: { id }
+      })
+
+      await manager.getRepository(GoalsEntry).delete({
+        user: { id }
+      })
+
+      // Remove any associated providers (Strava, Fitbit, etc.)
+      await manager.getRepository(Provider).delete({
+        user: { id }
+      })
+
+      // Remove leaderboard entries
+      await manager.getRepository(LeaderboardEntry).delete({
+        user: { id }
+      })
+
+      // Remove league users
+      await manager
+        .getRepository(League)
+        .createQueryBuilder()
+        .relation(League, 'users')
+        .of(League)
+        .remove(id)
+
+      await Promise.all([
+        // Remove leagues invitations
+        manager.getRepository(LeaguesInvitation).delete({
+          to_user: { id }
+        }),
+
+        manager.getRepository(LeaguesInvitation).delete({
+          from_user: { id }
+        }),
+
+        // Remove teams invitations
+        manager.getRepository(TeamsInvitation).delete({
+          owner: { id }
+        }),
+
+        manager.getRepository(TeamsInvitation).delete({
+          resolved_user: { id }
+        }),
+
+        // Remove rewards redemptions
+        manager.getRepository(RewardsRedemption).delete({
+          user: { id }
+        })
+      ])
+
+      await Promise.all([
+        // Remove followings
+        manager.getRepository(Following).delete({
+          following: { id }
+        }),
+
+        // Remove followings
+        manager.getRepository(Following).delete({
+          follower: { id }
+        })
+      ])
+
+      await manager.getRepository(League).update(
+        {
+          owner: { id }
+        },
+        {
+          owner: null
+        }
+      )
+
+      await manager.getRepository(Activity).update(
+        {
+          owner: { id }
+        },
+        {
+          owner: null
+        }
+      )
+
+      await manager.getRepository(Image).update(
+        {
+          owner: { id }
+        },
+        {
+          owner: null
+        }
+      )
+
+      // Finally, delete the user with cascades (for user settings)
+      await manager.getRepository(User).remove(user)
+
+      return true
+    })
   }
 }

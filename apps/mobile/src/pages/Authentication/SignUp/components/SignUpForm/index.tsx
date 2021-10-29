@@ -97,6 +97,7 @@ export const SignUpForm = () => {
 
       <SignUpButton
         text="Agree and Sign up"
+        loadingText="Creating account..."
         onPress={() => handleSubmit(onSubmit)}
         loading={isSubmitting}
         disabled={

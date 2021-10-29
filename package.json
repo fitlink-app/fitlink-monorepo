@@ -5,7 +5,9 @@
   "author": "Fitlink",
   "private": true,
   "scripts": {
-    "build": "nest build -c nest-cli.serverless.json --webpack --webpackPath webpack-serverless.config.js",
+    "build": "nest build",
+    "build:migrate": "nest build -c nest-cli.migrate.json",
+    "build:jobs": "nest build -c nest-cli.jobs.json",
     "prebuild": "rimraf dist",
     "start": "nest start --watch",
     "start:jest": "cross-env DB_PASSWORD=jest DB_USERNAME=jest DB_DATABASE_NAME=jest DB_PORT=5433 PORT=3001 nest start --watch --webpack",
@@ -20,7 +22,7 @@
     "test:admin": "yarn workspace @fitlink/admin test",
     "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
     "db:diagram": "ts-node --project apps/api/tsconfig.uml.json ./node_modules/typeorm-uml/bin/run ./ormconfig.js --download=docs/uml.svg --format=svg --with-enum-values",
-    "db:export": "docker exec -t postgres pg_dumpall -c -U fitlink > fitlink.sql",
+    "db:export": "docker exec -t postgres pg_dump -c -U fitlink > fitlink.sql",
     "db:export:jest": "docker exec -t postgres-jest pg_dumpall -c -U jest > jest.sql",
     "db:import": "docker exec -i postgres psql -U fitlink < fitlink.sql",
     "db:import:uat": "docker exec -i postgres psql -U fitlink < fitlink.sql",
@@ -39,6 +41,7 @@
     "sls:package": "serverless package",
     "sls:migrate": "serverless invoke -f migrate",
     "sls:migrate:production": "serverless invoke -f migrate --stage production",
+    "sls:secrets": "node ./scripts/update-secrets.js",
     "package:admin": "yarn workspace @fitlink/admin dev",
     "package:admin:ssl": "cross-env DEV_SSL=1 yarn workspace @fitlink/admin ssl",
     "package:api": "nest start --watch",
@@ -49,8 +52,9 @@
     "docs:generate": "@compodoc/compodoc -p tsconfig.json -s",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "firebase:migration:jest": "cross-env DB_PASSWORD=jest DB_USERNAME=jest DB_DATABASE_NAME=jest DB_PORT=5433 ts-node ./apps/api/database/firebase/migrate.ts",
-    "firebase:migration": "ts-node ./apps/api/database/firebase/migrate.ts",
-    "ssl:generate": "openssl genrsa -out root.key 4096 && openssl req -x509 -new -nodes -key root.key -sha256 -days 1024 -out root.crt"
+    "firebase:migration": "cross-env MIGRATION=firebase ts-node ./apps/api/database/firebase/migrate.ts",
+    "ssl:generate": "openssl genrsa -out root.key 4096 && openssl req -x509 -new -nodes -key root.key -sha256 -days 1024 -out root.crt",
+    "test:timezones": "ts-node ./apps/common/date/test.ts"
   },
   "workspaces": {
     "packages": [

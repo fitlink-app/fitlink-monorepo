@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react'
+import { useRef, useState, useContext, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Dashboard from '../components/layouts/Dashboard'
@@ -9,12 +9,21 @@ import { useQuery } from 'react-query'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 import LoaderFullscreen from '../components/elements/LoaderFullscreen'
 import toast from 'react-hot-toast'
+import { timeout } from '../helpers/timeout'
 
 export default function StartPage() {
-  const { api, fetchKey, switchRole } = useContext(AuthContext)
+  const {
+    api,
+    fetchKey,
+    switchRole,
+    setModeRole,
+    setFocusRole,
+    modeRole
+  } = useContext(AuthContext)
   const [roles, setRoles] = useState<UserRole[]>([])
   const [refresh, setRefresh] = useState(0)
   const router = useRouter()
+  const roleSet = useRef<boolean>(false)
 
   const showAvatar = ({
     cell: {
@@ -53,23 +62,57 @@ export default function StartPage() {
     </div>
   )
 
-  const rolesQuery = useQuery(`start_roles_${fetchKey}`, () =>
-    api.get<UserRole[]>('/me/roles')
+  const rolesQuery = useQuery(
+    `start_roles_${fetchKey}`,
+    () => api.get<UserRole[]>('/me/roles'),
+    {
+      cacheTime: 0
+    }
   )
 
   useEffect(() => {
-    if (rolesQuery.isFetched) {
+    if (rolesQuery.isSuccess) {
+      const data = rolesQuery.data
       setRefresh(Date.now())
-      setRoles(rolesQuery.data || [])
+      setRoles(data || [])
+      if (data.length === 1) {
+        setDefaultRole()
+      }
+      if (data.length === 0) {
+        setUserRole()
+      }
     }
-  }, [rolesQuery.isFetched])
+  }, [rolesQuery.isFetched, modeRole, rolesQuery.data])
+
+  async function setDefaultRole() {
+    if (!roleSet.current) {
+      roleSet.current = true
+      await timeout(100)
+      await switchRole({
+        id: getId(rolesQuery.data[0]),
+        role: rolesQuery.data[0].role
+      })
+    }
+  }
+
+  async function setUserRole() {
+    if (!roleSet.current) {
+      roleSet.current = true
+      setModeRole('user')
+      setFocusRole('user')
+    }
+  }
 
   if (!rolesQuery.isFetched) {
     return <Dashboard title="Start" hideSidebar={true} loading={true} />
   }
 
+  if (roles.length === 1) {
+    return <Dashboard title="Start" hideSidebar={true} loading={true} />
+  }
+
   return (
-    <Dashboard title="Settings Users" hideSidebar={true}>
+    <Dashboard title="Settings Users" hideSidebar={true} forceDisplay={true}>
       <div className="flex jc-c ai-c">
         <div className="w-100">
           <div className="flex ai-c jc-c">
@@ -77,13 +120,22 @@ export default function StartPage() {
             <Link href="/logout">
               <button className="button alt small mt-1">Logout</button>
             </Link>
+            <Link href="/settings/profile">
+              <button className="button small ml-1 mt-1">My Profile</button>
+            </Link>
           </div>
 
           {!roles.length && (
             <div className="flex ai-c jc-c mt-4">
               <p className="w-50">
                 This dashboard is for administrators. If you require access
-                please contact your organisation administrator.
+                please contact your organisation administrator. <br />
+                <br />
+                Alternatively, you can{' '}
+                <Link href="/signup?u=1" passHref>
+                  <a className="color-primary">Start a free trial</a>
+                </Link>
+                .
               </p>
             </div>
           )}

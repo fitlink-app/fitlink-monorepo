@@ -13,6 +13,8 @@ import {
   FeedItemCategory,
   FeedItemType
 } from '../../feed-items/feed-items.constants'
+import { NotificationsService } from '../../notifications/notifications.service'
+import { NotificationAction } from '../../notifications/notifications.constants'
 
 @Injectable()
 export class UserActiveMinutesIncrementedListener {
@@ -20,14 +22,17 @@ export class UserActiveMinutesIncrementedListener {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private feedItemService: FeedItemsService,
-    private userService: UsersService
+    private userService: UsersService,
+    private notificationsService: NotificationsService
   ) {}
 
   @OnEvent(Events.USER_ACTIVE_MINUTES_WEEK_INCREMENTED)
   async onUserActiveMinutesWeekIncremented({
     userId
   }: UserActiveMinutesWeekIncrementedEvent) {
-    const user = await this.userRepository.findOne(userId)
+    const user = await this.userRepository.findOne(userId, {
+      relations: ['avatar']
+    })
     const calculatedRank = await this.userService.calculateUserRank(user.id)
 
     const isEligibleForPromotion = await this.isEligibleForPromotion(
@@ -52,16 +57,31 @@ export class UserActiveMinutesIncrementedListener {
     error && console.log(error)
   }
 
+  async sendNotification(user: User, newRank: UserRank) {
+    // Send push notification
+    const [notify, error] = await tryAndCatch(
+      this.notificationsService.create({
+        action: NotificationAction.RankUp,
+        subject: newRank,
+        user,
+        avatar: user.avatar
+      })
+    )
+    error && console.log(error)
+  }
+
   // promote the user with the new rank
   async promote(user: User, newRank: UserRank) {
-    const [promotedUser, err] = await tryAndCatch(
-      this.userRepository.save({
+    try {
+      await this.userRepository.save({
         ...user,
         rank: newRank
       })
-    )
-    err && console.log(err)
-    await this.addFeedItem(user, newRank)
+      await this.addFeedItem(user, newRank)
+      await this.sendNotification(user, newRank)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   async isEligibleForPromotion(user: User, calculatedRank: UserRank) {

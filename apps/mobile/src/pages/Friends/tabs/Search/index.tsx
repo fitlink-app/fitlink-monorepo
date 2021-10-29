@@ -39,8 +39,11 @@ export const Search = () => {
   };
 
   const renderItem = ({item}: {item: UserPublic}) => {
+    console.log(item);
     return (
       <ProfileRow
+        teamName={item.team_name}
+        leagueNames={item.league_names}
         isFollowed={!!item.following}
         userId={item.id}
         name={item.name}

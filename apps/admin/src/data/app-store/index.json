@@ -1,0 +1,227 @@
+[
+  {
+    "title": "Strava",
+    "logo": "/app-store/strava.png",
+    "body": "Strava is a popular mobile app that tracks hikes, runs, rides and swims and is available on iOS and Android.",
+    "type": "App",
+    "category": "Activity Tracker",
+    "link": "https://strava.com",
+    "group": "app"
+  },
+  {
+    "title": "Suunto",
+    "logo": "/app-store/suunto.png",
+    "body": "A watch that’s very popular with trail runners. Hard-wearing and durability are some of its qualities.",
+    "type": "Wearable",
+    "category": "Activity Tracker",
+    "link": "https://suunto.com",
+    "group": "wearable"
+  },
+  {
+    "title": "Fitbit",
+    "logo": "/app-store/fitbit.png",
+    "body": "An entire family of products that has something for fitness beginners, pro athletes, and everyone in between.",
+    "type": "Wearable",
+    "category": "Activity Tracker, Water Tracker, Sleep Tracker, Mindfulness Tracker",
+    "link": "https://fitbit.com",
+    "group": "wearable"
+  },
+  {
+    "title": "Google Fit app",
+    "logo": "/app-store/google-fit-app.png",
+    "body": "Google Fit is a fitness tracking app available for Android and iOS devices. It will sync data from other tracker apps like hydration, sleep and mindfulness.",
+    "type": "App",
+    "category": "Activity Tracker, Water Tracker, Sleep Tracker, Mindfulness Tracker",
+    "link": "https://www.google.com/fit/",
+    "group": "app"
+  },
+  {
+    "title": "Garmin",
+    "logo": "/app-store/garmin.png",
+    "body": "Popular activity tracking watch with many different models ranging from basic through to pro athlete.",
+    "type": "Wearable",
+    "category": "Activity Tracker, Water Tracker, Sleep Tracker",
+    "link": "https://garmin.com",
+    "group": "wearable"
+  },
+  {
+    "title": "Polar",
+    "logo": "/app-store/polar.png",
+    "body": "Popular activity tracking watch like Garmin and Suunto which tracks many different activity types.",
+    "type": "Wearable",
+    "category": "Activity Tracker",
+    "link": "https://polar.com",
+    "group": "wearable"
+  },
+  {
+    "title": "MyFitnessPal",
+    "logo": "/app-store/myfitnesspal.png",
+    "body": "Calorie counting app that also supports activity, hydration and sleep tracking.",
+    "type": "App",
+    "category": "Activity Tracker, Water Tracker, Sleep Tracker",
+    "link": "https://myfitnesspal.com",
+    "group": "app"
+  },
+  {
+    "title": "Oak Meditation",
+    "logo": "/app-store/oak-meditation.png",
+    "body": "Guided meditation and breathing exercises. Learn mindful and loving-kindness meditation today.",
+    "type": "App",
+    "category": "Mindfulness Tracker",
+    "link": "https://www.oakmeditation.com",
+    "group": "app"
+  },
+  {
+    "title": "Oura",
+    "logo": "/app-store/oura.png",
+    "body": "The most accurate sleep tracker wearable that we have tested. Highly recommended for detailed sleep analysis.",
+    "type": "Wearable",
+    "category": "Sleep Tracker",
+    "link": "https://ouraring.com",
+    "group": "wearable"
+  },
+  {
+    "title": "Seven",
+    "logo": "/app-store/seven.png",
+    "body": "The 7 Minute Workout App is a brilliant workout app with different levels of effort ideal for quick HIIT activities.",
+    "type": "App",
+    "category": "Activity Tracker",
+    "link": "https://seven.app",
+    "group": "app"
+  },
+  {
+    "title": "My Water",
+    "logo": "/app-store/my-water.png",
+    "body": "8 glasses of water a day is the basis of good nutrition and My Water app will help you track your water intake throughout the day.",
+    "type": "App",
+    "category": "Water Tracker",
+    "link": "https://victorsharov.com/mywater/",
+    "group": "app"
+  },
+  {
+    "title": "Deel",
+    "logo": "/app-store/deel.png",
+    "body": "Hire the best talent in 150 countries in minutes, without worrying about compliance, payroll or HR admin.",
+    "type": "HR Tool",
+    "category": "Payroll, Remote Teams",
+    "link": "https://letsdeel.com",
+    "group": "desktop"
+  },
+  {
+    "title": "First Base",
+    "logo": "/app-store/first-base.png",
+    "body": "Firstbase helps businesses set up, manage, maintain and retrieve all the physical equipment their remote workers need.",
+    "type": "HR Tool",
+    "category": "Equipment, Remote Teams",
+    "link": "https://www.firstbasehq.com",
+    "group": "desktop"
+  },
+  {
+    "title": "Flok",
+    "logo": "/app-store/flok.png",
+    "body": "End-to-end company retreat planning to help you get your teams together outside of work.",
+    "type": "HR Tool",
+    "category": "Perks",
+    "link": "https://goflok.com/",
+    "group": "desktop"
+  },
+  {
+    "title": "Seed Legals",
+    "logo": "/app-store/seed-legals.png",
+    "body": "SeedLegals automates the legal’s you need to grow your business, with unlimited support along the way.",
+    "type": "HR Tool",
+    "category": "Legal",
+    "link": "https://seedlegals.com",
+    "group": "desktop"
+  },
+  {
+    "title": "Saftey Wing",
+    "logo": "/app-store/saftey-wing.png",
+    "body": "Make sure your remote teams have the right insurance with Saftey Wing",
+    "type": "HR Tool",
+    "category": "Insurance, Remote Teams",
+    "link": "https://safetywing.com/",
+    "group": "desktop"
+  },
+  {
+    "title": "Active Things",
+    "logo": "/app-store/active-things.png",
+    "body": "Active Things is your Active Travel Assistant, helping you find and access (secure) bike parking, routes and more.",
+    "type": "App",
+    "category": "Active Travel",
+    "link": "https://activethings.app",
+    "group": "app"
+  },
+  {
+    "title": "Lift Share",
+    "logo": "/app-store/lift-share.png",
+    "body": "Join 700,000 like-minded people saving money and the planet by car sharing with Lift Share who offer a business version",
+    "type": "HR Tool",
+    "category": "Car Share",
+    "link": "https://liftshare.com/",
+    "group": "desktop"
+  },
+  {
+    "title": "Ecologi",
+    "logo": "/app-store/ecologi.png",
+    "body": "We plant trees and fund the world’s best climate crisis solutions and have a business version to help get your workforce carbon neutral",
+    "type": "HR Tool",
+    "category": "Sustainability",
+    "link": "https://ecologi.com/business/overview",
+    "group": "desktop"
+  },
+  {
+    "title": "RunKeeper",
+    "logo": "/app-store/runkeeper.png",
+    "body": "All the tools you need to become a stronger runner. Insights, workouts, and trainer guidance will get you to your goals.",
+    "type": "App",
+    "category": "Activity Tracker",
+    "link": "https://runkeeper.com/",
+    "group": "app"
+  },
+  {
+    "title": "Apple Health",
+    "logo": "/app-store/apple-health.png",
+    "body": "Will sunc with all trackers so connecting this to Fitlink is recommended and by default this will be on your iPhone already.",
+    "type": "App",
+    "category": "Activity Tracker, Water Tracker, Sleep Tracker, Mindfulness Tracker",
+    "link": "https://www.apple.com/uk/ios/health/",
+    "group": "app"
+  },
+  {
+    "title": "Nike Run Club",
+    "logo": "/app-store/nike.png",
+    "body": "The Nike Run Club gives you the guidance, inspiration and innovation you need to become a better athlete.",
+    "type": "App",
+    "category": "Activity Tracker",
+    "link": "https://www.nike.com/gb/nrc-app/",
+    "group": "app"
+  },
+  {
+    "title": "Runtastic",
+    "logo": "/app-store/runtastic.png",
+    "body": "Record your workouts and review your statistics with the Runtasitic app by Adidas.",
+    "type": "App",
+    "category": "Activity Tracker",
+    "link": "https://www.runtastic.com/en/",
+    "group": "app"
+  },
+  {
+    "title": "Go Jauntly",
+    "logo": "/app-store/go-jauntly.png",
+    "body": "A walking app for everyday outdoor adventures. Discover greener walks, connect with nature and enjoy outdoor adventures with friends. ",
+    "type": "App",
+    "category": "Activity Tracker",
+    "link": "https://www.gojauntly.com",
+    "group": "app"
+  },
+  {
+    "title": "Lupa",
+    "logo": "/app-store/lupa.png",
+    "body": "The world’s smartest running partner that guides you through your run.",
+    "type": "App",
+    "category": "Activity Tracker",
+    "link": "https://www.wearelupa.com",
+    "group": "app"
+  }
+]
