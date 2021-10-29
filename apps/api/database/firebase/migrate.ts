@@ -126,7 +126,7 @@ const allow = Object.values(require('./trusted.json'))
   const fUsers = (JSON.parse(
     (await readFile(__dirname + '/users.json')).toString()
   ).users as LegacyUser[]).filter(
-    (e) => !e.photoUrl || e.photoUrl.indexOf('robohash') === -1
+    (e) => (!e.photoUrl || e.photoUrl.indexOf('robohash') === -1) && e.email
   )
 
   connection.manager.transaction(async (manager) => {
@@ -363,25 +363,25 @@ const allow = Object.values(require('./trusted.json'))
             // This will be removed in our final production migration
             let originalEmail = userEntry.email || auth.email
 
-            if (!originalEmail) {
-              originalEmail = id + '-safe@fitlinkapp.com'
-            }
+            // if (!originalEmail) {
+            //   originalEmail = id + '-safe@fitlinkapp.com'
+            // }
 
             let userEmail = auth.email || originalEmail
-            let fcmTokens = data.fcmTokens
-            if (allow.indexOf(id) === -1) {
-              userEmail = id + '-safe@fitlinkapp.com'
-              userEntry.email = userEmail
-              if (userEntry.providerUserInfo) {
-                userEntry.providerUserInfo = userEntry.providerUserInfo.map(
-                  (each) => {
-                    each.email = userEmail
-                    return each
-                  }
-                )
-              }
-              fcmTokens = []
-            }
+            let fcmTokens = data.fcmTokens || []
+            // if (allow.indexOf(id) === -1) {
+            //   userEmail = id + '-safe@fitlinkapp.com'
+            //   userEntry.email = userEmail
+            //   if (userEntry.providerUserInfo) {
+            //     userEntry.providerUserInfo = userEntry.providerUserInfo.map(
+            //       (each) => {
+            //         each.email = userEmail
+            //         return each
+            //       }
+            //     )
+            //   }
+            //   fcmTokens = []
+            // }
 
             // Save core user fields
             let user = new User()

@@ -25,6 +25,7 @@
     "db:export": "docker exec -t postgres pg_dump -c -U fitlink > fitlink.sql",
     "db:export:jest": "docker exec -t postgres-jest pg_dumpall -c -U jest > jest.sql",
     "db:import": "docker exec -i postgres psql -U fitlink < fitlink.sql",
+    "db:migrate:images": "docker exec -i postgres psql -U fitlink < scripts/update-images.sql",
     "db:import:uat": "docker exec -i postgres psql -U fitlink < fitlink.sql",
     "db:import:jest": "docker exec -i postgres-jest psql -U jest < jest.sql",
     "migration:show": "node scripts/check-migrations.js",
@@ -53,6 +54,7 @@
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "firebase:migration:jest": "cross-env DB_PASSWORD=jest DB_USERNAME=jest DB_DATABASE_NAME=jest DB_PORT=5433 ts-node ./apps/api/database/firebase/migrate.ts",
     "firebase:migration": "cross-env MIGRATION=firebase ts-node ./apps/api/database/firebase/migrate.ts",
+    "firebase:migration:check:users": "cross-env MIGRATION=firebase ts-node ./apps/api/database/firebase/check-users.ts",
     "ssl:generate": "openssl genrsa -out root.key 4096 && openssl req -x509 -new -nodes -key root.key -sha256 -days 1024 -out root.crt",
     "test:timezones": "ts-node ./apps/common/date/test.ts"
   },

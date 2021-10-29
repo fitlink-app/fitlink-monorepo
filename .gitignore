@@ -62,3 +62,4 @@ terraform
 
 artifacts/app.zip
 artifacts/node_modules
+/*.sql

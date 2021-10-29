@@ -38,12 +38,15 @@ After running the commands navigate to [http://localhost:4000/login](http://loca
 5. [Mobile](./apps/mobile/README.md)
 6. [Storybook](./apps/storybook/README.md)
 
+## GRANT ALL ON schema public TO fitlink1production;
+
 ## Importing dataset
 1. Empty the public schema: `DROP SCHEMA public CASCADE; CREATE SCHEMA public;`
 2. `yarn migration:run && yarn migration:seed:sports`
-3. `yarn migration:seed:test-users`
-4. `yarn db:export`
-5. Change image paths to S3, upload images to S3 (`node scripts/rename-images.js`)
-6. `scp -i [keypath] fitlink.sql ec2-user@[ip]:~/fitlink.sql`
-7. `eb ssh`
-8. `psql -h [url] -p 5432 -U [user] --password [db_name] < ~/fitlink.sql`
+3. `yarn firebase:migration`
+4. `yarn migration:seed:test-users`
+5. `yarn db:export`
+6. Change image paths to S3, upload images to S3 (`node scripts/rename-images.js`)
+7. `scp -i [keypath] fitlink.sql ec2-user@[ip]:~/fitlink.sql`
+8. `eb ssh`
+9. `psql -h [url] -p 5432 -U [user] --password [db_name] < ~/fitlink.sql`

@@ -91,28 +91,28 @@ export default class CreateTestUsers implements Seeder {
       })
     }
 
-    // Generate test users
-    await Promise.all(
-      Array.from({ length: 10 }).map(async (_, i) => {
-        const email = `user${i + 1}@fitlinkapp.com`
-        let user = await connection.getRepository(User).findOne({ email })
-        if (!user) {
-          user = await factory(User)().create({
-            name: `Test${i + 1} User`,
-            email
-          })
+    // // Generate test users
+    // await Promise.all(
+    //   Array.from({ length: 10 }).map(async (_, i) => {
+    //     const email = `user${i + 1}@fitlinkapp.com`
+    //     let user = await connection.getRepository(User).findOne({ email })
+    //     if (!user) {
+    //       user = await factory(User)().create({
+    //         name: `Test${i + 1} User`,
+    //         email
+    //       })
 
-          await connection
-            .getRepository(Team)
-            .createQueryBuilder()
-            .relation(Team, 'users')
-            .of(team)
-            .add(user)
+    //       await connection
+    //         .getRepository(Team)
+    //         .createQueryBuilder()
+    //         .relation(Team, 'users')
+    //         .of(team)
+    //         .add(user)
 
-          return user
-        }
-      })
-    )
+    //       return user
+    //     }
+    //   })
+    // )
 
     // Create roles for each
     await factory(UserRole)().create({
