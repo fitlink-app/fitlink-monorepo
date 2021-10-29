@@ -17,11 +17,12 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { UserActiveMinutesIncrementedListener } from './listeners/UserActiveMinutesIncrementedListener'
 import { NotificationsModule } from '../notifications/notifications.module'
 import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
+import { RefreshToken } from '../auth/entities/auth.entity'
 
 @Module({
   imports: [
     CommonModule,
-    TypeOrmModule.forFeature([User, AuthProvider]),
+    TypeOrmModule.forFeature([User, AuthProvider, RefreshToken]),
     ConfigModule,
     forwardRef(() => FeedItemsModule),
     HttpModule,

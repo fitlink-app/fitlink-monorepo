@@ -152,7 +152,7 @@ export class Api {
       } catch (e) {
         if (e instanceof AuthorizationRefreshError) {
           this.options.onRefreshTokenFail()
-          throw e
+          // throw e
         } else {
           throw e
         }

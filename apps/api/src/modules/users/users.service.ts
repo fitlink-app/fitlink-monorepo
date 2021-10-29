@@ -49,6 +49,7 @@ import { zonedStartOfDay } from '../../../../common/date/helpers'
 import { addHours } from 'date-fns'
 import { DeepLinkType } from '../../constants/deep-links'
 import { GoalsEntriesService } from '../goals-entries/goals-entries.service'
+import { RefreshToken } from '../auth/entities/auth.entity'
 
 type EntityOwner = {
   organisationId?: string
@@ -63,6 +64,8 @@ export class UsersService {
     private userRepository: Repository<User>,
     @InjectRepository(AuthProvider)
     private authProviderRepository: Repository<AuthProvider>,
+    @InjectRepository(RefreshToken)
+    private refreshTokenRepository: Repository<RefreshToken>,
     private userRolesService: UserRolesService,
     private jwtService: JwtService,
     private emailService: EmailService,
@@ -545,6 +548,19 @@ export class UsersService {
 
     if (await this.verifyPassword(oldPassword, user.password)) {
       const hashedPassword = await this.hashPassword(newPassword)
+      // Revoke all refresh tokens
+      await this.refreshTokenRepository.update(
+        {
+          user: {
+            id: userId
+          },
+          revoked: false
+        },
+        {
+          revoked: true,
+          revoked_at: new Date()
+        }
+      )
       return this.userRepository.update(userId, {
         password: hashedPassword,
         password_reset_at: new Date()
