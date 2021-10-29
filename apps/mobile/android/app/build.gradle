@@ -191,7 +191,6 @@ android {
     codepush {
       minSdkVersion rootProject.ext.minSdkVersion
       dimension "default"
-      applicationIdSuffix ".codepush"
       resValue "string", "CodePushDeploymentKey", '"g61xENppeC9NpJQJ7HDm_CA8SczZPzzYBGTU4"'
     }
     prd {
