@@ -378,7 +378,7 @@ export class AuthService {
     }
 
     return this.jwtService.sign(payload, {
-      expiresIn: 60 * 5 // 5 minutes (debugging)
+      expiresIn: 60 * 60 // 1 hour
     })
   }
 
