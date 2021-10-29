@@ -150,11 +150,12 @@ export class OrganisationsInvitationsService {
       iss: 'fitlinkapp.com',
       aud: 'fitlinkapp.com',
       sub: id,
-      iat: new Date().getTime(),
       type: 'organisation-invitation'
     }
 
-    return this.jwtService.sign(payload)
+    return this.jwtService.sign(payload, {
+      expiresIn: '7d'
+    })
   }
 
   /**

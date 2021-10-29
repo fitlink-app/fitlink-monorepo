@@ -12,7 +12,7 @@ import {
 import { LocalAuthGuard } from './guards/local-auth.guard'
 import { AuthService } from './auth.service'
 import { Public } from '../../decorators/public.decorator'
-import { AuthLoginDto, AuthConnectDto } from './dto/auth-login'
+import { AuthLoginDto, AuthConnectDto, AuthRefreshDto } from './dto/auth-login'
 import { AuthSwitchDto } from './dto/auth-switch'
 import { AuthResultDto, AuthLogoutDto, AuthSignupDto } from './dto/auth-result'
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
@@ -184,5 +184,14 @@ export class AuthController {
     }
 
     return result
+  }
+
+  @ApiTags('auth')
+  @Post('auth/refresh')
+  @Public()
+  @ValidationResponse()
+  @ApiResponse({ type: AuthSignupDto, status: 200 })
+  refresh(@Body() { refresh_token }: AuthRefreshDto) {
+    return this.authService.refreshSessionToken(refresh_token)
   }
 }

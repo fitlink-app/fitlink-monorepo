@@ -9,7 +9,7 @@ import {
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { plainToClass } from 'class-transformer'
-import { Connection, Repository } from 'typeorm'
+import { Connection, Not, Repository } from 'typeorm'
 import { AuthenticatedUser, JWTRoles } from '../../models'
 import { CreateUserDto } from '../users/dto/create-user.dto'
 import {
@@ -374,11 +374,12 @@ export class AuthService {
       aud: 'fitlink.com',
       iss: 'fitlink.com',
       sub: user.id,
-      iat: new Date().getTime(),
       roles: roles || (await this.usersService.getRolesForToken(user))
     }
 
-    return this.jwtService.sign(payload)
+    return this.jwtService.sign(payload, {
+      expiresIn: 60 * 5 // 5 minutes (debugging)
+    })
   }
 
   /**
@@ -395,7 +396,6 @@ export class AuthService {
       aud: 'fitlink.com',
       iss: 'fitlink.com',
       sub: user.id,
-      iat: new Date().getTime(),
       roles: await this.usersService.getRolesForToken(user),
       email: user.email,
       settings: user.settings
@@ -426,20 +426,34 @@ export class AuthService {
       aud: 'fitlink.com',
       iss: 'fitlink.com',
       sub: user.id,
-      iat: new Date().getTime(),
       _rft: true // Refresh token
     }
 
-    const token = this.jwtService.sign(refreshTokenPayload)
+    // Look for an existing token to use
+    let refreshToken = await this.refreshTokenRepository.findOne({
+      where: {
+        user: { id: user.id },
+        revoked: false
+      }
+    })
 
-    const refreshToken = new RefreshToken()
-    refreshToken.token = token
+    let token: string
+    if (!refreshToken) {
+      token = this.jwtService.sign(refreshTokenPayload, {
+        expiresIn: '3650d',
+        secret: user.password + this.configService.get('AUTH_JWT_SECRET')
+      })
 
-    await this.connection
-      .createQueryBuilder()
-      .relation(User, 'refresh_tokens')
-      .of(user)
-      .add(refreshToken)
+      const refreshToken = new RefreshToken()
+      refreshToken.token = token
+      refreshToken.user = new User()
+      refreshToken.user.id = user.id
+
+      await this.refreshTokenRepository.save(refreshToken)
+      return token
+    } else {
+      token = refreshToken.token
+    }
 
     return token
   }
@@ -454,7 +468,10 @@ export class AuthService {
     const userId = decoded.sub
     await this.validateRefreshToken(refreshToken, decoded)
     const user = await this.usersService.findOne(userId)
-    return await this.createAccessToken(user)
+    return {
+      access_token: await this.createAccessToken(user),
+      id_token: await this.createIdToken(user)
+    }
   }
 
   /**
@@ -476,17 +493,12 @@ export class AuthService {
     }
 
     const token = await this.refreshTokenRepository.findOne({
-      join: {
-        alias: 'refresh_tokens',
-        innerJoin: { user: 'refresh_token.user' }
+      where: {
+        revoked: false,
+        user: { id: userId },
+        token: refreshToken
       },
-      where: (qb) => {
-        qb.where({
-          refreshToken
-        }).andWhere(`refresh_tokens.revoked != 1 AND user.id == :id`, {
-          id: userId
-        })
-      }
+      order: { created_at: 'DESC' }
     })
 
     if (!token) {
@@ -550,6 +562,21 @@ export class AuthService {
       const password = await this.usersService.hashPassword(
         resetPasswordDto.password
       )
+
+      // Revoke all refresh tokens
+      await this.refreshTokenRepository.update(
+        {
+          user: {
+            id: user.id
+          },
+          revoked: false
+        },
+        {
+          revoked: true,
+          revoked_at: new Date()
+        }
+      )
+
       return this.usersService.updatePassword(user.id, password)
     } else {
       throw new Error('User not found')
@@ -573,8 +600,7 @@ export class AuthService {
     const payload = {
       aud: 'fitlink.com',
       iss: 'fitlink.com',
-      sub: user.email,
-      iat: new Date().getTime()
+      sub: user.email
     }
 
     return this.jwtService.sign(payload, {

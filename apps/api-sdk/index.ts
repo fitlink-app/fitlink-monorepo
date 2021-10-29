@@ -1,3 +1,4 @@
+import { ERR_TOKEN_EXPIRED } from '@fitlink/api/src/constants/errors'
 import { AxiosInstance, AxiosError } from 'axios'
 import {
   ListResource,
@@ -33,22 +34,28 @@ import {
   AuthNewOrganisation
 } from './types'
 
-const ERR_TOKEN_EXPIRED = 'Token expired'
+const noop = () => {}
 
 type MethodConfig = {
   useRole?: FocusRole
   primary?: RolePrimary
 }
 
+export type ApiOptions = {
+  onRefreshTokenFail: () => void
+}
+
 export class Api {
   private axios: AxiosInstance = null
+  private options: ApiOptions
   private tokens: AuthResultDto
   private replay: any[] = []
   private reject: any[] = []
   private reAuthorizing = false
 
-  constructor(axios: AxiosInstance) {
+  constructor(axios: AxiosInstance, options: ApiOptions) {
     this.axios = axios
+    this.options = options
     this.useToken()
     this.useRefreshInterceptor()
   }
@@ -144,7 +151,8 @@ export class Api {
         await this.replayAllRequests()
       } catch (e) {
         if (e instanceof AuthorizationRefreshError) {
-          this.rejectAllRequests(e)
+          this.options.onRefreshTokenFail()
+          throw e
         } else {
           throw e
         }
@@ -304,12 +312,16 @@ export class Api {
    * @returns `{ id_token, access_token, refresh_token }`
    */
   async refreshSession() {
-    let result: AuthResultDto
     try {
-      result = await this.post<AuthRefresh>('/auth/refresh', {
+      const result = await this.post<AuthRefresh>('/auth/refresh', {
         payload: {
           refresh_token: this.tokens.refresh_token
         }
+      })
+      // Override only the access token and id token
+      this.setTokens({
+        ...this.tokens,
+        ...result
       })
     } catch (e) {
       throw new AuthorizationRefreshError({
@@ -317,8 +329,6 @@ export class Api {
         axiosError: e
       })
     }
-    this.setTokens(result)
-    return result
   }
 
   /**
@@ -566,8 +576,13 @@ export class Api {
   }
 }
 
-export function makeApi(axios: AxiosInstance) {
-  return new Api(axios)
+export function makeApi(
+  axios: AxiosInstance,
+  options: ApiOptions = {
+    onRefreshTokenFail: noop
+  }
+) {
+  return new Api(axios, options)
 }
 
 export class ApiError extends Error {

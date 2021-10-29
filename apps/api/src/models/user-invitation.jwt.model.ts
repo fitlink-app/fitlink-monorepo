@@ -11,8 +11,5 @@ export class UserInvitationJWT {
   sub: string
 
   @ApiProperty()
-  iat: number
-
-  @ApiProperty()
   type: 'user-invitation'
 }

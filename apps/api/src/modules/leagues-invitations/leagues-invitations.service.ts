@@ -195,7 +195,6 @@ export class LeaguesInvitationsService {
       iss: 'fitlinkapp.com',
       aud: 'fitlinkapp.com',
       sub: invitationId,
-      iat: new Date().getTime(),
       type: 'league-invitation'
     }
     return payload

@@ -144,11 +144,12 @@ export class SubscriptionsInvitationsService {
       iss: 'fitlinkapp.com',
       aud: 'fitlinkapp.com',
       sub: id,
-      iat: new Date().getTime(),
       type: 'subscription-invitation'
     }
 
-    return this.jwtService.sign(payload)
+    return this.jwtService.sign(payload, {
+      expiresIn: '7d'
+    })
   }
 
   /**

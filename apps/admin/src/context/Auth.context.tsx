@@ -30,10 +30,12 @@ import menuTeam from '../data/menu/team'
 import menuUser from '../data/menu/user'
 
 const axios = Axios.create({
-  baseURL: '/api/v1'
+  baseURL: 'http://localhost:3000/api/v1'
 })
 
-export const api = makeApi(axios)
+export const api = makeApi(axios, {
+  onRefreshTokenFail: () => console.log('Refresh token failed')
+})
 
 // URLs where localStorage state can be completely
 // reset, as the user is expected to be in a clean state.

@@ -343,7 +343,7 @@ const allow = Object.values(require('./trusted.json'))
 
       return Promise.all(
         fUsers
-          .filter((e) => allow.includes(e.localId))
+          // .filter((e) => allow.includes(e.localId))
           .map(async (userEntry) => {
             const id = userEntry.localId
 
