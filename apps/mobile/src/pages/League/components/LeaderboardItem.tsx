@@ -84,16 +84,26 @@ interface LeaderboardItemProps {
   points: number;
   isSelf: boolean;
   isLast: boolean;
+  disabled?: boolean;
   onPress?: () => void;
 }
 
 export const LeaderboardItem: React.FC<LeaderboardItemProps & ViewProps> =
   props => {
-    const {rank, name, avatarUrl, wins, points, isSelf, isLast, onPress} =
-      props;
+    const {
+      rank,
+      name,
+      avatarUrl,
+      wins,
+      points,
+      isSelf,
+      isLast,
+      onPress,
+      disabled,
+    } = props;
 
     return (
-      <Wrapper {...{onPress}} renderBorder={!isLast}>
+      <Wrapper {...{onPress, disabled}} renderBorder={!isLast}>
         <ContainerRow>
           <Row style={{flexShrink: 1}}>
             <PlaceTextContainer>

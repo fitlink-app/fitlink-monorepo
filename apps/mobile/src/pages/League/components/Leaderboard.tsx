@@ -9,6 +9,7 @@ import {LeaderboardHeader} from './LeaderboardHeader';
 import {useState} from 'react';
 import {LeaderboardSeparator} from './LeaderboardSeparator';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useNavigation} from '@react-navigation/core';
 
 const INITIAL_MEMBER_COUNT_TO_DISPLAY = 10;
 
@@ -60,7 +61,7 @@ export const Leaderboard = ({
   ...rest
 }: LeaderboardProps) => {
   const {colors} = useTheme();
-  const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
 
   const [showAll, setShowAll] = useState(false);
 
@@ -92,6 +93,8 @@ export const Leaderboard = ({
       <LeaderboardItem
         key={item.id + key}
         rank={item.rank || (index + 1).toString()}
+        onPress={() => navigation.navigate('Profile', {id: item.user.id})}
+        disabled={userId === item.user.id}
         name={item.user.name}
         avatarUrl={item.user.avatar?.url_128x128}
         wins={item.wins}
