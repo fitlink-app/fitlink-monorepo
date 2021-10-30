@@ -14,16 +14,21 @@ export const useUpdateIntercomUser = () => {
     if (!user) return;
 
     function createIntercomUserPayload(source: User) {
-      return {
+      let result: any = {
         email: source.email,
         userId: source.id,
         name: source.name,
         signedUpAt: new Date(source.created_at).valueOf() / 1000,
         customAttributes: {
           rank: source.rank,
-          team: source.teams[0]?.name,
         },
       };
+
+      if (source.teams) {
+        result.customAttributes.team = source.teams[0]?.name;
+      }
+
+      return result;
     }
 
     const oldIntercomPayload = previousUser
