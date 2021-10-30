@@ -1,10 +1,13 @@
 import React, {useRef} from 'react';
 import {Button, FormError, InputField, Modal} from '@components';
-import {useForm, useModal, useUpdatePassword} from '@hooks';
+import {useForm, useMe, useModal, useUpdatePassword} from '@hooks';
 import styled from 'styled-components/native';
 import {TextInput} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {getErrors} from '@api';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from 'redux/store';
+import {signIn} from 'redux/auth/authSlice';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -24,10 +27,12 @@ export interface UpdatePasswordFormValues {
 }
 
 export const UpdatePasswordForm = () => {
+  const dispatch = useDispatch() as AppDispatch;
   const navigation = useNavigation();
   const {openModal, closeModal} = useModal();
 
   const {mutateAsync} = useUpdatePassword();
+  const {data: me} = useMe({enabled: false});
 
   const initialValues: UpdatePasswordFormValues = {
     currentPassword: '',
@@ -51,6 +56,10 @@ export const UpdatePasswordForm = () => {
         current_password: values.currentPassword,
         new_password: values.confirmPassword,
       });
+
+      await dispatch(
+        signIn({email: me?.email!, password: values.confirmPassword}),
+      );
     } catch (e) {
       const requestErrors = getErrors(e);
       console.log(requestErrors);
