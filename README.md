@@ -38,8 +38,6 @@ After running the commands navigate to [http://localhost:4000/login](http://loca
 5. [Mobile](./apps/mobile/README.md)
 6. [Storybook](./apps/storybook/README.md)
 
-## GRANT ALL ON schema public TO fitlink1production;
-
 ## Importing dataset
 1. Empty the public schema: `DROP SCHEMA public CASCADE; CREATE SCHEMA public;`
 2. `yarn migration:run && yarn migration:seed:sports`

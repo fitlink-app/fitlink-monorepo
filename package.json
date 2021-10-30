@@ -25,6 +25,7 @@
     "db:export": "docker exec -t postgres pg_dump -c -U fitlink > fitlink.sql",
     "db:export:jest": "docker exec -t postgres-jest pg_dumpall -c -U jest > jest.sql",
     "db:import": "docker exec -i postgres psql -U fitlink < fitlink.sql",
+    "db:test:clear": "docker exec -i postgres-jest psql -U jest -c \"DROP SCHEMA public CASCADE; CREATE SCHEMA public;\"",
     "db:migrate:images": "docker exec -i postgres psql -U fitlink < scripts/update-images.sql",
     "db:import:uat": "docker exec -i postgres psql -U fitlink < fitlink.sql",
     "db:import:jest": "docker exec -i postgres-jest psql -U jest < jest.sql",
