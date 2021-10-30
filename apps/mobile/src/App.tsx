@@ -14,7 +14,6 @@ import RNBootSplash from 'react-native-bootsplash';
 import codePush from 'react-native-code-push';
 import {useCodePush, useIntercomNotifications} from '@hooks';
 import {UpdateInfo} from 'components/UpdateInfo';
-import Intercom from '@intercom/intercom-react-native';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 if (Platform.OS === 'android') {
@@ -36,8 +35,6 @@ const App = () => {
       iosClientId:
         '369193601741-bkluos3jpe42b0a5pqfuv7lg5f640n8t.apps.googleusercontent.com',
     });
-
-    Intercom.registerUnidentifiedUser();
 
     setTimeout(() => {
       RNBootSplash.hide();
