@@ -434,6 +434,7 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
 
       <ButtonContainer>
         <Button
+          style={{height: '100%'}}
           onPress={() => {
             isLiked
               ? dislike({feedItemId: item.id, userId: item.user.id})
