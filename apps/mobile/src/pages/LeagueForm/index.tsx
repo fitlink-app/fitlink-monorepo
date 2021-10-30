@@ -8,6 +8,7 @@ import {
   NAVBAR_HEIGHT,
   FormError,
   Modal,
+  KeyboardAvoidingView,
 } from '@components';
 import {
   ImagePickerDialogResponse,
@@ -231,6 +232,7 @@ export const LeagueForm = (
 
       {isSportsFetched ? (
         <ScrollView
+          keyboardDismissMode={'on-drag'}
           contentContainerStyle={{
             marginTop: NAVBAR_HEIGHT + insets.top + 20,
             marginBottom: 20,
@@ -266,7 +268,6 @@ export const LeagueForm = (
               error={fieldErrors.description}
               onChangeText={handleChange('description')}
               placeholder={'How would you best describe your league'}
-              returnKeyType={'next'}
               multiline={true}
             />
 
