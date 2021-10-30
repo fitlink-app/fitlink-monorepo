@@ -132,7 +132,7 @@ export class HealthActivitiesService {
             distance: distance || 0,
             elevation: elevation || 0,
             quantity: quantity || 0,
-            stairs: elevation || 0,
+            stairs: Math.floor(elevation) || 0, // Stairs is int only
             provider: userProvider,
             polyline: polyline || '',
             sport,
@@ -191,7 +191,6 @@ export class HealthActivitiesService {
   }
 
   setHealthActivityImages(healthActivityId: string, images: string | string[]) {
-    console.log(healthActivityId, images)
     return this.healthActivityRepository
       .createQueryBuilder()
       .relation(HealthActivity, 'images')

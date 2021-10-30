@@ -50,6 +50,7 @@ export class StravaService {
             )
           )
           resultErr && console.error(resultErr)
+
           const normalizedActivity = this.createNormalizedHealthActivity(result)
           const healthActivitySaveResult = await this.healthActivityService.create(
             normalizedActivity,
@@ -246,7 +247,7 @@ export class StravaService {
       expires_at
     } = await this.exchangeTokens(code)
 
-    const token_expires_at = expires_at * 1000
+    const token_expires_at = new Date(Math.floor(expires_at * 1000))
     const result = await this.providersService.create(
       {
         provider_user_id: athlete.id,
@@ -344,8 +345,7 @@ export class StravaService {
       const newCredentials = {
         token: access_token,
         refresh_token,
-        // Without the * 1000 the year is always in the previous century I don't know why
-        token_expires_at: expires_at * 1000
+        token_expires_at: new Date(Math.floor(expires_at * 1000))
       }
 
       const updateResults = await this.providersService.update(

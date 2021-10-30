@@ -29,6 +29,7 @@ import { GoalsEntriesService } from '../../../goals-entries/goals-entries.servic
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from '../../../users/entities/user.entity'
 import { Repository } from 'typeorm'
+import { addSeconds } from 'date-fns'
 
 const FitbitApiClient: any = fitbitClient
 
@@ -64,8 +65,10 @@ export class FitbitService {
     const tokenExchangeResult = await this.exchangeToken(code)
     await this.createPushSubscription(tokenExchangeResult.access_token, userId)
     const scopes = tokenExchangeResult.scope.split(' ')
-    const token_expires_at =
-      new Date().valueOf() + tokenExchangeResult.expires_in * 1000
+    const token_expires_at = addSeconds(
+      new Date(),
+      tokenExchangeResult.expires_in
+    )
     const result = await this.providersService.create(
       {
         provider_user_id: tokenExchangeResult.user_id,
@@ -260,7 +263,7 @@ export class FitbitService {
         provider.token,
         provider.refresh_token
       )
-      const token_expires_at = new Date().valueOf() + expires_in * 1000
+      const token_expires_at = addSeconds(new Date(), expires_in)
       const newCredentials = {
         token: access_token,
         refresh_token,
