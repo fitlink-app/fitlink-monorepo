@@ -963,6 +963,10 @@ export class UsersService {
         user: { id }
       })
 
+      await manager.getRepository(RefreshToken).delete({
+        user: { id }
+      })
+
       await manager.getRepository(HealthActivityDebug).delete({
         user: { id }
       })
