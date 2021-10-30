@@ -41,7 +41,7 @@ export default function Router() {
   const {colors} = useTheme();
 
   const isAuthenticated = useSelector(memoSelectIsAuthenticated);
-  const {data: me, isFetchedAfterMount: isUserFetched} = useMe();
+  const {data: me} = useMe();
 
   const navigatorOptions = {
     cardShadowEnabled: true,

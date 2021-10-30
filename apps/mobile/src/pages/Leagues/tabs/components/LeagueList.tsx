@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {
   FlatListProps,
   FlatList,
@@ -10,6 +10,7 @@ import styled, {useTheme} from 'styled-components/native';
 import {LeagueCard} from '@components';
 import {useNavigation} from '@react-navigation/core';
 import {LeagueAccess} from '../../../../../../api/src/modules/leagues/leagues.constants';
+import {useScrollToTop} from '@react-navigation/native';
 
 const EmptyContainer = styled.View({
   flex: 1,
@@ -36,6 +37,10 @@ export const LeagueList = ({
 }: LeagueListProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
+
+  // Refs
+  const scrollRef = useRef(null);
+  useScrollToTop(scrollRef);
 
   const keyExtractor = (item: League) => item.id as string;
 
@@ -76,6 +81,7 @@ export const LeagueList = ({
         renderItem,
         keyExtractor,
       }}
+      ref={scrollRef}
       ListEmptyComponent={<EmptyContainer>{ListEmptyComponent}</EmptyContainer>}
       contentContainerStyle={{padding: 20}}
       onEndReachedThreshold={0.2}

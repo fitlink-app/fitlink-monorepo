@@ -153,7 +153,6 @@ async function connect({token, provider}: ConnectProvider) {
   return auth;
 }
 
-// Kimbo
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -167,30 +166,26 @@ const authSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      // Signup reducers
-      .addCase(signUp.fulfilled, (state, {payload}) => {
-        if (payload) state.authResult = payload;
-      })
-
-      // Signin reducers
-      .addCase(signIn.fulfilled, (state, {payload}) => {
-        if (payload) state.authResult = payload;
-      })
-
-      // Google Signin reducers
-      .addCase(signInWithGoogle.fulfilled, (state, {payload}) => {
-        if (payload) state.authResult = payload;
-      })
-
-      // Apple Signin reducers
-      .addCase(signInWithApple.fulfilled, (state, {payload}) => {
-        if (payload) state.authResult = payload;
-      })
-
       // Rehydrate reducer
       .addCase(REHYDRATE, (state, {payload}: any) => {
         if (!!payload?.auth?.authResult) api.setTokens(payload.auth.authResult);
-      });
+      })
+
+      .addMatcher(
+        action =>
+          [
+            signUp.fulfilled.type,
+            signIn.fulfilled.type,
+            signInWithApple.fulfilled.type,
+            signInWithGoogle.fulfilled.type,
+          ].includes(action.type),
+        (state, {payload}) => {
+          if (payload) {
+            state.authResult = payload;
+            api.setTokens(payload);
+          }
+        },
+      );
   },
 });
 

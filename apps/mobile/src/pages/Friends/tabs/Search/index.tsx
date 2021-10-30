@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {Label, ProfileRow, SearchBox} from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useSearchUsers} from '@hooks';
 import {ActivityIndicator, FlatList} from 'react-native';
 import {getResultsFromPages} from 'utils/api';
+import {useScrollToTop} from '@react-navigation/native';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -24,6 +25,10 @@ const EmptyContainer = styled.View({
 
 export const Search = () => {
   const {colors} = useTheme();
+
+  // Refs
+  const scrollRef = useRef(null);
+  useScrollToTop(scrollRef);
 
   const [query, setQuery] = useState('');
 
@@ -106,6 +111,7 @@ export const Search = () => {
           renderItem,
           keyExtractor,
         }}
+        ref={scrollRef}
         onEndReachedThreshold={0.2}
         onEndReached={() => fetchNextPage()}
         data={results}

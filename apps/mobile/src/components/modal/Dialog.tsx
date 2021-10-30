@@ -5,7 +5,7 @@ import {Button, Card, Label} from '../../components';
 import styled, {useTheme} from 'styled-components/native';
 import {ButtonProps} from 'components/common';
 
-interface DialogButton extends Omit<ButtonProps, 'onPress'> {
+export interface DialogButton extends Omit<ButtonProps, 'onPress'> {
   onPress: () => any;
 }
 

@@ -33,6 +33,7 @@ import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {getResultsFromPages} from 'utils/api';
 import {queryClient, QueryKeys} from '@query';
 import {PrivacySetting} from '@fitlink/api/src/modules/users-settings/users-settings.constants';
+import {calculateGoalsPercentage} from '@utils';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -200,6 +201,7 @@ export const Profile = (
       <HeaderContainer>
         <WidgetContainer>
           <UserWidget
+            goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
             avatar={user!.avatar?.url_512x512}
             name={user!.name}
             rank={user!.rank}

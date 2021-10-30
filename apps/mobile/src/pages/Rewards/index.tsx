@@ -1,15 +1,19 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Label, RewardTracker} from '@components';
 import {useMe, useMyRewards, useNextReward, useRewards} from '@hooks';
 import {RewardSlider} from './components';
 import {getResultsFromPages} from 'utils/api';
-import {ActivityIndicator, RefreshControl} from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  RefreshControl,
+  ScrollView,
+} from 'react-native';
+import {useScrollToTop} from '@react-navigation/native';
 
-const Wrapper = styled.ScrollView.attrs({
-  showsVerticalScrollIndicator: false,
-})({});
+const Wrapper = styled.View({});
 
 const ListHeaderContainer = styled.View({
   paddingTop: 20,
@@ -31,6 +35,10 @@ const ActivityIndicatorContainer = styled.View({
 export const Rewards = () => {
   const insets = useSafeAreaInsets();
   const {colors} = useTheme();
+
+  // Refs
+  const scrollRef = useRef(null);
+  useScrollToTop(scrollRef);
 
   // Whether or not display the pull down refresh indicator
   const [isManualRefresh, setManualRefresh] = useState(false);
@@ -159,89 +167,93 @@ export const Rewards = () => {
   };
 
   return (
-    <Wrapper
-      contentContainerStyle={{
-        paddingBottom: 20,
-        flexGrow: 1,
-        paddingTop: Platform.OS === 'ios' ? 0 : insets.top,
-      }}
-      contentInset={{top: insets.top, left: 0, bottom: 0, right: 0}}
-      contentOffset={{x: 0, y: -insets.top}}
-      automaticallyAdjustContentInsets={false}
-      contentInsetAdjustmentBehavior={'never'}
-      refreshControl={
-        <RefreshControl
-          progressViewOffset={insets.top + 20}
-          tintColor={colors.accent}
-          refreshing={isLoading && isFetchedAfterMount && isManualRefresh}
-          onRefresh={handleRefresh}
-        />
-      }>
-      {isFetchedAfterMount ? (
-        <>
-          <ListHeaderContainer>
-            <PointsLabelContainer>
-              {userIsFetchedAfterMount && (
-                <Label appearance={'primary'}>
-                  Your point balance is{' '}
-                  <Label appearance={'accent'}>{pointsTotal}</Label>
-                </Label>
+    <Wrapper style={{paddingTop: insets.top}}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        ref={scrollRef}
+        contentContainerStyle={{
+          paddingBottom: 20,
+          flexGrow: 1,
+          paddingTop: Platform.OS === 'ios' ? 0 : insets.top,
+        }}
+        automaticallyAdjustContentInsets={false}
+        contentInsetAdjustmentBehavior={'never'}
+        refreshControl={
+          <RefreshControl
+            progressViewOffset={insets.top + 20}
+            tintColor={colors.accent}
+            refreshing={isLoading && isFetchedAfterMount && isManualRefresh}
+            onRefresh={handleRefresh}
+          />
+        }>
+        {isFetchedAfterMount ? (
+          <>
+            <ListHeaderContainer>
+              <PointsLabelContainer>
+                {userIsFetchedAfterMount && (
+                  <Label appearance={'primary'}>
+                    Your point balance is{' '}
+                    <Label appearance={'accent'}>{pointsTotal}</Label>
+                  </Label>
+                )}
+              </PointsLabelContainer>
+
+              {(!!nextReward?.reward?.points_required ||
+                !!nextReward?.unclaimed_rewards_total) && (
+                <RewardTracker
+                  points={user?.points_total || 0}
+                  targetPoints={nextReward?.reward?.points_required || 0}
+                  claimableRewardsCount={
+                    nextReward?.unclaimed_rewards_total || 0
+                  }
+                  showNextReward={true}
+                />
               )}
-            </PointsLabelContainer>
+            </ListHeaderContainer>
 
-            {(!!nextReward?.reward?.points_required ||
-              !!nextReward?.unclaimed_rewards_total) && (
-              <RewardTracker
-                points={user?.points_total || 0}
-                targetPoints={nextReward?.reward?.points_required || 0}
-                claimableRewardsCount={nextReward?.unclaimed_rewards_total || 0}
-                showNextReward={true}
-              />
+            {!totalRewardsCount ? (
+              renderEmpty()
+            ) : (
+              <>
+                <RewardSlider
+                  data={myRewardsEntries}
+                  title={'My Rewards'}
+                  isLoading={isFetchingMyRewards && !isManualRefresh}
+                  isLoadingNextPage={isFetchingMyRewardsNextPage}
+                  userPoints={user!.points_total}
+                  fetchNextPage={fetchMyRewardsNextPage}
+                />
+                <RewardSlider
+                  data={unclaimedRewardEntries}
+                  title={'Unclaimed Rewards'}
+                  isLoading={isFetchingUnclaimedRewards && !isManualRefresh}
+                  isLoadingNextPage={isFetchingUnclaimedRewardsNextPage}
+                  userPoints={user!.points_total}
+                  fetchNextPage={fetchUnclaimedRewardsNextPage}
+                />
+                <RewardSlider
+                  data={lockedRewardsEntries}
+                  title={'Locked Rewards'}
+                  isLoading={isFetchingLockedRewards && !isManualRefresh}
+                  isLoadingNextPage={isFetchingLockedRewardsNextPage}
+                  userPoints={user!.points_total}
+                  fetchNextPage={fetchLockedRewardsNextPage}
+                />
+                <RewardSlider
+                  data={expiredRewardsEntries}
+                  title={'Expired Rewards'}
+                  isLoading={isFetchingExpiredRewards && !isManualRefresh}
+                  isLoadingNextPage={isFetchingExpiredRewardsNextPage}
+                  userPoints={user!.points_total}
+                  fetchNextPage={fetchExpiredRewardsNextPage}
+                />
+              </>
             )}
-          </ListHeaderContainer>
-
-          {!totalRewardsCount ? (
-            renderEmpty()
-          ) : (
-            <>
-              <RewardSlider
-                data={myRewardsEntries}
-                title={'My Rewards'}
-                isLoading={isFetchingMyRewards && !isManualRefresh}
-                isLoadingNextPage={isFetchingMyRewardsNextPage}
-                userPoints={user!.points_total}
-                fetchNextPage={fetchMyRewardsNextPage}
-              />
-              <RewardSlider
-                data={unclaimedRewardEntries}
-                title={'Unclaimed Rewards'}
-                isLoading={isFetchingUnclaimedRewards && !isManualRefresh}
-                isLoadingNextPage={isFetchingUnclaimedRewardsNextPage}
-                userPoints={user!.points_total}
-                fetchNextPage={fetchUnclaimedRewardsNextPage}
-              />
-              <RewardSlider
-                data={lockedRewardsEntries}
-                title={'Locked Rewards'}
-                isLoading={isFetchingLockedRewards && !isManualRefresh}
-                isLoadingNextPage={isFetchingLockedRewardsNextPage}
-                userPoints={user!.points_total}
-                fetchNextPage={fetchLockedRewardsNextPage}
-              />
-              <RewardSlider
-                data={expiredRewardsEntries}
-                title={'Expired Rewards'}
-                isLoading={isFetchingExpiredRewards && !isManualRefresh}
-                isLoadingNextPage={isFetchingExpiredRewardsNextPage}
-                userPoints={user!.points_total}
-                fetchNextPage={fetchExpiredRewardsNextPage}
-              />
-            </>
-          )}
-        </>
-      ) : (
-        renderLoading()
-      )}
+          </>
+        ) : (
+          renderLoading()
+        )}
+      </ScrollView>
     </Wrapper>
   );
 };

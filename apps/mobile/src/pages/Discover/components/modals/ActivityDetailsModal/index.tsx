@@ -26,14 +26,17 @@ import {
   Dimensions,
   FlatList,
   Linking,
+  Platform,
   View,
 } from 'react-native';
+import LaunchNavigator from 'react-native-launch-navigator';
 import {NativeViewGestureHandler} from 'react-native-gesture-handler';
-import {useActivity} from '@hooks';
+import {useActivity, useModal} from '@hooks';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useEffect} from 'react';
+import {Dialog, DialogButton} from 'components/modal';
 
-const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('screen');
+const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
 const DETAILS_MODAL_KEY = 'DETAILS_MODAL_KEY';
 
@@ -97,7 +100,8 @@ export const ActivityDetailsModal = React.forwardRef<
 >(({activityId, onBack, ...rest}, ref) => {
   const {colors} = useTheme();
   const insets = useSafeAreaInsets();
-  const {dismiss, dismissAll} = useBottomSheetModal();
+  const {dismiss} = useBottomSheetModal();
+  const {openModal, closeModal} = useModal();
 
   const {data: activity} = useActivity(activityId);
 
@@ -134,11 +138,46 @@ export const ActivityDetailsModal = React.forwardRef<
   }, [activity]);
 
   const handleOnDirectionsPressed = () => {
-    // TODO: Handle open map
+    if (Platform.OS === 'android')
+      // TODO: Move Google Maps API key to configs
+      // @ts-ignore
+      LaunchNavigator.setGoogleApiKey(
+        '25:9F:16:C3:EC:5A:37:F7:25:0D:A6:61:4B:80:13:F4:2F:23:8F:08',
+      );
+
+    const coords = activity?.meeting_point.coordinates;
+    // @ts-ignore
+    LaunchNavigator.navigate([coords[0], coords[1]])
+      .then(() => console.log('Launched navigator'))
+      .catch((err: any) => console.error('Error launching navigator: ' + err));
   };
 
   const handleOnContactPressed = () => {
-    // TODO: Open contacts modal (email/phone)
+    const buttons: DialogButton[] = [];
+
+    if (activity?.organizer_telephone) {
+      buttons.push({
+        text: 'Phone',
+        onPress: () => Linking.openURL(`tel:${activity.organizer_telephone}`),
+      });
+    }
+
+    if (activity?.organizer_email) {
+      buttons.push({
+        text: 'E-mail',
+        onPress: () => Linking.openURL(`mailto:${activity.organizer_email}`),
+      });
+    }
+
+    openModal(id => (
+      <Dialog
+        {...{buttons}}
+        title={'Contact'}
+        onCloseCallback={() => {
+          closeModal(id);
+        }}
+      />
+    ));
   };
 
   const handleOnLayout = useCallback(
@@ -233,7 +272,7 @@ export const ActivityDetailsModal = React.forwardRef<
     return (
       <Section>
         <Label type={'subheading'} bold style={{marginBottom: 10}}>
-          Event Organizer
+          Event Organiser
         </Label>
 
         <SectionContent>
