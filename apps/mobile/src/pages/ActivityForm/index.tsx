@@ -265,7 +265,7 @@ export const ActivityForm = (
 
             <FieldSpacer>
               <Accordion
-                title={'Organizer Details'}
+                title={'Organiser Details'}
                 subtitle={'(optional)'}
                 style={{paddingVertical: 5}}>
                 <>
@@ -291,7 +291,7 @@ export const ActivityForm = (
                       <View style={{paddingLeft: 15, flex: 1}}>
                         <InputField
                           placeholder={'Company, group or individual'}
-                          label={'Organizer Name'}
+                          label={'Organiser Name'}
                           value={values.organizer_name}
                           onChangeText={handleChange('organizer_name')}
                           error={fieldErrors?.organizer_name}
@@ -302,8 +302,8 @@ export const ActivityForm = (
 
                   <FieldSpacer>
                     <InputField
-                      placeholder={"Organizer's e-mail address"}
-                      label={'Organizer E-mail'}
+                      placeholder={"Organiser's e-mail address"}
+                      label={'Organiser E-mail'}
                       value={values.organizer_email}
                       onChangeText={handleChange('organizer_email')}
                       error={fieldErrors?.organizer_email}
@@ -313,8 +313,8 @@ export const ActivityForm = (
 
                   <FieldSpacer>
                     <InputField
-                      placeholder={"Organizer's website"}
-                      label={'Organizer Website'}
+                      placeholder={"Organiser's website"}
+                      label={'Organiser Website'}
                       value={values.organizer_url}
                       onChangeText={handleChange('organizer_url')}
                       error={fieldErrors?.organizer_url}
@@ -324,8 +324,8 @@ export const ActivityForm = (
 
                   <FieldSpacer>
                     <InputField
-                      placeholder={"Organizer's Phone Number"}
-                      label={'Organizer Phone Number'}
+                      placeholder={"Organiser's Phone Number"}
+                      label={'Organiser Phone Number'}
                       value={values.organizer_telephone}
                       onChangeText={handleChange('organizer_telephone')}
                       error={fieldErrors?.organizer_telephone}

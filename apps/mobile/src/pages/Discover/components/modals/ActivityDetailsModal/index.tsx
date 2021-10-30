@@ -233,7 +233,7 @@ export const ActivityDetailsModal = React.forwardRef<
     return (
       <Section>
         <Label type={'subheading'} bold style={{marginBottom: 10}}>
-          Event Organizer
+          Event Organiser
         </Label>
 
         <SectionContent>
