@@ -17,7 +17,7 @@ import {
   useUpdateIntercomUser,
 } from '@hooks';
 import {UserWidget} from '@components';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {
@@ -27,7 +27,7 @@ import {
   RefreshControl,
   View,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {calculateGoalsPercentage, getPersistedData, persistData} from '@utils';
 import {NewsletterModal, NotificationsButton} from './components';
 import {useSelector} from 'react-redux';
@@ -76,6 +76,10 @@ export const Feed = () => {
   const {colors} = useTheme();
 
   const {openModal, closeModal} = useModal();
+
+  // Refs
+  const scrollRef = useRef(null);
+  useScrollToTop(scrollRef);
 
   // Preload providers
   useProviders();
@@ -242,6 +246,7 @@ export const Feed = () => {
     <Wrapper style={{paddingTop: insets.top}}>
       <FlatList
         {...{renderItem, ListFooterComponent, ListEmptyComponent, keyExtractor}}
+        ref={scrollRef}
         data={feedResults}
         showsVerticalScrollIndicator={false}
         style={{overflow: 'visible'}}

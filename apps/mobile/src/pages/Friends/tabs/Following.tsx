@@ -1,10 +1,11 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {Label, ProfileRow} from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useFollowing} from '@hooks';
 import {ActivityIndicator, FlatList, RefreshControl} from 'react-native';
 import {getResultsFromPages} from 'utils/api';
+import {useScrollToTop} from '@react-navigation/native';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -19,6 +20,10 @@ const EmptyContainer = styled.View({
 
 export const Following = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
   const {colors} = useTheme();
+
+  // Refs
+  const scrollRef = useRef(null);
+  useScrollToTop(scrollRef);
 
   const {
     data,
@@ -91,6 +96,7 @@ export const Following = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
           renderItem,
           keyExtractor,
         }}
+        ref={scrollRef}
         onEndReachedThreshold={0.2}
         onEndReached={() => fetchNextPage()}
         data={results}
