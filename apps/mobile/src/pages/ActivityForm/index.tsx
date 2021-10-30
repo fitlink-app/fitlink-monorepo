@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import styled, {useTheme} from 'styled-components/native';
-import {KeyboardAvoidingView, Platform, ScrollView, View} from 'react-native';
+import {Platform, ScrollView, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {StackScreenProps} from '@react-navigation/stack';
 import {RootStackParamList} from 'routes/types';
@@ -21,6 +21,7 @@ import {
   Label,
   Navbar,
   NAVBAR_HEIGHT,
+  KeyboardAvoidingView,
 } from '@components';
 import {CreateActivityDto} from '@fitlink/api/src/modules/activities/dto/create-activity.dto';
 import {getErrors} from '@api';
@@ -208,10 +209,7 @@ export const ActivityForm = (
 
   return (
     <>
-      <KeyboardAvoidingView
-        enabled={Platform.OS === 'ios'}
-        behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
-        style={{flex: 1}}>
+      <KeyboardAvoidingView enabled={Platform.OS === 'ios'}>
         <ScrollView
           contentContainerStyle={{
             paddingTop: NAVBAR_HEIGHT + insets.top + 5,

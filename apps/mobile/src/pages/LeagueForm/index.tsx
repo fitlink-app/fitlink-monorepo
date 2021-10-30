@@ -21,7 +21,13 @@ import {
   useUploadImage,
 } from '@hooks';
 import React, {useState} from 'react';
-import {ActivityIndicator, Alert, Platform, ScrollView} from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Platform,
+  ScrollView,
+  View,
+} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {ImageType} from '@fitlink/api/src/modules/images/images.constants';
@@ -224,108 +230,109 @@ export const LeagueForm = (
   };
 
   return (
-    <Wrapper>
+    <>
+      <KeyboardAvoidingView enabled={Platform.OS === 'ios'}>
+        {isSportsFetched ? (
+          <ScrollView
+            contentContainerStyle={{
+              paddingTop: NAVBAR_HEIGHT + insets.top + 20,
+              paddingBottom: 20,
+              paddingHorizontal: 20,
+            }}>
+            <FormContentWrapper>
+              <ImagePicker
+                style={{marginBottom: 10}}
+                imageSrc={
+                  image
+                    ? image.uri
+                    : editLeagueData
+                    ? editLeagueData.imageUrl
+                    : undefined
+                }
+                label={'Select an image for your league'}
+                onImagePicked={setImage}
+                error={fieldErrors.imageId}
+              />
+
+              <StyledInputField
+                label={'Title'}
+                value={values.name}
+                error={fieldErrors.name}
+                onChangeText={handleChange('name')}
+                placeholder={'League Title'}
+                returnKeyType={'next'}
+              />
+
+              <StyledInputField
+                label={'Overview / description'}
+                value={values.description}
+                error={fieldErrors.description}
+                onChangeText={handleChange('description')}
+                placeholder={'How would you best describe your league'}
+                multiline={true}
+              />
+
+              <DropdownContainer>
+                {mode === 'create' && (
+                  <FormDropdown
+                    label={'Sport'}
+                    items={sportsMapped}
+                    value={values.sportId}
+                    onValueChange={handleChange('sportId')}
+                    prompt={'Select sport type'}
+                    style={{marginRight: 5, flex: 1}}
+                  />
+                )}
+
+                <FormDropdown
+                  label={'Leaderboard duration'}
+                  items={leagueDurations}
+                  value={values.duration}
+                  onValueChange={handleChange('duration')}
+                  prompt={'Select leaderboard duration'}
+                  style={{marginLeft: 5, flex: 1}}
+                />
+              </DropdownContainer>
+
+              <Checkbox
+                onPress={() => handleChange('repeat')(!values.repeat)}
+                checked={values.repeat!}
+                text={'Repeat this league'}
+              />
+
+              {!!errorMessage && <FormError>{errorMessage}</FormError>}
+            </FormContentWrapper>
+
+            <Button
+              text={mode === 'create' ? 'Create League' : 'Save Changes'}
+              onPress={handleOnSubmitPressed}
+              loading={isCreatingLeague}
+              disabled={isCreatingLeague || isDeleting || isSubmitted}
+            />
+
+            {mode === 'edit' && (
+              <Button
+                style={{marginTop: 10}}
+                text={'Delete'}
+                outline
+                type={'danger'}
+                onPress={handleOnDeletePressed}
+                loading={isDeleting}
+                disabled={isDeleting || isCreatingLeague || isSubmitted}
+              />
+            )}
+          </ScrollView>
+        ) : (
+          <Center>
+            <ActivityIndicator color={colors.accent} />
+          </Center>
+        )}
+      </KeyboardAvoidingView>
+
       <Navbar
         overlay
         title={mode === 'create' ? 'Create League' : 'Edit League'}
       />
-
-      {isSportsFetched ? (
-        <ScrollView
-          keyboardDismissMode={'on-drag'}
-          contentContainerStyle={{
-            marginTop: NAVBAR_HEIGHT + insets.top + 20,
-            marginBottom: 20,
-            paddingHorizontal: 20,
-          }}>
-          <FormContentWrapper>
-            <ImagePicker
-              style={{marginBottom: 10}}
-              imageSrc={
-                image
-                  ? image.uri
-                  : editLeagueData
-                  ? editLeagueData.imageUrl
-                  : undefined
-              }
-              label={'Select an image for your league'}
-              onImagePicked={setImage}
-              error={fieldErrors.imageId}
-            />
-
-            <StyledInputField
-              label={'Title'}
-              value={values.name}
-              error={fieldErrors.name}
-              onChangeText={handleChange('name')}
-              placeholder={'League Title'}
-              returnKeyType={'next'}
-            />
-
-            <StyledInputField
-              label={'Overview / description'}
-              value={values.description}
-              error={fieldErrors.description}
-              onChangeText={handleChange('description')}
-              placeholder={'How would you best describe your league'}
-              multiline={true}
-            />
-
-            <DropdownContainer>
-              {mode === 'create' && (
-                <FormDropdown
-                  label={'Sport'}
-                  items={sportsMapped}
-                  value={values.sportId}
-                  onValueChange={handleChange('sportId')}
-                  prompt={'Select sport type'}
-                  style={{marginRight: 5, flex: 1}}
-                />
-              )}
-
-              <FormDropdown
-                label={'Leaderboard duration'}
-                items={leagueDurations}
-                value={values.duration}
-                onValueChange={handleChange('duration')}
-                prompt={'Select leaderboard duration'}
-                style={{marginLeft: 5, flex: 1}}
-              />
-            </DropdownContainer>
-
-            <Checkbox
-              onPress={() => handleChange('repeat')(!values.repeat)}
-              checked={values.repeat!}
-              text={'Repeat this league'}
-            />
-
-            {!!errorMessage && <FormError>{errorMessage}</FormError>}
-          </FormContentWrapper>
-
-          <Button
-            text={mode === 'create' ? 'Create League' : 'Save Changes'}
-            onPress={handleOnSubmitPressed}
-            loading={isCreatingLeague}
-            disabled={isCreatingLeague || isDeleting || isSubmitted}
-          />
-
-          {mode === 'edit' && (
-            <Button
-              style={{marginTop: 10}}
-              text={'Delete'}
-              outline
-              type={'danger'}
-              onPress={handleOnDeletePressed}
-              loading={isDeleting}
-              disabled={isDeleting || isCreatingLeague || isSubmitted}
-            />
-          )}
-        </ScrollView>
-      ) : (
-        <Center>
-          <ActivityIndicator color={colors.accent} />
-        </Center>
-      )}
-    </Wrapper>
+    </>
   );
 };
