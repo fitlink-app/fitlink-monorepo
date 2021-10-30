@@ -174,20 +174,22 @@ export class HealthActivitiesService {
     userId: string,
     sport?: Sport
   ) {
-    const [userActivities, error] = await tryAndCatch(
-      this.healthActivityRepository.findOne({
-        where: {
-          user: { id: userId },
-          start_time: LessThanOrEqual(new Date(endTime)),
-          end_time: MoreThanOrEqual(new Date(startTime)),
-          sport: {
-            id: sport ? sport.id : undefined
-          }
+    const activity = await this.healthActivityRepository.findOne({
+      where: {
+        user: { id: userId },
+        start_time: LessThanOrEqual(new Date(endTime)),
+        end_time: MoreThanOrEqual(new Date(startTime)),
+        sport: {
+          id: sport ? sport.id : undefined
         }
-      })
-    )
-    error && error.message !== 'Data not found' && console.error(error.message)
-    return !!userActivities
+      }
+    })
+    if (activity) {
+      console.log(
+        `${activity.id} ${userId} ${sport ? sport.name_key : 'Sport not found'}`
+      )
+    }
+    return !!activity
   }
 
   setHealthActivityImages(healthActivityId: string, images: string | string[]) {
