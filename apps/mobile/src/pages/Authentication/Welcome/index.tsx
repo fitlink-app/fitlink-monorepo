@@ -78,6 +78,7 @@ export const Welcome = () => {
     try {
       setGoogleLoading(true);
 
+      await GoogleSignin.signOut();
       const {idToken} = await GoogleSignin.signIn();
       if (idToken) await dispatch(signInWithGoogle(idToken));
     } catch (e) {
