@@ -4,7 +4,7 @@
  * @format
  */
 
-import {Avatar, Label, TouchHandler} from '../common';
+import {Avatar, Label, ProgressCircle, TouchHandler} from '../common';
 import React from 'react';
 import styled from 'styled-components/native';
 import {NumberFormatterUtils} from '@utils';
@@ -16,6 +16,7 @@ interface UserWidgetProps {
   friendCount: number;
   followerCount: number;
   pointCount: number;
+  goalProgress: number;
   avatarOnPress?: () => void;
   friendsOnPress?: () => void;
   followersOnPress?: () => void;
@@ -89,7 +90,15 @@ export const UserWidget = (props: UserWidgetProps) => {
   return (
     <Wrapper>
       <TouchHandler onPress={props.avatarOnPress}>
-        <Avatar url={props.avatar} />
+        <ProgressCircle
+          progress={props.goalProgress}
+          strokeWidth={3}
+          backgroundStrokeWidth={2.5}
+          bloomIntensity={0.5}
+          bloomRadius={5}
+          size={90}>
+          <Avatar url={props.avatar} />
+        </ProgressCircle>
       </TouchHandler>
 
       <ContentContainer>

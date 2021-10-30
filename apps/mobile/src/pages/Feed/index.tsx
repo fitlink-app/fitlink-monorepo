@@ -28,7 +28,7 @@ import {
   View,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {getPersistedData, persistData} from '@utils';
+import {calculateGoalsPercentage, getPersistedData, persistData} from '@utils';
 import {NewsletterModal, NotificationsButton} from './components';
 import {useSelector} from 'react-redux';
 import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
@@ -279,6 +279,7 @@ export const Feed = () => {
             <HeaderContainer>
               <HeaderWidgetContainer style={{marginBottom: 5}}>
                 <UserWidget
+                  goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
                   name={user.name}
                   rank={user.rank}
                   avatar={user.avatar?.url_512x512}
