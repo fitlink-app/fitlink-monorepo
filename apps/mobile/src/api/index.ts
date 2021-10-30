@@ -3,6 +3,10 @@ import {makeApi} from '@fitlink/api-sdk';
 import {ResponseError} from '@fitlink/api-sdk/types';
 import {getErrorFields, getErrorMessage} from '@fitlink/api-sdk';
 import Config from 'react-native-config';
+import {Alert} from 'react-native';
+import {store} from 'redux/store';
+import {RootState} from 'redux/reducer';
+import {logout} from 'redux/auth/authSlice';
 
 const axios = Axios.create({
   baseURL: Config.API_URL,
@@ -36,6 +40,18 @@ export function getErrors(e: ResponseError) {
 //   return response;
 // });
 
-export default makeApi(axios);
+/**
+  Callback to gracefully log the user out when the refresh token is invalidated/revoked server side
+ */
+const handleRefreshTokenRefused = async () => {
+  const authResult = (store.getState() as RootState).auth.authResult;
+
+  if (authResult) {
+    await store.dispatch(logout());
+    Alert.alert('Session Expired', 'Your session has expired. Please login.');
+  }
+};
+
+export default makeApi(axios, {onRefreshTokenFail: handleRefreshTokenRefused});
 
 export * from './fcmTokens';
