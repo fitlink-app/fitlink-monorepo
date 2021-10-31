@@ -52,9 +52,9 @@ export const unlinkProvider = (type: ProviderType) =>
   useMutation(() => api.delete(`me/providers/${type}`), {
     onSuccess: () => {
       // Invalidate providers
-      queryClient.setQueriesData<Provider[]>(
+      queryClient.setQueriesData<ProviderType[]>(
         QueryKeys.MyProviders,
-        oldActivities => oldActivities?.filter(x => x.type !== type) || [],
+        oldActivities => oldActivities?.filter(x => x !== type) || [],
       );
     },
   });

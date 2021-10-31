@@ -6,7 +6,11 @@ import {
   WebhookEventActivity,
   WebhookEventData,
 } from '@fitlink/api/src/modules/providers/types/webhook';
-import {syncDeviceActivities, syncDeviceLifestyleData} from 'services/common';
+import {
+  fetchProviderList,
+  syncDeviceActivities,
+  syncDeviceLifestyleData,
+} from 'services/common';
 import {queryClient, QueryKeys} from '@query';
 import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 
@@ -317,21 +321,18 @@ async function syncLifestyle() {
 async function syncAllWithBackend() {
   try {
     // Check if Google Fit is linked to the user
-    const providers = queryClient.getQueryData(QueryKeys.MyProviders) as [];
+    const providers = await fetchProviderList();
+
     if (
-      providers &&
-      providers.length &&
-      providers.find(provider => provider.type === ProviderType.GoogleFit)
+      providers?.length &&
+      providers.find(provider => provider === ProviderType.AppleHealthkit)
     ) {
       // Make sure Google Fit singleton is instantiated
       const isAuthorized = await checkIsAuthorized();
-      if (!isAuthorized) await authenticate();
 
-      // Make sure Google Fit is installed
-      const isAvailable = await checkIsAvailable();
-      if (!isAvailable) return;
-
-      await Promise.all([syncActivities(), syncLifestyle()]);
+      if (isAuthorized) {
+        await Promise.all([syncActivities(), syncLifestyle()]);
+      }
     }
   } catch (e) {
     console.warn('Unable to sync Google Fit data with backend: ' + e);
@@ -342,4 +343,5 @@ export const GoogleFitWrapper = {
   syncAllWithBackend,
   disconnect,
   authenticate,
+  checkIsAvailable,
 };

@@ -44,7 +44,6 @@ export const Search = () => {
   };
 
   const renderItem = ({item}: {item: UserPublic}) => {
-    console.log(item);
     return (
       <ProfileRow
         teamName={item.team_name}
