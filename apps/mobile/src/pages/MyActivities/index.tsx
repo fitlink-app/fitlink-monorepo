@@ -32,7 +32,6 @@ const LOADING_NEXT_PAGE_BOTTOM_INDICATOR_HEIGHT = 60;
 const Wrapper = styled.View({flex: 1});
 
 const EmptyContainer = styled.View({
-  flex: 1,
   justifyContent: 'center',
   alignItems: 'center',
   height: LOADING_NEXT_PAGE_BOTTOM_INDICATOR_HEIGHT,
