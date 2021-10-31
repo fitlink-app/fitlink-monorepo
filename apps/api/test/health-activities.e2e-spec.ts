@@ -110,7 +110,7 @@ describe('Health Activities', () => {
     const data = await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/fitbit/webhook'
+      url: '/providers/fitbit/webhook/activities'
     })
 
     data.json().forEach((result) => {
@@ -157,7 +157,7 @@ describe('Health Activities', () => {
     const data = await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/fitbit/webhook'
+      url: '/providers/fitbit/webhook/activities'
     })
     expect(data.json()[0].healthActivity).toBe(null)
     expect(data.json()[1].healthActivity).toBe(null)
@@ -190,7 +190,7 @@ describe('Health Activities', () => {
     const data = await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/fitbit/webhook'
+      url: '/providers/fitbit/webhook/activities'
     })
 
     expect(data.json().goalEntry).toBe(null)
@@ -225,7 +225,7 @@ describe('Health Activities', () => {
     const data = await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/fitbit/webhook'
+      url: '/providers/fitbit/webhook/activities'
     })
 
     const result = data.json()
@@ -333,7 +333,7 @@ describe('Health Activities', () => {
     await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/fitbit/webhook'
+      url: '/providers/fitbit/webhook/activities'
     })
 
     const entry = await connection
@@ -380,7 +380,7 @@ describe('Health Activities', () => {
     await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/fitbit/webhook'
+      url: '/providers/fitbit/webhook/activities'
     })
 
     // Expect a feed item to be created.
