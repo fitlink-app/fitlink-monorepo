@@ -234,7 +234,7 @@ export class HealthActivitiesService {
   }
 
   getComputedTitle(singular: string, start_time: Date, tz: string) {
-    const hour = Number(zonedFormat(start_time, 'h', tz, {}))
+    const hour = Number(zonedFormat(start_time, 'H', tz, {}))
     let time = 'Early morning'
 
     if (hour >= 7 && hour < 12) {
@@ -253,7 +253,7 @@ export class HealthActivitiesService {
       time = 'Evening'
     }
 
-    if (hour >= 20 && hour < 4) {
+    if (hour >= 20 || hour < 4) {
       time = 'Late evening'
     }
 
