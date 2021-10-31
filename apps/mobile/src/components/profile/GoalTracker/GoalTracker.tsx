@@ -57,7 +57,7 @@ interface GoalTrackerProps {
 
 export const _GoalTracker = ({trackers, isLocalUser}: GoalTrackerProps) => {
   const navigation = useNavigation();
-  const {providerList} = useProviders();
+  const {data: providerList} = useProviders();
   const {openModal, closeModal} = useModal();
 
   const getUserFriendlyName = (identifier: GoalIdentifier) => {

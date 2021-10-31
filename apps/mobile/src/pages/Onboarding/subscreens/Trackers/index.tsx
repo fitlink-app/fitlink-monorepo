@@ -35,7 +35,7 @@ const LabelWrapper = styled.View({
 });
 
 export const Trackers = () => {
-  const {providerList} = useProviders();
+  const {data: providerList} = useProviders();
 
   const {isLinking: isStravaLinking, link: linkStrava} = useStrava();
   const {isLinking: isFitbitLinking, link: linkFitbit} = useFitbit();
@@ -52,7 +52,7 @@ export const Trackers = () => {
         {Platform.OS === 'android' && (
           <TrackerButton
             label={'Google Fit'}
-            isLinked={providerList.includes(ProviderType.GoogleFit)}
+            isLinked={!!providerList?.includes(ProviderType.GoogleFit)}
             onPress={() => {
               linkGoogleFit(() => {
                 GoogleFitWrapper.disconnect();
@@ -65,7 +65,7 @@ export const Trackers = () => {
         {Platform.OS === 'ios' && (
           <TrackerButton
             label={'Apple Health'}
-            isLinked={providerList.includes(ProviderType.AppleHealthkit)}
+            isLinked={!!providerList?.includes(ProviderType.AppleHealthkit)}
             onPress={() =>
               linkAppleHealth(() => AppleHealthKitWrapper.authenticate())
             }
@@ -75,13 +75,13 @@ export const Trackers = () => {
 
         <TrackerButton
           label={'Strava'}
-          isLinked={providerList.includes(ProviderType.Strava)}
+          isLinked={!!providerList?.includes(ProviderType.Strava)}
           isLoading={isStravaLinking}
           onPress={linkStrava}
         />
         <TrackerButton
           label={'Fitbit'}
-          isLinked={providerList.includes(ProviderType.Fitbit)}
+          isLinked={!!providerList?.includes(ProviderType.Fitbit)}
           isLoading={isFitbitLinking}
           onPress={linkFitbit}
         />

@@ -297,8 +297,6 @@ export const Profile = (
     );
   };
 
-  console.log(user);
-
   const ListFooterComponent = isFetchingFeedNextPage ? (
     <View style={{height: 72, alignItems: 'center', justifyContent: 'center'}}>
       <ActivityIndicator color={colors.accent} />

@@ -116,7 +116,6 @@ export const ModalProvider: React.FC = ({children}) => {
     }
 
     const componentId = uuid.v4() as string;
-    console.log(componentId);
 
     const wrappedComponent = (
       <ModalWrapper>{content(componentId)}</ModalWrapper>
