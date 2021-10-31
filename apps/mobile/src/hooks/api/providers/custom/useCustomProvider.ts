@@ -5,6 +5,7 @@ import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constan
 import {queryClient, QueryKeys} from '@query';
 import {Provider} from '@fitlink/api/src/modules/providers/entities/provider.entity';
 import {unlinkProvider} from '../utils';
+import {syncAllPlatformActivities} from 'services/common';
 
 export function useCustomProvider(type: ProviderType) {
   const linker = useMutation(
@@ -18,10 +19,13 @@ export function useCustomProvider(type: ProviderType) {
     },
     {
       onSuccess: data => {
-        queryClient.setQueriesData<Provider[]>(
+        queryClient.setQueriesData<ProviderType[]>(
           QueryKeys.MyProviders,
-          oldActivities => [...(oldActivities || []), data],
+          oldProviders => [...(oldProviders || []), data.type as ProviderType],
         );
+
+        // Sync
+        syncAllPlatformActivities();
       },
     },
   );

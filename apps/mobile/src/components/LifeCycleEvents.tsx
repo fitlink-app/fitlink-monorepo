@@ -7,6 +7,7 @@ import BackgroundFetch from 'react-native-background-fetch';
 import {useSelector} from 'react-redux';
 import {memoSelectIsAuthenticated} from 'redux/auth/authSlice';
 import {AppleHealthKitWrapper, GoogleFitWrapper} from 'services';
+import {syncAllPlatformActivities} from 'services/common';
 
 export const LifeCycleEvents = () => {
   const appState = useRef(AppState.currentState);
@@ -14,20 +15,20 @@ export const LifeCycleEvents = () => {
 
   useEffect(() => {
     runBackgroundSyncTasks();
-
-    AppState.addEventListener('change', _handleAppStateChange);
-
-    return () => {
-      AppState.removeEventListener('change', _handleAppStateChange);
-    };
   }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
       pingBackend();
       storeDeviceInfo();
-      syncHealthData();
+      syncAllPlatformActivities();
     }
+
+    AppState.addEventListener('change', _handleAppStateChange);
+
+    return () => {
+      AppState.removeEventListener('change', _handleAppStateChange);
+    };
   }, [isAuthenticated]);
 
   const _handleAppStateChange = (nextAppState: AppStateStatus) => {
@@ -37,8 +38,10 @@ export const LifeCycleEvents = () => {
       nextAppState === 'active'
     ) {
       // Log activity on server
-      pingBackend();
-      syncHealthData();
+      if (isAuthenticated) {
+        pingBackend();
+        syncAllPlatformActivities();
+      }
     }
 
     appState.current = nextAppState;
@@ -73,7 +76,9 @@ export const LifeCycleEvents = () => {
       async taskId => {
         console.log('[js] Received background-fetch event: ', taskId);
 
-        await syncHealthData();
+        if (isAuthenticated) {
+          await syncAllPlatformActivities();
+        }
 
         BackgroundFetch.finish(taskId);
       },
@@ -81,16 +86,6 @@ export const LifeCycleEvents = () => {
         console.log('[js] RNBackgroundFetch failed to start');
       },
     );
-  };
-
-  const syncHealthData = async () => {
-    if (!isAuthenticated) return;
-
-    if (Platform.OS === 'android') {
-      await GoogleFitWrapper.syncAllWithBackend();
-    } else if (Platform.OS === 'ios') {
-      await AppleHealthKitWrapper.syncAllWithBackend();
-    }
   };
 
   return null;
