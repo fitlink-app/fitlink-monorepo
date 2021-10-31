@@ -266,7 +266,11 @@ export class FitbitService {
       )
       return result
     } catch (e) {
-      console.error(e)
+      if (e.context && e.context.errors) {
+        console.error(JSON.stringify(e.context.errors))
+      } else {
+        console.error(e)
+      }
       throw e
     }
   }
