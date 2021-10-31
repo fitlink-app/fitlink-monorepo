@@ -218,6 +218,7 @@ export class UsersService {
       .leftJoinAndSelect('user.providers', 'providers')
       .take(limit)
       .skip(page * limit)
+      .orderBy('user.created_at', 'DESC')
 
     if (entityOwner && entityOwner.organisationId) {
       query = query

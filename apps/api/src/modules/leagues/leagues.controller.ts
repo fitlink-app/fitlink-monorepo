@@ -152,7 +152,7 @@ export class LeaguesController {
 
   /**
    * 1. Superadmin can retrieve all leagues
-   * 2. Ordinary users retrieve all public leagues
+   * 2. Ordinary users retrieve all public leagues not participating in
    * 3. Users belonging to teams and organisations can retrieve these leagues
    * 4. Owners of private leagues can also see their leagues (even if not participating)
    * @returns
@@ -168,7 +168,7 @@ export class LeaguesController {
     if (authUser.isSuperAdmin()) {
       return this.leaguesService.findAll({}, pagination)
     } else {
-      return this.leaguesService.findManyAccessibleToUser(
+      return this.leaguesService.findAllNotParticipating(
         authUser.id,
         pagination
       )

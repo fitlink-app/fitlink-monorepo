@@ -329,8 +329,9 @@ async function syncAllWithBackend() {
     ) {
       // Make sure Google Fit singleton is instantiated
       const isAuthorized = await checkIsAuthorized();
+      const isAvailable = await checkIsAvailable();
 
-      if (isAuthorized) {
+      if (isAuthorized && isAvailable) {
         await Promise.all([syncActivities(), syncLifestyle()]);
       }
     }
