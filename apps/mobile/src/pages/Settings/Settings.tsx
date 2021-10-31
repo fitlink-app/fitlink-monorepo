@@ -518,7 +518,7 @@ export const Settings = () => {
           onPress={() => Intercom.displayMessenger()}
         />
 
-        <SettingsButton label={`Version 3.0.0`} disabled={true} />
+        <SettingsButton label={`Version 3.0.1`} disabled={true} />
 
         <DeleteButtonWrapper>
           <Button
