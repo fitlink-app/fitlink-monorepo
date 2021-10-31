@@ -95,10 +95,16 @@ describe('Health Activities', () => {
       }
     ]
 
+    providerService.getUserByOwnerId = jest.fn()
+    providerService.getUserByOwnerId.mockReturnValue({
+      user: { id: userForFitbit.id }
+    } as Partial<Provider>)
+
     providerService.findOne = jest.fn()
     providerService.findOne.mockReturnValue({
       user: { id: userForFitbit.id }
     } as Partial<Provider>)
+
     fitbitService.getFreshFitbitToken = jest.fn()
     fitbitService.getFreshFitbitToken.mockReturnValue(
       `SomethingThat Won't error out`
@@ -318,6 +324,11 @@ describe('Health Activities', () => {
       }
     ]
 
+    providerService.getUserByOwnerId = jest.fn()
+    providerService.getUserByOwnerId.mockReturnValue({
+      user: { id: users[0].id }
+    } as Partial<Provider>)
+
     providerService.findOne = jest.fn()
     providerService.findOne.mockReturnValue({
       user: { id: userForEventEmitterTesting.id }
@@ -364,6 +375,11 @@ describe('Health Activities', () => {
 
     providerService.findOne = jest.fn()
     providerService.findOne.mockReturnValue({
+      user: { id: users[2].id }
+    } as Partial<Provider>)
+
+    providerService.getUserByOwnerId = jest.fn()
+    providerService.getUserByOwnerId.mockReturnValue({
       user: { id: users[2].id }
     } as Partial<Provider>)
 

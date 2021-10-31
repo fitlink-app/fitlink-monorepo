@@ -87,10 +87,10 @@ export class FitbitService {
     const updatesByUser: FitbitUserUpdates = {}
     // Categorize updates by user
     for (const update of payload) {
-      if (!updatesByUser[update.subscriptionId]) {
-        updatesByUser[update.subscriptionId] = [update]
+      if (!updatesByUser[update.ownerId]) {
+        updatesByUser[update.ownerId] = [update]
       } else {
-        updatesByUser[update.subscriptionId].push(update)
+        updatesByUser[update.ownerId].push(update)
       }
     }
 
@@ -102,10 +102,23 @@ export class FitbitService {
      */
     for (const userPayload of payloadArray) {
       // Get user's access token
-      const userId = userPayload[0].subscriptionId
+      const provider = await this.providersService.getUserByOwnerId(
+        userPayload[0].ownerId
+      )
+
+      // The user's removed themselves from Fitlink but the subscription still exists
+      // (i.e. they still need to deauthorize themselves from the Fitlink Fitbit app)
+      if (!provider) {
+        console.log(`User with ownerId ${userPayload[0].ownerId} not found`)
+        continue
+      }
+
+      const userId = provider.user.id
+
       const [token, tokenErr] = await tryAndCatch(
         this.getFreshFitbitToken(userId)
       )
+
       tokenErr && console.error(tokenErr.message)
 
       for (const update of userPayload) {
