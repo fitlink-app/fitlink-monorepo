@@ -35,7 +35,7 @@ export class FitbitController {
 
   @Public()
   @HttpCode(204)
-  @Get('/webhook/:type')
+  @Post('/webhook/:type')
   verifyWebhook(@Query('verify') verify: string, @Param('type') type: string) {
     if (!this.fitbitService.verifyWebhook(verify, type)) {
       throw new NotFoundException()
