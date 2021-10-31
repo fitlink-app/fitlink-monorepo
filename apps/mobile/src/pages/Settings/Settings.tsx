@@ -86,7 +86,7 @@ export const Settings = () => {
   const {showTransition, hideTransition} = useContext(TransitionContext);
 
   const {data: user} = useMe();
-  const {providerList} = useProviders();
+  const {data: providerList} = useProviders();
 
   const {
     isLinking: isStravaLinking,
@@ -345,7 +345,7 @@ export const Settings = () => {
             }}
             isLoading={isGoogleFitLinking || isGoogleFitUnlinking}
             disabled={isGoogleFitLinking || isGoogleFitUnlinking}
-            isLinked={providerList?.includes(ProviderType.GoogleFit)}
+            isLinked={!!providerList?.includes(ProviderType.GoogleFit)}
           />
         )}
 
@@ -358,7 +358,7 @@ export const Settings = () => {
             onUnlink={unlinkAppleHealth}
             isLoading={isAppleHealthLinking || isAppleHealthUnlinking}
             disabled={isAppleHealthLinking || isAppleHealthUnlinking}
-            isLinked={providerList?.includes(ProviderType.AppleHealthkit)}
+            isLinked={!!providerList?.includes(ProviderType.AppleHealthkit)}
           />
         )}
 
@@ -368,7 +368,7 @@ export const Settings = () => {
           onUnlink={unlinkStrava}
           isLoading={isStravaLinking || isStravaUnlinking}
           disabled={isStravaLinking || isStravaUnlinking}
-          isLinked={providerList?.includes(ProviderType.Strava)}
+          isLinked={!!providerList?.includes(ProviderType.Strava)}
         />
 
         <SettingsHealthActivityButton
@@ -377,7 +377,7 @@ export const Settings = () => {
           onUnlink={unlinkFitbit}
           isLoading={isFitbitLinking || isFitbitUnlinking}
           disabled={isFitbitLinking || isFitbitUnlinking}
-          isLinked={providerList?.includes(ProviderType.Fitbit)}
+          isLinked={!!providerList?.includes(ProviderType.Fitbit)}
         />
 
         {/* Goals */}
