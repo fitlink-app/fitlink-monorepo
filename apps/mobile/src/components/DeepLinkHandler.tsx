@@ -16,6 +16,7 @@ import {
   selectTeamInvitation,
 } from 'redux/teamInvitation/teamInvitationSlice';
 import {useNavigation} from '@react-navigation/core';
+import {Team} from '@fitlink/api/src/modules/teams/entities/team.entity';
 
 export const DeeplinkHandler = () => {
   const navigation = navigationRef;
@@ -86,6 +87,12 @@ export const DeeplinkHandler = () => {
     }
   };
 
+  useEffect(() => {
+    if (invitation && code) {
+      showTeamInvitationModal(invitation, code);
+    }
+  }, [invitation]);
+
   //   const handlePushNotification = async (data: {[key: string]: string}) => {
   //     if (!data.type) return;
 
@@ -112,8 +119,6 @@ export const DeeplinkHandler = () => {
     } catch (e) {
       console.log('Failed to get team invitation data');
     }
-
-    showTeamInvitationModal();
   };
 
   const handlePasswordReset = async () => {
@@ -154,8 +159,8 @@ export const DeeplinkHandler = () => {
     ));
   };
 
-  const showTeamInvitationModal = async () => {
-    if (!invitation || !isAuthenticated || !me?.onboarded || !code) return;
+  const showTeamInvitationModal = async (invitation: Team, code: string) => {
+    if (!isAuthenticated || !me?.onboarded || !code) return;
 
     const userQuery = await refetchUser();
 
@@ -179,7 +184,6 @@ export const DeeplinkHandler = () => {
                 showButtons={true}
                 onClose={(success: boolean) => {
                   closeModal(id);
-                  dispatch(resetTeamInvitation());
 
                   if (success) {
                     setTimeout(() => {
@@ -204,11 +208,11 @@ export const DeeplinkHandler = () => {
             </Modal>
           );
         },
-        () => {
-          dispatch(resetTeamInvitation());
-        },
+        undefined,
         'teamInvitationModal',
       );
+
+      dispatch(resetTeamInvitation());
     }, 500);
   };
 

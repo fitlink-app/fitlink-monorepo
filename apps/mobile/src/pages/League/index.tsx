@@ -82,6 +82,10 @@ export const League = (
 
   const scrollValue = useRef(new Animated.Value(0)).current;
 
+  if (Platform.OS === 'android') {
+    scrollValue.setOffset(-HEADER_HEIGHT);
+  }
+
   useEffect(() => {
     scrollValue.setValue(-HEADER_HEIGHT);
   }, []);
