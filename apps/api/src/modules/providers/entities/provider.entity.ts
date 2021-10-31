@@ -41,6 +41,12 @@ export class Provider extends CreatableEntity {
   })
   token_expires_at: Date
 
+  /** Used when the token cannot be refreshed, to inform the user to re-authenticate */
+  @Column({
+    default: false
+  })
+  token_error: boolean
+
   @Column({
     type: 'json',
     nullable: true

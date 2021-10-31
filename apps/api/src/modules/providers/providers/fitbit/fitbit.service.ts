@@ -115,6 +115,11 @@ export class FitbitService {
 
       const userId = provider.user.id
 
+      if (provider.token_error) {
+        console.log(`User ${userId} has token error for Fitbit`)
+        continue
+      }
+
       const [token, tokenErr] = await tryAndCatch(
         this.getFreshFitbitToken(userId)
       )
@@ -266,8 +271,16 @@ export class FitbitService {
       )
       return result
     } catch (e) {
-      console.error(e)
-      throw e
+      if (e.context && e.context.errors) {
+        console.error(JSON.stringify(e.context.errors))
+      } else {
+        console.error(e)
+      }
+      return {
+        access_token: '0',
+        refresh_token: '0',
+        expires_in: 0
+      }
     }
   }
 
@@ -290,6 +303,18 @@ export class FitbitService {
         provider.token,
         provider.refresh_token
       )
+
+      // Refresh failed
+      if (access_token === '0') {
+        await this.providersService.setProviderTokenError(
+          userId,
+          ProviderType.Fitbit
+        )
+        throw new BadRequestException(
+          `Token could not be refreshed for ${userId}: ${ProviderType.Fitbit} `
+        )
+      }
+
       const token_expires_at = addSeconds(new Date(), expires_in)
       const newCredentials = {
         token: access_token,
