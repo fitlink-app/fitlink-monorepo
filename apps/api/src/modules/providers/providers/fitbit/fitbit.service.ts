@@ -121,6 +121,11 @@ export class FitbitService {
 
       tokenErr && console.error(tokenErr.message)
 
+      // Do not continue if there's no token available
+      if (tokenErr) {
+        continue
+      }
+
       for (const update of userPayload) {
         switch (update.collectionType) {
           case 'activities':
@@ -254,7 +259,16 @@ export class FitbitService {
   }
 
   async refreshToken(accessToken: string, refreshToken: string) {
-    return await this.Fitbit.refreshAccessToken(accessToken, refreshToken)
+    try {
+      const result = await this.Fitbit.refreshAccessToken(
+        accessToken,
+        refreshToken
+      )
+      return result
+    } catch (e) {
+      console.error(e)
+      throw e
+    }
   }
 
   async getFreshFitbitToken(userId: string) {
