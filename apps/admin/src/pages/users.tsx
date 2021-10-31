@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import Dashboard from '../components/layouts/Dashboard'
 import { AuthContext } from '../context/Auth.context'
 import TableContainer from '../components/Table/TableContainer'
@@ -13,11 +13,7 @@ import useDebounce from '../hooks/useDebounce'
 import ConfirmForm from '../components/forms/ConfirmForm'
 import InviteUserForm from '../components/forms/InviteUserForm'
 import { Roles } from '../../../api/src/modules/user-roles/user-roles.constants'
-import { OrganisationMode } from '@fitlink/api/src/modules/organisations/organisations.constants'
 import { ProviderTypeDisplay } from '@fitlink/api/src/modules/providers/providers.constants'
-import IconCheck from '../components/icons/IconCheck'
-import IconClose from '../components/icons/IconClose'
-import IconSearch from '../components/icons/IconSearch'
 import IconMobile from '../components/icons/IconMobile'
 import IconInfo from '../components/icons/IconInfo'
 import IconTrash from '../components/icons/IconTrash'
@@ -175,6 +171,30 @@ export default function UsersPage() {
     )
   }
 
+  const [columns, setColumns] = useState<any[]>([
+    { Header: ' ', accessor: 'avatar', Cell: showAvatar },
+    { Header: 'Name', accessor: 'name' },
+    { Header: 'Email', accessor: 'email' },
+    { Header: ' ', Cell: cellActions }
+  ])
+
+  useEffect(() => {
+    if (modeRole === 'app' && columns.length === 4) {
+      const cols = [...columns]
+      const actions = cols[3]
+
+      cols[3] = {
+        Header: 'Joined',
+        accessor: 'created_at',
+        Cell: toDateCell
+      }
+
+      cols[4] = actions
+
+      setColumns(cols)
+    }
+  }, [modeRole])
+
   return (
     <Dashboard title="Settings Users">
       <div className="flex ai-c jc-sb">
@@ -201,12 +221,8 @@ export default function UsersPage() {
       </div>
       <div className="mt-4 overflow-x-auto">
         <TableContainer
-          columns={[
-            { Header: ' ', accessor: 'avatar', Cell: showAvatar },
-            { Header: 'Name', accessor: 'name' },
-            { Header: 'Email', accessor: 'email' },
-            { Header: ' ', Cell: cellActions }
-          ]}
+          key={columns.length}
+          columns={columns}
           fetch={(limit, page, query) =>
             /**
              * Note that the organisation or team

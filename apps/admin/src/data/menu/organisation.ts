@@ -116,7 +116,8 @@ export function MenuOrganisationSimple(primary: Primary) {
     {
       label: 'Billing',
       link: `/subscriptions/${primary.subscription}`,
-      icon: 'IconCreditCard'
+      icon: 'IconCreditCard',
+      id: '_billing'
     },
     {
       label: 'App Store',

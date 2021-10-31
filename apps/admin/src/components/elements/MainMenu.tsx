@@ -33,6 +33,7 @@ export type MenuProps = {
   label?: string
   link?: string
   icon?: string
+  id?: string
   hr?: boolean
   subMenu?: MenuProps[]
   onClick?: () => void
@@ -51,7 +52,7 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
     return (
       <div>
         {menu.map((item: MenuProps, index: number) => {
-          const { label, link, icon, onClick, hr, subMenu } = item
+          const { label, link, icon, onClick, hr, subMenu, id } = item
           const Icon = icons[icon]
           if (hr) {
             return <hr key={index} />
@@ -61,6 +62,7 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
             <div key={index}>
               <MenuItem
                 to={link}
+                id={id}
                 onClick={onClick}
                 label={label}
                 current={startsWith(router, link)}
@@ -76,7 +78,7 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
                 subMenu.filter((e) => startsWith(router, e.link)).length) ? (
                 <div className="sub-menu">
                   {subMenu.map((item, index) => {
-                    const { label, link, icon, onClick, hr } = item
+                    const { label, link, icon, onClick, hr, id } = item
                     const Icon = icons[icon]
                     if (hr) {
                       return <hr key={index} />
@@ -84,6 +86,7 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
                     return (
                       <MenuItem
                         to={link}
+                        id={id}
                         onClick={onClick}
                         label={label}
                         key={index}
