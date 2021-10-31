@@ -38,6 +38,7 @@ export default function MenuItem({
     <Link href={to}>
       <a
         className={classes}
+        id={to.indexOf('http') === -1 ? to.split('/').join('_') : ''}
         target={to.indexOf('http') === 0 ? '_blank' : '_self'}>
         {icon}
         <span>{label}</span>

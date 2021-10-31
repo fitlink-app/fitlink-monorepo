@@ -205,6 +205,24 @@ export class LeaguesService {
     })
   }
 
+  async findAllNotParticipating(
+    userId: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ) {
+    let { entities, raw } = await this.queryFindAccessibleToUser(userId)
+      .where('leagueUser.id IS NULL')
+      .take(limit)
+      .skip(page * limit)
+      .getRawAndEntities()
+
+    const [results, total] = this.applyRawResults(entities, raw)
+
+    return new Pagination<LeaguePublic>({
+      results: results.map((league) => this.getLeaguePublic(league, userId)),
+      total
+    })
+  }
+
   async getAllLeaguesForTeam(
     id: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
