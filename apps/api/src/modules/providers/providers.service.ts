@@ -49,7 +49,10 @@ export class ProvidersService {
         token,
         refresh_token,
         scopes,
-        provider_user_id
+        provider_user_id,
+
+        // Reset the token to not have an error
+        token_error: false
       })
 
       return await this.providerRepository.save(provider)
@@ -82,7 +85,8 @@ export class ProvidersService {
       this.providerRepository.create({
         id,
         user: { id: userId },
-        type
+        type,
+        token_error: false
       })
     )
   }
@@ -114,7 +118,16 @@ export class ProvidersService {
     const provider = await this.findOne(userId, providerType)
     return await this.providerRepository.save({
       ...provider,
-      ...updateProviderDto
+      ...updateProviderDto,
+      token_error: false
+    })
+  }
+
+  async setProviderTokenError(userId: string, providerType: ProviderType) {
+    const provider = await this.findOne(userId, providerType)
+    return await this.providerRepository.save({
+      ...provider,
+      token_error: true
     })
   }
 

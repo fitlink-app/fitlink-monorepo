@@ -332,29 +332,44 @@ export class StravaService {
     if (!provider) {
       throw new NotFoundException(`Provider Not found`)
     }
+
+    if (provider.token_error) {
+      throw new BadRequestException(`User ${userId} has token error for Strava`)
+    }
+
     const now = new Date()
     if (provider.token_expires_at < now) {
       // Token Expired Get New Token
-      const {
-        access_token,
-        refresh_token,
-        expires_at
-      } = await this.refreshToken(provider.refresh_token)
-      // Set the new credentials
+      try {
+        const {
+          access_token,
+          refresh_token,
+          expires_at
+        } = await this.refreshToken(provider.refresh_token)
+        // Set the new credentials
 
-      const newCredentials = {
-        token: access_token,
-        refresh_token,
-        token_expires_at: new Date(Math.floor(expires_at * 1000))
+        const newCredentials = {
+          token: access_token,
+          refresh_token,
+          token_expires_at: new Date(Math.floor(expires_at * 1000))
+        }
+
+        const updateResults = await this.providersService.update(
+          userId,
+          ProviderType.Strava,
+          newCredentials
+        )
+
+        return updateResults.token
+      } catch (e) {
+        await this.providersService.setProviderTokenError(
+          userId,
+          ProviderType.Strava
+        )
+        throw new BadRequestException(
+          `Token could not be refreshed for ${userId}: ${ProviderType.Strava} `
+        )
       }
-
-      const updateResults = await this.providersService.update(
-        userId,
-        ProviderType.Strava,
-        newCredentials
-      )
-
-      return updateResults.token
     } else {
       return provider.token
     }

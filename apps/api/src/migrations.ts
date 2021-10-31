@@ -75,6 +75,7 @@ import { AddLeagueInvitationsCount1634817986873 } from '../database/migrations/1
 import { DropForeignKeyConstraintsProvider1634852256096 } from '../database/migrations/1634852256096-DropForeignKeyConstraintsProvider'
 import { AddDateToFeedItem1634895631070 } from '../database/migrations/1634895631070-AddDateToFeedItem'
 import { FixAvatarId1634980861273 } from '../database/migrations/1634980861273-FixAvatarId'
+import { AddTokenError1635682297056 } from '../database/migrations/1635682297056-AddTokenError'
 
 export default [
   InitializeSchema1614887523112,
@@ -148,5 +149,6 @@ export default [
   AddLeagueInvitationsCount1634817986873,
   DropForeignKeyConstraintsProvider1634852256096,
   AddDateToFeedItem1634895631070,
-  FixAvatarId1634980861273
+  FixAvatarId1634980861273,
+  AddTokenError1635682297056
 ]
