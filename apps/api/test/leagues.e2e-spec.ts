@@ -863,15 +863,11 @@ describe('Leagues', () => {
       headers: authHeaders
     })
 
-    expect(get1.json().rank).toBe(2)
-
     const get2 = await app.inject({
       method: 'GET',
       url: `/leagues/${league.id}`,
       headers: authHeaders2
     })
-
-    expect(get2.json().rank).toBe(1)
 
     const get3 = await app.inject({
       method: 'GET',
@@ -879,6 +875,12 @@ describe('Leagues', () => {
       headers: authHeaders3
     })
 
+    console.log(get1.json().rank)
+    console.log(get2.json().rank)
+    console.log(get3.json().rank)
+
+    expect(get1.json().rank).toBe(2)
+    expect(get2.json().rank).toBe(1)
     expect(get3.json().rank).toBe(3)
 
     const data = await app.inject({
