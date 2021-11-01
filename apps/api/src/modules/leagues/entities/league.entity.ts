@@ -65,7 +65,7 @@ export class League extends CreatableEntity {
 
   @ManyToMany(() => User, (user) => user.leagues)
   @JoinTable()
-  users: User[]
+  users: User[] | UserPublic[]
 
   @ApiProperty()
   @ManyToOne(() => Team, (team) => team.leagues)

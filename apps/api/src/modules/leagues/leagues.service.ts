@@ -191,13 +191,14 @@ export class LeaguesService {
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    let { entities, raw } = await this.queryFindAccessibleToUser(userId)
+    const query = this.queryFindAccessibleToUser(userId)
       .where('leagueUser.id = :userId', { userId })
       .take(limit)
       .skip(page * limit)
-      .getRawAndEntities()
 
-    const [results, total] = this.applyRawResults(entities, raw)
+    const { entities, raw } = await query.getRawAndEntities()
+    const results = this.applyRawResults(entities, raw)
+    const total = await query.limit(0).getCount()
 
     return new Pagination<LeaguePublic>({
       results: results.map((league) => this.getLeaguePublic(league, userId)),
@@ -209,13 +210,14 @@ export class LeaguesService {
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    let { entities, raw } = await this.queryFindAccessibleToUser(userId)
-      .where('leagueUser.id IS NULL')
+    const query = this.queryFindAccessibleToUser(userId)
+      .andWhere('leagueUser.id IS NULL')
       .take(limit)
       .skip(page * limit)
-      .getRawAndEntities()
 
-    const [results, total] = this.applyRawResults(entities, raw)
+    let { entities, raw } = await query.getRawAndEntities()
+    const total = await query.limit(0).getCount()
+    const results = this.applyRawResults(entities, raw)
 
     return new Pagination<LeaguePublic>({
       results: results.map((league) => this.getLeaguePublic(league, userId)),
@@ -285,12 +287,13 @@ export class LeaguesService {
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    let { entities, raw } = await this.queryFindAccessibleToUser(userId)
+    const query = this.queryFindAccessibleToUser(userId)
       .take(limit)
       .skip(page * limit)
-      .getRawAndEntities()
 
-    const [results, total] = this.applyRawResults(entities, raw)
+    let { entities, raw } = await query.getRawAndEntities()
+    const total = await query.limit(0).getCount()
+    const results = this.applyRawResults(entities, raw)
 
     return new Pagination<LeaguePublic>({
       results: results.map((league) => this.getLeaguePublic(league, userId)),
@@ -298,17 +301,15 @@ export class LeaguesService {
     })
   }
 
-  applyRawResults(entities: League[], raw: any[]): [League[], number] {
-    let total = 0
+  applyRawResults(entities: League[], raw: any[]): League[] {
     const results = entities.map((league, index: number) => {
-      total = raw[index].row_count
       return {
         ...league,
         rank: raw[index].rank
       }
     })
 
-    return [results, total]
+    return results
   }
 
   async searchManyAccessibleToUser(
@@ -316,16 +317,17 @@ export class LeaguesService {
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    const { entities, raw } = await this.queryFindAccessibleToUser(userId)
+    const query = this.queryFindAccessibleToUser(userId)
       .andWhere(
         '(league.name ILIKE :keyword OR league.description ILIKE :keyword)',
         { keyword: `%${keyword}%` }
       )
       .take(limit)
       .skip(page * limit)
-      .getRawAndEntities()
 
-    const [results, total] = this.applyRawResults(entities, raw)
+    const { entities, raw } = await query.getRawAndEntities()
+    const results = this.applyRawResults(entities, raw)
+    const total = await query.limit(0).getCount()
 
     return new Pagination<LeaguePublic>({
       results: results.map((league) => this.getLeaguePublic(league, userId)),
@@ -338,6 +340,13 @@ export class LeaguesService {
     leaguePublic.participating = Boolean(league.users.length > 0)
     leaguePublic.is_owner = Boolean(league.owner && league.owner.id === userId)
     leaguePublic.rank = Number(leaguePublic.rank) || null
+    leaguePublic.users = league.users.map((e) =>
+      this.commonService.getUserPublic(e)
+    )
+
+    if (!leaguePublic.participating) {
+      leaguePublic.rank = null
+    }
 
     // Ensure personal user data of owner is sanitized.
     if (leaguePublic.owner) {
@@ -392,12 +401,14 @@ export class LeaguesService {
     const rankQb = this.leaderboardEntryRepository
       .createQueryBuilder('entry')
       .select(
-        'RANK() OVER (PARTITION BY entry.leaderboard.id ORDER BY entry.points DESC, entry.created_at DESC) AS rank, league.id AS leagueId, entry.user.id AS userId'
+        'RANK() OVER (PARTITION BY entry.leaderboard.id ORDER BY entry.points DESC) AS rank, league.id AS leagueId'
       )
-      .leftJoin('entry.leaderboard', 'leaderboard')
-      .leftJoin('leaderboard.league', 'league')
+      .innerJoin('entry.leaderboard', 'leaderboard')
+      .innerJoin('leaderboard.league', 'league')
       .where('entry.leaderboard.id = leaderboard.id')
       .andWhere('league.active_leaderboard.id = leaderboard.id')
+      .andWhere('entry.points > 0')
+      .groupBy('league.id, entry.points, entry.leaderboardId')
 
     return (
       this.leaguesRepository
@@ -425,11 +436,9 @@ export class LeaguesService {
         .leftJoin(
           `(${rankQb.getQuery()})`,
           'ranked',
-          'ranked.leagueId = league.id AND ranked.userId = :userId',
-          { userId }
+          'ranked.leagueId = league.id'
         )
         .addSelect('ranked.rank AS rank')
-        .addSelect('COUNT(*) OVER() AS row_count')
 
         .where(
           new Brackets((qb) => {
@@ -1134,7 +1143,7 @@ export class LeaguesService {
     const messages = await Promise.all(
       leagues.map(async (league) => {
         return this.notificationsService.sendAction(
-          league.users,
+          league.users as User[],
           NotificationAction.LeagueEnding,
           {
             subject: league.name
