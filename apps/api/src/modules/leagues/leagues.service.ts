@@ -374,7 +374,7 @@ export class LeaguesService {
 
     const { entities, raw } = await query.getRawAndEntities()
 
-    const [results] = this.applyRawResults(entities, raw)
+    const results = this.applyRawResults(entities, raw)
 
     if (results[0]) {
       return this.getLeaguePublic(results[0], userId)
@@ -401,14 +401,12 @@ export class LeaguesService {
     const rankQb = this.leaderboardEntryRepository
       .createQueryBuilder('entry')
       .select(
-        'RANK() OVER (PARTITION BY entry.leaderboard.id ORDER BY entry.points DESC) AS rank, league.id AS leagueId'
+        'RANK() OVER (PARTITION BY entry.leaderboard.id ORDER BY entry.points DESC) AS rank, league.id AS leagueId, entry.user.id AS userId'
       )
       .innerJoin('entry.leaderboard', 'leaderboard')
       .innerJoin('leaderboard.league', 'league')
       .where('entry.leaderboard.id = leaderboard.id')
       .andWhere('league.active_leaderboard.id = leaderboard.id')
-      .andWhere('entry.points > 0')
-      .groupBy('league.id, entry.points, entry.leaderboardId')
 
     return (
       this.leaguesRepository
@@ -436,7 +434,8 @@ export class LeaguesService {
         .leftJoin(
           `(${rankQb.getQuery()})`,
           'ranked',
-          'ranked.leagueId = league.id'
+          'ranked.leagueId = league.id AND ranked.userId = :userId',
+          { userId }
         )
         .addSelect('ranked.rank AS rank')
 
