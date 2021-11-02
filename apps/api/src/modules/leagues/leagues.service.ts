@@ -210,8 +210,16 @@ export class LeaguesService {
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
+    // Use a subquery inside a where statement to determine
+    // leagues that the user does not yet belong to.
+    const where = this.leaguesRepository
+      .createQueryBuilder('league')
+      .select('league.id')
+      .innerJoin('league.users', 'user')
+      .where('user.id = :userId', { userId })
+
     const query = this.queryFindAccessibleToUser(userId)
-      .andWhere('leagueUser.id IS NULL')
+      .andWhere(`league.id NOT IN (${where.getQuery()})`)
       .take(limit)
       .skip(page * limit)
 
@@ -302,10 +310,17 @@ export class LeaguesService {
   }
 
   applyRawResults(entities: League[], raw: any[]): League[] {
+    const filter = []
+    raw.forEach((each) => {
+      if (!filter.filter((e) => e.league_id === each.league_id).length) {
+        filter.push(each)
+      }
+    })
+
     const results = entities.map((league, index: number) => {
       return {
         ...league,
-        rank: raw[index].rank
+        rank: Number(filter[index].rank) || 0
       }
     })
 
@@ -437,7 +452,7 @@ export class LeaguesService {
           'ranked.leagueId = league.id AND ranked.userId = :userId',
           { userId }
         )
-        .addSelect('ranked.rank AS rank')
+        .addSelect('ranked.*')
 
         .where(
           new Brackets((qb) => {
