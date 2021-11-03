@@ -1024,8 +1024,11 @@ export class LeaguesService {
         await Promise.all(
           league.users.map((leagueUser) => {
             const winner = winners.filter((e) => leagueUser.id === e.user.id)[0]
+            const user = new User()
+            user.id = leagueUser.id
             return repo.save(
               repo.create({
+                user,
                 leaderboard,
                 leaderboard_id: leaderboard.id,
                 league_id: league.id,
