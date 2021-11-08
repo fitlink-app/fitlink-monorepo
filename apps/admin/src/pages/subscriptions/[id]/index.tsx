@@ -226,8 +226,10 @@ export default function SubscriptionsBillingPage() {
       const chargebee = (window as any).Chargebee
       if (chargebee) {
         chargeBee.current = chargebee.init({
-          site: 'fitlinkapp-test',
-          publishableKey: 'test_tr8k30RHmt46JzSZUElKcu17FgA67OOl7'
+          site: process.env.NEXT_PUBLIC_CHARGEBEE_SITE || 'fitlinkapp-test',
+          publishableKey:
+            process.env.NEXT_PUBLIC_CHARGEBEE_PK ||
+            'test_tr8k30RHmt46JzSZUElKcu17FgA67OOl7'
         })
       }
     }

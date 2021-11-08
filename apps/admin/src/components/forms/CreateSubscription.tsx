@@ -132,8 +132,10 @@ export default function CreateSubscription({
       const chargebee = (window as any).Chargebee
       if (chargebee) {
         chargebee.init({
-          site: 'fitlinkapp-test',
-          publishableKey: 'test_tr8k30RHmt46JzSZUElKcu17FgA67OOl7'
+          site: process.env.NEXT_PUBLIC_CHARGEBEE_SITE || 'fitlinkapp-test',
+          publishableKey:
+            process.env.NEXT_PUBLIC_CHARGEBEE_PK ||
+            'test_tr8k30RHmt46JzSZUElKcu17FgA67OOl7'
         })
         chargeBee.current = chargebee.getInstance()
       }
