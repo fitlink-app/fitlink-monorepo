@@ -45,6 +45,7 @@ export const Goals = () => {
       goal_floors_climbed: source.goal_floors_climbed.toString(),
       goal_water_litres: source.goal_water_litres.toString(),
       goal_sleep_hours: source.goal_sleep_hours.toString(),
+      goal_active_minutes: source.goal_active_minutes.toString(),
     };
   };
 
@@ -138,6 +139,17 @@ export const Goals = () => {
               icon={'sleep'}
               onChangeText={(value: string) =>
                 handleOnGoalChanged(value, 'goal_sleep_hours')
+              }
+              onEndEditing={handleOnGoalSubmitted}
+            />
+
+            <GoalTextField
+              style={{marginTop: 25}}
+              label={'Active Minutes'}
+              value={localGoals.goal_active_minutes.toString()}
+              icon={'stopwatch'}
+              onChangeText={(value: string) =>
+                handleOnGoalChanged(value, 'goal_active_minutes')
               }
               onEndEditing={handleOnGoalSubmitted}
             />

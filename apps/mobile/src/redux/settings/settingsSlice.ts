@@ -35,6 +35,7 @@ export type UserGoalPreferences = {
   goal_floors_climbed: number;
   goal_water_litres: number;
   goal_sleep_hours: number;
+  goal_active_minutes: number;
 };
 
 type Settings = {
@@ -128,6 +129,7 @@ export const initialState: SettingsState = {
       goal_floors_climbed: 0,
       goal_water_litres: 0,
       goal_sleep_hours: 0,
+      goal_active_minutes: 0,
     },
     userSettings: {
       privacy_daily_statistics: PrivacySetting.Following,
