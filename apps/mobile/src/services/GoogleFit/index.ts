@@ -1,5 +1,5 @@
 import {PermissionsAndroid} from 'react-native';
-import GoogleFit, {Scopes} from 'react-native-google-fit';
+import GoogleFit, {BucketUnit, Scopes} from 'react-native-google-fit';
 import {mapping} from './constants';
 import {getTodayTimeframe} from '../utils';
 import {
@@ -36,7 +36,7 @@ async function getTodaysSteps(): Promise<number> {
     // Request samples from Google Fit
     const googleFitData = await GoogleFit.getDailyStepCountSamples({
       ...timeframe,
-      bucketUnit: 'HOUR',
+      bucketUnit: BucketUnit.HOUR,
       bucketInterval: 1,
     });
 
@@ -118,7 +118,7 @@ async function getActivitiesSinceDate(date: string, interval: number) {
     const activities = await GoogleFit.getActivitySamples({
       startDate: day.toISOString(),
       endDate: xDaysFromNow.toISOString(),
-      bucketUnit: 'SECOND',
+      bucketUnit: BucketUnit.SECOND,
       bucketInterval: 1,
     });
 
@@ -171,6 +171,8 @@ async function authenticate() {
   }
 
   if (!authResult.success) throw Error(authResult.message);
+
+  return true;
 }
 
 function disconnect() {
@@ -225,7 +227,7 @@ async function getTodayMindfulnessMinutes() {
 
     const activities = await GoogleFit.getActivitySamples({
       ...timeframe,
-      bucketUnit: 'SECOND',
+      bucketUnit: BucketUnit.SECOND,
       bucketInterval: 1,
     });
 
@@ -253,6 +255,45 @@ async function getTodayMindfulnessMinutes() {
   }
 
   return mindfulnessMinutesTotal;
+}
+
+async function getTodayActiveMinutes() {
+  let activeMinutesTotal = 0;
+
+  try {
+    const timeframe = getTodayTimeframe();
+
+    const activities = await GoogleFit.getActivitySamples({
+      ...timeframe,
+      bucketUnit: BucketUnit.SECOND,
+      bucketInterval: 1,
+    });
+
+    for (const activity of activities) {
+      if (activity.intensity) {
+        // This is an INTENSE activity (so we calculate active minutes from it)
+        const startDate = new Date(activity.start);
+        const endDate = new Date(activity.end);
+
+        const activityTotalMinutes =
+          (endDate.getTime() - startDate.getTime()) / (60 * 1000);
+
+        /**
+         * The intensity value is equivalent to Heart Points, some inaccuracy comes into play
+         * because a single minute might be rewarded by either one or two points depending on heart rate
+         */
+        const activeMinutes = Math.min(
+          activity.intensity,
+          activityTotalMinutes,
+        );
+        activeMinutesTotal += activeMinutes;
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+
+  return activeMinutesTotal;
 }
 
 function mapToFitlinkActivity(activityName: string) {
@@ -306,6 +347,9 @@ async function syncLifestyle() {
   const water_litres = await getTodayHydration();
   const mindfulness = await getTodayMindfulnessMinutes();
 
+  // TODO: Sync active minutes
+  // const active_minutes = await getTodayActiveMinutes();
+
   await syncDeviceLifestyleData({
     current_floors_climbed: 0,
     current_mindfulness_minutes: mindfulness,
@@ -325,13 +369,18 @@ async function syncAllWithBackend() {
 
     if (
       providers?.length &&
-      providers.find(provider => provider === ProviderType.AppleHealthkit)
+      providers.find(provider => provider === ProviderType.GoogleFit)
     ) {
       // Make sure Google Fit singleton is instantiated
-      const isAuthorized = await checkIsAuthorized();
       const isAvailable = await checkIsAvailable();
 
-      if (isAuthorized && isAvailable) {
+      if (isAvailable) {
+        const isAuthorized = await checkIsAuthorized();
+
+        if (!isAuthorized) {
+          await authenticate();
+        }
+
         await Promise.all([syncActivities(), syncLifestyle()]);
       }
     }

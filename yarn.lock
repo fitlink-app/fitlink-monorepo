@@ -6172,10 +6172,19 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@^16", "@types/react@^17", "@types/react@^17.0.4":
+"@types/react@*", "@types/react@^17.0.4":
   version "17.0.33"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.33.tgz#e01ae3de7613dac1094569880bb3792732203ad5"
   integrity sha512-pLWntxXpDPaU+RTAuSGWGSEL2FRTNyRQOjSWDke/rxRg14ncsZvx8AKWMWZqvc1UOaJIAoObdZhAWvRaHFi5rw==
+  dependencies:
+    "@types/prop-types" "*"
+    "@types/scheduler" "*"
+    csstype "^3.0.2"
+
+"@types/react@^16":
+  version "16.14.21"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.14.21.tgz#35199b21a278355ec7a3c40003bd6a334bd4ae4a"
+  integrity sha512-rY4DzPKK/4aohyWiDRHS2fotN5rhBSK6/rz1X37KzNna9HJyqtaGAbq9fVttrEPWF5ywpfIP1ITL8Xi2QZn6Eg==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -20229,10 +20238,10 @@ react-native-gesture-handler@^1.10.3:
     invariant "^2.2.4"
     prop-types "^15.7.2"
 
-react-native-google-fit@^0.17.1:
-  version "0.17.1"
-  resolved "https://registry.yarnpkg.com/react-native-google-fit/-/react-native-google-fit-0.17.1.tgz#0cd210de7a41943596d33a8b0993e9eb7099413c"
-  integrity sha512-10A2Nfgl8bQES5UvxjmiYPg0FZdbrbMjgMaY83lEhFN5PD8f7DDD3Jl4D1kxtGSPHxJTe68orklqT6PB3pCGSw==
+react-native-google-fit@0.18:
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/react-native-google-fit/-/react-native-google-fit-0.18.0.tgz#697fad429b022b282afc66fefa0849da56b51bf7"
+  integrity sha512-5mdUQh3HaSmqinKtXmVtYbX20gJCxpE7Aad9l6GTPkcmHnHk7Y4cKnznPV8Wgoxwsf21eY4sHX1un1q72VuIgw==
   dependencies:
     moment "2.29.1"
 
