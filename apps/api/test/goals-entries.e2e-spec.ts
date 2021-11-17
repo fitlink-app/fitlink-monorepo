@@ -37,7 +37,8 @@ describe('GoalsEntries', () => {
         current_steps: 10000,
         current_floors_climbed: 5,
         current_water_litres: 1,
-        current_sleep_hours: 7
+        current_sleep_hours: 7,
+        current_active_minutes: 45
       }
     })
 
@@ -74,7 +75,8 @@ describe('GoalsEntries', () => {
       current_steps: userData.current_steps,
       current_floors_climbed: userData.target_floors_climbed,
       current_water_litres: userData.current_water_litres,
-      current_sleep_hours: userData.current_sleep_hours
+      current_sleep_hours: userData.current_sleep_hours,
+      current_active_minutes: userData.current_active_minutes
     } as RecreateGoalsEntryDto
 
     const result = await app.inject({
