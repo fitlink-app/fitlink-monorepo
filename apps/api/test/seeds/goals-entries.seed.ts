@@ -35,6 +35,7 @@ export async function GoalsEntriesSetup(
           user.goal_floors_climbed = faker.datatype.number(15)
           user.goal_water_litres = faker.datatype.number(5)
           user.goal_sleep_hours = faker.datatype.number(14)
+          user.goal_active_minutes = faker.datatype.number(45)
           return this.connection.getRepository(User).save(user)
         })
       )
