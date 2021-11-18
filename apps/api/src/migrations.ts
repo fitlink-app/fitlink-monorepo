@@ -76,6 +76,7 @@ import { DropForeignKeyConstraintsProvider1634852256096 } from '../database/migr
 import { AddDateToFeedItem1634895631070 } from '../database/migrations/1634895631070-AddDateToFeedItem'
 import { FixAvatarId1634980861273 } from '../database/migrations/1634980861273-FixAvatarId'
 import { AddTokenError1635682297056 } from '../database/migrations/1635682297056-AddTokenError'
+import { AddActiveMinutesGoal1637156314894 } from '../database/migrations/1637156314894-AddActiveMinutesGoal'
 
 export default [
   InitializeSchema1614887523112,
@@ -150,5 +151,6 @@ export default [
   DropForeignKeyConstraintsProvider1634852256096,
   AddDateToFeedItem1634895631070,
   FixAvatarId1634980861273,
-  AddTokenError1635682297056
+  AddTokenError1635682297056,
+  AddActiveMinutesGoal1637156314894
 ]
