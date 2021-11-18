@@ -1,4 +1,5 @@
 import {
+  Button,
   FeedFilter,
   FeedItem,
   GoalTracker,
@@ -22,6 +23,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Platform,
   RefreshControl,
@@ -39,6 +41,7 @@ import {queryClient, QueryKeys} from '@query';
 import {getErrorMessage} from '@fitlink/api-sdk';
 import {saveCurrentToken} from '@api';
 import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
+import {AppleHealthKitWrapper} from 'services';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -373,6 +376,16 @@ export const Feed = () => {
                       icon: 'stairs',
                     },
                   ]}
+                />
+              </HeaderWidgetContainer>
+
+              <HeaderWidgetContainer>
+                <Button
+                  text={'Debug Exercise minutes'}
+                  onPress={async () => {
+                    const data = await AppleHealthKitWrapper.debugSummary();
+                    Alert.alert('Debug Data', data as string);
+                  }}
                 />
               </HeaderWidgetContainer>
 

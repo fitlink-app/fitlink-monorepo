@@ -213,6 +213,29 @@ async function getTodayMindfulnessMinutes() {
   return mindfulnessMinutesTotal;
 }
 
+async function debugSummary() {
+  try {
+    let timeFrame = getTodayTimeframe();
+
+    let options = {
+      ...timeFrame,
+    };
+
+    const results: HealthActivitySummary[] = await new Promise(
+      (resolve, reject) => {
+        AppleHealthKit.getActivitySummary(options, (err, results) => {
+          if (err) reject(err);
+          resolve(results);
+        });
+      },
+    );
+
+    return JSON.stringify(results);
+  } catch (e) {
+    return e;
+  }
+}
+
 async function getTodayActiveMinutes() {
   let activeMinutes = 0;
 
@@ -396,4 +419,5 @@ async function syncAllWithBackend() {
 export const AppleHealthKitWrapper = {
   authenticate,
   syncAllWithBackend,
+  debugSummary,
 };
