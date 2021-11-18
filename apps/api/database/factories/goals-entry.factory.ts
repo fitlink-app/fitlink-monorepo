@@ -17,11 +17,13 @@ define(GoalsEntry, (faker: typeof Faker, context: Context) => {
   entry.target_floors_climbed = context.user.goal_floors_climbed
   entry.target_water_litres = context.user.goal_water_litres
   entry.target_sleep_hours = context.user.goal_sleep_hours
+  entry.target_active_minutes = context.user.goal_active_minutes
 
   entry.current_mindfulness_minutes = faker.random.number(59)
   entry.current_steps = faker.random.number(100000)
   entry.current_floors_climbed = faker.random.number(15)
   entry.current_water_litres = faker.random.number(5)
   entry.current_sleep_hours = faker.random.number(14)
+  entry.current_active_minutes = faker.random.number(34)
   return entry
 })

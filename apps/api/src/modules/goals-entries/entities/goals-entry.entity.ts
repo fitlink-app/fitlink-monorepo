@@ -86,6 +86,18 @@ export class GoalsEntry extends CreatableEntity {
   })
   target_sleep_hours: number
 
+  @ApiProperty()
+  @Column({
+    default: 0
+  })
+  current_active_minutes: number
+
+  @ApiProperty()
+  @Column({
+    default: 0
+  })
+  target_active_minutes: number
+
   @ManyToOne(() => User, (user) => user.goals_entries)
   @JoinColumn()
   user: User
@@ -100,6 +112,7 @@ export class GoalsEntryCurrent {
   current_floors_climbed?: number
   current_water_litres?: number
   current_sleep_hours?: number
+  current_active_minutes?: number
 }
 
 export class GoalsEntryTarget {
@@ -108,4 +121,5 @@ export class GoalsEntryTarget {
   target_floors_climbed: number
   target_water_litres: number
   target_sleep_hours: number
+  target_active_minutes: number
 }

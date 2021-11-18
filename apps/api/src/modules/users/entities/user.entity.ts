@@ -341,6 +341,12 @@ export class User extends CreatableEntity {
 
   @ApiProperty()
   @Column({
+    default: 0
+  })
+  goal_active_minutes: number
+
+  @ApiProperty()
+  @Column({
     type: 'float',
     default: 0
   })
