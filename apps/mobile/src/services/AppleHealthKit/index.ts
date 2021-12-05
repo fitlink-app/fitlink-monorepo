@@ -342,6 +342,7 @@ async function syncLifestyle() {
       current_sleep_hours: data.sleep_hours,
       current_steps: data.steps,
       current_water_litres: data.water_litres,
+      current_active_minutes: data.active_minutes,
     });
   } catch (e) {
     console.log('Unable to sync Apple lifestyle data.');

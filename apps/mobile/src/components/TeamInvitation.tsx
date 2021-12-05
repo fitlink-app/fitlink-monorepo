@@ -1,8 +1,10 @@
-import {Label, Avatar, Button} from '@components';
 import {useJoinTeamByCode} from '@hooks';
 import React from 'react';
 import {View, ViewProps} from 'react-native';
 import styled from 'styled-components/native';
+import {Avatar} from './common/Avatar';
+import {Button} from './common/Button';
+import {Label} from './common/Label';
 
 const Wrapper = styled.View({justifyContent: 'center', alignItems: 'center'});
 
