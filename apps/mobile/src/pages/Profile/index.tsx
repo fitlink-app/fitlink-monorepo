@@ -249,6 +249,14 @@ export const Profile = (
                   icon: 'sleep',
                 },
                 {
+                  identifier: 'active_minutes',
+                  goal: {
+                    value: goals?.current_active_minutes || 0,
+                    target: goals?.target_active_minutes || 0,
+                  },
+                  icon: 'stopwatch',
+                },
+                {
                   identifier: 'floors',
                   goal: {
                     value: goals?.current_floors_climbed || 0,

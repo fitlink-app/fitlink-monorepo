@@ -136,6 +136,7 @@ export const Settings = () => {
           goal_floors_climbed: user?.goal_floors_climbed || 0,
           goal_water_litres: user?.goal_water_litres || 0,
           goal_sleep_hours: user?.goal_sleep_hours || 0,
+          goal_active_minutes: user?.goal_active_minutes || 0,
         },
         userSettings: {
           newsletter_subscriptions_user:
@@ -165,6 +166,7 @@ export const Settings = () => {
       goal_floors_climbed: source.goal_floors_climbed.toString(),
       goal_water_litres: source.goal_water_litres.toString(),
       goal_sleep_hours: source.goal_sleep_hours.toString(),
+      goal_active_minutes: source.goal_active_minutes.toString(),
     };
   };
 
@@ -431,6 +433,17 @@ export const Settings = () => {
           value={localGoals.goal_mindfulness_minutes.toString()}
           onChangeText={(text: string) =>
             handleOnGoalChanged(text, 'goal_mindfulness_minutes')
+          }
+          onEndEditing={handleOnGoalSubmitted}
+          autoCapitalize={'words'}
+          keyboardType={'numeric'}
+          returnKeyType={'done'}
+        />
+        <SettingsInput
+          label={'Active Minutes'}
+          value={localGoals.goal_active_minutes.toString()}
+          onChangeText={(text: string) =>
+            handleOnGoalChanged(text, 'goal_active_minutes')
           }
           onEndEditing={handleOnGoalSubmitted}
           autoCapitalize={'words'}

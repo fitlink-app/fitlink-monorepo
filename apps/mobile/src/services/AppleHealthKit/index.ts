@@ -1,6 +1,7 @@
 import AppleHealthKit, {
   HealthKitPermissions,
   HealthInputOptions,
+  HealthActivitySummary,
 } from 'react-native-health';
 import {getTodayTimeframe} from 'services/utils';
 import {mapping} from './constants';
@@ -39,6 +40,7 @@ const permissions = {
       AppleHealthKit.Constants.Permissions.FlightsClimbed,
       AppleHealthKit.Constants.Permissions.SleepAnalysis,
       AppleHealthKit.Constants.Permissions.Water,
+      AppleHealthKit.Constants.Permissions.ActivitySummary,
     ],
   },
 } as HealthKitPermissions;
@@ -211,6 +213,35 @@ async function getTodayMindfulnessMinutes() {
   return mindfulnessMinutesTotal;
 }
 
+async function getTodayActiveMinutes() {
+  let activeMinutes = 0;
+
+  try {
+    let timeFrame = getTodayTimeframe();
+
+    let options = {
+      ...timeFrame,
+    };
+
+    const results: HealthActivitySummary[] = await new Promise(
+      (resolve, reject) => {
+        AppleHealthKit.getActivitySummary(options, (err, results) => {
+          if (err) reject(err);
+          resolve(results);
+        });
+      },
+    );
+
+    const exerciseTimes = results.map(value => value.appleExerciseTime);
+
+    activeMinutes = exerciseTimes.reduce((acc, val) => acc + val, 0);
+  } catch (e) {
+    console.log(e);
+  }
+
+  return activeMinutes;
+}
+
 async function getTodayFloorsClimbed() {
   let flightsClimbedCount = 0;
 
@@ -289,6 +320,7 @@ async function getTodayLifestyleData() {
   const water_litres = await getTodayHydration();
   const mindfulness = await getTodayMindfulnessMinutes();
   const floors_climbed = await getTodayFloorsClimbed();
+  const active_minutes = await getTodayActiveMinutes();
 
   return {
     steps,
@@ -296,6 +328,7 @@ async function getTodayLifestyleData() {
     water_litres,
     mindfulness,
     floors_climbed,
+    active_minutes,
   };
 }
 

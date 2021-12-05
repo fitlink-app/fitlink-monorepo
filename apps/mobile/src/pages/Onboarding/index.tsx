@@ -106,6 +106,7 @@ export const Onboarding = () => {
             goal_floors_climbed: user?.goal_floors_climbed || 15,
             goal_water_litres: user?.goal_water_litres || 2.5,
             goal_sleep_hours: user?.goal_sleep_hours || 8,
+            goal_active_minutes: user?.goal_active_minutes || 45,
           },
         }),
       );

@@ -33,7 +33,13 @@ const StyledGoal = styled(Goal)({
   marginRight: 15,
 });
 
-type GoalIdentifier = 'steps' | 'mindfulness' | 'floors' | 'water' | 'sleep';
+type GoalIdentifier =
+  | 'steps'
+  | 'mindfulness'
+  | 'floors'
+  | 'water'
+  | 'sleep'
+  | 'active_minutes';
 
 type Tracker = {
   supportedProviders?: ProviderType[];
@@ -76,6 +82,9 @@ export const _GoalTracker = ({trackers, isLocalUser}: GoalTrackerProps) => {
 
       case 'sleep':
         return 'Sleep Counter';
+
+      case 'active_minutes':
+        return 'Active Minutes';
 
       default:
         return '';
@@ -130,7 +139,7 @@ export const _GoalTracker = ({trackers, isLocalUser}: GoalTrackerProps) => {
     if (isLocalUser) {
       for (const tracker of trackers) {
         if (
-          providerList.some(linkedProvider =>
+          (providerList || []).some(linkedProvider =>
             tracker.supportedProviders!.includes(
               linkedProvider as ProviderType,
             ),

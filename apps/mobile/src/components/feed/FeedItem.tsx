@@ -206,6 +206,10 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
             goalName = 'hydration';
             break;
 
+          case FeedGoalType.ActiveMinutes:
+            goalName = 'active minutes';
+            break;
+
           default:
             break;
         }
@@ -350,6 +354,9 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
             icon = 'water';
             break;
 
+          case FeedGoalType.ActiveMinutes:
+            icon = 'stopwatch';
+            break;
           default:
             break;
         }

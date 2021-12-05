@@ -351,6 +351,18 @@ export const Feed = () => {
                       supportedProviders: [
                         ProviderType.GoogleFit,
                         ProviderType.AppleHealthkit,
+                      ],
+                      identifier: 'active_minutes',
+                      goal: {
+                        value: goals?.current_active_minutes || 0,
+                        target: goals?.target_active_minutes || 0,
+                      },
+                      icon: 'stopwatch',
+                    },
+                    {
+                      supportedProviders: [
+                        ProviderType.GoogleFit,
+                        ProviderType.AppleHealthkit,
                         ProviderType.Fitbit,
                       ],
                       identifier: 'floors',
