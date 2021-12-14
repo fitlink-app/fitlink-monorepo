@@ -305,10 +305,9 @@ export class HealthActivitiesService {
 
   async getHealthActivityStatsFormatted(healthActivity: HealthActivity) {
     const unitSystem = healthActivity.user.unit_system
-    const durationInSeconds = differenceInSeconds(
-      healthActivity.end_time,
-      healthActivity.start_time
-    )
+    const durationInSeconds =
+      healthActivity.active_time ||
+      differenceInSeconds(healthActivity.end_time, healthActivity.start_time)
     const stats: ShareableImageStat[] = []
 
     // DISTANCE
