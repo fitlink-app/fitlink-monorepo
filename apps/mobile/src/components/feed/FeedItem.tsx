@@ -127,7 +127,7 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
       ? (getSpeedValue(
           item.health_activity.sport?.name_key,
           item.health_activity.distance,
-          durationInSeconds,
+          item.health_activity.active_time || durationInSeconds,
           unitSystem,
         ) as string)
       : undefined;

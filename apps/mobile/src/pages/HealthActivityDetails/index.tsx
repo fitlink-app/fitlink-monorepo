@@ -110,8 +110,6 @@ export const HealthActivityDetails = (
 
   const {data} = useHealthActivity(id, areInteractionsDone);
 
-  console.log(data);
-
   const {shareActivity, isLoading: isShareActivityLoading} =
     useShareHealthActivity();
 
@@ -146,15 +144,15 @@ export const HealthActivityDetails = (
       ? (getSpeedValue(
           data.sport?.name_key,
           data.distance,
-          durationInSeconds,
+          data.active_time || durationInSeconds,
           user.unit_system,
         ) as string)
       : undefined;
 
   const elevation = data?.elevation
     ? user?.unit_system === UnitSystem.Metric
-      ? `${Math.ceil(data?.elevation)} meters`
-      : `${Math.ceil(data?.elevation * 3.2808399)} ft`
+      ? `${Math.round(data?.elevation)} meters`
+      : `${Math.round(data?.elevation * 3.2808399)} ft`
     : undefined;
 
   const points = data?.points.toString();
