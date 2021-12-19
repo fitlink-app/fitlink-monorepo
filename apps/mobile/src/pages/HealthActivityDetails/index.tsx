@@ -45,6 +45,7 @@ import {formatRelative, formatDistanceStrict} from 'date-fns';
 import locale from 'date-fns/locale/en-US';
 import {ImageType} from '@fitlink/api/src/modules/images/images.constants';
 import {Dialog} from 'components/modal';
+import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
 
 const {MapView, LineLayer, ShapeSource, Camera} = MapboxGL;
 
@@ -109,6 +110,8 @@ export const HealthActivityDetails = (
 
   const {data} = useHealthActivity(id, areInteractionsDone);
 
+  console.log(data);
+
   const {shareActivity, isLoading: isShareActivityLoading} =
     useShareHealthActivity();
 
@@ -147,6 +150,12 @@ export const HealthActivityDetails = (
           user.unit_system,
         ) as string)
       : undefined;
+
+  const elevation = data?.elevation
+    ? user?.unit_system === UnitSystem.Metric
+      ? `${Math.ceil(data?.elevation)} meters`
+      : `${Math.ceil(data?.elevation * 3.2808399)} ft`
+    : undefined;
 
   const points = data?.points.toString();
 
@@ -487,6 +496,7 @@ export const HealthActivityDetails = (
                   value={parseFloat(calories || '0').toFixed(0)}
                 />
                 <StatWidget label={'Time'} value={time} />
+                <StatWidget label={'Elevation Gain'} value={elevation} />
               </StatWidgetRow>
             </StatsContainer>
           </ContentContainer>
