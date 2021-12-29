@@ -242,6 +242,7 @@ export class StatsService {
       'steps',
       'sleep_hours',
       'mindfulness_minutes',
+      'active_minutes',
       'floors_climbed',
       'water_litres'
     ]
@@ -283,6 +284,7 @@ export class StatsService {
             OR "g"."current_floors_climbed" > 0
             OR "g"."current_water_litres" > 0
             OR "g"."current_sleep_hours" > 0
+            OR "g"."current_active_minutes" > 0
           )
           ${where}
           GROUP BY "u"."id"

@@ -45,6 +45,7 @@ export const NewsletterModal = ({
             goal_floors_climbed: user?.goal_floors_climbed || 0,
             goal_water_litres: user?.goal_water_litres || 0,
             goal_sleep_hours: user?.goal_sleep_hours || 0,
+            goal_active_minutes: user?.goal_active_minutes || 0,
           },
           userSettings: {
             newsletter_subscriptions_user: true,

@@ -29,6 +29,7 @@ interface GoalField {
     | 'current_sleep_hours'
     | 'current_steps'
     | 'current_water_litres'
+    | 'current_active_minutes'
   current?: number
   target: number
   feedType: FeedGoalType
@@ -81,6 +82,12 @@ export class GoalsEntriesService {
         current: current.current_water_litres || 0,
         target: target.target_water_litres,
         feedType: FeedGoalType.WaterLitres
+      },
+      {
+        field: 'current_active_minutes',
+        current: current.current_active_minutes || 0,
+        target: target.target_active_minutes,
+        feedType: FeedGoalType.ActiveMinutes
       }
     ]
   }
@@ -103,6 +110,7 @@ export class GoalsEntriesService {
     goalsEntry.target_sleep_hours = user.goal_sleep_hours
     goalsEntry.target_steps = user.goal_steps
     goalsEntry.target_water_litres = user.goal_water_litres
+    goalsEntry.target_active_minutes = user.goal_active_minutes
 
     // Only update values that are greater than previously stored
     let targetReached: GoalField[] = []
@@ -204,7 +212,8 @@ export class GoalsEntriesService {
         target_steps: user.goal_steps,
         target_mindfulness_minutes: user.goal_mindfulness_minutes,
         target_water_litres: user.goal_water_litres,
-        target_sleep_hours: user.goal_sleep_hours
+        target_sleep_hours: user.goal_sleep_hours,
+        target_active_minutes: user.goal_active_minutes
       })
     } else {
       return false
@@ -220,7 +229,10 @@ export class GoalsEntriesService {
     const d5 =
       goalsEntry.current_mindfulness_minutes /
       goalsEntry.target_mindfulness_minutes
-    const total = [d1, d2, d3, d4, d5]
+    const d6 =
+      goalsEntry.current_active_minutes / goalsEntry.target_active_minutes
+
+    const total = [d1, d2, d3, d4, d5, d6]
       .map((i) => (i > 1 ? 1 : i))
       .reduce((a, b) => a + b, 0)
     return Math.round((total / 5) * 100) / 100
@@ -310,11 +322,13 @@ export class GoalsEntriesService {
     goalsEntry.target_sleep_hours = user.goal_sleep_hours
     goalsEntry.target_steps = user.goal_steps
     goalsEntry.target_water_litres = user.goal_water_litres
+    goalsEntry.target_active_minutes = user.goal_active_minutes
     goalsEntry.current_steps = 0
     goalsEntry.current_floors_climbed = 0
     goalsEntry.current_water_litres = 0
     goalsEntry.current_sleep_hours = 0
     goalsEntry.current_mindfulness_minutes = 0
+    goalsEntry.current_active_minutes = 0
 
     return goalsEntry
   }

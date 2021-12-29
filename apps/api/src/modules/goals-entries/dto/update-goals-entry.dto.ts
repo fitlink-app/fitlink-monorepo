@@ -26,4 +26,9 @@ export class RecreateGoalsEntryDto extends PartialType(CreateGoalsEntryDto) {
   @ApiProperty()
   @IsOptional()
   current_sleep_hours?: number
+
+  @ApiProperty()
+  @IsInt()
+  @IsOptional()
+  current_active_minutes?: number
 }

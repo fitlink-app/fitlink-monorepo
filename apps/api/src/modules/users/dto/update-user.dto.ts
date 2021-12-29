@@ -72,6 +72,11 @@ export class UpdateUserDto {
   @IsOptional()
   @IsNumber()
   goal_sleep_hours?: number
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  goal_active_minutes?: number
 }
 
 export class UpdateBasicUserDto {
