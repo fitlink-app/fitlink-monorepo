@@ -145,6 +145,7 @@ describe('Rewards', () => {
     points_required: 10,
     redeem_url: 'https://fitlinkapp.com?redeem=fit10',
     reward_expires_at: new Date().toISOString(),
+    redeem_instructions: 'Test',
     imageId: ''
   }
 
