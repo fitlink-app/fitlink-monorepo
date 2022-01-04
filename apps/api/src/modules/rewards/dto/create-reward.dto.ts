@@ -58,6 +58,12 @@ export class CreateRewardDto {
   code: string
 
   @ApiProperty()
+  @MinLength(3, {
+    message: 'Redeem instructions are required'
+  })
+  redeem_instructions: string
+
+  @ApiProperty()
   @IsOptional()
   @Matches(new RegExp('^(https?)://|^$'), {
     message: 'Must be a valid URL starting with http:// or https://'
