@@ -38,6 +38,7 @@ export class WebhookService {
     start_time,
     end_time,
     calories,
+    utc_offset = 0,
     distance
   }: WebhookEventActivity): HealthActivityDto {
     const normalizedActivity: HealthActivityDto = {
@@ -45,6 +46,7 @@ export class WebhookService {
       provider,
       start_time,
       end_time,
+      utc_offset,
       calories,
       distance,
       elevation: 0,

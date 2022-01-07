@@ -8,6 +8,7 @@ export class HealthActivityDto {
   start_time: string
   end_time: string
   active_time?: number
+  utc_offset: number // seconds
   calories: number
   distance?: number
   quantity?: number

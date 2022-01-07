@@ -107,6 +107,9 @@ export type StravaActivity = {
   /** Start date of the activity */
   start_date: string
 
+  /** UTC offset for local time */
+  utc_offset: number
+
   /** Elapsed time in *seconds* since start_date*/
   elapsed_time: number
 

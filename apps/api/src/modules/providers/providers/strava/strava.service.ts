@@ -52,11 +52,12 @@ export class StravaService {
           resultErr && console.error(resultErr)
 
           const normalizedActivity = this.createNormalizedHealthActivity(result)
-          const healthActivitySaveResult = await this.healthActivityService.create(
-            normalizedActivity,
-            provider.user.id,
-            result
-          )
+          const healthActivitySaveResult =
+            await this.healthActivityService.create(
+              normalizedActivity,
+              provider.user.id,
+              result
+            )
 
           return healthActivitySaveResult
         }
@@ -240,12 +241,8 @@ export class StravaService {
 
   async saveStravaProvider(code: string, userId: string, scope: any) {
     const scopes = scope ? scope.split(',') : []
-    const {
-      athlete,
-      refresh_token,
-      access_token,
-      expires_at
-    } = await this.exchangeTokens(code)
+    const { athlete, refresh_token, access_token, expires_at } =
+      await this.exchangeTokens(code)
 
     const token_expires_at = new Date(Math.floor(expires_at * 1000))
     const result = await this.providersService.create(
@@ -341,11 +338,8 @@ export class StravaService {
     if (provider.token_expires_at < now) {
       // Token Expired Get New Token
       try {
-        const {
-          access_token,
-          refresh_token,
-          expires_at
-        } = await this.refreshToken(provider.refresh_token)
+        const { access_token, refresh_token, expires_at } =
+          await this.refreshToken(provider.refresh_token)
         // Set the new credentials
 
         const newCredentials = {
@@ -399,6 +393,7 @@ export class StravaService {
       provider: ProviderType.Strava,
       start_time: activity.start_date,
       end_time,
+      utc_offset: activity.utc_offset,
       calories: activity.calories,
       distance: activity.distance,
       elevation: activity.total_elevation_gain,
