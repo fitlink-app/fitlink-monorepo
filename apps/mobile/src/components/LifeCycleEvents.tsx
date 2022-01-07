@@ -6,7 +6,7 @@ import {AppState, AppStateStatus, Platform} from 'react-native';
 import BackgroundFetch from 'react-native-background-fetch';
 import {useSelector} from 'react-redux';
 import {memoSelectIsAuthenticated} from 'redux/auth/authSlice';
-import {AppleHealthKitWrapper, GoogleFitWrapper} from 'services';
+import * as RNLocalize from 'react-native-localize';
 import {syncAllPlatformActivities} from 'services/common';
 
 export const LifeCycleEvents = () => {
@@ -39,6 +39,7 @@ export const LifeCycleEvents = () => {
     ) {
       // Log activity on server
       if (isAuthenticated) {
+        updateTimezone();
         pingBackend();
         syncAllPlatformActivities();
       }
@@ -50,6 +51,19 @@ export const LifeCycleEvents = () => {
   const pingBackend = () => {
     if (!isAuthenticated) return;
     api.put('/me/ping').catch(e => console.log('Failed to ping backend: ', e));
+  };
+
+  const updateTimezone = () => {
+    const timezone = RNLocalize.getTimeZone();
+    console.log(timezone);
+
+    const userSettingPayload: UpdateUserDto = {
+      timezone,
+    };
+
+    api
+      .put<User>('/me', {payload: userSettingPayload})
+      .catch(e => console.log('Failed to update user timezone', e));
   };
 
   const storeDeviceInfo = () => {

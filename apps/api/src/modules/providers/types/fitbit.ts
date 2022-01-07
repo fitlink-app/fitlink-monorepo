@@ -71,6 +71,14 @@ export interface FitbitActivityResponseBody extends FitbitResponseBody {
   }
 }
 
+export type FitbitUser = {
+  offsetFromUTCMillis: number
+}
+
+export interface FitbitProfileResponseBody extends FitbitResponseBody {
+  user: FitbitUser
+}
+
 /** Common between any service, the higher number is always taken as latest */
 export type LifestyleGoalActivityDTO = {
   /** The total hours of sleep for the current day */

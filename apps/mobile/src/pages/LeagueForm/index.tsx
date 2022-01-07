@@ -307,7 +307,7 @@ export const LeagueForm = (
               text={mode === 'create' ? 'Create League' : 'Save Changes'}
               onPress={handleOnSubmitPressed}
               loading={isCreatingLeague}
-              disabled={isCreatingLeague || isDeleting || isSubmitted}
+              disabled={isCreatingLeague || isDeleting}
             />
 
             {mode === 'edit' && (
@@ -318,7 +318,7 @@ export const LeagueForm = (
                 type={'danger'}
                 onPress={handleOnDeletePressed}
                 loading={isDeleting}
-                disabled={isDeleting || isCreatingLeague || isSubmitted}
+                disabled={isDeleting || isCreatingLeague}
               />
             )}
           </ScrollView>

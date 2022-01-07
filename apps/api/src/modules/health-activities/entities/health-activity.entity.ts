@@ -63,6 +63,10 @@ export class HealthActivity extends CreatableEntity {
   @Column()
   end_time: Date
 
+  @Column({ default: 0 })
+  /** UTC offset for offsetting the UTC timestamps to owner's local time when the activity was tracked (seconds) */
+  utc_offset: number
+
   /** Active duration of an activity in seconds, if available. It does account for pauses or breaks */
   @Column({ nullable: true })
   active_time: number

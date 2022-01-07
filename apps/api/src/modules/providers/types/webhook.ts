@@ -19,6 +19,13 @@ export class WebhookEventActivity {
   @ApiProperty()
   end_time: string
 
+  @ApiProperty({
+    description:
+      "UTC offset for offsetting the UTC timestamps to owner's local time when the activity was tracked (seconds)"
+  })
+  @IsOptional()
+  utc_offset: number
+
   @ApiProperty()
   @IsOptional()
   calories: number
