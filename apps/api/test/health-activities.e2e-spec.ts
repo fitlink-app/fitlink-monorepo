@@ -516,6 +516,7 @@ describe('Health Activities', () => {
           provider: ProviderType.GoogleFit,
           end_time: new Date().toISOString(),
           start_time: new Date().toISOString(),
+          utc_offset: 0,
           quantity: 1,
           type: 'walking'
         },
@@ -525,6 +526,7 @@ describe('Health Activities', () => {
           provider: ProviderType.GoogleFit,
           end_time: new Date().toISOString(),
           start_time: new Date().toISOString(),
+          utc_offset: 18000,
           quantity: 1,
           type: 'running'
         },
@@ -534,6 +536,7 @@ describe('Health Activities', () => {
           provider: ProviderType.GoogleFit,
           end_time: new Date().toISOString(),
           start_time: new Date().toISOString(),
+          utc_offset: -18000,
           quantity: 1,
           type: 'moonwalking'
         }
