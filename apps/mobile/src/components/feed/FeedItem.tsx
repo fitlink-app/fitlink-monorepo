@@ -230,10 +230,10 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
     item.health_activity?.start_time &&
     formatDateWithoutOffset(
       new Date(
-        new Date(item.health_activity.start_time).valueOf() -
+        new Date(item.health_activity.start_time).valueOf() +
           item.health_activity.utc_offset * 1000,
       ),
-      new Date(Date.now() - item.health_activity.utc_offset * 1000),
+      new Date(Date.now() + item.health_activity.utc_offset * 1000),
     ); // offset here and use in next line if not undefined
 
   const date =

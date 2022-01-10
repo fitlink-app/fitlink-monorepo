@@ -379,11 +379,11 @@ export class FitbitService {
     utcOffset: number
   ): HealthActivityDto {
     const end_time = new Date(
-      new Date(activity.startTime).valueOf() + activity.duration + utcOffset
+      new Date(activity.startTime).valueOf() + activity.duration - utcOffset
     ).toISOString()
 
     const start_time = new Date(
-      new Date(activity.startTime).valueOf() + utcOffset
+      new Date(activity.startTime).valueOf() - utcOffset
     ).toISOString()
 
     const type = this.normalizeActivityType(activity.activityName) as

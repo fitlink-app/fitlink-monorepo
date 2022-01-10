@@ -10,7 +10,7 @@ import {Platform} from 'react-native';
 import {AppleHealthKitWrapper, GoogleFitWrapper} from 'services';
 
 export const syncDeviceActivities = async (data: WebhookEventData) => {
-  const utc_offset_seconds = new Date().getTimezoneOffset() * 60;
+  const utc_offset_seconds = new Date().getTimezoneOffset() * -60;
 
   // apply UTC offset to activities
   data.activities = data.activities.map((activity: WebhookEventActivity) => ({
