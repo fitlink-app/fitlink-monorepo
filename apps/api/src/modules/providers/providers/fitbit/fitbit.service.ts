@@ -379,11 +379,7 @@ export class FitbitService {
     utcOffset: number
   ): HealthActivityDto {
     const end_time = new Date(
-      new Date(activity.startTime).valueOf() + activity.duration - utcOffset
-    ).toISOString()
-
-    const start_time = new Date(
-      new Date(activity.startTime).valueOf() - utcOffset
+      new Date(activity.startTime).valueOf() + activity.duration
     ).toISOString()
 
     const type = this.normalizeActivityType(activity.activityName) as
@@ -393,8 +389,8 @@ export class FitbitService {
     const normalizedActivity: HealthActivityDto = {
       type,
       provider: ProviderType.Fitbit,
-      utc_offset: utcOffset,
-      start_time,
+      utc_offset: utcOffset / 1000,
+      start_time: activity.startTime,
       end_time,
       active_time: activity.activeDuration / 1000,
       calories: activity.calories,
