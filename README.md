@@ -24,7 +24,7 @@ docker compose up -d
 // yarn migration:run
 
 yarn db:import
-yarn start
+yarn package:api
 yarn package:admin
 ```
 

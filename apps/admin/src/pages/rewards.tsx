@@ -19,6 +19,7 @@ import { timeout } from '../helpers/timeout'
 import ConfirmDeleteForm from '../components/forms/ConfirmDeleteForm'
 import IconInfo from '../components/icons/IconInfo'
 import { useIntercom } from 'react-use-intercom'
+import Checkbox from '../components/elements/Checkbox'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 
 const REWARD_TOUR_ID = 279440
@@ -45,6 +46,7 @@ export default function page() {
 
   const [fitlinkRewards, setFitlinkRewards] = useState<RewardEntity[]>([])
   const [rewards, setRewards] = useState<RewardEntity[]>([])
+  const [expiredRewards, setExpiredRewards] = useState(false)
 
   const options = [
     {
@@ -166,12 +168,12 @@ export default function page() {
     results: RewardEntity[]
     total: number
     page_total: number
-  }> = useQuery(`global_rewards`, async () => {
+  }> = useQuery(`global_rewards_${expiredRewards}`, async () => {
     if (modeRole) {
       return api.list<RewardEntity>('/rewards', {
         query: {
           limit: 100,
-          include_expired_rewards: 0
+          include_expired_rewards: expiredRewards ? 1 : 0
         }
       })
     }
@@ -212,9 +214,11 @@ export default function page() {
   })
 
   useEffect(() => {
-    rewardsGlobalQuery.refetch()
-    rewardsQuery.refetch()
-  }, [refresh])
+    if (modeRole) {
+      rewardsGlobalQuery.refetch()
+      rewardsQuery.refetch()
+    }
+  }, [refresh, expiredRewards, modeRole])
 
   useEffect(() => {
     if (rewardsGlobalQuery.isFetched) {
@@ -346,6 +350,20 @@ export default function page() {
               />
               <SortOrder value={sortFL} onChange={(e) => setSortFL(e)} />
             </div>
+          </div>
+          <div>
+            {modeRole === 'app' && (
+              <div>
+                <Checkbox
+                  name="include_expired_rewards"
+                  checked={expiredRewards}
+                  label="Include expired rewards"
+                  onChange={() => {
+                    setExpiredRewards(!expiredRewards)
+                  }}
+                />
+              </div>
+            )}
           </div>
           <div className="rewards flex">
             {modeRole === 'app' && (
