@@ -449,10 +449,10 @@ export const HealthActivityDetails = (
               <Label type="caption" style={{marginTop: 5}}>
                 {formatDateWithoutOffset(
                   new Date(
-                    new Date(data.start_time).valueOf() -
+                    new Date(data.start_time).valueOf() +
                       data.utc_offset * 1000,
                   ),
-                  new Date(Date.now() - data.utc_offset * 1000 ),
+                  new Date(Date.now() + data.utc_offset * 1000),
                 )}
               </Label>
             </View>

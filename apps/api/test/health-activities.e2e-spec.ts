@@ -14,6 +14,7 @@ import stravaPayload from './helpers/stravaPayload'
 import { MockType } from './helpers/types'
 import { ProvidersSetup, ProvidersTeardown } from './seeds/providers.seed'
 import fitbitActivitiesPayload from './helpers/fitbitActivitiesPayload'
+import fitbitProfilePayload from './helpers/fitbitProfilePayload'
 import { Provider } from '../src/modules/providers/entities/provider.entity'
 import CreateSports from '../database/seeds/sport.seed'
 import fitbitSleepPayload from './helpers/fitbitSleepPayload'
@@ -113,6 +114,9 @@ describe('Health Activities', () => {
     fitbitService.fetchActivitySummaryByDay.mockReturnValue(
       fitbitActivitiesPayload
     )
+    fitbitService.fetchProfile = jest.fn()
+    fitbitService.fetchProfile.mockReturnValue(fitbitProfilePayload)
+
     const data = await app.inject({
       method: 'POST',
       payload: mockPayload,
@@ -160,6 +164,8 @@ describe('Health Activities', () => {
     fitbitService.fetchActivitySummaryByDay.mockReturnValue(
       fitbitActivitiesPayload
     )
+    fitbitService.fetchProfile = jest.fn()
+    fitbitService.fetchProfile.mockReturnValue(fitbitProfilePayload)
     const data = await app.inject({
       method: 'POST',
       payload: mockPayload,
@@ -341,6 +347,8 @@ describe('Health Activities', () => {
     fitbitService.fetchActivitySummaryByDay.mockReturnValue(
       fitbitActivitiesPayload
     )
+    fitbitService.fetchProfile = jest.fn()
+    fitbitService.fetchProfile.mockReturnValue(fitbitProfilePayload)
     await app.inject({
       method: 'POST',
       payload: mockPayload,
@@ -516,6 +524,7 @@ describe('Health Activities', () => {
           provider: ProviderType.GoogleFit,
           end_time: new Date().toISOString(),
           start_time: new Date().toISOString(),
+          utc_offset: 0,
           quantity: 1,
           type: 'walking'
         },
@@ -525,6 +534,7 @@ describe('Health Activities', () => {
           provider: ProviderType.GoogleFit,
           end_time: new Date().toISOString(),
           start_time: new Date().toISOString(),
+          utc_offset: 18000,
           quantity: 1,
           type: 'running'
         },
@@ -534,6 +544,7 @@ describe('Health Activities', () => {
           provider: ProviderType.GoogleFit,
           end_time: new Date().toISOString(),
           start_time: new Date().toISOString(),
+          utc_offset: -18000,
           quantity: 1,
           type: 'moonwalking'
         }

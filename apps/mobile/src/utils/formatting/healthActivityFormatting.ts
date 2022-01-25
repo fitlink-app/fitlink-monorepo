@@ -105,38 +105,47 @@ export const getActivityDistance = (
   unitSystem: UnitSystem,
   meters: number,
   options?: {
-    asArray?: boolean;
     short?: boolean;
   },
 ) => {
   let yards = meters * 1.0936133;
 
-  const kmValue = numbro(meters / 1000).format({
-    trimMantissa: true,
-    mantissa: 2,
-  });
+  let result = '';
+  let suffix = '';
 
-  const mileValue = numbro(yards / 1760).format({
-    trimMantissa: true,
-    mantissa: 2,
-  });
+  if (unitSystem === 'metric') {
+    if (meters < 1000) {
+      result = numbro(meters).format({
+        trimMantissa: true,
+        mantissa: 0,
+      });
 
-  const imperialResult = [mileValue, options?.short ? 'mi' : 'miles'];
-  const metricResult = [kmValue, options?.short ? 'km' : 'kilometers'];
+      suffix = options?.short ? 'm' : 'meters';
+    } else {
+      result = numbro(meters / 1000).format({
+        trimMantissa: true,
+        mantissa: 2,
+      });
 
-  if (!options?.asArray) {
-    switch (unitSystem) {
-      case 'metric':
-        return `${metricResult[0]} ${metricResult[1]}`;
-      default:
-        return `${imperialResult[0]} ${imperialResult[1]}`;
+      suffix = options?.short ? 'km' : 'kilometers';
+    }
+  } else {
+    if (yards < 1760) {
+      result = numbro(yards).format({
+        trimMantissa: true,
+        mantissa: 0,
+      });
+
+      suffix = options?.short ? 'yd' : 'yards';
+    } else {
+      result = numbro(yards / 1760).format({
+        trimMantissa: true,
+        mantissa: 2,
+      });
+
+      suffix = options?.short ? 'mi' : 'miles';
     }
   }
 
-  switch (unitSystem) {
-    case 'metric':
-      return metricResult;
-    default:
-      return imperialResult;
-  }
+  return `${result} ${suffix}`;
 };

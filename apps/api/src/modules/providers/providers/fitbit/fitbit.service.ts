@@ -147,14 +147,11 @@ export class FitbitService {
 
                 profileResultErr && console.error(profileResultErr)
 
-                const utcOffsetSeconds =
-                  profileResult.user.offsetFromUTCMillis / 1000
-
                 const [resultsArr, resultsArrErr] = await tryAndCatch(
                   this.saveHealthActivities(
                     summaryResult.activities as FitbitActivity[],
                     userId,
-                    utcOffsetSeconds
+                    profileResult.user.offsetFromUTCMillis
                   )
                 )
                 resultsArrErr && console.error(resultsArrErr)
@@ -382,7 +379,7 @@ export class FitbitService {
     utcOffset: number
   ): HealthActivityDto {
     const end_time = new Date(
-      new Date(activity.startTime).valueOf() + activity.duration + utcOffset
+      new Date(activity.startTime).valueOf() + activity.duration
     ).toISOString()
 
     const type = this.normalizeActivityType(activity.activityName) as
@@ -392,8 +389,8 @@ export class FitbitService {
     const normalizedActivity: HealthActivityDto = {
       type,
       provider: ProviderType.Fitbit,
-      start_time: activity.startTime + utcOffset,
-      utc_offset: utcOffset,
+      utc_offset: utcOffset / 1000,
+      start_time: activity.startTime,
       end_time,
       active_time: activity.activeDuration / 1000,
       calories: activity.calories,
