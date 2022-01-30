@@ -231,16 +231,14 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
     formatDateWithoutOffset(
       new Date(
         new Date(item.health_activity.start_time).valueOf() +
-          item.health_activity.utc_offset * 1000,
+          (item.health_activity.utc_offset || 0) * 1000,
       ),
-      new Date(Date.now() + item.health_activity.utc_offset * 1000),
-    ); // offset here and use in next line if not undefined
+      new Date(Date.now() + (item.health_activity.utc_offset || 0) * 1000),
+    );
 
   const date =
     formattedHealthActivityDate ||
     formatRelative(new Date(item.date), new Date());
-
-  console.log();
 
   const images =
     item.health_activity?.images.map(image => image.url_128x128) || [];

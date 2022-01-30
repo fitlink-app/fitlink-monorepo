@@ -450,9 +450,9 @@ export const HealthActivityDetails = (
                 {formatDateWithoutOffset(
                   new Date(
                     new Date(data.start_time).valueOf() +
-                      data.utc_offset * 1000,
+                      (data.utc_offset || 0) * 1000,
                   ),
-                  new Date(Date.now() + data.utc_offset * 1000),
+                  new Date(Date.now() + (data.utc_offset || 0) * 1000),
                 )}
               </Label>
             </View>
