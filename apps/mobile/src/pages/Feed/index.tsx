@@ -376,17 +376,19 @@ export const Feed = () => {
                 />
               </HeaderWidgetContainer>
 
-              <HeaderWidgetContainer>
-                <RewardTracker
-                  points={user.points_total}
-                  targetPoints={nextReward?.reward.points_required || 0}
-                  isLoading={!isNextRewardFetched}
-                  claimableRewardsCount={
-                    nextReward?.unclaimed_rewards_total || 0
-                  }
-                  onPress={() => navigation.navigate('Rewards')}
-                />
-              </HeaderWidgetContainer>
+              {!!nextReward?.reward && isNextRewardFetched && (
+                <HeaderWidgetContainer>
+                  <RewardTracker
+                    points={user.points_total}
+                    targetPoints={nextReward?.reward.points_required || 0}
+                    isLoading={!isNextRewardFetched}
+                    claimableRewardsCount={
+                      nextReward?.unclaimed_rewards_total || 0
+                    }
+                    onPress={() => navigation.navigate('Rewards')}
+                  />
+                </HeaderWidgetContainer>
+              )}
 
               <TopButtonRow>
                 <NotificationsButton count={user.unread_notifications} />

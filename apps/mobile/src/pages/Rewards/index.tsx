@@ -171,6 +171,7 @@ export const Rewards = () => {
       <ScrollView
         showsVerticalScrollIndicator={false}
         ref={scrollRef}
+        style={{height: '100%'}}
         contentContainerStyle={{
           paddingBottom: 20,
           flexGrow: 1,
@@ -202,7 +203,7 @@ export const Rewards = () => {
                 !!nextReward?.unclaimed_rewards_total) && (
                 <RewardTracker
                   points={user?.points_total || 0}
-                  targetPoints={nextReward?.reward?.points_required || 0}
+                  targetPoints={nextReward?.reward.points_required || 0}
                   claimableRewardsCount={
                     nextReward?.unclaimed_rewards_total || 0
                   }
