@@ -42,7 +42,7 @@ const App = () => {
     }, 1000);
   }, []);
 
-  if (isUpToDate || isError)
+  if (isUpToDate || isError) {
     return (
       <SafeAreaProvider>
         <ThemeProvider>
@@ -64,6 +64,7 @@ const App = () => {
         </ThemeProvider>
       </SafeAreaProvider>
     );
+  }
 
   return (
     <SafeAreaProvider>

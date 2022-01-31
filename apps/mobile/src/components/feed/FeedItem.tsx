@@ -18,6 +18,7 @@ import {useNavigation} from '@react-navigation/native';
 import {FeedItem as FeedItemClass} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
 import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
 import {
+  formatDateWithoutOffset,
   formatDistanceShortLocale,
   getActivityDistance,
   getSpeedValue,
@@ -224,7 +225,20 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
     }
   })();
 
-  const date = formatRelative(new Date(item.date), new Date());
+  // Health activity dates are displayed in the user's local time
+  const formattedHealthActivityDate =
+    item.health_activity?.start_time &&
+    formatDateWithoutOffset(
+      new Date(
+        new Date(item.health_activity.start_time).valueOf() +
+          (item.health_activity.utc_offset || 0) * 1000,
+      ),
+      new Date(Date.now() + (item.health_activity.utc_offset || 0) * 1000),
+    );
+
+  const date =
+    formattedHealthActivityDate ||
+    formatRelative(new Date(item.date), new Date());
 
   const images =
     item.health_activity?.images.map(image => image.url_128x128) || [];

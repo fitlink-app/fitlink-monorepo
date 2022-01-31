@@ -1,4 +1,5 @@
 import locale from 'date-fns/locale/en-US';
+import {formatRelative} from 'date-fns';
 
 type CountdownTime = {
   d: number;
@@ -62,6 +63,34 @@ export function formatDistanceShortLocale(token: string, count: any) {
   const result = formatDistanceLocale[token].replace('{{count}}', count);
 
   return result as any;
+}
+
+export function formatDateWithoutOffset(
+  date: Date | number,
+  baseDate: Date | number,
+  options?: {
+    locale?: Locale;
+    weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  },
+) {
+  const localOffsetInMs = new Date().getTimezoneOffset() * 60 * 1000;
+  const offsetedDate = new Date(date.valueOf() + localOffsetInMs);
+
+  return formatRelative(offsetedDate, baseDate, {
+    locale: {
+      ...locale,
+      formatRelative: token => {
+        const formattings: {[key: string]: string} = {
+          lastWeek: "EEEE 'at' h:mm a",
+        };
+
+        return (
+          formattings[token] ||
+          (locale.formatRelative && locale.formatRelative(token))
+        );
+      },
+    },
+  });
 }
 
 export function durationToCountDown(duration: Duration) {

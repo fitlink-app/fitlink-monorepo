@@ -19,6 +19,7 @@ import {
   FitbitActivityResponseBody,
   FitbitAuthResponse,
   FitbitEventData,
+  FitbitProfileResponseBody,
   FitbitSleepResponseBody,
   FitbitSubscriptionResponseBody,
   FitbitUserUpdates,
@@ -140,10 +141,17 @@ export class FitbitService {
               )
               summaryResultErr && console.error(summaryResultErr)
               if (summaryResult.activities?.length) {
+                const [profileResult, profileResultErr] = await tryAndCatch(
+                  this.fetchProfile(token)
+                )
+
+                profileResultErr && console.error(profileResultErr)
+
                 const [resultsArr, resultsArrErr] = await tryAndCatch(
                   this.saveHealthActivities(
                     summaryResult.activities as FitbitActivity[],
-                    userId
+                    userId,
+                    profileResult.user.offsetFromUTCMillis
                   )
                 )
                 resultsArrErr && console.error(resultsArrErr)
@@ -206,13 +214,18 @@ export class FitbitService {
     return body
   }
 
-  async saveHealthActivities(activities: FitbitActivity[], userId: string) {
+  async saveHealthActivities(
+    activities: FitbitActivity[],
+    userId: string,
+    utcOffset: number
+  ) {
     const user = await this.usersRepository.findOne(userId)
     const promises = []
     for (const activity of activities) {
       const normalizedActivity = this.createNormalizedHealthActivity(
         activity,
-        user
+        user,
+        utcOffset
       )
       promises.push(
         this.healthActivityService.create(normalizedActivity, userId, activity)
@@ -220,6 +233,15 @@ export class FitbitService {
     }
     const results = await Promise.all(promises)
     return results
+  }
+
+  async fetchProfile(token: string) {
+    const req = await this.Fitbit.get(`/profile.json`, token)
+    const body = req[0] as FitbitProfileResponseBody
+    if (body.errors) {
+      throw new BadRequestException(body.errors[0].message)
+    }
+    return body
   }
 
   async fetchActivitySummaryByDay(token: string, date: string) {
@@ -295,14 +317,8 @@ export class FitbitService {
     const now = new Date(Date.now())
     console.log(`Is FITBIT Token Expired: ${provider.token_expires_at < now}`)
     if (provider.token_expires_at < now) {
-      const {
-        refresh_token,
-        access_token,
-        expires_in
-      }: FitbitAuthResponse = await this.refreshToken(
-        provider.token,
-        provider.refresh_token
-      )
+      const { refresh_token, access_token, expires_in }: FitbitAuthResponse =
+        await this.refreshToken(provider.token, provider.refresh_token)
 
       // Refresh failed
       if (access_token === '0') {
@@ -359,7 +375,8 @@ export class FitbitService {
 
   createNormalizedHealthActivity(
     activity: FitbitActivity,
-    user: User
+    user: User,
+    utcOffset: number
   ): HealthActivityDto {
     const end_time = new Date(
       new Date(activity.startTime).valueOf() + activity.duration
@@ -372,6 +389,7 @@ export class FitbitService {
     const normalizedActivity: HealthActivityDto = {
       type,
       provider: ProviderType.Fitbit,
+      utc_offset: utcOffset / 1000,
       start_time: activity.startTime,
       end_time,
       active_time: activity.activeDuration / 1000,

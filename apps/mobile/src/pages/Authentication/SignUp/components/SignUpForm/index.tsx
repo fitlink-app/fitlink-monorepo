@@ -101,9 +101,7 @@ export const SignUpForm = () => {
         onPress={() => handleSubmit(onSubmit)}
         loading={isSubmitting}
         disabled={
-          isSubmitting ||
-          isSubmitted ||
-          !(values.email?.length && values.password?.length)
+          isSubmitting || !(values.email?.length && values.password?.length)
         }
       />
 

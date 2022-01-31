@@ -24,6 +24,7 @@ import {StatWidget} from './components';
 import {useNavigation} from '@react-navigation/native';
 import {
   formatDistanceShortLocale,
+  formatDateWithoutOffset,
   getActivityDistance,
   getBounds,
   getSpeedValue,
@@ -41,7 +42,7 @@ import {
   useShareHealthActivity,
   useUploadImage,
 } from '@hooks';
-import {formatRelative, formatDistanceStrict} from 'date-fns';
+import {formatDistanceStrict} from 'date-fns';
 import locale from 'date-fns/locale/en-US';
 import {ImageType} from '@fitlink/api/src/modules/images/images.constants';
 import {Dialog} from 'components/modal';
@@ -109,6 +110,8 @@ export const HealthActivityDetails = (
   });
 
   const {data} = useHealthActivity(id, areInteractionsDone);
+
+  console.log(data);
 
   const {shareActivity, isLoading: isShareActivityLoading} =
     useShareHealthActivity();
@@ -444,21 +447,13 @@ export const HealthActivityDetails = (
             <View>
               <Label type={'title'}>{data.title}</Label>
               <Label type="caption" style={{marginTop: 5}}>
-                {formatRelative(new Date(new Date(data.end_time)), new Date(), {
-                  locale: {
-                    ...locale,
-                    formatRelative: token => {
-                      const formattings: {[key: string]: string} = {
-                        lastWeek: "EEEE 'at' h:mm a",
-                      };
-
-                      return (
-                        formattings[token] ||
-                        (locale.formatRelative && locale.formatRelative(token))
-                      );
-                    },
-                  },
-                })}
+                {formatDateWithoutOffset(
+                  new Date(
+                    new Date(data.start_time).valueOf() +
+                      (data.utc_offset || 0) * 1000,
+                  ),
+                  new Date(Date.now() + (data.utc_offset || 0) * 1000),
+                )}
               </Label>
             </View>
             {isOwnedActivity && (
