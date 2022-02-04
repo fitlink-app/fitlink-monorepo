@@ -165,7 +165,8 @@ export class AuthService {
       await this.usersService.sendVerificationEmail(user.id, email)
 
       // Send a welcome email
-      await this.emailService.sendTemplatedEmail('welcome-email', {}, [email])
+      // Disabled as emails now sent through Intercom
+      // await this.emailService.sendTemplatedEmail('welcome-email', {}, [email])
 
       return {
         auth: await this.login(user),
@@ -210,9 +211,10 @@ export class AuthService {
       await this.usersService.sendVerificationEmail(user.id, email)
 
       // Send a welcome email
-      await this.emailService.sendTemplatedEmail('welcome-email-admin', {}, [
-        email
-      ])
+      // Disabled as emails now send through Intercom
+      // await this.emailService.sendTemplatedEmail('welcome-email-admin', {}, [
+      //   email
+      // ])
 
       // If the user chose to subscribe, add them to settings
       // Which invokes Intercom update
@@ -277,9 +279,10 @@ export class AuthService {
     }
 
     // Send a welcome email
-    await this.emailService.sendTemplatedEmail('welcome-email-admin', {}, [
-      user.email
-    ])
+    // Disabled as emails now send through Intercom
+    // await this.emailService.sendTemplatedEmail('welcome-email-admin', {}, [
+    //   user.email
+    // ])
 
     // If the user chose to subscribe, add them to settings
     // Which invokes Intercom update
@@ -337,9 +340,10 @@ export class AuthService {
     await this.usersService.sendVerificationEmail(user.id, provider.email)
 
     // Send a welcome email
-    await this.emailService.sendTemplatedEmail('welcome-email', {}, [
-      provider.email
-    ])
+    // Disabled as emails now sent through Intercom
+    // await this.emailService.sendTemplatedEmail('welcome-email', {}, [
+    //   provider.email
+    // ])
 
     return {
       auth: await this.login(user),
