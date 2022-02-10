@@ -14,6 +14,7 @@ import { HealthActivitiesModule } from '../health-activities/health-activities.m
 import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
 import { WebhookController } from './providers/webhook/webhook.controller'
 import { WebhookService } from './providers/webhook/webhook.service'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { WebhookService } from './providers/webhook/webhook.service'
     TypeOrmModule.forFeature([Provider, User]),
     ConfigModule,
     AuthModule,
-    GoalsEntriesModule
+    GoalsEntriesModule,
+    EventEmitter2
   ],
   controllers: [
     ProvidersController,
