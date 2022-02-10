@@ -141,8 +141,7 @@ const SignupPage = () => {
               </div>
             </h1>
             <h2>
-              Billing is monthly and you don’t need a credit card to sign up.
-              You'll only be charged for users once they've joined your team.
+              No demos, quotes, upfront payment or hassley sales. Just instant access, try before you buy and happy healthy days.
             </h2>
             <ul>
               <li>14 day free trial</li>
