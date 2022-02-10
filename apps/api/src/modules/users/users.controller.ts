@@ -53,6 +53,8 @@ import { ConfigService } from '@nestjs/config'
 import { UserJobDto } from './dto/user-job.dto'
 import { CreateFcmTokenDto } from './dto/create-fcm-token.dto'
 import { DeleteFcmTokenDto } from './dto/delete-fcm-token.dto'
+import { Events } from '../../events'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 
 @Controller()
 @ApiBaseResponses()
@@ -60,7 +62,8 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly userRolesService: UserRolesService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private eventEmitter: EventEmitter2
   ) {}
 
   // User endpoints (requires JWT)
@@ -176,7 +179,8 @@ export class UsersController {
   @Put('me/ping')
   @ApiTags('me')
   @UpdateResponse()
-  pingUser(@AuthUser() user: AuthenticatedUser) {
+  async pingUser(@AuthUser() user: AuthenticatedUser) {
+    await this.eventEmitter.emitAsync(Events.USER_PING, user)
     return this.usersService.ping(user.id)
   }
 
