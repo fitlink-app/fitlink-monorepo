@@ -464,7 +464,9 @@ export class FitbitService {
       this.getFreshFitbitToken(payload.id)
     )
 
-    tokenErr && console.error(tokenErr.message)
+    tokenErr &&
+      tokenErr.message !== 'Provider Not found' &&
+      console.error(tokenErr.message)
 
     // Do not continue if there's no token available
     if (tokenErr) {

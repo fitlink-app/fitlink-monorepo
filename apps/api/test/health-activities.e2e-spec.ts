@@ -12,7 +12,11 @@ import { User } from '../src/modules/users/entities/user.entity'
 import { mockApp } from './helpers/app'
 import stravaPayload from './helpers/stravaPayload'
 import { MockType } from './helpers/types'
-import { ProvidersSetup, ProvidersTeardown } from './seeds/providers.seed'
+import {
+  ProvidersSetup,
+  ProvidersTeardown,
+  SeedProviderToUser
+} from './seeds/providers.seed'
 import fitbitActivitiesPayload from './helpers/fitbitActivitiesPayload'
 import fitbitProfilePayload from './helpers/fitbitProfilePayload'
 import { Provider } from '../src/modules/providers/entities/provider.entity'
@@ -34,6 +38,8 @@ import { getAuthHeaders } from './helpers/auth'
 import { UserRank } from '../src/modules/users/users.constants'
 import { WebhookEventData } from '../src/modules/providers/types/webhook'
 import { ProviderType } from '../src/modules/providers/providers.constants'
+import { GoalsEntry } from '../src/modules/goals-entries/entities/goals-entry.entity'
+import { UsersModule } from '../src/modules/users/users.module'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -51,7 +57,12 @@ describe('Health Activities', () => {
     spyConsole = jest.spyOn(console, 'error').mockImplementation(() => {})
 
     app = await mockApp({
-      imports: [ProvidersModule, HealthActivitiesModule, LeaguesModule],
+      imports: [
+        ProvidersModule,
+        HealthActivitiesModule,
+        LeaguesModule,
+        UsersModule
+      ],
       providers: []
     })
     connection = getConnection()
@@ -67,6 +78,8 @@ describe('Health Activities', () => {
     stravaService = app.get(StravaService)
     fitbitService = app.get(FitbitService)
     providerService = app.get(ProvidersService)
+
+    await SeedProviderToUser(userForFitbit.id, 'fitbit')
   })
 
   afterAll(async () => {
@@ -564,5 +577,36 @@ describe('Health Activities', () => {
     expect(activities[0].id).toBeDefined()
     expect(activities[1].id).toBeDefined()
     expect(activities[2].id).toBeUndefined()
+  })
+
+  it('POST /me/ping Updates Fitbit steps for qualifying users on ping from device', async () => {
+    fitbitService.fetchActivitySummaryByDay = jest.fn()
+    fitbitService.getFreshFitbitToken = jest.fn()
+
+    fitbitService.fetchActivitySummaryByDay.mockReturnValueOnce({
+      summary: {
+        steps: 1999
+      }
+    })
+
+    fitbitService.getFreshFitbitToken.mockReturnValue('token')
+
+    await app.inject({
+      method: 'PUT',
+      payload: {},
+      url: '/me/ping',
+      headers: getAuthHeaders({}, userForFitbit.id)
+    })
+
+    const entry = await connection.getRepository(GoalsEntry).findOne({
+      where: {
+        user: { id: userForFitbit.id }
+      },
+      order: {
+        updated_at: 'DESC'
+      }
+    })
+
+    expect(entry.current_steps).toEqual(1999)
   })
 })
