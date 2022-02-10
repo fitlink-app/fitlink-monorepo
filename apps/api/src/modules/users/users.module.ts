@@ -18,6 +18,8 @@ import { UserActiveMinutesIncrementedListener } from './listeners/UserActiveMinu
 import { NotificationsModule } from '../notifications/notifications.module'
 import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
 import { RefreshToken } from '../auth/entities/auth.entity'
+import { FitbitUserListener } from './listeners/FitbitUserPing'
+import { ProvidersModule } from '../providers/providers.module'
 
 @Module({
   imports: [
@@ -42,7 +44,8 @@ import { RefreshToken } from '../auth/entities/auth.entity'
           signOptions: { expiresIn: '1h' }
         }
       }
-    })
+    }),
+    ProvidersModule
   ],
   controllers: [UsersController],
   providers: [
@@ -50,7 +53,8 @@ import { RefreshToken } from '../auth/entities/auth.entity'
     ConfigService,
     UserPointsIncrementedListener,
     NewFollowerListener,
-    UserActiveMinutesIncrementedListener
+    UserActiveMinutesIncrementedListener,
+    FitbitUserListener
   ],
   exports: [TypeOrmModule.forFeature([User]), UsersService]
 })
