@@ -132,9 +132,9 @@ export class StatsService {
       ${joins}
       WHERE "league"."participants_total" > 0
       AND (
-        ("league"."repeat" = true AND ("league"."created_at" < $2 ))
+        ("league"."repeat" = true AND ("league"."created_at" <= $2 ))
         OR
-        ("league"."repeat" = false AND "league"."created_at" > $1 AND "league"."ends_at" < $2 )
+        ("league"."repeat" = false AND "league"."created_at" >= $1 AND "league"."ends_at" <= $2 )
       )
       ${where}
       GROUP BY "league"."id", "image"."url", "sport"."name"
@@ -188,7 +188,7 @@ export class StatsService {
         SELECT COUNT(*) AS "count", "redeem"."rewardId"
         FROM "rewards_redemption" "redeem"
         INNER JOIN "reward" "reward" ON "redeem"."rewardId" = "reward"."id"
-        WHERE "redeem"."created_at" > $1 AND "redeem"."created_at" < $2
+        WHERE "redeem"."created_at" >= $1 AND "redeem"."created_at" <= $2
         GROUP BY "redeem"."rewardId"
       ) AS redeemed ON "redeemed"."rewardId" = "reward"."id"
       ${joins}
@@ -263,7 +263,7 @@ export class StatsService {
           FROM "goals_entry"
           INNER JOIN "user" "u" ON "goals_entry"."userId" = "u"."id"
           ${joins}
-          WHERE "goals_entry"."created_at" > $1 AND "goals_entry"."created_at" < $2
+          WHERE "goals_entry"."created_at" >= $1 AND "goals_entry"."created_at" <= $2
           ${where}
           ${!exclude_zero_values ? ` AND current_${each} > 0 ` : ''}
         ) AS current_${each}
@@ -306,6 +306,8 @@ export class StatsService {
       query,
       params
     )
+
+    console.log(query)
 
     return results[0]
   }
@@ -352,8 +354,8 @@ export class StatsService {
       INNER JOIN "user" "u" ON "u"."id" = health_activity."userId"
       INNER JOIN "sport" ON sport."id" = health_activity."sportId"
       ${conditions}${where}
-      AND health_activity."created_at" > $1
-      AND health_activity."created_at" < $2
+      AND health_activity."created_at" >= $1
+      AND health_activity."created_at" <= $2
       GROUP BY sport."id"
       ORDER BY count DESC
     `
