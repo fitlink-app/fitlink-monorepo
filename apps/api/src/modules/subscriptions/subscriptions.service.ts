@@ -216,19 +216,27 @@ export class SubscriptionsService {
     }
 
     // The subscription is not yet connected to a ChargeBee billing plan
+    // The update to subscription is not a free plan (i.e. a new Chargebee subscription must be created)
     try {
       if (
         !subscription.billing_plan_customer_id &&
-        subscription.type !== SubscriptionType.Free
+        subscription.type !== SubscriptionType.Free &&
+        dto.type !== SubscriptionType.Free
       ) {
         const customer = await this.updateChargeBeeCustomer({
           ...subscription,
           ...update
         })
         update.billing_plan_customer_id = customer.id
-      } else {
+      } else if (subscription.billing_plan_customer_id) {
         // Update the ChargeBee customer
         await this.updateChargeBeeCustomer({ ...subscription, ...update })
+
+        // If the subscription is free, plan will be cancelled
+        // so remove the reference to billing plan
+        if (dto.type === SubscriptionType.Free) {
+          update.billing_plan_customer_id = null
+        }
       }
     } catch (e) {
       const msg = e.message ? e.message.split(':')[1] || e.message : e
