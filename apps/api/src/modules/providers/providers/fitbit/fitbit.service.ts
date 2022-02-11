@@ -31,6 +31,9 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { User } from '../../../users/entities/user.entity'
 import { Repository } from 'typeorm'
 import { addSeconds } from 'date-fns'
+import { OnEvent } from '@nestjs/event-emitter'
+import type { AuthenticatedUser } from '../../../../models/authenticated-user.model'
+import { Events } from '../../../../events'
 
 const FitbitApiClient: any = fitbitClient
 
@@ -317,8 +320,14 @@ export class FitbitService {
     const now = new Date(Date.now())
     console.log(`Is FITBIT Token Expired: ${provider.token_expires_at < now}`)
     if (provider.token_expires_at < now) {
-      const { refresh_token, access_token, expires_in }: FitbitAuthResponse =
-        await this.refreshToken(provider.token, provider.refresh_token)
+      const {
+        refresh_token,
+        access_token,
+        expires_in
+      }: FitbitAuthResponse = await this.refreshToken(
+        provider.token,
+        provider.refresh_token
+      )
 
       // Refresh failed
       if (access_token === '0') {
@@ -447,5 +456,39 @@ export class FitbitService {
     )
     const body = res[0]
     return body
+  }
+
+  @OnEvent(Events.USER_PING)
+  async onUserPingEvent(payload: AuthenticatedUser) {
+    const [token, tokenErr] = await tryAndCatch(
+      this.getFreshFitbitToken(payload.id)
+    )
+
+    tokenErr &&
+      tokenErr.message !== 'Provider Not found' &&
+      console.error(tokenErr.message)
+
+    // Do not continue if there's no token available
+    if (tokenErr) {
+      return
+    }
+
+    const [summaryResult, summaryResultErr] = await tryAndCatch(
+      this.fetchActivitySummaryByDay(token, new Date().toUTCString())
+    )
+
+    // Do not continue if there's an error
+    if (summaryResultErr) {
+      return
+    }
+
+    const lifestyleStats: LifestyleGoalActivityDTO = {
+      steps: summaryResult.summary.steps || 0,
+      floors_climbed: summaryResult.summary.floors || 0,
+      sleep_hours: 0,
+      water_litres: 0,
+      mindfulness: 0
+    }
+    await this.prcoessDailyGoalsHistory(payload.id, lifestyleStats)
   }
 }
