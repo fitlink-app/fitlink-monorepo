@@ -154,7 +154,9 @@ export class FitbitService {
                   this.saveHealthActivities(
                     summaryResult.activities as FitbitActivity[],
                     userId,
-                    profileResult.user.offsetFromUTCMillis
+                    profileResult && profileResult.user
+                      ? profileResult.user.offsetFromUTCMillis
+                      : 0
                   )
                 )
                 resultsArrErr && console.error(resultsArrErr)
