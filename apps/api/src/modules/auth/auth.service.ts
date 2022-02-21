@@ -86,7 +86,7 @@ export class AuthService {
     email: string,
     password: string
   ): Promise<User | false> {
-    const user = await this.usersService.findByEmail(email)
+    const user = await this.usersService.findByEmail(email.toLowerCase())
     if (user) {
       // Legacy Firebase password check
       if (user.password.indexOf('__FIREBASE__') > 0) {
@@ -151,7 +151,9 @@ export class AuthService {
    * @param user
    * @returns object containing 3 tokens and user object
    */
-  async signup({ email, name, password }: CreateUserDto) {
+  async signup(createUser: CreateUserDto) {
+    const { name, password } = createUser
+    const email = createUser.email.toLowerCase()
     const existing = await this.usersService.findByEmail(email)
 
     if (!existing) {
@@ -187,17 +189,18 @@ export class AuthService {
    * @param user
    * @returns object containing 3 tokens and user object
    */
-  async signupWithOrganisation({
-    email,
-    name,
-    password,
-    agree_to_terms,
-    subscribe,
-    company,
-    type,
-    type_other,
-    date
-  }: CreateUserWithOrganisationDto) {
+  async signupWithOrganisation(createUser: CreateUserWithOrganisationDto) {
+    const {
+      name,
+      password,
+      agree_to_terms,
+      subscribe,
+      company,
+      type,
+      type_other
+    } = createUser
+    const email = createUser.email.toLowerCase()
+
     const existing = await this.usersService.findByEmail(email)
 
     if (!existing) {
