@@ -26,14 +26,12 @@ export function useClaimReward() {
             } as RewardPublic),
         );
 
-        queryClient.setQueryData<User>(
-          QueryKeys.User,
-          oldUser =>
-            ({
-              ...oldUser,
-              points_total: oldUser!.points_total - data.points_required,
-            } as User),
-        );
+        queryClient.setQueryData<User>(QueryKeys.Me, oldUser => {
+          return {
+            ...oldUser,
+            points_total: oldUser!.points_total - data.points_required,
+          } as User;
+        });
 
         queryClient.invalidateQueries(QueryKeys.NextReward);
       },
