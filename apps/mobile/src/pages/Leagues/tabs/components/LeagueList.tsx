@@ -45,10 +45,11 @@ export const LeagueList = ({
   const keyExtractor = (item: League) => item.id as string;
 
   const renderItem = ({item}: {item: League}) => {
+    console.log(item.organisation);
     const organisation = item.organisation
       ? {
           name: item.organisation?.name,
-          image: item.organisation?.avatar.url_128x128,
+          image: item.organisation?.avatar?.url_128x128,
         }
       : undefined;
 
