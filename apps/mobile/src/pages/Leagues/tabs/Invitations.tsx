@@ -70,7 +70,7 @@ export const Invitations = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
     const organisation = league.organisation
       ? {
           name: league.organisation?.name,
-          image: league.organisation?.avatar.url_128x128,
+          image: league.organisation?.avatar?.url_128x128,
         }
       : undefined;
 
