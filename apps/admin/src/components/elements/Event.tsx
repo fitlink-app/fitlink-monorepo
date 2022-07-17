@@ -11,6 +11,7 @@ export type EventProps = {
   startDate: string | Date
   type: string
   onClick?: (e: any) => void
+  onViewAttendeesClick?: (e: any) => void
 }
 
 export default function Event({
@@ -21,7 +22,8 @@ export default function Event({
   members,
   startDate,
   type = '',
-  onClick
+  onClick,
+  onViewAttendeesClick
 }: EventProps) {
   return (
     <Card className={`league event ${className}`} onClick={onClick}>
@@ -32,7 +34,11 @@ export default function Event({
       <div className="card__bottom">
         <h3 className="h5">{title}</h3>
         {shortDescription && <p>{shortDescription}</p>}
-        <Button className="mt-2 small" label="View attendees" />
+        <Button
+          className="mt-2 small"
+          label="View attendees"
+          onClick={onViewAttendeesClick}
+        />
       </div>
       <div className="card__top">
         {type && (

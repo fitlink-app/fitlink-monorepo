@@ -9,6 +9,7 @@ import EventForm from '../../components/forms/EventForm'
 import { AnimatePresence } from 'framer-motion'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const events = require('../../services/dummy/events.json')
+const teamUsers = require('../../services/dummy/team-users.json')
 
 export default function page() {
   const [drawContent, setDrawContent] = useState<
@@ -102,7 +103,16 @@ export default function page() {
         </div>
         {sorted.map((r: any, i) => (
           <div className="rewards__wrap" key={`fl-r-${i}`}>
-            <Event {...r} image={r.image?.url} onClick={() => loadEvent(r)} />
+            <Event
+              {...r}
+              image={r.image?.url}
+              onClick={() => loadEvent(r)}
+              onViewAttendeesClick={(event) => {
+                event.stopPropagation()
+                setWarning(true)
+                setDrawContent(<AttendeesList attendees={r?.members || 0} />)
+              }}
+            />
           </div>
         ))}
       </div>
@@ -117,5 +127,44 @@ export default function page() {
         )}
       </AnimatePresence>
     </Dashboard>
+  )
+}
+
+const getAttendeesList = (amount: any) => {
+  const users = []
+  let index = 0
+
+  while (users.length < amount) {
+    if (index >= teamUsers.results.length - 1) {
+      index = 0
+    }
+
+    users.push(teamUsers.results[index])
+
+    index++
+  }
+
+  return users.sort(() => 0.5 - Math.random())
+}
+
+export const AttendeesList = ({ attendees = 1 }: { attendees: any }) => {
+  const users = getAttendeesList(parseInt(attendees))
+
+  return (
+    <>
+      <h4 className="light mb-3">Attendees</h4>
+
+      {users.map((user, index) => (
+        <div className="avatar-select" key={index}>
+          <div
+            className="avatar-select__preview"
+            style={{ backgroundImage: `url(${user.avatar})` }}
+          />
+          <label>
+            {user.firstName} {user.lastName}
+          </label>
+        </div>
+      ))}
+    </>
   )
 }

@@ -9,7 +9,7 @@ export type ButtonProps = {
   external?: boolean
   disabled?: boolean
   type?: 'button' | 'submit' | 'reset'
-  onClick?: () => void
+  onClick?: (e: any) => void
 }
 
 export default function Button({

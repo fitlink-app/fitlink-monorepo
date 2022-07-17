@@ -13,6 +13,8 @@ import IconYoga from '../icons/IconYoga'
 import IconInfo from '../icons/IconInfo'
 import IconMobile from '../icons/IconMobile'
 import IconExternal from '../icons/IconExternal'
+import IconEvents from '../icons/IconEvents'
+import IconNews from '../icons/IconNews'
 
 const icons = {
   IconActivities,
@@ -26,7 +28,9 @@ const icons = {
   IconYoga,
   IconInfo,
   IconMobile,
-  IconExternal
+  IconExternal,
+  IconEvents,
+  IconNews
 }
 
 export type MenuProps = {
@@ -141,13 +145,13 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
         to={`${prefix}/events`}
         label="Events"
         current={current.startsWith(`${prefix}/events`)}
-        icon={<IconActivities />}
+        icon={<IconEvents />}
       />
       <MenuItem
         to={`${prefix}/news`}
         label="News"
         current={current.startsWith(`${prefix}/news`)}
-        icon={<IconActivities />}
+        icon={<IconNews />}
       />
       <hr />
       <MenuItem
