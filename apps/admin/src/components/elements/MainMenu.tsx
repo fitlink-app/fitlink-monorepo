@@ -138,6 +138,12 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
         icon={<IconActivities />}
       />
       <MenuItem
+        to={`${prefix}/events`}
+        label="Events"
+        current={current.startsWith(`${prefix}/events`)}
+        icon={<IconActivities />}
+      />
+      <MenuItem
         to={`${prefix}/news`}
         label="News"
         current={current.startsWith(`${prefix}/news`)}
