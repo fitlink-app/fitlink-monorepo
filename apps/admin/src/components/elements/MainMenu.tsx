@@ -137,6 +137,12 @@ export default function MainMenu({ prefix = '', menu = [] }: MainMenuProps) {
         current={current.startsWith(`${prefix}/activities`)}
         icon={<IconActivities />}
       />
+      <MenuItem
+        to={`${prefix}/news`}
+        label="News"
+        current={current.startsWith(`${prefix}/news`)}
+        icon={<IconActivities />}
+      />
       <hr />
       <MenuItem
         to={`${prefix}/knowledge-base`}
