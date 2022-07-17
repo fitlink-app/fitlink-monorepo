@@ -69,7 +69,7 @@ export default function page() {
   }
 
   return (
-    <Dashboard title="Events" linkPrefix="/demo" forceDisplay>
+    <Dashboard title="Events" linkPrefix="/demo">
       <div className="row ai-c mb-2">
         <div className="col-12 col-lg-8">
           <div className="flex ai-c">
