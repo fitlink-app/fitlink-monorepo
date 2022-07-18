@@ -1,0 +1,46 @@
+{
+  "results": [
+    {
+      "image": "https://storage.googleapis.com/download/storage/v1/b/fitlink-rn.appspot.com/o/league_images%2FKra3fH32cOYO7aDmm3vN%2Fimage_original.jpg?generation=1614415164288687&alt=media",
+      "videoUrl": "https://www.youtube.com/watch?v=iagXuIwB_FA",
+      "title": "Minima veniam animi modi",
+      "shortDescription": "Lorem ipsum dolor sit, amet consectetur elit.",
+      "type": "meetup",
+      "startDate": "2022-09-01T05:00:00.220Z",
+      "endDate": "2022-09-01T13:00:00.220Z",
+      "locationAddress": "High Lodge, Thetford Forest, Brandon IP27 0AF, UK (Lat: 52.43445140000001; Lng: 0.6632408999999999)",
+      "imageGallery": [
+        {
+          "url": "https://d3642p7out83uo.cloudfront.net/e5616f6a-d3bd-4d10-80e0-5e646d0c7de5-standard.jpg"
+        }
+      ],
+      "organizerName": "Fitlink",
+      "organizerEmail": "hello@fitlinkapp.com",
+      "moreInfoUrl": "fitlinkapp.com",
+      "showOnMap": true,
+      "members": 10
+    },
+    {
+      "image": "/temp/photo-1541625602330-2277a4c46182.jpeg",
+      "videoUrl": "https://www.youtube.com/watch?v=iagXuIwB_FA",
+      "title": "Ipsum dolor sit amet consectetur",
+      "shortDescription": "Autem tempora doloremque nihil saepe necessitatibus.",
+      "type": "virtual",
+      "startDate": "2022-09-05T05:00:00.220Z",
+      "endDate": "2022-10-05T13:00:00.220Z",
+      "locationAddress": "High Lodge, Thetford Forest, Brandon IP27 0AF, UK (Lat: 52.43445140000001; Lng: 0.6632408999999999)",
+      "imageGallery": [
+        {
+          "url": "https://d3642p7out83uo.cloudfront.net/e5616f6a-d3bd-4d10-80e0-5e646d0c7de5-standard.jpg"
+        }
+      ],
+      "organizerName": "Fitlink",
+      "organizerEmail": "hello@fitlinkapp.com",
+      "moreInfoUrl": "fitlinkapp.com",
+      "showOnMap": false,
+      "members": 59
+    }
+  ],
+  "total": 2,
+  "page_total": 1
+}

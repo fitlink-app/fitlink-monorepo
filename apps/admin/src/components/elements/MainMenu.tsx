@@ -9,6 +9,8 @@ import IconLeagues from '../icons/IconLeagues'
 import IconRewards from '../icons/IconRewards'
 import IconSignOut from '../icons/IconSignOut'
 import IconYoga from '../icons/IconYoga'
+import IconNews from '../icons/IconNews'
+import IconEvents from '../icons/IconEvents'
 
 export default function MainMenu() {
   const router = useRouter()
@@ -45,6 +47,18 @@ export default function MainMenu() {
         current={current.startsWith('/demo/activities')}
         icon={<IconActivities />}
       />
+      <MenuItem
+        to="/demo/events"
+        label="Events"
+        current={current.startsWith('/demo/events')}
+        icon={<IconEvents />}
+      />
+      <MenuItem
+        to="/demo/news"
+        label="News"
+        current={current.startsWith('/demo/news')}
+        icon={<IconNews />}
+      />
       <hr />
       <MenuItem
         to="/demo/knowledge-base"
@@ -58,7 +72,7 @@ export default function MainMenu() {
         current={current.startsWith('/demo/settings')}
         icon={<IconGear />}
       />
-      {current.startsWith('/demo/settings') &&
+      {current.startsWith('/demo/settings') && (
         <div className="sub-menu">
           <MenuItem
             to="/demo/settings/users"
@@ -80,7 +94,7 @@ export default function MainMenu() {
           />
           <hr />
         </div>
-      }
+      )}
       <MenuItem
         to="/demo/billing"
         label="Billing"

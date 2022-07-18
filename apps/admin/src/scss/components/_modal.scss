@@ -4,21 +4,26 @@
   top: 0;
   z-index: 100;
   padding: 1.5rem;
-  background: rgba($darkGrey,0.6);
+  background: rgba($darkGrey, 0.6);
   display: flex;
   width: 100vw;
   height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
-  
+
   &__content {
     background: $white;
     padding: 2rem 1.5rem;
     margin: auto;
-    box-shadow: 0 10px 20px 0 rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.1);
     border-radius: 0.5rem;
     position: relative;
     max-width: 100%;
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
   }
 
   &__close {

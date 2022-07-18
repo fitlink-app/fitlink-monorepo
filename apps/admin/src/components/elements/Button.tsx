@@ -7,7 +7,7 @@ export type ButtonProps = {
   alt?: boolean
   className?: string
   external?: boolean
-  onClick?: () => void
+  onClick?: (e: any) => void
 }
 
 export default function Button({
@@ -31,13 +31,12 @@ export default function Button({
           className={classes}
           href={to}
           target="_blank"
-          rel="noopener noreferrer"
-          >
+          rel="noopener noreferrer">
           {label}
         </a>
       )
     }
-    
+
     return (
       <Link href={to}>
         <a className={classes}>{label}</a>
@@ -46,10 +45,7 @@ export default function Button({
   }
 
   return (
-    <button
-      className={classes}
-      onClick={onClick}
-      >
+    <button className={classes} onClick={onClick}>
       {label}
     </button>
   )
