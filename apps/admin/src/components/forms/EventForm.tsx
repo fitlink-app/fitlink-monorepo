@@ -233,11 +233,7 @@ export default function EventForm({ current }: EventFormProps) {
         label="Location Address"
       />
 
-      <ImageStack
-        label="Image Gallery"
-        files={imageGallery}
-        onChange={setImageGallery}
-      />
+      <ImageStack label="Image Gallery" files={imageGallery} />
 
       <Input
         value={organizerName}

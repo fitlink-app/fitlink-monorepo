@@ -30,6 +30,7 @@ const data = {
 const options = JSON.parse(JSON.stringify(ChartOptions))
 options.scales.y.ticks.beginAtZero = true
 
+// @ts-ignore
 const VerticalBarChart = () => <Bar data={data} options={options} type="bar" />
 
 export default VerticalBarChart
