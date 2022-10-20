@@ -18,6 +18,8 @@ target 'Fitlink' do
     :hermes_enabled => false
   )
 
+  pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
+
   pre_install do |installer|
     $RNMBGL.pre_install(installer)
   end
