@@ -6,16 +6,18 @@ const BACKGROUND_IMAGE_INVITED = require('../../../assets/images/Background-2.pn
 
 const BackgroundContainer = styled.View({
   position: 'absolute',
-  alignItems: 'flex-end',
   justifyContent: 'center',
   width: '100%',
   height: '100%',
   zIndex: -1,
+  flex: 1,
 });
 
 const BackgroundImage = styled.Image({
-  right: -130,
-  bottom: -20,
+  right: 0,
+  bottom: 0,
+  flex: 1,
+  resizeMode: 'cover',
 });
 
 interface BackgroundProps {

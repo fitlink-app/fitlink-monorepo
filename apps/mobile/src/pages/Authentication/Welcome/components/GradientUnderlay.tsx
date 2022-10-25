@@ -1,29 +1,28 @@
 import React from 'react';
-import LinearGradient from 'react-native-linear-gradient';
 import styled from 'styled-components/native';
 
 const Wrapper = styled.View({
   position: 'absolute',
   width: '100%',
-  height: '65%',
-  bottom: 0,
+  height: '100%',
+  top: 0,
+  left: 0,
 });
 
-const UpperAreaGradient = styled(LinearGradient).attrs(({theme: {colors}}) => ({
-  colors: ['#00000000', colors.background],
-}))({
+const UpperAreaGradient = styled.View({
   width: '100%',
   height: '100%',
-  bottom: '44%',
+  backgroundColor:
+    'linear-gradient(198.06deg, rgba(6, 6, 6, 0.8) 59.02%, rgba(6, 6, 6, 0) 87.7%)',
 });
 
-const LowerAreaSolid = styled.View(({theme: {colors}}) => ({
+const LowerAreaSolid = styled.View({
   position: 'absolute',
   width: '100%',
-  height: '45%',
-  bottom: 0,
-  backgroundColor: colors.background,
-}));
+  height: '100%',
+  top: 0,
+  left: 0,
+});
 
 export const GradientUnderlay = () => (
   <Wrapper>

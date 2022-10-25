@@ -5,26 +5,37 @@ import {
   StyleProp,
   TextStyle,
   View,
+  Image,
 } from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {Label} from './Label';
 import {Icon} from './Icon';
 import {TouchHandler, TouchHandlerProps} from './TouchHandler';
 
-const ButtonLabel = styled(Label)({textAlign: 'center'});
+const ButtonImage = styled(Image)({
+  alignItems: 'center',
+  width: 20,
+  height: 20,
+});
+
+const ButtonLabel = styled(Label)({
+  marginLeft: 10,
+});
 
 const Row = styled.View({
+  position: 'absolute',
   flexDirection: 'row',
 });
 
-const ButtonContentContainer = styled.View(() => ({
-  borderRadius: 8,
+const ButtonContentContainer = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: '100%',
   height: 44,
   paddingHorizontal: 24,
-  justifyContent: 'center',
-  width: '100%',
-  alignItems: 'center',
-}));
+  borderRadius: 8,
+});
 
 const IconContainer = styled.View({
   alignItems: 'center',
@@ -33,7 +44,7 @@ const IconContainer = styled.View({
   height: 20,
 });
 
-type ButtonType = 'default' | 'danger';
+type ButtonType = 'default' | 'danger' | 'accent';
 
 export interface ButtonProps extends TouchHandlerProps {
   text?: string;
@@ -46,6 +57,7 @@ export interface ButtonProps extends TouchHandlerProps {
   textOnly?: boolean;
   icon?: string;
   loading?: boolean;
+  logo?: any;
 }
 
 export const Button = ({
@@ -61,6 +73,7 @@ export const Button = ({
   icon,
   loading,
   style,
+  logo,
   ...rest
 }: ButtonProps) => {
   const {typography, colors} = useTheme();
@@ -72,8 +85,11 @@ export const Button = ({
       case 'danger':
         return colors.danger;
 
-      default:
+      case 'accent':
         return colors.accent;
+
+      default:
+        return colors.text;
     }
   }
 
@@ -162,7 +178,7 @@ export const Button = ({
       style={[style, buttonBaseStyleModifier]}>
       <ButtonContentContainer style={createContainerStyle()}>
         <Row>
-          {!!icon && !loading && (
+          {/* {!!icon && !loading && (
             <IconContainer>
               <Icon name={icon} size={18} color={textColor} />
             </IconContainer>
@@ -171,7 +187,8 @@ export const Button = ({
             <IconContainer>
               <ActivityIndicator color={textColor} />
             </IconContainer>
-          )}
+          )} */}
+          {!!logo && <ButtonImage source={logo} resizeMode={'contain'} />}
           {(!loading || loadingText) && (
             <ButtonLabel
               numberOfLines={1}

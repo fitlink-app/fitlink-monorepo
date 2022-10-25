@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Logo, TeamInvitation} from '@components';
+import {Button, Logo, TeamInvitation, Label} from '@components';
 import {useNavigation} from '@react-navigation/native';
 import styled, {useTheme} from 'styled-components/native';
 import {Background, GradientUnderlay, WelcomeHeader} from './components';
@@ -15,6 +15,11 @@ import {
   resetTeamInvitation,
   selectTeamInvitation,
 } from 'redux/teamInvitation/teamInvitationSlice';
+
+const mail_icon = require('../../../../assets/images/icon/mail.png');
+const google_icon = require('../../../../assets/images/icon/google.png');
+const apple_icon = require('../../../../assets/images/icon/apple.png');
+const metamask_icon = require('../../../../assets/images/icon/metamask.png');
 
 const Wrapper = styled.View({flex: 1, alignItems: 'center'});
 
@@ -38,9 +43,18 @@ const HeaderContainer = styled.View({
   width: '70%',
 });
 
+const Line = styled.View({
+  position: 'relative',
+  width: 70,
+  height: 0,
+  top: 18,
+  right: -70,
+  border: '2px solid #00E9D7',
+  transform: 'rotate(90deg)',
+});
+
 const ButtonContainer = styled.View({
-  justifyContent: 'flex-end',
-  width: '65%',
+  width: '75%',
   marginBottom: 20,
 });
 
@@ -54,17 +68,35 @@ const Center = styled.View({
   justifyContent: 'center',
 });
 
+const LoginButtonLabel = styled(Label)({
+  textAlign: 'center',
+  fontStyle: 'italic',
+  marginTop: 30,
+  marginBottom: 40,
+});
+
+const LoginButtonContainer = styled.View({
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
+const LoginButton = styled.View({
+  width: '50%',
+});
+
 export const Welcome = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const {colors} = useTheme();
   const dispatch = useDispatch() as AppDispatch;
 
-  const {invitation, isLoading: isLoadingTeamInvitation} =
-    useSelector(selectTeamInvitation);
+  const {invitation, isLoading: isLoadingTeamInvitation} = useSelector(
+    selectTeamInvitation,
+  );
 
   const [isGoogleLoading, setGoogleLoading] = useState(false);
   const [isAppleLoading, setAppleLoading] = useState(false);
+  const [isMetaMaskLoading, setIsMetaMaskLoading] = useState(false);
 
   const handleOnSignUpPressed = () => {
     navigation.navigate('SignUp');
@@ -101,6 +133,15 @@ export const Welcome = () => {
     }
   };
 
+  const handleOnMetaMaskPressed = async () => {
+    try {
+      setIsMetaMaskLoading(true);
+      setIsMetaMaskLoading(false);
+    } catch (e) {
+      setIsMetaMaskLoading(false);
+    }
+  };
+
   return (
     <Wrapper style={{paddingBottom: insets.bottom}}>
       <GradientUnderlay />
@@ -123,38 +164,54 @@ export const Welcome = () => {
             </InvitationContainer>
           ) : (
             <HeaderContainer>
+              <Logo size={'large'} />
               <WelcomeHeader>
                 Join a global health and fitness club by connecting the activity
                 trackers you are already using
               </WelcomeHeader>
+              <Line />
             </HeaderContainer>
           )}
 
           <ButtonContainer>
-            <SpacedButton text={'Sign up'} onPress={handleOnSignUpPressed} />
+            <SpacedButton
+              text={'Sign up with your e-mail'}
+              logo={mail_icon}
+              onPress={handleOnSignUpPressed}
+            />
             <SpacedButton
               disabled={isGoogleLoading}
               loading={isGoogleLoading}
               text={'Continue with Google'}
-              outline
-              icon={'google'}
+              logo={google_icon}
               onPress={handleOnGooglePressed}
             />
-            {Platform.OS === 'ios' && appleAuth.isSupported && (
-              <SpacedButton
-                disabled={isAppleLoading}
-                loading={isAppleLoading}
-                text={'Continue with Apple'}
-                outline
-                icon={'apple'}
-                onPress={handleOnApplePressed}
-              />
-            )}
             <SpacedButton
-              text={'Log in'}
-              textOnly
-              onPress={handleOnLoginPressed}
+              disabled={isAppleLoading}
+              loading={isAppleLoading}
+              text={'Continue with Apple ID'}
+              logo={apple_icon}
+              onPress={handleOnApplePressed}
             />
+            <SpacedButton
+              disabled={isMetaMaskLoading}
+              loading={isMetaMaskLoading}
+              text={'Continue with MetaMask'}
+              logo={metamask_icon}
+              onPress={handleOnMetaMaskPressed}
+            />
+            <LoginButtonLabel type={'body'}>
+              Do you have an account?
+            </LoginButtonLabel>
+            <LoginButtonContainer>
+              <LoginButton>
+                <SpacedButton
+                  text={'LOGIN'}
+                  type={'accent'}
+                  onPress={handleOnLoginPressed}
+                />
+              </LoginButton>
+            </LoginButtonContainer>
           </ButtonContainer>
         </>
       )}

@@ -47,7 +47,7 @@ export const signUp = createAsyncThunk(
       const {me, auth} = await api.signUp(credentials);
       queryClient.setQueryData<User>(QueryKeys.Me, me);
       return auth;
-    } catch (e) {
+    } catch (e: any) {
       return rejectWithValue(getErrors(e));
     }
   },
@@ -59,7 +59,7 @@ export const signIn = createAsyncThunk(
     try {
       const auth = await api.login(credentials);
       return auth;
-    } catch (e) {
+    } catch (e: any) {
       return rejectWithValue(getErrors(e));
     }
   },
