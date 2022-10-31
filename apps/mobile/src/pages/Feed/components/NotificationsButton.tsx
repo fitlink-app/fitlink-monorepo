@@ -18,7 +18,7 @@ const BadgeWrapper = styled.View(({theme: {colors}}) => ({
 const NotificationsButtonIcon = styled(Icon).attrs(({theme: {colors}}) => ({
   name: 'bell',
   size: 20,
-  color: colors.accentSecondary,
+  color: colors.text,
 }))({});
 
 export const NotificationsButton = ({count}: {count: number}) => {

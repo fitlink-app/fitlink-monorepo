@@ -14,7 +14,7 @@ const colors: ThemeColors = {
   text: '#FFFFFF',
   secondaryText: '#939393',
   buttonText: '#232323',
-  background: '#232323',
+  background: '#000000',
   surface: '#2e2e2e',
   surfaceDark: '#202020',
   separator: '#2e2e2e',
@@ -22,7 +22,8 @@ const colors: ThemeColors = {
   accentSecondary: '#939393',
   chartUnfilled: '#202020',
   danger: '#D32F2F',
-  navbar: '#111111',
+  navbar: '#565656',
+  card: '#161616',
 };
 
 const typography: ThemeTypography = {

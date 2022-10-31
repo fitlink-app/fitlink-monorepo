@@ -41,6 +41,9 @@ declare module 'styled-components' {
 
     /** Bottom navigation bar background color */
     navbar: string;
+
+    /** Card background color */
+    card: string;
   };
 
   type ThemeTextStyle = {

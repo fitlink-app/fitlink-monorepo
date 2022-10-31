@@ -11,11 +11,12 @@ import {useNavigation} from '@react-navigation/core';
 
 const Wrapper = styled(Card)({
   paddingVertical: 10,
+  backgroundColor: 'transparent !important',
 });
 
-const Title = styled(CardLabel)({
-  marginLeft: 15,
-});
+// const Title = styled(CardLabel)({
+//   marginLeft: 15,
+// });
 
 const WidgetContainer = styled.ScrollView.attrs(() => ({
   horizontal: true,
@@ -175,7 +176,7 @@ export const _GoalTracker = ({trackers, isLocalUser}: GoalTrackerProps) => {
 
   return (
     <Wrapper>
-      <Title>Today's Goals</Title>
+      {/* <Title>Today's Goals</Title> */}
       <WidgetContainer>{renderWidgets()}</WidgetContainer>
     </Wrapper>
   );

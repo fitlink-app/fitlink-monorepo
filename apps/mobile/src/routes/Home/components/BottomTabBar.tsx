@@ -8,6 +8,9 @@ import {Label} from '@components';
 const Wrapper = styled.View(({theme}) => ({
   backgroundColor: theme.colors.navbar,
   flexDirection: 'row',
+  width: '100%',
+  height: 86,
+  borderRadius: 24,
 }));
 
 const Button = styled(Pressable)({
@@ -97,12 +100,12 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
           onPress={onPress}
           onLongPress={onLongPress}>
           {renderIcon(isFocused)}
-          <Label
+          {/* <Label
             style={{marginTop: 5, fontSize: 11}}
             bold={isFocused}
             appearance={isFocused ? 'accent' : 'accentSecondary'}>
             {label}
-          </Label>
+          </Label> */}
         </Button>
       );
     });

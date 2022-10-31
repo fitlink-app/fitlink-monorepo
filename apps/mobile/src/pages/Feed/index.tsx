@@ -3,7 +3,6 @@ import {
   FeedItem,
   GoalTracker,
   Icon,
-  Label,
   Modal,
   RewardTracker,
 } from '@components';
@@ -17,6 +16,7 @@ import {
   useUpdateIntercomUser,
 } from '@hooks';
 import {UserWidget} from '@components';
+import {Card, CardLabel, Label, ProgressCircle} from '../../components/common';
 import React, {useEffect, useRef, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
@@ -29,7 +29,7 @@ import {
 } from 'react-native';
 import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {calculateGoalsPercentage, getPersistedData, persistData} from '@utils';
-import {NewsletterModal, NotificationsButton} from './components';
+import {NewsletterModal} from './components';
 import {useSelector} from 'react-redux';
 import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
 import {getResultsFromPages} from 'utils/api';
@@ -39,6 +39,10 @@ import {queryClient, QueryKeys} from '@query';
 import {getErrorMessage} from '@fitlink/api-sdk';
 import {saveCurrentToken} from '@api';
 import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
+import {CompeteLeagues} from './components/CompeteLeagues';
+import {UnlockedRewards} from './components/UnlockedRewards';
+import {ActivityHistory} from './components/ActivityHistory';
+import {RoutesClasses} from './components/RoutesClasses';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -50,11 +54,15 @@ const TopButtonRow = styled.View({
 
 const TopButtonSpacer = styled.View({width: 10});
 
-const SettingsButton = styled(Icon).attrs(({theme: {colors}}) => ({
-  name: 'gear',
-  size: 20,
-  color: colors.accentSecondary,
-}))({});
+// const SettingsButton = styled(Icon).attrs(({theme: {colors}}) => ({
+//   name: 'gear',
+//   size: 20,
+//   color: colors.text,
+// }))({});
+
+const NotificationsButton = styled.Image({});
+
+const SettingsButton = styled.Image({});
 
 const HeaderContainer = styled.View({
   paddingHorizontal: 20,
@@ -63,12 +71,88 @@ const HeaderContainer = styled.View({
 
 const HeaderWidgetContainer = styled.View({marginTop: 10});
 
+const StatContainer = styled.View({});
+
+const StatCard = styled(Card)({
+  flexDirection: 'row',
+  width: '100%',
+  paddingLeft: 33,
+  paddingTop: 24,
+  paddingRight: 33,
+  paddingBottom: 24,
+  marginTop: 16,
+});
+
+const StatView = styled.View({
+  width: '50%',
+});
+
+const StatLabel = styled.Text({
+  fontFamily: 'Roboto',
+  fontWeight: '500',
+  fontSize: 13,
+  lineHeight: 15,
+  letterSpacing: 2,
+  color: '#565656',
+  textTransform: 'uppercase',
+});
+
+const StatValue = styled.Text(({theme}) => ({
+  fontFamily: 'Roboto',
+  fontWeight: 500,
+  fontSize: 42,
+  lineHeight: 48,
+  marginTop: 9,
+  color: theme.colors.text,
+}));
+
+const PercentageValue = styled.Text(({theme}) => ({
+  fontFamily: 'Roboto',
+  fontWeight: '500',
+  fontSize: 15,
+  lineHeight: 18,
+  textAlign: 'right',
+  letterSpacing: 2,
+  color: theme.colors.text,
+}));
+
+const CaloriesCircle = styled.View({
+  width: 65,
+  height: 65,
+  borderRadius: 35,
+  background: 'rgba(150, 150, 150, 0.1)',
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+  textAlign: 'center',
+});
+
+const Calories = styled.Text(({theme}) => ({
+  fontFamily: 'Roboto',
+  fontStyle: 'normal',
+  fontWeight: '500',
+  fontSize: 18,
+  lineHeight: 21,
+  textAlign: 'center',
+  letterSpacing: 2,
+  textTransform: 'uppercase',
+  color: theme.colors.text,
+}));
+
+const StatChart = styled.Image({
+  marginTop: 8,
+});
+
 const FeedContainer = styled.View({});
 
 const ListFooterContainer = styled.View({
   justifyContent: 'center',
   alignItems: 'center',
 });
+
+const StatNumber = ({value}: {value: string}) => {
+  return <StatValue>{value}</StatValue>;
+};
 
 export const Feed = () => {
   const insets = useSafeAreaInsets();
@@ -194,58 +278,59 @@ export const Feed = () => {
     </ListFooterContainer>
   ) : null;
 
-  const ListEmptyComponent = () => {
-    if (isFeedLoading || !isFeedFetchedAfterMount) {
-      return (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <ActivityIndicator color={colors.accent} />
-        </View>
-      );
-    }
+  // const ListEmptyComponent = () => {
+  //   if (isFeedLoading || !isFeedFetchedAfterMount) {
+  //     return (
+  //       <View
+  //         style={{
+  //           flex: 1,
+  //           justifyContent: 'center',
+  //           alignItems: 'center',
+  //         }}>
+  //         <ActivityIndicator color={colors.accent} />
+  //       </View>
+  //     );
+  //   }
 
-    return (
-      <View style={{paddingTop: 10}}>
-        {feedErrorMessage ? (
-          <>
-            <Label
-              type="body"
-              appearance={'accentSecondary'}
-              style={{textAlign: 'center'}}>
-              {feedErrorMessage}
-            </Label>
-          </>
-        ) : (
-          <>
-            <Label
-              type="body"
-              appearance={'accentSecondary'}
-              style={{textAlign: 'center', paddingHorizontal: 20}}>
-              Let’s get your feed looking top notch. Start filling it up by
-              smashing some goals, following{' '}
-              <Label onPress={() => navigation.navigate('Friends')}>
-                Friends
-              </Label>{' '}
-              or participating in{' '}
-              <Label onPress={() => navigation.navigate('Leagues')}>
-                Leagues
-              </Label>
-              .
-            </Label>
-          </>
-        )}
-      </View>
-    );
-  };
+  //   return (
+  //     <View style={{paddingTop: 10}}>
+  //       {feedErrorMessage ? (
+  //         <>
+  //           <Label
+  //             type="body"
+  //             appearance={'accentSecondary'}
+  //             style={{textAlign: 'center'}}>
+  //             {feedErrorMessage}
+  //           </Label>
+  //         </>
+  //       ) : (
+  //         <>
+  //           <Label
+  //             type="body"
+  //             appearance={'accentSecondary'}
+  //             style={{textAlign: 'center', paddingHorizontal: 20}}>
+  //             Let’s get your feed looking top notch. Start filling it up by
+  //             smashing some goals, following{' '}
+  //             <Label onPress={() => navigation.navigate('Friends')}>
+  //               Friends
+  //             </Label>{' '}
+  //             or participating in{' '}
+  //             <Label onPress={() => navigation.navigate('Leagues')}>
+  //               Leagues
+  //             </Label>
+  //             .
+  //           </Label>
+  //         </>
+  //       )}
+  //     </View>
+  //   );
+  // };
 
   return (
     <Wrapper style={{paddingTop: insets.top}}>
       <FlatList
-        {...{renderItem, ListFooterComponent, ListEmptyComponent, keyExtractor}}
+        // {...{renderItem, ListFooterComponent, ListEmptyComponent, keyExtractor}}
+        {...{renderItem, ListFooterComponent, keyExtractor}}
         ref={scrollRef}
         data={feedResults}
         showsVerticalScrollIndicator={false}
@@ -282,6 +367,27 @@ export const Feed = () => {
         ListHeaderComponent={
           <>
             <HeaderContainer>
+              <TopButtonRow>
+                {/* <NotificationsButton count={user.unread_notifications} /> */}
+                <NotificationsButton
+                  source={require('../../../assets/images/icon/bell.png')}
+                  onPress={() => {
+                    navigation.navigate('Notifications');
+                  }}
+                />
+
+                <TopButtonSpacer />
+
+                {/* <SettingsButton
+                  onPress={() => {
+                    navigation.navigate('Settings');
+                  }}
+                /> */}
+                <SettingsButton
+                  source={require('../../../assets/images/icon/sliders.png')}
+                />
+              </TopButtonRow>
+
               <HeaderWidgetContainer style={{marginBottom: 5}}>
                 <UserWidget
                   goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
@@ -376,7 +482,7 @@ export const Feed = () => {
                 />
               </HeaderWidgetContainer>
 
-              {!!nextReward?.reward && isNextRewardFetched && (
+              {/* {!!nextReward?.reward && isNextRewardFetched && (
                 <HeaderWidgetContainer>
                   <RewardTracker
                     points={user.points_total}
@@ -388,23 +494,68 @@ export const Feed = () => {
                     onPress={() => navigation.navigate('Rewards')}
                   />
                 </HeaderWidgetContainer>
-              )}
-
-              <TopButtonRow>
-                <NotificationsButton count={user.unread_notifications} />
-
-                <TopButtonSpacer />
-
-                <SettingsButton
-                  onPress={() => {
-                    navigation.navigate('Settings');
-                  }}
-                />
-              </TopButtonRow>
+              )} */}
             </HeaderContainer>
 
+            <StatContainer>
+              {/* <FeedFilter /> */}
+              <StatCard>
+                <StatView>
+                  <StatLabel>total $bfit</StatLabel>
+                  <StatNumber value={'00640'} />
+                </StatView>
+                <StatView
+                  style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                  <View>
+                    <PercentageValue>+23%</PercentageValue>
+                    <StatChart
+                      source={require('../../../assets/images/total_bfit_chart.png')}
+                    />
+                  </View>
+                </StatView>
+              </StatCard>
+              <StatCard>
+                <StatView>
+                  <StatLabel>total calories</StatLabel>
+                  <StatNumber value={'01240'} />
+                </StatView>
+                <StatView
+                  style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                  <ProgressCircle
+                    progress={0.87}
+                    strokeWidth={3}
+                    backgroundStrokeWidth={2.5}
+                    bloomIntensity={0.5}
+                    bloomRadius={5}
+                    size={81}>
+                    <CaloriesCircle>
+                      <Calories>87%</Calories>
+                    </CaloriesCircle>
+                  </ProgressCircle>
+                </StatView>
+              </StatCard>
+              <StatCard>
+                <StatView>
+                  <StatLabel>total rank</StatLabel>
+                  <StatNumber value={'37640'} />
+                </StatView>
+                <StatView
+                  style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                  <View>
+                    <PercentageValue>+10P</PercentageValue>
+                    <StatChart
+                      source={require('../../../assets/images/total_rank_chart.png')}
+                    />
+                  </View>
+                </StatView>
+              </StatCard>
+            </StatContainer>
+
             <FeedContainer>
-              <FeedFilter />
+              <CompeteLeagues />
+              <UnlockedRewards />
+              <ActivityHistory />
+              <RoutesClasses />
             </FeedContainer>
           </>
         }

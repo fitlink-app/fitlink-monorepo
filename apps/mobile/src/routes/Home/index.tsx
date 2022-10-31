@@ -1,25 +1,55 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {useTheme} from 'styled-components/native';
+import styled, {useTheme} from 'styled-components/native';
 import {Icon} from '@components';
 import {BottomTabBar} from './components';
 import {Discover, Feed, Friends, Leagues, Rewards} from 'pages';
 import {useMe} from '@hooks';
 
+const HomeIcon = require('../../../assets/images/icon/navigator-icons/home.png');
+const HomeActiveIcon = require('../../../assets/images/icon/navigator-icons/home-active.png');
+const FriendsIcon = require('../../../assets/images/icon/navigator-icons/users.png');
+const FriendsActiveIcon = require('../../../assets/images/icon/navigator-icons/users-active.png');
+const LeaguesIcon = require('../../../assets/images/icon/navigator-icons/award.png');
+const LeaguesActiveIcon = require('../../../assets/images/icon/navigator-icons/award-active.png');
+const RewardsIcon = require('../../../assets/images/icon/navigator-icons/gift.png');
+const RewardsActiveIcon = require('../../../assets/images/icon/navigator-icons/gift-active.png');
+const DiscoverIcon = require('../../../assets/images/icon/navigator-icons/map.png');
+const DiscoverActiveIcon = require('../../../assets/images/icon/navigator-icons/map-active.png');
+
 const Tab = createBottomTabNavigator();
+
+const IconImage = styled.Image({});
 
 export const HomeNavigator = () => {
   const {colors} = useTheme();
   const {data: me} = useMe({enabled: false});
 
   const renderTabIcon = (focused: boolean, name: string) => {
-    return (
-      <Icon
-        name={name}
-        color={focused ? colors.accent : colors.accentSecondary}
-        size={26}
-      />
-    );
+    switch (name) {
+      case 'home':
+        return <IconImage source={focused ? HomeActiveIcon : HomeIcon} />;
+      case 'friends':
+        return <IconImage source={focused ? FriendsActiveIcon : FriendsIcon} />;
+      case 'leagues':
+        return <IconImage source={focused ? LeaguesActiveIcon : LeaguesIcon} />;
+      case 'reward':
+        return <IconImage source={focused ? RewardsActiveIcon : RewardsIcon} />;
+      case 'discover':
+        return (
+          <IconImage source={focused ? DiscoverActiveIcon : DiscoverIcon} />
+        );
+
+      default:
+        return <IconImage source={HomeIcon} />;
+    }
+    // return (
+    //   <Icon
+    //     name={name}
+    //     color={focused ? colors.accent : colors.accentSecondary}
+    //     size={26}
+    //   />
+    // );
   };
 
   return (
@@ -63,7 +93,7 @@ export const HomeNavigator = () => {
         name="Discover"
         component={Discover}
         options={{
-          tabBarIcon: ({focused}) => renderTabIcon(focused, 'activities'),
+          tabBarIcon: ({focused}) => renderTabIcon(focused, 'discover'),
         }}
       />
     </Tab.Navigator>
