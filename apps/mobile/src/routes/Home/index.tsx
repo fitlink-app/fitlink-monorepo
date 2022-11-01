@@ -1,9 +1,8 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import styled, {useTheme} from 'styled-components/native';
-import {Icon} from '@components';
 import {BottomTabBar} from './components';
-import {Discover, Feed, Friends, Leagues, Rewards} from 'pages';
+import {Discover, Feed, ActivityFeed, Leagues, Rewards} from 'pages';
 import {useMe} from '@hooks';
 
 const HomeIcon = require('../../../assets/images/icon/navigator-icons/home.png');
@@ -19,7 +18,10 @@ const DiscoverActiveIcon = require('../../../assets/images/icon/navigator-icons/
 
 const Tab = createBottomTabNavigator();
 
-const IconImage = styled.Image({});
+const IconImage = styled.Image({
+  width: 24,
+  height: 24,
+});
 
 export const HomeNavigator = () => {
   const {colors} = useTheme();
@@ -43,13 +45,6 @@ export const HomeNavigator = () => {
       default:
         return <IconImage source={HomeIcon} />;
     }
-    // return (
-    //   <Icon
-    //     name={name}
-    //     color={focused ? colors.accent : colors.accentSecondary}
-    //     size={26}
-    //   />
-    // );
   };
 
   return (
@@ -65,8 +60,8 @@ export const HomeNavigator = () => {
       />
 
       <Tab.Screen
-        name="Friends"
-        component={Friends}
+        name="ActivityFeed"
+        component={ActivityFeed}
         options={{
           tabBarIcon: ({focused}) => renderTabIcon(focused, 'friends'),
         }}

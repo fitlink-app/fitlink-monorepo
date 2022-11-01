@@ -15,7 +15,7 @@ import {
   useProviders,
   useUpdateIntercomUser,
 } from '@hooks';
-import {UserWidget} from '@components';
+import {UserWidget, TouchHandler} from '@components';
 import {Card, CardLabel, Label, ProgressCircle} from '../../components/common';
 import React, {useEffect, useRef, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -26,10 +26,11 @@ import {
   Platform,
   RefreshControl,
   View,
+  ScrollView,
 } from 'react-native';
 import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {calculateGoalsPercentage, getPersistedData, persistData} from '@utils';
-import {NewsletterModal} from './components';
+import {NewsletterModal, NotificationsButton} from './components';
 import {useSelector} from 'react-redux';
 import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
 import {getResultsFromPages} from 'utils/api';
@@ -53,14 +54,6 @@ const TopButtonRow = styled.View({
 });
 
 const TopButtonSpacer = styled.View({width: 10});
-
-// const SettingsButton = styled(Icon).attrs(({theme: {colors}}) => ({
-//   name: 'gear',
-//   size: 20,
-//   color: colors.text,
-// }))({});
-
-const NotificationsButton = styled.Image({});
 
 const SettingsButton = styled.Image({});
 
@@ -87,9 +80,11 @@ const StatView = styled.View({
   width: '50%',
 });
 
-const StatLabel = styled.Text({
+const StatLabel = styled(Label).attrs(() => ({
+  type: 'caption',
+  bold: true,
+}))({
   fontFamily: 'Roboto',
-  fontWeight: '500',
   fontSize: 13,
   lineHeight: 15,
   letterSpacing: 2,
@@ -106,15 +101,16 @@ const StatValue = styled.Text(({theme}) => ({
   color: theme.colors.text,
 }));
 
-const PercentageValue = styled.Text(({theme}) => ({
+const PercentageValue = styled(Label).attrs(() => ({
+  type: 'subheading',
+  bold: true,
+}))({
   fontFamily: 'Roboto',
-  fontWeight: '500',
   fontSize: 15,
   lineHeight: 18,
   textAlign: 'right',
   letterSpacing: 2,
-  color: theme.colors.text,
-}));
+});
 
 const CaloriesCircle = styled.View({
   width: 65,
@@ -127,17 +123,17 @@ const CaloriesCircle = styled.View({
   textAlign: 'center',
 });
 
-const Calories = styled.Text(({theme}) => ({
+const Calories = styled(Label).attrs(() => ({
+  type: 'caption',
+}))({
   fontFamily: 'Roboto',
   fontStyle: 'normal',
-  fontWeight: '500',
   fontSize: 18,
   lineHeight: 21,
   textAlign: 'center',
   letterSpacing: 2,
   textTransform: 'uppercase',
-  color: theme.colors.text,
-}));
+});
 
 const StatChart = styled.Image({
   marginTop: 8,
@@ -328,161 +324,157 @@ export const Feed = () => {
 
   return (
     <Wrapper style={{paddingTop: insets.top}}>
-      <FlatList
-        // {...{renderItem, ListFooterComponent, ListEmptyComponent, keyExtractor}}
-        {...{renderItem, ListFooterComponent, keyExtractor}}
-        ref={scrollRef}
-        data={feedResults}
-        showsVerticalScrollIndicator={false}
-        style={{overflow: 'visible'}}
+      <ScrollView
         contentContainerStyle={{
-          minHeight: '100%',
-          paddingBottom:
-            Platform.OS === 'ios' ? 0 : isFeedFetchingNextPage ? 0 : 72,
-        }}
-        onEndReachedThreshold={0.2}
-        onEndReached={() => fetchFeedNextPage()}
-        refreshControl={
-          <RefreshControl
-            tintColor={colors.accent}
-            refreshing={isPulledDown && isFeedFetchedAfterMount}
-            onRefresh={() => {
-              setIsPulledDown(true);
+          paddingHorizontal: 10,
+        }}>
+        <FlatList
+          // {...{renderItem, ListFooterComponent, ListEmptyComponent, keyExtractor}}
+          {...{renderItem, ListFooterComponent, keyExtractor}}
+          ref={scrollRef}
+          data={feedResults}
+          showsVerticalScrollIndicator={false}
+          style={{overflow: 'visible'}}
+          contentContainerStyle={{
+            minHeight: '100%',
+            paddingBottom:
+              Platform.OS === 'ios' ? 0 : isFeedFetchingNextPage ? 0 : 72,
+          }}
+          onEndReachedThreshold={0.2}
+          onEndReached={() => fetchFeedNextPage()}
+          refreshControl={
+            <RefreshControl
+              tintColor={colors.accent}
+              refreshing={isPulledDown && isFeedFetchedAfterMount}
+              onRefresh={() => {
+                setIsPulledDown(true);
 
-              queryClient.setQueryData(QueryKeys.Feed, (data: any) => {
-                return {
-                  pages: data.pages.length ? [data.pages[0]] : data.pages,
-                  pageParams: data.pageParams.length
-                    ? [data.pageParams[0]]
-                    : data.pageParams,
-                };
-              });
+                queryClient.setQueryData(QueryKeys.Feed, (data: any) => {
+                  return {
+                    pages: data.pages.length ? [data.pages[0]] : data.pages,
+                    pageParams: data.pageParams.length
+                      ? [data.pageParams[0]]
+                      : data.pageParams,
+                  };
+                });
 
-              refetchFeed().finally(() => {
-                setIsPulledDown(false);
-              });
-            }}
-          />
-        }
-        ListHeaderComponent={
-          <>
-            <HeaderContainer>
-              <TopButtonRow>
-                {/* <NotificationsButton count={user.unread_notifications} /> */}
-                <NotificationsButton
-                  source={require('../../../assets/images/icon/bell.png')}
-                  onPress={() => {
-                    navigation.navigate('Notifications');
-                  }}
-                />
+                refetchFeed().finally(() => {
+                  setIsPulledDown(false);
+                });
+              }}
+            />
+          }
+          ListHeaderComponent={
+            <>
+              <HeaderContainer>
+                <TopButtonRow>
+                  <NotificationsButton count={user.unread_notifications} />
+                  <TopButtonSpacer />
+                  <TouchHandler
+                    onPress={() => {
+                      navigation.navigate('Settings');
+                    }}>
+                    <SettingsButton
+                      source={require('../../../assets/images/icon/sliders.png')}
+                    />
+                  </TouchHandler>
+                </TopButtonRow>
 
-                <TopButtonSpacer />
+                <HeaderWidgetContainer style={{marginBottom: 5}}>
+                  <UserWidget
+                    goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
+                    name={user.name}
+                    rank={user.rank}
+                    avatar={user.avatar?.url_512x512}
+                    friendCount={user.following_total}
+                    followerCount={user.followers_total}
+                    pointCount={user.points_total}
+                  />
+                </HeaderWidgetContainer>
 
-                {/* <SettingsButton
-                  onPress={() => {
-                    navigation.navigate('Settings');
-                  }}
-                /> */}
-                <SettingsButton
-                  source={require('../../../assets/images/icon/sliders.png')}
-                />
-              </TopButtonRow>
-
-              <HeaderWidgetContainer style={{marginBottom: 5}}>
-                <UserWidget
-                  goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
-                  name={user.name}
-                  rank={user.rank}
-                  avatar={user.avatar?.url_512x512}
-                  friendCount={user.following_total}
-                  followerCount={user.followers_total}
-                  pointCount={user.points_total}
-                />
-              </HeaderWidgetContainer>
-
-              <HeaderWidgetContainer>
-                <GoalTracker
-                  isLocalUser={true}
-                  trackers={[
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                        ProviderType.Fitbit,
-                      ],
-                      identifier: 'steps',
-                      goal: {
-                        value: goals?.current_steps || 0,
-                        target: goals?.target_steps || 0,
+                <HeaderWidgetContainer>
+                  <GoalTracker
+                    isLocalUser={true}
+                    trackers={[
+                      {
+                        supportedProviders: [
+                          ProviderType.GoogleFit,
+                          ProviderType.AppleHealthkit,
+                          ProviderType.Fitbit,
+                        ],
+                        identifier: 'steps',
+                        goal: {
+                          value: goals?.current_steps || 0,
+                          target: goals?.target_steps || 0,
+                        },
+                        icon: 'steps',
                       },
-                      icon: 'steps',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                      ],
-                      identifier: 'mindfulness',
-                      goal: {
-                        value: goals?.current_mindfulness_minutes || 0,
-                        target: goals?.target_mindfulness_minutes || 0,
+                      {
+                        supportedProviders: [
+                          ProviderType.GoogleFit,
+                          ProviderType.AppleHealthkit,
+                        ],
+                        identifier: 'mindfulness',
+                        goal: {
+                          value: goals?.current_mindfulness_minutes || 0,
+                          target: goals?.target_mindfulness_minutes || 0,
+                        },
+                        icon: 'yoga',
                       },
-                      icon: 'yoga',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                      ],
-                      identifier: 'water',
-                      goal: {
-                        value: goals?.current_water_litres || 0,
-                        target: goals?.target_water_litres || 0,
+                      {
+                        supportedProviders: [
+                          ProviderType.GoogleFit,
+                          ProviderType.AppleHealthkit,
+                        ],
+                        identifier: 'water',
+                        goal: {
+                          value: goals?.current_water_litres || 0,
+                          target: goals?.target_water_litres || 0,
+                        },
+                        icon: 'water',
                       },
-                      icon: 'water',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.AppleHealthkit,
-                        ProviderType.Fitbit,
-                      ],
-                      identifier: 'sleep',
-                      goal: {
-                        value: goals?.current_sleep_hours || 0,
-                        target: goals?.target_sleep_hours || 0,
+                      {
+                        supportedProviders: [
+                          ProviderType.AppleHealthkit,
+                          ProviderType.Fitbit,
+                        ],
+                        identifier: 'sleep',
+                        goal: {
+                          value: goals?.current_sleep_hours || 0,
+                          target: goals?.target_sleep_hours || 0,
+                        },
+                        icon: 'sleep',
                       },
-                      icon: 'sleep',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                      ],
-                      identifier: 'active_minutes',
-                      goal: {
-                        value: goals?.current_active_minutes || 0,
-                        target: goals?.target_active_minutes || 0,
+                      {
+                        supportedProviders: [
+                          ProviderType.GoogleFit,
+                          ProviderType.AppleHealthkit,
+                        ],
+                        identifier: 'active_minutes',
+                        goal: {
+                          value: goals?.current_active_minutes || 0,
+                          target: goals?.target_active_minutes || 0,
+                        },
+                        icon: 'stopwatch',
                       },
-                      icon: 'stopwatch',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                        ProviderType.Fitbit,
-                      ],
-                      identifier: 'floors',
-                      goal: {
-                        value: goals?.current_floors_climbed || 0,
-                        target: goals?.target_floors_climbed || 0,
+                      {
+                        supportedProviders: [
+                          ProviderType.GoogleFit,
+                          ProviderType.AppleHealthkit,
+                          ProviderType.Fitbit,
+                        ],
+                        identifier: 'floors',
+                        goal: {
+                          value: goals?.current_floors_climbed || 0,
+                          target: goals?.target_floors_climbed || 0,
+                        },
+                        icon: 'stairs',
                       },
-                      icon: 'stairs',
-                    },
-                  ]}
-                />
-              </HeaderWidgetContainer>
+                    ]}
+                  />
+                </HeaderWidgetContainer>
 
-              {/* {!!nextReward?.reward && isNextRewardFetched && (
+                {/* {!!nextReward?.reward && isNextRewardFetched && (
                 <HeaderWidgetContainer>
                   <RewardTracker
                     points={user.points_total}
@@ -495,71 +487,72 @@ export const Feed = () => {
                   />
                 </HeaderWidgetContainer>
               )} */}
-            </HeaderContainer>
+              </HeaderContainer>
 
-            <StatContainer>
-              {/* <FeedFilter /> */}
-              <StatCard>
-                <StatView>
-                  <StatLabel>total $bfit</StatLabel>
-                  <StatNumber value={'00640'} />
-                </StatView>
-                <StatView
-                  style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                  <View>
-                    <PercentageValue>+23%</PercentageValue>
-                    <StatChart
-                      source={require('../../../assets/images/total_bfit_chart.png')}
-                    />
-                  </View>
-                </StatView>
-              </StatCard>
-              <StatCard>
-                <StatView>
-                  <StatLabel>total calories</StatLabel>
-                  <StatNumber value={'01240'} />
-                </StatView>
-                <StatView
-                  style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                  <ProgressCircle
-                    progress={0.87}
-                    strokeWidth={3}
-                    backgroundStrokeWidth={2.5}
-                    bloomIntensity={0.5}
-                    bloomRadius={5}
-                    size={81}>
-                    <CaloriesCircle>
-                      <Calories>87%</Calories>
-                    </CaloriesCircle>
-                  </ProgressCircle>
-                </StatView>
-              </StatCard>
-              <StatCard>
-                <StatView>
-                  <StatLabel>total rank</StatLabel>
-                  <StatNumber value={'37640'} />
-                </StatView>
-                <StatView
-                  style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                  <View>
-                    <PercentageValue>+10P</PercentageValue>
-                    <StatChart
-                      source={require('../../../assets/images/total_rank_chart.png')}
-                    />
-                  </View>
-                </StatView>
-              </StatCard>
-            </StatContainer>
+              <StatContainer>
+                {/* <FeedFilter /> */}
+                <StatCard>
+                  <StatView>
+                    <StatLabel>total $bfit</StatLabel>
+                    <StatNumber value={'00640'} />
+                  </StatView>
+                  <StatView
+                    style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                    <View>
+                      <PercentageValue>+23%</PercentageValue>
+                      <StatChart
+                        source={require('../../../assets/images/total_bfit_chart.png')}
+                      />
+                    </View>
+                  </StatView>
+                </StatCard>
+                <StatCard>
+                  <StatView>
+                    <StatLabel>total calories</StatLabel>
+                    <StatNumber value={'01240'} />
+                  </StatView>
+                  <StatView
+                    style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                    <ProgressCircle
+                      progress={0.87}
+                      strokeWidth={3}
+                      backgroundStrokeWidth={2.5}
+                      bloomIntensity={0.5}
+                      bloomRadius={5}
+                      size={81}>
+                      <CaloriesCircle>
+                        <Calories>87%</Calories>
+                      </CaloriesCircle>
+                    </ProgressCircle>
+                  </StatView>
+                </StatCard>
+                <StatCard>
+                  <StatView>
+                    <StatLabel>total rank</StatLabel>
+                    <StatNumber value={'37640'} />
+                  </StatView>
+                  <StatView
+                    style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                    <View>
+                      <PercentageValue>+10P</PercentageValue>
+                      <StatChart
+                        source={require('../../../assets/images/total_rank_chart.png')}
+                      />
+                    </View>
+                  </StatView>
+                </StatCard>
+              </StatContainer>
 
-            <FeedContainer>
-              <CompeteLeagues />
-              <UnlockedRewards />
-              <ActivityHistory />
-              <RoutesClasses />
-            </FeedContainer>
-          </>
-        }
-      />
+              <FeedContainer>
+                <CompeteLeagues />
+                <UnlockedRewards />
+                <ActivityHistory />
+                <RoutesClasses />
+              </FeedContainer>
+            </>
+          }
+        />
+      </ScrollView>
     </Wrapper>
   );
 };

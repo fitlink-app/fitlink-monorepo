@@ -1,5 +1,5 @@
 import React from 'react';
-import {Card} from '../../../components/common';
+import {Card, Label} from '../../../components/common';
 import styled from 'styled-components/native';
 
 const HeaderContainer = styled.View({
@@ -8,10 +8,12 @@ const HeaderContainer = styled.View({
   marginTop: 40,
 });
 
-const Title = styled.Text({
+const Title = styled(Label).attrs(() => ({
+  type: 'subheading',
+  bold: true,
+}))({
   fontFamily: 'Roboto',
   fontStyle: 'normal',
-  fontWeight: '500',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 2,
@@ -19,10 +21,12 @@ const Title = styled.Text({
   color: '#ffffff',
 });
 
-const SeeAllText = styled.Text({
+const SeeAllText = styled(Label).attrs(() => ({
+  type: 'subheading',
+  bold: true,
+}))({
   fontFamily: 'Roboto',
   fontStyle: 'normal',
-  fontWeight: '500',
   fontSize: 13,
   lineHeight: 15,
   letterSpacing: 1,
@@ -65,11 +69,13 @@ const CardHeader = styled.View({
   justifyContent: 'space-between',
 });
 
-const DateText = styled.Text({
+const DateText = styled(Label).attrs(() => ({
+  type: 'subheading',
+  bold: true,
+}))({
   position: 'relative',
   fontFamily: 'Roboto',
   fontStyle: 'normal',
-  fontWeight: '500',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 1,
@@ -101,10 +107,11 @@ const GoalSection = styled.View({
   marginTop: 22,
 });
 
-const RecordValue = styled.Text({
+const RecordValue = styled(Label).attrs(() => ({
+  type: 'subheading',
+}))({
   fontFamily: 'Roboto',
   fontStyle: 'normal',
-  fontWeight: '400',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 1,
@@ -113,10 +120,12 @@ const RecordValue = styled.Text({
   width: 176,
 });
 
-const GoalText = styled.Text({
+const GoalText = styled(Label).attrs(() => ({
+  type: 'subheading',
+  bold: true,
+}))({
   fontFamily: 'Roboto',
   fontStyle: 'normal',
-  fontWeight: '500',
   fontSize: 18,
   lineHeight: 21,
   color: '#00E9D7',

@@ -6,10 +6,17 @@ import {View, Pressable, Platform} from 'react-native';
 import {Label} from '@components';
 
 const Wrapper = styled.View(({theme}) => ({
+  width: '100%',
+  height: 79,
+  paddingLeft: 25,
+  paddingRight: 25,
+}));
+
+const Container = styled.View(({theme}) => ({
+  width: '100%',
+  height: '100%',
   backgroundColor: theme.colors.navbar,
   flexDirection: 'row',
-  width: '100%',
-  height: 86,
   borderRadius: 24,
 }));
 
@@ -121,11 +128,13 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
   const insets = useSafeAreaInsets();
 
   return (
-    <Wrapper
-      style={{
-        paddingBottom: Platform.OS === 'ios' ? insets.bottom : undefined,
-      }}>
-      {renderButtons()}
+    <Wrapper>
+      <Container
+        style={{
+          paddingBottom: Platform.OS === 'ios' ? insets.bottom : undefined,
+        }}>
+        {renderButtons()}
+      </Container>
     </Wrapper>
   );
 };

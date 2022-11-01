@@ -1,6 +1,8 @@
 import React from 'react';
-import {Card} from '../../../components/common';
+import {Card, Label} from '../../../components/common';
 import styled from 'styled-components/native';
+import {TouchHandler} from '@components';
+import {useNavigation} from '@react-navigation/core';
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
@@ -8,10 +10,11 @@ const HeaderContainer = styled.View({
   marginTop: 40,
 });
 
-const Title = styled.Text({
+const Title = styled(Label).attrs(() => ({
+  type: 'caption',
+}))({
   fontFamily: 'Roboto',
   fontStyle: 'normal',
-  fontWeight: '500',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 2,
@@ -19,10 +22,11 @@ const Title = styled.Text({
   color: '#ffffff',
 });
 
-const SeeAllText = styled.Text({
+const SeeAllText = styled(Label).attrs(() => ({
+  type: 'caption',
+}))({
   fontFamily: 'Roboto',
   fontStyle: 'normal',
-  fontWeight: '500',
   fontSize: 13,
   lineHeight: 15,
   letterSpacing: 1,
@@ -65,11 +69,12 @@ const CardHeader = styled.View({
   justifyContent: 'space-between',
 });
 
-const DateText = styled.Text({
+const DateText = styled(Label).attrs(() => ({
+  type: 'caption',
+}))({
   position: 'relative',
   fontFamily: 'Roboto',
   fontStyle: 'normal',
-  fontWeight: '500',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 1,
@@ -101,10 +106,11 @@ const PlaceSection = styled.View({
   marginTop: 4,
 });
 
-const RecordValue = styled.Text({
+const RecordValue = styled(Label).attrs(() => ({
+  type: 'caption',
+}))({
   fontFamily: 'Roboto',
   fontStyle: 'normal',
-  fontWeight: '400',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 1,
@@ -113,10 +119,11 @@ const RecordValue = styled.Text({
   width: 194,
 });
 
-const PlaceText = styled.Text({
+const PlaceText = styled(Label).attrs(() => ({
+  type: 'caption',
+}))({
   fontFamily: 'Roboto',
   fontStyle: 'normal',
-  fontWeight: '500',
   fontSize: 18,
   lineHeight: 21,
   color: '#00E9D7',
@@ -138,11 +145,18 @@ const data = [
 ];
 
 export const ActivityHistory = () => {
+  const navigation = useNavigation();
+
   return (
     <>
       <HeaderContainer>
         <Title>Activity History</Title>
-        <SeeAllText>see all</SeeAllText>
+        <TouchHandler
+          onPress={() => {
+            navigation.navigate('ActivityFeed');
+          }}>
+          <SeeAllText>see all</SeeAllText>
+        </TouchHandler>
       </HeaderContainer>
 
       <SliderContainer>
