@@ -2,7 +2,9 @@ import React from 'react';
 import {View, ScrollView} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
-import {Card, Label, Icon} from '../../components/common';
+import {useNavigation} from '@react-navigation/native';
+import {TouchHandler} from '@components';
+import {Card, Label} from '../../components/common';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -227,6 +229,7 @@ const data = [
 ];
 
 export const ActivityFeed = () => {
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const {colors} = useTheme();
 
@@ -274,74 +277,77 @@ export const ActivityFeed = () => {
               speed,
               time,
             }) => (
-              <UserCard>
-                <Line />
-                <CardBody>
-                  <UserProfile>
-                    <UserImageCard>
-                      <UserImage source={img} />
-                    </UserImageCard>
-                    <UserInfo>
-                      <FitnessType>{fitness_type}</FitnessType>
-                      <Username>{username}</Username>
-                      <DateText>{date}</DateText>
-                    </UserInfo>
-                  </UserProfile>
-                  <FitnessDetails>
-                    <View>
-                      <ButtonGroup>
-                        <Bfit>
-                          <BfitValue>{mark}</BfitValue>
-                        </Bfit>
-                        {like ? (
-                          <LikeButton style={{backgroundColor: colors.accent}}>
-                            <ThumbIcon
-                              source={require('../../../assets/images/icon/thumb.png')}
-                            />
-                          </LikeButton>
-                        ) : (
-                          <LikeButton style={{backgroundColor: '#ACACAC'}}>
-                            <ThumbIcon
-                              source={require('../../../assets/images/icon/thumb.png')}
-                            />
-                          </LikeButton>
-                        )}
-                      </ButtonGroup>
-                      <DetailView>
-                        <DetailInfo>
-                          Distance:{' '}
-                          <Label style={{color: colors.text}}>
-                            {distance} mi
-                          </Label>
-                        </DetailInfo>
-                        <DetailIcon
-                          source={require('../../../assets/images/icon/map-marker.png')}
-                        />
-                      </DetailView>
-                      <DetailView>
-                        <DetailInfo>
-                          Speed:{' '}
-                          <Label style={{color: colors.text}}>
-                            {speed} mile
-                          </Label>
-                        </DetailInfo>
-                        <DetailIcon
-                          source={require('../../../assets/images/icon/speed.png')}
-                        />
-                      </DetailView>
-                      <DetailView>
-                        <DetailInfo>
-                          Time:{' '}
-                          <Label style={{color: colors.text}}>{time} m</Label>
-                        </DetailInfo>
-                        <DetailIcon
-                          source={require('../../../assets/images/icon/clock.png')}
-                        />
-                      </DetailView>
-                    </View>
-                  </FitnessDetails>
-                </CardBody>
-              </UserCard>
+              <TouchHandler onPress={() => navigation.navigate('ActivityPage')}>
+                <UserCard>
+                  <Line />
+                  <CardBody>
+                    <UserProfile>
+                      <UserImageCard>
+                        <UserImage source={img} />
+                      </UserImageCard>
+                      <UserInfo>
+                        <FitnessType>{fitness_type}</FitnessType>
+                        <Username>{username}</Username>
+                        <DateText>{date}</DateText>
+                      </UserInfo>
+                    </UserProfile>
+                    <FitnessDetails>
+                      <View>
+                        <ButtonGroup>
+                          <Bfit>
+                            <BfitValue>{mark}</BfitValue>
+                          </Bfit>
+                          {like ? (
+                            <LikeButton
+                              style={{backgroundColor: colors.accent}}>
+                              <ThumbIcon
+                                source={require('../../../assets/images/icon/thumb.png')}
+                              />
+                            </LikeButton>
+                          ) : (
+                            <LikeButton style={{backgroundColor: '#ACACAC'}}>
+                              <ThumbIcon
+                                source={require('../../../assets/images/icon/thumb.png')}
+                              />
+                            </LikeButton>
+                          )}
+                        </ButtonGroup>
+                        <DetailView>
+                          <DetailInfo>
+                            Distance:{' '}
+                            <Label style={{color: colors.text}}>
+                              {distance} mi
+                            </Label>
+                          </DetailInfo>
+                          <DetailIcon
+                            source={require('../../../assets/images/icon/map-marker.png')}
+                          />
+                        </DetailView>
+                        <DetailView>
+                          <DetailInfo>
+                            Speed:{' '}
+                            <Label style={{color: colors.text}}>
+                              {speed} mile
+                            </Label>
+                          </DetailInfo>
+                          <DetailIcon
+                            source={require('../../../assets/images/icon/speed.png')}
+                          />
+                        </DetailView>
+                        <DetailView>
+                          <DetailInfo>
+                            Time:{' '}
+                            <Label style={{color: colors.text}}>{time} m</Label>
+                          </DetailInfo>
+                          <DetailIcon
+                            source={require('../../../assets/images/icon/clock.png')}
+                          />
+                        </DetailView>
+                      </View>
+                    </FitnessDetails>
+                  </CardBody>
+                </UserCard>
+              </TouchHandler>
             ),
           )}
         </UserList>

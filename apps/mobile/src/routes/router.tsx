@@ -24,6 +24,7 @@ import {
   MyActivities,
   ActivityForm,
   Notifications,
+  ActivityPage,
 } from 'pages';
 import {SettingsNavigator} from './Settings';
 import {useSelector} from 'react-redux';
@@ -105,6 +106,7 @@ export default function Router() {
                 }}
               />
               <Stack.Screen name={'ActivityForm'} component={ActivityForm} />
+              <Stack.Screen name={'ActivityPage'} component={ActivityPage} />
             </>
           ) : (
             <Stack.Screen name={'Onboarding'} component={Onboarding} />

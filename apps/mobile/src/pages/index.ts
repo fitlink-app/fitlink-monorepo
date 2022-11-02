@@ -17,3 +17,4 @@ export * from './MyActivities';
 export * from './ActivityForm';
 export * from './Notifications';
 export * from './ActivityFeed';
+export * from './ActivityPage';
