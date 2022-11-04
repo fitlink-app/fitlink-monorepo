@@ -7,8 +7,8 @@ import {useMe} from '@hooks';
 
 const HomeIcon = require('../../../assets/images/icon/navigator-icons/home.png');
 const HomeActiveIcon = require('../../../assets/images/icon/navigator-icons/home-active.png');
-const FriendsIcon = require('../../../assets/images/icon/navigator-icons/users.png');
-const FriendsActiveIcon = require('../../../assets/images/icon/navigator-icons/users-active.png');
+const ActivityIcon = require('../../../assets/images/icon/navigator-icons/users.png');
+const ActivityActiveIcon = require('../../../assets/images/icon/navigator-icons/users-active.png');
 const LeaguesIcon = require('../../../assets/images/icon/navigator-icons/award.png');
 const LeaguesActiveIcon = require('../../../assets/images/icon/navigator-icons/award-active.png');
 const RewardsIcon = require('../../../assets/images/icon/navigator-icons/gift.png');
@@ -31,8 +31,10 @@ export const HomeNavigator = () => {
     switch (name) {
       case 'home':
         return <IconImage source={focused ? HomeActiveIcon : HomeIcon} />;
-      case 'friends':
-        return <IconImage source={focused ? FriendsActiveIcon : FriendsIcon} />;
+      case 'activityfeed':
+        return (
+          <IconImage source={focused ? ActivityActiveIcon : ActivityIcon} />
+        );
       case 'leagues':
         return <IconImage source={focused ? LeaguesActiveIcon : LeaguesIcon} />;
       case 'reward':
@@ -63,7 +65,7 @@ export const HomeNavigator = () => {
         name="ActivityFeed"
         component={ActivityFeed}
         options={{
-          tabBarIcon: ({focused}) => renderTabIcon(focused, 'friends'),
+          tabBarIcon: ({focused}) => renderTabIcon(focused, 'activityfeed'),
         }}
       />
 

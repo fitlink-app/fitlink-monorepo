@@ -65,17 +65,17 @@ export const TabBar = (
       renderIndicator={indicatorProps => {
         const {width} = indicatorProps;
         const widthPercentFloat = parseFloat(width as string);
-        const marginPercent = 5;
+        const marginPercent = 10;
 
         return (
           <TabBarIndicator
             {...indicatorProps}
             style={{
-              width: `${widthPercentFloat - marginPercent}%`,
-              left: `${marginPercent / 2}%`,
+              width: 36,
+              left: `${(widthPercentFloat - marginPercent) / 2}%`,
               backgroundColor: colors.accent,
               marginBottom: -1,
-              height: 2,
+              height: 3,
             }}
           />
         );
@@ -83,7 +83,7 @@ export const TabBar = (
       style={{
         backgroundColor: 'transparent',
         borderBottomWidth: 1,
-        borderColor: colors.separator,
+        borderColor: 'transparent',
         elevation: 0,
       }}
       renderLabel={(params): Element => {

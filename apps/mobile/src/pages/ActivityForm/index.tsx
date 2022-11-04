@@ -71,10 +71,13 @@ export const ActivityForm = (
   }
 
   // State
-  const [activityImages, setActivityImages] =
-    useState<ActivityImagesState[]>(initialImages);
-  const [organizerImage, setOrganizerImage] =
-    useState<ImagePickerDialogResponse>();
+  const [activityImages, setActivityImages] = useState<ActivityImagesState[]>(
+    initialImages,
+  );
+  const [
+    organizerImage,
+    setOrganizerImage,
+  ] = useState<ImagePickerDialogResponse>();
 
   // Form
   const {
@@ -91,11 +94,15 @@ export const ActivityForm = (
 
   const {mutateAsync: editActivity} = useEditActivity();
 
-  const {mutateAsync: deleteActivity, isLoading: isDeleting} =
-    useDeleteActivity();
+  const {
+    mutateAsync: deleteActivity,
+    isLoading: isDeleting,
+  } = useDeleteActivity();
 
-  const {mutateAsync: uploadImage, isLoading: isImageUploading} =
-    useUploadImage();
+  const {
+    mutateAsync: uploadImage,
+    isLoading: isImageUploading,
+  } = useUploadImage();
 
   const handleOnSubmitPressed = async () => {
     let activityImageIds: string[] = [];
@@ -166,7 +173,7 @@ export const ActivityForm = (
         navigation.goBack();
         onSubmitCallback && onSubmitCallback();
       }
-    } catch (e) {
+    } catch (e: any) {
       const requestErrors = getErrors(e);
       console.log(requestErrors);
       return requestErrors;

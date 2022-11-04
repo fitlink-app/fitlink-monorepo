@@ -1,6 +1,8 @@
 import React from 'react';
 import {Card, Label} from '../../../components/common';
 import styled from 'styled-components/native';
+import {TouchHandler} from '@components';
+import {useNavigation} from '@react-navigation/core';
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
@@ -75,7 +77,7 @@ const CardInfo = styled.View({
   paddingLeft: 24,
   paddingBottom: 22,
   paddingRight: 24,
-  backgroundColor: 'rgba(255,255,355,0.4)',
+  backgroundColor: 'rgba(255,255,255,0.2)',
 });
 
 const MembersText = styled(Label).attrs(() => ({
@@ -138,11 +140,15 @@ const data = [
 ];
 
 export const CompeteLeagues = () => {
+  const navigation = useNavigation();
+
   return (
     <>
       <HeaderContainer>
         <Title>Compete to earn leagues</Title>
-        <SeeAllText>see all</SeeAllText>
+        <TouchHandler onPress={() => navigation.navigate('Leagues')}>
+          <SeeAllText>see all</SeeAllText>
+        </TouchHandler>
       </HeaderContainer>
 
       <SliderContainer>

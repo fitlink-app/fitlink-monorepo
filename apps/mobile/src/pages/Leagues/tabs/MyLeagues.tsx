@@ -99,7 +99,7 @@ export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
           isFetchingNextPage,
           isFetchedAfterMount,
           ListEmptyComponent,
-          ListHeaderComponent,
+          // ListHeaderComponent,
         }}
         data={results}
         onEndReached={() => fetchNextPage()}

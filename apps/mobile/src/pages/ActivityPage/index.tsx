@@ -1,4 +1,6 @@
 import React, {useRef, useState, useEffect} from 'react';
+import {StackScreenProps} from '@react-navigation/stack';
+import {RootStackParamList} from 'routes/types';
 import {View, ScrollView, Dimensions, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Navbar} from '@components';
@@ -169,11 +171,11 @@ const data = [
   },
 ];
 
+const width = Dimensions.get('window').width;
+const delay = 5000;
+
 // Carousal Component
-export const ActivityPage = ({
-  width = Dimensions.get('window').width,
-  delay = 5000,
-}) => {
+export const ActivityPage = () => {
   const insets = useSafeAreaInsets();
   const {colors} = useTheme();
 
@@ -184,7 +186,7 @@ export const ActivityPage = ({
   useEffect(() => {
     const fn = setInterval(() => {
       setselectedIndex((oldCount: Number) =>
-        oldCount === data.length - 1 ? 0 : oldCount + 1,
+        oldCount === data.length - 1 ? 0 : Number(oldCount) + 1,
       );
     }, delay);
     return () => {
@@ -196,7 +198,7 @@ export const ActivityPage = ({
   useEffect(() => {
     scrollView.current.scrollTo({
       animated: true,
-      x: width * selectedIndex,
+      x: width * Number(selectedIndex),
       y: 0,
     });
   }, [selectedIndex]);

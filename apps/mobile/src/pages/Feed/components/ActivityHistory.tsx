@@ -64,7 +64,7 @@ const CardHeader = styled.View({
   paddingTop: 22,
   paddingLeft: 24,
   paddingRight: 24,
-  backgroundColor: 'rgba(255,255,355,0.4)',
+  backgroundColor: 'rgba(255,255,255,0.2)',
   flexDirection: 'row',
   justifyContent: 'space-between',
 });
