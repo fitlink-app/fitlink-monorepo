@@ -21,7 +21,7 @@ buildscript {
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
         classpath 'androidx.appcompat:appcompat:1.0.0'
-        classpath 'com.facebook.react:react-native:+'
+        // classpath 'com.facebook.react:react-native:+'
         // implementation fileTree(dir: "libs", include: ["*.jar"])
         // implementation "androidx.appcompat:appcompat:1.0.0"
         // implementation "com.facebook.react:react-native:+" // From node_modules
@@ -45,7 +45,7 @@ allprojects {
           // react-native-background-fetch
           url("${project(':react-native-background-fetch').projectDir}/libs")
         }
-
+        
         google()
         jcenter()
         maven { url 'https://www.jitpack.io' }

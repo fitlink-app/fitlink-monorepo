@@ -69,7 +69,7 @@
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.1.0",
     "react": "17.0.1",
-    "react-native": "0.64.2",
+    "react-native": "0.64.4",
     "react-native-apple-authentication": "^2.0.0",
     "react-native-background-fetch": "^4.0.3",
     "react-native-bootsplash": "^3.2.5",
