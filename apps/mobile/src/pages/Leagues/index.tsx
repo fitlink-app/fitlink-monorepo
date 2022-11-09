@@ -1,5 +1,5 @@
 import React, {useCallback, useRef} from 'react';
-import {ScrollView, Image} from 'react-native';
+import {ScrollView, Image, Text} from 'react-native';
 import styled from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Route} from 'react-native-tab-view';
@@ -13,6 +13,7 @@ import {RootStackParamList} from 'routes/types';
 import {ExploreLeagues, Invitations, MyLeagues} from './tabs';
 import {TabView, Label, Card, TouchHandler} from '@components';
 import {useMe} from '@hooks';
+import { BlurView  } from '@react-native-community/blur';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -28,6 +29,7 @@ const PageTitle = styled(Label).attrs(() => ({
   lineHeight: 18,
   textTransform: 'uppercase',
   textAlign: 'center',
+  marginTop: 12,
 });
 
 const RankCard = styled(Card)({
@@ -178,36 +180,28 @@ const CardInfo = styled.View({
   paddingLeft: 24,
   paddingBottom: 22,
   paddingRight: 24,
-  backgroundColor: 'rgba(255,255,255,0.2)',
 });
 
-const MembersText = styled(Label).attrs(() => ({
-  type: 'caption',
-  bold: true,
-}))({
+const MembersText = styled(Text)({
   position: 'relative',
   fontFamily: 'Roboto',
   fontStyle: 'normal',
+  fontWeight: 'bold',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 1,
   textTransform: 'uppercase',
+  color: '#FFFFFF'
 });
 
-const PlaceSection = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginTop: 7,
-});
-
-const CompeteName = styled(Label).attrs(() => ({
-  type: 'subheading',
-  bold: true,
-}))({
+const CompeteName = styled(Text)({
   fontFamily: 'Roboto',
   fontStyle: 'normal',
-  fontSize: 18,
+  fontSize: 17,
   lineHeight: 21,
+  color: '#FFFFFF',
+  marginTop: 7,
+  textAlign: 'left'
 });
 
 const compete_data = [
@@ -316,12 +310,20 @@ export const Leagues = (
                 </Row>
                 <Line />
                 <CardInfo>
+                  <BlurView 
+                    style={{
+                      position: "absolute",
+                      width: 327,
+                      height: 87,
+                      backgroundColor: 'rgba(0,0,0,0.2)'
+                    }}
+                    blurRadius={1}
+                    overlayColor={'transparent'}
+                  />
                   <MembersText>
-                    <Label appearance="accent">{members}</Label> Members
+                    <Text style={{color: '#00E9D7'}}>{members}</Text> Members
                   </MembersText>
-                  <PlaceSection>
-                    <CompeteName>{compete_name}</CompeteName>
-                  </PlaceSection>
+                  <CompeteName>{compete_name}</CompeteName>
                 </CardInfo>
               </CardContainer>
             ))}

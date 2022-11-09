@@ -3,6 +3,7 @@ import {Card, Label} from '../../../components/common';
 import styled from 'styled-components/native';
 import {TouchHandler} from '@components';
 import {useNavigation} from '@react-navigation/core';
+import { BlurView  } from '@react-native-community/blur';
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
@@ -64,7 +65,6 @@ const CardHeader = styled.View({
   paddingTop: 22,
   paddingLeft: 24,
   paddingRight: 24,
-  backgroundColor: 'rgba(255,255,255,0.2)',
   flexDirection: 'row',
   justifyContent: 'space-between',
 });
@@ -165,6 +165,16 @@ export const ActivityHistory = () => {
             <CardContainer>
               <CardImage source={img} />
               <CardHeader>
+                <BlurView 
+                  style={{
+                    position: "absolute",
+                    width: 327,
+                    height: 53,
+                    backgroundColor: 'rgba(0,0,0,0.2)'
+                  }}
+                  blurRadius={1}
+                  overlayColor={'transparent'}
+                />
                 <DateText>today at {date}</DateText>
               </CardHeader>
               <Line />

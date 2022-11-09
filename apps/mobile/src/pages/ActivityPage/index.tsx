@@ -40,8 +40,9 @@ const BackgroundOverlay = styled(LinearGradient).attrs(() => ({
 
 const Details = styled.View({
   width: '100%',
+  paddingLeft: 23,
   paddingRight: 23,
-  marginTop: 10,
+  paddingTop: 35,
 });
 
 const DetailName = styled(Label).attrs(() => ({
@@ -70,11 +71,14 @@ const DetailValue = styled(Label).attrs(() => ({
 const FitnessName = styled(Label).attrs(() => ({
   type: 'title',
   bold: true,
+  numberOfLines: 1
 }))({
+  overflow: 'hidden',
   textAlign: 'right',
   fontFamily: 'Roboto',
   fontSize: 40,
   marginTop: 21,
+  marginLeft: 10
 });
 
 const UserSection = styled.View({
@@ -213,7 +217,6 @@ export const ActivityPage = () => {
 
   return (
     <ScrollView>
-      <Navbar iconColor={colors.text} />
       <View>
         <ScrollView
           ref={scrollView}
@@ -226,7 +229,10 @@ export const ActivityPage = () => {
               <CarouselItem style={{width: width}}>
                 <BackgroundImage source={item.image} />
                 <BackgroundOverlay />
-                <Details style={{paddingTop: insets.top}}>
+                <View style={{marginTop: 28}}>
+                  <Navbar iconColor={colors.text} />
+                </View>
+                <Details>
                   <DetailName>Distance</DetailName>
                   <DetailValue>{item.distance} mi</DetailValue>
                   <DetailName>Speed</DetailName>

@@ -3,6 +3,7 @@ import {Card, Label} from '../../../components/common';
 import styled from 'styled-components/native';
 import {TouchHandler} from '@components';
 import {useNavigation} from '@react-navigation/core';
+import { BlurView  } from '@react-native-community/blur';
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
@@ -77,7 +78,6 @@ const CardInfo = styled.View({
   paddingLeft: 24,
   paddingBottom: 22,
   paddingRight: 24,
-  backgroundColor: 'rgba(255,255,255,0.2)',
 });
 
 const MembersText = styled(Label).attrs(() => ({
@@ -158,6 +158,16 @@ export const CompeteLeagues = () => {
               <CardImage source={img} />
               <Line />
               <CardInfo>
+                <BlurView 
+                  style={{
+                    position: "absolute",
+                    width: 327,
+                    height: 89,
+                    backgroundColor: 'rgba(0,0,0,0.2)'
+                  }}
+                  blurRadius={1}
+                  overlayColor={'transparent'}
+                />
                 <MembersText>{members} Members</MembersText>
                 <PlaceSection>
                   <DistanceValue>The Daily {daily_distance}Km</DistanceValue>

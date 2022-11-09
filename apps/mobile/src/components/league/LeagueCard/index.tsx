@@ -1,10 +1,13 @@
 import React from 'react';
-import {ImageSourcePropType, StyleSheet} from 'react-native';
+import {ImageSourcePropType, StyleSheet, Dimensions, Text} from 'react-native';
 import styled from 'styled-components/native';
 import LinearGradient from 'react-native-linear-gradient';
 import {Avatar, Icon, Label, TouchHandler} from '../../common';
 import {LeagueStats} from './components/LeagueCardStats';
 import {NumberFormatterUtils} from '@utils';
+import { BlurView  } from '@react-native-community/blur';
+
+const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
 const TouchWrapper = styled(TouchHandler)({
   marginBottom: 10,
@@ -68,19 +71,16 @@ const CardContent = styled.View({
   backgroundColor: 'rgba(255,255,255,0.2)',
 });
 
-const MembersLabel = styled(Label).attrs(() => ({
-  type: 'body',
-  appearance: 'accent',
-}))({
+const MembersLabel = styled(Text)({
+  color: '#00E9D7',
   fontFamily: 'Roboto',
   fontSize: 14,
   lineHeight: 16,
   textTransform: 'uppercase',
 });
 
-const Title = styled(Label).attrs(() => ({
-  type: 'title',
-}))({
+const Title = styled(Text)({
+  color: '#FFFFFF',
   fontFamily: 'Roboto',
   fontSize: 18,
   marginTop: 6,
@@ -141,8 +141,18 @@ export const LeagueCard = (props: LeagueCardInterface) => {
         </Row>
         <Line style={{marginTop: position ? 134 : 194}} />
         <CardContent>
+          <BlurView 
+            style={{
+              position: "absolute",
+              width: SCREEN_WIDTH,
+              height: 99,
+              backgroundColor: 'rgba(0,0,0,0.2)'
+            }}
+            blurRadius={1}
+            overlayColor={'transparent'}
+          />
           <MembersLabel>
-            {memberCount | 0} <Label>Members</Label>
+            {memberCount | 0} <Text style={{color: '#FFFFFF'}}>Members</Text>
           </MembersLabel>
           <Title>{name}</Title>
         </CardContent>

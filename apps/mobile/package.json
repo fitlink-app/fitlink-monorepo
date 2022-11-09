@@ -48,6 +48,7 @@
     "@invertase/react-native-apple-authentication": "invertase/react-native-apple-authentication",
     "@mapbox/polyline": "^1.1.1",
     "@react-native-async-storage/async-storage": "^1.15.5",
+    "@react-native-community/blur": "^4.3.0",
     "@react-native-community/clipboard": "^1.5.1",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-native-firebase/app": "^15.7.0",

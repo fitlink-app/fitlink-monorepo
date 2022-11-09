@@ -4,9 +4,14 @@ import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 
 const ResetText = styled(Label).attrs(() => ({
-  appearance: 'accent',
+  type: 'caption',
 }))({
+  fontSize: 14,
+  color: '#ACACAC',
   marginLeft: 10,
+  lineHeight: 19,
+  letterSpacing: 1,
+  textTransform: 'uppercase'
 });
 
 interface CountbackProps {

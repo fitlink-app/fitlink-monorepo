@@ -1,6 +1,7 @@
 import React from 'react';
 import {Card, Label} from '../../../components/common';
 import styled from 'styled-components/native';
+import { BlurView  } from '@react-native-community/blur';
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
@@ -64,7 +65,6 @@ const CardHeader = styled.View({
   paddingTop: 22,
   paddingLeft: 24,
   paddingRight: 24,
-  backgroundColor: 'rgba(255,255,255,0.2)',
   flexDirection: 'row',
   justifyContent: 'space-between',
 });
@@ -185,6 +185,16 @@ export const UnlockedRewards = () => {
             <CardContainer>
               <CardImage source={img} />
               <CardHeader>
+                <BlurView 
+                  style={{
+                    position: "absolute",
+                    width: 327,
+                    height: 53,
+                    backgroundColor: 'rgba(0,0,0,0.2)'
+                  }}
+                  blurRadius={1}
+                  overlayColor={'transparent'}
+                />
                 <DateText>{date}</DateText>
                 <HeaderLine />
               </CardHeader>

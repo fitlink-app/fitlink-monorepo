@@ -64,7 +64,8 @@ export const Label: React.FC<LabelProps> = React.forwardRef(
     const textStyles: StyleProp<TextStyle>[] = [
       createTypeStyle(),
       {color: createTextColor()},
-      bold ? {fontFamily: fonts.bold} : {},
+      bold ? {fontWeight: '700'} : {},
+      {fontFamily: 'Roboto'},
       style,
     ];
 
