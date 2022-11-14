@@ -18,10 +18,6 @@ const ButtonImage = styled(Image)({
   height: 20,
 });
 
-const ButtonLabel = styled(Label)({
-  marginLeft: 10,
-});
-
 const Row = styled.View({
   position: 'absolute',
   flexDirection: 'row',
@@ -33,7 +29,7 @@ const ButtonContentContainer = styled.View({
   alignItems: 'center',
   width: '100%',
   height: 44,
-  paddingHorizontal: 24,
+  paddingHorizontal: 12,
   borderRadius: 8,
 });
 
@@ -190,7 +186,7 @@ export const Button = ({
           )} */}
           {!!logo && <ButtonImage source={logo} resizeMode={'contain'} />}
           {(!loading || loadingText) && (
-            <ButtonLabel
+            <Label
               numberOfLines={1}
               style={{
                 ...typography.button,
@@ -199,7 +195,7 @@ export const Button = ({
                 ...(textStyle as {}),
               }}>
               {loading ? (loadingText ? loadingText : text) : text}
-            </ButtonLabel>
+            </Label>
           )}
         </Row>
       </ButtonContentContainer>

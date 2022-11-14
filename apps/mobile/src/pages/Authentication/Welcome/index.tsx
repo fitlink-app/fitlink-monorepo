@@ -176,6 +176,7 @@ export const Welcome = () => {
           <ButtonContainer>
             <SpacedButton
               text={'Sign up with your e-mail'}
+              textStyle={{ marginLeft: 10 }}
               logo={mail_icon}
               onPress={handleOnSignUpPressed}
             />
@@ -183,6 +184,7 @@ export const Welcome = () => {
               disabled={isGoogleLoading}
               loading={isGoogleLoading}
               text={'Continue with Google'}
+              textStyle={{ marginLeft: 10 }}
               logo={google_icon}
               onPress={handleOnGooglePressed}
             />
@@ -190,6 +192,7 @@ export const Welcome = () => {
               disabled={isAppleLoading}
               loading={isAppleLoading}
               text={'Continue with Apple ID'}
+              textStyle={{ marginLeft: 10 }}
               logo={apple_icon}
               onPress={handleOnApplePressed}
             />
@@ -197,6 +200,7 @@ export const Welcome = () => {
               disabled={isMetaMaskLoading}
               loading={isMetaMaskLoading}
               text={'Continue with MetaMask'}
+              textStyle={{ marginLeft: 10 }}
               logo={metamask_icon}
               onPress={handleOnMetaMaskPressed}
             />

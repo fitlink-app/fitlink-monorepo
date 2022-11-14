@@ -26,8 +26,12 @@ import {
 } from '@components';
 import {useClaimReward, useMe, useReward} from '@hooks';
 import {format} from 'date-fns';
+import { BlurView } from '@react-native-community/blur';
 
-const HEADER_HEIGHT = 250;
+const Wrapper = styled.View({
+  paddingHorizontal: 10,
+  marginTop: 47
+});
 
 const EmptyContainer = styled.View({
   flex: 1,
@@ -37,14 +41,9 @@ const EmptyContainer = styled.View({
 
 const HeaderContainer = styled.View({
   width: '100%',
-  height: HEADER_HEIGHT,
-});
-
-const HeaderContent = styled.View({
-  flex: 1,
-  ...StyleSheet.absoluteFillObject,
-  margin: 20,
-  justifyContent: 'flex-end',
+  height: 434,
+  borderRadius: 30,
+  overflow: 'hidden'
 });
 
 const Row = styled.View({
@@ -53,19 +52,47 @@ const Row = styled.View({
 });
 
 const HeaderImage = styled(Image)({
+  position: 'absolute',
   width: '100%',
-  height: HEADER_HEIGHT,
+  resizeMode: 'stretch',
+  height: 434,
+});
+
+const TitleContainer = styled.View({
+  position: 'relative',
+  width: '100%',
+  height: 86,
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center'
+});
+
+const HeaderContent = styled.View({
+  position: 'relative',
+  width: '100%',
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center'
+});
+
+const PageTitle = styled(Label).attrs(() => ({
+  children: 'GOLD REWARD'
+}))({
+  fontSize: 18,
+});
+
+const Line = styled.View({
+  position: 'relative',
+  width: '100%',
+  height: 2,
+  backgroundColor: '#ffffff',
+  border: 0,
+  opacity: 0.2,
 });
 
 const ContentContainer = styled.View({
-  margin: 20,
-});
-
-const ImageOverlay = styled(LinearGradient).attrs(() => ({
-  colors: ['#0000004D', '#00000099'],
-}))({
-  ...StyleSheet.absoluteFillObject,
-  opacity: 0.9,
+  marginTop: 28,
+  paddingHorizontal: 10,
 });
 
 const InstructionsContainer = styled.View({
@@ -125,6 +152,7 @@ export const Reward = (
   }
 
   const isExpired = new Date() > new Date(reward.reward_expires_at);
+  const restDays = !isExpired ? Math.ceil(Math.abs((new Date(reward.reward_expires_at)).getTime()-(new Date()).getTime())/(1000*3600*24)) : 0;
 
   const expiryDateFormatted = format(
     new Date(reward.reward_expires_at),
@@ -203,19 +231,29 @@ export const Reward = (
         return (
           <>
             <Button
-              text={'Claim This Reward'}
+              text={'Claim Reward'}
+              textStyle={{
+                fontSize: 14,
+                textTransform: 'uppercase',
+                fontWeight: '500'
+              }}
+              containerStyle={{
+                width: 134,
+                backgroundColor: '#00E9D7',
+                borderRadius: 12
+              }}
               onPress={() => claimReward(id)}
               disabled={isClaiming}
               loading={isClaiming}
             />
 
-            <View style={{alignItems: 'center'}}>
+            {/* <View style={{alignItems: 'center'}}>
               <Label type={'caption'} style={{marginTop: 10}}>
                 Your points balance will be{' '}
                 {user!.points_total - reward.points_required} after claiming
                 this reward
               </Label>
-            </View>
+            </View> */}
           </>
         );
       }
@@ -249,108 +287,96 @@ export const Reward = (
   };
 
   return (
-    <>
-      <Navbar
-        scrollAnimatedValue={scrollAnim}
-        title={reward.name_short}
-        iconColor={'white'}
-        overlay
-        titleProps={{
-          type: 'title',
-          bold: false,
-        }}
-      />
-
+    <Wrapper>
       <Animated.ScrollView
         bounces={false}
         onScroll={Animated.event(
           [{nativeEvent: {contentOffset: {y: scrollAnim}}}],
           {useNativeDriver: true},
         )}>
-        <Animated.View
-          style={{
-            transform: [{translateY: scrollAnimInterpolated}],
-          }}>
-          <HeaderContainer>
-            <HeaderImage
-              resizeMode={'cover'}
-              source={{
-                uri: reward.image.url_640x360,
+        <View style={{marginLeft: 5}}>
+          <Navbar iconColor={'white'} />
+        </View>
+        <HeaderContainer>
+          <HeaderImage source={require('../../../assets/images/rewards/reward-background.png')} />
+          <BlurView 
+            style={{
+              position: "absolute",
+              width: '100%',
+              height: 86,
+              backgroundColor: 'rgba(0,0,0,0.2)'
+            }}
+            blurRadius={1}
+            overlayColor={'transparent'}
+          />
+          <TitleContainer><PageTitle /></TitleContainer>
+          <Line />
+        </HeaderContainer>
+        <HeaderContent>
+          <Row style={{marginTop: 40}}>
+            <View style={{flex: 2}}>
+              <Label
+                type={'subheading'}
+                appearance={'accent'}
+              >
+                {isExpired
+                  ? `Expired on ${expiryDateFormatted}`
+                  : `${restDays} DAYS LEFT`}
+              </Label>
+              <Label
+                type={'title'}
+                appearance={'primary'}
+                numberOfLines={2}
+                style={{
+                  marginTop: 21,
+                  fontSize: 32,
+                  textTransform: 'capitalize'
+                }}
+              >
+                {reward.name_short}
+              </Label>
+            </View>
+            <View
+              style={{
+                justifyContent: 'center',
+                marginTop: 20,
+                marginLeft: 10,
+                flex: 1,
               }}
-            />
-            <ImageOverlay />
-            <HeaderContent>
-              <Row>
-                <View style={{flex: 2}}>
-                  <Row
-                    style={{
-                      alignItems: 'center',
-                      marginBottom: 20,
-                      justifyContent: 'flex-start',
-                    }}>
-                    <Chip
-                      textStyle={{
-                        fontFamily: fonts.bold,
-                        color: colors.chartUnfilled,
-                      }}
-                      style={{backgroundColor: 'rgba(255,255,255,.5)'}}
-                      progress={
-                        isRewardUnclaimed() || reward.redeemed || isExpired
-                          ? 1
-                          : user!.points_total / reward.points_required
-                      }
-                      text={`${reward.points_required} points`}
-                      disabled={true}
-                    />
-
-                    {!reward.redeemed && !isRewardUnclaimed() && !isExpired && (
-                      <Label
-                        style={{marginLeft: 5, fontSize: 10}}
-                        type={'caption'}
-                        appearance={'primary'}
-                        bold>
-                        {reward.points_required - user!.points_total} points
-                        remaining
-                      </Label>
-                    )}
-                  </Row>
-                  <Label type={'body'} appearance={'primary'} bold>
-                    {reward.brand}
-                  </Label>
-                  <Label
-                    type={'title'}
-                    appearance={'primary'}
-                    numberOfLines={2}>
-                    {reward.name_short}
-                  </Label>
-                </View>
-                <View
-                  style={{
-                    justifyContent: 'flex-end',
-                    marginLeft: 10,
-                    flex: 1,
-                  }}>
-                  <Label
-                    type={'caption'}
-                    appearance={'primary'}
-                    style={{textAlign: 'right'}}>
-                    {isExpired
-                      ? `Expired on ${expiryDateFormatted}`
-                      : `Expires at ${expiryDateFormatted}`}
-                  </Label>
-                </View>
-              </Row>
-            </HeaderContent>
-          </HeaderContainer>
-        </Animated.View>
+            >
+              <Chip
+                textStyle={{
+                  fontFamily: 'Roboto',
+                  fontSize: 15,
+                  lineHeight: 16,
+                  letterSpacing: 2,
+                  color: colors.chartUnfilled,
+                  textAlign: 'center'
+                }}
+                style={{backgroundColor: colors.text}}
+                progress={
+                  isRewardUnclaimed() || reward.redeemed || isExpired
+                    ? 1
+                    : user!.points_total / reward.points_required
+                }
+                text={`${reward.points_required} $BFIT`}
+                disabled={true}
+              />
+            </View>
+          </Row>
+        </HeaderContent>
 
         <ContentContainer>
-          <Label type={'subheading'}>{reward.name}</Label>
-          <Label style={{marginTop: 10, marginBottom: 20}}>
-            {reward.description}
+          <Label style={{fontSize: 18, lineHeight: 23, color: '#ACACAC'}}>
+            Win! You’ve unlocked your reward. Claim the 20% discount reward and redeem it on Nike.com
+          </Label>
+          <Label style={{marginTop: 33, marginBottom: 82, opacity: 0.5}}>
+            This reward can only be used on the online store. Please keep in mind that you have only {restDays} days left to redeem it.
           </Label>
 
-          {renderContent()}
+          <View style={{marginBottom: 20}}>
+            {renderContent()}
+          </View>
         </ContentContainer>
       </Animated.ScrollView>
 
@@ -366,6 +392,6 @@ export const Reward = (
         messageColor={colors.chartUnfilled}
         messageStyle={{fontFamily: fonts.bold}}
       />
-    </>
+    </Wrapper>
   );
 };
