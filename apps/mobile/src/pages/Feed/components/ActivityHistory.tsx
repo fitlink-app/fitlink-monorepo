@@ -5,6 +5,10 @@ import {TouchHandler} from '@components';
 import {useNavigation} from '@react-navigation/core';
 import { BlurView  } from '@react-native-community/blur';
 
+const Wrapper = styled.View({
+  paddingHorizontal: 10
+});
+
 const HeaderContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
@@ -14,20 +18,15 @@ const HeaderContainer = styled.View({
 const Title = styled(Label).attrs(() => ({
   type: 'caption',
 }))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 2,
   textTransform: 'uppercase',
-  color: '#ffffff',
 });
 
 const SeeAllText = styled(Label).attrs(() => ({
   type: 'caption',
 }))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 13,
   lineHeight: 15,
   letterSpacing: 1,
@@ -73,13 +72,10 @@ const DateText = styled(Label).attrs(() => ({
   type: 'caption',
 }))({
   position: 'relative',
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 1,
   textTransform: 'uppercase',
-  color: '#ffffff',
   opacity: 0.6,
 });
 
@@ -109,24 +105,19 @@ const PlaceSection = styled.View({
 const RecordValue = styled(Label).attrs(() => ({
   type: 'caption',
 }))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 1,
-  color: '#ffffff',
   textTransform: 'capitalize',
   width: 194,
 });
 
 const PlaceText = styled(Label).attrs(() => ({
   type: 'caption',
+  appearance: 'accent'
 }))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 18,
   lineHeight: 21,
-  color: '#00E9D7',
 });
 
 const data = [
@@ -148,7 +139,7 @@ export const ActivityHistory = () => {
   const navigation = useNavigation();
 
   return (
-    <>
+    <Wrapper>
       <HeaderContainer>
         <Title>Activity History</Title>
         <TouchHandler
@@ -164,17 +155,17 @@ export const ActivityHistory = () => {
           {data.map(({date, record_today, place, img}) => (
             <CardContainer>
               <CardImage source={img} />
+              <BlurView 
+                style={{
+                  position: "absolute",
+                  width: '100%',
+                  height: 53,
+                  backgroundColor: 'rgba(0,0,0,0.2)'
+                }}
+                blurRadius={1}
+                overlayColor={'transparent'}
+              />
               <CardHeader>
-                <BlurView 
-                  style={{
-                    position: "absolute",
-                    width: 327,
-                    height: 53,
-                    backgroundColor: 'rgba(0,0,0,0.2)'
-                  }}
-                  blurRadius={1}
-                  overlayColor={'transparent'}
-                />
                 <DateText>today at {date}</DateText>
               </CardHeader>
               <Line />
@@ -188,6 +179,6 @@ export const ActivityHistory = () => {
           ))}
         </>
       </SliderContainer>
-    </>
+    </Wrapper>
   );
 };

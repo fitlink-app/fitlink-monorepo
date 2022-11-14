@@ -14,16 +14,19 @@ import {LayoutUtils} from '@utils';
 import {ActivityIndicator} from 'react-native';
 
 const Wrapper = styled(Card)({
+  width: '100%',
+  height: 120,
   padding: 20,
-  paddingLeft: 10,
+  paddingLeft: 20,
 });
 
-const Row = styled.View({flexDirection: 'row'});
-
-const CardLabelRow = styled(Row)({
+const Row = styled.View({
+  flexDirection: 'row',
   justifyContent: 'space-between',
+  alignItems: 'center',
   flexWrap: 'wrap',
-  marginBottom: 10,
+  marginTop: 4,
+  marginBottom: 4,
 });
 
 const ContentContainer = styled.View({
@@ -31,6 +34,30 @@ const ContentContainer = styled.View({
   justifyContent: 'center',
   flex: 1,
 });
+
+const PointsLabel = styled(Label).attrs(() => ({
+  type: 'caption'
+}))({
+  color: '#565656',
+  letterSpacing: 2,
+  fontSize: 13,
+});
+
+const PointsStatusLabel = styled(Label).attrs(() => ({
+  type: 'caption'
+}))({
+  fontSize: 15,
+  letterSpacing: 2,
+});
+
+const Points = styled(Label).attrs(() => ({
+  type: 'title'
+}))({
+  fontSize: 42,
+  lineHeight: 48,
+});
+
+const PointsChart = styled.Image({});
 
 interface RewardTrackerProps extends Omit<TouchHandlerProps, 'disabled'> {
   /** User's points */
@@ -76,48 +103,16 @@ export const _RewardTracker = ({
   return (
     <TouchHandler {...rest} disabled={!rest.onPress}>
       <Wrapper>
-        <Row>
-          <Icon
-            name={'reward'}
-            size={LayoutUtils.getPercentageSize(9)}
-            color={colors.accentSecondary}
-          />
-
-          <ContentContainer>
-            {isLoading ? (
-              <ActivityIndicator
-                color={colors.accent}
-                style={{marginLeft: -LayoutUtils.getPercentageSize(9)}}
-              />
-            ) : (
-              <>
-                <CardLabelRow>
-                  {renderCardLabel()}
-                  {showNextReward ? (
-                    !claimableRewardsCount && (
-                      <Label type={'caption'}>
-                        Next reward at{' '}
-                        <Label type={'caption'} appearance={'accent'}>
-                          {targetPoints}
-                        </Label>{' '}
-                        points
-                      </Label>
-                    )
-                  ) : (
-                    <CardButton text={'View Rewards'} disabled />
-                  )}
-                </CardLabelRow>
-
-                <ProgressBar
-                  {...{progress}}
-                  height={10}
-                  bloomIntensity={0.5}
-                  bloomRadius={8}
-                />
-              </>
-            )}
-          </ContentContainer>
-        </Row>
+        <ContentContainer>
+          <Row>
+            <PointsLabel>TOTAL $BFIT</PointsLabel>
+            <PointsStatusLabel>+23%</PointsStatusLabel>
+          </Row>
+          <Row>
+            <Points>{points}</Points>
+            <PointsChart source={require('../../../../assets/images/total_bfit_chart.png')} />
+          </Row>
+        </ContentContainer>
       </Wrapper>
     </TouchHandler>
   );

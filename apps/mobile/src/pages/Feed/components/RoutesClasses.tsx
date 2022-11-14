@@ -3,6 +3,10 @@ import {Card, Label} from '../../../components/common';
 import styled from 'styled-components/native';
 import { BlurView  } from '@react-native-community/blur';
 
+const Wrapper = styled.View({
+  paddingHorizontal: 10
+});
+
 const HeaderContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
@@ -11,23 +15,16 @@ const HeaderContainer = styled.View({
 
 const Title = styled(Label).attrs(() => ({
   type: 'subheading',
-  bold: true,
 }))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 2,
   textTransform: 'uppercase',
-  color: '#ffffff',
 });
 
 const SeeAllText = styled(Label).attrs(() => ({
   type: 'subheading',
-  bold: true,
 }))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 13,
   lineHeight: 15,
   letterSpacing: 1,
@@ -74,13 +71,10 @@ const DateText = styled(Label).attrs(() => ({
   bold: true,
 }))({
   position: 'relative',
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 1,
   textTransform: 'uppercase',
-  color: '#ffffff',
   opacity: 0.6,
 });
 
@@ -110,12 +104,9 @@ const GoalSection = styled.View({
 const RecordValue = styled(Label).attrs(() => ({
   type: 'subheading',
 }))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 1,
-  color: '#ffffff',
   textTransform: 'capitalize',
   width: 176,
 });
@@ -123,12 +114,10 @@ const RecordValue = styled(Label).attrs(() => ({
 const GoalText = styled(Label).attrs(() => ({
   type: 'subheading',
   bold: true,
+  appearance: 'accent'
 }))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 18,
   lineHeight: 21,
-  color: '#00E9D7',
 });
 
 const data = [
@@ -148,7 +137,7 @@ const data = [
 
 export const RoutesClasses = () => {
   return (
-    <>
+    <Wrapper>
       <HeaderContainer>
         <Title>Routes And Classes</Title>
         <SeeAllText>see all</SeeAllText>
@@ -159,17 +148,17 @@ export const RoutesClasses = () => {
           {data.map(({title, record_today, goal_title, img}) => (
             <CardContainer>
               <CardImage source={img} />
+              <BlurView 
+                style={{
+                  position: "absolute",
+                  width: '100%',
+                  height: 53,
+                  backgroundColor: 'rgba(0,0,0,0.2)'
+                }}
+                blurRadius={1}
+                overlayColor={'transparent'}
+              />
               <CardHeader>
-                <BlurView 
-                  style={{
-                    position: "absolute",
-                    width: 327,
-                    height: 53,
-                    backgroundColor: 'rgba(0,0,0,0.2)'
-                  }}
-                  blurRadius={1}
-                  overlayColor={'transparent'}
-                />
                 <DateText>{title}</DateText>
               </CardHeader>
               <Line />
@@ -183,6 +172,6 @@ export const RoutesClasses = () => {
           ))}
         </>
       </SliderContainer>
-    </>
+    </Wrapper>
   );
 };

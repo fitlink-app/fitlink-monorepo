@@ -5,6 +5,10 @@ import {TouchHandler} from '@components';
 import {useNavigation} from '@react-navigation/core';
 import { BlurView  } from '@react-native-community/blur';
 
+const Wrapper = styled.View({
+  paddingHorizontal: 10
+});
+
 const HeaderContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
@@ -13,23 +17,16 @@ const HeaderContainer = styled.View({
 
 const Title = styled(Label).attrs(() => ({
   type: 'caption',
-  bold: true,
 }))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 2,
   textTransform: 'uppercase',
-  color: '#ffffff',
 });
 
 const SeeAllText = styled(Label).attrs(() => ({
   type: 'caption',
-  bold: true,
 }))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 13,
   lineHeight: 15,
   letterSpacing: 1,
@@ -84,14 +81,11 @@ const MembersText = styled(Label).attrs(() => ({
   type: 'caption',
   bold: true,
 }))({
-  position: 'relative',
-  fontFamily: 'Roboto',
   fontStyle: 'normal',
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 1,
   textTransform: 'uppercase',
-  color: '#ffffff',
 });
 
 const PlaceSection = styled.View({
@@ -103,24 +97,20 @@ const PlaceSection = styled.View({
 const DistanceValue = styled(Label).attrs(() => ({
   type: 'subheading',
   bold: true,
+  appearance: 'accent'
 }))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 18,
   lineHeight: 21,
-  color: '#00E9D7',
 });
 
 const PlaceText = styled(Label).attrs(() => ({
   type: 'caption',
   bold: true,
+  appearance: 'accent'
 }))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 14,
   lineHeight: 16,
   textTransform: 'uppercase',
-  color: '#00E9D7',
   marginTop: 4,
 });
 
@@ -143,7 +133,7 @@ export const CompeteLeagues = () => {
   const navigation = useNavigation();
 
   return (
-    <>
+    <Wrapper>
       <HeaderContainer>
         <Title>Compete to earn leagues</Title>
         <TouchHandler onPress={() => navigation.navigate('Leagues')}>
@@ -157,17 +147,18 @@ export const CompeteLeagues = () => {
             <CardContainer>
               <CardImage source={img} />
               <Line />
+              <BlurView 
+                style={{
+                  position: "absolute",
+                  width: '100%',
+                  height: 89,
+                  marginTop: 160,
+                  backgroundColor: 'rgba(0,0,0,0.2)'
+                }}
+                blurRadius={1}
+                overlayColor={'transparent'}
+              />
               <CardInfo>
-                <BlurView 
-                  style={{
-                    position: "absolute",
-                    width: 327,
-                    height: 89,
-                    backgroundColor: 'rgba(0,0,0,0.2)'
-                  }}
-                  blurRadius={1}
-                  overlayColor={'transparent'}
-                />
                 <MembersText>{members} Members</MembersText>
                 <PlaceSection>
                   <DistanceValue>The Daily {daily_distance}Km</DistanceValue>
@@ -178,6 +169,6 @@ export const CompeteLeagues = () => {
           ))}
         </>
       </SliderContainer>
-    </>
+    </Wrapper>
   );
 };

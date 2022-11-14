@@ -1,8 +1,6 @@
 import {
-  FeedFilter,
   FeedItem,
   GoalTracker,
-  Icon,
   Modal,
   RewardTracker,
 } from '@components';
@@ -14,9 +12,10 @@ import {
   useNextReward,
   useProviders,
   useUpdateIntercomUser,
+  useRewards,
 } from '@hooks';
 import {UserWidget, TouchHandler} from '@components';
-import {Card, CardLabel, Label, ProgressCircle} from '../../components/common';
+import {Card, Label, ProgressCircle} from '../../components/common';
 import React, {useEffect, useRef, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
@@ -41,7 +40,7 @@ import {getErrorMessage} from '@fitlink/api-sdk';
 import {saveCurrentToken} from '@api';
 import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 import {CompeteLeagues} from './components/CompeteLeagues';
-import {UnlockedRewards} from './components/UnlockedRewards';
+import {RewardSlider} from '../Rewards/components';
 import {ActivityHistory} from './components/ActivityHistory';
 import {RoutesClasses} from './components/RoutesClasses';
 
@@ -58,13 +57,15 @@ const TopButtonSpacer = styled.View({width: 10});
 const SettingsButton = styled.Image({});
 
 const HeaderContainer = styled.View({
-  paddingHorizontal: 20,
+  paddingHorizontal: 10,
   marginVertical: 10,
 });
 
 const HeaderWidgetContainer = styled.View({marginTop: 10});
 
-const StatContainer = styled.View({});
+const StatContainer = styled.View({
+  paddingHorizontal: 10
+});
 
 const StatCard = styled(Card)({
   flexDirection: 'row',
@@ -84,7 +85,6 @@ const StatLabel = styled(Label).attrs(() => ({
   type: 'caption',
   bold: true,
 }))({
-  fontFamily: 'Roboto',
   fontSize: 13,
   lineHeight: 15,
   letterSpacing: 2,
@@ -92,20 +92,18 @@ const StatLabel = styled(Label).attrs(() => ({
   textTransform: 'uppercase',
 });
 
-const StatValue = styled.Text(({theme}) => ({
-  fontFamily: 'Roboto',
-  fontWeight: 500,
+const StatValue = styled(Label).attrs(() => ({
+  type: 'title'
+}))({
   fontSize: 42,
   lineHeight: 48,
   marginTop: 9,
-  color: theme.colors.text,
-}));
+});
 
 const PercentageValue = styled(Label).attrs(() => ({
   type: 'subheading',
   bold: true,
 }))({
-  fontFamily: 'Roboto',
   fontSize: 15,
   lineHeight: 18,
   textAlign: 'right',
@@ -199,6 +197,15 @@ export const Feed = () => {
     my_updates: feedPreferences.showUpdates,
   });
 
+  const {
+    data: unlockedRewards,
+    isFetching: isFetchingLockedRewards,
+    isFetchingNextPage: isFetchingUnLockedRewardsNextPage,
+    fetchNextPage: fetchUnLockedRewardsNextPage,
+  } = useRewards({locked: false});
+
+  const unlockedRewardsEntries = getResultsFromPages(unlockedRewards);
+
   const [isPulledDown, setIsPulledDown] = useState(false);
 
   const feedErrorMessage = feedError
@@ -274,62 +281,10 @@ export const Feed = () => {
     </ListFooterContainer>
   ) : null;
 
-  // const ListEmptyComponent = () => {
-  //   if (isFeedLoading || !isFeedFetchedAfterMount) {
-  //     return (
-  //       <View
-  //         style={{
-  //           flex: 1,
-  //           justifyContent: 'center',
-  //           alignItems: 'center',
-  //         }}>
-  //         <ActivityIndicator color={colors.accent} />
-  //       </View>
-  //     );
-  //   }
-
-  //   return (
-  //     <View style={{paddingTop: 10}}>
-  //       {feedErrorMessage ? (
-  //         <>
-  //           <Label
-  //             type="body"
-  //             appearance={'accentSecondary'}
-  //             style={{textAlign: 'center'}}>
-  //             {feedErrorMessage}
-  //           </Label>
-  //         </>
-  //       ) : (
-  //         <>
-  //           <Label
-  //             type="body"
-  //             appearance={'accentSecondary'}
-  //             style={{textAlign: 'center', paddingHorizontal: 20}}>
-  //             Let’s get your feed looking top notch. Start filling it up by
-  //             smashing some goals, following{' '}
-  //             <Label onPress={() => navigation.navigate('Friends')}>
-  //               Friends
-  //             </Label>{' '}
-  //             or participating in{' '}
-  //             <Label onPress={() => navigation.navigate('Leagues')}>
-  //               Leagues
-  //             </Label>
-  //             .
-  //           </Label>
-  //         </>
-  //       )}
-  //     </View>
-  //   );
-  // };
-
   return (
     <Wrapper style={{paddingTop: insets.top}}>
-      <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: 10,
-        }}>
+      <ScrollView>
         <FlatList
-          // {...{renderItem, ListFooterComponent, ListEmptyComponent, keyExtractor}}
           {...{renderItem, ListFooterComponent, keyExtractor}}
           ref={scrollRef}
           data={feedResults}
@@ -473,11 +428,12 @@ export const Feed = () => {
                     ]}
                   />
                 </HeaderWidgetContainer>
+              </HeaderContainer>
 
-                {/* {!!nextReward?.reward && isNextRewardFetched && (
+              <StatContainer>
                 <HeaderWidgetContainer>
                   <RewardTracker
-                    points={user.points_total}
+                    points={user.points_total || 0}
                     targetPoints={nextReward?.reward.points_required || 0}
                     isLoading={!isNextRewardFetched}
                     claimableRewardsCount={
@@ -486,26 +442,6 @@ export const Feed = () => {
                     onPress={() => navigation.navigate('Rewards')}
                   />
                 </HeaderWidgetContainer>
-              )} */}
-              </HeaderContainer>
-
-              <StatContainer>
-                {/* <FeedFilter /> */}
-                <StatCard>
-                  <StatView>
-                    <StatLabel>total $bfit</StatLabel>
-                    <StatNumber value={'00640'} />
-                  </StatView>
-                  <StatView
-                    style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                    <View>
-                      <PercentageValue>+23%</PercentageValue>
-                      <StatChart
-                        source={require('../../../assets/images/total_bfit_chart.png')}
-                      />
-                    </View>
-                  </StatView>
-                </StatCard>
                 <StatCard>
                   <StatView>
                     <StatLabel>total calories</StatLabel>
@@ -545,7 +481,14 @@ export const Feed = () => {
 
               <FeedContainer>
                 <CompeteLeagues />
-                <UnlockedRewards />
+                <RewardSlider
+                  data={unlockedRewardsEntries}
+                  title={'Unlocked Rewards'}
+                  isLoading={isFetchingLockedRewards}
+                  isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
+                  userPoints={user!.points_total}
+                  fetchNextPage={fetchUnLockedRewardsNextPage}
+                />
                 <ActivityHistory />
                 <RoutesClasses />
               </FeedContainer>
