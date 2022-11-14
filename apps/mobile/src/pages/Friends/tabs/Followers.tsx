@@ -10,6 +10,8 @@ import {useScrollToTop} from '@react-navigation/native';
 const Wrapper = styled.View({
   flex: 1,
   justifyContent: 'center',
+  marginTop: 25,
+  paddingTop: 20
 });
 
 const EmptyContainer = styled.View({

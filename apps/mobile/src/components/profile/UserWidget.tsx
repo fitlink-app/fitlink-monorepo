@@ -8,6 +8,7 @@ import {Avatar, Label, ProgressCircle, TouchHandler} from '../common';
 import React from 'react';
 import styled from 'styled-components/native';
 import {NumberFormatterUtils} from '@utils';
+import {useNavigation} from '@react-navigation/core';
 
 interface UserWidgetProps {
   name: string;
@@ -87,14 +88,18 @@ const UserStatWrapper = styled(TouchHandler)({marginRight: 15});
 const UserStat = ({
   value,
   label,
-  onPress,
+  tabNumber,
 }: {
   value: number;
   label: string;
-  onPress?: () => void;
+  tabNumber: number;
 }) => {
+  const navigation = useNavigation();
+
   return (
-    <UserStatWrapper {...onPress}>
+    <UserStatWrapper onPress={() => {
+      navigation.navigate('Friends', {tab: tabNumber})
+    }}>
       <StatValue>
         <StatNumber
           style={{
@@ -169,8 +174,16 @@ export const UserWidget = (props: UserWidgetProps) => {
         </RankContainer>
 
         <StatContainer>
-          <UserStat value={props.friendCount || 0} label={'Following'} />
-          <UserStat value={props.followerCount || 0} label={'Followers'} />
+          <UserStat 
+            value={props.friendCount || 0} 
+            label={'Following'}
+            tabNumber={1}
+          />
+          <UserStat 
+            value={props.followerCount || 0} 
+            label={'Followers'}
+            tabNumber={0}
+          />
         </StatContainer>
       </ContentContainer>
     </Wrapper>

@@ -8,10 +8,10 @@ import {
 import {TabBar} from './TabBar';
 
 interface TabViewProps {
-  routes: Array<Route & {badgeCount?: number}>;
+  routes: Array<Route & {badgeCount?: number, peopleCount?: number}>;
   renderScene: (
     props: SceneRendererProps & {
-      route: Route & {badgeCount?: number};
+      route: Route & {badgeCount?: number, peopleCount?: number};
     },
   ) => React.ReactNode;
 }
