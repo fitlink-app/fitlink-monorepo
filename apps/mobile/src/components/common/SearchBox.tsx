@@ -25,6 +25,7 @@ export const SearchBox = (props: SearchBoxProps) => {
       <InputField
         autoCorrect={false}
         clearButtonEnabled={true}
+        searchButtonEnabled={true}
         onClearPressed={onClearPressed}
         value={query}
         placeholder={placeholder}

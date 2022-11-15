@@ -8,7 +8,6 @@ import {Label} from './Label';
 const Wrapper = styled(FieldWrapper)({width: '100%'});
 
 const FieldContainer = styled.View({
-  borderWidth: 1,
   borderRadius: 6,
   justifyContent: 'space-between',
   flexDirection: 'row',
@@ -47,6 +46,9 @@ export interface InputFieldProps extends TextInputProps {
   /** Enable button to clear field value */
   clearButtonEnabled?: boolean;
 
+  /** Enable button to search */
+  searchButtonEnabled?: boolean;
+
   onClearPressed?: () => void;
 
   label?: string;
@@ -66,6 +68,7 @@ export const InputField = React.forwardRef(
       secureTextEntry,
       multiline,
       clearButtonEnabled,
+      searchButtonEnabled,
       onClearPressed,
       onChangeText,
       label,
@@ -90,6 +93,8 @@ export const InputField = React.forwardRef(
         <FieldContainer
           style={[
             {
+              borderWidth: searchButtonEnabled ? 0 : 1,
+              borderBottomWidth: 1,
               borderColor,
               height: multiline ? 130 : 44,
               alignItems: multiline ? 'flex-start' : undefined,
@@ -106,7 +111,7 @@ export const InputField = React.forwardRef(
             multiline={multiline}
             secureTextEntry={secureTextEntry ? isSecureTextHidden : false}
             autoCapitalize={'none'}
-            placeholderTextColor={colors.secondaryText}
+            placeholderTextColor={colors.text}
             selectionColor={colors.accent}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
@@ -115,7 +120,7 @@ export const InputField = React.forwardRef(
             {...{value}}
           />
 
-          {(clearButtonEnabled || secureTextEntry) && (
+          {(clearButtonEnabled || secureTextEntry || searchButtonEnabled) && (
             <IconButtonContainer>
               {clearButtonEnabled && !!value && value.length !== 0 && (
                 <InputFieldIcon
@@ -134,6 +139,18 @@ export const InputField = React.forwardRef(
                   onPress={() => setIsSecureTextHidden(!isSecureTextHidden)}
                   color={isSecureTextHidden ? colors.accentSecondary : 'white'}
                   name={isSecureTextHidden ? 'eye-slash' : 'eye'}
+                  size={18}
+                />
+              )}
+
+              {searchButtonEnabled && !value && (
+                <InputFieldIcon
+                  onPress={() => {
+                    onClearPressed && onClearPressed();
+                    handleChangeText('');
+                  }}
+                  color={colors.accentSecondary}
+                  name={'search'}
                   size={18}
                 />
               )}
