@@ -7,6 +7,7 @@ import {
   Navbar,
   NAVBAR_HEIGHT,
   TouchHandler,
+  Card,
 } from '@components';
 import {
   ImagePickerDialogResponse,
@@ -70,6 +71,14 @@ const DeleteButtonWrapper = styled.View(() => ({
 const Row = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
+});
+
+const CategoryCard = styled(Card)({
+  borderRadius: 31,
+  paddingHorizontal: 7,
+  paddingTop: 5,
+  paddingBottom: 10,
+  marginTop: 20,
 });
 
 type UserGoalPreferencesString = {
@@ -238,300 +247,329 @@ export const Settings = () => {
             </TouchHandler>
           ) : undefined
         }
-        backButtonIcon={'times'}
-        title="Settings"
+        iconColor={'white'}
+        title="SETTINGS"
+        titleStyle={{fontSize: 15, color: '#00E9D7', letterSpacing: 1}}
         overlay
       />
       <ScrollView
         contentContainerStyle={{
           marginTop: NAVBAR_HEIGHT + insets.top,
           paddingBottom: NAVBAR_HEIGHT + insets.top + insets.bottom + 20,
+          paddingHorizontal: 20,
         }}>
-        {/* Profile Settings */}
-        <CategoryLabel>Profile</CategoryLabel>
-        <SettingsButton
-          preLabelComponent={
-            <Avatar
-              url={settings.tempAvatar?.uri || settings.avatar?.url_512x512}
-              size={44}
-              style={{marginRight: 10}}
-            />
-          }
-          label={'Update image'}
-          onPress={() =>
-            openImagePicker('Select Avatar', response => {
-              handleOnAvatarPicked(response);
-            })
-          }
-        />
-        <SettingsInput
-          label={'Display name'}
-          value={settings.name}
-          onChangeText={text => dispatch(setName(text))}
-          autoCapitalize={'words'}
-          keyboardType={'default'}
-          returnKeyType={'done'}
-        />
-        <SettingsButton
-          label={'E-mail address'}
-          onPress={() => {
-            navigation.navigate('UpdateEmail');
-          }}
-        />
-        <SettingsButton
-          label={'Update password'}
-          onPress={() => navigation.navigate('UpdatePassword')}
-        />
-        <SettingsButton
-          label={'Log out'}
-          icon={'sign-out'}
-          onPress={() => {
-            openModal(id => {
-              return (
-                <Modal
-                  title={'Log out'}
-                  description={'Are you sure you want to log out?'}
-                  buttons={[
-                    {
-                      text: 'Log out',
-                      type: 'danger',
-                      onPress: () => {
-                        closeModal(id, () => {
-                          openModal(confirmationModalId => {
-                            return (
-                              <Modal
-                                title={'Logged Out'}
-                                description={'You have been logged out.'}
-                                buttons={[
-                                  {
-                                    text: 'Ok',
-                                    onPress: () =>
-                                      closeModal(confirmationModalId),
-                                  },
-                                ]}
-                              />
-                            );
-                          });
-                        });
-
-                        dispatch(logout());
-                      },
-                    },
-                    {
-                      text: 'Stay',
-                      textOnly: true,
-                      onPress: () => closeModal(id),
-                    },
-                  ]}
-                />
-              );
-            });
-          }}
-        />
-
-        {/* Linked Trackers */}
-        <CategoryLabel>Trackers</CategoryLabel>
-
-        {Platform.OS === 'android' && (
-          <SettingsHealthActivityButton
-            label={'Google Fit'}
-            onLink={() => {
-              linkGoogleFit(() => {
-                GoogleFitWrapper.disconnect();
-                return GoogleFitWrapper.authenticate();
-              });
-            }}
-            onUnlink={() => {
-              GoogleFitWrapper.disconnect();
-              unlinkGoogleFit();
-            }}
-            isLoading={isGoogleFitLinking || isGoogleFitUnlinking}
-            disabled={isGoogleFitLinking || isGoogleFitUnlinking}
-            isLinked={!!providerList?.includes(ProviderType.GoogleFit)}
-          />
-        )}
-
-        {Platform.OS === 'ios' && (
-          <SettingsHealthActivityButton
-            label={'Apple Health'}
-            onLink={() => {
-              linkAppleHealth(() => AppleHealthKitWrapper.authenticate());
-            }}
-            onUnlink={unlinkAppleHealth}
-            isLoading={isAppleHealthLinking || isAppleHealthUnlinking}
-            disabled={isAppleHealthLinking || isAppleHealthUnlinking}
-            isLinked={!!providerList?.includes(ProviderType.AppleHealthkit)}
-          />
-        )}
-
-        <SettingsHealthActivityButton
-          label={'Strava'}
-          onLink={linkStrava}
-          onUnlink={unlinkStrava}
-          isLoading={isStravaLinking || isStravaUnlinking}
-          disabled={isStravaLinking || isStravaUnlinking}
-          isLinked={!!providerList?.includes(ProviderType.Strava)}
-        />
-
-        <SettingsHealthActivityButton
-          label={'Fitbit'}
-          onLink={linkFitbit}
-          onUnlink={unlinkFitbit}
-          isLoading={isFitbitLinking || isFitbitUnlinking}
-          disabled={isFitbitLinking || isFitbitUnlinking}
-          isLinked={!!providerList?.includes(ProviderType.Fitbit)}
-        />
-
-        {/* Goals */}
-        <CategoryLabel>Goals</CategoryLabel>
-        <SettingsInput
-          label={'Steps'}
-          value={localGoals.goal_steps.toString()}
-          onChangeText={(text: string) =>
-            handleOnGoalChanged(text, 'goal_steps')
-          }
-          onEndEditing={handleOnGoalSubmitted}
-          autoCapitalize={'words'}
-          keyboardType={'numeric'}
-          returnKeyType={'done'}
-        />
-        <SettingsInput
-          label={'Floors'}
-          value={localGoals.goal_floors_climbed.toString()}
-          onChangeText={(text: string) =>
-            handleOnGoalChanged(text, 'goal_floors_climbed')
-          }
-          onEndEditing={handleOnGoalSubmitted}
-          autoCapitalize={'words'}
-          keyboardType={'numeric'}
-          returnKeyType={'done'}
-        />
-        <SettingsInput
-          label={'Water (litres)'}
-          value={localGoals.goal_water_litres.toString()}
-          onChangeText={(text: string) =>
-            handleOnGoalChanged(text, 'goal_water_litres')
-          }
-          onEndEditing={handleOnGoalSubmitted}
-          autoCapitalize={'words'}
-          keyboardType={'numeric'}
-          returnKeyType={'done'}
-        />
-        <SettingsInput
-          label={'Sleep (hours)'}
-          value={localGoals.goal_sleep_hours.toString()}
-          onChangeText={(text: string) =>
-            handleOnGoalChanged(text, 'goal_sleep_hours')
-          }
-          onEndEditing={handleOnGoalSubmitted}
-          autoCapitalize={'words'}
-          keyboardType={'numeric'}
-          returnKeyType={'done'}
-        />
-        <SettingsInput
-          label={'Mindfulness (minutes)'}
-          value={localGoals.goal_mindfulness_minutes.toString()}
-          onChangeText={(text: string) =>
-            handleOnGoalChanged(text, 'goal_mindfulness_minutes')
-          }
-          onEndEditing={handleOnGoalSubmitted}
-          autoCapitalize={'words'}
-          keyboardType={'numeric'}
-          returnKeyType={'done'}
-        />
-        <SettingsInput
-          label={'Active Minutes'}
-          value={localGoals.goal_active_minutes.toString()}
-          onChangeText={(text: string) =>
-            handleOnGoalChanged(text, 'goal_active_minutes')
-          }
-          onEndEditing={handleOnGoalSubmitted}
-          autoCapitalize={'words'}
-          keyboardType={'numeric'}
-          returnKeyType={'done'}
-        />
-
-        {/* Units */}
-        <CategoryLabel>Units</CategoryLabel>
-
-        <SettingsButton
-          label={'Miles'}
-          accent={settings.unitSystem === 'imperial'}
-          icon={settings.unitSystem === 'imperial' ? 'check' : 'none'}
-          onPress={() => dispatch(setUnitSystem(UnitSystem.Imperial))}
-        />
-        <SettingsButton
-          label={'Kilometres'}
-          accent={settings.unitSystem === 'metric'}
-          icon={settings.unitSystem === 'metric' ? 'check' : 'none'}
-          onPress={() => dispatch(setUnitSystem(UnitSystem.Metric))}
-        />
-
-        {/* Privacy */}
-        <CategoryLabel>Privacy</CategoryLabel>
-        <SettingsDropdown
-          label={'Daily Statistics'}
-          items={PRIVACY_ITEMS}
-          value={settings.userSettings?.privacy_daily_statistics}
-          onValueChange={value => dispatch(setDailyStatisticsPrivacy(value))}
-          prompt={'Select daily statistics privacy'}
-        />
-        <SettingsDropdown
-          label={'Activities'}
-          items={PRIVACY_ITEMS}
-          value={settings.userSettings?.privacy_activities}
-          onValueChange={value => dispatch(setActivitiesPrivacy(value))}
-          prompt={'Select activity privacy'}
-        />
-
-        {/* Newsletter */}
-        <CategoryLabel>Newsletter</CategoryLabel>
-        <SettingsItemWrapper>
-          <Row>
-            <SettingsItemLabel children={'Subscribe to newsletter'} />
-            <Checkbox
-              onPress={() =>
-                dispatch(
-                  setNewsletterSubscription(
-                    !settings.userSettings?.newsletter_subscriptions_user,
-                  ),
-                )
-              }
-              checked={!!settings.userSettings?.newsletter_subscriptions_user}
+        {/* Account Settings */}
+        <CategoryCard>
+          <Row style={{alignItems: 'center'}}>
+            <CategoryLabel>Account</CategoryLabel>
+            <Button 
+              text={'Logout'} 
+              containerStyle={{
+                width: 66,
+                height: 26,
+                marginLeft: 100,
+                backgroundColor: '#ACACAC'
+              }}
+              textStyle={{
+                fontSize: 14,
+                color: '#181818'
+              }}
+              onPress={() => {
+                openModal(id => {
+                  return (
+                    <Modal
+                      title={'Log out'}
+                      description={'Are you sure you want to log out?'}
+                      buttons={[
+                        {
+                          text: 'Log out',
+                          type: 'danger',
+                          onPress: () => {
+                            closeModal(id, () => {
+                              openModal(confirmationModalId => {
+                                return (
+                                  <Modal
+                                    title={'Logged Out'}
+                                    description={'You have been logged out.'}
+                                    buttons={[
+                                      {
+                                        text: 'Ok',
+                                        onPress: () =>
+                                          closeModal(confirmationModalId),
+                                      },
+                                    ]}
+                                  />
+                                );
+                              });
+                            });
+  
+                            dispatch(logout());
+                          },
+                        },
+                        {
+                          text: 'Stay',
+                          textOnly: true,
+                          onPress: () => closeModal(id),
+                        },
+                      ]}
+                    />
+                  );
+                });
+              }}
             />
           </Row>
-        </SettingsItemWrapper>
+          <SettingsButton
+            preLabelComponent={
+              <Avatar
+                url={settings.tempAvatar?.uri || settings.avatar?.url_512x512}
+                size={44}
+                style={{marginRight: 10}}
+              />
+            }
+            label={'Update Image'}
+            onPress={() =>
+              openImagePicker('Select Avatar', response => {
+                handleOnAvatarPicked(response);
+              })
+            }
+            profileRow={true}
+          />
+          <SettingsInput
+            label={'Display Name'}
+            value={settings.name}
+            onChangeText={text => dispatch(setName(text))}
+            autoCapitalize={'words'}
+            keyboardType={'default'}
+            returnKeyType={'done'}
+            displayName
+          />
+          <SettingsButton
+            label={'Email Address'}
+            onPress={() => {
+              navigation.navigate('UpdateEmail');
+            }}
+          />
+          <SettingsButton
+            label={'Update Password'}
+            onPress={() => navigation.navigate('UpdatePassword')}
+          />
+        </CategoryCard>
+
+        {/* Linked Trackers */}
+        <CategoryCard>
+          <CategoryLabel>Trackers</CategoryLabel>
+
+          {Platform.OS === 'android' && (
+            <SettingsHealthActivityButton
+              label={'Google Fit'}
+              onLink={() => {
+                linkGoogleFit(() => {
+                  GoogleFitWrapper.disconnect();
+                  return GoogleFitWrapper.authenticate();
+                });
+              }}
+              onUnlink={() => {
+                GoogleFitWrapper.disconnect();
+                unlinkGoogleFit();
+              }}
+              isLoading={isGoogleFitLinking || isGoogleFitUnlinking}
+              disabled={isGoogleFitLinking || isGoogleFitUnlinking}
+              isLinked={!!providerList?.includes(ProviderType.GoogleFit)}
+            />
+          )}
+
+          {Platform.OS === 'ios' && (
+            <SettingsHealthActivityButton
+              label={'Apple Health'}
+              onLink={() => {
+                linkAppleHealth(() => AppleHealthKitWrapper.authenticate());
+              }}
+              onUnlink={unlinkAppleHealth}
+              isLoading={isAppleHealthLinking || isAppleHealthUnlinking}
+              disabled={isAppleHealthLinking || isAppleHealthUnlinking}
+              isLinked={!!providerList?.includes(ProviderType.AppleHealthkit)}
+            />
+          )}
+
+          <SettingsHealthActivityButton
+            label={'Strava'}
+            onLink={linkStrava}
+            onUnlink={unlinkStrava}
+            isLoading={isStravaLinking || isStravaUnlinking}
+            disabled={isStravaLinking || isStravaUnlinking}
+            isLinked={!!providerList?.includes(ProviderType.Strava)}
+          />
+
+          <SettingsHealthActivityButton
+            label={'Fitbit'}
+            onLink={linkFitbit}
+            onUnlink={unlinkFitbit}
+            isLoading={isFitbitLinking || isFitbitUnlinking}
+            disabled={isFitbitLinking || isFitbitUnlinking}
+            isLinked={!!providerList?.includes(ProviderType.Fitbit)}
+          />
+        </CategoryCard>
+
+        {/* Goals */}
+        <CategoryCard>
+          <CategoryLabel>Goals</CategoryLabel>
+          <SettingsInput
+            label={'Steps'}
+            value={localGoals.goal_steps.toString()}
+            onChangeText={(text: string) =>
+              handleOnGoalChanged(text, 'goal_steps')
+            }
+            onEndEditing={handleOnGoalSubmitted}
+            autoCapitalize={'words'}
+            keyboardType={'numeric'}
+            returnKeyType={'done'}
+          />
+          <SettingsInput
+            label={'Floors'}
+            value={localGoals.goal_floors_climbed.toString()}
+            onChangeText={(text: string) =>
+              handleOnGoalChanged(text, 'goal_floors_climbed')
+            }
+            onEndEditing={handleOnGoalSubmitted}
+            autoCapitalize={'words'}
+            keyboardType={'numeric'}
+            returnKeyType={'done'}
+          />
+          <SettingsInput
+            label={'Water (Litres)'}
+            value={localGoals.goal_water_litres.toString()}
+            onChangeText={(text: string) =>
+              handleOnGoalChanged(text, 'goal_water_litres')
+            }
+            onEndEditing={handleOnGoalSubmitted}
+            autoCapitalize={'words'}
+            keyboardType={'numeric'}
+            returnKeyType={'done'}
+          />
+          <SettingsInput
+            label={'Sleep (Hours)'}
+            value={localGoals.goal_sleep_hours.toString()}
+            onChangeText={(text: string) =>
+              handleOnGoalChanged(text, 'goal_sleep_hours')
+            }
+            onEndEditing={handleOnGoalSubmitted}
+            autoCapitalize={'words'}
+            keyboardType={'numeric'}
+            returnKeyType={'done'}
+          />
+          <SettingsInput
+            label={'Mindfulness (Minutes)'}
+            value={localGoals.goal_mindfulness_minutes.toString()}
+            onChangeText={(text: string) =>
+              handleOnGoalChanged(text, 'goal_mindfulness_minutes')
+            }
+            onEndEditing={handleOnGoalSubmitted}
+            autoCapitalize={'words'}
+            keyboardType={'numeric'}
+            returnKeyType={'done'}
+          />
+          <SettingsInput
+            label={'Active Minutes'}
+            value={localGoals.goal_active_minutes.toString()}
+            onChangeText={(text: string) =>
+              handleOnGoalChanged(text, 'goal_active_minutes')
+            }
+            onEndEditing={handleOnGoalSubmitted}
+            autoCapitalize={'words'}
+            keyboardType={'numeric'}
+            returnKeyType={'done'}
+          />
+        </CategoryCard>
+
+        {/* Units */}
+        <CategoryCard>
+          <CategoryLabel>Units</CategoryLabel>
+
+          <SettingsButton
+            label={'Miles'}
+            accent={settings.unitSystem === 'imperial'}
+            icon={settings.unitSystem === 'imperial' ? 'check' : 'none'}
+            onPress={() => dispatch(setUnitSystem(UnitSystem.Imperial))}
+          />
+          <SettingsButton
+            label={'Kilometres'}
+            accent={settings.unitSystem === 'metric'}
+            icon={settings.unitSystem === 'metric' ? 'check' : 'none'}
+            onPress={() => dispatch(setUnitSystem(UnitSystem.Metric))}
+          />
+        </CategoryCard>
+
+        {/* Privacy */}
+        <CategoryCard>
+          <CategoryLabel>Privacy</CategoryLabel>
+          <SettingsDropdown
+            label={'Daily Statistics'}
+            items={PRIVACY_ITEMS}
+            value={settings.userSettings?.privacy_daily_statistics}
+            onValueChange={value => dispatch(setDailyStatisticsPrivacy(value))}
+            prompt={'Select daily statistics privacy'}
+          />
+          <SettingsDropdown
+            label={'Activities'}
+            items={PRIVACY_ITEMS}
+            value={settings.userSettings?.privacy_activities}
+            onValueChange={value => dispatch(setActivitiesPrivacy(value))}
+            prompt={'Select activity privacy'}
+          />
+        </CategoryCard>
+
+        {/* Newsletter */}
+        <CategoryCard>
+          <CategoryLabel>Newsletter</CategoryLabel>
+          <SettingsItemWrapper style={{borderTopWidth: 1, borderColor: '#2e2e2e'}}>
+            <Row>
+              <SettingsItemLabel children={'Subscribe to newsletter'} />
+              <Checkbox
+                onPress={() =>
+                  dispatch(
+                    setNewsletterSubscription(
+                      !settings.userSettings?.newsletter_subscriptions_user,
+                    ),
+                  )
+                }
+                checked={!!settings.userSettings?.newsletter_subscriptions_user}
+              />
+            </Row>
+          </SettingsItemWrapper>
+        </CategoryCard>
 
         {/* Help */}
-        <CategoryLabel>Help</CategoryLabel>
-        <SettingsButton
-          label={'FAQs'}
-          onPress={() => Intercom.displayHelpCenter()}
-        />
-        <SettingsButton
-          label={'E-mail us'}
-          onPress={() => Linking.openURL('mailto:hello@fitlinkapp.com')}
-        />
-        <SettingsButton
-          label={'Chat with us'}
-          onPress={() => Intercom.displayMessenger()}
-        />
-        <SettingsButton
-          label={'About'}
-          onPress={() =>
-            navigation.navigate('Webview', {
-              url: 'https://fitlinkapp.com/about',
-              title: 'About',
-            })
-          }
-        />
+        <CategoryCard>
+          <CategoryLabel>Help</CategoryLabel>
+          <SettingsButton
+            label={'FAQs'}
+            onPress={() => Intercom.displayHelpCenter()}
+          />
+          <SettingsButton
+            label={'E-mail us'}
+            onPress={() => Linking.openURL('mailto:hello@fitlinkapp.com')}
+          />
+          <SettingsButton
+            label={'Chat with us'}
+            onPress={() => Intercom.displayMessenger()}
+          />
+          <SettingsButton
+            label={'About'}
+            onPress={() =>
+              navigation.navigate('Webview', {
+                url: 'https://fitlinkapp.com/about',
+                title: 'About',
+              })
+            }
+          />
 
-        <SettingsButton
-          label={'Report an Issue'}
-          onPress={() => Intercom.displayMessenger()}
-        />
+          <SettingsButton
+            label={'Report an Issue'}
+            onPress={() => Intercom.displayMessenger()}
+          />
 
-        <SettingsButton label={`Version 3.0.1`} disabled={true} />
+          <SettingsButton label={`Version 3.0.1`} disabled={true} />
+        </CategoryCard>
 
         <DeleteButtonWrapper>
           <Button

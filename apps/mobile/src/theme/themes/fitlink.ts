@@ -23,7 +23,7 @@ const colors: ThemeColors = {
   chartUnfilled: '#202020',
   danger: '#D32F2F',
   navbar: '#565656',
-  card: '#161616',
+  card: '#181818',
 };
 
 const typography: ThemeTypography = {

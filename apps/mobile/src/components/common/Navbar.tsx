@@ -73,6 +73,9 @@ interface NavbarProps {
   /** Set navbar title (if centerComponent is provided, title will be overridden) */
   title?: string;
 
+  /** Set Style of Title */
+  titleStyle?: ViewStyle;
+
   /** Set this as an overlay navbar so content can appear below it */
   overlay?: boolean;
 }
@@ -84,6 +87,7 @@ export const Navbar = ({
   backButtonIcon = 'arrow-left',
   backButtonLabel,
   title,
+  titleStyle,
   iconColor,
   overlay,
   titleProps,
@@ -147,6 +151,7 @@ export const Navbar = ({
         bold
         numberOfLines={1}
         style={{
+          ...titleStyle,
           textAlign: 'center',
           opacity: animatedTitleOpacity,
         }}
