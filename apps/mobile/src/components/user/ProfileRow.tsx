@@ -25,13 +25,7 @@ const Row = styled.View({
 
 const ContentRow = styled(Row)({
   flex: 1,
-  alignItems: 'flex-start',
-});
-
-const AvatarImage = styled.Image({
-  width: 57,
-  height: 57,
-  borderRadius: 16,
+  alignItems: 'center',
 });
 
 const UserDetailsContainer = styled(Flex)({
@@ -43,13 +37,17 @@ const UserDetailsContainer = styled(Flex)({
 const Name = styled(Label).attrs(() => ({
   type: 'subheading',
   appearance: 'primary',
-}))({});
+}))({
+  fontSize: 15,
+  lineHeight: 25,
+});
 
 const Team = styled(Label).attrs(() => ({
   type: 'caption',
-  bold: true,
   appearance: 'secondary',
-}))({});
+}))({
+  fontSize: 14,
+});
 
 const League = styled(Label).attrs(() => ({
   type: 'caption',
@@ -126,27 +124,25 @@ const _ProfileRow = (props: ProfileRowProps) => {
       <Wrapper>
         <ContentContainer>
           <ContentRow>
-            <AvatarImage source={require('../../../assets/images/activity_feed/user-1.png')} />
-            <ContentRow>
-              <UserDetailsContainer>
-                <Name>{name}</Name>
+            <Avatar url={avatar} size={57} radius={16} />
+            <UserDetailsContainer>
+              <Name>{name}</Name>
 
-                <Row>
-                  {renderTeam()}
-                  {renderLeagues()}
-                </Row>
-              </UserDetailsContainer>
+              <Row>
+                {renderTeam()}
+                {renderLeagues()}
+              </Row>
+            </UserDetailsContainer>
 
-              <UserImageContainer onPress={handleUserIconPress} >
-                <UserImage 
-                  source={
-                    isFollowed 
-                    ? require('../../../assets/images/icon/users.png') 
-                    : require('../../../assets/images/icon/user.png')
-                  }
-                />
-              </UserImageContainer>
-            </ContentRow>
+            <UserImageContainer onPress={handleUserIconPress} >
+              <UserImage 
+                source={
+                  isFollowed 
+                  ? require('../../../assets/images/icon/users.png') 
+                  : require('../../../assets/images/icon/user.png')
+                }
+              />
+            </UserImageContainer>
           </ContentRow>
         </ContentContainer>
       </Wrapper>

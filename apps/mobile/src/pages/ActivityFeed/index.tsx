@@ -4,7 +4,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {useNavigation} from '@react-navigation/native';
 import {TouchHandler} from '@components';
-import {Card, Label} from '../../components/common';
+import {Card, Label, Avatar} from '../../components/common';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -71,17 +71,6 @@ const FitnessDetails = styled.View({
   width: '43%',
   flexDirection: 'row',
   justifyContent: 'flex-end',
-});
-
-const UserImageCard = styled.View({
-  width: 76,
-  height: 76,
-  borderRadius: 18,
-});
-
-const UserImage = styled.Image({
-  width: '100%',
-  height: '100%',
 });
 
 const UserInfo = styled.View({
@@ -183,7 +172,7 @@ const DetailIcon = styled.Image({
 
 const data = [
   {
-    img: require('../../../assets/images/activity_feed/user-1.png'),
+    img: '../../../assets/images/activity_feed/user-1.png',
     fitness_type: 'Morning Run',
     username: 'Jon Smith',
     date: 'Today at 9:28 AM',
@@ -194,7 +183,7 @@ const data = [
     time: 43,
   },
   {
-    img: require('../../../assets/images/activity_feed/user-2.png'),
+    img: '../../../assets/images/activity_feed/user-2.png',
     fitness_type: 'Morning Yoga Session',
     username: 'Jennifer',
     date: 'Today at 7:30 AM',
@@ -205,7 +194,7 @@ const data = [
     time: 65,
   },
   {
-    img: require('../../../assets/images/activity_feed/user-3.png'),
+    img: '../../../assets/images/activity_feed/user-3.png',
     fitness_type: 'Early Morning Run',
     username: 'Jennifer',
     date: 'Today at 9:28 AM',
@@ -216,7 +205,7 @@ const data = [
     time: 45,
   },
   {
-    img: require('../../../assets/images/activity_feed/user-4.png'),
+    img: '../../../assets/images/activity_feed/user-4.png',
     fitness_type: 'Morning Run',
     username: 'Adam',
     date: 'Today at 5:30 AM',
@@ -266,25 +255,13 @@ export const ActivityFeed = () => {
         </CoverImage>
         <UserList>
           {data.map(
-            ({
-              img,
-              fitness_type,
-              username,
-              date,
-              mark,
-              like,
-              distance,
-              speed,
-              time,
-            }) => (
+            ({img, fitness_type, username, date, mark, like, distance, speed, time}) => (
               <TouchHandler onPress={() => navigation.navigate('ActivityPage')}>
                 <UserCard>
                   <Line />
                   <CardBody>
                     <UserProfile>
-                      <UserImageCard>
-                        <UserImage source={img} />
-                      </UserImageCard>
+                      <Avatar size={76} radius={18} />
                       <UserInfo>
                         <FitnessType>{fitness_type}</FitnessType>
                         <Username>{username}</Username>

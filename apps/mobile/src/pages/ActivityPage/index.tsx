@@ -6,7 +6,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Navbar} from '@components';
 import styled, {useTheme} from 'styled-components/native';
 import LinearGradient from 'react-native-linear-gradient';
-import {Label} from '../../components/common';
+import {Label, Avatar} from '../../components/common';
 
 const CarouselContainer = styled.View({
   flexDirection: 'row',
@@ -101,12 +101,6 @@ const UserProfile = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
-});
-
-const UserPhoto = styled.Image({
-  width: 76,
-  height: 76,
-  borderRadius: 18,
 });
 
 const UserInfo = styled.View({
@@ -270,9 +264,7 @@ export const ActivityPage = () => {
       </View>
       <UserSection>
         <UserProfile>
-          <UserPhoto
-            source={require('../../../assets/images/activity_feed/user-2.png')}
-          />
+          <Avatar size={76} radius={18} />
           <UserInfo>
             <UserName>Jennifer</UserName>
             <UserDate>Tuesday 7:30 AM</UserDate>

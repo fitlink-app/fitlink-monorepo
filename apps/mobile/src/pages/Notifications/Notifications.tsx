@@ -7,6 +7,7 @@ import {
   FlatList,
   Platform,
   RefreshControl,
+  View,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
@@ -31,6 +32,12 @@ const Flex = styled.View({
   alignItems: 'center',
 });
 
+const Row = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center'
+});
+
 export const Notifications = () => {
   const insets = useSafeAreaInsets();
   const {colors} = useTheme();
@@ -49,6 +56,10 @@ export const Notifications = () => {
     setNotificationsSeenQuery: {mutateAsync: setNotificationsSeenById},
     setAllNotificationsSeenQuery: {mutateAsync: setNotificationsSeenAll},
   } = useNotifications();
+
+  const clearNotifications = () => {
+    
+  };
 
   const {data: user, refetch: refetchUser} = useMe({enabled: false});
 
@@ -105,19 +116,36 @@ export const Notifications = () => {
 
   return (
     <Wrapper>
-      <Navbar
-        overlay
-        title={'Notifications'}
-        rightComponent={
-          user?.unread_notifications ? (
-            <TouchHandler onPress={() => setNotificationsSeenAll()}>
-              <Label type={'caption'} bold appearance={'accent'}>
-                Mark all as seen
+      <View 
+        style={{
+          width: '100%',
+          height: 85,
+          backgroundColor: '#181818',
+          borderBottomRightRadius: 31,
+          borderBottomLeftRadius: 31,
+        }}
+      >
+        <Navbar
+          iconColor={'white'}
+          rightComponent={
+            <Row>
+              <Label type={'subheading'} style={{letterSpacing: 1}}>
+                NOTIFICATIONS
               </Label>
-            </TouchHandler>
-          ) : undefined
-        }
-      />
+              <TouchHandler onPress={() => setNotificationsSeenAll()} style={{marginLeft: 50}}>
+                <Label type={'body'} appearance={'secondary'}>
+                  Mark all as seen
+                </Label>
+              </TouchHandler>
+              <TouchHandler onPress={() => clearNotifications()} style={{marginLeft: 20}}>
+                <Label type={'body'} appearance={'secondary'}>
+                  Clean
+                </Label>
+              </TouchHandler>
+            </Row>
+          }
+        />
+      </View>
 
       <FlatList
         {...{renderItem, ListFooterComponent, ListEmptyComponent}}
@@ -125,7 +153,7 @@ export const Notifications = () => {
         contentContainerStyle={{
           minHeight:
             Dimensions.get('window').height - NAVBAR_HEIGHT - insets.top - 20,
-          paddingTop: Platform.OS === 'ios' ? 0 : NAVBAR_HEIGHT + insets.top,
+          paddingTop: 20,
           paddingBottom: insets.bottom + 20,
         }}
         contentInset={{top: NAVBAR_HEIGHT + insets.top}}

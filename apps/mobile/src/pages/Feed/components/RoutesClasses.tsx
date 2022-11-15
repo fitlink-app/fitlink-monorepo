@@ -1,7 +1,8 @@
 import React from 'react';
-import {Card, Label} from '../../../components/common';
+import {Card, Label, TouchHandler} from '../../../components/common';
 import styled from 'styled-components/native';
 import { BlurView  } from '@react-native-community/blur';
+import { useNavigation } from '@react-navigation/core';
 
 const Wrapper = styled.View({
   paddingHorizontal: 10
@@ -136,11 +137,18 @@ const data = [
 ];
 
 export const RoutesClasses = () => {
+  const navigation = useNavigation();
+  
   return (
     <Wrapper>
       <HeaderContainer>
         <Title>Routes And Classes</Title>
-        <SeeAllText>see all</SeeAllText>
+        <TouchHandler
+          onPress={() => {
+            navigation.navigate('Discover');
+          }}>
+          <SeeAllText>see all</SeeAllText>
+        </TouchHandler>
       </HeaderContainer>
 
       <SliderContainer>
