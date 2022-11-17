@@ -84,6 +84,16 @@ const IconWrapper = styled.View(({theme: {colors}}) => ({
   justifyContent: 'center',
 }));
 
+const ContinueButton = styled.View(({theme: {colors}}) => ({
+  backgroundColor: colors.card,
+  borderRadius: 12,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingVertical: 13,
+  paddingHorizontal: 19,
+}));
+
 const ControlPanelIconWrapper = styled.View(({theme: {colors}}) => ({
   backgroundColor: colors.card,
   borderRadius: 999,
@@ -660,14 +670,15 @@ export const Discover = () => {
 
   const renderAddActivityOverlay = () => {
     return (
-      <View style={{position: 'absolute', bottom: 0, right: 0}}>
+      <View style={{position: 'absolute', alignSelf: 'center', bottom: 0}}>
         <TouchHandler
           onPress={() => {
             handleOnAddActivityContinuePress();
           }}>
-          <IconWrapper>
-            <Label appearance={'accent'}>Continue</Label>
-          </IconWrapper>
+          <ContinueButton>
+            <Label appearance={'accent'} style={{marginRight: 5}}>CONTINUE</Label>
+            <Icon name={'arrow-right'} size={16} color={'white'} />
+          </ContinueButton>
         </TouchHandler>
       </View>
     );
