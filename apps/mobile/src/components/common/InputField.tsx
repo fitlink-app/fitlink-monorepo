@@ -8,7 +8,6 @@ import {Label} from './Label';
 const Wrapper = styled(FieldWrapper)({width: '100%'});
 
 const FieldContainer = styled.View({
-  borderRadius: 6,
   justifyContent: 'space-between',
   flexDirection: 'row',
 });
@@ -17,7 +16,8 @@ const StyledTextField = styled.TextInput(({theme}) => ({
   ...theme.typography.textInputValue,
   flex: 1,
   height: '100%',
-  textAlignVertical: 'top',
+  fontFamily: 'Roboto',
+  fontSize: 15,
   flexWrap: 'wrap',
   paddingHorizontal: 14,
 }));
@@ -52,6 +52,8 @@ export interface InputFieldProps extends TextInputProps {
   onClearPressed?: () => void;
 
   label?: string;
+
+  borderNone?: boolean;
 }
 
 export const InputField = React.forwardRef(
@@ -72,6 +74,7 @@ export const InputField = React.forwardRef(
       onClearPressed,
       onChangeText,
       label,
+      borderNone,
       ...rest
     } = props;
 
@@ -93,9 +96,10 @@ export const InputField = React.forwardRef(
         <FieldContainer
           style={[
             {
-              borderWidth: searchButtonEnabled ? 0 : 1,
-              borderBottomWidth: 1,
+              borderWidth: searchButtonEnabled || borderNone ? 0 : 1,
+              borderBottomWidth: borderNone ? 0 : 1,
               borderColor,
+              borderRadius: borderNone ? 10 : 6,
               height: multiline ? 130 : 44,
               alignItems: multiline ? 'flex-start' : undefined,
               paddingVertical: multiline
@@ -106,12 +110,12 @@ export const InputField = React.forwardRef(
             },
           ]}>
           <StyledTextField
-            style={{flex: 1}}
+            style={{textAlignVertical: multiline ? 'top' : 'center'}}
             ref={ref}
             multiline={multiline}
             secureTextEntry={secureTextEntry ? isSecureTextHidden : false}
             autoCapitalize={'none'}
-            placeholderTextColor={colors.text}
+            placeholderTextColor={colors.secondaryText}
             selectionColor={colors.accent}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}

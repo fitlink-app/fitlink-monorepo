@@ -65,9 +65,9 @@ export const Accordion: React.FC<AccordionProps> = ({
           setShown(!isShown);
         }}>
         <Wrapper {...style}>
-          <Label type={'title'}>
+          <Label appearance={'accent'}>
             {title}{' '}
-            <Label type={'subheading'} appearance={'secondary'}>
+            <Label appearance={'secondary'}>
               {subtitle}
             </Label>
           </Label>
@@ -76,7 +76,7 @@ export const Accordion: React.FC<AccordionProps> = ({
               style={{transform: [{rotate: animatedIconRotation}]}}>
               <Icon
                 name={'arrow-right'}
-                color={colors.accentSecondary}
+                color={colors.text}
                 size={18}
               />
             </Animated.View>

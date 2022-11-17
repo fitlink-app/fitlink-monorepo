@@ -38,6 +38,19 @@ const ButtonContainter = styled.View({
   marginBottom: 20,
 });
 
+const InputFieldLabel = styled(Label).attrs(() => ({
+  appearance: 'accent',
+}))({
+  marginBottom: 10,
+});
+
+const CustomInputField = styled(InputField).attrs(() => ({
+  borderNone: true,
+}))({
+  backgroundColor: 'rgba(172, 172, 172, 0.1)',
+  borderRadius: 10,
+});
+
 type ActivityImagesState = {
   image?: Image;
   pickedImage?: ImagePickerDialogResponse;
@@ -225,9 +238,9 @@ export const ActivityForm = (
           }}>
           <View style={{overflow: 'hidden'}}>
             <FieldSpacer>
-              <InputField
+              <InputFieldLabel>Title</InputFieldLabel>
+              <CustomInputField
                 placeholder={'Activity Title'}
-                label={'Title'}
                 value={values.name}
                 onChangeText={handleChange('name')}
                 error={fieldErrors?.name}
@@ -235,9 +248,9 @@ export const ActivityForm = (
             </FieldSpacer>
 
             <FieldSpacer>
-              <InputField
-                placeholder={'e.g.: "Weekly: Sundays at 7AM"'}
-                label={'Date or frequency of activity'}
+              <InputFieldLabel>Date or Frequency of Activity</InputFieldLabel>
+              <CustomInputField
+                placeholder={'E.G : "Weekly Sundays at 7 am"'}
                 value={values.date}
                 onChangeText={handleChange('date')}
                 error={fieldErrors?.date}
@@ -245,9 +258,9 @@ export const ActivityForm = (
             </FieldSpacer>
 
             <FieldSpacer>
-              <InputField
+              <InputFieldLabel>Description</InputFieldLabel>
+              <CustomInputField
                 placeholder={'Describe the activity'}
-                label={'Description'}
                 value={values.description}
                 onChangeText={handleChange('description')}
                 multiline={true}
@@ -257,29 +270,37 @@ export const ActivityForm = (
 
             <FieldSpacer>
               {renderImagePickers()}
+              <InputFieldLabel>Activity Image</InputFieldLabel>
 
-              <ImagePicker
-                style={{marginBottom: 10}}
-                label={'Add a new image for your activity'}
-                onImagePicked={dialogResponse =>
-                  handleOnNewActivityImagePicked({pickedImage: dialogResponse})
-                }
-                error={fieldErrors?.images}
-              />
+              <Row style={{alignItems: 'center'}}>
+                <ImagePicker
+                  style={{width: 60, height: 60, backgroundColor: colors.accent}}
+                  iconSize={25}
+                  iconColor={'#000000'}
+                  borderNone
+                  onImagePicked={dialogResponse =>
+                    handleOnNewActivityImagePicked({pickedImage: dialogResponse})
+                  }
+                  error={fieldErrors?.images}
+                />
+                <Label appearance={'secondary'} style={{marginLeft: 16}}>Add new image for your activity</Label>
+              </Row>
             </FieldSpacer>
 
             <FieldSpacer>
               <Accordion
                 title={'Organiser Details'}
-                subtitle={'(optional)'}
+                subtitle={'(Optional)'}
                 style={{paddingVertical: 5}}>
                 <>
                   <FieldSpacer>
-                    <Row style={{alignItems: 'flex-start'}}>
+                    <Row style={{alignItems: 'flex-end'}}>
                       <ImagePicker
                         deleteButtonContainerStyle={{top: 2, right: 2}}
-                        iconSize={35}
-                        style={{width: 70, height: 70}}
+                        style={{width: 60, height: 60, backgroundColor: colors.accent}}
+                        iconSize={25}
+                        iconColor={'#000000'}
+                        borderNone
                         imageSrc={
                           organizerImage
                             ? organizerImage.uri
@@ -294,9 +315,9 @@ export const ActivityForm = (
                       />
 
                       <View style={{paddingLeft: 15, flex: 1}}>
-                        <InputField
+                        <Label style={{marginBottom: 10}}>Organiser Name</Label>
+                        <CustomInputField
                           placeholder={'Company, group or individual'}
-                          label={'Organiser Name'}
                           value={values.organizer_name}
                           onChangeText={handleChange('organizer_name')}
                           error={fieldErrors?.organizer_name}
@@ -306,9 +327,9 @@ export const ActivityForm = (
                   </FieldSpacer>
 
                   <FieldSpacer>
-                    <InputField
-                      placeholder={"Organiser's e-mail address"}
-                      label={'Organiser E-mail'}
+                    <InputFieldLabel>Organiser's E-mail</InputFieldLabel>
+                    <CustomInputField
+                      placeholder={"Organiser's E-mail"}
                       value={values.organizer_email}
                       onChangeText={handleChange('organizer_email')}
                       error={fieldErrors?.organizer_email}
@@ -317,9 +338,9 @@ export const ActivityForm = (
                   </FieldSpacer>
 
                   <FieldSpacer>
-                    <InputField
-                      placeholder={"Organiser's website"}
-                      label={'Organiser Website'}
+                    <InputFieldLabel>Organiser's Website</InputFieldLabel>
+                    <CustomInputField
+                      placeholder={"Organiser's Website"}
                       value={values.organizer_url}
                       onChangeText={handleChange('organizer_url')}
                       error={fieldErrors?.organizer_url}
@@ -328,9 +349,9 @@ export const ActivityForm = (
                   </FieldSpacer>
 
                   <FieldSpacer>
-                    <InputField
+                    <InputFieldLabel>Organiser's Phone Number</InputFieldLabel>
+                    <CustomInputField
                       placeholder={"Organiser's Phone Number"}
-                      label={'Organiser Phone Number'}
                       value={values.organizer_telephone}
                       onChangeText={handleChange('organizer_telephone')}
                       error={fieldErrors?.organizer_telephone}
@@ -347,9 +368,16 @@ export const ActivityForm = (
                   isSubmitting
                     ? undefined
                     : action === 'create'
-                    ? 'Create Activity'
-                    : 'Save Activity'
+                    ? 'CREATE ACTIVITY'
+                    : 'SAVE ACTIVITY'
                 }
+                textStyle={{
+                  fontFamily: 'Roboto',
+                  fontSize: 14,
+                }}
+                containerStyle={{
+                  width: 160
+                }}
                 onPress={handleOnSubmitPressed}
                 disabled={isDeleting || isSubmitting || isImageUploading}
                 loading={isSubmitting || isImageUploading}
@@ -359,7 +387,11 @@ export const ActivityForm = (
                   outline
                   style={{marginTop: 10}}
                   type={'danger'}
-                  text={isDeleting ? undefined : 'Delete Activity'}
+                  textStyle={{
+                    fontFamily: 'Roboto',
+                    fontSize: 14,
+                  }}
+                  text={isDeleting ? undefined : 'DELETE ACTIVITY'}
                   onPress={handleDelete}
                   disabled={isDeleting || isSubmitting || isImageUploading}
                   loading={isDeleting}
@@ -382,7 +414,13 @@ export const ActivityForm = (
 
       <Navbar
         overlay
-        title={action === 'edit' ? 'Edit Activity' : 'Create Activity'}
+        title={action === 'edit' ? 'EDIT ACTIVITY' : 'CREATE ACTIVITY'}
+        titleStyle={{
+          fontSize: 15,
+          letterSpacing: 1,
+          color: colors.accent
+        }}
+        iconColor={colors.text}
       />
     </>
   );
