@@ -18,18 +18,18 @@ export const Filters = ({types, onTypePressed}: FiltersProps) => {
     <Container>
       <FilterButton
         text={'Classes'}
-        selected={types.includes(ActivityType.Class)}
+        selected={!types.includes(ActivityType.Class)}
         onPress={() => onTypePressed(ActivityType.Class)}
       />
 
       <FilterButton
         text={'Group Activities'}
-        selected={types.includes(ActivityType.Group)}
+        selected={!types.includes(ActivityType.Group)}
         onPress={() => onTypePressed(ActivityType.Group)}
       />
       <FilterButton
         text={'Routes'}
-        selected={types.includes(ActivityType.Route)}
+        selected={!types.includes(ActivityType.Route)}
         onPress={() => onTypePressed(ActivityType.Route)}
       />
     </Container>

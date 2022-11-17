@@ -9,7 +9,8 @@ type LabelAppearance =
   | 'secondary'
   | 'accent'
   | 'accentSecondary'
-  | 'error';
+  | 'error'
+  | 'black';
 
 export interface LabelProps extends TextProps {
   type?: LabelType;
@@ -54,6 +55,10 @@ export const Label: React.FC<LabelProps> = React.forwardRef(
 
         case 'error': {
           return colors.danger;
+        }
+
+        case 'black': {
+          return colors.background;
         }
 
         default:

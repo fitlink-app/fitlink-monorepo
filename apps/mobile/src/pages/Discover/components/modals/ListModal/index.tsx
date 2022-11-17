@@ -137,13 +137,13 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
             <ResultsLabel
               text={
                 isFetching
-                  ? `Searching for nearby activities...`
+                  ? `Searching For Nearby Activities...`
                   : !!activities.length
-                  ? `${data?.pages[0]?.total} activities found nearby ${
+                  ? `${data?.pages[0]?.total} Activities Found Nearby ${
                       lastSearchQuery ? `for "${lastSearchQuery}"` : ''
                     }`
-                  : `No nearby activities found ${
-                      lastSearchQuery ? `for "${lastSearchQuery}"` : ''
+                  : `No Nearby Activities Found ${
+                      lastSearchQuery ? `For "${lastSearchQuery}"` : ''
                     }`
               }
             />
@@ -194,6 +194,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
       return (
         <ActivityItem
           key={item.name + index}
+          number={index+1}
           onPress={() => onActivityPressed(item.id)}
           name={item.name}
           activityType={item.activity}
