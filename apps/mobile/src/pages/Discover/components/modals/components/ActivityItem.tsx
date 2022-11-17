@@ -42,7 +42,7 @@ interface ActivityItemProps {
   date?: string;
   cost?: string;
   number?: number;
-  onPress: () => void;
+  onPress?: () => void;
 }
 
 export const ActivityItem = ({
@@ -59,10 +59,14 @@ export const ActivityItem = ({
       <Container>
         <SpacedRow>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <NumberContainer>
-              <Label appearance={'black'}>{number}</Label>
-            </NumberContainer>
-            <Label style={{flexShrink: 1}}>
+            {
+              number ? (
+                <NumberContainer>
+                  <Label appearance={'black'}>{number}</Label>
+                </NumberContainer>
+              ) : null
+            }
+            <Label type={number ? 'body' : 'subheading'} bold={number ? false : true} style={{flexShrink: 1}}>
               {name}
             </Label>
           </View>
@@ -73,7 +77,7 @@ export const ActivityItem = ({
         <VerticalSpace />
 
         <SpacedRow>
-          <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 36}}>
+          <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: number ? 36 : 0}}>
             <MapMakerIcon source={require('../../../../../../assets/images/icon/map-marker.png')} />
             <Label>{distance}</Label>
           </View>
