@@ -44,7 +44,11 @@ import {RewardSlider} from '../Rewards/components';
 import {ActivityHistory} from './components/ActivityHistory';
 import {RoutesClasses} from './components/RoutesClasses';
 
-const Wrapper = styled.View({flex: 1});
+const Wrapper = styled.View({
+  flex: 1,
+  // border: 1,
+  // borderColor: '#FFFFFF'
+});
 
 const TopButtonRow = styled.View({
   position: 'absolute',
@@ -439,7 +443,7 @@ export const Feed = () => {
                     claimableRewardsCount={
                       nextReward?.unclaimed_rewards_total || 0
                     }
-                    onPress={() => navigation.navigate('Rewards')}
+                    onPress={() => navigation.navigate('Wallet')}
                   />
                 </HeaderWidgetContainer>
                 <StatCard>

@@ -25,9 +25,14 @@ import {
 import {AppDispatch} from 'redux/store';
 import {useEffect} from 'react';
 
-const HANDLE_HEIGHT = 80;
+const HANDLE_HEIGHT = 100;
 
-const AboveContentContainer = styled.View({paddingHorizontal: 16});
+const AboveContentContainer = styled.View({
+  paddingHorizontal: 20, 
+  backgroundColor: '#181818',
+  borderTopLeftRadius: 32,
+  borderTopRightRadius: 32,
+});
 
 interface ListModalProps
   extends Omit<
@@ -83,7 +88,8 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
     const animatedIndex = useSharedValue<number>(0);
 
     const scrollViewAnimatedStyle = useAnimatedStyle(() => ({
-      opacity: animatedIndex.value,
+      // opacity: animatedIndex.value,
+      backgroundColor: '#181818'
     }));
 
     const scrollViewStyle = useMemo(

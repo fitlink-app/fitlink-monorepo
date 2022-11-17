@@ -5,7 +5,7 @@ import {FilterButton} from './components/FilterButton';
 
 const Container = styled.View({
   flexDirection: 'row',
-  paddingTop: 5,
+  paddingTop: 15,
 });
 
 interface FiltersProps {

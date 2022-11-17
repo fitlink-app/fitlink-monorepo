@@ -46,4 +46,5 @@ export type RootStackParamList = {
   };
   Notifications: undefined;
   ActivityPage: undefined;
+  Wallet: undefined;
 };
