@@ -158,11 +158,10 @@ export const RewardCard = (props: RewardCardProps) => {
           />
           <Row
             style={{
-              alignItems: 'flex-start',
+              alignItems: 'center',
               justifyContent: 'space-between',
               height: 64,
               paddingHorizontal: 24,
-              alignItems: 'center'
             }}>
             <Points>{requiredPoints} <Label>$BFIT</Label></Points>
             <HeaderLine />

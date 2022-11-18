@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text } from 'react-native';
 import {Card, Label} from '../../../components/common';
 import styled from 'styled-components/native';
 import {TouchHandler} from '@components';
@@ -53,6 +54,10 @@ const CardContainer = styled(Card)({
 
 const CardImage = styled.Image({
   position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
   width: '100%',
   height: '100%',
 });
@@ -68,13 +73,14 @@ const Line = styled.View({
 });
 
 const CardInfo = styled.View({
-  position: 'relative',
+  // position: 'relative',
   width: '100%',
   height: 89,
   paddingTop: 20,
   paddingLeft: 24,
   paddingBottom: 22,
   paddingRight: 24,
+  zIndex: 999,
 });
 
 const MembersText = styled(Label).attrs(() => ({
@@ -150,6 +156,10 @@ export const CompeteLeagues = () => {
               <BlurView 
                 style={{
                   position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
                   width: '100%',
                   height: 89,
                   marginTop: 160,
