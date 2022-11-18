@@ -13,7 +13,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {StackScreenProps} from '@react-navigation/stack';
 import {
-  Icon,
+  Button,
   Label,
   Modal,
   Navbar,
@@ -23,9 +23,16 @@ import {
 } from '@components';
 import {Activity} from '@fitlink/api/src/modules/activities/entities/activity.entity';
 import {RootStackParamList} from 'routes/types';
-import {useDeleteActivity, useModal, useMyActivities} from '@hooks';
+import {useDeleteActivity, useModal, useMyActivities, useFindActivities} from '@hooks';
 import {getResultsFromPages} from 'utils/api';
 import {ActivityItem} from './components';
+import {
+  selectQuery,
+  selectSearchLocation,
+  selectTypes,
+  toggleType,
+} from 'redux/discover/discoverSlice';
+import {useDispatch, useSelector} from 'react-redux';
 
 const LOADING_NEXT_PAGE_BOTTOM_INDICATOR_HEIGHT = 60;
 
@@ -40,7 +47,7 @@ const EmptyContainer = styled.View({
 const BottomSeparator = styled.View({
   height: 1,
   marginHorizontal: 20,
-  backgroundColor: '#2e2e2e',
+  backgroundColor: 'rgba(86, 86, 86, 1)',
 });
 
 export const MyActivities = (
@@ -56,6 +63,20 @@ export const MyActivities = (
 
   const scrollViewPaddingTop = NAVBAR_HEIGHT + insets.top;
 
+  const searchQuery = useSelector(selectQuery);
+  const searchTypes = useSelector(selectTypes);
+  const searchLocation = useSelector(selectSearchLocation);
+  const types = useSelector(selectTypes);
+
+  // const {
+  //   data,
+  //   isFetching,
+  //   isFetchedAfterMount,
+  //   isFetchingNextPage,
+  //   refetch,
+  //   fetchNextPage,
+  // } = useMyActivities();
+
   const {
     data,
     isFetching,
@@ -63,7 +84,11 @@ export const MyActivities = (
     isFetchingNextPage,
     refetch,
     fetchNextPage,
-  } = useMyActivities();
+  } = useFindActivities({
+    type: searchTypes.join(),
+    keyword: searchQuery,
+    geo_radial: `${searchLocation?.lat},${searchLocation?.lng},15`,
+  });
 
   const {mutateAsync: deleteActivity, isLoading: isDeleting} =
     useDeleteActivity();
@@ -132,7 +157,7 @@ export const MyActivities = (
     return (
       <Swipeable
         buttonWrapperColor={'white'}
-        contentBackgroundColor={'#232323'}
+        contentBackgroundColor={colors.card}
         bottomSeparator={<BottomSeparator />}
         rightComponent={closeSwipeable => {
           return (
@@ -228,18 +253,21 @@ export const MyActivities = (
           ListFooterComponent={renderListFooter}
           style={{
             marginTop: Platform.select({
-              android: 0,
+              android: 90,
               ios: scrollViewPaddingTop,
             }),
             overflow: 'visible',
           }}
           contentContainerStyle={{
             paddingTop: Platform.select({
-              android: scrollViewPaddingTop,
+              android: 20,
               ios: 0,
             }) as number,
-            paddingBottom:
-              insets.bottom + LOADING_NEXT_PAGE_BOTTOM_INDICATOR_HEIGHT,
+            paddingBottom: insets.bottom + LOADING_NEXT_PAGE_BOTTOM_INDICATOR_HEIGHT,
+            marginHorizontal: 20,
+            backgroundColor: colors.card,
+            borderRadius: 31,
+            overflow: 'hidden'
           }}
           data={activities}
           renderItem={renderItem}
@@ -247,19 +275,35 @@ export const MyActivities = (
       )}
 
       <Navbar
-        title={'My Activities'}
+        title={'MY ACTIVITIES'}
         overlay
         rightComponent={
-          <Icon
-            name={'plus'}
-            size={24}
-            color={colors.accent}
-            onPress={() => {
-              onAddNewActivityPressed();
-              navigation.goBack();
-            }}
-          />
+          <View style={{alignItems: 'flex-end'}}>
+            <Button
+              text='Add'
+              textStyle={{
+                fontFamily: 'Roboto',
+                fontSize: 14,
+                fontWeight: '700'
+              }}
+              containerStyle={{
+                width: 66,
+                height: 26,
+                backgroundColor: '#ACACAC',
+              }}
+              onPress={() => {
+                onAddNewActivityPressed();
+                navigation.goBack();
+              }}
+            />
+          </View>
         }
+        titleStyle={{
+          fontSize: 15,
+          letterSpacing: 1,
+          color: colors.accent
+        }}
+        iconColor={colors.text}
       />
     </Wrapper>
   );
