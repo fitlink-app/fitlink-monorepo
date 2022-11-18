@@ -25,7 +25,7 @@ import {
 import {AppDispatch} from 'redux/store';
 import {useEffect} from 'react';
 
-const HANDLE_HEIGHT = 100;
+const HANDLE_HEIGHT = 90;
 
 const AboveContentContainer = styled.View({
   paddingHorizontal: 20, 

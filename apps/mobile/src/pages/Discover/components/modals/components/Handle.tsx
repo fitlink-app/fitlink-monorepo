@@ -7,7 +7,6 @@ const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 const Wrapper = styled.View({
   width: '100%',
   height: 12,
-  backgroundColor: 'transparent',
   flexDirection: 'row',
   justifyContent: 'center',
 });

@@ -110,7 +110,7 @@ export const _RewardTracker = ({
           </Row>
           <Row>
             <Points>{points}</Points>
-            <PointsChart source={require('../../../../assets/images/total_bfit_chart.png')} />
+            <PointsChart source={require('../../../../assets/images/wallet_chart.png')} />
           </Row>
         </ContentContainer>
       </Wrapper>

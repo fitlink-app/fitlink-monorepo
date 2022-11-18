@@ -46,8 +46,6 @@ import {RoutesClasses} from './components/RoutesClasses';
 
 const Wrapper = styled.View({
   flex: 1,
-  // border: 1,
-  // borderColor: '#FFFFFF'
 });
 
 const TopButtonRow = styled.View({

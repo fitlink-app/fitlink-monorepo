@@ -3,7 +3,6 @@ import {StyleSheet} from 'react-native';
 
 export const ModalBackground = styled.View({
   ...StyleSheet.absoluteFillObject,
-  // backgroundColor: 'transparent',
   backgroundColor: '#181818',
   borderTopLeftRadius: 32,
   borderTopRightRadius: 32,

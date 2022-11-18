@@ -10,7 +10,7 @@ import {Icon} from '@components';
 export const SEARCH_HANDLE_HEIGHT = 68;
 
 const Container = styled.View({
-  paddingTop: 20,
+  paddingTop: 10,
   paddingBottom: 5,
   backgroundColor: 'transparent'
 });
@@ -27,7 +27,7 @@ const CustomTextInput = styled(BottomSheetTextInput)(({theme}) => ({
 
 const SearchIcon = styled(Icon)({
   position: 'absolute',
-  marginTop: 35,
+  marginTop: 25,
   marginLeft: 29,
 });
 
