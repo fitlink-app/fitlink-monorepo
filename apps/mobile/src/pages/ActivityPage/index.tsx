@@ -50,8 +50,6 @@ const DetailName = styled(Label).attrs(() => ({
   bold: true,
 }))({
   textAlign: 'right',
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 14,
   opacity: 0.8,
 });
@@ -62,8 +60,6 @@ const DetailValue = styled(Label).attrs(() => ({
   appearance: 'accent',
 }))({
   textAlign: 'right',
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
   fontSize: 16,
   marginBottom: 4,
 });
@@ -71,11 +67,9 @@ const DetailValue = styled(Label).attrs(() => ({
 const FitnessName = styled(Label).attrs(() => ({
   type: 'title',
   bold: true,
-  numberOfLines: 1
+  numberOfLines: 2
 }))({
-  overflow: 'hidden',
   textAlign: 'right',
-  fontFamily: 'Roboto',
   fontSize: 40,
   marginTop: 21,
   marginLeft: 10
@@ -110,7 +104,6 @@ const UserInfo = styled.View({
 const UserName = styled(Label).attrs(() => ({
   type: 'subheading',
 }))({
-  fontFamily: 'Roboto',
   fontSize: 20,
   lineHeight: 27,
 });
@@ -118,7 +111,6 @@ const UserName = styled(Label).attrs(() => ({
 const UserDate = styled(Label).attrs(() => ({
   type: 'subheading',
 }))({
-  fontFamily: 'Roboto',
   fontSize: 17,
   lineHeight: 27,
   opacity: 0.7,
@@ -139,7 +131,6 @@ const data = [
     title: 'Morning Run',
     distance: 4.97,
     speed: '8:22/mile',
-    bfit: 52,
     calories: 735,
     time: 43,
     elevation_gain: 235,
@@ -150,7 +141,6 @@ const data = [
     title: 'Early Morning Run',
     distance: 4.97,
     speed: '8:22/mile',
-    bfit: 52,
     calories: 735,
     time: 43,
     elevation_gain: 235,
@@ -161,7 +151,6 @@ const data = [
     title: 'Morning Yoga',
     distance: 4.97,
     speed: '8:22/mile',
-    bfit: 52,
     calories: 735,
     time: 43,
     elevation_gain: 235,
@@ -231,8 +220,6 @@ export const ActivityPage = () => {
                   <DetailValue>{item.distance} mi</DetailValue>
                   <DetailName>Speed</DetailName>
                   <DetailValue>{item.speed}</DetailValue>
-                  <DetailName>$BFIT</DetailName>
-                  <DetailValue>{item.bfit}</DetailValue>
                   <DetailName>Calories</DetailName>
                   <DetailValue>{item.calories}</DetailValue>
                   <DetailName>Time</DetailName>

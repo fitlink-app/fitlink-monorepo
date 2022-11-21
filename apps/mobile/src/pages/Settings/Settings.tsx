@@ -40,6 +40,7 @@ import {logout} from 'redux/auth/authSlice';
 import {
   clearChanges,
   PRIVACY_ITEMS,
+  CURRENCY_ITEMS,
   selectDidSettingsChange,
   selectSettings,
   setActivitiesPrivacy,
@@ -343,6 +344,13 @@ export const Settings = () => {
             returnKeyType={'done'}
             displayName
           />
+          <SettingsDropdown
+            label={'Display Currency'}
+            items={CURRENCY_ITEMS}
+            value={settings.userSettings?.privacy_daily_statistics}
+            prompt={'Select your currency'}
+            valueTextWidth={50}
+          />
           <SettingsButton
             label={'Email Address'}
             onPress={() => {
@@ -352,6 +360,16 @@ export const Settings = () => {
           <SettingsButton
             label={'Update Password'}
             onPress={() => navigation.navigate('UpdatePassword')}
+          />
+        </CategoryCard>
+
+        <CategoryCard>
+          <CategoryLabel>Wallet</CategoryLabel>
+          <SettingsButton
+            label={'Keplr'}
+          />
+          <SettingsButton
+            label={'Metamask'}
           />
         </CategoryCard>
 

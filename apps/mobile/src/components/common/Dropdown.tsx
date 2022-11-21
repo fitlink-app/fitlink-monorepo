@@ -88,7 +88,7 @@ export const Dropdown = (props: DropdownProps) => {
         selectedValue={value}
         style={{color: 'white'}}
         itemStyle={{color: 'white'}}
-        dropdownIconColor={colors.accentSecondary}>
+        dropdownIconColor={'transparent'}>
         {items.map(({label, value}) => (
           <Picker.Item key={label} {...{label, value}} />
         ))}
@@ -111,7 +111,7 @@ export const Dropdown = (props: DropdownProps) => {
         <Icon
           style={{transform: [{rotateZ: '-90deg'}]}}
           size={14}
-          color={colors.accentSecondary}
+          color={'transparent'}
           name={'arrow-left'}
         />
       </PickerWrapperIOS>

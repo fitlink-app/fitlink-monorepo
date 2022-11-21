@@ -29,6 +29,17 @@ export const PRIVACY_ITEMS = [
   },
 ];
 
+export const CURRENCY_ITEMS = [
+  {
+    label: 'GBP',
+    value: 'gbp'
+  },
+  {
+    label: 'USD',
+    value: 'usd'
+  },
+]
+
 export type UserGoalPreferences = {
   goal_mindfulness_minutes: number;
   goal_steps: number;
