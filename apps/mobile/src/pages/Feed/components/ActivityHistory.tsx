@@ -1,7 +1,6 @@
 import React from 'react';
-import {Card, Label} from '../../../components/common';
 import styled from 'styled-components/native';
-import {TouchHandler} from '@components';
+import {TouchHandler, Card, Label} from '@components';
 import {useNavigation} from '@react-navigation/core';
 import { BlurView  } from '@react-native-community/blur';
 
