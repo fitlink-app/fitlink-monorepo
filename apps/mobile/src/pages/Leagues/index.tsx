@@ -14,6 +14,7 @@ import {ExploreLeagues, Invitations, MyLeagues} from './tabs';
 import {TabView, Label, Card, TouchHandler} from '@components';
 import {useMe} from '@hooks';
 import { BlurView  } from '@react-native-community/blur';
+import { RankCard } from './components/RankCard';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -30,50 +31,6 @@ const PageTitle = styled(Label).attrs(() => ({
   textTransform: 'uppercase',
   textAlign: 'center',
   marginTop: 12,
-});
-
-const RankCard = styled(Card)({
-  width: '100%',
-  marginTop: 20,
-  height: 120,
-  paddingTop: 24,
-  paddingLeft: 33,
-  paddingRight: 33,
-});
-
-const CardRow = styled.View({
-  width: '100%',
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-});
-
-const Rank = styled(Label).attrs(() => ({
-  type: 'caption',
-}))({
-  fontFamily: 'Roboto',
-  fontSize: 13,
-  lineHeight: 15,
-  letterSpacing: 2,
-  textTransform: 'uppercase',
-  color: '#565656',
-});
-
-const Percentage = styled(Label).attrs(() => ({
-  type: 'caption',
-}))({
-  fontFamily: 'Roboto',
-  fontSize: 15,
-  lineHeight: 18,
-  letterSpacing: 2,
-});
-
-const RankNumber = styled(Label).attrs(() => ({
-  type: 'title',
-}))({
-  fontFamily: 'Roboto',
-  fontSize: 42,
-  lineHeight: 48,
 });
 
 const LeaguesTitleContainer = styled.View({
@@ -276,22 +233,11 @@ export const Leagues = (
     <Wrapper style={{marginTop: insets.top}}>
       <ScrollView
         contentContainerStyle={{
-          paddingHorizontal: 10,
+          paddingHorizontal: 15,
           paddingBottom: 20,
         }}>
         <PageTitle>Gold Leagues</PageTitle>
-        <RankCard>
-          <CardRow>
-            <Rank>Total Rank</Rank>
-            <Percentage>+10P</Percentage>
-          </CardRow>
-          <CardRow>
-            <RankNumber>37640</RankNumber>
-            <Image
-              source={require('../../../assets/images/total_rank_chart.png')}
-            />
-          </CardRow>
-        </RankCard>
+        <RankCard />
         <LeaguesTitleContainer>
           <Title>Compete to earn leagues</Title>
           <TouchHandler>

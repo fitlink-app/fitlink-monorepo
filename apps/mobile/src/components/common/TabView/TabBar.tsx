@@ -49,8 +49,9 @@ const TabButton = ({
       <LabelRow>
         <Label
           type={'subheading'}
-          appearance={(peopleCount || title==='SEARCH') ? (focused ? 'accent' : 'secondary') : 'primary'}
-          style={{fontSize: 16}}>
+          appearance={(peopleCount || title==='SEARCH') ? (focused ? 'accent' : 'secondary') : (focused ? 'primary' : 'secondary')}
+          style={{fontSize: 17}}
+        >
           {title}
         </Label>
         {badgeCount ? (

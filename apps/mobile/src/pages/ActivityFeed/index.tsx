@@ -59,6 +59,7 @@ const ListFooterContainer = styled.View({
 export const ActivityFeed = () => {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
+  const navigation = useNavigation();
 
   // Refs
   const scrollRef = useRef(null);
@@ -87,6 +88,19 @@ export const ActivityFeed = () => {
   const [isPulledDown, setIsPulledDown] = useState(false);
 
   const feedResults = getResultsFromPages<FeedItemType>(feed);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      refetchFeed();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    queryClient.removeQueries(QueryKeys.Feed);
+    refetchFeed();
+  }, [feedPreferences]);
 
   const keyExtractor = (item: FeedItemType) => item.id as string;
 

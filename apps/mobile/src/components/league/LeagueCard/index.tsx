@@ -10,12 +10,12 @@ import { BlurView  } from '@react-native-community/blur';
 const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
 const TouchWrapper = styled(TouchHandler)({
-  marginBottom: 10,
+  marginBottom: 30,
 });
 
 const Wrapper = styled.View({
   height: 295,
-  borderRadius: 15,
+  borderRadius: 20,
   overflow: 'hidden',
 });
 
@@ -145,7 +145,8 @@ export const LeagueCard = (props: LeagueCardInterface) => {
             style={{
               position: "absolute",
               width: SCREEN_WIDTH,
-              height: 99,
+              height: 100,
+              borderRadius: 20,
               backgroundColor: 'rgba(0,0,0,0.2)'
             }}
             blurRadius={1}

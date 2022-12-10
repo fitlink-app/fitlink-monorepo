@@ -1,11 +1,10 @@
+import React, {useEffect, useRef} from 'react';
 import {
-  FeedItem,
   GoalTracker,
   Modal,
   RewardTracker,
 } from '@components';
 import {
-  useFeed,
   useGoals,
   useMe,
   useModal,
@@ -15,33 +14,21 @@ import {
   useRewards,
 } from '@hooks';
 import {UserWidget, TouchHandler} from '@components';
-import {Card, Label, ProgressCircle} from '../../components/common';
-import React, {useEffect, useRef, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import styled, {useTheme} from 'styled-components/native';
-import {
-  ActivityIndicator,
-  FlatList,
-  Platform,
-  RefreshControl,
-  View,
-  ScrollView,
-} from 'react-native';
+import styled from 'styled-components/native';
+import {ScrollView} from 'react-native';
 import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {calculateGoalsPercentage, getPersistedData, persistData} from '@utils';
 import {NewsletterModal, NotificationsButton} from './components';
-import {useSelector} from 'react-redux';
-import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
 import {getResultsFromPages} from 'utils/api';
-import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
-import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
-import {queryClient, QueryKeys} from '@query';
 import {saveCurrentToken} from '@api';
 import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 import {CompeteLeagues} from './components/CompeteLeagues';
 import {RewardSlider} from '../Rewards/components';
 import {ActivityHistory} from './components/ActivityHistory';
 import {RoutesClasses} from './components/RoutesClasses';
+import {RankCard} from '../Leagues/components/RankCard';
+import {CaloriesCard} from './components/CaloriesCard';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -68,100 +55,11 @@ const StatContainer = styled.View({
   paddingHorizontal: 10
 });
 
-const CaloriesCard = styled(Card)({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  width: '100%',
-  paddingTop: 20,
-  paddingBottom: 19,
-  paddingLeft: 33,
-  paddingRight: 37,
-  marginTop: 16,
-});
-
-const RankCard = styled(Card)({
-  width: '100%',
-  paddingTop: 23,
-  paddingBottom: 20,
-  paddingLeft: 33,
-  paddingRight: 32,
-  marginTop: 16,
-});
-
-const Row = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  width: '100%',
-});
-
-const StatLabel = styled(Label).attrs(() => ({
-  type: 'caption',
-  bold: true,
-}))({
-  fontSize: 13,
-  lineHeight: 15,
-  letterSpacing: 2,
-  color: '#565656',
-  textTransform: 'uppercase',
-});
-
-const StatValue = styled(Label).attrs(() => ({
-  type: 'title'
-}))({
-  fontSize: 42,
-  lineHeight: 48,
-  marginTop: 9,
-});
-
-const PercentageValue = styled(Label).attrs(() => ({
-  type: 'subheading',
-  bold: true,
-}))({
-  fontSize: 15,
-  lineHeight: 18,
-  textAlign: 'right',
-  letterSpacing: 2,
-});
-
-const CaloriesCircle = styled.View({
-  width: 65,
-  height: 65,
-  borderRadius: 35,
-  background: 'rgba(150, 150, 150, 0.1)',
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignItems: 'center',
-  textAlign: 'center',
-});
-
-const Calories = styled(Label).attrs(() => ({
-  type: 'caption',
-}))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
-  fontSize: 18,
-  lineHeight: 21,
-  textAlign: 'center',
-  letterSpacing: 2,
-  textTransform: 'uppercase',
-});
-
-const StatChart = styled.Image({
-  marginTop: 8,
-});
-
 const FeedContainer = styled.View({});
-
-const StatNumber = ({value}: {value: string}) => {
-  return <StatValue>{value}</StatValue>;
-};
 
 export const Feed = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const {colors} = useTheme();
 
   const {openModal, closeModal} = useModal();
 
@@ -190,23 +88,6 @@ export const Feed = () => {
     refetchInterval: 10000,
   });
 
-  const feedPreferences = useSelector(memoSelectFeedPreferences);
-
-  const {
-    data: feed,
-    refetch: refetchFeed,
-    isLoading: isFeedLoading,
-    fetchNextPage: fetchFeedNextPage,
-    isFetchingNextPage: isFeedFetchingNextPage,
-    isFetchedAfterMount: isFeedFetchedAfterMount,
-    isRefetching: isRefetchingFeed,
-    error: feedError,
-  } = useFeed({
-    my_goals: feedPreferences.showGoals,
-    friends_activities: feedPreferences.showFriends,
-    my_updates: feedPreferences.showUpdates,
-  });
-
   const {
     data: unlockedRewards,
     isFetching: isFetchingLockedRewards,
@@ -216,26 +97,9 @@ export const Feed = () => {
 
   const unlockedRewardsEntries = getResultsFromPages(unlockedRewards);
 
-  const [isPulledDown, setIsPulledDown] = useState(false);
-
-  const feedResults = getResultsFromPages<FeedItemType>(feed);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      refetchFeed();
-    });
-
-    return unsubscribe;
-  }, [navigation]);
-
   useEffect(() => {
     promptNewsletterModal();
   }, [user]);
-
-  useEffect(() => {
-    queryClient.removeQueries(QueryKeys.Feed);
-    refetchFeed();
-  }, [feedPreferences]);
 
   useEffect(() => {
     saveCurrentToken();
@@ -398,38 +262,8 @@ export const Feed = () => {
                 onPress={() => navigation.navigate('Wallet')}
               />
             </HeaderWidgetContainer>
-            <CaloriesCard>
-              <View>
-                <StatLabel>Total Calories</StatLabel>
-                <StatNumber value={'01240'} />
-              </View>
-              <View
-                style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                <ProgressCircle
-                  progress={0.87}
-                  strokeWidth={3}
-                  backgroundStrokeWidth={2.5}
-                  bloomIntensity={0.5}
-                  bloomRadius={5}
-                  size={81}>
-                  <CaloriesCircle>
-                    <Calories>87%</Calories>
-                  </CaloriesCircle>
-                </ProgressCircle>
-              </View>
-            </CaloriesCard>
-            <RankCard>
-              <Row>
-                <StatLabel>Total Rank</StatLabel>
-                <PercentageValue>+10P</PercentageValue>
-              </Row>
-              <Row>
-                <StatNumber value={'37640'} />
-                <StatChart
-                  source={require('../../../assets/images/total_rank_chart.png')}
-                />
-              </Row>
-            </RankCard>
+            <CaloriesCard />
+            <RankCard />
           </StatContainer>
 
           <FeedContainer>

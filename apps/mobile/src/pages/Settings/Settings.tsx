@@ -82,6 +82,13 @@ const CategoryCard = styled(Card)({
   marginTop: 20,
 });
 
+const CategoryTitle = styled(Label).attrs(() => ({
+  type: 'subheading',
+  appearance: 'accent',
+}))(() => ({
+  paddingLeft: 20,
+}));
+
 type UserGoalPreferencesString = {
   [K in keyof UserGoalPreferences]: string;
 };
@@ -261,8 +268,8 @@ export const Settings = () => {
         }}>
         {/* Account Settings */}
         <CategoryCard>
-          <Row style={{alignItems: 'center'}}>
-            <CategoryLabel>Account</CategoryLabel>
+          <Row style={{alignItems: 'center', marginTop: 20}}>
+            <CategoryTitle>Account</CategoryTitle>
             <Button 
               text={'Logout'} 
               containerStyle={{
@@ -367,9 +374,6 @@ export const Settings = () => {
           <CategoryLabel>Wallet</CategoryLabel>
           <SettingsButton
             label={'Keplr'}
-          />
-          <SettingsButton
-            label={'Metamask'}
           />
         </CategoryCard>
 

@@ -346,11 +346,10 @@ export const Reward = (
             >
               <Chip
                 textStyle={{
-                  fontFamily: 'Roboto',
                   fontSize: 15,
                   lineHeight: 16,
                   letterSpacing: 2,
-                  color: colors.chartUnfilled,
+                  color: '#060606',
                   textAlign: 'center'
                 }}
                 style={{backgroundColor: colors.text}}
