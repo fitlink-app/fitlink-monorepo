@@ -16,8 +16,10 @@ import {ActivityIndicator} from 'react-native';
 const Wrapper = styled(Card)({
   width: '100%',
   height: 120,
-  padding: 20,
-  paddingLeft: 20,
+  paddingTop: 24,
+  paddingBottom: 24,
+  paddingLeft: 33,
+  paddingRight: 33,
 });
 
 const Row = styled.View({
@@ -36,7 +38,8 @@ const ContentContainer = styled.View({
 });
 
 const PointsLabel = styled(Label).attrs(() => ({
-  type: 'caption'
+  type: 'caption',
+  bold: true,
 }))({
   color: '#565656',
   letterSpacing: 2,
@@ -109,7 +112,7 @@ export const _RewardTracker = ({
             <PointsStatusLabel>+23%</PointsStatusLabel>
           </Row>
           <Row>
-            <Points>{points}</Points>
+            <Points>00640</Points>
             <PointsChart source={require('../../../../assets/images/wallet_chart.png')} />
           </Row>
         </ContentContainer>

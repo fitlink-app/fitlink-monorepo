@@ -167,7 +167,6 @@ export const UserWidget = (props: UserWidgetProps) => {
               fontSize: 14,
               textTransform: 'uppercase',
               lineHeight: 16.41,
-              letterSpacing: 1,
             }}>
             {props.rank}
           </Level>

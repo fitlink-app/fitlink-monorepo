@@ -6,8 +6,8 @@ import {
 } from 'styled-components';
 
 const fonts: ThemeFonts = {
-  regular: 'Lato-Regular',
-  bold: 'Lato-Bold',
+  regular: 'Roboto-Regular',
+  bold: 'Roboto-Bold',
 };
 
 const colors: ThemeColors = {
@@ -20,7 +20,7 @@ const colors: ThemeColors = {
   separator: '#2e2e2e',
   accent: '#00e9d7',
   accentSecondary: '#939393',
-  chartUnfilled: '#202020',
+  chartUnfilled: '#FFFFFF33',
   danger: '#D32F2F',
   navbar: '#565656',
   card: '#181818',

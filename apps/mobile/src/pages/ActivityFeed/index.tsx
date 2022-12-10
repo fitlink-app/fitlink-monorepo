@@ -1,8 +1,22 @@
-import React from 'react';
-import {ScrollView} from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  ScrollView,
+  FlatList,
+  Platform,
+  RefreshControl,
+  ActivityIndicator,
+} from 'react-native';
+import { useMe, useFeed } from '@hooks';
+import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import styled from 'styled-components/native';
-import { Card, Label } from '@components';
+import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
+import {useSelector} from 'react-redux';
+import {getResultsFromPages} from 'utils/api';
+import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
+import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
+import styled, { useTheme } from 'styled-components/native';
+import {queryClient, QueryKeys} from '@query';
+import { Card, Label, FeedItem } from '@components';
 import { ActivityItem } from './components/ActivityItem';
 
 const Wrapper = styled.View({flex: 1});
@@ -38,55 +52,53 @@ const UserList = styled.View({
   marginBottom: 38,
 });
 
-const data = [
-  {
-    img: '../../../assets/images/activity_feed/user-1.png',
-    fitness_type: 'Morning Run',
-    username: 'Jon Smith',
-    date: 'Today at 9:28 AM',
-    mark: '7 $BFIT',
-    like: true,
-    distance: '4.97',
-    speed: '8:22',
-    time: 43,
-  },
-  {
-    img: '../../../assets/images/activity_feed/user-2.png',
-    fitness_type: 'Morning Yoga Session',
-    username: 'Jennifer',
-    date: 'Today at 7:30 AM',
-    mark: '13 $BFIT',
-    like: false,
-    distance: '12.47',
-    speed: '25:04',
-    time: 65,
-  },
-  {
-    img: '../../../assets/images/activity_feed/user-3.png',
-    fitness_type: 'Early Morning Run',
-    username: 'Jennifer',
-    date: 'Today at 9:28 AM',
-    mark: '22 $BFIT',
-    like: true,
-    distance: '6.90',
-    speed: '12:04',
-    time: 45,
-  },
-  {
-    img: '../../../assets/images/activity_feed/user-4.png',
-    fitness_type: 'Morning Run',
-    username: 'Adam',
-    date: 'Today at 5:30 AM',
-    mark: '44 Points',
-    like: false,
-    distance: '2.90',
-    speed: '8:22',
-    time: 56,
-  },
-];
+const ListFooterContainer = styled.View({
+  justifyContent: 'flex-end'
+});
 
 export const ActivityFeed = () => {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+
+  // Refs
+  const scrollRef = useRef(null);
+  useScrollToTop(scrollRef);
+
+  const {data: user} = useMe({
+    refetchOnMount: false,
+    refetchInterval: 10000,
+  });
+
+  const feedPreferences = useSelector(memoSelectFeedPreferences);
+
+  const {
+    data: feed,
+    refetch: refetchFeed,
+    fetchNextPage: fetchFeedNextPage,
+    isFetchingNextPage: isFeedFetchingNextPage,
+    isFetchedAfterMount: isFeedFetchedAfterMount,
+    error: feedError,
+  } = useFeed({
+    my_goals: feedPreferences.showGoals,
+    friends_activities: feedPreferences.showFriends,
+    my_updates: feedPreferences.showUpdates,
+  });
+
+  const [isPulledDown, setIsPulledDown] = useState(false);
+
+  const feedResults = getResultsFromPages<FeedItemType>(feed);
+
+  const keyExtractor = (item: FeedItemType) => item.id as string;
+
+  const renderItem = ({item}: {item: FeedItemType}) => {
+    const isLiked = !!(item.likes as UserPublic[]).find(
+      (feedItemUser: any) => feedItemUser.id === user?.id,
+    );
+
+    return (
+      <FeedItem item={item} unitSystem={user.unit_system} isLiked={isLiked} />
+    );
+  };
 
   return (
     <Wrapper style={{paddingTop: insets.top}}>
@@ -95,69 +107,96 @@ export const ActivityFeed = () => {
           paddingHorizontal: 10,
           paddingBottom: 37,
         }}>
-        <CoverImage>
-          <CoverBackgroundImage
-            source={require('../../../assets/images/activity_feed/cover-1.png')}
-          />
-          <CoverInfo style={{marginTop: 137}}>
-            <CoverTitle
-              style={{
-                fontFamily: 'Roboto',
-                fontSize: 22,
-                fontWeight: '500',
-                lineHeight: 26,
-              }}>
-              10-minute Mindfulness Exercises You Can Do
-            </CoverTitle>
-            <CoverDate style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
-              <Label
-                type="caption"
-                style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
-                Fitlink
-              </Label>{' '}
-              - Tuesday at 9:28 AM
-            </CoverDate>
-          </CoverInfo>
-        </CoverImage>
-        <UserList>
-          {data.map((item) => (
-            <ActivityItem
-              fitnessType={item.fitness_type}
-              username={item.username}
-              date={item.date}
-              mark={item.mark}
-              like={item.like}
-              distance={item.distance}
-              speed={item.speed}
-              time={item.time}
+        <FlatList
+          {...{renderItem, keyExtractor}}
+          ref={scrollRef}
+          data={feedResults}
+          showsVerticalScrollIndicator={false}
+          style={{overflow: 'visible'}}
+          contentContainerStyle={{
+            minHeight: '100%',
+            paddingBottom:
+              Platform.OS === 'ios' ? 0 : isFeedFetchingNextPage ? 0 : 72,
+          }}
+          onEndReachedThreshold={0.2}
+          onEndReached={() => fetchFeedNextPage()}
+          refreshControl={
+            <RefreshControl
+              tintColor={colors.accent}
+              refreshing={isPulledDown && isFeedFetchedAfterMount}
+              onRefresh={() => {
+                setIsPulledDown(true);
+
+                queryClient.setQueryData(QueryKeys.Feed, (data: any) => {
+                  return {
+                    pages: data.pages.length ? [data.pages[0]] : data.pages,
+                    pageParams: data.pageParams.length
+                      ? [data.pageParams[0]]
+                      : data.pageParams,
+                  };
+                });
+
+                refetchFeed().finally(() => {
+                  setIsPulledDown(false);
+                });
+              }}
             />
-          )
-          )}
-        </UserList>
-        <CoverImage>
-          <CoverBackgroundImage
-            source={require('../../../assets/images/activity_feed/cover-2.png')}
-          />
-          <CoverInfo style={{marginTop: 113}}>
-            <CoverTitle
-              style={{
-                fontFamily: 'Roboto',
-                fontSize: 22,
-                fontWeight: '500',
-                lineHeight: 26,
-              }}>
-              Why Trees Are Good For Our Mental & Physical Wellbeing
-            </CoverTitle>
-            <CoverDate style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
-              <Label
-                type="caption"
-                style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
-                Fitlink
-              </Label>{' '}
-              - Tuesday at 9:28 AM
-            </CoverDate>
-          </CoverInfo>
-        </CoverImage>
+          }
+          ListHeaderComponent={
+            <CoverImage>
+              <CoverBackgroundImage
+                source={require('../../../assets/images/activity_feed/cover-1.png')}
+              />
+              <CoverInfo style={{marginTop: 137}}>
+                <CoverTitle
+                  style={{
+                    fontFamily: 'Roboto',
+                    fontSize: 22,
+                    fontWeight: '500',
+                    lineHeight: 26,
+                  }}>
+                  10-minute Mindfulness Exercises You Can Do
+                </CoverTitle>
+                <CoverDate style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
+                  <Label
+                    type="caption"
+                    style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
+                    Fitlink
+                  </Label>{' '}
+                  - Tuesday at 9:28 AM
+                </CoverDate>
+              </CoverInfo>
+            </CoverImage>
+          }
+          ListFooterComponent={
+            <ListFooterContainer>
+              <CoverImage>
+                <CoverBackgroundImage
+                  source={require('../../../assets/images/activity_feed/cover-2.png')}
+                />
+                <CoverInfo style={{marginTop: 113}}>
+                  <CoverTitle
+                    style={{
+                      fontFamily: 'Roboto',
+                      fontSize: 22,
+                      fontWeight: '500',
+                      lineHeight: 26,
+                    }}>
+                    Why Trees Are Good For Our Mental & Physical Wellbeing
+                  </CoverTitle>
+                  <CoverDate style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
+                    <Label
+                      type="caption"
+                      style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
+                      Fitlink
+                    </Label>{' '}
+                    - Tuesday at 9:28 AM
+                  </CoverDate>
+                </CoverInfo>
+              </CoverImage>
+            </ListFooterContainer>
+          }
+        />
       </ScrollView>
     </Wrapper>
   );

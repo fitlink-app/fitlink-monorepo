@@ -17,7 +17,7 @@ const ContentContainer = styled.View({
 
 const Wrapper = styled.View({
   height: 211,
-  borderRadius: 15,
+  borderRadius: 20,
   overflow: 'hidden',
 });
 
