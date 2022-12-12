@@ -2,16 +2,18 @@ import React from 'react';
 import styled from 'styled-components/native';
 import {TouchHandler, Card, Label} from '@components';
 import {useNavigation} from '@react-navigation/core';
-import { BlurView  } from '@react-native-community/blur';
+import {BlurView} from '@react-native-community/blur';
+import {widthLize} from "@utils";
 
 const Wrapper = styled.View({
-  paddingHorizontal: 10
+  // paddingLeft: widthLize(20),
 });
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   marginTop: 40,
+  marginHorizontal: widthLize(20),
 });
 
 const Title = styled(Label).attrs(() => ({
@@ -39,6 +41,7 @@ const SliderContainer = styled.ScrollView.attrs(() => ({
   showsHorizontalScrollIndicator: false,
   contentContainerStyle: {
     justifyContent: 'space-between',
+    paddingLeft: widthLize(20),
   },
 }))({});
 
@@ -113,7 +116,7 @@ const RecordValue = styled(Label).attrs(() => ({
 
 const PlaceText = styled(Label).attrs(() => ({
   type: 'caption',
-  appearance: 'accent'
+  appearance: 'accent',
 }))({
   fontSize: 18,
   lineHeight: 21,
@@ -154,12 +157,12 @@ export const ActivityHistory = () => {
           {data.map(({date, record_today, place, img}) => (
             <CardContainer>
               <CardImage source={img} />
-              <BlurView 
+              <BlurView
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   width: '100%',
                   height: 53,
-                  backgroundColor: 'rgba(0,0,0,0.2)'
+                  backgroundColor: 'rgba(0,0,0,0.2)',
                 }}
                 blurRadius={1}
                 overlayColor={'transparent'}

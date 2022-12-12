@@ -1,12 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  ScrollView,
-  FlatList,
-  Platform,
-  RefreshControl,
-  ActivityIndicator,
-} from 'react-native';
-import { useMe, useFeed } from '@hooks';
+import React, {useState, useEffect, useRef} from 'react';
+import {ScrollView, FlatList, Platform, RefreshControl} from 'react-native';
+import {useMe, useFeed} from '@hooks';
 import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
@@ -14,10 +8,9 @@ import {useSelector} from 'react-redux';
 import {getResultsFromPages} from 'utils/api';
 import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
-import styled, { useTheme } from 'styled-components/native';
+import styled, {useTheme} from 'styled-components/native';
 import {queryClient, QueryKeys} from '@query';
-import { Card, Label, FeedItem } from '@components';
-import { ActivityItem } from './components/ActivityItem';
+import {Card, Label, FeedItem} from '@components';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -48,17 +41,17 @@ const CoverDate = styled(Label).attrs(() => ({
   appearance: 'accent',
 }))({});
 
-const UserList = styled.View({
-  marginBottom: 38,
-});
+// const UserList = styled.View({
+//   marginBottom: 38,
+// });
 
 const ListFooterContainer = styled.View({
-  justifyContent: 'flex-end'
+  justifyContent: 'flex-end',
 });
 
 export const ActivityFeed = () => {
   const insets = useSafeAreaInsets();
-  const { colors } = useTheme();
+  const {colors} = useTheme();
   const navigation = useNavigation();
 
   // Refs
@@ -78,7 +71,6 @@ export const ActivityFeed = () => {
     fetchNextPage: fetchFeedNextPage,
     isFetchingNextPage: isFeedFetchingNextPage,
     isFetchedAfterMount: isFeedFetchedAfterMount,
-    error: feedError,
   } = useFeed({
     my_goals: feedPreferences.showGoals,
     friends_activities: feedPreferences.showFriends,
@@ -110,7 +102,12 @@ export const ActivityFeed = () => {
     );
 
     return (
-      <FeedItem item={item} unitSystem={user.unit_system} isLiked={isLiked} />
+      <FeedItem
+        item={item}
+        // @ts-ignore
+        unitSystem={user?.unit_system}
+        isLiked={isLiked}
+      />
     );
   };
 
@@ -119,7 +116,7 @@ export const ActivityFeed = () => {
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: 10,
-          paddingBottom: 37,
+          paddingBottom: 44 + 79,
         }}>
         <FlatList
           {...{renderItem, keyExtractor}}
@@ -198,7 +195,8 @@ export const ActivityFeed = () => {
                     }}>
                     Why Trees Are Good For Our Mental & Physical Wellbeing
                   </CoverTitle>
-                  <CoverDate style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
+                  <CoverDate
+                    style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
                     <Label
                       type="caption"
                       style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>

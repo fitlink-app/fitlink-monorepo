@@ -1,13 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {
-  ActivityIndicator,
-  Animated,
-  Image,
-  Linking,
-  StyleSheet,
-  View,
-} from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import {ActivityIndicator, Animated, Image, Linking, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import SnackBar from 'react-native-snackbar-component';
 import Clipboard from '@react-native-community/clipboard';
@@ -26,11 +18,11 @@ import {
 } from '@components';
 import {useClaimReward, useMe, useReward} from '@hooks';
 import {format} from 'date-fns';
-import { BlurView } from '@react-native-community/blur';
+import {BlurView} from '@react-native-community/blur';
 
 const Wrapper = styled.View({
   paddingHorizontal: 10,
-  marginTop: 47
+  marginTop: 50,
 });
 
 const EmptyContainer = styled.View({
@@ -43,7 +35,7 @@ const HeaderContainer = styled.View({
   width: '100%',
   height: 434,
   borderRadius: 30,
-  overflow: 'hidden'
+  overflow: 'hidden',
 });
 
 const Row = styled.View({
@@ -64,7 +56,7 @@ const TitleContainer = styled.View({
   height: 86,
   flexDirection: 'row',
   justifyContent: 'center',
-  alignItems: 'center'
+  alignItems: 'center',
 });
 
 const HeaderContent = styled.View({
@@ -72,11 +64,11 @@ const HeaderContent = styled.View({
   width: '100%',
   flexDirection: 'row',
   justifyContent: 'center',
-  alignItems: 'center'
+  alignItems: 'center',
 });
 
 const PageTitle = styled(Label).attrs(() => ({
-  children: 'GOLD REWARD'
+  children: 'GOLD REWARD',
 }))({
   fontSize: 18,
 });
@@ -111,7 +103,7 @@ async function openUrl(url: string) {
 export const Reward = (
   props: StackScreenProps<RootStackParamList, 'Reward'>,
 ) => {
-  const {id} = props.route.params;
+  const {id, image} = props.route.params;
 
   const {colors, fonts} = useTheme();
   const navigation = useNavigation();
@@ -130,11 +122,15 @@ export const Reward = (
 
   useEffect(() => {
     const onFocusListener = navigation.addListener('focus', () => {
-      if (snackbarVisible) setSnackbarVisible(false);
+      if (snackbarVisible) {
+        setSnackbarVisible(false);
+      }
     });
 
     const onBlurListener = navigation.addListener('blur', () => {
-      if (snackbarTimer.current) clearTimeout(snackbarTimer.current);
+      if (snackbarTimer.current) {
+        clearTimeout(snackbarTimer.current);
+      }
     });
 
     return () => {
@@ -152,22 +148,31 @@ export const Reward = (
   }
 
   const isExpired = new Date() > new Date(reward.reward_expires_at);
-  const restDays = !isExpired ? Math.ceil(Math.abs((new Date(reward.reward_expires_at)).getTime()-(new Date()).getTime())/(1000*3600*24)) : 0;
+  const restDays = !isExpired
+    ? Math.ceil(
+        Math.abs(
+          new Date(reward.reward_expires_at).getTime() - new Date().getTime(),
+        ) /
+          (1000 * 3600 * 24),
+      )
+    : 0;
 
   const expiryDateFormatted = format(
     new Date(reward.reward_expires_at),
     'do MMMM yyyy',
   );
 
-  const scrollAnimInterpolated = scrollAnim.interpolate({
-    inputRange: [-500, 0],
-    outputRange: [-500, 0],
-    extrapolate: 'clamp',
-  });
+  // const scrollAnimInterpolated = scrollAnim.interpolate({
+  //   inputRange: [-500, 0],
+  //   outputRange: [-500, 0],
+  //   extrapolate: 'clamp',
+  // });
 
   const copyToClipboard = (code: string) => {
     Clipboard.setString(code);
-    if (snackbarTimer.current) clearTimeout(snackbarTimer.current);
+    if (snackbarTimer.current) {
+      clearTimeout(snackbarTimer.current);
+    }
 
     setSnackbarVisible(true);
 
@@ -235,12 +240,12 @@ export const Reward = (
               textStyle={{
                 fontSize: 14,
                 textTransform: 'uppercase',
-                fontWeight: '500'
+                fontWeight: '500',
               }}
               containerStyle={{
                 width: 134,
                 backgroundColor: '#00E9D7',
-                borderRadius: 12
+                borderRadius: 12,
               }}
               onPress={() => claimReward(id)}
               disabled={isClaiming}
@@ -294,31 +299,34 @@ export const Reward = (
           [{nativeEvent: {contentOffset: {y: scrollAnim}}}],
           {useNativeDriver: true},
         )}>
-        <View style={{marginLeft: 5}}>
-          <Navbar iconColor={'white'} />
-        </View>
         <HeaderContainer>
-          <HeaderImage source={require('../../../assets/images/rewards/reward-background.png')} />
-          <BlurView 
+          <Navbar
+            iconColor={'white'}
+            title="GOLD REWARD"
+            titleStyle={{fontSize: 18}}
+            containerStyle={{
+              paddingTop: 0,
+              height: 86,
+            }}
+          />
+          <HeaderImage source={{uri: image}} />
+          <Line />
+          <BlurView
             style={{
-              position: "absolute",
+              position: 'absolute',
               width: '100%',
               height: 86,
-              backgroundColor: 'rgba(0,0,0,0.2)'
+              backgroundColor: 'rgba(0,0,0,0.2)',
             }}
-            blurRadius={1}
-            overlayColor={'transparent'}
+            blurType="light"
+            blurRadius={0}
+            blurAmount={1}
           />
-          <TitleContainer><PageTitle /></TitleContainer>
-          <Line />
         </HeaderContainer>
         <HeaderContent>
           <Row style={{marginTop: 40}}>
             <View style={{flex: 2}}>
-              <Label
-                type={'subheading'}
-                appearance={'accent'}
-              >
+              <Label type={'subheading'} appearance={'accent'}>
                 {isExpired
                   ? `Expired on ${expiryDateFormatted}`
                   : `${restDays} DAYS LEFT`}
@@ -330,9 +338,8 @@ export const Reward = (
                 style={{
                   marginTop: 21,
                   fontSize: 32,
-                  textTransform: 'capitalize'
-                }}
-              >
+                  textTransform: 'capitalize',
+                }}>
                 {reward.name_short}
               </Label>
             </View>
@@ -342,15 +349,14 @@ export const Reward = (
                 marginTop: 20,
                 marginLeft: 10,
                 flex: 1,
-              }}
-            >
+              }}>
               <Chip
                 textStyle={{
                   fontSize: 15,
                   lineHeight: 16,
                   letterSpacing: 2,
                   color: '#060606',
-                  textAlign: 'center'
+                  textAlign: 'center',
                 }}
                 style={{backgroundColor: colors.text}}
                 progress={
@@ -367,22 +373,22 @@ export const Reward = (
 
         <ContentContainer>
           <Label style={{fontSize: 18, lineHeight: 23, color: '#ACACAC'}}>
-            Win! You’ve unlocked your reward. Claim the 20% discount reward and redeem it on Nike.com
+            Win! You’ve unlocked your reward. Claim the 20% discount reward and
+            redeem it on Nike.com
           </Label>
           <Label style={{marginTop: 33, marginBottom: 82, opacity: 0.5}}>
-            This reward can only be used on the online store. Please keep in mind that you have only {restDays} days left to redeem it.
+            This reward can only be used on the online store. Please keep in
+            mind that you have only {restDays} days left to redeem it.
           </Label>
 
-          <View style={{marginBottom: 20}}>
-            {renderContent()}
-          </View>
+          <View style={{marginBottom: 20}}>{renderContent()}</View>
         </ContentContainer>
       </Animated.ScrollView>
 
       {/* // TODO: Fix snackbar props */}
       <SnackBar
         visible={snackbarVisible}
-        textMessage={`Code was copied to your clipboard`}
+        textMessage={'Code was copied to your clipboard'}
         // @ts-ignore
         containerStyle={{
           paddingBottom: insets.bottom,

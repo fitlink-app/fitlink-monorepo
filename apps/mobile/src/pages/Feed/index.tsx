@@ -1,9 +1,5 @@
-import React, {useEffect, useRef} from 'react';
-import {
-  GoalTracker,
-  Modal,
-  RewardTracker,
-} from '@components';
+import React, {useCallback, useEffect, useRef} from 'react';
+import {GoalTracker, Modal, RewardTracker} from '@components';
 import {
   useGoals,
   useMe,
@@ -35,9 +31,9 @@ const Wrapper = styled.View({
 });
 
 const TopButtonRow = styled.View({
-  position: 'absolute',
-  right: 20,
   flexDirection: 'row',
+  justifyContent: 'flex-end',
+  marginBottom: -10,
 });
 
 const TopButtonSpacer = styled.View({width: 10});
@@ -52,7 +48,7 @@ const HeaderContainer = styled.View({
 const HeaderWidgetContainer = styled.View({marginTop: 10});
 
 const StatContainer = styled.View({
-  paddingHorizontal: 10
+  paddingHorizontal: 10,
 });
 
 const FeedContainer = styled.View({});
@@ -97,15 +93,7 @@ export const Feed = () => {
 
   const unlockedRewardsEntries = getResultsFromPages(unlockedRewards);
 
-  useEffect(() => {
-    promptNewsletterModal();
-  }, [user]);
-
-  useEffect(() => {
-    saveCurrentToken();
-  }, []);
-
-  const promptNewsletterModal = async () => {
+  const promptNewsletterModal = useCallback(async () => {
     const newsletterKey = 'NEWSLETTER_PROMPTED';
     const wasNewsletterModalShown = await getPersistedData(newsletterKey);
 
@@ -129,23 +117,33 @@ export const Feed = () => {
         );
       });
     }
-  };
+  }, [closeModal, openModal, user]);
 
-  if (!user) return null;
+  useEffect(() => {
+    promptNewsletterModal();
+  }, [promptNewsletterModal]);
+
+  useEffect(() => {
+    saveCurrentToken();
+  }, []);
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <Wrapper style={{paddingTop: insets.top}}>
       <ScrollView
         contentContainerStyle={{
-          paddingBottom: 37,
-        }}
-      >
+          paddingBottom: 44 + 79,
+        }}>
         <>
           <HeaderContainer>
             <TopButtonRow>
               <NotificationsButton count={user.unread_notifications} />
               <TopButtonSpacer />
               <TouchHandler
+                hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
                 onPress={() => {
                   navigation.navigate('Settings');
                 }}>
@@ -256,9 +254,7 @@ export const Feed = () => {
                 points={user.points_total || 0}
                 targetPoints={nextReward?.reward.points_required || 0}
                 isLoading={!isNextRewardFetched}
-                claimableRewardsCount={
-                  nextReward?.unclaimed_rewards_total || 0
-                }
+                claimableRewardsCount={nextReward?.unclaimed_rewards_total || 0}
                 onPress={() => navigation.navigate('Wallet')}
               />
             </HeaderWidgetContainer>

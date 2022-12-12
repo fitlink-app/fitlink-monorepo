@@ -1,13 +1,13 @@
 import React from 'react';
-import { Text } from 'react-native';
 import {Card, Label} from '../../../components/common';
 import styled from 'styled-components/native';
 import {TouchHandler} from '@components';
 import {useNavigation} from '@react-navigation/core';
-import { BlurView  } from '@react-native-community/blur';
+import {BlurView} from '@react-native-community/blur';
+import {widthLize} from "@utils";
 
 const Wrapper = styled.View({
-  paddingHorizontal: 10
+  paddingLeft: widthLize(20),
 });
 
 const HeaderContainer = styled.View({
@@ -103,7 +103,7 @@ const PlaceSection = styled.View({
 const DistanceValue = styled(Label).attrs(() => ({
   type: 'subheading',
   bold: true,
-  appearance: 'accent'
+  appearance: 'accent',
 }))({
   fontSize: 18,
   lineHeight: 21,
@@ -112,7 +112,7 @@ const DistanceValue = styled(Label).attrs(() => ({
 const PlaceText = styled(Label).attrs(() => ({
   type: 'caption',
   bold: true,
-  appearance: 'accent'
+  appearance: 'accent',
 }))({
   fontSize: 14,
   lineHeight: 16,
@@ -153,9 +153,9 @@ export const CompeteLeagues = () => {
             <CardContainer>
               <CardImage source={img} />
               <Line />
-              <BlurView 
+              <BlurView
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   top: 0,
                   left: 0,
                   right: 0,
@@ -163,7 +163,7 @@ export const CompeteLeagues = () => {
                   width: '100%',
                   height: 89,
                   marginTop: 160,
-                  backgroundColor: 'rgba(0,0,0,0.2)'
+                  backgroundColor: 'rgba(0,0,0,0.2)',
                 }}
                 blurRadius={1}
                 overlayColor={'transparent'}

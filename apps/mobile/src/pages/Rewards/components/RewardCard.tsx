@@ -1,10 +1,9 @@
 import React from 'react';
 import {StyleSheet, View, ViewProps} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import styled, {useTheme} from 'styled-components/native';
-import {Avatar, Chip, Label, TouchHandler} from '@components';
-import {format} from 'date-fns';
-import { BlurView  } from '@react-native-community/blur';
+import styled from 'styled-components/native';
+import {Label, TouchHandler} from '@components';
+import {BlurView} from '@react-native-community/blur';
 
 const TouchWrapper = styled(TouchHandler)({
   marginBottom: 10,
@@ -37,12 +36,12 @@ const BackgroundImage = styled.Image({
 
 const Row = styled.View({
   flexDirection: 'row',
-  paddingHorizontal: 24
+  paddingHorizontal: 24,
 });
 
 const Points = styled(Label).attrs(() => ({
   type: 'subheading',
-  appearance: 'accent'
+  appearance: 'accent',
 }))({
   position: 'relative',
   fontSize: 14,
@@ -71,7 +70,7 @@ const ExpiryDate = styled(Label).attrs(() => ({
   appearance: 'primary',
 }))({
   fontSize: 14,
-  textTransform: 'uppercase'
+  textTransform: 'uppercase',
 });
 
 const AddBtn = styled.View({
@@ -89,15 +88,15 @@ const AddIcon = styled.Text(({theme: {colors}}) => ({
   textAlign: 'center',
   fontSize: 28,
   marginTop: -3,
-  color: colors.text
+  color: colors.text,
 }));
 
-const CodeBox = styled.View(({theme: {colors}}) => ({
-  paddingVertical: 5,
-  paddingHorizontal: 10,
-  backgroundColor: colors.surface,
-  borderRadius: 9999,
-}));
+// const CodeBox = styled.View(({theme: {colors}}) => ({
+//   paddingVertical: 5,
+//   paddingHorizontal: 10,
+//   backgroundColor: colors.surface,
+//   borderRadius: 9999,
+// }));
 
 export interface RewardOrganisation {
   name: string;
@@ -118,10 +117,7 @@ interface RewardCardProps extends ViewProps {
 }
 
 export const RewardCard = (props: RewardCardProps) => {
-  const {colors, fonts} = useTheme();
-
   const {
-    brand,
     title,
     image,
     expiryDate,
@@ -129,31 +125,36 @@ export const RewardCard = (props: RewardCardProps) => {
     requiredPoints,
     onPress,
     isClaimed = false,
-    organisation,
-    code,
     style,
   } = props;
 
   const isExpired = new Date() > expiryDate;
-  const restDays = !isExpired ? Math.ceil(Math.abs((new Date(expiryDate)).getTime()-(new Date()).getTime())/(1000*3600*24)) : 0;
+  const restDays = !isExpired
+    ? Math.ceil(
+        Math.abs(new Date(expiryDate).getTime() - new Date().getTime()) /
+          (1000 * 3600 * 24),
+      )
+    : 0;
   const progress = Math.min(Math.max(currentPoints / requiredPoints, 0), 1);
   const isLocked = progress < 1 && !isClaimed;
 
   return (
     <TouchWrapper {...{onPress, style}}>
       <Wrapper style={{opacity: isExpired ? 0.5 : 1}}>
-        <BackgroundImage source={require('../../../../assets/images/rewards-1.png')} />
+        <BackgroundImage source={{uri: image}} />
         <ImageOverlay />
 
         <ContentContainer>
-          <BlurView 
+          <BlurView
             style={{
-              position: "absolute",
+              position: 'absolute',
               width: '100%',
               height: 64,
-              backgroundColor: 'rgba(0,0,0,0.2)'
+              backgroundColor: 'rgba(0,0,0,0.2)',
             }}
+            blurType="dark"
             blurRadius={1}
+            blurAmount={1}
             overlayColor={'transparent'}
           />
           <Row
@@ -163,7 +164,9 @@ export const RewardCard = (props: RewardCardProps) => {
               height: 64,
               paddingHorizontal: 24,
             }}>
-            <Points>{requiredPoints} <Label>$BFIT</Label></Points>
+            <Points>
+              {requiredPoints} <Label>$BFIT</Label>
+            </Points>
             <HeaderLine />
           </Row>
           <Line />
@@ -176,25 +179,21 @@ export const RewardCard = (props: RewardCardProps) => {
             }}>
             <View style={{flex: 2}}>
               <ExpiryDate>
-                {isExpired
-                  ? `Expired`
-                  : `${restDays} Days Left`}
+                {isExpired ? 'Expired' : `${restDays} Days Left`}
               </ExpiryDate>
-              <Label 
+              <Label
                 type={'title'}
                 appearance={'primary'}
                 numberOfLines={1}
-                style={{textTransform: 'capitalize'}}
-              >
+                style={{textTransform: 'capitalize'}}>
                 {title}
               </Label>
             </View>
-            {isLocked ? 
+            {isLocked ? (
               <AddBtn>
                 <AddIcon>+</AddIcon>
               </AddBtn>
-              : null
-            }
+            ) : null}
           </Row>
         </ContentContainer>
       </Wrapper>

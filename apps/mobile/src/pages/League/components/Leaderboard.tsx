@@ -1,6 +1,6 @@
 import {Label} from '@components';
 import React from 'react';
-import {ActivityIndicator, FlatListProps, RefreshControl} from 'react-native';
+import {ActivityIndicator, FlatList, FlatListProps, RefreshControl} from 'react-native';
 import {Animated} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {LeaderboardItem} from './LeaderboardItem';
@@ -40,12 +40,12 @@ interface LeaderboardProps
   endDate: Date;
   membership: 'none' | 'member' | 'owner';
   onRefresh: () => void;
+  renderHeader?: any;
 }
 
 export const Leaderboard = ({
   data,
   fetchNextPage,
-  hasNextPage,
   fetchingNextPage,
   flanksData,
   userId,
@@ -55,10 +55,9 @@ export const Leaderboard = ({
   title,
   memberCount,
   endDate,
-  membership = 'none',
   onRefresh,
   description,
-  ...rest
+  renderHeader,
 }: LeaderboardProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
@@ -69,8 +68,9 @@ export const Leaderboard = ({
 
   if (!showAll) {
     const partialData = [...(data || [])];
-    if (partialData.length > INITIAL_MEMBER_COUNT_TO_DISPLAY)
+    if (partialData.length > INITIAL_MEMBER_COUNT_TO_DISPLAY) {
       partialData.length = INITIAL_MEMBER_COUNT_TO_DISPLAY;
+    }
     displayResults = partialData;
   }
 
@@ -81,7 +81,6 @@ export const Leaderboard = ({
   const renderItem = ({
     item,
     index,
-    sourceLength,
     key,
   }: {
     item: LeaderboardEntry;
@@ -105,7 +104,7 @@ export const Leaderboard = ({
   };
 
   const renderFlanks = () => {
-    return flanksData.map((entry, index) => {
+    return flanksData.map(entry => {
       return renderItem({
         item: entry,
         index: entry.rank,
@@ -116,36 +115,41 @@ export const Leaderboard = ({
   };
 
   const ListHeaderComponent = (
-    <LeaderboardHeader 
-      memberCount={memberCount}
-      resetDate={endDate} 
-      repeat={isRepeat}
-      title={title}
-      description={description}
-    />
+    <>
+      {renderHeader}
+      <LeaderboardHeader
+        memberCount={memberCount}
+        resetDate={endDate}
+        repeat={isRepeat}
+        title={title}
+        description={description}
+      />
+    </>
   );
 
   const ListFooterComponent = () => {
-    if (!data?.length && isLoaded)
+    if (!data?.length && isLoaded) {
       return (
         <EmptyContainer style={{paddingVertical: 10}}>
           <Label>This league has no participants yet.</Label>
         </EmptyContainer>
       );
+    }
 
-    if (!isLoaded || fetchingNextPage)
+    if (!isLoaded || fetchingNextPage) {
       return (
         <LoadingContainer>
           <ActivityIndicator color={colors.accent} />
         </LoadingContainer>
       );
+    }
 
     if (
       !showAll &&
       displayResults &&
       data &&
       displayResults.length < data.length
-    )
+    ) {
       return (
         <>
           <LeaderboardSeparator onPress={() => setShowAll(true)} />
@@ -155,13 +159,14 @@ export const Leaderboard = ({
             renderFlanks()}
         </>
       );
+    }
 
     return null;
   };
 
   return (
-    <Animated.FlatList
-      {...{...rest, ListHeaderComponent, ListFooterComponent}}
+    <FlatList
+      {...{ListHeaderComponent, ListFooterComponent}}
       data={displayResults}
       renderItem={({item, index}) =>
         renderItem({item, index, sourceLength: displayResults?.length || 0})
@@ -169,7 +174,9 @@ export const Leaderboard = ({
       initialNumToRender={25}
       onEndReachedThreshold={0.1}
       onEndReached={() => {
-        if (showAll) fetchNextPage();
+        if (showAll) {
+          fetchNextPage();
+        }
       }}
       refreshControl={
         <RefreshControl

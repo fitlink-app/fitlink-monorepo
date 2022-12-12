@@ -132,7 +132,8 @@ export const Profile = (
   const shouldRenderGoals = () => {
     if (!user) return false;
 
-    switch (user.privacy_daily_statistics) {
+    // @ts-ignore
+    switch (user?.privacy_daily_statistics) {
       case PrivacySetting.Public:
         return true;
 
@@ -150,7 +151,8 @@ export const Profile = (
   const shouldRenderFeed = () => {
     if (!user) return false;
 
-    switch (user.privacy_activities) {
+    // @ts-ignore
+    switch (user?.privacy_activities) {
       case PrivacySetting.Public:
         return true;
 

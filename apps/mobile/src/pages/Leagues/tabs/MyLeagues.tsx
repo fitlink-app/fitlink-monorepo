@@ -1,15 +1,17 @@
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
-import {Icon, Label, TouchHandler} from '@components';
+import {Label} from '@components';
 import {useMyLeagues} from '@hooks';
 import {ActivityIndicator} from 'react-native';
 import {getResultsFromPages} from 'utils/api';
 import {LeagueList} from './components';
 import {useNavigation} from '@react-navigation/native';
+import {widthLize} from "@utils";
 
 const Wrapper = styled.View({
   flex: 1,
   justifyContent: 'center',
+  marginHorizontal: widthLize(20),
 });
 
 const EmptyContainer = styled.View({
@@ -18,14 +20,14 @@ const EmptyContainer = styled.View({
   alignItems: 'center',
 });
 
-const ButtonContentContainer = styled.View({
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-});
+// const ButtonContentContainer = styled.View({
+//   flexDirection: 'row',
+//   alignItems: 'center',
+//   justifyContent: 'center',
+// });
 
 export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
-  const navigation = useNavigation();
+  // const navigation = useNavigation();
   const {colors} = useTheme();
 
   const {
@@ -40,9 +42,9 @@ export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
 
   const results = getResultsFromPages(data);
 
-  const onCreateLeaguePressed = () => {
-    navigation.navigate('LeagueForm');
-  };
+  // const onCreateLeaguePressed = () => {
+  //   navigation.navigate('LeagueForm');
+  // };
 
   const ListEmptyComponent = isFetchingNextPage ? null : (
     <EmptyContainer
@@ -75,21 +77,21 @@ export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
     </EmptyContainer>
   );
 
-  const ListHeaderComponent = (
-    <TouchHandler style={{paddingBottom: 20}} onPress={onCreateLeaguePressed}>
-      <ButtonContentContainer>
-        <Icon
-          name={'plus'}
-          size={16}
-          color={colors.accentSecondary}
-          style={{marginRight: 5}}
-        />
-        <Label type={'body'} appearance={'secondary'} bold>
-          Create a new league
-        </Label>
-      </ButtonContentContainer>
-    </TouchHandler>
-  );
+  // const ListHeaderComponent = (
+  //   <TouchHandler style={{paddingBottom: 20}} onPress={onCreateLeaguePressed}>
+  //     <ButtonContentContainer>
+  //       <Icon
+  //         name={'plus'}
+  //         size={16}
+  //         color={colors.accentSecondary}
+  //         style={{marginRight: 5}}
+  //       />
+  //       <Label type={'body'} appearance={'secondary'} bold>
+  //         Create a new league
+  //       </Label>
+  //     </ButtonContentContainer>
+  //   </TouchHandler>
+  // );
 
   return (
     <Wrapper>

@@ -1,17 +1,19 @@
 import React from 'react';
 import {Card, Label, TouchHandler} from '../../../components/common';
 import styled from 'styled-components/native';
-import { BlurView  } from '@react-native-community/blur';
-import { useNavigation } from '@react-navigation/core';
+import {BlurView} from '@react-native-community/blur';
+import {useNavigation} from '@react-navigation/core';
+import {widthLize} from "@utils";
 
 const Wrapper = styled.View({
-  paddingHorizontal: 10
+  // paddingHorizontal: 10,
 });
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   marginTop: 40,
+  marginHorizontal: widthLize(20),
 });
 
 const Title = styled(Label).attrs(() => ({
@@ -39,6 +41,7 @@ const SliderContainer = styled.ScrollView.attrs(() => ({
   showsHorizontalScrollIndicator: false,
   contentContainerStyle: {
     justifyContent: 'space-between',
+    paddingLeft: widthLize(20),
   },
 }))({});
 
@@ -90,7 +93,7 @@ const Line = styled.View({
 
 const CardBody = styled.View({
   width: '100%',
-  height: 120,
+  height: '100%',
   paddingTop: 23,
   paddingLeft: 24,
   paddingRight: 18,
@@ -115,7 +118,7 @@ const RecordValue = styled(Label).attrs(() => ({
 const GoalText = styled(Label).attrs(() => ({
   type: 'subheading',
   bold: true,
-  appearance: 'accent'
+  appearance: 'accent',
 }))({
   fontSize: 18,
   lineHeight: 21,
@@ -138,7 +141,7 @@ const data = [
 
 export const RoutesClasses = () => {
   const navigation = useNavigation();
-  
+
   return (
     <Wrapper>
       <HeaderContainer>
@@ -156,12 +159,12 @@ export const RoutesClasses = () => {
           {data.map(({title, record_today, goal_title, img}) => (
             <CardContainer>
               <CardImage source={img} />
-              <BlurView 
+              <BlurView
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   width: '100%',
                   height: 53,
-                  backgroundColor: 'rgba(0,0,0,0.2)'
+                  backgroundColor: 'rgba(0,0,0,0.2)',
                 }}
                 blurRadius={1}
                 overlayColor={'transparent'}
@@ -169,8 +172,8 @@ export const RoutesClasses = () => {
               <CardHeader>
                 <DateText>{title}</DateText>
               </CardHeader>
-              <Line />
-              <CardBody>
+              {/*<Line />*/}
+              <CardBody style={{backgroundColor: 'rgba(0, 0, 0, 0.4)'}}>
                 <RecordValue>{record_today}</RecordValue>
                 <GoalSection>
                   <GoalText>{goal_title}</GoalText>

@@ -2,16 +2,11 @@ import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {
   Card,
-  Icon,
   CardLabel,
-  CardButton,
-  ProgressBar,
-  TouchHandlerProps,
-  TouchHandler,
   Label,
+  TouchHandler,
+  TouchHandlerProps,
 } from '../../common';
-import {LayoutUtils} from '@utils';
-import {ActivityIndicator} from 'react-native';
 
 const Wrapper = styled(Card)({
   width: '100%',
@@ -47,14 +42,14 @@ const PointsLabel = styled(Label).attrs(() => ({
 });
 
 const PointsStatusLabel = styled(Label).attrs(() => ({
-  type: 'caption'
+  type: 'caption',
 }))({
   fontSize: 15,
   letterSpacing: 2,
 });
 
 const Points = styled(Label).attrs(() => ({
-  type: 'title'
+  type: 'title',
 }))({
   fontSize: 42,
   lineHeight: 48,
@@ -97,7 +92,7 @@ export const _RewardTracker = ({
     if (claimableRewardsCount > 1) {
       text = `You have ${claimableRewardsCount} unclaimed rewards`;
     } else if (claimableRewardsCount) {
-      text = `You have an unclaimed reward`;
+      text = 'You have an unclaimed reward';
     }
 
     return <CardLabel>{text}</CardLabel>;
@@ -106,14 +101,16 @@ export const _RewardTracker = ({
   return (
     <TouchHandler {...rest} disabled={!rest.onPress}>
       <Wrapper>
-        <ContentContainer>
+        <ContentContainer style={{marginLeft: 0}}>
           <Row>
             <PointsLabel>TOTAL $BFIT</PointsLabel>
             <PointsStatusLabel>+23%</PointsStatusLabel>
           </Row>
           <Row>
             <Points>00640</Points>
-            <PointsChart source={require('../../../../assets/images/wallet_chart.png')} />
+            <PointsChart
+              source={require('../../../../assets/images/wallet_chart.png')}
+            />
           </Row>
         </ContentContainer>
       </Wrapper>

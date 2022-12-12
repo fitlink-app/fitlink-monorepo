@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { Card, Label } from '@components';
+import {Card, Label} from '@components';
+import {widthLize} from '@utils';
 
 const Container = styled(Card)({
-  width: '100%',
   paddingTop: 23,
   paddingBottom: 20,
-  paddingLeft: 33,
-  paddingRight: 32,
+  paddingLeft: widthLize(32),
+  paddingRight: widthLize(32),
   marginTop: 16,
 });
 
@@ -40,7 +40,7 @@ const PercentageValue = styled(Label).attrs(() => ({
 });
 
 const StatValue = styled(Label).attrs(() => ({
-  type: 'title'
+  type: 'title',
 }))({
   fontSize: 42,
   lineHeight: 48,
@@ -50,16 +50,18 @@ const StatValue = styled(Label).attrs(() => ({
 const StatChart = styled.Image({});
 
 export const RankCard = () => {
-    return (
-        <Container>
-            <Row>
-                <StatLabel>Total Rank</StatLabel>
-                <PercentageValue>+10P</PercentageValue>
-            </Row>
-            <Row>
-                <StatValue>37640</StatValue>
-                <StatChart source={require('../../../assets/images/total_rank_chart.png')} />
-            </Row>
-        </Container>
-    );
+  return (
+    <Container>
+      <Row>
+        <StatLabel>Total Rank</StatLabel>
+        <PercentageValue>+10P</PercentageValue>
+      </Row>
+      <Row>
+        <StatValue>37640</StatValue>
+        <StatChart
+          source={require('../../../assets/images/total_rank_chart.png')}
+        />
+      </Row>
+    </Container>
+  );
 };

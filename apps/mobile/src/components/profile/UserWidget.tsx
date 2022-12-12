@@ -31,7 +31,7 @@ const Wrapper = styled.View({
 
 const ContentContainer = styled.View({
   justifyContent: 'center',
-  paddingTop: 15,
+  // paddingTop: 15,
   paddingLeft: 15,
   flex: 1,
 });
@@ -97,9 +97,10 @@ const UserStat = ({
   const navigation = useNavigation();
 
   return (
-    <UserStatWrapper onPress={() => {
-      navigation.navigate('Friends', {tab: tabNumber})
-    }}>
+    <UserStatWrapper
+      onPress={() => {
+        navigation.navigate('Friends', {tab: tabNumber});
+      }}>
       <StatValue>
         <StatNumber
           style={{
@@ -144,7 +145,7 @@ export const UserWidget = (props: UserWidgetProps) => {
           style={{
             fontFamily: 'Roboto',
             fontSize: 28,
-            lineHeight: 32.81,
+            lineHeight: 32,
           }}>
           {props.name}
         </Name>
@@ -155,31 +156,30 @@ export const UserWidget = (props: UserWidgetProps) => {
               fontFamily: 'Roboto',
               fontSize: 14,
               textTransform: 'uppercase',
-              lineHeight: 16.41,
-              letterSpacing: 1,
+              lineHeight: 18,
             }}>
             {props.rank}
           </Rank>
-          <RankLine />
+          <RankLine style={{marginHorizontal: 12}} />
           <Level
             style={{
               fontFamily: 'Roboto',
               fontSize: 14,
               textTransform: 'uppercase',
-              lineHeight: 16.41,
+              lineHeight: 18,
             }}>
             {props.rank}
           </Level>
         </RankContainer>
 
         <StatContainer>
-          <UserStat 
-            value={props.friendCount || 0} 
+          <UserStat
+            value={props.friendCount || 0}
             label={'Following'}
             tabNumber={1}
           />
-          <UserStat 
-            value={props.followerCount || 0} 
+          <UserStat
+            value={props.followerCount || 0}
             label={'Followers'}
             tabNumber={0}
           />

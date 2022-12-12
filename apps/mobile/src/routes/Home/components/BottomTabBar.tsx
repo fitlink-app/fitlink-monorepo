@@ -1,18 +1,18 @@
 import React from 'react';
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
-import {View, Pressable, Platform} from 'react-native';
+import {View, Pressable, Platform, SafeAreaView} from 'react-native';
 import {Label} from '@components';
+import {widthLize} from '@utils';
 
-const Wrapper = styled.View(({theme}) => ({
+const Wrapper = styled.View(() => ({
   width: '100%',
   height: 79,
 }));
 
 const Container = styled.View(({theme}) => ({
   alignSelf: 'center',
-  width: '80%',
+  width: widthLize(358),
   height: '100%',
   backgroundColor: theme.colors.navbar,
   flexDirection: 'row',
@@ -44,12 +44,12 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
   function renderButtons() {
     return state.routes.map((route, index) => {
       const {options} = descriptors[route.key];
-      const label =
-        options.tabBarLabel !== undefined
-          ? options.tabBarLabel
-          : options.title !== undefined
-          ? options.title
-          : route.name;
+      // const label =
+      //   options.tabBarLabel !== undefined
+      //     ? options.tabBarLabel
+      //     : options.title !== undefined
+      //     ? options.title
+      //     : route.name;
 
       const isFocused = state.index === index;
 
@@ -76,7 +76,9 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
         const {tabBarBadge, tabBarIcon} = options;
 
         const Badge = () => {
-          if (!tabBarBadge) return null;
+          if (!tabBarBadge) {
+            return null;
+          }
 
           return (
             <BadgeContainer>
@@ -87,7 +89,9 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
           );
         };
 
-        if (!tabBarIcon) return null;
+        if (!tabBarIcon) {
+          return null;
+        }
         return (
           <View>
             {tabBarIcon({focused: isFocused, color: '', size: 30})}
@@ -123,17 +127,20 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
     return null;
   }
 
-  // Insets from SafeAreaProvider
-  const insets = useSafeAreaInsets();
-
   return (
-    <Wrapper>
-      <Container
-        style={{
-          paddingBottom: Platform.OS === 'ios' ? insets.bottom : undefined,
-        }}>
-        {renderButtons()}
-      </Container>
-    </Wrapper>
+    <SafeAreaView
+      style={{
+        backgroundColor: 'transparent',
+        overflow: Platform.OS === 'ios' ? 'visible' : 'hidden',
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: -10,
+        zIndex: 2,
+      }}>
+      <Wrapper>
+        <Container>{renderButtons()}</Container>
+      </Wrapper>
+    </SafeAreaView>
   );
 };

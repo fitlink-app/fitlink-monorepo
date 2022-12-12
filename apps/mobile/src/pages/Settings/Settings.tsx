@@ -1,36 +1,36 @@
 import {
   Avatar,
   Button,
+  Card,
   Checkbox,
   Label,
   Modal,
   Navbar,
   NAVBAR_HEIGHT,
   TouchHandler,
-  Card,
 } from '@components';
 import {
   ImagePickerDialogResponse,
+  useFitbit,
   useImagePicker,
-  useStrava,
   useMe,
   useModal,
   useProviders,
-  useFitbit,
+  useStrava,
 } from '@hooks';
 import {useNavigation} from '@react-navigation/native';
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Keyboard, Linking, Platform, ScrollView, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
 import {
   CategoryLabel,
+  DeleteAccountModal,
   SettingsButton,
-  SettingsInput,
   SettingsDropdown,
   SettingsHealthActivityButton,
-  DeleteAccountModal,
+  SettingsInput,
 } from './components';
 import {SettingsItemWrapper} from './components/SettingsItemWrapper';
 import {SettingsItemLabel} from './components/SettingsItemLabel';
@@ -39,8 +39,8 @@ import {AppDispatch} from 'redux/store';
 import {logout} from 'redux/auth/authSlice';
 import {
   clearChanges,
-  PRIVACY_ITEMS,
   CURRENCY_ITEMS,
+  PRIVACY_ITEMS,
   selectDidSettingsChange,
   selectSettings,
   setActivitiesPrivacy,
@@ -54,13 +54,13 @@ import {
   submit,
   UserGoalPreferences,
 } from 'redux/settings/settingsSlice';
-import {useEffect} from 'react';
 import {TransitionContext} from 'contexts';
 import Intercom from '@intercom/intercom-react-native';
 import {useCustomProvider} from 'hooks/api/providers/custom';
 import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 import {GoogleFitWrapper} from 'services/GoogleFit';
 import {AppleHealthKitWrapper} from 'services';
+import {widthLize} from '@utils';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -219,7 +219,9 @@ export const Settings = () => {
         localGoals[property as keyof UserGoalPreferencesString],
       );
 
-      if (isNaN(parsedValue)) parsedValue = 0;
+      if (isNaN(parsedValue)) {
+        parsedValue = 0;
+      }
       parsedGoals[property as keyof UserGoalPreferences] = parsedValue;
     }
 
@@ -268,63 +270,70 @@ export const Settings = () => {
         }}>
         {/* Account Settings */}
         <CategoryCard>
-          <Row style={{alignItems: 'center', marginTop: 20}}>
-            <CategoryTitle>Account</CategoryTitle>
-            <Button 
-              text={'Logout'} 
-              containerStyle={{
-                width: 66,
-                height: 26,
-                marginLeft: 100,
-                backgroundColor: '#ACACAC'
-              }}
-              textStyle={{
-                fontSize: 14,
-                color: '#181818'
-              }}
-              onPress={() => {
-                openModal(id => {
-                  return (
-                    <Modal
-                      title={'Log out'}
-                      description={'Are you sure you want to log out?'}
-                      buttons={[
-                        {
-                          text: 'Log out',
-                          type: 'danger',
-                          onPress: () => {
-                            closeModal(id, () => {
-                              openModal(confirmationModalId => {
-                                return (
-                                  <Modal
-                                    title={'Logged Out'}
-                                    description={'You have been logged out.'}
-                                    buttons={[
-                                      {
-                                        text: 'Ok',
-                                        onPress: () =>
-                                          closeModal(confirmationModalId),
-                                      },
-                                    ]}
-                                  />
-                                );
+          <Row
+            style={{
+              alignItems: 'center',
+              marginTop: 20,
+            }}>
+            <View>
+              <CategoryTitle>Account</CategoryTitle>
+            </View>
+            <View style={{marginRight: widthLize(20)}}>
+              <Button
+                text={'Logout'}
+                containerStyle={{
+                  width: widthLize(66),
+                  height: 26,
+                  backgroundColor: '#ACACAC',
+                }}
+                textStyle={{
+                  fontSize: 14,
+                  color: '#181818',
+                }}
+                onPress={() => {
+                  openModal(id => {
+                    return (
+                      <Modal
+                        title={'Log out'}
+                        description={'Are you sure you want to log out?'}
+                        buttons={[
+                          {
+                            text: 'Log out',
+                            type: 'danger',
+                            onPress: () => {
+                              closeModal(id, () => {
+                                openModal(confirmationModalId => {
+                                  return (
+                                    <Modal
+                                      title={'Logged Out'}
+                                      description={'You have been logged out.'}
+                                      buttons={[
+                                        {
+                                          text: 'Ok',
+                                          onPress: () =>
+                                            closeModal(confirmationModalId),
+                                        },
+                                      ]}
+                                    />
+                                  );
+                                });
                               });
-                            });
-  
-                            dispatch(logout());
+
+                              dispatch(logout());
+                            },
                           },
-                        },
-                        {
-                          text: 'Stay',
-                          textOnly: true,
-                          onPress: () => closeModal(id),
-                        },
-                      ]}
-                    />
-                  );
-                });
-              }}
-            />
+                          {
+                            text: 'Stay',
+                            textOnly: true,
+                            onPress: () => closeModal(id),
+                          },
+                        ]}
+                      />
+                    );
+                  });
+                }}
+              />
+            </View>
           </Row>
           <SettingsButton
             preLabelComponent={
@@ -354,7 +363,8 @@ export const Settings = () => {
           <SettingsDropdown
             label={'Display Currency'}
             items={CURRENCY_ITEMS}
-            value={settings.userSettings?.privacy_daily_statistics}
+            // value={settings.userSettings?.privacy_daily_statistics}
+            value={'gbp'}
             prompt={'Select your currency'}
             valueTextWidth={50}
           />
@@ -372,9 +382,7 @@ export const Settings = () => {
 
         <CategoryCard>
           <CategoryLabel>Wallet</CategoryLabel>
-          <SettingsButton
-            label={'Keplr'}
-          />
+          <SettingsButton label={'Kujira'} />
         </CategoryCard>
 
         {/* Linked Trackers */}
@@ -406,6 +414,7 @@ export const Settings = () => {
               onLink={() => {
                 linkAppleHealth(() => AppleHealthKitWrapper.authenticate());
               }}
+              // @ts-ignore
               onUnlink={unlinkAppleHealth}
               isLoading={isAppleHealthLinking || isAppleHealthUnlinking}
               disabled={isAppleHealthLinking || isAppleHealthUnlinking}
@@ -416,6 +425,7 @@ export const Settings = () => {
           <SettingsHealthActivityButton
             label={'Strava'}
             onLink={linkStrava}
+            // @ts-ignore
             onUnlink={unlinkStrava}
             isLoading={isStravaLinking || isStravaUnlinking}
             disabled={isStravaLinking || isStravaUnlinking}
@@ -425,6 +435,7 @@ export const Settings = () => {
           <SettingsHealthActivityButton
             label={'Fitbit'}
             onLink={linkFitbit}
+            // @ts-ignore
             onUnlink={unlinkFitbit}
             isLoading={isFitbitLinking || isFitbitUnlinking}
             disabled={isFitbitLinking || isFitbitUnlinking}
@@ -543,7 +554,8 @@ export const Settings = () => {
         {/* Newsletter */}
         <CategoryCard>
           <CategoryLabel>Newsletter</CategoryLabel>
-          <SettingsItemWrapper style={{borderTopWidth: 1, borderColor: '#2e2e2e'}}>
+          <SettingsItemWrapper
+            style={{borderTopWidth: 1, borderColor: '#2e2e2e'}}>
             <Row>
               <SettingsItemLabel children={'Subscribe to newsletter'} />
               <Checkbox
@@ -590,7 +602,7 @@ export const Settings = () => {
             onPress={() => Intercom.displayMessenger()}
           />
 
-          <SettingsButton label={`Version 3.0.1`} disabled={true} />
+          <SettingsButton label={'Version 3.0.1'} disabled={true} />
         </CategoryCard>
 
         <DeleteButtonWrapper>
@@ -608,7 +620,9 @@ export const Settings = () => {
                     <DeleteAccountModal
                       onCloseCallback={isDeleted => {
                         closeModal(id);
-                        if (!isDeleted) return;
+                        if (!isDeleted) {
+                          return;
+                        }
 
                         setTimeout(() => {
                           openModal(confirmationModalId => {
