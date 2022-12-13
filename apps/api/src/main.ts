@@ -20,7 +20,6 @@ import { validationExceptionFactory } from './exceptions/validation.exception.fa
 import { bgMagenta, bold } from 'chalk'
 import { UploadGuardV2 } from './guards/upload-v2.guard'
 import { GlobalExceptionsFilter } from './filters/global-exception-filter'
-import * as moment from 'moment'
 
 declare const module: any
 
@@ -97,16 +96,4 @@ async function bootstrap() {
   }
 }
 
-function mint() {
-  const hours = moment(new Date()).toDate().getUTCHours()
-  const minutes = moment(new Date()).toDate().getUTCMinutes()
-  const seconds = moment(new Date()).toDate().getUTCSeconds()
-
-  if (hours === 0 && minutes === 0 && seconds === 0) {
-    
-  }
-}
-
 bootstrap()
-
-mint()
