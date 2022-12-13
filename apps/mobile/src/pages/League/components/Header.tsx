@@ -181,7 +181,7 @@ export const Header = ({
       <ContentHeader>
         <Navbar
           iconColor={'white'}
-          title="GOLD REWARD"
+          title="GOLD LEAGUE"
           titleStyle={{fontSize: 18}}
           containerStyle={{
             paddingTop: 0,

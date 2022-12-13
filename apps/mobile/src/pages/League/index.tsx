@@ -246,8 +246,9 @@ export const League = (
         flex: 1,
       }}>
       <Wrapper>
+        {renderHeader()}
         <Leaderboard
-          renderHeader={renderHeader()}
+          // renderHeader={renderHeader()}
           fetchingNextPage={isFetchingMembersNextPage}
           isRepeat={activeLeague.repeat}
           title={activeLeague.name}

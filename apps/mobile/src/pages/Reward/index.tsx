@@ -46,7 +46,7 @@ const Row = styled.View({
 const HeaderImage = styled(Image)({
   position: 'absolute',
   width: '100%',
-  resizeMode: 'stretch',
+  resizeMode: 'cover',
   height: 434,
 });
 
@@ -84,7 +84,6 @@ const Line = styled.View({
 
 const ContentContainer = styled.View({
   marginTop: 28,
-  paddingHorizontal: 10,
 });
 
 const InstructionsContainer = styled.View({
@@ -219,7 +218,7 @@ export const Reward = (
               </Card>
             )}
 
-            <View style={{alignItems: 'center'}}>
+            <View style={{alignItems: 'center', marginVertical: 10}}>
               <Label type={'caption'} style={{marginTop: 10}}>
                 {reward.redeem_instructions
                   ? reward.redeem_instructions
@@ -295,6 +294,7 @@ export const Reward = (
     <Wrapper>
       <Animated.ScrollView
         bounces={false}
+        showsVerticalScrollIndicator={false}
         onScroll={Animated.event(
           [{nativeEvent: {contentOffset: {y: scrollAnim}}}],
           {useNativeDriver: true},
@@ -381,7 +381,7 @@ export const Reward = (
             mind that you have only {restDays} days left to redeem it.
           </Label>
 
-          <View style={{marginBottom: 20}}>{renderContent()}</View>
+          <View style={{marginVertical: 20}}>{renderContent()}</View>
         </ContentContainer>
       </Animated.ScrollView>
 

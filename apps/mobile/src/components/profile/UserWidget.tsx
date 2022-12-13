@@ -160,7 +160,7 @@ export const UserWidget = (props: UserWidgetProps) => {
             }}>
             {props.rank}
           </Rank>
-          <RankLine style={{marginHorizontal: 12}} />
+          <RankLine style={{marginHorizontal: 6}} />
           <Level
             style={{
               fontFamily: 'Roboto',

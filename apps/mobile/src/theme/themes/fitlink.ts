@@ -24,6 +24,7 @@ const colors: ThemeColors = {
   danger: '#D32F2F',
   navbar: '#565656',
   card: '#181818',
+  grayText: '#565656',
 };
 
 const typography: ThemeTypography = {

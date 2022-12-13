@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useRef} from 'react';
-import {GoalTracker, Modal, RewardTracker} from '@components';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {FeedItem, GoalTracker, Modal, RewardTracker} from '@components';
 import {
   useGoals,
   useMe,
@@ -12,7 +12,7 @@ import {
 import {UserWidget, TouchHandler} from '@components';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
-import {ScrollView} from 'react-native';
+import {FlatList, Platform, RefreshControl, ScrollView} from 'react-native';
 import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {calculateGoalsPercentage, getPersistedData, persistData} from '@utils';
 import {NewsletterModal, NotificationsButton} from './components';
@@ -25,6 +25,14 @@ import {ActivityHistory} from './components/ActivityHistory';
 import {RoutesClasses} from './components/RoutesClasses';
 import {RankCard} from '../Leagues/components/RankCard';
 import {CaloriesCard} from './components/CaloriesCard';
+import {Label} from '../../components/common';
+import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
+import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
+import {useFeed} from '@hooks';
+import {useSelector} from 'react-redux';
+import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
+import {useTheme} from 'styled-components/native';
+import {queryClient, QueryKeys} from '@query';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -37,6 +45,15 @@ const TopButtonRow = styled.View({
 });
 
 const TopButtonSpacer = styled.View({width: 10});
+
+const ButtonContainer = styled.View(({theme: {colors}}) => ({
+  flexDirection: 'row',
+  height: 32,
+  backgroundColor: colors.surface,
+  borderRadius: 16,
+  alignItems: 'center',
+  width: 100,
+}));
 
 const SettingsButton = styled.Image({});
 
@@ -52,6 +69,20 @@ const StatContainer = styled.View({
 });
 
 const FeedContainer = styled.View({});
+
+const ListFooterContainer = styled.View({
+  paddingLeft: 20,
+  paddingRight: 20,
+  flex: 1,
+  alignItems: 'center',
+});
+
+const Button = styled(TouchHandler)({
+  flex: 1,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
 
 export const Feed = () => {
   const insets = useSafeAreaInsets();
@@ -127,6 +158,43 @@ export const Feed = () => {
     saveCurrentToken();
   }, []);
 
+  const [isPulledDown, setIsPulledDown] = useState(false);
+  const feedPreferences = useSelector(memoSelectFeedPreferences);
+  const {
+    data: feed,
+    refetch: refetchFeed,
+    fetchNextPage: fetchFeedNextPage,
+    isFetchingNextPage: isFeedFetchingNextPage,
+    isFetchedAfterMount: isFeedFetchedAfterMount,
+  } = useFeed({
+    my_goals: feedPreferences.showGoals,
+    friends_activities: feedPreferences.showFriends,
+    my_updates: feedPreferences.showUpdates,
+  });
+  const feedResults = getResultsFromPages<FeedItemType>(feed);
+  const {colors} = useTheme();
+  useEffect(() => {
+    queryClient.removeQueries(QueryKeys.Feed);
+    refetchFeed();
+  }, [feedPreferences]);
+
+  const keyExtractor = (item: FeedItemType) => item.id as string;
+
+  const renderItem = ({item}: {item: FeedItemType}) => {
+    const isLiked = !!(item.likes as UserPublic[]).find(
+      (feedItemUser: any) => feedItemUser.id === user?.id,
+    );
+
+    return (
+      <FeedItem
+        item={item}
+        // @ts-ignore
+        unitSystem={user?.unit_system}
+        isLiked={isLiked}
+      />
+    );
+  };
+
   if (!user) {
     return null;
   }
@@ -157,7 +225,7 @@ export const Feed = () => {
               <UserWidget
                 goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
                 name={user.name}
-                rank={user.rank}
+                rank={'Bronze member'}
                 avatar={user.avatar?.url_512x512}
                 friendCount={user.following_total}
                 followerCount={user.followers_total}
@@ -263,17 +331,125 @@ export const Feed = () => {
           </StatContainer>
 
           <FeedContainer>
-            <CompeteLeagues />
-            <RewardSlider
-              data={unlockedRewardsEntries}
-              title={'Unlocked Rewards'}
-              isLoading={isFetchingLockedRewards}
-              isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
-              userPoints={user!.points_total}
-              fetchNextPage={fetchUnLockedRewardsNextPage}
+            <FlatList
+              {...{renderItem, keyExtractor}}
+              ref={scrollRef}
+              data={feedResults}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                minHeight: '100%',
+                paddingBottom:
+                  Platform.OS === 'ios' ? 0 : isFeedFetchingNextPage ? 0 : 72,
+              }}
+              // onEndReachedThreshold={0.2}
+              // onEndReached={() => fetchFeedNextPage()}
+              refreshControl={
+                <RefreshControl
+                  tintColor={colors.accent}
+                  refreshing={isPulledDown && isFeedFetchedAfterMount}
+                  onRefresh={() => {
+                    setIsPulledDown(true);
+
+                    queryClient.setQueryData(QueryKeys.Feed, (data: any) => {
+                      return {
+                        pages: data.pages.length ? [data.pages[0]] : data.pages,
+                        pageParams: data.pageParams.length
+                          ? [data.pageParams[0]]
+                          : data.pageParams,
+                      };
+                    });
+
+                    refetchFeed().finally(() => {
+                      setIsPulledDown(false);
+                    });
+                  }}
+                />
+              }
+              ListHeaderComponent={
+                <>
+                  <CompeteLeagues />
+                  <RewardSlider
+                    data={unlockedRewardsEntries}
+                    title={'Unlocked Rewards'}
+                    isLoading={isFetchingLockedRewards}
+                    isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
+                    userPoints={user!.points_total}
+                    fetchNextPage={fetchUnLockedRewardsNextPage}
+                  />
+                  <ActivityHistory />
+                  <RoutesClasses />
+                </>
+              }
+              ListFooterComponent={
+                feedResults.length > 0 ? (
+                  <ListFooterContainer>
+                    <ButtonContainer>
+                      <Button onPress={() => fetchFeedNextPage()}>
+                        <Label type="caption" appearance={'primary'}>
+                          SEE MORE
+                        </Label>
+                      </Button>
+                    </ButtonContainer>
+                  </ListFooterContainer>
+                ) : null
+              }
+              // ListHeaderComponent={
+              //   <CoverImage>
+              //     <CoverBackgroundImage
+              //       source={require('../../../assets/images/activity_feed/cover-1.png')}
+              //     />
+              //     <CoverInfo style={{marginTop: 137}}>
+              //       <CoverTitle
+              //         style={{
+              //           fontFamily: 'Roboto',
+              //           fontSize: 22,
+              //           fontWeight: '500',
+              //           lineHeight: 26,
+              //         }}>
+              //         10-minute Mindfulness Exercises You Can Do
+              //       </CoverTitle>
+              //       <CoverDate
+              //         style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
+              //         <Label
+              //           type="caption"
+              //           style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
+              //           Fitlink
+              //         </Label>{' '}
+              //         - Tuesday at 9:28 AM
+              //       </CoverDate>
+              //     </CoverInfo>
+              //   </CoverImage>
+              // }
+              // ListFooterComponent={
+              //   <ListFooterContainer>
+              //     <CoverImage>
+              //       <CoverBackgroundImage
+              //         source={require('../../../assets/images/activity_feed/cover-2.png')}
+              //       />
+              //       <CoverInfo style={{marginTop: 113}}>
+              //         <CoverTitle
+              //           style={{
+              //             fontFamily: 'Roboto',
+              //             fontSize: 22,
+              //             fontWeight: '500',
+              //             lineHeight: 26,
+              //           }}>
+              //           Why Trees Are Good For Our Mental & Physical Wellbeing
+              //         </CoverTitle>
+              //         <CoverDate
+              //           style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
+              //           <Label
+              //             type="caption"
+              //             style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
+              //             Fitlink
+              //           </Label>{' '}
+              //           - Tuesday at 9:28 AM
+              //         </CoverDate>
+              //       </CoverInfo>
+              //     </CoverImage>
+              //   </ListFooterContainer>
+              // }
             />
-            <ActivityHistory />
-            <RoutesClasses />
           </FeedContainer>
         </>
       </ScrollView>

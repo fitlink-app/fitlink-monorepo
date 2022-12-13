@@ -1,7 +1,7 @@
-import React from "react";
-import { View } from "react-native";
+import React from 'react';
+import {View} from 'react-native';
 import styled from 'styled-components/native';
-import { Card, Label, ProgressCircle } from '@components';
+import {Card, Label, ProgressCircle} from '@components';
 
 const Container = styled(Card)({
   flexDirection: 'row',
@@ -27,7 +27,8 @@ const CardLabel = styled(Label).attrs(() => ({
 });
 
 const Value = styled(Label).attrs(() => ({
-  type: 'title'
+  type: 'title',
+  numberOfNumbers: 5,
 }))({
   fontSize: 42,
   lineHeight: 48,
@@ -58,26 +59,25 @@ const Calories = styled(Label).attrs(() => ({
 });
 
 export const CaloriesCard = () => {
-    return (
-        <Container>
-            <View>
-                <CardLabel>Total Calories</CardLabel>
-                <Value>01240</Value>
-            </View>
-            <View
-                style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-                <ProgressCircle
-                    progress={0.87}
-                    strokeWidth={3}
-                    backgroundStrokeWidth={2.5}
-                    bloomIntensity={0.5}
-                    bloomRadius={5}
-                    size={81}>
-                    <CaloriesCircle>
-                        <Calories>87%</Calories>
-                    </CaloriesCircle>
-                </ProgressCircle>
-            </View>
-        </Container>
-    );
+  return (
+    <Container>
+      <View>
+        <CardLabel>Total Calories</CardLabel>
+        <Value>1240</Value>
+      </View>
+      <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+        <ProgressCircle
+          progress={0.87}
+          strokeWidth={3}
+          backgroundStrokeWidth={2.5}
+          bloomIntensity={0.5}
+          bloomRadius={5}
+          size={81}>
+          <CaloriesCircle>
+            <Calories>87%</Calories>
+          </CaloriesCircle>
+        </ProgressCircle>
+      </View>
+    </Container>
+  );
 };

@@ -50,6 +50,7 @@ const PointsStatusLabel = styled(Label).attrs(() => ({
 
 const Points = styled(Label).attrs(() => ({
   type: 'title',
+  numberOfNumbers: 5,
 }))({
   fontSize: 42,
   lineHeight: 48,
@@ -107,7 +108,7 @@ export const _RewardTracker = ({
             <PointsStatusLabel>+23%</PointsStatusLabel>
           </Row>
           <Row>
-            <Points>00640</Points>
+            <Points>640</Points>
             <PointsChart
               source={require('../../../../assets/images/wallet_chart.png')}
             />

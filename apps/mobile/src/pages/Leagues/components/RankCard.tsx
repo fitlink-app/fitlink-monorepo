@@ -41,6 +41,7 @@ const PercentageValue = styled(Label).attrs(() => ({
 
 const StatValue = styled(Label).attrs(() => ({
   type: 'title',
+  numberOfNumbers: 5,
 }))({
   fontSize: 42,
   lineHeight: 48,

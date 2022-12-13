@@ -1,7 +1,11 @@
 import {Label} from '@components';
 import React from 'react';
-import {ActivityIndicator, FlatList, FlatListProps, RefreshControl} from 'react-native';
-import {Animated} from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  FlatListProps,
+  RefreshControl,
+} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {LeaderboardItem} from './LeaderboardItem';
 import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/entities/leaderboard-entry.entity';
@@ -9,6 +13,7 @@ import {LeaderboardHeader} from './LeaderboardHeader';
 import {useState} from 'react';
 import {LeaderboardSeparator} from './LeaderboardSeparator';
 import {useNavigation} from '@react-navigation/core';
+import {useMe} from '@hooks';
 
 const INITIAL_MEMBER_COUNT_TO_DISPLAY = 10;
 
@@ -61,6 +66,7 @@ export const Leaderboard = ({
 }: LeaderboardProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
+  const {data: user} = useMe();
 
   const [showAll, setShowAll] = useState(false);
 
@@ -166,6 +172,7 @@ export const Leaderboard = ({
 
   return (
     <FlatList
+      showsVerticalScrollIndicator={false}
       {...{ListHeaderComponent, ListFooterComponent}}
       data={displayResults}
       renderItem={({item, index}) =>
