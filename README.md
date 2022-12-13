@@ -49,5 +49,3 @@ After running the commands navigate to [http://localhost:4000/login](http://loca
 7. `scp -i [keypath] fitlink.sql ec2-user@[ip]:~/fitlink.sql`
 8. `eb ssh`
 9. `psql -h [url] -p 5432 -U [user] --password [db_name] < ~/fitlink.sql`
-
-deploy
