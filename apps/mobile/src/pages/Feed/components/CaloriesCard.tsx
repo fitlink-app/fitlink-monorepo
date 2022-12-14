@@ -1,6 +1,6 @@
 import React from 'react';
 import {View} from 'react-native';
-import styled from 'styled-components/native';
+import styled, {useTheme} from 'styled-components/native';
 import {Card, Label, ProgressCircle} from '@components';
 
 const Container = styled(Card)({
@@ -58,12 +58,20 @@ const Calories = styled(Label).attrs(() => ({
   textTransform: 'uppercase',
 });
 
+const Row = styled.View({
+  flexDirection: 'row',
+});
+
 export const CaloriesCard = () => {
+  const {colors} = useTheme();
   return (
     <Container>
       <View>
         <CardLabel>Total Calories</CardLabel>
-        <Value>1240</Value>
+        <Row>
+          <Value style={{color: colors.grayText}}>0</Value>
+          <Value>1240</Value>
+        </Row>
       </View>
       <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
         <ProgressCircle

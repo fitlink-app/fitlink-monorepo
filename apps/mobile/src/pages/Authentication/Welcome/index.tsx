@@ -199,14 +199,14 @@ export const Welcome = () => {
               logo={apple_icon}
               onPress={handleOnApplePressed}
             />
-            <SpacedButton
-              disabled={isMetaMaskLoading}
-              loading={isMetaMaskLoading}
-              text={'Continue with MetaMask'}
-              textStyle={{marginLeft: 10}}
-              logo={metamask_icon}
-              onPress={handleOnMetaMaskPressed}
-            />
+            {/*<SpacedButton*/}
+            {/*  disabled={isMetaMaskLoading}*/}
+            {/*  loading={isMetaMaskLoading}*/}
+            {/*  text={'Continue with MetaMask'}*/}
+            {/*  textStyle={{marginLeft: 10}}*/}
+            {/*  logo={metamask_icon}*/}
+            {/*  onPress={handleOnMetaMaskPressed}*/}
+            {/*/>*/}
             <SpacedButton
               disabled={true}
               loading={isMetaMaskLoading}

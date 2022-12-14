@@ -4,7 +4,6 @@ import {
   FlatList,
   FlatListProps,
   Dimensions,
-  View,
   ActivityIndicator,
 } from 'react-native';
 import styled, {useTheme} from 'styled-components/native';

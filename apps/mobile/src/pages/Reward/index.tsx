@@ -33,9 +33,10 @@ const EmptyContainer = styled.View({
 
 const HeaderContainer = styled.View({
   width: '100%',
-  height: 434,
+  // height: 300,
   borderRadius: 30,
   overflow: 'hidden',
+  // aspectRatio: 1920 / 1080,
 });
 
 const Row = styled.View({
@@ -43,20 +44,19 @@ const Row = styled.View({
   justifyContent: 'space-between',
 });
 
+// const HeaderImage = styled(Image)({
+//   position: 'absolute',
+//   width: '100%',
+//   resizeMode: 'cover',
+//   height: 434,
+// });
+
 const HeaderImage = styled(Image)({
   position: 'absolute',
   width: '100%',
-  resizeMode: 'cover',
-  height: 434,
-});
-
-const TitleContainer = styled.View({
-  position: 'relative',
-  width: '100%',
-  height: 86,
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignItems: 'center',
+  height: '100%',
+  borderRadius: 26,
+  overflow: 'hidden',
 });
 
 const HeaderContent = styled.View({
@@ -65,12 +65,6 @@ const HeaderContent = styled.View({
   flexDirection: 'row',
   justifyContent: 'center',
   alignItems: 'center',
-});
-
-const PageTitle = styled(Label).attrs(() => ({
-  children: 'GOLD REWARD',
-}))({
-  fontSize: 18,
 });
 
 const Line = styled.View({
@@ -109,6 +103,7 @@ export const Reward = (
   const insets = useSafeAreaInsets();
 
   const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [imageSize, setImageSize] = useState({width: 0, height: 1});
 
   const {data: user} = useMe();
 
@@ -118,6 +113,14 @@ export const Reward = (
 
   const scrollAnim = useRef(new Animated.Value(0)).current;
   let snackbarTimer = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (image) {
+      Image.getSize(image, (width, height) => {
+        setImageSize({width, height});
+      });
+    }
+  }, [image]);
 
   useEffect(() => {
     const onFocusListener = navigation.addListener('focus', () => {
@@ -299,7 +302,8 @@ export const Reward = (
           [{nativeEvent: {contentOffset: {y: scrollAnim}}}],
           {useNativeDriver: true},
         )}>
-        <HeaderContainer>
+        <HeaderContainer
+          style={{aspectRatio: imageSize.width / imageSize.height}}>
           <Navbar
             iconColor={'white'}
             title="GOLD REWARD"

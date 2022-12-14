@@ -31,7 +31,7 @@ import {
 
 const Wrapper = styled.View(({theme}) => ({
   paddingVertical: 15,
-  marginHorizontal: 20,
+  // marginHorizontal: 20,
   borderColor: theme.colors.separator,
 }));
 
@@ -75,12 +75,6 @@ const Button = styled(TouchHandler)({
   alignItems: 'center',
   justifyContent: 'center',
 });
-
-const ButtonSeparator = styled.View(({theme: {colors}}) => ({
-  width: 1,
-  height: 20,
-  backgroundColor: colors.background,
-}));
 
 interface FeedItemProps {
   item: FeedItemClass;
@@ -243,8 +237,9 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
   const images =
     item.health_activity?.images.map(image => image.url_128x128) || [];
 
-  const usersLikedAvatars = item.likes.map(
-    likingUser => likingUser.avatar?.url_128x128 || '',
+  // @ts-ignore
+  const usersLikedAvatars = item?.likes?.map(
+    (likingUser: any) => likingUser.avatar?.url_128x128 || '',
   );
 
   const LikeButton = isLiked ? (

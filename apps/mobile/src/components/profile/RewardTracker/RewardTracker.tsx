@@ -50,7 +50,7 @@ const PointsStatusLabel = styled(Label).attrs(() => ({
 
 const Points = styled(Label).attrs(() => ({
   type: 'title',
-  numberOfNumbers: 5,
+  // numberOfNumbers: 5,
 }))({
   fontSize: 42,
   lineHeight: 48,
@@ -74,30 +74,8 @@ interface RewardTrackerProps extends Omit<TouchHandlerProps, 'disabled'> {
   isLoading?: boolean;
 }
 
-export const _RewardTracker = ({
-  points,
-  targetPoints,
-  claimableRewardsCount,
-  showNextReward,
-  isLoading,
-  ...rest
-}: RewardTrackerProps) => {
+export const _RewardTracker = ({...rest}: RewardTrackerProps) => {
   const {colors} = useTheme();
-
-  const progress = points / targetPoints;
-  const pointsRemainingTillNextReward = targetPoints - points;
-
-  const renderCardLabel = () => {
-    let text = `${pointsRemainingTillNextReward} Points remaining`;
-
-    if (claimableRewardsCount > 1) {
-      text = `You have ${claimableRewardsCount} unclaimed rewards`;
-    } else if (claimableRewardsCount) {
-      text = 'You have an unclaimed reward';
-    }
-
-    return <CardLabel>{text}</CardLabel>;
-  };
 
   return (
     <TouchHandler {...rest} disabled={!rest.onPress}>
@@ -108,7 +86,10 @@ export const _RewardTracker = ({
             <PointsStatusLabel>+23%</PointsStatusLabel>
           </Row>
           <Row>
-            <Points>640</Points>
+            <Row>
+              <Points style={{color: colors.grayText}}>00</Points>
+              <Points>640</Points>
+            </Row>
             <PointsChart
               source={require('../../../../assets/images/wallet_chart.png')}
             />

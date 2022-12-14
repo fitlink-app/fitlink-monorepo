@@ -20,18 +20,7 @@ export interface LabelProps extends TextProps {
 }
 
 export const Label: React.FC<LabelProps> = React.forwardRef(
-  (
-    {
-      type = 'body',
-      appearance,
-      bold,
-      style,
-      numberOfNumbers,
-      children,
-      ...rest
-    },
-    ref: any,
-  ) => {
+  ({type = 'body', appearance, bold, style, ...rest}, ref: any) => {
     const {fonts, typography, colors} = useTheme();
 
     // Get base text style based on label type
@@ -78,23 +67,6 @@ export const Label: React.FC<LabelProps> = React.forwardRef(
       }
     }
 
-    const getZeros = () => {
-      let number = Number(children);
-      let zeros = '';
-      if (numberOfNumbers) {
-        if (number && children) {
-          for (
-            let i = 0;
-            i <= numberOfNumbers - children.toString().length - 1;
-            i++
-          ) {
-            zeros += '0';
-          }
-        }
-      }
-      return zeros;
-    };
-
     const textStyles: StyleProp<TextStyle>[] = [
       createTypeStyle(),
       {color: createTextColor()},
@@ -103,15 +75,6 @@ export const Label: React.FC<LabelProps> = React.forwardRef(
       style,
     ];
 
-    const textZerosStyles = [...textStyles, {color: colors.grayText}];
-
-    return (
-      <Text>
-        <Text style={textZerosStyles}>{getZeros()}</Text>
-        <Text {...rest} ref={ref} style={textStyles}>
-          {children}
-        </Text>
-      </Text>
-    );
+    return <Text {...rest} ref={ref} style={textStyles} />;
   },
 );

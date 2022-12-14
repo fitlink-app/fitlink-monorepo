@@ -158,7 +158,7 @@ export const UserWidget = (props: UserWidgetProps) => {
               textTransform: 'uppercase',
               lineHeight: 18,
             }}>
-            {props.rank}
+            BRONZE MEMBER
           </Rank>
           <RankLine style={{marginHorizontal: 6}} />
           <Level
