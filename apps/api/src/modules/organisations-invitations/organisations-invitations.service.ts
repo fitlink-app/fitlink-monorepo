@@ -147,8 +147,8 @@ export class OrganisationsInvitationsService {
    */
   createToken(id: string) {
     const payload: OrganisationInvitationJWT = {
-      iss: 'fitlinkapp.com',
-      aud: 'fitlinkapp.com',
+      iss: 'fitlinkteams.com',
+      aud: 'fitlinkteams.com',
       sub: id,
       type: 'organisation-invitation'
     }
@@ -168,7 +168,7 @@ export class OrganisationsInvitationsService {
     try {
       this.jwtService.verify(token)
       const jwt = this.jwtService.decode(token)
-      return (jwt as unknown) as OrganisationInvitationJWT
+      return jwt as unknown as OrganisationInvitationJWT
     } catch (e) {
       switch (e.message) {
         case 'jwt expired':

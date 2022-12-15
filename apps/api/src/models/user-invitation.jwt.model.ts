@@ -2,10 +2,10 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class UserInvitationJWT {
   @ApiProperty()
-  aud: 'fitlinkapp.com'
+  aud: 'fitlinkteams.com'
 
   @ApiProperty()
-  iss: 'fitlinkapp.com'
+  iss: 'fitlinkteams.com'
 
   @ApiProperty()
   sub: string

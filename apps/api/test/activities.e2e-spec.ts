@@ -512,7 +512,7 @@ describe('Activities', () => {
       meeting_point_text: 'The place text',
       date: 'Monday at 5pm',
       organizer_name: 'Fitlink',
-      organizer_url: 'https://fitlinkapp.com',
+      organizer_url: 'https://fitlinkteams.com',
       organizer_email: 'info@fitlinkapp.com',
       organizer_telephone: '+44 10000000000000',
       ...override

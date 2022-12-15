@@ -517,7 +517,7 @@ export class AuthService {
    * Sends user a password reset link in an email
    *
    * This is a deep link which on desktop will be
-   * routed to the browser app at https://my.fitlinkapp.com
+   * routed to the browser app at https://my.fitlinkteams.com
    *
    * On mobile, it will deep link into the app
    *

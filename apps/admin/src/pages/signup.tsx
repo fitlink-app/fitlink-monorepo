@@ -79,13 +79,8 @@ const SignupPage = () => {
     }
   }, [router])
 
-  const {
-    errors,
-    isError,
-    errorMessage,
-    clearErrors,
-    setErrors
-  } = useApiErrors(create.isError, create.error)
+  const { errors, isError, errorMessage, clearErrors, setErrors } =
+    useApiErrors(create.isError, create.error)
 
   async function submit(payload) {
     payload.date = new Date().toISOString()
@@ -141,7 +136,8 @@ const SignupPage = () => {
               </div>
             </h1>
             <h2>
-              No demos, quotes, upfront payment or hassley sales. Just instant access, try before you buy and happy healthy days.
+              No demos, quotes, upfront payment or hassley sales. Just instant
+              access, try before you buy and happy healthy days.
             </h2>
             <ul>
               <li>14 day free trial</li>
@@ -155,7 +151,7 @@ const SignupPage = () => {
             <p>
               <a
                 className="link"
-                href="https://fitlinkapp.com/pricing"
+                href="https://fitlinkteams.com/pricing"
                 target="_blank"
                 rel="noopener noreferrer">
                 View pricing details <IconArrowRight />
@@ -256,7 +252,7 @@ const SignupPage = () => {
                   register={register('agree_to_terms')}
                   name="terms"
                   showSwitch={false}
-                  label="I agree to the <a href='https://fitlinkapp.com/terms-and-conditions' target='_blank' rel='noopener noreferrer'>Fitlink terms and conditions</a>"
+                  label="I agree to the <a href='https://fitlinkteams.com/terms-and-conditions' target='_blank' rel='noopener noreferrer'>Fitlink terms and conditions</a>"
                   error={errors.agree_to_terms}
                 />
                 <Checkbox

@@ -192,8 +192,8 @@ export class LeaguesInvitationsService {
    */
   getJwtPayload(invitationId: string) {
     const payload: LeagueInvitationJWT = {
-      iss: 'fitlinkapp.com',
-      aud: 'fitlinkapp.com',
+      iss: 'fitlinkteams.com',
+      aud: 'fitlinkteams.com',
       sub: invitationId,
       type: 'league-invitation'
     }
@@ -220,7 +220,7 @@ export class LeaguesInvitationsService {
     try {
       this.jwtService.verify(token)
       const jwt = this.jwtService.decode(token)
-      return (jwt as unknown) as LeagueInvitationJWT
+      return jwt as unknown as LeagueInvitationJWT
     } catch (e) {
       switch (e.message) {
         case 'jwt expired':

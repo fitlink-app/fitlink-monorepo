@@ -10,16 +10,13 @@
       "date": "Every day",
       "cost": null,
       "organizer_name": "Fitlink",
-      "organizer_url": "fitlinkapp.com",
+      "organizer_url": "fitlinkteams.com",
       "organizer_telephone": "",
       "organizer_email": "hello@fitlinkapp.com",
       "meeting_point_text": "High Lodge, Thetford Forest, Brandon IP27 0AF, UK (Lat: 52.43445140000001; Lng: 0.6632408999999999)",
       "meeting_point": {
         "type": "Point",
-        "coordinates": [
-          52.4344514,
-          0.6632409
-        ]
+        "coordinates": [52.4344514, 0.6632409]
       },
       "type": "route",
       "tsv": "'0.6632408999999999':35 '0af':30 '52.43445140000001':33 'brandon':28 'combin':15 'day':22 'everi':21 'fitlink':23 'forest':1,27 'high':24 'hit':6 'hundr':13 'ip27':29 'lat':32 'liter':12 'lng':34 'lodg':25 'park':3 'pick':19 'rout':17 'thetford':26 'trail':8 'trial':2 'uk':31",
@@ -68,10 +65,7 @@
       "meeting_point_text": "Old Hall Farm, Honingham Rd, Barnham Broom, Norwich NR9 4DB, UK (Lat: 52.63038399999999; Lng: 1.0720741)",
       "meeting_point": {
         "type": "Point",
-        "coordinates": [
-          52.630384,
-          1.0720741
-        ]
+        "coordinates": [52.630384, 1.0720741]
       },
       "type": "class",
       "tsv": "'1.0720741':57 '4db':52 '52.63038399999999':55 'across':34 'barn':5,42 'barnham':48 'beauti':36 'broom':49 'class':16 'countrysid':38 'easier':23 'farm':45 'gaze':29 'get':8 'hall':44 'hold':25 'honingham':46 'lat':54 'lng':56 'norfolk':37 'norwich':50 'nr9':51 'old':43 'paint':4,41 'pose':27 'rd':47 'start':17 'studio':6,20,33 'teacher':14 'touch':10 'uk':53 'weekday':39 'wonder':13 'yoga':1",
@@ -123,10 +117,7 @@
       "meeting_point_text": "(Lng: 52.5752485892303; Lat: 1.1322010305754873)",
       "meeting_point": {
         "type": "Point",
-        "coordinates": [
-          52.575248589,
-          1.132201031
-        ]
+        "coordinates": [52.575248589, 1.132201031]
       },
       "type": "route",
       "tsv": "'1.1322010305754873':50 '52.5752485892303':48 'anyth':15 'anytim':46 'car':34 'children':23 'coffe':29,39 'court':20 'get':42 'go':41 'grab':37 'kett':1 'lat':49 'lng':47 'massiv':8 'open':9 'park':2,10,35 'playground':25 'realli':16 'recent':27 'run':5,13 'step':44 'tenni':7,19 'van':30 'walk':4,12 'yoga':14",
@@ -169,10 +160,7 @@
       "meeting_point_text": "(Lng: 52.916110577892695; Lat: 1.2415811084621566)",
       "meeting_point": {
         "type": "Point",
-        "coordinates": [
-          52.916110578,
-          1.241581108
-        ]
+        "coordinates": [52.916110578, 1.241581108]
       },
       "type": "route",
       "tsv": "'1.2415811084621566':28 '52.916110577892695':26 'anytim':24 'best':12 'camp':2 'decent':15 'highest':5 'hiker':23 'hill':3,16 'lat':27 'lng':25 'norfolk':8 'place':13 'point':6 'probabl':10 'roman':1 'runner':20 'work':4,17",
@@ -218,10 +206,7 @@
       "meeting_point_text": "(Lng: 52.43504008246046; Lat: 0.6646164876118803)",
       "meeting_point": {
         "type": "Point",
-        "coordinates": [
-          52.435040082,
-          0.664616488
-        ]
+        "coordinates": [52.435040082, 0.664616488]
       },
       "type": "route",
       "tsv": "'0.6646164876118803':21 '52.43504008246046':19 'anyday':17 'around':8 'end':11 'forest':1,16 'hike':5 'lat':20 'lng':18 'never':10 'path':13 'ride':4 'run':3 'thetford':15 'trail':12 'trial':2 'walk':7",
