@@ -25,9 +25,14 @@ import {
 import {AppDispatch} from 'redux/store';
 import {useEffect} from 'react';
 
-const HANDLE_HEIGHT = 80;
+const HANDLE_HEIGHT = 90;
 
-const AboveContentContainer = styled.View({paddingHorizontal: 16});
+const AboveContentContainer = styled.View({
+  paddingHorizontal: 20, 
+  backgroundColor: '#181818',
+  borderTopLeftRadius: 32,
+  borderTopRightRadius: 32,
+});
 
 interface ListModalProps
   extends Omit<
@@ -83,7 +88,8 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
     const animatedIndex = useSharedValue<number>(0);
 
     const scrollViewAnimatedStyle = useAnimatedStyle(() => ({
-      opacity: animatedIndex.value,
+      // opacity: animatedIndex.value,
+      backgroundColor: '#181818'
     }));
 
     const scrollViewStyle = useMemo(
@@ -131,13 +137,13 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
             <ResultsLabel
               text={
                 isFetching
-                  ? `Searching for nearby activities...`
+                  ? `Searching For Nearby Activities...`
                   : !!activities.length
-                  ? `${data?.pages[0]?.total} activities found nearby ${
+                  ? `${data?.pages[0]?.total} Activities Found Nearby ${
                       lastSearchQuery ? `for "${lastSearchQuery}"` : ''
                     }`
-                  : `No nearby activities found ${
-                      lastSearchQuery ? `for "${lastSearchQuery}"` : ''
+                  : `No Nearby Activities Found ${
+                      lastSearchQuery ? `For "${lastSearchQuery}"` : ''
                     }`
               }
             />
@@ -188,6 +194,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
       return (
         <ActivityItem
           key={item.name + index}
+          number={index+1}
           onPress={() => onActivityPressed(item.id)}
           name={item.name}
           activityType={item.activity}

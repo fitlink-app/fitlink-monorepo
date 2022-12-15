@@ -45,7 +45,6 @@ export const LeagueList = ({
   const keyExtractor = (item: League) => item.id as string;
 
   const renderItem = ({item}: {item: League}) => {
-    console.log(item.organisation);
     const organisation = item.organisation
       ? {
           name: item.organisation?.name,
@@ -56,9 +55,9 @@ export const LeagueList = ({
     return (
       <LeagueCard
         name={item.name}
-        sport={item.sport.name}
+        sport={item.sport?.name}
         organisation={organisation}
-        imageUrl={item.image.url}
+        imageUrl={item.image?.url}
         memberCount={item.participants_total}
         position={item.rank}
         privateLeague={item.access === ('Private' as LeagueAccess)}
@@ -84,7 +83,7 @@ export const LeagueList = ({
       }}
       ref={scrollRef}
       ListEmptyComponent={<EmptyContainer>{ListEmptyComponent}</EmptyContainer>}
-      contentContainerStyle={{padding: 20}}
+      contentContainerStyle={{paddingTop: 20}}
       onEndReachedThreshold={0.2}
       refreshControl={
         <RefreshControl

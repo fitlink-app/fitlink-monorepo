@@ -99,7 +99,7 @@ const _ProgressCircle = (props: ProgressCircleProps) => {
               cy={size / 2}
               cx={size / 2}
               r={radius}
-              strokeWidth={backgroundStrokeWidth}
+              strokeWidth={3}
             />
             <AnimatedCircle
               strokeLinecap={'round'}

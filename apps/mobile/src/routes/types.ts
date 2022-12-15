@@ -45,4 +45,6 @@ export type RootStackParamList = {
     ) => void;
   };
   Notifications: undefined;
+  ActivityPage: undefined;
+  Wallet: undefined;
 };

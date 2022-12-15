@@ -1,18 +1,53 @@
 import React from 'react';
-import {ImageSourcePropType, StyleSheet} from 'react-native';
+import {ImageSourcePropType, StyleSheet, Dimensions, Text} from 'react-native';
 import styled from 'styled-components/native';
 import LinearGradient from 'react-native-linear-gradient';
 import {Avatar, Icon, Label, TouchHandler} from '../../common';
 import {LeagueStats} from './components/LeagueCardStats';
+import {NumberFormatterUtils} from '@utils';
+import { BlurView  } from '@react-native-community/blur';
+
+const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
 const TouchWrapper = styled(TouchHandler)({
-  marginBottom: 10,
+  marginBottom: 30,
 });
 
-const ContentContainer = styled.View({
-  padding: 10,
-  flex: 1,
-  justifyContent: 'space-between',
+const Wrapper = styled.View({
+  height: 295,
+  borderRadius: 20,
+  overflow: 'hidden',
+});
+
+const BackgroundImage = styled.Image({
+  width: '100%',
+  height: '100%',
+  resizeMode: 'cover',
+  ...StyleSheet.absoluteFillObject,
+});
+
+const PositionStats = styled.View({
+  marginTop: 28,
+  marginLeft: 28,
+  paddingLeft: 12,
+  paddingRight: 12,
+  paddingTop: 8,
+  paddingBottom: 8,
+  borderRadius: 20,
+  backgroundColor: '#060606',
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
+const PositionLabel = styled(Label).attrs(() => ({
+  type: 'body',
+}))({
+  fontFamily: 'Roboto',
+  fontSize: 14,
+  lineHeight: 16,
+  textTransform: 'uppercase',
+  textAlign: 'center',
 });
 
 const Row = styled.View({
@@ -20,25 +55,38 @@ const Row = styled.View({
   justifyContent: 'space-between',
 });
 
+const Line = styled.View({
+  width: '100%',
+  height: 2,
+  backgroundColor: '#ffffff',
+  opacity: 0.2,
+  marginTop: 134,
+});
+
+const CardContent = styled.View({
+  width: '100%',
+  paddingTop: 26,
+  paddingLeft: 28,
+  paddingBottom: 29,
+  backgroundColor: 'rgba(255,255,255,0.2)',
+});
+
+const MembersLabel = styled(Text)({
+  color: '#00E9D7',
+  fontFamily: 'Roboto',
+  fontSize: 14,
+  lineHeight: 16,
+  textTransform: 'uppercase',
+});
+
+const Title = styled(Text)({
+  color: '#FFFFFF',
+  fontFamily: 'Roboto',
+  fontSize: 18,
+  marginTop: 6,
+});
+
 const Col = styled.View({});
-
-const Wrapper = styled.View({
-  height: 140,
-  borderRadius: 15,
-  overflow: 'hidden',
-});
-
-const ImageOverlay = styled(LinearGradient).attrs(() => ({
-  colors: ['#0000004D', '#00000099'],
-}))({
-  ...StyleSheet.absoluteFillObject,
-  opacity: 0.9,
-});
-
-const BackgroundImage = styled.Image({
-  resizeMode: 'cover',
-  ...StyleSheet.absoluteFillObject,
-});
 
 const PrivateLabel = styled.View(({theme}) => ({
   paddingVertical: 4,
@@ -78,84 +126,37 @@ export const LeagueCard = (props: LeagueCardInterface) => {
   return (
     <TouchWrapper {...{onPress}}>
       <Wrapper>
-        <BackgroundImage source={{uri: imageUrl}} />
-        <ImageOverlay />
+        <BackgroundImage
+          source={require('../../../../assets/images/leagues/nature-zen.png')}
+        />
 
-        <ContentContainer>
-          <Row>
-            <Col>
-              {privateLeague && (
-                <PrivateLabel>
-                  <Icon name={'lock'} size={10} color={'white'} />
-                  <Label
-                    appearance={'primary'}
-                    type={'caption'}
-                    bold
-                    style={{marginLeft: 5}}>
-                    Private
-                  </Label>
-                </PrivateLabel>
-              )}
-            </Col>
-
-            <Col>
-              {organisation && (
-                <Row style={{alignItems: 'center'}}>
-                  <Label
-                    bold
-                    type={'caption'}
-                    style={{marginRight: 5, maxWidth: 140}}
-                    numberOfLines={1}>
-                    {organisation.name}
-                  </Label>
-                  <Avatar url={organisation.image} size={28} />
-                </Row>
-              )}
-            </Col>
-          </Row>
-
-          <Row
+        <Row>
+          {position && (
+            <PositionStats>
+              <PositionLabel>
+                {NumberFormatterUtils.getNumberWithOrdinal(position)} place
+              </PositionLabel>
+            </PositionStats>
+          )}
+        </Row>
+        <Line style={{marginTop: position ? 134 : 194}} />
+        <CardContent>
+          <BlurView 
             style={{
-              alignItems: 'flex-end',
-            }}>
-            <Col style={{flex: 1, marginRight: 30}}>
-              <Label
-                type={'title'}
-                appearance={'primary'}
-                style={{flexShrink: 1}}
-                numberOfLines={3}>
-                {name}
-              </Label>
-
-              <Label
-                appearance={'primary'}
-                type={'body'}
-                style={{flexShrink: 1}}
-                numberOfLines={3}>
-                {sport}
-              </Label>
-            </Col>
-
-            <Col>
-              {!!invitedBy && (
-                <Row style={{marginBottom: 5}}>
-                  <Avatar url={invitedBy.image} size={28} />
-
-                  <Col style={{marginLeft: 5}}>
-                    <Label appearance={'primary'} type={'caption'}>
-                      invited by
-                    </Label>
-                    <Label appearance={'accent'} type={'caption'}>
-                      {invitedBy.name}
-                    </Label>
-                  </Col>
-                </Row>
-              )}
-
-              <LeagueStats {...{position, memberCount}} />
-            </Col>
-          </Row>
-        </ContentContainer>
+              position: "absolute",
+              width: SCREEN_WIDTH,
+              height: 100,
+              borderRadius: 20,
+              backgroundColor: 'rgba(0,0,0,0.2)'
+            }}
+            blurRadius={1}
+            overlayColor={'transparent'}
+          />
+          <MembersLabel>
+            {memberCount | 0} <Text style={{color: '#FFFFFF'}}>Members</Text>
+          </MembersLabel>
+          <Title>{name}</Title>
+        </CardContent>
       </Wrapper>
     </TouchWrapper>
   );

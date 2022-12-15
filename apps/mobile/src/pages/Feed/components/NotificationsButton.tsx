@@ -15,11 +15,13 @@ const BadgeWrapper = styled.View(({theme: {colors}}) => ({
   bottom: 10,
 }));
 
-const NotificationsButtonIcon = styled(Icon).attrs(({theme: {colors}}) => ({
-  name: 'bell',
-  size: 20,
-  color: colors.accentSecondary,
-}))({});
+// const NotificationsButtonIcon = styled(Icon).attrs(({theme: {colors}}) => ({
+//   name: 'bell',
+//   size: 20,
+//   color: colors.text,
+// }))({});
+
+const NotificationsButtonIcon = styled.Image({});
 
 export const NotificationsButton = ({count}: {count: number}) => {
   const navigation = useNavigation();
@@ -29,7 +31,9 @@ export const NotificationsButton = ({count}: {count: number}) => {
       onPress={() => {
         navigation.navigate('Notifications');
       }}>
-      <NotificationsButtonIcon disabled />
+      <NotificationsButtonIcon
+        source={require('../../../assets/images/icon/bell.png')}
+      />
 
       {!!count && (
         <BadgeWrapper>

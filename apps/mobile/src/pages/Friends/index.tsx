@@ -1,6 +1,5 @@
 import React, {useCallback, useRef} from 'react';
 import styled from 'styled-components/native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Route} from 'react-native-tab-view';
 import {StackScreenProps} from '@react-navigation/stack';
 import {
@@ -11,9 +10,20 @@ import {
 import {RootStackParamList} from 'routes/types';
 import {Following, Followers, Search} from './tabs';
 import {TabView} from '@components';
+import { useMe } from '@hooks';
 
 const Wrapper = styled.View({
   flex: 1,
+  marginTop: 40
+});
+
+const HeaderView = styled.View({
+  position: 'absolute',
+  width: '100%',
+  height: 120,
+  background: '#181818',
+  borderBottomLeftRadius: 31,
+  borderBottomRightRadius: 31,
 });
 
 export const Friends = (
@@ -21,10 +31,14 @@ export const Friends = (
 ) => {
   const tab = props?.route?.params?.tab;
 
-  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
 
   const tabViewRef = useRef<any>(null);
+
+  const { data: user } = useMe({
+    refetchOnMount: false,
+    refetchInterval: 10000,
+  });
 
   useFocusEffect(
     useCallback(() => {
@@ -52,16 +66,19 @@ export const Friends = (
   };
 
   return (
-    <Wrapper style={{marginTop: insets.top}}>
-      <TabView
-        ref={tabViewRef}
-        routes={[
-          {key: 'following', title: 'Following'},
-          {key: 'followers', title: 'My Followers'},
-          {key: 'search', title: 'Search'},
-        ]}
-        renderScene={renderTabs}
-      />
-    </Wrapper>
+    <>
+      <HeaderView />
+      <Wrapper>
+        <TabView
+          ref={tabViewRef}
+          routes={[
+            {key: 'followers', title: 'FOLLOWERS', peopleCount: user?.followers_total || 0},
+            {key: 'following', title: 'FOLLOWING', peopleCount: user?.following_total || 0},
+            {key: 'search', title: 'SEARCH'},
+          ]}
+          renderScene={renderTabs}
+        />
+      </Wrapper>
+    </>
   );
 };

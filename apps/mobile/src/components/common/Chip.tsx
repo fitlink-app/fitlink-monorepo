@@ -11,8 +11,8 @@ const ChipWrapper = styled.View(({theme}) => ({
 }));
 
 const ContentContainer = styled.View({
-  paddingVertical: 4,
-  paddingHorizontal: 8,
+  paddingVertical: 8,
+  paddingHorizontal: 12,
 });
 
 const ChipText = styled(Label)({fontSize: 10});

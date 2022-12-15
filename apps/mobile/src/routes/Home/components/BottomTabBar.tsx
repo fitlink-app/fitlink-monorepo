@@ -6,8 +6,17 @@ import {View, Pressable, Platform} from 'react-native';
 import {Label} from '@components';
 
 const Wrapper = styled.View(({theme}) => ({
+  width: '100%',
+  height: 79,
+}));
+
+const Container = styled.View(({theme}) => ({
+  alignSelf: 'center',
+  width: '80%',
+  height: '100%',
   backgroundColor: theme.colors.navbar,
   flexDirection: 'row',
+  borderRadius: 24,
 }));
 
 const Button = styled(Pressable)({
@@ -97,12 +106,12 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
           onPress={onPress}
           onLongPress={onLongPress}>
           {renderIcon(isFocused)}
-          <Label
+          {/* <Label
             style={{marginTop: 5, fontSize: 11}}
             bold={isFocused}
             appearance={isFocused ? 'accent' : 'accentSecondary'}>
             {label}
-          </Label>
+          </Label> */}
         </Button>
       );
     });
@@ -118,11 +127,13 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
   const insets = useSafeAreaInsets();
 
   return (
-    <Wrapper
-      style={{
-        paddingBottom: Platform.OS === 'ios' ? insets.bottom : undefined,
-      }}>
-      {renderButtons()}
+    <Wrapper>
+      <Container
+        style={{
+          paddingBottom: Platform.OS === 'ios' ? insets.bottom : undefined,
+        }}>
+        {renderButtons()}
+      </Container>
     </Wrapper>
   );
 };

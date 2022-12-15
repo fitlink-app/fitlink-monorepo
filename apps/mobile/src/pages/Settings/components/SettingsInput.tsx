@@ -11,10 +11,11 @@ const ContainerRow = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
-  paddingVertical: 15,
+  paddingVertical: 17,
 });
 
 const StyledLabel = styled(SettingsItemLabel)({
+  fontSize: 14,
   paddingRight: 20,
 });
 
@@ -24,6 +25,7 @@ const ErrorLabel = styled(Label)(({theme: {colors}}) => ({
 }));
 
 interface StyledTextInputParams {
+  displayName?: boolean;
   error: string | undefined;
   theme: DefaultTheme;
 }
@@ -34,9 +36,10 @@ const StyledTextInput = styled.TextInput.attrs<StyledTextInputParams>(
     selectionColor: colors.accent,
     textAlign: 'right',
   }),
-)<StyledTextInputParams>(({error, theme: {typography, colors}}) => ({
+)<StyledTextInputParams>(({displayName, error, theme: {typography, colors}}) => ({
   ...typography.textInputValue,
-  color: error ? colors.danger : typography.textInputValue.color,
+  color: displayName ? colors.secondaryText : colors.text,
+  fontSize: 14,
   margin: 0,
   padding: 0,
 }));
@@ -50,6 +53,9 @@ interface SettingsInputProps {
 
   /** Error message (if any) */
   error?: string;
+
+  /** displayName */
+  displayName?: boolean;
 }
 
 export const SettingsInput: React.FC<SettingsInputProps & TextInputProps> =
@@ -75,7 +81,7 @@ export const SettingsInput: React.FC<SettingsInputProps & TextInputProps> =
     }
 
     return (
-      <SettingsItemWrapper style={{height: 50}}>
+      <SettingsItemWrapper style={{minHeight: 50, borderColor: '#2e2e2e', borderTopWidth: 1}}>
         <ContainerRow>
           <Column>
             <StyledLabel children={label} />

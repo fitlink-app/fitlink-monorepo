@@ -1,4 +1,4 @@
-import {Label} from '@components';
+import {Label, TouchHandler} from '@components';
 import React from 'react';
 import {
   FlatList,
@@ -13,15 +13,34 @@ import {RewardCard} from '.';
 import {useNavigation} from '@react-navigation/native';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('screen');
-const HORIZONTAL_PADDING = 20;
 
-const Wrapper = styled.View({marginTop: 20});
+const Wrapper = styled.View({
+  marginTop: 40,
+  paddingHorizontal: 10
+});
+
+const HeaderContainer = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+});
 
 const Title = styled(Label).attrs({
   type: 'subheading',
 })({
+  fontSize: 14,
   marginBottom: 15,
-  paddingLeft: HORIZONTAL_PADDING,
+  textTransform: 'uppercase',
+  letterSpacing: 2,
+});
+
+const SeeAllText = styled(Label).attrs(() => ({
+  type: 'subheading',
+}))({
+  fontSize: 13,
+  lineHeight: 15,
+  letterSpacing: 1,
+  textTransform: 'capitalize',
+  color: '#ACACAC',
 });
 
 const LoadingContainer = styled.View({height: 170, justifyContent: 'center'});
@@ -46,6 +65,7 @@ interface RewardSliderProps
   userPoints: number;
   isLoading?: boolean;
   isLoadingNextPage?: boolean;
+  LockedShow?: boolean;
   fetchNextPage: () => void;
 }
 
@@ -54,6 +74,7 @@ export const RewardSlider = ({
   userPoints,
   isLoading,
   fetchNextPage,
+  LockedShow,
   isLoadingNextPage,
   ...rest
 }: RewardSliderProps) => {
@@ -63,7 +84,7 @@ export const RewardSlider = ({
   const renderItem = ({item}: {item: RewardPublic}) => {
     return (
       <RewardCard
-        style={{marginRight: 10, width: SCREEN_WIDTH * 0.8}}
+        style={{marginRight: 10, width: !LockedShow ? SCREEN_WIDTH * 0.75 : '100%', marginVertical:10}}
         brand={item.brand}
         title={item.name_short}
         image={item.image.url_640x360}
@@ -93,7 +114,16 @@ export const RewardSlider = ({
 
   return (
     <Wrapper>
-      <Title>{title}</Title>
+      <HeaderContainer>
+        <Title>{title}</Title>
+        <TouchHandler
+          onPress={() => {
+            navigation.navigate('Rewards');
+          }}
+        >
+          <SeeAllText>see all</SeeAllText>
+        </TouchHandler>
+      </HeaderContainer>
       {isLoading && !isLoadingNextPage ? (
         <LoadingContainer>
           <ActivityIndicator color={colors.accent} />
@@ -101,13 +131,10 @@ export const RewardSlider = ({
       ) : (
         <FlatList
           {...{...rest, renderItem, ListFooterComponent}}
-          contentContainerStyle={{
-            paddingHorizontal: HORIZONTAL_PADDING,
-          }}
           showsHorizontalScrollIndicator={false}
           onEndReachedThreshold={0.2}
           onEndReached={fetchNextPage}
-          horizontal
+          horizontal={!LockedShow ? true : false}
         />
       )}
     </Wrapper>

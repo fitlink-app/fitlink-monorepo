@@ -1,5 +1,6 @@
 import {Label} from '@components';
 import React from 'react';
+import { View } from 'react-native';
 import {
   NavigationState,
   SceneRendererProps,
@@ -26,31 +27,49 @@ const BadgeWrapper = styled.View(({theme: {colors}}) => ({
   marginLeft: 5,
 }));
 
+const PeopleCountWrapper = styled.View(() => ({
+  backgroundColor: '#181818',
+  height: 30,
+  marginTop: 5
+}));
+
 const TabButton = ({
   focused,
   title,
   badgeCount,
+  peopleCount,
 }: {
   focused: boolean;
   title?: string;
   badgeCount?: number;
+  peopleCount?: number;
 }) => {
   return (
-    <LabelRow>
-      <Label
-        type={'subheading'}
-        appearance={focused ? 'primary' : 'secondary'}
-        style={{fontSize: 16}}>
-        {title}
-      </Label>
-      {badgeCount ? (
-        <BadgeWrapper>
-          <Label type={'caption'} style={{color: 'white'}} bold>
-            {badgeCount}
+    <View style={{height: 35}}>
+      <LabelRow>
+        <Label
+          type={'subheading'}
+          appearance={(peopleCount || title==='SEARCH') ? (focused ? 'accent' : 'secondary') : (focused ? 'primary' : 'secondary')}
+          style={{fontSize: 17}}
+        >
+          {title}
+        </Label>
+        {badgeCount ? (
+          <BadgeWrapper>
+            <Label type={'caption'} style={{color: 'white'}} bold>
+              {badgeCount}
+            </Label>
+          </BadgeWrapper>
+        ) : null}
+      </LabelRow>
+      {focused && (peopleCount || title==='SEARCH') ? (
+        <PeopleCountWrapper>
+          <Label type={'caption'} appearance={'secondary'} style={{textAlign: 'center'}}>
+            {peopleCount} {peopleCount ? 'People' : null}
           </Label>
-        </BadgeWrapper>
+        </PeopleCountWrapper>
       ) : null}
-    </LabelRow>
+    </View>
   );
 };
 
@@ -65,17 +84,17 @@ export const TabBar = (
       renderIndicator={indicatorProps => {
         const {width} = indicatorProps;
         const widthPercentFloat = parseFloat(width as string);
-        const marginPercent = 5;
+        const marginPercent = 10;
 
         return (
           <TabBarIndicator
             {...indicatorProps}
             style={{
-              width: `${widthPercentFloat - marginPercent}%`,
-              left: `${marginPercent / 2}%`,
+              width: 36,
+              left: `${(widthPercentFloat - marginPercent) / 2}%`,
               backgroundColor: colors.accent,
-              marginBottom: -1,
-              height: 2,
+              marginBottom: 4,
+              height: 3,
             }}
           />
         );
@@ -83,18 +102,19 @@ export const TabBar = (
       style={{
         backgroundColor: 'transparent',
         borderBottomWidth: 1,
-        borderColor: colors.separator,
+        borderColor: 'transparent',
         elevation: 0,
       }}
       renderLabel={(params): Element => {
         const {focused} = params;
-        const route = params.route as Route & {badgeCount: number};
+        const route = params.route as Route & {badgeCount: number, peopleCount: number};
 
         return (
           <TabButton
             {...{focused}}
             title={route.title}
             badgeCount={route.badgeCount}
+            peopleCount={route.peopleCount}
           />
         ) as any;
       }}

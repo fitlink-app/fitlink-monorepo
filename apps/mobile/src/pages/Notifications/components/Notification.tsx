@@ -43,13 +43,18 @@ const NotificationDetailsContainer = styled(Flex)({
 const Name = styled(Label).attrs(() => ({
   type: 'body',
   appearance: 'primary',
-  bold: true,
-}))({});
+}))({
+  fontSize: 16,
+  lineHeight: 25,
+});
 
 const Message = styled(Label).attrs(() => ({
   type: 'caption',
   appearance: 'primary',
-}))({});
+}))({
+  fontSize: 14,
+  lineHeight: 21,
+});
 
 const Subject = styled(Label).attrs(() => ({
   type: 'caption',
@@ -60,7 +65,9 @@ const Subject = styled(Label).attrs(() => ({
 const Time = styled(Label).attrs(() => ({
   type: 'caption',
   appearance: 'secondary',
-}))({});
+}))({
+  fontSize: 13
+});
 
 const ButtonsContainer = styled.View({
   flexDirection: 'row',
@@ -283,10 +290,10 @@ export const Notification = ({item, ...rest}: NotificationProps) => {
       <Wrapper>
         <ContentContainer>
           <Row style={{alignItems: 'flex-start'}}>
-            <Avatar url={avatar} size={44} />
+            <Avatar url={avatar} size={49} radius={10} />
             <Row style={{flex: 1}}>
               <NotificationDetailsContainer>
-                <Row style={{marginBottom: 5, justifyContent: 'space-between'}}>
+                <Row style={{marginBottom: 2, justifyContent: 'space-between', alignItems: 'center'}}>
                   <Name>{item.title}</Name>
                   <Time>
                     {formatDistanceToNow(new Date(item.created_at), {

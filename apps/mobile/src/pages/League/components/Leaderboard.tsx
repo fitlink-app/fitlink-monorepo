@@ -8,15 +8,9 @@ import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/ent
 import {LeaderboardHeader} from './LeaderboardHeader';
 import {useState} from 'react';
 import {LeaderboardSeparator} from './LeaderboardSeparator';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/core';
 
 const INITIAL_MEMBER_COUNT_TO_DISPLAY = 10;
-
-const Description = styled(Label).attrs({
-  type: 'body',
-  appearance: 'secondary',
-})({marginHorizontal: 20, marginBottom: 20});
 
 const EmptyContainer = styled.View({
   flex: 1,
@@ -41,7 +35,10 @@ interface LeaderboardProps
   isLoaded: boolean;
   description: string;
   isRepeat: boolean;
+  title: string;
+  memberCount: number;
   endDate: Date;
+  membership: 'none' | 'member' | 'owner';
   onRefresh: () => void;
 }
 
@@ -55,7 +52,10 @@ export const Leaderboard = ({
   refreshing,
   isLoaded,
   isRepeat,
+  title,
+  memberCount,
   endDate,
+  membership = 'none',
   onRefresh,
   description,
   ...rest
@@ -100,7 +100,6 @@ export const Leaderboard = ({
         wins={item.wins}
         points={item.points}
         isSelf={item.user_id === userId}
-        isLast={sourceLength - 1 === index}
       />
     );
   };
@@ -117,10 +116,13 @@ export const Leaderboard = ({
   };
 
   const ListHeaderComponent = (
-    <>
-      <Description>{description}</Description>
-      <LeaderboardHeader resetDate={endDate} repeat={isRepeat} />
-    </>
+    <LeaderboardHeader 
+      memberCount={memberCount}
+      resetDate={endDate} 
+      repeat={isRepeat}
+      title={title}
+      description={description}
+    />
   );
 
   const ListFooterComponent = () => {

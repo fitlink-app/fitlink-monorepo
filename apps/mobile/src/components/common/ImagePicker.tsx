@@ -26,6 +26,8 @@ interface ImagePickerProps {
   onImageDeleted?: () => void;
   style?: ViewStyle;
   icon?: string;
+  iconColor?: string;
+  borderNone?: boolean;
   deleteButtonContainerStyle?: ViewStyle;
 }
 
@@ -40,6 +42,8 @@ export const ImagePicker = (props: ImagePickerProps) => {
     deleteButtonContainerStyle,
     iconSize = 50,
     icon,
+    iconColor,
+    borderNone,
   } = props;
   const {openImagePicker} = useImagePicker();
 
@@ -59,7 +63,7 @@ export const ImagePicker = (props: ImagePickerProps) => {
         <Icon
           name={icon || 'camera'}
           size={iconSize}
-          color={colors.accentSecondary}
+          color={iconColor ? iconColor : colors.accentSecondary}
         />
         {!!label && (
           <Label type={'body'} appearance={'primary'} style={{marginTop: 5}}>
@@ -107,7 +111,7 @@ export const ImagePicker = (props: ImagePickerProps) => {
       <Wrapper
         style={{
           ...style,
-          borderWidth: imageSrc ? (error ? 1 : 0) : 1,
+          borderWidth: borderNone ? 0 : (imageSrc ? (error ? 1 : 0) : 1),
           borderColor: error ? colors.danger : colors.accentSecondary,
         }}>
         {imageSrc ? renderImageButtonContent() : renderNoImageButtonContent()}

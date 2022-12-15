@@ -9,7 +9,8 @@ type LabelAppearance =
   | 'secondary'
   | 'accent'
   | 'accentSecondary'
-  | 'error';
+  | 'error'
+  | 'black';
 
 export interface LabelProps extends TextProps {
   type?: LabelType;
@@ -56,6 +57,10 @@ export const Label: React.FC<LabelProps> = React.forwardRef(
           return colors.danger;
         }
 
+        case 'black': {
+          return colors.background;
+        }
+
         default:
           return colors.text;
       }
@@ -64,7 +69,8 @@ export const Label: React.FC<LabelProps> = React.forwardRef(
     const textStyles: StyleProp<TextStyle>[] = [
       createTypeStyle(),
       {color: createTextColor()},
-      bold ? {fontFamily: fonts.bold} : {},
+      bold ? {fontWeight: '700'} : {},
+      {fontFamily: fonts.bold},
       style,
     ];
 

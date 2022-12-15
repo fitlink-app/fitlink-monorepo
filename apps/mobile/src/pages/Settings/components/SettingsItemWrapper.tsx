@@ -8,8 +8,6 @@ const Wrapper = styled.View({
 
 const ContentContainer = styled.View(({theme}) => ({
   minHeight: 50,
-  borderColor: theme.colors.separator,
-  borderBottomWidth: 1,
   marginHorizontal: 20,
   justifyContent: 'center',
 }));

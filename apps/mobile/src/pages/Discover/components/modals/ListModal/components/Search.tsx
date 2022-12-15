@@ -5,22 +5,31 @@ import {useDispatch, useSelector} from 'react-redux';
 import {selectQuery, setQuery} from 'redux/discover/discoverSlice';
 import {AppDispatch} from 'redux/store';
 import styled, {useTheme} from 'styled-components/native';
+import {Icon} from '@components';
 
 export const SEARCH_HANDLE_HEIGHT = 68;
 
 const Container = styled.View({
-  paddingVertical: 5,
+  paddingTop: 10,
+  paddingBottom: 5,
+  backgroundColor: 'transparent'
 });
 
 const CustomTextInput = styled(BottomSheetTextInput)(({theme}) => ({
   ...theme.typography.textInputValue,
-  marginTop: 4,
-  marginBottom: 8,
-  borderRadius: 15,
-  fontSize: 16,
-  padding: 12,
-  backgroundColor: theme.colors.background,
+  borderRadius: 50,
+  height: 48,
+  fontSize: 14,
+  paddingLeft: 59,
+  paddingVertical: 12,
+  backgroundColor: 'rgba(172, 172, 172, 0.1)',
 }));
+
+const SearchIcon = styled(Icon)({
+  position: 'absolute',
+  marginTop: 25,
+  marginLeft: 29,
+});
 
 interface SearchProps {
   onSubmit: () => void;
@@ -48,7 +57,7 @@ export const _Search = ({onSubmit}: SearchProps) => {
         style={{color: colors.text}}
         textContentType="location"
         placeholder="Search for an activity"
-        placeholderTextColor={colors.secondaryText}
+        placeholderTextColor={'#ACACAC'}
         selectionColor={colors.accent}
         returnKeyType={'search'}
         value={query}
@@ -56,6 +65,7 @@ export const _Search = ({onSubmit}: SearchProps) => {
         onFocus={handleInputFocus}
         onSubmitEditing={onSubmit}
       />
+      <SearchIcon name={'search'} color={colors.accent} size={20} />
     </Container>
   );
 };

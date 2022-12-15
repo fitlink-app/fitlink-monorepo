@@ -8,8 +8,6 @@ import {Label} from './Label';
 const Wrapper = styled(FieldWrapper)({width: '100%'});
 
 const FieldContainer = styled.View({
-  borderWidth: 1,
-  borderRadius: 6,
   justifyContent: 'space-between',
   flexDirection: 'row',
 });
@@ -18,7 +16,8 @@ const StyledTextField = styled.TextInput(({theme}) => ({
   ...theme.typography.textInputValue,
   flex: 1,
   height: '100%',
-  textAlignVertical: 'top',
+  fontFamily: 'Roboto',
+  fontSize: 15,
   flexWrap: 'wrap',
   paddingHorizontal: 14,
 }));
@@ -47,9 +46,14 @@ export interface InputFieldProps extends TextInputProps {
   /** Enable button to clear field value */
   clearButtonEnabled?: boolean;
 
+  /** Enable button to search */
+  searchButtonEnabled?: boolean;
+
   onClearPressed?: () => void;
 
   label?: string;
+
+  borderNone?: boolean;
 }
 
 export const InputField = React.forwardRef(
@@ -66,9 +70,11 @@ export const InputField = React.forwardRef(
       secureTextEntry,
       multiline,
       clearButtonEnabled,
+      searchButtonEnabled,
       onClearPressed,
       onChangeText,
       label,
+      borderNone,
       ...rest
     } = props;
 
@@ -90,7 +96,10 @@ export const InputField = React.forwardRef(
         <FieldContainer
           style={[
             {
+              borderWidth: searchButtonEnabled || borderNone ? 0 : 1,
+              borderBottomWidth: borderNone ? 0 : 1,
               borderColor,
+              borderRadius: borderNone ? 10 : 6,
               height: multiline ? 130 : 44,
               alignItems: multiline ? 'flex-start' : undefined,
               paddingVertical: multiline
@@ -101,7 +110,7 @@ export const InputField = React.forwardRef(
             },
           ]}>
           <StyledTextField
-            style={{flex: 1}}
+            style={{textAlignVertical: multiline ? 'top' : 'center'}}
             ref={ref}
             multiline={multiline}
             secureTextEntry={secureTextEntry ? isSecureTextHidden : false}
@@ -115,7 +124,7 @@ export const InputField = React.forwardRef(
             {...{value}}
           />
 
-          {(clearButtonEnabled || secureTextEntry) && (
+          {(clearButtonEnabled || secureTextEntry || searchButtonEnabled) && (
             <IconButtonContainer>
               {clearButtonEnabled && !!value && value.length !== 0 && (
                 <InputFieldIcon
@@ -134,6 +143,18 @@ export const InputField = React.forwardRef(
                   onPress={() => setIsSecureTextHidden(!isSecureTextHidden)}
                   color={isSecureTextHidden ? colors.accentSecondary : 'white'}
                   name={isSecureTextHidden ? 'eye-slash' : 'eye'}
+                  size={18}
+                />
+              )}
+
+              {searchButtonEnabled && !value && (
+                <InputFieldIcon
+                  onPress={() => {
+                    onClearPressed && onClearPressed();
+                    handleChangeText('');
+                  }}
+                  color={colors.accentSecondary}
+                  name={'search'}
                   size={18}
                 />
               )}
