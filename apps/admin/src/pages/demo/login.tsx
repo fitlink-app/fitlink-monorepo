@@ -20,7 +20,10 @@ export default function page() {
     setError('')
     const email = e.target.elements.email.value
     const password = e.target.elements.password.defaultValue
-    if (email === 'demo@fitlinkapp.com' && password === 'demo') {
+    if (
+      (email === 'demo@fitlinkapp.com' || email === 'demo@fitlinkteams.com') &&
+      password === 'demo'
+    ) {
       router.push('/demo/dashboard')
     } else {
       setLoading(false)

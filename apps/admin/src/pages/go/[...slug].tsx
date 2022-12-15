@@ -22,7 +22,7 @@ const ax = axios.create({
 })
 const api = makeApi(ax)
 
-//https://go.fitlinkapp.com/?link=https://my.fitlinkapp.com${req.url}&apn=app.fitlink&amv=2.1&afl=https://fitlinkapp.com&d=1
+//https://go.fitlinkapp.com/?link=https://my.fitlinkteams.com${req.url}&apn=app.fitlink&amv=2.1&afl=https://fitlinkapp.com&d=1
 export const getServerSideProps = async function getServerSideProps({
   req
 }: NextPageContext) {
@@ -40,7 +40,7 @@ export const generateOpenLink = () => {
   const local = !process.env.API_BASE_URL
   let link = local
     ? 'https://localhost:3001/launch'
-    : 'https://fitlinkapp.com/launch'
+    : 'https://fitlinkteams.com/launch'
 
   const dynamicLinkWithoutFallback = generateDynamicLink(
     DeepLinkType.LaunchApp,
@@ -106,7 +106,7 @@ export const generateTeamLink = async (code: string) => {
       code: team.join_code
     },
     `${
-      local ? 'http://localhost:3001' : 'https://fitlinkapp.com'
+      local ? 'http://localhost:3001' : 'https://fitlinkteams.com'
     }/join/?code=` +
       code +
       '&url=' +

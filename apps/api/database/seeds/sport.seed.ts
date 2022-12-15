@@ -25,7 +25,7 @@ export default class CreateSports implements Seeder {
       name_key: 'skiing',
       singular: 'ski',
       plural: 'skis',
-      image_url: 'https://my.fitlinkapp.com/health-activities/skiing.jpg',
+      image_url: 'https://my.fitlinkteams.com/health-activities/skiing.jpg',
       icon_url: iconUrls.skiing
     })
 
@@ -35,7 +35,7 @@ export default class CreateSports implements Seeder {
       singular: 'hike',
       plural: 'hikes',
       show_pace: true,
-      image_url: 'https://my.fitlinkapp.com/health-activities/hiking.jpg',
+      image_url: 'https://my.fitlinkteams.com/health-activities/hiking.jpg',
       icon_url: iconUrls.hiking
     })
 
@@ -45,7 +45,7 @@ export default class CreateSports implements Seeder {
       singular: 'ride',
       plural: 'rides',
       show_pace: true,
-      image_url: 'https://my.fitlinkapp.com/health-activities/cycling.jpg',
+      image_url: 'https://my.fitlinkteams.com/health-activities/cycling.jpg',
       icon_url: iconUrls.cycling
     })
 
@@ -54,7 +54,7 @@ export default class CreateSports implements Seeder {
       name_key: 'crossfitTraining',
       singular: 'crossfit workout',
       plural: 'crossfit workouts',
-      image_url: 'https://my.fitlinkapp.com/health-activities/crossfit.jpg',
+      image_url: 'https://my.fitlinkteams.com/health-activities/crossfit.jpg',
       icon_url: iconUrls.crossfit
     })
 
@@ -64,7 +64,7 @@ export default class CreateSports implements Seeder {
       singular: 'row',
       plural: 'rows',
       show_pace: true,
-      image_url: 'https://my.fitlinkapp.com/health-activities/rowing.jpg',
+      image_url: 'https://my.fitlinkteams.com/health-activities/rowing.jpg',
       icon_url: iconUrls.rowing
     })
 
@@ -73,7 +73,8 @@ export default class CreateSports implements Seeder {
       name_key: 'snowboarding',
       singular: 'snowboard',
       plural: 'snowboards',
-      image_url: 'https://my.fitlinkapp.com/health-activities/snowboarding.jpg',
+      image_url:
+        'https://my.fitlinkteams.com/health-activities/snowboarding.jpg',
       icon_url: iconUrls.snowboarding
     })
 
@@ -82,7 +83,7 @@ export default class CreateSports implements Seeder {
       name_key: 'surfing',
       singular: 'surf',
       plural: 'surfs',
-      image_url: 'https://my.fitlinkapp.com/health-activities/surfing.jpg',
+      image_url: 'https://my.fitlinkteams.com/health-activities/surfing.jpg',
       icon_url: iconUrls.surfing
     })
 
@@ -91,7 +92,7 @@ export default class CreateSports implements Seeder {
       name_key: 'walking',
       singular: 'walk',
       plural: 'walks',
-      image_url: 'https://my.fitlinkapp.com/health-activities/walking.jpg',
+      image_url: 'https://my.fitlinkteams.com/health-activities/walking.jpg',
       show_pace: true,
       icon_url: iconUrls.walking
     })
@@ -109,7 +110,7 @@ export default class CreateSports implements Seeder {
       name_key: 'yoga',
       singular: 'yoga session',
       plural: 'yoga sessions',
-      image_url: 'https://my.fitlinkapp.com/health-activities/yoga.jpg',
+      image_url: 'https://my.fitlinkteams.com/health-activities/yoga.jpg',
       icon_url: iconUrls.yoga
     })
 
@@ -119,7 +120,7 @@ export default class CreateSports implements Seeder {
       singular: 'run',
       plural: 'runs',
       show_pace: true,
-      image_url: 'https://my.fitlinkapp.com/health-activities/running.jpg',
+      image_url: 'https://my.fitlinkteams.com/health-activities/running.jpg',
       icon_url: iconUrls.running
     })
 
@@ -161,7 +162,7 @@ export default class CreateSports implements Seeder {
       singular: 'swim',
       plural: 'swims',
       show_pace: true,
-      image_url: 'https://my.fitlinkapp.com/health-activities/swimming.jpg',
+      image_url: 'https://my.fitlinkteams.com/health-activities/swimming.jpg',
       icon_url: iconUrls.swimming
     })
 
@@ -170,7 +171,7 @@ export default class CreateSports implements Seeder {
       name_key: 'highIntensityIntervalTraining',
       singular: 'HIIT workout',
       plural: 'HIIIT workouts',
-      image_url: 'https://my.fitlinkapp.com/health-activities/hiit.jpg',
+      image_url: 'https://my.fitlinkteams.com/health-activities/hiit.jpg',
       icon_url: iconUrls.hiit
     })
 
@@ -198,19 +199,19 @@ export default class CreateSports implements Seeder {
 }
 
 const iconUrls = {
-  running: 'https://my.fitlinkapp.com/health-activities/icons/running.png',
-  skiing: 'https://my.fitlinkapp.com/health-activities/icons/skiing.png',
-  hiking: 'https://my.fitlinkapp.com/health-activities/icons/hiking.png',
-  cycling: 'https://my.fitlinkapp.com/health-activities/icons/cycling.png',
-  crossfit: 'https://my.fitlinkapp.com/health-activities/icons/crossfit.png',
-  rowing: 'https://my.fitlinkapp.com/health-activities/icons/rowing.png',
+  running: 'https://my.fitlinkteams.com/health-activities/icons/running.png',
+  skiing: 'https://my.fitlinkteams.com/health-activities/icons/skiing.png',
+  hiking: 'https://my.fitlinkteams.com/health-activities/icons/hiking.png',
+  cycling: 'https://my.fitlinkteams.com/health-activities/icons/cycling.png',
+  crossfit: 'https://my.fitlinkteams.com/health-activities/icons/crossfit.png',
+  rowing: 'https://my.fitlinkteams.com/health-activities/icons/rowing.png',
   snowboarding:
-    'https://my.fitlinkapp.com/health-activities/icons/snowboarding.png',
-  surfing: 'https://my.fitlinkapp.com/health-activities/icons/surfing.png',
-  walking: 'https://my.fitlinkapp.com/health-activities/icons/walking.png',
-  yoga: 'https://my.fitlinkapp.com/health-activities/icons/yoga.png',
-  swimming: 'https://my.fitlinkapp.com/health-activities/icons/swimming.png',
-  hiit: 'https://my.fitlinkapp.com/health-activities/icons/hiit.png',
-  tennis: 'https://my.fitlinkapp.com/health-activities/icons/tennis.png',
-  golf: 'https://my.fitlinkapp.com/health-activities/icons/golf.png'
+    'https://my.fitlinkteams.com/health-activities/icons/snowboarding.png',
+  surfing: 'https://my.fitlinkteams.com/health-activities/icons/surfing.png',
+  walking: 'https://my.fitlinkteams.com/health-activities/icons/walking.png',
+  yoga: 'https://my.fitlinkteams.com/health-activities/icons/yoga.png',
+  swimming: 'https://my.fitlinkteams.com/health-activities/icons/swimming.png',
+  hiit: 'https://my.fitlinkteams.com/health-activities/icons/hiit.png',
+  tennis: 'https://my.fitlinkteams.com/health-activities/icons/tennis.png',
+  golf: 'https://my.fitlinkteams.com/health-activities/icons/golf.png'
 }
