@@ -661,7 +661,7 @@ export class UsersService {
    * Sends a JWT-based email verification link to the email address.
    *
    * This is a deep link which on desktop will be
-   * routed to the browser app at https://my.fitlinkapp.com
+   * routed to the browser app at https://my.fitlinkteams.com
    *
    * On mobile, it will deep link into the app
    *
@@ -671,8 +671,8 @@ export class UsersService {
    */
   sendVerificationEmail(id: string, email: string) {
     const payload: EmailResetJWT = {
-      iss: 'fitlinkapp.com',
-      aud: 'fitlinkapp.com',
+      iss: 'fitlinkteams.com',
+      aud: 'fitlinkteams.com',
       iat: new Date().getTime(),
       sub: id + '|' + email,
       type: 'email-reset'

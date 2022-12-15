@@ -230,7 +230,7 @@ export default `<!DOCTYPE html>
             </g>
           </svg>
 
-          <div class="link">fitlinkapp.com</div>
+          <div class="link">fitlinkteams.com</div>
         </div>
 
         {{#each stats}}

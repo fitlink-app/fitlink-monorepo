@@ -270,17 +270,17 @@ export const Settings = () => {
         <CategoryCard>
           <Row style={{alignItems: 'center', marginTop: 20}}>
             <CategoryTitle>Account</CategoryTitle>
-            <Button 
-              text={'Logout'} 
+            <Button
+              text={'Logout'}
               containerStyle={{
                 width: 66,
                 height: 26,
                 marginLeft: 100,
-                backgroundColor: '#ACACAC'
+                backgroundColor: '#ACACAC',
               }}
               textStyle={{
                 fontSize: 14,
-                color: '#181818'
+                color: '#181818',
               }}
               onPress={() => {
                 openModal(id => {
@@ -310,7 +310,7 @@ export const Settings = () => {
                                 );
                               });
                             });
-  
+
                             dispatch(logout());
                           },
                         },
@@ -372,9 +372,7 @@ export const Settings = () => {
 
         <CategoryCard>
           <CategoryLabel>Wallet</CategoryLabel>
-          <SettingsButton
-            label={'Keplr'}
-          />
+          <SettingsButton label={'Keplr'} />
         </CategoryCard>
 
         {/* Linked Trackers */}
@@ -543,7 +541,8 @@ export const Settings = () => {
         {/* Newsletter */}
         <CategoryCard>
           <CategoryLabel>Newsletter</CategoryLabel>
-          <SettingsItemWrapper style={{borderTopWidth: 1, borderColor: '#2e2e2e'}}>
+          <SettingsItemWrapper
+            style={{borderTopWidth: 1, borderColor: '#2e2e2e'}}>
             <Row>
               <SettingsItemLabel children={'Subscribe to newsletter'} />
               <Checkbox
@@ -561,37 +560,35 @@ export const Settings = () => {
         </CategoryCard>
 
         {/* Help */}
-        <CategoryCard>
-          <CategoryLabel>Help</CategoryLabel>
-          <SettingsButton
-            label={'FAQs'}
-            onPress={() => Intercom.displayHelpCenter()}
-          />
-          <SettingsButton
-            label={'E-mail us'}
-            onPress={() => Linking.openURL('mailto:hello@fitlinkapp.com')}
-          />
-          <SettingsButton
-            label={'Chat with us'}
-            onPress={() => Intercom.displayMessenger()}
-          />
-          <SettingsButton
-            label={'About'}
-            onPress={() =>
-              navigation.navigate('Webview', {
-                url: 'https://fitlinkapp.com/about',
-                title: 'About',
-              })
-            }
-          />
+        <CategoryLabel>Help</CategoryLabel>
+        <SettingsButton
+          label={'FAQs'}
+          onPress={() => Intercom.displayHelpCenter()}
+        />
+        <SettingsButton
+          label={'E-mail us'}
+          onPress={() => Linking.openURL('mailto:hello@fitlinkapp.com')}
+        />
+        <SettingsButton
+          label={'Chat with us'}
+          onPress={() => Intercom.displayMessenger()}
+        />
+        <SettingsButton
+          label={'About'}
+          onPress={() =>
+            navigation.navigate('Webview', {
+              url: 'https://fitlinkteams.com/about',
+              title: 'About',
+            })
+          }
+        />
 
-          <SettingsButton
-            label={'Report an Issue'}
-            onPress={() => Intercom.displayMessenger()}
-          />
+        <SettingsButton
+          label={'Report an Issue'}
+          onPress={() => Intercom.displayMessenger()}
+        />
 
-          <SettingsButton label={`Version 3.0.1`} disabled={true} />
-        </CategoryCard>
+        <SettingsButton label={`Version 3.0.1`} disabled={true} />
 
         <DeleteButtonWrapper>
           <Button
