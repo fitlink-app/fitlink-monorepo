@@ -520,7 +520,7 @@ export const Settings = () => {
           label={'About'}
           onPress={() =>
             navigation.navigate('Webview', {
-              url: 'https://fitlinkapp.com/about',
+              url: 'https://fitlinkteams.com/about',
               title: 'About',
             })
           }

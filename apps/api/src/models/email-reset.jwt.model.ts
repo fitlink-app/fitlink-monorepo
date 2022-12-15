@@ -1,6 +1,6 @@
 export type EmailResetJWT = {
-  aud: 'fitlinkapp.com'
-  iss: 'fitlinkapp.com'
+  aud: 'fitlinkteams.com'
+  iss: 'fitlinkteams.com'
 
   /** The id of the user */
   sub: string

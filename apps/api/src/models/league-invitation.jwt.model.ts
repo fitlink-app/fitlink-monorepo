@@ -1,6 +1,6 @@
 export type LeagueInvitationJWT = {
-  aud: 'fitlinkapp.com'
-  iss: 'fitlinkapp.com'
+  aud: 'fitlinkteams.com'
+  iss: 'fitlinkteams.com'
   sub: string
   type: 'league-invitation'
 }

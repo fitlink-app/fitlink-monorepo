@@ -143,7 +143,7 @@ describe('Rewards', () => {
     name_short: '10% off Fitlink subscription',
     code: 'FIT10',
     points_required: 10,
-    redeem_url: 'https://fitlinkapp.com?redeem=fit10',
+    redeem_url: 'https://fitlinkteams.com?redeem=fit10',
     reward_expires_at: new Date().toISOString(),
     redeem_instructions: 'Test',
     imageId: ''
