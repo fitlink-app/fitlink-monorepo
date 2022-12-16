@@ -140,7 +140,7 @@ const SignupPage = () => {
               access, try before you buy and happy healthy days.
             </h2>
             <ul>
-              <li>14 day free trial</li>
+              <li>30 day free trial</li>
               <li>Dashboard with team insights and analytics</li>
               <li>Custom team leagues</li>
               <li>Create your own rewards</li>
