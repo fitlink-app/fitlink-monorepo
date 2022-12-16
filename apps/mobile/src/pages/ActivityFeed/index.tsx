@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {FlatList, RefreshControl} from 'react-native';
+import {ActivityIndicator, FlatList, RefreshControl} from 'react-native';
 import {useMe, useFeed} from '@hooks';
 import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -213,6 +213,7 @@ export const ActivityFeed = () => {
                 </CoverDate>
               </CoverInfo>
             </CoverImage>
+            {isFeedFetchingNextPage && <ActivityIndicator color={colors.accent} />}
           </ListFooterContainer>
         }
       />

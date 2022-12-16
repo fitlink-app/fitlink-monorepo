@@ -484,7 +484,7 @@ export const Discover = () => {
 
       // @ts-ignore
       for (const feature of leaves.features) {
-        clusterActivityIds.push(feature.properties.id);
+        clusterActivityIds.push(feature.properties?.id);
       }
 
       // @ts-ignore

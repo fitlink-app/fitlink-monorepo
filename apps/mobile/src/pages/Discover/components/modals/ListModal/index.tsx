@@ -14,7 +14,7 @@ import {getResultsFromPages} from 'utils/api';
 import {Activity} from '@fitlink/api/src/modules/activities/entities/activity.entity';
 import {ActivityItem} from '../components';
 import {Search, Filters, ResultsLabel} from './components';
-import {getDistanceFromLatLonInKm} from '@utils';
+import {getDistanceFromLatLonInKm, heightLize} from '@utils';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   selectQuery,
@@ -87,7 +87,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
     const {bottom} = useSafeAreaInsets();
     const dispatch = useDispatch() as AppDispatch;
     const snapPoints = useMemo(
-      () => [bottom + HANDLE_HEIGHT + 82, '90%'],
+      () => [bottom + HANDLE_HEIGHT + heightLize(72), '90%'],
       [bottom],
     );
 
