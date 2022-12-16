@@ -4,7 +4,7 @@ import { makeApi } from '@fitlink/api-sdk'
 import axios from 'axios'
 import { Team } from '@fitlink/api/src/modules/teams/entities/team.entity'
 
-const domain = 'https://go.fitlinkapp.com/'
+const domain = 'https://go.fitlinkteams.com/'
 const android = {
   bundle_id: 'app.fitlink'
 }
@@ -22,7 +22,7 @@ const ax = axios.create({
 })
 const api = makeApi(ax)
 
-//https://go.fitlinkapp.com/?link=https://my.fitlinkteams.com${req.url}&apn=app.fitlink&amv=2.1&afl=https://fitlinkapp.com&d=1
+//https://go.fitlinkteams.com/?link=https://my.fitlinkteams.com${req.url}&apn=app.fitlink&amv=2.1&afl=https://fitlinkteams.com&d=1
 export const getServerSideProps = async function getServerSideProps({
   req
 }: NextPageContext) {
