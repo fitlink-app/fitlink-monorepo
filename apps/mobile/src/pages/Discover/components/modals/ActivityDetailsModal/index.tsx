@@ -209,9 +209,7 @@ export const ActivityDetailsModal = React.forwardRef<
               borderBottomColor: 'rgba(86, 86, 86, 0.3)',
             }}>
             <Icon name={'arrow-left'} size={20} color={colors.text} />
-            <Label
-              appearance={'primary'}
-              style={{marginLeft: 8}}>
+            <Label appearance={'primary'} style={{marginLeft: 8}}>
               Back
             </Label>
           </TouchHandler>
@@ -363,9 +361,13 @@ export const ActivityDetailsModal = React.forwardRef<
                 containerStyle={{
                   width: 160,
                   borderRadius: 12,
-                  backgroundColor: colors.text
+                  backgroundColor: colors.text,
                 }}
-                textStyle={{color: colors.background, fontSize: 14, fontFamily: 'Roboto'}}
+                textStyle={{
+                  color: colors.background,
+                  fontSize: 14,
+                  fontFamily: 'Roboto',
+                }}
                 type={'default'}
                 text={'GET DIRECTION'}
                 onPress={handleOnDirectionsPressed}
@@ -381,9 +383,13 @@ export const ActivityDetailsModal = React.forwardRef<
                     containerStyle={{
                       width: 160,
                       borderRadius: 12,
-                      backgroundColor: colors.text
+                      backgroundColor: colors.text,
                     }}
-                    textStyle={{color: colors.background, fontSize: 14, fontFamily: 'Roboto'}}
+                    textStyle={{
+                      color: colors.background,
+                      fontSize: 14,
+                      fontFamily: 'Roboto',
+                    }}
                     text={'CONTACT'}
                     onPress={handleOnContactPressed}
                   />
@@ -422,9 +428,7 @@ export const ActivityDetailsModal = React.forwardRef<
         {/* Render Bottom Content */}
         <ContentContainer>
           <Section>
-            <Label bold>
-              {activity.name}
-            </Label>
+            <Label bold>{activity.name}</Label>
 
             <SectionContent>
               <Label appearance={'secondary'}>{activity.description}</Label>

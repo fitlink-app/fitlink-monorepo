@@ -167,7 +167,23 @@ export const RewardCard = (props: RewardCardProps) => {
             <Points>
               {requiredPoints} <Label>$BFIT</Label>
             </Points>
-            <HeaderLine />
+            {/* <HeaderLine /> */}
+            <View
+              style={{
+                height: 8,
+                width: 100,
+                backgroundColor: '#ACACAC',
+                borderRadius: 100,
+                  overflow: 'hidden',
+              }}>
+              <View
+                style={{
+                  width: `${(currentPoints / requiredPoints) * 100}%`,
+                  height: 8,
+                  backgroundColor: '#00E9D7',
+                }}
+              />
+            </View>
           </Row>
           <Line />
           <Row

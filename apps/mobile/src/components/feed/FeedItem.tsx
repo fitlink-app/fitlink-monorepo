@@ -1,7 +1,7 @@
 import {UserCounter} from 'components/common/UserCounter';
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
-import {Image} from 'react-native';
+import {Image, View, Text} from 'react-native';
 import {
   Avatar,
   Chip,
@@ -22,6 +22,8 @@ import {
   formatDistanceShortLocale,
   getActivityDistance,
   getSpeedValue,
+  heightLize,
+  widthLize,
 } from '@utils';
 import {useLike, useDislike, useMe} from '@hooks';
 import {
@@ -47,9 +49,9 @@ const Col = styled.View({});
 const IconContainer = styled.View(({theme: {colors}}) => ({
   alignItems: 'center',
   justifyContent: 'center',
-  borderRadius: 1337,
-  height: 52,
-  width: 52,
+  borderRadius: 18,
+  height: widthLize(76),
+  width: widthLize(76),
   backgroundColor: colors.surface,
 }));
 
@@ -76,13 +78,43 @@ const Button = styled(TouchHandler)({
   justifyContent: 'center',
 });
 
+// const TitleText = styled.Text({
+//   color: 'white',
+//   fontFamily: 'Roboto',
+// });
+
+const TitleText = styled(Label)({
+  fontWeight: '400',
+  color: '#00E9D7',
+  fontSize: 16,
+  lineHeight: 18,
+});
+
+const NameText = styled(Label)({
+  fontWeight: '400',
+  color: '#FFFFFF',
+  fontSize: 14,
+  lineHeight: 16,
+});
+
+const LikeImage = styled.Image({
+  width: widthLize(22),
+  height: widthLize(22),
+});
+
 interface FeedItemProps {
   item: FeedItemClass;
   unitSystem: UnitSystem;
   isLiked: boolean;
+  index: number;
 }
 
-export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
+export const _FeedItem = ({
+  item,
+  unitSystem,
+  isLiked,
+  index,
+}: FeedItemProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
 
@@ -128,6 +160,93 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
       : undefined;
 
   const isOwned = item.user.id === me!.id;
+
+  function newTitle(): string {
+    switch (item.type) {
+      case FeedItemType.LeagueJoined:
+        return `${
+          isOwned ? 'You have' : `${item.user.name} has`
+        } joined league "${item.league!.name}"`;
+
+      case FeedItemType.LeagueEnding:
+        return `League "${item.league!.name}" is ending soon!`;
+
+      case FeedItemType.LeagueReset:
+        return `League "${item.league!.name}" was just restarted!`;
+
+      case FeedItemType.LeagueWon:
+        return `${isOwned ? `You` : `${item.user.name}`} won "${
+          item.league!.name
+        }"! `;
+
+      case FeedItemType.TierUp:
+        return `${
+          isOwned ? `You've` : `${item.user.name} has`
+        } been promoted to "${item.tier}"! `;
+
+      case FeedItemType.TierDown: {
+        return `${
+          isOwned ? `You've` : `${item.user.name} has`
+        } been demoted to "${item.tier}"! `;
+      }
+
+      case FeedItemType.RewardClaimed: {
+        return `${isOwned ? `You have` : `${item.user.name} has`} claimed "${
+          item.reward!.name_short
+        }" reward! `;
+      }
+
+      case FeedItemType.RewardUnlocked: {
+        return `${isOwned ? `You have` : `${item.user.name} has`} unlocked "${
+          item.reward!.name_short
+        }" reward! `;
+      }
+
+      case FeedItemType.NewFollower: {
+        return `${item.related_user!.name} followed you. Check it out.`;
+      }
+
+      case FeedItemType.DailyGoalReached: {
+        let goalName;
+
+        switch (item.goal_type) {
+          case FeedGoalType.FloorsClimbed:
+            goalName = 'floors climbed';
+            break;
+
+          case FeedGoalType.Steps:
+            goalName = 'steps';
+            break;
+
+          case FeedGoalType.SleepHours:
+            goalName = 'sleep';
+            break;
+
+          case FeedGoalType.MindfulnessMinutes:
+            goalName = 'mindfulness';
+            break;
+
+          case FeedGoalType.WaterLitres:
+            goalName = 'hydration';
+            break;
+
+          case FeedGoalType.ActiveMinutes:
+            goalName = 'active minutes';
+            break;
+
+          default:
+            break;
+        }
+
+        return `${isOwned ? 'You have just' : `${item.user.name}`} hit ${
+          isOwned ? 'your' : 'their'
+        } ${goalName} goal${isOwned ? ', keep it up!' : `.`}`;
+      }
+
+      default:
+        return 'Feed Entry';
+    }
+  }
 
   const title = (() => {
     const healthActivityTitle = item.health_activity?.title;
@@ -378,7 +497,11 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
     if (icon) {
       return (
         <IconContainer>
-          <Icon name={icon || 'default'} size={28} color={colors.accent} />
+          <Icon
+            name={icon || 'default'}
+            size={widthLize(52)}
+            color={colors.accent}
+          />
         </IconContainer>
       );
     }
@@ -406,70 +529,232 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
     );
   };
 
-  return (
-    <Wrapper>
-      <Row>
-        {renderAvatar()}
-
-        <RightContainer>
-          <TouchHandler onPress={onContentPress}>
-            <SpacedRow>
-              {/* User name, date column */}
-              <Col style={{flex: 1}}>
-                <Row
-                  style={{
-                    alignItems: 'flex-start',
-                    marginRight: 5,
-                  }}>
-                  {renderTitleIcon()}
-                  <Label
-                    type="subheading"
-                    appearance={'primary'}
-                    style={{flexShrink: 1, paddingRight: 5}}>
-                    {title}
-                  </Label>
-                </Row>
-
-                <DateText type="caption" appearance={'secondary'}>
-                  {isOwned ? date : `${item.user.name} · ${date}`}
-                </DateText>
-              </Col>
-
-              {/* Points chip */}
-              {renderPoints()}
-            </SpacedRow>
-
-            {renderStats()}
-
-            <SpacedRow>
-              <FeedCollage images={images} />
-            </SpacedRow>
-          </TouchHandler>
-        </RightContainer>
-      </Row>
-
-      <ButtonContainer>
-        <Button
-          style={{height: '100%'}}
-          onPress={() => {
-            isLiked
-              ? dislike({feedItemId: item.id, userId: item.user.id})
-              : like({feedItemId: item.id, userId: item.user.id});
-          }}>
-          {LikeButton}
-          <UserCounter
-            style={{marginLeft: 8}}
-            countTotal={item.likes.length}
-            avatars={usersLikedAvatars}
+  if (item.health_activity?.title) {
+    const targetUser = getTargetUser();
+    return (
+      <TouchHandler onPress={onContentPress}>
+        <View>
+          <View
+            style={{
+              height: index === 0 ? 0 : 3,
+              backgroundColor: 'rgba(86, 86, 86, 0.5)',
+              borderRadius: 1.5,
+            }}
           />
-        </Button>
-        {/* <ButtonSeparator />
-        <Button>
-          <Icon name={'camera'} color={colors.accentSecondary} size={18} />
-        </Button> */}
-      </ButtonContainer>
-    </Wrapper>
-  );
+          <View style={{height: heightLize(14)}} />
+          <View style={{flexDirection: 'row', flex: 1}}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <TouchHandler
+                disabled={me!.id === targetUser.id}
+                onPress={() => {
+                  if (me!.id !== targetUser.id) {
+                    navigation.navigate('Profile', {id: targetUser.id});
+                  }
+                }}>
+                <Avatar
+                  url={targetUser.avatar?.url_128x128}
+                  size={widthLize(76)}
+                  radius={18}
+                />
+              </TouchHandler>
+              <View style={{width: widthLize(12)}} />
+              <View>
+                <TitleText>{item.health_activity?.title}</TitleText>
+                <View style={{height: heightLize(6)}} />
+                <NameText>{item.user.name}</NameText>
+                <View style={{height: heightLize(6)}} />
+                <NameText style={{color: '#ACACAC'}}>{date}</NameText>
+              </View>
+            </View>
+            <View style={{width: widthLize(17)}} />
+            <View style={{alignItems: 'flex-end', flex: 1}}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View
+                  style={{
+                    paddingHorizontal: widthLize(12),
+                    paddingVertical: heightLize(8),
+                    backgroundColor: 'white',
+                    borderRadius: 20,
+                    marginRight: widthLize(12),
+                  }}>
+                  <NameText
+                    style={{color: 'black', fontWeight: '500', fontSize: 12}}>
+                    {`${item.health_activity?.points} Points`}
+                  </NameText>
+                </View>
+                <TouchHandler
+                  onPress={() => {
+                    isLiked
+                      ? dislike({feedItemId: item.id, userId: item.user.id})
+                      : like({feedItemId: item.id, userId: item.user.id});
+                  }}>
+                  <View
+                    style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: widthLize(36),
+                      height: widthLize(36),
+                      borderRadius: widthLize(18),
+                      backgroundColor: isLiked
+                        ? colors.accent
+                        : colors.accentSecondary,
+                    }}>
+                    <LikeImage
+                      source={require('../../../assets/images/thumbs-up-new.png')}
+                    />
+                  </View>
+                </TouchHandler>
+              </View>
+              <View style={{height: heightLize(15)}} />
+              <NameText style={{color: '#ACACAC'}}>
+                Distance: <NameText>{distance}</NameText>
+                {'  '}
+                <Image
+                  source={require('../../../assets/images/feed_location.png')}
+                />
+              </NameText>
+              <View style={{height: heightLize(10)}} />
+              <NameText style={{color: '#ACACAC'}}>
+                Speed: <NameText>{speed}</NameText>
+                {'  '}
+                <Image
+                  source={require('../../../assets/images/feed_speed.png')}
+                />
+              </NameText>
+              <View style={{height: heightLize(10)}} />
+              <NameText style={{color: '#ACACAC'}}>
+                Time: <NameText>{duration}</NameText>
+                {'  '}
+                <Image
+                  source={require('../../../assets/images/feed_time.png')}
+                />
+              </NameText>
+            </View>
+          </View>
+          <View style={{height: heightLize(14)}} />
+        </View>
+      </TouchHandler>
+    );
+  } else {
+    return (
+      <TouchHandler onPress={onContentPress}>
+        <View>
+          <View
+            style={{
+              height: index === 0 ? 0 : 3,
+              backgroundColor: 'rgba(86, 86, 86, 0.5)',
+              borderRadius: 1.5,
+            }}
+          />
+          <View style={{height: heightLize(14)}} />
+          <View style={{flexDirection: 'row', flex: 1}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+              {renderAvatar()}
+              <View style={{width: widthLize(12)}} />
+              <View style={{flex: 1}}>
+                <TitleText style={{}}>{newTitle()}</TitleText>
+                {/* <TitleText>You just hit your floors</TitleText> */}
+                <View style={{height: heightLize(6)}} />
+                <NameText style={{color: '#ACACAC'}}>{date}</NameText>
+              </View>
+            </View>
+            <View style={{width: widthLize(17)}} />
+            <View style={{alignItems: 'flex-end'}}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <TouchHandler
+                  onPress={() => {
+                    isLiked
+                      ? dislike({feedItemId: item.id, userId: item.user.id})
+                      : like({feedItemId: item.id, userId: item.user.id});
+                  }}>
+                  <View
+                    style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: widthLize(36),
+                      height: widthLize(36),
+                      borderRadius: widthLize(18),
+                      backgroundColor: isLiked
+                        ? colors.accent
+                        : colors.accentSecondary,
+                    }}>
+                    <LikeImage
+                      source={require('../../../assets/images/thumbs-up-new.png')}
+                    />
+                  </View>
+                </TouchHandler>
+              </View>
+            </View>
+          </View>
+          <View style={{height: heightLize(14)}} />
+        </View>
+      </TouchHandler>
+    );
+    // return (
+    //   <Wrapper>
+    //     <Row>
+    //       {renderAvatar()}
+
+    //       <RightContainer>
+    //         <TouchHandler onPress={onContentPress}>
+    //           <SpacedRow>
+    //             {/* User name, date column */}
+    //             <Col style={{flex: 1}}>
+    //               <Row
+    //                 style={{
+    //                   alignItems: 'flex-start',
+    //                   marginRight: 5,
+    //                 }}>
+    //                 {renderTitleIcon()}
+    //                 <Label
+    //                   type="subheading"
+    //                   appearance={'primary'}
+    //                   style={{flexShrink: 1, paddingRight: 5}}>
+    //                   {title}
+    //                 </Label>
+    //               </Row>
+
+    //               <DateText type="caption" appearance={'secondary'}>
+    //                 {isOwned ? date : `${item.user.name} · ${date}`}
+    //               </DateText>
+    //             </Col>
+
+    //             {/* Points chip */}
+    //             {renderPoints()}
+    //           </SpacedRow>
+
+    //           {renderStats()}
+
+    //           <SpacedRow>
+    //             <FeedCollage images={images} />
+    //           </SpacedRow>
+    //         </TouchHandler>
+    //       </RightContainer>
+    //     </Row>
+
+    //     <ButtonContainer>
+    //       <Button
+    //         style={{height: '100%'}}
+    //         onPress={() => {
+    //           isLiked
+    //             ? dislike({feedItemId: item.id, userId: item.user.id})
+    //             : like({feedItemId: item.id, userId: item.user.id});
+    //         }}>
+    //         {LikeButton}
+    //         <UserCounter
+    //           style={{marginLeft: 8}}
+    //           countTotal={item.likes.length}
+    //           avatars={usersLikedAvatars}
+    //         />
+    //       </Button>
+    //       {/* <ButtonSeparator />
+    //     <Button>
+    //       <Icon name={'camera'} color={colors.accentSecondary} size={18} />
+    //     </Button> */}
+    //     </ButtonContainer>
+    //   </Wrapper>
+    // );
+  }
 };
 
 export const FeedItem = React.memo(_FeedItem);

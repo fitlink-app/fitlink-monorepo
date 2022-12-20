@@ -15,6 +15,7 @@ type State = NavigationState<Route>;
 const LabelRow = styled.View({
   flexDirection: 'row',
   alignItems: 'center',
+  backgroundColor: '',
 });
 
 const BadgeWrapper = styled.View(({theme: {colors}}) => ({
@@ -58,7 +59,7 @@ const TabButton = ({
               ? 'primary'
               : 'secondary'
           }
-          style={{fontSize: 18}}>
+          style={{fontSize: 15}}>
           {title}
         </Label>
         {badgeCount ? (
@@ -114,6 +115,7 @@ export const TabBar = (
         borderBottomWidth: 1,
         borderColor: 'transparent',
         elevation: 0,
+        paddingHorizontal: 20,
       }}
       renderLabel={(params): Element => {
         const {focused} = params;

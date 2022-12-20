@@ -245,6 +245,19 @@ export const Settings = () => {
     navigation.goBack();
   };
 
+  const teamName = () => {
+    if (user?.teams) {
+      const filterList = user.teams.filter(team => team.user_count > 0);
+      if (filterList) {
+        return filterList[0].name + ' Team';
+      } else {
+        return 'Not in a team';
+      }
+    } else {
+      return 'Not in a team';
+    }
+  };
+
   return (
     <Wrapper>
       <Navbar
@@ -377,6 +390,12 @@ export const Settings = () => {
           <SettingsButton
             label={'Update Password'}
             onPress={() => navigation.navigate('UpdatePassword')}
+          />
+          <SettingsInput
+            label={'Team'}
+            value={teamName()}
+            editable={false}
+            displayName
           />
         </CategoryCard>
 

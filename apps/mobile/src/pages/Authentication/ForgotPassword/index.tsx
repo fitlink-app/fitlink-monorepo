@@ -12,8 +12,10 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {ForgotPasswordForm} from './components';
 import {StackScreenProps} from '@react-navigation/stack';
 import {RootStackParamList} from 'routes/types';
-import {Platform} from 'react-native';
-import {Background} from '../SignIn/components/Background';
+import {Platform, Text} from 'react-native';
+import {Background} from '../Welcome/components/Background';
+import {GradientUnderlay} from '../Welcome/components';
+import {widthLize} from '@utils';
 
 const Wrapper = styled.ScrollView.attrs(() => ({
   contentContainerStyle: {
@@ -29,7 +31,7 @@ const FormContainer = styled.View({
   flex: 1,
   alignItems: 'center',
   justifyContent: 'center',
-  paddingHorizontal: 20,
+  paddingHorizontal: widthLize(54),
   width: '100%',
 });
 
@@ -46,7 +48,20 @@ export const ForgotPassword = ({
 
   return (
     <Wrapper>
-      <Navbar centerComponent={<Logo />} />
+      <GradientUnderlay />
+      <Navbar
+        centerComponent={
+          <Text
+            style={{
+              alignSelf: 'center',
+              color: '#00E9D7',
+              fontSize: 15,
+              fontWeight: '500',
+            }}>
+            RESET
+          </Text>
+        }
+      />
       <ContentContainer>
         <KeyboardAvoidingView
           keyboardVerticalOffset={NAVBAR_HEIGHT}

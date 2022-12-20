@@ -23,8 +23,8 @@ import {CompeteLeagues} from './components/CompeteLeagues';
 import {RewardSlider} from '../Rewards/components';
 import {ActivityHistory} from './components/ActivityHistory';
 import {RoutesClasses} from './components/RoutesClasses';
-import {RankCard} from '../Leagues/components/RankCard';
 import {CaloriesCard} from './components/CaloriesCard';
+import { RankCard } from 'pages/Leagues/components/RankCard';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -259,7 +259,8 @@ export const Feed = () => {
               />
             </HeaderWidgetContainer>
             <CaloriesCard />
-            <RankCard />
+            {/* Remove RankCard */}
+            {/* <RankCard /> */}
           </StatContainer>
 
           <FeedContainer>

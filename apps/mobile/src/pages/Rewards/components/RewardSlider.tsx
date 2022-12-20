@@ -152,6 +152,7 @@ export const RewardSlider = ({
           onEndReachedThreshold={0.2}
           onEndReached={fetchNextPage}
           horizontal={!LockedShow}
+          contentContainerStyle={{paddingRight: 20}}
         />
       )}
     </Wrapper>

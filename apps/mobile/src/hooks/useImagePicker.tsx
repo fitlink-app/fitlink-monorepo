@@ -20,22 +20,24 @@ export function useImagePicker() {
   const {openModal, closeModal} = useModal();
 
   function openImagePicker(title: string, callback: ImagePickerCallback) {
-    // openModal(id => (
-    //   <Dialog
-    //     {...{title}}
-    //     onCloseCallback={() => closeModal(id)}
-    //     buttons={[
-    //       {
-    //         text: 'Take Picture',
-    //         onPress: () => openCamera(callback),
-    //       },
-    //       {
-    //         text: 'Select From Gallery',
-    //         onPress: () => openGallery(callback),
-    //       },
-    //     ]}
-    //   />
-    // ));
+    openModal(id => (
+      <Dialog
+        {...{title}}
+        onCloseCallback={() => closeModal(id)}
+        buttons={[
+          {
+            text: 'Take Picture',
+            // onPress: () => openCamera(callback),
+            onPress: () => {},
+          },
+          {
+            text: 'Select From Gallery',
+            onPress: () => {},
+            // onPress: () => openGallery(callback),
+          },
+        ]}
+      />
+    ));
   }
 
   function openCamera(callback: ImagePickerCallback) {

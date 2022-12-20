@@ -1,12 +1,7 @@
 import React from 'react';
+import {View} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
-import {
-  Card,
-  CardLabel,
-  Label,
-  TouchHandler,
-  TouchHandlerProps,
-} from '../../common';
+import {Card, Label, TouchHandler, TouchHandlerProps} from '../../common';
 
 const Wrapper = styled(Card)({
   width: '100%',
@@ -44,6 +39,7 @@ const PointsLabel = styled(Label).attrs(() => ({
 const PointsStatusLabel = styled(Label).attrs(() => ({
   type: 'caption',
 }))({
+  color: '#565656',
   fontSize: 15,
   letterSpacing: 2,
 });
@@ -86,12 +82,15 @@ export const _RewardTracker = ({...rest}: RewardTrackerProps) => {
             <PointsStatusLabel>+23%</PointsStatusLabel>
           </Row>
           <Row>
-            <Row>
-              <Points style={{color: colors.grayText}}>00</Points>
-              <Points>640</Points>
-            </Row>
+            <View>
+              <Row>
+                <Points style={{color: colors.grayText}}>00</Points>
+                <Points>640</Points>
+              </Row>
+              <PointsStatusLabel>$234.12</PointsStatusLabel>
+            </View>
             <PointsChart
-              source={require('../../../../assets/images/wallet_chart.png')}
+              source={require('../../../../assets/images/wallet_chart2.png')}
             />
           </Row>
         </ContentContainer>
