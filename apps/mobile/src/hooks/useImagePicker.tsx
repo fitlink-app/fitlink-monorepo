@@ -1,6 +1,11 @@
 import {useModal} from '@hooks';
 import {Dialog} from 'components/modal/Dialog';
 import React from 'react';
+import {
+  CameraOptions,
+  launchCamera,
+  launchImageLibrary,
+} from 'react-native-image-picker';
 // import {
 //   CameraOptions,
 //   ImagePickerResponse,
@@ -27,13 +32,13 @@ export function useImagePicker() {
         buttons={[
           {
             text: 'Take Picture',
-            // onPress: () => openCamera(callback),
-            onPress: () => {},
+            onPress: () => openCamera(callback),
+            // onPress: () => {},
           },
           {
             text: 'Select From Gallery',
-            onPress: () => {},
-            // onPress: () => openGallery(callback),
+            // onPress: () => {},
+            onPress: () => openGallery(callback),
           },
         ]}
       />
@@ -41,31 +46,30 @@ export function useImagePicker() {
   }
 
   function openCamera(callback: ImagePickerCallback) {
-    // const pickerOptions = {
-    //   mediaType: 'photo',
-    //   maxWidth: 1200,
-    //   maxHeight: 1200,
-    //   quality: 1,
-    // } as CameraOptions;
-
-    // launchCamera(pickerOptions, response => {
-    //   const handledResponse = handlePickerResponse(response);
-    //   if (handledResponse) callback(handledResponse);
-    // });
+    const pickerOptions = {
+      mediaType: 'photo',
+      maxWidth: 1200,
+      maxHeight: 1200,
+      quality: 1,
+    } as CameraOptions;
+    launchCamera(pickerOptions, response => {
+      const handledResponse = handlePickerResponse(response);
+      if (handledResponse) callback(handledResponse);
+    });
   }
 
   function openGallery(callback: ImagePickerCallback) {
-    // const pickerOptions = {
-    //   mediaType: 'photo',
-    //   maxWidth: 1200,
-    //   maxHeight: 1200,
-    //   quality: 1,
-    // } as CameraOptions;
+    const pickerOptions = {
+      mediaType: 'photo',
+      maxWidth: 1200,
+      maxHeight: 1200,
+      quality: 1,
+    } as CameraOptions;
 
-    // launchImageLibrary(pickerOptions, response => {
-    //   const handledResponse = handlePickerResponse(response);
-    //   if (handledResponse) callback(handledResponse);
-    // });
+    launchImageLibrary(pickerOptions, response => {
+      const handledResponse = handlePickerResponse(response);
+      if (handledResponse) callback(handledResponse);
+    });
   }
 
   function handlePickerResponse(response: any) {

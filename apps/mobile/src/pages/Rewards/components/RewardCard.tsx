@@ -136,7 +136,8 @@ export const RewardCard = (props: RewardCardProps) => {
       )
     : 0;
   const progress = Math.min(Math.max(currentPoints / requiredPoints, 0), 1);
-  const isLocked = progress < 1 && !isClaimed;
+  const isLocked = currentPoints >= requiredPoints;
+  // const isLocked = progress < 1 && !isClaimed;
 
   return (
     <TouchWrapper {...{onPress, style}}>

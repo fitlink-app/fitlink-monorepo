@@ -248,7 +248,7 @@ export const Settings = () => {
   const teamName = () => {
     if (user?.teams) {
       const filterList = user.teams.filter(team => team.user_count > 0);
-      if (filterList) {
+      if (filterList.length > 0) {
         return filterList[0].name + ' Team';
       } else {
         return 'Not in a team';
