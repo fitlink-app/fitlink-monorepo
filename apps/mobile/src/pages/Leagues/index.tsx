@@ -15,7 +15,9 @@ import {TabView, Label, Card, TouchHandler} from '@components';
 import {useMe} from '@hooks';
 import {BlurView} from '@react-native-community/blur';
 import {RankCard} from './components/RankCard';
-import {widthLize} from "@utils";
+import {widthLize} from '@utils';
+import {CaloriesCard} from 'pages/Feed/components/CaloriesCard';
+import LinearGradient from 'react-native-linear-gradient';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -241,7 +243,8 @@ export const Leagues = (
         }}>
         <PageTitle>Gold Leagues</PageTitle>
         <View style={{marginHorizontal: widthLize(20)}}>
-          <RankCard />
+          {/* <RankCard /> */}
+          <CaloriesCard />
         </View>
         <LeaguesTitleContainer>
           <Title>Compete to earn leagues</Title>
@@ -266,13 +269,22 @@ export const Leagues = (
                       position: 'absolute',
                       width: 327,
                       height: 87,
-                      backgroundColor: 'rgba(0,0,0,0.2)',
+                      backgroundColor: 'transparent',
                     }}
                     blurRadius={1}
-                    blurAmount={1}
+                    blurAmount={2}
                     blurType="dark"
                     overlayColor={'transparent'}
                   />
+                  {/* <LinearGradient
+                    style={{
+                      position: 'absolute',
+                      width: 327,
+                      height: 87,
+                      backgroundColor: 'rgba(0,0,0,0.2)',
+                    }}
+                    colors={['rgba(0, 0, 0, 0.2)', 'rgba(0, 0, 0, 0) 100%)']}
+                  /> */}
                   <MembersText>
                     <Text style={{color: '#00E9D7'}}>{members}</Text> Members
                   </MembersText>

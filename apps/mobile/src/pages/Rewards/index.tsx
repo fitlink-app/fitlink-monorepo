@@ -23,7 +23,7 @@ const ListHeaderContainer = styled.View({
 
 const PageTitleContainer = styled.View({
   alignItems: 'center',
-  marginBottom: 10,
+  marginBottom: 21,
 });
 
 const PageTitle = styled(Label).attrs(() => ({

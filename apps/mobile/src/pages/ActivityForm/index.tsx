@@ -84,13 +84,10 @@ export const ActivityForm = (
   }
 
   // State
-  const [activityImages, setActivityImages] = useState<ActivityImagesState[]>(
-    initialImages,
-  );
-  const [
-    organizerImage,
-    setOrganizerImage,
-  ] = useState<ImagePickerDialogResponse>();
+  const [activityImages, setActivityImages] =
+    useState<ActivityImagesState[]>(initialImages);
+  const [organizerImage, setOrganizerImage] =
+    useState<ImagePickerDialogResponse>();
 
   // Form
   const {
@@ -107,15 +104,11 @@ export const ActivityForm = (
 
   const {mutateAsync: editActivity} = useEditActivity();
 
-  const {
-    mutateAsync: deleteActivity,
-    isLoading: isDeleting,
-  } = useDeleteActivity();
+  const {mutateAsync: deleteActivity, isLoading: isDeleting} =
+    useDeleteActivity();
 
-  const {
-    mutateAsync: uploadImage,
-    isLoading: isImageUploading,
-  } = useUploadImage();
+  const {mutateAsync: uploadImage, isLoading: isImageUploading} =
+    useUploadImage();
 
   const handleOnSubmitPressed = async () => {
     let activityImageIds: string[] = [];
@@ -274,16 +267,24 @@ export const ActivityForm = (
 
               <Row style={{alignItems: 'center'}}>
                 <ImagePicker
-                  style={{width: 60, height: 60, backgroundColor: colors.accent}}
+                  style={{
+                    width: 60,
+                    height: 60,
+                    backgroundColor: colors.accent,
+                  }}
                   iconSize={25}
                   iconColor={'#000000'}
                   borderNone
                   onImagePicked={dialogResponse =>
-                    handleOnNewActivityImagePicked({pickedImage: dialogResponse})
+                    handleOnNewActivityImagePicked({
+                      pickedImage: dialogResponse,
+                    })
                   }
                   error={fieldErrors?.images}
                 />
-                <Label appearance={'secondary'} style={{marginLeft: 16}}>Add new image for your activity</Label>
+                <Label appearance={'secondary'} style={{marginLeft: 16}}>
+                  Add new image for your activity
+                </Label>
               </Row>
             </FieldSpacer>
 
@@ -297,7 +298,11 @@ export const ActivityForm = (
                     <Row style={{alignItems: 'flex-end'}}>
                       <ImagePicker
                         deleteButtonContainerStyle={{top: 2, right: 2}}
-                        style={{width: 60, height: 60, backgroundColor: colors.accent}}
+                        style={{
+                          width: 60,
+                          height: 60,
+                          backgroundColor: colors.accent,
+                        }}
                         iconSize={25}
                         iconColor={'#000000'}
                         borderNone
@@ -376,7 +381,7 @@ export const ActivityForm = (
                   fontSize: 14,
                 }}
                 containerStyle={{
-                  width: 160
+                  width: 160,
                 }}
                 onPress={handleOnSubmitPressed}
                 disabled={isDeleting || isSubmitting || isImageUploading}
@@ -418,7 +423,7 @@ export const ActivityForm = (
         titleStyle={{
           fontSize: 15,
           letterSpacing: 1,
-          color: colors.accent
+          color: colors.accent,
         }}
         iconColor={colors.text}
       />

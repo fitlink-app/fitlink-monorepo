@@ -670,13 +670,15 @@ export const Discover = () => {
 
   const renderAddActivityOverlay = () => {
     return (
-      <View style={{position: 'absolute', alignSelf: 'center', bottom: 0}}>
+      <View style={{position: 'absolute', alignSelf: 'center', bottom: 105}}>
         <TouchHandler
           onPress={() => {
             handleOnAddActivityContinuePress();
           }}>
           <ContinueButton>
-            <Label appearance={'accent'} style={{marginRight: 5}}>CONTINUE</Label>
+            <Label appearance={'accent'} style={{marginRight: 5}}>
+              CONTINUE
+            </Label>
             <Icon name={'arrow-right'} size={16} color={'white'} />
           </ContinueButton>
         </TouchHandler>
@@ -784,8 +786,7 @@ export const Discover = () => {
         }}
         onPress={() => {
           deselectMarker();
-        }}
-      >
+        }}>
         {/* Camera */}
         <Camera
           ref={cameraRef}

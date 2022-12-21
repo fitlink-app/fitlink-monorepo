@@ -21,7 +21,7 @@ const ButtonImage = styled(Image)({
 const Row = styled.View({
   position: 'absolute',
   flexDirection: 'row',
-  alignItems: 'center'
+  alignItems: 'center',
 });
 
 const ButtonContentContainer = styled.View({

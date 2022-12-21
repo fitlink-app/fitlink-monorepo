@@ -33,7 +33,7 @@ import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {getResultsFromPages} from 'utils/api';
 import {queryClient, QueryKeys} from '@query';
 import {PrivacySetting} from '@fitlink/api/src/modules/users-settings/users-settings.constants';
-import {calculateGoalsPercentage} from '@utils';
+import {calculateGoalsPercentage, widthLize} from '@utils';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -189,12 +189,14 @@ export const Profile = (
     );
 
     return (
-      <FeedItem
-        key={item.id}
-        item={item}
-        unitSystem={me!.unit_system}
-        isLiked={isLiked}
-      />
+      <View style={{paddingHorizontal: widthLize(20)}}>
+        <FeedItem
+          key={item.id}
+          item={item}
+          unitSystem={me!.unit_system}
+          isLiked={isLiked}
+        />
+      </View>
     );
   };
 

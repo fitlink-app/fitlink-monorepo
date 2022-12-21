@@ -5,10 +5,13 @@ import {useLeagues, useSearchLeagues} from '@hooks';
 import {LeagueList} from './components';
 import {getResultsFromPages} from 'utils/api';
 import {ActivityIndicator} from 'react-native';
+import {widthLize} from '@utils';
 
 const Wrapper = styled.View({
   flex: 1,
   justifyContent: 'center',
+  paddingLeft: widthLize(20),
+  paddingRight: widthLize(20),
 });
 
 const SearchBoxContainer = styled.View({

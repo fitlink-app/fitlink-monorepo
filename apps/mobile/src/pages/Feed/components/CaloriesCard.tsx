@@ -1,17 +1,15 @@
 import React from 'react';
 import {View} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
-import {Card, Label, ProgressCircle} from '@components';
+import {Card, Label} from '@components';
 
 const Container = styled(Card)({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
+  alignItems: 'stretch',
   width: '100%',
-  paddingTop: 20,
+  paddingTop: 21,
   paddingBottom: 19,
   paddingLeft: 33,
-  paddingRight: 37,
+  paddingRight: 27,
   marginTop: 16,
 });
 
@@ -35,57 +33,96 @@ const Value = styled(Label).attrs(() => ({
   marginTop: 9,
 });
 
-const CaloriesCircle = styled.View({
-  width: 65,
-  height: 65,
-  borderRadius: 35,
-  background: 'rgba(150, 150, 150, 0.1)',
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignItems: 'center',
-  textAlign: 'center',
-});
+// const CaloriesCircle = styled.View({
+//   width: 65,
+//   height: 65,
+//   borderRadius: 35,
+//   background: 'rgba(150, 150, 150, 0.1)',
+//   flexDirection: 'row',
+//   justifyContent: 'center',
+//   alignItems: 'center',
+//   textAlign: 'center',
+// });
 
-const Calories = styled(Label).attrs(() => ({
-  type: 'caption',
+// const Calories = styled(Label).attrs(() => ({
+//   type: 'caption',
+// }))({
+//   fontFamily: 'Roboto',
+//   fontStyle: 'normal',
+//   fontSize: 18,
+//   lineHeight: 21,
+//   textAlign: 'center',
+//   letterSpacing: 2,
+//   textTransform: 'uppercase',
+// });
+
+const PercentageValue = styled(Label).attrs(() => ({
+  type: 'subheading',
+  bold: true,
 }))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
-  fontSize: 18,
-  lineHeight: 21,
-  textAlign: 'center',
+  fontSize: 15,
+  color: '#565656',
+  lineHeight: 18,
+  textAlign: 'right',
   letterSpacing: 2,
-  textTransform: 'uppercase',
 });
 
 const Row = styled.View({
   flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
 });
+
+const StatChart = styled.Image({});
 
 export const CaloriesCard = () => {
   const {colors} = useTheme();
   return (
     <Container>
-      <View>
+      <Row>
         <CardLabel>Total Calories</CardLabel>
+        <PercentageValue>+11%</PercentageValue>
+      </Row>
+      <Row>
         <Row>
           <Value style={{color: colors.grayText}}>0</Value>
           <Value>1240</Value>
         </Row>
-      </View>
-      <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-        <ProgressCircle
-          progress={0.87}
-          strokeWidth={3}
-          backgroundStrokeWidth={2.5}
-          bloomIntensity={0.5}
-          bloomRadius={5}
-          size={81}>
-          <CaloriesCircle>
-            <Calories>87%</Calories>
-          </CaloriesCircle>
-        </ProgressCircle>
-      </View>
+        <StatChart
+          source={require('../../../assets/images/total_rank_chart2.png')}
+        />
+      </Row>
+      <CardLabel>72.59 POINTS</CardLabel>
     </Container>
   );
+  // return (
+  //   <Container>
+  //     <View
+  //       style={{
+  //         flexDirection: 'row',
+  //         justifyContent: 'space-between',
+  //         alignItems: 'center',
+  //       }}>
+  //       <CardLabel>Total Calories</CardLabel>
+  //       <PercentageValue>+11%</PercentageValue>
+  //     </View>
+  //     <View
+  //       style={{
+  //         flexDirection: 'row',
+  //         justifyContent: 'space-between',
+  //         alignItems: 'center',
+  //       }}>
+  //       <View>
+  //         <Row>
+  //           <Value style={{color: colors.grayText}}>0</Value>
+  //           <Value>1240</Value>
+  //         </Row>
+  //         <CardLabel>$234.12</CardLabel>
+  //       </View>
+  //       <StatChart
+  //         source={require('../../../assets/images/total_rank_chart2.png')}
+  //       />
+  //     </View>
+  //   </Container>
+  // );
 };

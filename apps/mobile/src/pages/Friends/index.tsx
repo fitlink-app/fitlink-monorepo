@@ -10,11 +10,11 @@ import {
 import {RootStackParamList} from 'routes/types';
 import {Following, Followers, Search} from './tabs';
 import {TabView} from '@components';
-import { useMe } from '@hooks';
+import {useMe} from '@hooks';
 
 const Wrapper = styled.View({
   flex: 1,
-  marginTop: 40
+  marginTop: 40,
 });
 
 const HeaderView = styled.View({
@@ -35,7 +35,7 @@ export const Friends = (
 
   const tabViewRef = useRef<any>(null);
 
-  const { data: user } = useMe({
+  const {data: user} = useMe({
     refetchOnMount: false,
     refetchInterval: 10000,
   });
@@ -72,8 +72,16 @@ export const Friends = (
         <TabView
           ref={tabViewRef}
           routes={[
-            {key: 'followers', title: 'FOLLOWERS', peopleCount: user?.followers_total || 0},
-            {key: 'following', title: 'FOLLOWING', peopleCount: user?.following_total || 0},
+            {
+              key: 'followers',
+              title: 'FOLLOWERS',
+              peopleCount: user?.followers_total || 0,
+            },
+            {
+              key: 'following',
+              title: 'FOLLOWING',
+              peopleCount: user?.following_total || 0,
+            },
             {key: 'search', title: 'SEARCH'},
           ]}
           renderScene={renderTabs}
