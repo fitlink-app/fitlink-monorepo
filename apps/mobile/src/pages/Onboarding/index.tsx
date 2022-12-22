@@ -3,7 +3,7 @@ import styled, {useTheme} from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 import {ActivityIndicator, Image} from 'react-native';
 import {BasicInfo, Goals} from './subscreens';
-import {Button, Dots} from '@components';
+import {Button, Dots, Logo} from '@components';
 import {useJoinTeamByCode, useMe} from '@hooks';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -237,7 +237,8 @@ export const Onboarding = () => {
         </>
       ) : (
         <LoadingContainer>
-          <ActivityIndicator color={colors.accent} />
+          <Logo size={'large'} />
+          <ActivityIndicator style={{ marginTop: 10 }} color={colors.accent} />
         </LoadingContainer>
       )}
 

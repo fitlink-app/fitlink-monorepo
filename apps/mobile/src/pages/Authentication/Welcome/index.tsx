@@ -46,7 +46,7 @@ const HeaderContainer = styled.View({
 
 const Line = styled.View({
   position: 'relative',
-  width: 70,
+  width: 68,
   height: 0,
   top: 18,
   right: -70,

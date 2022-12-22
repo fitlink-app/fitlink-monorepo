@@ -1,9 +1,12 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import styled from 'styled-components/native';
 import {TouchHandler, Card, Label} from '@components';
 import {useNavigation} from '@react-navigation/core';
 import {BlurView} from '@react-native-community/blur';
-import {widthLize} from "@utils";
+import {formatDate, widthLize} from "@utils";
+import {useSelector} from "react-redux";
+import {memoSelectFeedPreferences} from "../../../redux/feedPreferences/feedPreferencesSlice";
+import {useFeed} from "@hooks";
 
 const Wrapper = styled.View({
   // paddingLeft: widthLize(20),
@@ -139,6 +142,23 @@ const data = [
 
 export const ActivityHistory = () => {
   const navigation = useNavigation();
+  const feedPreferences = useSelector(memoSelectFeedPreferences);
+
+  const {
+    data: feed,
+    refetch: refetchFeed,
+    fetchNextPage: fetchFeedNextPage,
+    isFetchingNextPage: isFeedFetchingNextPage,
+    isFetchedAfterMount: isFeedFetchedAfterMount,
+  } = useFeed({
+    my_goals: feedPreferences.showGoals,
+    friends_activities: feedPreferences.showFriends,
+    my_updates: feedPreferences.showUpdates,
+  });
+
+  const activities = useMemo(() => {
+    return feed?.pages[0].results.filter(e => e.category === 'my_activities')
+  }, [feed])
 
   return (
     <Wrapper>
@@ -154,9 +174,9 @@ export const ActivityHistory = () => {
 
       <SliderContainer>
         <>
-          {data.map(({date, record_today, place, img}) => (
-            <CardContainer>
-              <CardImage source={img} />
+          {activities?.map((item, index) => (
+            <CardContainer key={index}>
+              <CardImage source={{uri: item?.health_activity?.sport.image_url}} />
               <BlurView
                 style={{
                   position: 'absolute',
@@ -168,13 +188,13 @@ export const ActivityHistory = () => {
                 overlayColor={'transparent'}
               />
               <CardHeader>
-                <DateText>today at {date}</DateText>
+                <DateText>{formatDate(item?.health_activity?.start_time)}</DateText>
               </CardHeader>
               <Line />
               <CardBody>
-                <RecordValue>{record_today}</RecordValue>
+                <RecordValue>{item?.health_activity?.points} points</RecordValue>
                 <PlaceSection>
-                  <PlaceText>{place}</PlaceText>
+                  <PlaceText>{item?.health_activity?.title}</PlaceText>
                 </PlaceSection>
               </CardBody>
             </CardContainer>

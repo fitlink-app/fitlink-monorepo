@@ -63,6 +63,7 @@ export const Leaderboard = ({
   onRefresh,
   description,
   renderHeader,
+  onScroll,
 }: LeaderboardProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
@@ -179,12 +180,13 @@ export const Leaderboard = ({
         renderItem({item, index, sourceLength: displayResults?.length || 0})
       }
       initialNumToRender={25}
-      onEndReachedThreshold={0.1}
-      onEndReached={() => {
-        if (showAll) {
-          fetchNextPage();
-        }
-      }}
+      onScroll={onScroll}
+      // onEndReachedThreshold={0.1}
+      // onEndReached={() => {
+      //   if (showAll) {
+      //     fetchNextPage();
+      //   }
+      // }}
       refreshControl={
         <RefreshControl
           {...{refreshing, onRefresh}}

@@ -87,7 +87,7 @@ export const RewardSlider = ({
         style={
           LockedShow
             ? {
-                marginHorizontal: widthLize(20),
+                marginLeft: widthLize(20),
                 marginVertical: heightLize(11),
               }
             : {

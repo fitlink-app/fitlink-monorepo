@@ -108,7 +108,7 @@ export const ActivityDetailsModal = React.forwardRef<
 
   const [contentHeight, setContentHeight] = useState(0);
   const snapPoints = useMemo(
-    () => (!!activity ? ['45%', contentHeight + HANDLE_HEIGHT] : ['45%']),
+    () => (!!activity ? ['90%', contentHeight + HANDLE_HEIGHT] : ['45%']),
     [contentHeight, activity],
   );
 
@@ -455,8 +455,8 @@ export const ActivityDetailsModal = React.forwardRef<
         {...{...rest, ref, handleComponent}}
         index={0}
         name={DETAILS_MODAL_KEY}
-        handleHeight={200}
-        topInset={insets.top + 50}
+        handleHeight={90}
+        // topInset={insets.top + 50}
         snapPoints={snapPoints}
         animatedIndex={animatedIndex}
         enablePanDownToClose={true}

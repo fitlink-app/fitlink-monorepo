@@ -122,6 +122,7 @@ export const LeagueCard = (props: LeagueCardInterface) => {
               borderBottomLeftRadius: 20,
               borderBottomRightRadius: 20,
               backgroundColor: 'rgba(0,0,0,0.2)',
+              bottom: -2,
             }}
             blurType={'dark'}
             blurRadius={1}

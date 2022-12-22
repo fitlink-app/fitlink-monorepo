@@ -70,16 +70,16 @@ const TabButton = ({
           </BadgeWrapper>
         ) : null}
       </LabelRow>
-      {focused && (peopleCount || title === 'SEARCH') ? (
-        <PeopleCountWrapper>
-          <Label
-            type={'caption'}
-            appearance={'secondary'}
-            style={{textAlign: 'center'}}>
-            {peopleCount} {peopleCount ? 'People' : null}
-          </Label>
-        </PeopleCountWrapper>
-      ) : null}
+      {/*{focused && (peopleCount || title !== 'SEARCH') ? (*/}
+      {/*  <PeopleCountWrapper>*/}
+      {/*    <Label*/}
+      {/*      type={'caption'}*/}
+      {/*      appearance={'secondary'}*/}
+      {/*      style={{textAlign: 'center'}}>*/}
+      {/*      {peopleCount} {peopleCount ? 'People' : null}*/}
+      {/*    </Label>*/}
+      {/*  </PeopleCountWrapper>*/}
+      {/*) : null}*/}
     </View>
   );
 };

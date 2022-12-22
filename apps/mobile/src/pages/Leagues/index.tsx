@@ -270,6 +270,7 @@ export const Leagues = (
                       width: 327,
                       height: 87,
                       backgroundColor: 'transparent',
+                      bottom: 0,
                     }}
                     blurRadius={1}
                     blurAmount={2}

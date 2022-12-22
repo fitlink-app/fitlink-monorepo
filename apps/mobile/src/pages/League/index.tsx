@@ -1,7 +1,7 @@
 import {Navbar} from '@components';
 import {useLeague, useLeagueMembers, useMe, useRank} from '@hooks';
 import {StackScreenProps} from '@react-navigation/stack';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -61,119 +61,14 @@ export const League = (
     isFetchingNextPage: isFetchingMembersNextPage,
     hasNextPage: membersHasNextPage,
     isFetchedAfterMount: areMembersFetchedAfterMount,
+    data,
   } = useLeagueMembers(id);
 
+  const members = useMemo(() => {
+    return data?.pages[0].results || [];
+  }, [data])
+
   const {data: flanksData, refetch: refetchFlanks} = useRank(id);
-
-  // const members = membersData?.pages.reduce<LeaderboardEntry[]>(
-  //   (acc, current) => {
-  //     return [...acc, ...current.results];
-  //   },
-  //   [],
-  // );
-
-  const members = [
-    {
-      created_at: '2022-11-02T12:50:57.750Z',
-      deleted_at: null,
-      id: '72e271be-58c2-403a-9f13-865a8b374c5c',
-      leaderboard_id: '6a729b99-07ad-48f3-aab1-760ec34006d4',
-      league_id: '6b82cf33-dffd-4aca-b314-aae2d73fabac',
-      points: 83,
-      updated_at: '2022-11-02T12:50:57.750Z',
-      user: {
-        avatar: null,
-        followers_total: 0,
-        following_total: 1,
-        goal_percentage: 0,
-        id: 'ae9ddf09-a959-4bba-abaa-32fdd90eedc0',
-        name: 'Robyn Brown',
-        points_total: 83,
-      },
-      user_id: 'ae9ddf09-a959-4bba-abaa-32fdd90eedc0',
-      wins: 2,
-    },
-    {
-      created_at: '2022-11-02T12:50:57.750Z',
-      deleted_at: null,
-      id: '72e271be-58c2-403a-9f13-865a8b374c34',
-      leaderboard_id: '6a729b99-07ad-48f3-aab1-760ec34006d4',
-      league_id: '6b82cf33-dffd-4aca-b314-aae2d73fabac',
-      points: 55,
-      updated_at: '2022-11-02T12:50:57.750Z',
-      user: {
-        avatar: null,
-        followers_total: 0,
-        following_total: 1,
-        goal_percentage: 0,
-        id: 'd697f8d7-f78d-496e-bcc3-82a81260ad0f',
-        name: 'Annabelle Malkin',
-        points_total: 55,
-      },
-      user_id: 'd697f8d7-f78d-496e-bcc3-82a81260ad0f',
-      wins: 4,
-    },
-    {
-      created_at: '2022-11-02T12:50:57.750Z',
-      deleted_at: null,
-      id: '72e271be-58c2-403a-9f13-865a8b374c12',
-      leaderboard_id: '6a729b99-07ad-48f3-aab1-760ec34006d4',
-      league_id: '6b82cf33-dffd-4aca-b314-aae2d73fabac',
-      points: 54,
-      updated_at: '2022-11-02T12:50:57.750Z',
-      user: {
-        avatar: null,
-        followers_total: 0,
-        following_total: 1,
-        goal_percentage: 0,
-        id: '92187a86-b49f-4cce-be38-4498dbbe71f4',
-        name: '@Burcu Akinturk',
-        points_total: 54,
-      },
-      user_id: '92187a86-b49f-4cce-be38-4498dbbe71f4',
-      wins: 0,
-    },
-    {
-      created_at: '2022-11-02T12:50:57.750Z',
-      deleted_at: null,
-      id: '72e271be-58c2-403a-9f13-865a8b374c35',
-      leaderboard_id: '6a729b99-07ad-48f3-aab1-760ec34006d4',
-      league_id: '6b82cf33-dffd-4aca-b314-aae2d73fabac',
-      points: 51,
-      updated_at: '2022-11-02T12:50:57.750Z',
-      user: {
-        avatar: null,
-        followers_total: 0,
-        following_total: 1,
-        goal_percentage: 0,
-        id: 'ae9ddf09-a959-4bba-abaa-32fdd90eedc0',
-        name: 'Mason Burrows',
-        points_total: 51,
-      },
-      user_id: 'ae9ddf09-a959-4bba-abaa-32fdd90eedc0',
-      wins: 0,
-    },
-    {
-      created_at: '2022-11-02T12:50:57.750Z',
-      deleted_at: null,
-      id: '72e271be-58c2-403a-9f13-865a8b374c65',
-      leaderboard_id: '6a729b99-07ad-48f3-aab1-760ec34006d4',
-      league_id: '6b82cf33-dffd-4aca-b314-aae2d73fabac',
-      points: 50,
-      updated_at: '2022-11-02T12:50:57.750Z',
-      user: {
-        avatar: null,
-        followers_total: 0,
-        following_total: 1,
-        goal_percentage: 0,
-        id: 'ae9ddf09-a959-4bba-abaa-32fdd90eedc0',
-        name: 'Shreya Parrish',
-        points_total: 50,
-      },
-      user_id: 'ae9ddf09-a959-4bba-abaa-32fdd90eedc0',
-      wins: 2,
-    },
-  ];
 
   const activeLeague = {...league, ...fetchedLeague} as LeagueType as any;
 
@@ -189,12 +84,23 @@ export const League = (
     }
   }, [scrollValue]);
 
-  const handleScroll = Animated.event(
-    [{nativeEvent: {contentOffset: {y: scrollValue}}}],
-    {
-      useNativeDriver: true,
-    },
-  );
+  // const handleScroll = Animated.event(
+  //   [{nativeEvent: {contentOffset: {y: scrollValue}}}],
+  //   {
+  //     useNativeDriver: true,
+  //   },
+  // );
+  const handleScroll = (e: any) => {
+    const {layoutMeasurement, contentOffset, contentSize} = e;
+    const paddingToBottom = 0;
+    console.log({layoutMeasurement, contentOffset, contentSize})
+    if (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    ) {
+      fetchMoreMembers();
+    }
+  }
 
   if (!Object.keys(activeLeague).length) {
     return (
@@ -289,7 +195,7 @@ export const League = (
           contentOffset={{x: 0, y: -HEADER_HEIGHT}}
           automaticallyAdjustContentInsets={false}
           initialNumToRender={25}
-          onScroll={handleScroll}
+          onScroll={({nativeEvent}: any) => handleScroll(nativeEvent)}
           scrollEventThrottle={16}
         />
       </Wrapper>
