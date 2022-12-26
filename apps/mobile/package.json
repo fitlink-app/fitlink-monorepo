@@ -66,6 +66,7 @@
     "appcenter-analytics": "4.4.5",
     "appcenter-crashes": "4.4.5",
     "axios": "^0.21.1",
+    "moment": "^2.29.4",
     "numbro": "^2.3.2",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.1.0",

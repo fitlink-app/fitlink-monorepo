@@ -7,6 +7,7 @@ import {formatDate, widthLize} from "@utils";
 import {useSelector} from "react-redux";
 import {memoSelectFeedPreferences} from "../../../redux/feedPreferences/feedPreferencesSlice";
 import {useFeed} from "@hooks";
+import moment from "moment";
 
 const Wrapper = styled.View({
   // paddingLeft: widthLize(20),
@@ -175,29 +176,36 @@ export const ActivityHistory = () => {
       <SliderContainer>
         <>
           {activities?.map((item, index) => (
-            <CardContainer key={index}>
-              <CardImage source={{uri: item?.health_activity?.sport.image_url}} />
-              <BlurView
-                style={{
-                  position: 'absolute',
-                  width: '100%',
-                  height: 53,
-                  backgroundColor: 'rgba(0,0,0,0.2)',
-                }}
-                blurRadius={1}
-                overlayColor={'transparent'}
-              />
-              <CardHeader>
-                <DateText>{formatDate(item?.health_activity?.start_time)}</DateText>
-              </CardHeader>
-              <Line />
-              <CardBody>
-                <RecordValue>{item?.health_activity?.points} points</RecordValue>
-                <PlaceSection>
-                  <PlaceText>{item?.health_activity?.title}</PlaceText>
-                </PlaceSection>
-              </CardBody>
-            </CardContainer>
+            <TouchHandler key={index} onPress={() => {
+              navigation.navigate('HealthActivityDetails', {
+                id: item.health_activity!.id,
+              });
+            }}>
+              <CardContainer>
+                <CardImage source={{uri: item?.health_activity?.sport.image_url}} />
+                <BlurView
+                  style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: 53,
+                    backgroundColor: 'rgba(0,0,0,0.2)',
+                  }}
+                  blurRadius={1}
+                  overlayColor={'transparent'}
+                />
+                <CardHeader>
+                  <DateText>{moment(item?.health_activity?.start_time).calendar()}</DateText>
+                </CardHeader>
+                <Line />
+                <CardBody>
+                  <RecordValue>{item?.health_activity?.points} points</RecordValue>
+                  <PlaceSection>
+                    <PlaceText>{item?.health_activity?.title}</PlaceText>
+                  </PlaceSection>
+                </CardBody>
+              </CardContainer>
+            </TouchHandler>
+
           ))}
         </>
       </SliderContainer>

@@ -2,6 +2,7 @@ import React from 'react';
 import styled, {DefaultTheme} from 'styled-components/native';
 import {ViewProps} from 'react-native';
 import {Avatar, Icon, Label, LabelProps, TouchHandler} from '@components';
+import {widthLize} from "@utils";
 
 export const ITEM_HEIGHT = 82;
 
@@ -35,15 +36,14 @@ const SelfLine = styled.View({
 });
 
 const PlaceTextContainer = styled.View({
-  width: 28,
+  width: widthLize(38),
   alignItems: 'flex-start',
-  paddingLeft: 6,
+  paddingHorizontal: 6,
 });
 
 const PlaceText = styled(Label)<LabelProps>({
   fontSize: 17,
   textAlign: 'center',
-  width: 16,
 });
 
 const NameContainer = styled(Row)({
@@ -139,7 +139,7 @@ export const LeaderboardItem: React.FC<
         <Column>
           <PointsText style={{color: isSelf ? '#000000' : '#00E9D7'}}>
             {points}{' '}
-            <Label style={{color: isSelf ? '#565656' : '#FFFFFF'}}>$BFIT</Label>
+            <Label style={{color: isSelf ? '#565656' : '#FFFFFF'}}></Label>
           </PointsText>
         </Column>
       </ContainerRow>

@@ -93,7 +93,6 @@ export const League = (
   const handleScroll = (e: any) => {
     const {layoutMeasurement, contentOffset, contentSize} = e;
     const paddingToBottom = 0;
-    console.log({layoutMeasurement, contentOffset, contentSize})
     if (
       layoutMeasurement.height + contentOffset.y >=
       contentSize.height - paddingToBottom

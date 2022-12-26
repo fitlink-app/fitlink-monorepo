@@ -1,9 +1,13 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Card, Label, TouchHandler} from '../../../components/common';
 import styled from 'styled-components/native';
 import {BlurView} from '@react-native-community/blur';
 import {useNavigation} from '@react-navigation/core';
 import {widthLize} from "@utils";
+import {useDispatch, useSelector} from "react-redux";
+import {selectCurrentLocation, setCurrentLocation} from "../../../redux/discover/discoverSlice";
+import {useFindActivitiesMap} from "@hooks";
+import MapboxGL from '@react-native-mapbox-gl/maps';
 
 const Wrapper = styled.View({
   // paddingHorizontal: 10,
@@ -141,6 +145,27 @@ const data = [
 
 export const RoutesClasses = () => {
   const navigation = useNavigation();
+  const [userLocation, setUserLocation] = useState({
+    lat: 0,
+    lng: 0
+  })
+
+  useEffect(() => {
+    MapboxGL.requestAndroidLocationPermissions();
+  }, [])
+
+  const onUserLocationUpdate = (location: any) => {
+    const {latitude, longitude} = location.coords
+    setUserLocation({lat: latitude, lng: longitude})
+  }
+
+  const {
+    refetch: fetchActivityMarkers,
+    data: activityMarkersData,
+    isFetching: isFetchingMarkers,
+  } = useFindActivitiesMap({
+    geo_radial: `${userLocation?.lat},${userLocation?.lng},15`,
+  });
 
   return (
     <Wrapper>
@@ -183,6 +208,10 @@ export const RoutesClasses = () => {
           ))}
         </>
       </SliderContainer>
+      <MapboxGL.UserLocation
+        visible={true}
+        onUpdate={onUserLocationUpdate}
+      />
     </Wrapper>
   );
 };

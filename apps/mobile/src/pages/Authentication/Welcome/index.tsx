@@ -15,6 +15,7 @@ import {
   resetTeamInvitation,
   selectTeamInvitation,
 } from 'redux/teamInvitation/teamInvitationSlice';
+import {heightLize} from "@utils";
 
 const mail_icon = require('../../../../assets/images/icon/mail.png');
 const google_icon = require('../../../../assets/images/icon/google.png');
@@ -46,6 +47,7 @@ const HeaderContainer = styled.View({
 
 const Line = styled.View({
   position: 'relative',
+  marginTop: heightLize(2),
   width: 68,
   height: 0,
   top: 18,
