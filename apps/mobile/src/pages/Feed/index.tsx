@@ -1,9 +1,5 @@
 import React, {useEffect, useRef} from 'react';
-import {
-  GoalTracker,
-  Modal,
-  RewardTracker,
-} from '@components';
+import {GoalTracker, Modal, RewardTracker} from '@components';
 import {
   useGoals,
   useMe,
@@ -52,7 +48,7 @@ const HeaderContainer = styled.View({
 const HeaderWidgetContainer = styled.View({marginTop: 10});
 
 const StatContainer = styled.View({
-  paddingHorizontal: 10
+  paddingHorizontal: 10,
 });
 
 const FeedContainer = styled.View({});
@@ -99,6 +95,7 @@ export const Feed = () => {
 
   useEffect(() => {
     promptNewsletterModal();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
@@ -131,15 +128,16 @@ export const Feed = () => {
     }
   };
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   return (
     <Wrapper style={{paddingTop: insets.top}}>
       <ScrollView
         contentContainerStyle={{
           paddingBottom: 37,
-        }}
-      >
+        }}>
         <>
           <HeaderContainer>
             <TopButtonRow>
@@ -256,9 +254,7 @@ export const Feed = () => {
                 points={user.points_total || 0}
                 targetPoints={nextReward?.reward.points_required || 0}
                 isLoading={!isNextRewardFetched}
-                claimableRewardsCount={
-                  nextReward?.unclaimed_rewards_total || 0
-                }
+                claimableRewardsCount={nextReward?.unclaimed_rewards_total || 0}
                 onPress={() => navigation.navigate('Wallet')}
               />
             </HeaderWidgetContainer>
@@ -275,6 +271,7 @@ export const Feed = () => {
               isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
               userPoints={user!.points_total}
               fetchNextPage={fetchUnLockedRewardsNextPage}
+              horizontal
             />
             <ActivityHistory />
             <RoutesClasses />

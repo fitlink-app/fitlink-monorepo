@@ -27,7 +27,7 @@ const PageTitleContainer = styled.View({
 });
 
 const PageTitle = styled(Label).attrs(() => ({
-  appearance: 'accent'
+  appearance: 'accent',
 }))({
   letterSpacing: 1,
   fontSize: 15,
@@ -69,18 +69,14 @@ export const Rewards = () => {
   const {
     data: myRewards,
     isFetching: isFetchingMyRewards,
-    isFetchingNextPage: isFetchingMyRewardsNextPage,
     isFetchedAfterMount: isMyRewardsFetchedAfterMount,
-    fetchNextPage: fetchMyRewardsNextPage,
     refetch: refetchMyRewards,
   } = useMyRewards();
 
   const {
     data: unclaimedRewards,
     isFetching: isFetchingUnclaimedRewards,
-    isFetchingNextPage: isFetchingUnclaimedRewardsNextPage,
     isFetchedAfterMount: isUnclaimedRewardsFetchedAfterMount,
-    fetchNextPage: fetchUnclaimedRewardsNextPage,
     refetch: refetchUnclaimedRewards,
   } = useRewards({available: true});
 
@@ -105,9 +101,7 @@ export const Rewards = () => {
   const {
     data: expiredRewards,
     isFetching: isFetchingExpiredRewards,
-    isFetchingNextPage: isFetchingExpiredRewardsNextPage,
     isFetchedAfterMount: isExpiredRewardsFetchedAfterMount,
-    fetchNextPage: fetchExpiredRewardsNextPage,
     refetch: refetchExpiredRewards,
   } = useRewards({expired: true});
 
@@ -141,10 +135,9 @@ export const Rewards = () => {
     ...expiredRewardsEntries,
   ].length;
 
-  const pointsTotal = user?.points_total;
-
   useEffect(() => {
     Promise.all([refetchNextReward(), refetchAllRewards()]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.points_total]);
 
   const refetchAllRewards = () =>
@@ -176,7 +169,9 @@ export const Rewards = () => {
   );
 
   const renderEmpty = () => {
-    if (!isFetchedAfterMount || isLoading) return renderLoading();
+    if (!isFetchedAfterMount || isLoading) {
+      return renderLoading();
+    }
 
     return (
       <Label style={{textAlign: 'center'}}>
@@ -206,8 +201,7 @@ export const Rewards = () => {
             refreshing={isLoading && isFetchedAfterMount && isManualRefresh}
             onRefresh={handleRefresh}
           />
-        }
-      >
+        }>
         {isFetchedAfterMount ? (
           <>
             <ListHeaderContainer>
@@ -255,6 +249,7 @@ export const Rewards = () => {
                   isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
                   userPoints={user!.points_total}
                   fetchNextPage={fetchUnLockedRewardsNextPage}
+                  horizontal
                 />
                 <RewardSlider
                   data={lockedRewardsEntries}
@@ -263,7 +258,6 @@ export const Rewards = () => {
                   isLoadingNextPage={isFetchingLockedRewardsNextPage}
                   userPoints={user!.points_total}
                   fetchNextPage={fetchLockedRewardsNextPage}
-                  LockedShow={true}
                 />
                 {/* <RewardSlider
                   data={expiredRewardsEntries}
