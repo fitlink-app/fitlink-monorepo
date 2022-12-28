@@ -244,13 +244,15 @@ export default function LeagueForm({
         register={register('repeat')}
       />
 
-      <Checkbox
-        label="This is an earn league"
-        name="earn"
-        checked={earn}
-        showSwitch={true}
-        register={register('earn')}
-      />
+      {modeRole === 'app' && (
+        <Checkbox
+          label="This is an earn league"
+          name="earn"
+          checked={earn}
+          showSwitch={true}
+          register={register('earn')}
+        />
+      )}
 
       <div className="text-right mt-2">
         {!!current.id && (
