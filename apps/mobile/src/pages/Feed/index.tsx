@@ -25,6 +25,7 @@ import {ActivityHistory} from './components/ActivityHistory';
 import {RoutesClasses} from './components/RoutesClasses';
 import {CaloriesCard} from './components/CaloriesCard';
 import { RankCard } from 'pages/Leagues/components/RankCard';
+import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
 
 const Wrapper = styled.View({
   flex: 1,
@@ -133,151 +134,153 @@ export const Feed = () => {
 
   return (
     <Wrapper style={{paddingTop: insets.top}}>
-      <ScrollView
-        contentContainerStyle={{
-          paddingBottom: 44 + 79,
-        }}>
-        <>
-          <HeaderContainer>
-            <TopButtonRow>
-              <NotificationsButton count={user.unread_notifications} />
-              <TopButtonSpacer />
-              <TouchHandler
-                hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
-                onPress={() => {
-                  navigation.navigate('Settings');
-                }}>
-                <SettingsButton
-                  source={require('../../../assets/images/icon/sliders.png')}
+      <BottomSheetModalProvider>
+        <ScrollView
+          contentContainerStyle={{
+            paddingBottom: 44 + 79,
+          }}>
+          <>
+            <HeaderContainer>
+              <TopButtonRow>
+                <NotificationsButton count={user.unread_notifications} />
+                <TopButtonSpacer />
+                <TouchHandler
+                  hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                  onPress={() => {
+                    navigation.navigate('Settings');
+                  }}>
+                  <SettingsButton
+                    source={require('../../../assets/images/icon/sliders.png')}
+                  />
+                </TouchHandler>
+              </TopButtonRow>
+
+              <HeaderWidgetContainer style={{marginBottom: 5}}>
+                <UserWidget
+                  goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
+                  name={user.name}
+                  rank={user.rank}
+                  avatar={user.avatar?.url_512x512}
+                  friendCount={user.following_total}
+                  followerCount={user.followers_total}
+                  pointCount={user.points_total}
                 />
-              </TouchHandler>
-            </TopButtonRow>
+              </HeaderWidgetContainer>
 
-            <HeaderWidgetContainer style={{marginBottom: 5}}>
-              <UserWidget
-                goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
-                name={user.name}
-                rank={user.rank}
-                avatar={user.avatar?.url_512x512}
-                friendCount={user.following_total}
-                followerCount={user.followers_total}
-                pointCount={user.points_total}
+              <HeaderWidgetContainer>
+                <GoalTracker
+                  isLocalUser={true}
+                  trackers={[
+                    {
+                      supportedProviders: [
+                        ProviderType.GoogleFit,
+                        ProviderType.AppleHealthkit,
+                        ProviderType.Fitbit,
+                      ],
+                      identifier: 'steps',
+                      goal: {
+                        value: goals?.current_steps || 0,
+                        target: goals?.target_steps || 0,
+                      },
+                      icon: 'steps',
+                    },
+                    {
+                      supportedProviders: [
+                        ProviderType.GoogleFit,
+                        ProviderType.AppleHealthkit,
+                      ],
+                      identifier: 'mindfulness',
+                      goal: {
+                        value: goals?.current_mindfulness_minutes || 0,
+                        target: goals?.target_mindfulness_minutes || 0,
+                      },
+                      icon: 'yoga',
+                    },
+                    {
+                      supportedProviders: [
+                        ProviderType.GoogleFit,
+                        ProviderType.AppleHealthkit,
+                      ],
+                      identifier: 'water',
+                      goal: {
+                        value: goals?.current_water_litres || 0,
+                        target: goals?.target_water_litres || 0,
+                      },
+                      icon: 'water',
+                    },
+                    {
+                      supportedProviders: [
+                        ProviderType.AppleHealthkit,
+                        ProviderType.Fitbit,
+                      ],
+                      identifier: 'sleep',
+                      goal: {
+                        value: goals?.current_sleep_hours || 0,
+                        target: goals?.target_sleep_hours || 0,
+                      },
+                      icon: 'sleep',
+                    },
+                    {
+                      supportedProviders: [
+                        ProviderType.GoogleFit,
+                        ProviderType.AppleHealthkit,
+                      ],
+                      identifier: 'active_minutes',
+                      goal: {
+                        value: goals?.current_active_minutes || 0,
+                        target: goals?.target_active_minutes || 0,
+                      },
+                      icon: 'stopwatch',
+                    },
+                    {
+                      supportedProviders: [
+                        ProviderType.GoogleFit,
+                        ProviderType.AppleHealthkit,
+                        ProviderType.Fitbit,
+                      ],
+                      identifier: 'floors',
+                      goal: {
+                        value: goals?.current_floors_climbed || 0,
+                        target: goals?.target_floors_climbed || 0,
+                      },
+                      icon: 'stairs',
+                    },
+                  ]}
+                />
+              </HeaderWidgetContainer>
+            </HeaderContainer>
+
+            <StatContainer>
+              <HeaderWidgetContainer>
+                <RewardTracker
+                  points={user.points_total || 0}
+                  targetPoints={nextReward?.reward.points_required || 0}
+                  isLoading={!isNextRewardFetched}
+                  claimableRewardsCount={nextReward?.unclaimed_rewards_total || 0}
+                  onPress={() => navigation.navigate('Wallet')}
+                />
+              </HeaderWidgetContainer>
+              <CaloriesCard />
+              {/* Remove RankCard */}
+              {/* <RankCard /> */}
+            </StatContainer>
+
+            <FeedContainer>
+              <CompeteLeagues />
+              <RewardSlider
+                data={unlockedRewardsEntries}
+                title={'Unlocked Rewards'}
+                isLoading={isFetchingLockedRewards}
+                isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
+                userPoints={user!.points_total}
+                fetchNextPage={fetchUnLockedRewardsNextPage}
               />
-            </HeaderWidgetContainer>
-
-            <HeaderWidgetContainer>
-              <GoalTracker
-                isLocalUser={true}
-                trackers={[
-                  {
-                    supportedProviders: [
-                      ProviderType.GoogleFit,
-                      ProviderType.AppleHealthkit,
-                      ProviderType.Fitbit,
-                    ],
-                    identifier: 'steps',
-                    goal: {
-                      value: goals?.current_steps || 0,
-                      target: goals?.target_steps || 0,
-                    },
-                    icon: 'steps',
-                  },
-                  {
-                    supportedProviders: [
-                      ProviderType.GoogleFit,
-                      ProviderType.AppleHealthkit,
-                    ],
-                    identifier: 'mindfulness',
-                    goal: {
-                      value: goals?.current_mindfulness_minutes || 0,
-                      target: goals?.target_mindfulness_minutes || 0,
-                    },
-                    icon: 'yoga',
-                  },
-                  {
-                    supportedProviders: [
-                      ProviderType.GoogleFit,
-                      ProviderType.AppleHealthkit,
-                    ],
-                    identifier: 'water',
-                    goal: {
-                      value: goals?.current_water_litres || 0,
-                      target: goals?.target_water_litres || 0,
-                    },
-                    icon: 'water',
-                  },
-                  {
-                    supportedProviders: [
-                      ProviderType.AppleHealthkit,
-                      ProviderType.Fitbit,
-                    ],
-                    identifier: 'sleep',
-                    goal: {
-                      value: goals?.current_sleep_hours || 0,
-                      target: goals?.target_sleep_hours || 0,
-                    },
-                    icon: 'sleep',
-                  },
-                  {
-                    supportedProviders: [
-                      ProviderType.GoogleFit,
-                      ProviderType.AppleHealthkit,
-                    ],
-                    identifier: 'active_minutes',
-                    goal: {
-                      value: goals?.current_active_minutes || 0,
-                      target: goals?.target_active_minutes || 0,
-                    },
-                    icon: 'stopwatch',
-                  },
-                  {
-                    supportedProviders: [
-                      ProviderType.GoogleFit,
-                      ProviderType.AppleHealthkit,
-                      ProviderType.Fitbit,
-                    ],
-                    identifier: 'floors',
-                    goal: {
-                      value: goals?.current_floors_climbed || 0,
-                      target: goals?.target_floors_climbed || 0,
-                    },
-                    icon: 'stairs',
-                  },
-                ]}
-              />
-            </HeaderWidgetContainer>
-          </HeaderContainer>
-
-          <StatContainer>
-            <HeaderWidgetContainer>
-              <RewardTracker
-                points={user.points_total || 0}
-                targetPoints={nextReward?.reward.points_required || 0}
-                isLoading={!isNextRewardFetched}
-                claimableRewardsCount={nextReward?.unclaimed_rewards_total || 0}
-                onPress={() => navigation.navigate('Wallet')}
-              />
-            </HeaderWidgetContainer>
-            <CaloriesCard />
-            {/* Remove RankCard */}
-            {/* <RankCard /> */}
-          </StatContainer>
-
-          <FeedContainer>
-            <CompeteLeagues />
-            <RewardSlider
-              data={unlockedRewardsEntries}
-              title={'Unlocked Rewards'}
-              isLoading={isFetchingLockedRewards}
-              isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
-              userPoints={user!.points_total}
-              fetchNextPage={fetchUnLockedRewardsNextPage}
-            />
-            <ActivityHistory />
-            <RoutesClasses />
-          </FeedContainer>
-        </>
-      </ScrollView>
+              <ActivityHistory />
+              <RoutesClasses />
+            </FeedContainer>
+          </>
+        </ScrollView>
+      </BottomSheetModalProvider>
     </Wrapper>
   );
 };

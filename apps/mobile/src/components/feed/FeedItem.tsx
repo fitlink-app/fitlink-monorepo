@@ -1,7 +1,7 @@
 import {UserCounter} from 'components/common/UserCounter';
-import React from 'react';
+import React, {useState} from 'react';
 import styled, {useTheme} from 'styled-components/native';
-import {Image, View, Text} from 'react-native';
+import {Image, View, Text, ImageBackground, Dimensions} from 'react-native';
 import {
   Avatar,
   Chip,
@@ -30,6 +30,9 @@ import {
   FeedGoalType,
   FeedItemType,
 } from '@fitlink/api/src/modules/feed-items/feed-items.constants';
+import Carousel, {Pagination} from "react-native-snap-carousel";
+
+const {width} = Dimensions.get('window');
 
 const Wrapper = styled.View(({theme}) => ({
   paddingVertical: 15,
@@ -117,6 +120,8 @@ export const _FeedItem = ({
 }: FeedItemProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
+
+  const [activeDotIndex, setActiveDotIndex] = useState(0);
 
   const {data: me} = useMe({enabled: false});
 
@@ -531,19 +536,150 @@ export const _FeedItem = ({
 
   if (item.health_activity?.title) {
     const targetUser = getTargetUser();
+    const images = item.health_activity.images;
+    if (Array.isArray(images) && images.length > 0) {
+      return (
+        <View>
+          <Carousel
+            data={images}
+            renderItem={({item: image, index: idx}) => {
+              return (
+                <TouchHandler onPress={onContentPress} style={{marginTop: 14, flex: 1}} key={idx}>
+                  <ImageBackground
+                    source={{uri: image}}
+                    style={{width: '100%', flex: 1}}
+                    imageStyle={{borderRadius: 10}}>
+                    <View style={{padding: 12, flex: 1, alignItems: 'flex-start'}}>
+                      <View style={{flexDirection: 'row', flex: 1}}>
+                        <View style={{flexDirection: 'row', flex: 1}}>
+                          <TouchHandler
+                            disabled={me!.id === targetUser.id}
+                            onPress={() => {
+                              if (me!.id !== targetUser.id) {
+                                navigation.navigate('Profile', {id: targetUser.id});
+                              }
+                            }}>
+                            <Avatar
+                              url={targetUser.avatar?.url_128x128}
+                              size={widthLize(76)}
+                              radius={18}
+                            />
+                          </TouchHandler>
+                          {/*<View style={{width: widthLize(12)}} />*/}
+                          <View style={{marginLeft: widthLize(12), marginRight: widthLize(17)}}>
+                            <TitleText>{item.health_activity?.title}</TitleText>
+                            <View style={{height: heightLize(6)}} />
+                            <NameText>{item.user.name}</NameText>
+                            <View style={{height: heightLize(6)}} />
+                            <NameText style={{color: '#ACACAC'}}>{date}</NameText>
+                          </View>
+                        </View>
+                        <View style={{alignItems: 'flex-end', flex: 1}}>
+                          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <View
+                              style={{
+                                paddingHorizontal: widthLize(12),
+                                paddingVertical: heightLize(8),
+                                backgroundColor: 'white',
+                                borderRadius: 20,
+                                marginRight: widthLize(12),
+                              }}>
+                              <NameText
+                                style={{color: 'black', fontWeight: '500', fontSize: 12}}>
+                                {`${item.health_activity?.points} Points`}
+                              </NameText>
+                            </View>
+                            <TouchHandler
+                              onPress={() => {
+                                isLiked
+                                  ? dislike({feedItemId: item.id, userId: item.user.id})
+                                  : like({feedItemId: item.id, userId: item.user.id});
+                              }}>
+                              <View
+                                style={{
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  width: widthLize(36),
+                                  height: widthLize(36),
+                                  borderRadius: widthLize(18),
+                                  backgroundColor: isLiked
+                                    ? colors.accent
+                                    : colors.accentSecondary,
+                                }}>
+                                <LikeImage
+                                  source={require('../../../assets/images/thumbs-up-new.png')}
+                                />
+                              </View>
+                            </TouchHandler>
+                          </View>
+                          <View style={{height: heightLize(15)}} />
+                          <NameText style={{color: '#ACACAC'}}>
+                            Distance: <NameText>{distance}</NameText>
+                            {'  '}
+                            <Image
+                              source={require('../../../assets/images/feed_location.png')}
+                            />
+                          </NameText>
+                          <View style={{height: heightLize(10)}} />
+                          <NameText style={{color: '#ACACAC'}}>
+                            Speed: <NameText>{speed}</NameText>
+                            {'  '}
+                            <Image
+                              source={require('../../../assets/images/feed_speed.png')}
+                            />
+                          </NameText>
+                          <View style={{height: heightLize(10)}} />
+                          <NameText style={{color: '#ACACAC'}}>
+                            Time: <NameText>{duration}</NameText>
+                            {'  '}
+                            <Image
+                              source={require('../../../assets/images/feed_time.png')}
+                            />
+                          </NameText>
+                        </View>
+                      </View>
+                    </View>
+                  </ImageBackground>
+                </TouchHandler>
+              )
+            }}
+            sliderWidth={width}
+            itemWidth={width}
+            onSnapToItem={(slideIndex) => setActiveDotIndex(slideIndex)}
+          />
+          <Pagination
+            dotsLength={images.length}
+            activeDotIndex={activeDotIndex}
+            dotColor={'#fff'}
+            inactiveDotColor={'#ddd'}
+            dotStyle={{
+              width: 10,
+              height: 10,
+              borderRadius: 5,
+              marginHorizontal: 2,
+              backgroundColor: 'rgba(255, 255, 255, 0.92)'
+            }}
+            inactiveDotStyle={{
+              // Define styles for inactive dots here
+            }}
+            inactiveDotOpacity={0.4}
+            inactiveDotScale={1}
+            containerStyle={{position: 'absolute', bottom: 0, zIndex: 10, alignSelf: 'center'}}
+          />
+        </View>
+      )
+    }
     return (
       <TouchHandler onPress={onContentPress}>
-        <View>
-          <View
-            style={{
-              height: index === 0 ? 0 : 3,
-              backgroundColor: 'rgba(86, 86, 86, 0.5)',
-              borderRadius: 1.5,
-            }}
-          />
-          <View style={{height: heightLize(14)}} />
+        <View style={{
+          borderTopWidth: 3,
+          borderBottomWidth: 3,
+          borderBottomColor: 'rgba(86, 86, 86, 0.5)',
+          paddingVertical: 14,
+          marginHorizontal: widthLize(20),
+        }}>
           <View style={{flexDirection: 'row', flex: 1}}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
               <TouchHandler
                 disabled={me!.id === targetUser.id}
                 onPress={() => {
@@ -557,8 +693,7 @@ export const _FeedItem = ({
                   radius={18}
                 />
               </TouchHandler>
-              <View style={{width: widthLize(12)}} />
-              <View>
+              <View style={{marginLeft: widthLize(12), marginRight: widthLize(17)}}>
                 <TitleText>{item.health_activity?.title}</TitleText>
                 <View style={{height: heightLize(6)}} />
                 <NameText>{item.user.name}</NameText>
@@ -566,7 +701,6 @@ export const _FeedItem = ({
                 <NameText style={{color: '#ACACAC'}}>{date}</NameText>
               </View>
             </View>
-            <View style={{width: widthLize(17)}} />
             <View style={{alignItems: 'flex-end', flex: 1}}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <View
@@ -631,22 +765,19 @@ export const _FeedItem = ({
               </NameText>
             </View>
           </View>
-          <View style={{height: heightLize(14)}} />
         </View>
       </TouchHandler>
     );
   } else {
     return (
       <TouchHandler onPress={onContentPress}>
-        <View>
-          <View
-            style={{
-              height: index === 0 ? 0 : 3,
-              backgroundColor: 'rgba(86, 86, 86, 0.5)',
-              borderRadius: 1.5,
-            }}
-          />
-          <View style={{height: heightLize(14)}} />
+        <View style={{
+          borderTopWidth: 3,
+          borderBottomWidth: 3,
+          borderBottomColor: 'rgba(86, 86, 86, 0.5)',
+          paddingVertical: 14,
+          marginHorizontal: widthLize(20),
+        }}>
           <View style={{flexDirection: 'row', flex: 1}}>
             <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
               {renderAvatar()}
@@ -686,7 +817,7 @@ export const _FeedItem = ({
               </View>
             </View>
           </View>
-          <View style={{height: heightLize(14)}} />
+          {/*<View style={{height: heightLize(14)}} />*/}
         </View>
       </TouchHandler>
     );

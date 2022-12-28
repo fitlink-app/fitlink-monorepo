@@ -169,8 +169,8 @@ export const ActivityFeed = () => {
     <Wrapper
       style={{
         paddingTop: insets.top,
-        paddingLeft: widthLize(20),
-        paddingRight: widthLize(20),
+        // paddingLeft: widthLize(20),
+        // paddingRight: widthLize(20),
       }}>
       <View
         style={{

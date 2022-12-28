@@ -36,6 +36,8 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useEffect} from 'react';
 import {Dialog, DialogButton} from 'components/modal';
 import {getDistanceFromLatLonInKm} from '@utils';
+import {useSelector} from "react-redux";
+import {selectCurrentLocation} from "../../../../../redux/discover/discoverSlice";
 
 const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
@@ -111,6 +113,8 @@ export const ActivityDetailsModal = React.forwardRef<
     () => (!!activity ? ['90%', contentHeight + HANDLE_HEIGHT] : ['45%']),
     [contentHeight, activity],
   );
+
+  const actualUserLocation = useSelector(selectCurrentLocation);
 
   // Refs
   const hadActivityLastRender = useRef(false);
@@ -320,7 +324,7 @@ export const ActivityDetailsModal = React.forwardRef<
     if (!activity) return null;
 
     // TODO: Use actual user location
-    const userLocation = {lat: 51.752022, lng: -1.257677};
+    const userLocation = {lat: actualUserLocation?.lat, lng: actualUserLocation?.lng};
 
     const dist = getDistanceFromLatLonInKm(
       //@ts-ignore
@@ -471,7 +475,7 @@ export const ActivityDetailsModal = React.forwardRef<
             style={scrollViewStyle}>
             <BottomSheetView
               onLayout={handleOnLayout}
-              style={{paddingBottom: 20}}>
+              style={{paddingBottom: 200}}>
               {renderContent()}
             </BottomSheetView>
           </BottomSheetScrollView>
