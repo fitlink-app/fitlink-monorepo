@@ -53,6 +53,7 @@ const getFields = (league: Partial<LeagueEntity>) => {
     sport: league.sport ? league.sport.name : undefined,
     sportId: league.sport ? league.sport.id : undefined,
     repeat: league.repeat,
+    earn: league.earn,
     image_upload: undefined
   }
 }
@@ -110,6 +111,7 @@ export default function LeagueForm({
   const startsAt = watch('starts_at')
   const duration = watch('duration')
   const repeats = watch('repeat')
+  const earn = watch('earn')
   const sport = watch('sport') || 'Choose sport'
   const sportId = watch('sportId')
 
@@ -151,6 +153,7 @@ export default function LeagueForm({
         resetDate={endsAt || add(new Date(), { days: duration })}
         sport={sport}
         repeats={repeats}
+        earn={earn}
       />
 
       <div className="basic-file-select">
@@ -167,7 +170,7 @@ export default function LeagueForm({
         <label htmlFor="image">Select an image</label>
       </div>
       <div>
-        {errors.imageId && (
+        {!!errors.imageId && (
           <Feedback type="error" message="An image must be provided" />
         )}
       </div>
@@ -213,7 +216,7 @@ export default function LeagueForm({
         }}
         error={errors.duration}
       />
-      {sportsOptionsList.length && (
+      {!!sportsOptionsList.length && (
         <Select
           id="sport"
           name="sportId"
@@ -232,6 +235,7 @@ export default function LeagueForm({
           error={errors.sportId}
         />
       )}
+
       <Checkbox
         label="This league repeats"
         name="repeats"
@@ -239,8 +243,17 @@ export default function LeagueForm({
         showSwitch={true}
         register={register('repeat')}
       />
+
+      <Checkbox
+        label="This is an earn league"
+        name="earn"
+        checked={earn}
+        showSwitch={true}
+        register={register('earn')}
+      />
+
       <div className="text-right mt-2">
-        {current.id && (
+        {!!current.id && (
           <button
             className="button alt mr-2"
             type="button"

@@ -107,13 +107,15 @@ export default function LeaguesPage() {
     leaguesQuery.refetch()
   }, [refresh])
 
-  const closeDrawer = (ms = 0) => async () => {
-    if (ms) {
-      await timeout(ms)
+  const closeDrawer =
+    (ms = 0) =>
+    async () => {
+      if (ms) {
+        await timeout(ms)
+      }
+      setRefresh(Date.now())
+      setDrawContent(null)
     }
-    setRefresh(Date.now())
-    setDrawContent(null)
-  }
 
   const loadLeague = (league: any) => {
     setWarning(true)
@@ -221,7 +223,7 @@ export default function LeaguesPage() {
         ))}
       </div>
       <AnimatePresence initial={false}>
-        {drawContent && (
+        {!!drawContent && (
           <Drawer
             remove={() => setDrawContent(null)}
             key="drawer"
