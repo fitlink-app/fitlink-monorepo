@@ -6,7 +6,7 @@ import {
 } from 'styled-components';
 
 const fonts: ThemeFonts = {
-  regular: 'Roboto-Regular',
+  regular: 'Roboto',
   bold: 'Roboto-Bold',
 };
 

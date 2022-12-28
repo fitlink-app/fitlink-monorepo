@@ -38,6 +38,7 @@ const Points = styled(Label).attrs(() => ({
 }))({
   position: 'relative',
   fontSize: 14,
+  fontFamily: 'Roboto-Medium',
   lineHeight: 16,
 });
 
@@ -55,6 +56,7 @@ const ExpiryDate = styled(Label).attrs(() => ({
 }))({
   fontSize: 14,
   textTransform: 'uppercase',
+  marginLeft: 10,
 });
 
 export interface RewardOrganisation {
@@ -115,7 +117,7 @@ export const RewardCard = (props: RewardCardProps) => {
           />
           <Row style={styles.topRow}>
             <Points style={styles.topRowLeftItem}>
-              {requiredPoints} <Label>$BFIT</Label>
+              {requiredPoints} <Label style={styles.medium}>$BFIT</Label>
             </Points>
             <Progress.Bar
               width={98}
@@ -128,13 +130,11 @@ export const RewardCard = (props: RewardCardProps) => {
           </Row>
           <Line />
           <Row style={styles.bottomRow}>
-            <View>
+            <View style={styles.flexed}>
               <Label style={styles.title} type="title" numberOfLines={1}>
                 {brand}
               </Label>
-              <Label type="subheading" numberOfLines={1}>
-                {title}
-              </Label>
+              <Label numberOfLines={1}>{title}</Label>
             </View>
             <ExpiryDate>
               {isExpired ? 'Expired' : `${restDays} Days Left`}
@@ -178,5 +178,11 @@ const styles = StyleSheet.create({
   title: {
     marginBottom: 6,
     fontFamily: 'Roboto-Medium', // TODO: rework font styling system
+  },
+  flexed: {
+    flex: 1,
+  },
+  medium: {
+    fontFamily: 'Roboto-Medium',
   },
 });

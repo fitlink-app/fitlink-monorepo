@@ -70,7 +70,7 @@ export const Label: React.FC<LabelProps> = React.forwardRef(
       createTypeStyle(),
       {color: createTextColor()},
       bold ? {fontWeight: '700'} : {},
-      {fontFamily: fonts.bold},
+      {fontFamily: fonts.regular},
       style,
     ];
 
