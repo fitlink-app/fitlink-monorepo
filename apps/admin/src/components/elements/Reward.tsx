@@ -7,6 +7,7 @@ export type RewardProps = {
   brand: string
   shortTitle: string
   points: number
+  redeemType: 'bfit' | 'points'
   expires: string | Date
   redeemed?: number
   onClick?: (e: any) => void
@@ -38,6 +39,7 @@ export default function Reward({
   brand,
   shortTitle,
   points,
+  redeemType,
   expires,
   redeemed = 0,
   onClick,
@@ -66,7 +68,8 @@ export default function Reward({
             <div className="card__top">
               {points > 0 && (
                 <div className="card__chip">
-                  {points.toLocaleString()} points
+                  {points.toLocaleString()}{' '}
+                  {redeemType === 'bfit' ? '$BFIT' : 'points'}
                 </div>
               )}
               {redeemed > 0 && (

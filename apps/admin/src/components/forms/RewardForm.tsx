@@ -34,7 +34,9 @@ const getFields = (reward: Partial<RewardEntity>) => {
     brand: reward.brand,
     limit_units: reward.limit_units,
     units_available: reward.units_available,
+    redeem_type: reward.units_available, // should be "points" or "bfit"
     points_required: reward.points_required,
+    bfit_required: reward.bfit_required,
     image_upload: undefined
   }
 }
@@ -88,7 +90,9 @@ export default function RewardForm({
 
   const brand = watch('brand')
   const shortTitle = watch('name_short')
+  const type = watch('redeem_type')
   const points = watch('points_required')
+  const bfit = watch('bfit_required')
   const expires = watch('reward_expires_at')
   const redeemed = current.redeemed_count || 0
   const title = watch('name')
@@ -137,7 +141,8 @@ export default function RewardForm({
         image={image}
         brand={brand}
         shortTitle={shortTitle}
-        points={points}
+        points={type === 'bfit' ? bfit : points}
+        redeemType={type}
         expires={expires}
         redeemed={redeemed}
         title={title}
@@ -166,14 +171,42 @@ export default function RewardForm({
         )}
       </div>
 
-      <Input
-        name="points_required"
-        placeholder="0"
-        label="Points required"
-        type="number"
-        register={register('points_required')}
-        error={errors.points_required}
-      />
+      {modeRole === 'app' && (
+        <div className="radio-toggles">
+          <label>
+            <input type="radio" value="points" {...register('redeem_type')} />
+            Points
+          </label>
+
+          <label>
+            <input type="radio" value="bfit" {...register('redeem_type')} />
+            $BFIT
+          </label>
+        </div>
+      )}
+
+      {modeRole === 'app' && type === 'bfit' ? (
+        <>
+          <Input
+            name="bfit_required"
+            placeholder="0"
+            label="$BFIT required"
+            type="number"
+            register={register('bfit_required')}
+            error={errors.bfit_required}
+          />
+        </>
+      ) : (
+        <Input
+          name="points_required"
+          placeholder="0"
+          label="Points required"
+          type="number"
+          register={register('points_required')}
+          error={errors.points_required}
+        />
+      )}
+
       <Input
         name="brand"
         placeholder="Brand name"
