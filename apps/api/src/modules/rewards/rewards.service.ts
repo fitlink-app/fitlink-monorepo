@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, FindOperator, IsNull, MoreThan, Repository } from 'typeorm'
+import { Brackets, FindOperator, IsNull, MoreThan, Repository, SimpleConsoleLogger } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { Image } from '../images/entities/image.entity'
 import { Organisation } from '../organisations/entities/organisation.entity'
@@ -33,7 +33,8 @@ type ParentIds = {
 
 type QueryOptions = {
   checkExpiry?: boolean
-  checkAvailability?: boolean
+  checkAvailability?: boolean,
+  isPrivateOnly?: boolean,
 }
 
 type PublicPageReward = {
@@ -103,9 +104,13 @@ export class RewardsService {
   async findManyAccessibleToUser(
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface,
-    filters: RewardFiltersDto
+    filters: RewardFiltersDto,
   ) {
-    let query = this.queryFindAccessibleToUser(userId)
+    let query = this.queryFindAccessibleToUser(userId, {
+      isPrivateOnly: filters.isPrivateOnly,
+      checkExpiry: true,
+      checkAvailability: true,
+    })
 
     // Where rewards are not available (not enough points) and not redeemed
     if (filters.locked) {
@@ -259,7 +264,8 @@ export class RewardsService {
     userId: string,
     options: QueryOptions = {
       checkExpiry: true,
-      checkAvailability: true
+      checkAvailability: true,
+      isPrivateOnly: false,
     }
   ) {
     let query = this.rewardsRepository
@@ -285,11 +291,10 @@ export class RewardsService {
 
       .where(
         new Brackets((qb) => {
-          // The league is public
+          // The reward is public
+          const checkedQb = options.isPrivateOnly ? qb : qb.where('reward.access = :accessPublic')
           return (
-            qb
-              .where('reward.access = :accessPublic')
-
+            checkedQb
               // The user belongs to the team that the league belongs to
               .orWhere(
                 `(reward.access = :accessTeam AND teamUser.id = :userId)`
