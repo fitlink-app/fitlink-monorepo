@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Brackets, FindOperator, IsNull, MoreThan, Repository, SimpleConsoleLogger } from 'typeorm'
+import { Brackets, FindOperator, IsNull, MoreThan, Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { Image } from '../images/entities/image.entity'
 import { Organisation } from '../organisations/entities/organisation.entity'

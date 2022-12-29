@@ -81,7 +81,6 @@ export class RewardsController {
     if (authUser.isSuperAdmin()) {
       return this.rewardsService.findAll(pagination, dashboardFilters)
     }
-    console.log({appFilters})
     return this.rewardsService.findManyAccessibleToUser(
       authUser.id,
       pagination,
