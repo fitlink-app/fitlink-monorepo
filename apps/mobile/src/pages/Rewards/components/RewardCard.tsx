@@ -4,6 +4,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import styled from 'styled-components/native';
 import {Label, TouchHandler} from '@components';
 import {BlurView} from '@react-native-community/blur';
+import ProgressBar from './ProgressBar';
 
 const TouchWrapper = styled(TouchHandler)({
   marginBottom: 10,
@@ -48,14 +49,6 @@ const Points = styled(Label).attrs(() => ({
   lineHeight: 16,
 });
 
-const HeaderLine = styled.View({
-  width: 98,
-  height: 8,
-  marginTop: 2,
-  backgroundColor: '#00E9D7',
-  borderRadius: 100,
-});
-
 const Line = styled.View({
   position: 'relative',
   width: '100%',
@@ -91,16 +84,15 @@ const AddIcon = styled.Text(({theme: {colors}}) => ({
   color: colors.text,
 }));
 
-// const CodeBox = styled.View(({theme: {colors}}) => ({
-//   paddingVertical: 5,
-//   paddingHorizontal: 10,
-//   backgroundColor: colors.surface,
-//   borderRadius: 9999,
-// }));
-
 export interface RewardOrganisation {
   name: string;
   image?: string;
+}
+
+function calculateDaysLeft(expiryDate: Date, isExpired: boolean) {
+  if (isExpired) return 0;
+  const now = Date.now();
+  return Math.ceil((expiryDate.getTime() - now) / (1000 * 3600 * 24));
 }
 
 interface RewardCardProps extends ViewProps {
@@ -118,91 +110,50 @@ interface RewardCardProps extends ViewProps {
 
 export const RewardCard = (props: RewardCardProps) => {
   const {
+    brand,
     title,
-    image,
+    image, // TODO: fallback image
     expiryDate,
     currentPoints,
     requiredPoints,
     onPress,
-    isClaimed = false,
     style,
   } = props;
 
   const isExpired = new Date() > expiryDate;
-  const restDays = !isExpired
-    ? Math.ceil(
-        Math.abs(new Date(expiryDate).getTime() - new Date().getTime()) /
-          (1000 * 3600 * 24),
-      )
-    : 0;
-  const progress = Math.min(Math.max(currentPoints / requiredPoints, 0), 1);
+  const restDays = calculateDaysLeft(expiryDate, isExpired);
   const isLocked = currentPoints >= requiredPoints;
-  // const isLocked = progress < 1 && !isClaimed;
 
   return (
     <TouchWrapper {...{onPress, style}}>
       <Wrapper style={{opacity: isExpired ? 0.5 : 1}}>
         <BackgroundImage source={{uri: image}} />
         <ImageOverlay />
-
         <ContentContainer>
           <BlurView
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: 64,
-              backgroundColor: 'rgba(0,0,0,0.2)',
-            }}
+            style={styles.blur}
             blurType="dark"
             blurRadius={1}
             blurAmount={1}
-            overlayColor={'transparent'}
+            overlayColor="transparent"
           />
-          <Row
-            style={{
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              height: 64,
-              paddingHorizontal: 24,
-            }}>
+          <Row style={styles.topRow}>
             <Points>
               {requiredPoints} <Label>$BFIT</Label>
             </Points>
-            {/* <HeaderLine /> */}
-            <View
-              style={{
-                height: 8,
-                width: 100,
-                backgroundColor: '#ACACAC',
-                borderRadius: 100,
-                  overflow: 'hidden',
-              }}>
-              <View
-                style={{
-                  width: `${(currentPoints / requiredPoints) * 100}%`,
-                  height: 8,
-                  backgroundColor: '#00E9D7',
-                }}
-              />
-            </View>
+            <ProgressBar
+              progress={currentPoints / requiredPoints}
+              height={8}
+              width={100}
+            />
           </Row>
           <Line />
-          <Row
-            style={{
-              justifyContent: 'space-between',
-              flex: 1,
-              alignItems: 'flex-end',
-              paddingBottom: 20,
-            }}>
-            <View style={{flex: 2}}>
-              <ExpiryDate>
-                {isExpired ? 'Expired' : `${restDays} Days Left`}
-              </ExpiryDate>
-              <Label
-                type={'title'}
-                appearance={'primary'}
-                numberOfLines={1}
-                style={{textTransform: 'capitalize'}}>
+          <Row style={styles.bottomRow}>
+            <View style={styles.leftCol}>
+              <Label type="title" appearance="primary" numberOfLines={1}>
+                {brand}
+              </Label>
+              <Label type="body" appearance="primary" numberOfLines={1}>
                 {title}
               </Label>
             </View>
@@ -210,10 +161,39 @@ export const RewardCard = (props: RewardCardProps) => {
               <AddBtn>
                 <AddIcon>+</AddIcon>
               </AddBtn>
-            ) : null}
+            ) : (
+              <ExpiryDate>
+                {isExpired ? 'Expired' : `${restDays} Days Left`}
+              </ExpiryDate>
+            )}
           </Row>
         </ContentContainer>
       </Wrapper>
     </TouchWrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  blur: {
+    position: 'absolute',
+    width: '100%',
+    height: 64,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+  },
+  topRow: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 64,
+    paddingHorizontal: 24,
+  },
+  bottomRow: {
+    justifyContent: 'space-between',
+    flex: 1,
+    alignItems: 'flex-end',
+    paddingBottom: 20,
+  },
+  leftCol: {
+    flex: 1,
+    marginRight: 10,
+  },
+});
