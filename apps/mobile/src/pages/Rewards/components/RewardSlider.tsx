@@ -91,7 +91,7 @@ export const RewardSlider = ({
                 marginVertical: heightLize(11),
               }
             : {
-                width: SCREEN_WIDTH * 0.75,
+                width: SCREEN_WIDTH * 0.87,
                 marginVertical: 10,
                 marginLeft: widthLize(20),
               }
