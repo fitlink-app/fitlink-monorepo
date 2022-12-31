@@ -21,11 +21,11 @@ target 'Fitlink' do
 
 #   pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
 
-  pod 'appcenter-core', :path => '../node_modules/appcenter'
+#   pod 'appcenter-core', :path => '../node_modules/appcenter'
 
-  pod 'appcenter-analytics', :path => '../node_modules/appcenter-analytics'
+#   pod 'appcenter-analytics', :path => '../node_modules/appcenter-analytics'
 
-  pod 'appcenter-crashes', :path => '../node_modules/appcenter-crashes'
+#   pod 'appcenter-crashes', :path => '../node_modules/appcenter-crashes'
 
   pre_install do |installer|
     $RNMBGL.pre_install(installer)

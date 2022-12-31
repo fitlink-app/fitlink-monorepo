@@ -17,7 +17,7 @@ const Wrapper = styled.View({});
 
 const ListHeaderContainer = styled.View({
   paddingTop: 20,
-  paddingHorizontal: 20,
+  paddingHorizontal: 10,
   paddingBottom: 10,
 });
 
