@@ -7,7 +7,7 @@ export type RewardProps = {
   brand: string
   shortTitle: string
   points: number
-  redeemType: 'bfit' | 'points'
+  redeemType?: 'bfit' | 'points'
   expires: string | Date
   redeemed?: number
   onClick?: (e: any) => void
@@ -39,7 +39,7 @@ export default function Reward({
   brand,
   shortTitle,
   points,
-  redeemType,
+  redeemType = 'points',
   expires,
   redeemed = 0,
   onClick,
