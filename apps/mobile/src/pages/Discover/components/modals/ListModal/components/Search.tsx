@@ -12,7 +12,7 @@ export const SEARCH_HANDLE_HEIGHT = 68;
 const Container = styled.View({
   paddingTop: 10,
   paddingBottom: 5,
-  backgroundColor: 'transparent',
+  backgroundColor: 'transparent'
 });
 
 const CustomTextInput = styled(BottomSheetTextInput)(({theme}) => ({

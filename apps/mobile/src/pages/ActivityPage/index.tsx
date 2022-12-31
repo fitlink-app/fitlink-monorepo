@@ -67,12 +67,12 @@ const DetailValue = styled(Label).attrs(() => ({
 const FitnessName = styled(Label).attrs(() => ({
   type: 'title',
   bold: true,
-  numberOfLines: 2,
+  numberOfLines: 2
 }))({
   textAlign: 'right',
   fontSize: 40,
   marginTop: 21,
-  marginLeft: 10,
+  marginLeft: 10
 });
 
 const UserSection = styled.View({
@@ -167,7 +167,7 @@ export const ActivityPage = () => {
   const {colors} = useTheme();
 
   const [selectedIndex, setselectedIndex] = useState<Number>(0);
-  const scrollView = useRef<ScrollView>(null);
+  const scrollView = useRef(null);
 
   // Script which will only executed when component initilizes
   useEffect(() => {
@@ -183,7 +183,7 @@ export const ActivityPage = () => {
 
   // Script will executed every time selectedIndex updates
   useEffect(() => {
-    scrollView?.current?.scrollTo({
+    scrollView.current.scrollTo({
       animated: true,
       x: width * Number(selectedIndex),
       y: 0,
@@ -206,7 +206,7 @@ export const ActivityPage = () => {
           horizontal
           pagingEnabled
           onMomentumScrollEnd={setIndex}
-          onContentSizeChange={() => scrollView?.current?.scrollToEnd()}>
+          onContentSizeChange={() => scrollView.current.scrollToEnd()}>
           <CarouselContainer>
             {data.map(item => (
               <CarouselItem style={{width: width}}>

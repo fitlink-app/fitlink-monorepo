@@ -23,11 +23,11 @@ const ListHeaderContainer = styled.View({
 
 const PageTitleContainer = styled.View({
   alignItems: 'center',
-  marginBottom: 21,
+  marginBottom: 10,
 });
 
 const PageTitle = styled(Label).attrs(() => ({
-  appearance: 'accent',
+  appearance: 'accent'
 }))({
   letterSpacing: 1,
   fontSize: 15,
@@ -69,14 +69,18 @@ export const Rewards = () => {
   const {
     data: myRewards,
     isFetching: isFetchingMyRewards,
+    isFetchingNextPage: isFetchingMyRewardsNextPage,
     isFetchedAfterMount: isMyRewardsFetchedAfterMount,
+    fetchNextPage: fetchMyRewardsNextPage,
     refetch: refetchMyRewards,
   } = useMyRewards();
 
   const {
     data: unclaimedRewards,
     isFetching: isFetchingUnclaimedRewards,
+    isFetchingNextPage: isFetchingUnclaimedRewardsNextPage,
     isFetchedAfterMount: isUnclaimedRewardsFetchedAfterMount,
+    fetchNextPage: fetchUnclaimedRewardsNextPage,
     refetch: refetchUnclaimedRewards,
   } = useRewards({available: true});
 
@@ -101,7 +105,9 @@ export const Rewards = () => {
   const {
     data: expiredRewards,
     isFetching: isFetchingExpiredRewards,
+    isFetchingNextPage: isFetchingExpiredRewardsNextPage,
     isFetchedAfterMount: isExpiredRewardsFetchedAfterMount,
+    fetchNextPage: fetchExpiredRewardsNextPage,
     refetch: refetchExpiredRewards,
   } = useRewards({expired: true});
 
@@ -135,10 +141,10 @@ export const Rewards = () => {
     ...expiredRewardsEntries,
   ].length;
 
+  const pointsTotal = user?.points_total;
+
   useEffect(() => {
-    if (user?.points_total) {
-      Promise.all([refetchNextReward(), refetchAllRewards()]);
-    }
+    Promise.all([refetchNextReward(), refetchAllRewards()]);
   }, [user?.points_total]);
 
   const refetchAllRewards = () =>
@@ -170,9 +176,7 @@ export const Rewards = () => {
   );
 
   const renderEmpty = () => {
-    if (!isFetchedAfterMount || isLoading) {
-      return renderLoading();
-    }
+    if (!isFetchedAfterMount || isLoading) return renderLoading();
 
     return (
       <Label style={{textAlign: 'center'}}>
@@ -189,7 +193,7 @@ export const Rewards = () => {
         ref={scrollRef}
         style={{height: '100%'}}
         contentContainerStyle={{
-          paddingBottom: 44 + 79,
+          paddingBottom: 20,
           flexGrow: 1,
           paddingTop: Platform.OS === 'ios' ? 0 : insets.top,
         }}
@@ -202,7 +206,8 @@ export const Rewards = () => {
             refreshing={isLoading && isFetchedAfterMount && isManualRefresh}
             onRefresh={handleRefresh}
           />
-        }>
+        }
+      >
         {isFetchedAfterMount ? (
           <>
             <ListHeaderContainer>

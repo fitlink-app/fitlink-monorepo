@@ -1,11 +1,7 @@
 import {Label} from '@components';
 import React from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  FlatListProps,
-  RefreshControl,
-} from 'react-native';
+import {ActivityIndicator, FlatListProps, RefreshControl} from 'react-native';
+import {Animated} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {LeaderboardItem} from './LeaderboardItem';
 import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/entities/leaderboard-entry.entity';
@@ -13,7 +9,6 @@ import {LeaderboardHeader} from './LeaderboardHeader';
 import {useState} from 'react';
 import {LeaderboardSeparator} from './LeaderboardSeparator';
 import {useNavigation} from '@react-navigation/core';
-import {useMe} from '@hooks';
 
 const INITIAL_MEMBER_COUNT_TO_DISPLAY = 10;
 
@@ -45,12 +40,12 @@ interface LeaderboardProps
   endDate: Date;
   membership: 'none' | 'member' | 'owner';
   onRefresh: () => void;
-  renderHeader?: any;
 }
 
 export const Leaderboard = ({
   data,
   fetchNextPage,
+  hasNextPage,
   fetchingNextPage,
   flanksData,
   userId,
@@ -60,14 +55,13 @@ export const Leaderboard = ({
   title,
   memberCount,
   endDate,
+  membership = 'none',
   onRefresh,
   description,
-  renderHeader,
-  onScroll,
+  ...rest
 }: LeaderboardProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
-  const {data: user} = useMe();
 
   const [showAll, setShowAll] = useState(false);
 
@@ -75,9 +69,8 @@ export const Leaderboard = ({
 
   if (!showAll) {
     const partialData = [...(data || [])];
-    if (partialData.length > INITIAL_MEMBER_COUNT_TO_DISPLAY) {
+    if (partialData.length > INITIAL_MEMBER_COUNT_TO_DISPLAY)
       partialData.length = INITIAL_MEMBER_COUNT_TO_DISPLAY;
-    }
     displayResults = partialData;
   }
 
@@ -88,6 +81,7 @@ export const Leaderboard = ({
   const renderItem = ({
     item,
     index,
+    sourceLength,
     key,
   }: {
     item: LeaderboardEntry;
@@ -111,7 +105,7 @@ export const Leaderboard = ({
   };
 
   const renderFlanks = () => {
-    return flanksData.map(entry => {
+    return flanksData.map((entry, index) => {
       return renderItem({
         item: entry,
         index: entry.rank,
@@ -122,41 +116,36 @@ export const Leaderboard = ({
   };
 
   const ListHeaderComponent = (
-    <>
-      {renderHeader}
-      <LeaderboardHeader
-        memberCount={memberCount}
-        resetDate={endDate}
-        repeat={isRepeat}
-        title={title}
-        description={description}
-      />
-    </>
+    <LeaderboardHeader 
+      memberCount={memberCount}
+      resetDate={endDate} 
+      repeat={isRepeat}
+      title={title}
+      description={description}
+    />
   );
 
   const ListFooterComponent = () => {
-    if (!data?.length && isLoaded) {
+    if (!data?.length && isLoaded)
       return (
         <EmptyContainer style={{paddingVertical: 10}}>
           <Label>This league has no participants yet.</Label>
         </EmptyContainer>
       );
-    }
 
-    if (!isLoaded || fetchingNextPage) {
+    if (!isLoaded || fetchingNextPage)
       return (
         <LoadingContainer>
           <ActivityIndicator color={colors.accent} />
         </LoadingContainer>
       );
-    }
 
     if (
       !showAll &&
       displayResults &&
       data &&
       displayResults.length < data.length
-    ) {
+    )
       return (
         <>
           <LeaderboardSeparator onPress={() => setShowAll(true)} />
@@ -166,27 +155,22 @@ export const Leaderboard = ({
             renderFlanks()}
         </>
       );
-    }
 
     return null;
   };
 
   return (
-    <FlatList
-      showsVerticalScrollIndicator={false}
-      {...{ListHeaderComponent, ListFooterComponent}}
+    <Animated.FlatList
+      {...{...rest, ListHeaderComponent, ListFooterComponent}}
       data={displayResults}
       renderItem={({item, index}) =>
         renderItem({item, index, sourceLength: displayResults?.length || 0})
       }
       initialNumToRender={25}
-      onScroll={onScroll}
-      // onEndReachedThreshold={0.1}
-      // onEndReached={() => {
-      //   if (showAll) {
-      //     fetchNextPage();
-      //   }
-      // }}
+      onEndReachedThreshold={0.1}
+      onEndReached={() => {
+        if (showAll) fetchNextPage();
+      }}
       refreshControl={
         <RefreshControl
           {...{refreshing, onRefresh}}

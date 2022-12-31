@@ -23,7 +23,7 @@ export type RootStackParamList = {
   };
   LeagueForm: {data?: {id: string; dto: UpdateLeagueDto; imageUrl: string}};
   Rewards: undefined;
-  Reward: {id: string; image: string};
+  Reward: {id: string};
   HealthActivityDetails: {id: string};
   Route: {
     polyline: string;

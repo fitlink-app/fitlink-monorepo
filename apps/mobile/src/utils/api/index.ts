@@ -17,6 +17,7 @@ export const getResultsFromPages = <T>(
     data?.pages.reduce<T[]>((acc, current) => {
       return [...acc, ...current.results];
     }, []) || [];
+
   return results;
 };
 

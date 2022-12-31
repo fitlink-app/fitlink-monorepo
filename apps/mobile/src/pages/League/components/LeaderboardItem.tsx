@@ -2,7 +2,6 @@ import React from 'react';
 import styled, {DefaultTheme} from 'styled-components/native';
 import {ViewProps} from 'react-native';
 import {Avatar, Icon, Label, LabelProps, TouchHandler} from '@components';
-import {widthLize} from "@utils";
 
 export const ITEM_HEIGHT = 82;
 
@@ -15,15 +14,17 @@ type WrapperParams = {
   theme: DefaultTheme;
 };
 
-const Wrapper = styled(TouchHandler)(({theme}: WrapperParams) => ({
-  borderBottomWidth: 1,
-  borderBottomColor: theme.colors.separator,
-}));
+const Wrapper = styled(TouchHandler)(
+  ({theme}: WrapperParams) => ({
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.separator,
+  }),
+);
 
 const ContainerRow = styled(Row)({
   height: ITEM_HEIGHT - 1, // subtract margin
   justifyContent: 'space-between',
-  paddingRight: 20,
+  paddingRight: 20
 });
 
 const Column = styled.View({
@@ -33,17 +34,18 @@ const Column = styled.View({
 const SelfLine = styled.View({
   width: 9,
   height: 81,
-});
+})
 
 const PlaceTextContainer = styled.View({
-  width: widthLize(38),
+  width: 28,
   alignItems: 'flex-start',
-  paddingHorizontal: 6,
+  paddingLeft: 6,
 });
 
 const PlaceText = styled(Label)<LabelProps>({
   fontSize: 17,
   textAlign: 'center',
+  width: 16,
 });
 
 const NameContainer = styled(Row)({
@@ -52,7 +54,7 @@ const NameContainer = styled(Row)({
 });
 
 const NameText = styled(Label).attrs(() => ({
-  bold: true,
+  bold: true
 }))({
   fontSize: 16,
   marginLeft: 15,
@@ -92,57 +94,52 @@ interface LeaderboardItemProps {
   onPress?: () => void;
 }
 
-export const LeaderboardItem: React.FC<
-  LeaderboardItemProps & ViewProps
-> = props => {
-  const {rank, name, avatarUrl, wins, points, isSelf, onPress, disabled} =
-    props;
+export const LeaderboardItem: React.FC<LeaderboardItemProps & ViewProps> =
+  props => {
+    const {
+      rank,
+      name,
+      avatarUrl,
+      wins,
+      points,
+      isSelf,
+      onPress,
+      disabled,
+    } = props;
 
-  return (
-    <Wrapper {...{onPress, disabled}}>
-      <ContainerRow
-        style={{
-          backgroundColor: isSelf
-            ? '#ECECEC'
-            : parseInt(rank) % 2 === 0
-            ? '#181818'
-            : 'transparent',
-          opacity: 0.9,
-        }}>
-        <Row style={{flexShrink: 1}}>
-          <SelfLine
-            style={{backgroundColor: isSelf ? '#00E9D7' : 'transparent'}}
-          />
-          <PlaceTextContainer>
-            <PlaceText style={{color: isSelf ? '#060606' : '#FFFFFF'}}>
-              {rank}
-            </PlaceText>
-          </PlaceTextContainer>
+    return (
+      <Wrapper {...{onPress, disabled}}>
+        <ContainerRow style={{backgroundColor: isSelf ? '#ECECEC' : (parseInt(rank)%2 === 0) ? '#181818' : 'transparent', opacity: 0.9}}>
+          <Row style={{flexShrink: 1}}>
+            <SelfLine style={{backgroundColor: isSelf ? '#00E9D7' : 'transparent'}} />
+            <PlaceTextContainer>
+              <PlaceText style={{color: isSelf ? '#060606' : '#FFFFFF'}}>
+                {rank}
+              </PlaceText>
+            </PlaceTextContainer>
 
-          <Avatar url={avatarUrl} size={40} />
+            <Avatar url={avatarUrl} size={40} />
 
-          <NameContainer>
-            <NameText
-              style={{color: isSelf ? '#060606' : '#FFFFFF'}}
-              numberOfLines={1}>
-              {name}
-            </NameText>
-            {wins !== 0 && (
-              <Row>
-                <PreviousWonsText>{wins}</PreviousWonsText>
-                <CrownIcon />
-              </Row>
-            )}
-          </NameContainer>
-        </Row>
+            <NameContainer>
+              <NameText style={{color: isSelf ? '#060606' : '#FFFFFF'}}
+                numberOfLines={1}>
+                {name}
+              </NameText>
+              {wins !== 0 && (
+                <Row>
+                  <PreviousWonsText>{wins}</PreviousWonsText>
+                  <CrownIcon />
+                </Row>
+              )}
+            </NameContainer>
+          </Row>
 
-        <Column>
-          <PointsText style={{color: isSelf ? '#000000' : '#00E9D7'}}>
-            {points}{' '}
-            <Label style={{color: isSelf ? '#565656' : '#FFFFFF'}}></Label>
-          </PointsText>
-        </Column>
-      </ContainerRow>
-    </Wrapper>
-  );
-};
+          <Column>
+            <PointsText style={{color: isSelf ? '#000000' : '#00E9D7'}}>
+              {points} <Label style={{color: isSelf ? '#565656' : '#FFFFFF'}}>$BFIT</Label>
+            </PointsText>
+          </Column>
+        </ContainerRow>
+      </Wrapper>
+    );
+  };
