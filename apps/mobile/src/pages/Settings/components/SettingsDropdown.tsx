@@ -27,16 +27,10 @@ export const SettingsDropdown = (props: SettingsDropdownProps) => {
 
   return (
     <>
-      <SettingsItemWrapper
-        style={{height: 50, borderTopWidth: 1, borderColor: '#2e2e2e'}}>
+      <SettingsItemWrapper style={{height: 50, borderTopWidth: 1, borderColor: '#2e2e2e'}}>
         <ContainerRow>
           <StyledLabel children={label} />
-          <View
-            style={
-              Platform.OS === 'android'
-                ? {width: valueTextWidth ? valueTextWidth : 140}
-                : {flex: 1}
-            }>
+          <View style={Platform.OS === 'android' ? {width: valueTextWidth ? valueTextWidth : 140} : {flex: 1}}>
             <Dropdown
               {...{label, ...rest}}
               labelStyle={{

@@ -79,7 +79,6 @@ export const Filter = ({onSavePreferences}: FilterProps) => {
       <Button
         onPress={handleSave}
         text={'Save Preferences'}
-        containerStyle={{backgroundColor: '#00E9D7'}}
         style={{paddingTop: 20, width: '100%'}}
       />
     </ButtonContainer>

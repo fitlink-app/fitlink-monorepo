@@ -1,19 +1,18 @@
 import React from 'react';
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import {View, Pressable, Platform} from 'react-native';
 import {Label} from '@components';
-import {widthLize} from '@utils';
-import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 
-const Wrapper = styled.View(() => ({
+const Wrapper = styled.View(({theme}) => ({
   width: '100%',
   height: 79,
 }));
 
 const Container = styled.View(({theme}) => ({
   alignSelf: 'center',
-  width: widthLize(358),
+  width: '80%',
   height: '100%',
   backgroundColor: theme.colors.navbar,
   flexDirection: 'row',
@@ -45,12 +44,12 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
   function renderButtons() {
     return state.routes.map((route, index) => {
       const {options} = descriptors[route.key];
-      // const label =
-      //   options.tabBarLabel !== undefined
-      //     ? options.tabBarLabel
-      //     : options.title !== undefined
-      //     ? options.title
-      //     : route.name;
+      const label =
+        options.tabBarLabel !== undefined
+          ? options.tabBarLabel
+          : options.title !== undefined
+          ? options.title
+          : route.name;
 
       const isFocused = state.index === index;
 
@@ -77,9 +76,7 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
         const {tabBarBadge, tabBarIcon} = options;
 
         const Badge = () => {
-          if (!tabBarBadge) {
-            return null;
-          }
+          if (!tabBarBadge) return null;
 
           return (
             <BadgeContainer>
@@ -90,9 +87,7 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
           );
         };
 
-        if (!tabBarIcon) {
-          return null;
-        }
+        if (!tabBarIcon) return null;
         return (
           <View>
             {tabBarIcon({focused: isFocused, color: '', size: 30})}
@@ -122,28 +117,23 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
     });
   }
 
-  const insets = useSafeAreaInsets();
-  const bottomOffset = insets.bottom === 0 ? 10 : 0;
   const focusedOptions = descriptors[state.routes[state.index].key].options;
 
   if (focusedOptions.tabBarVisible === false) {
     return null;
   }
 
+  // Insets from SafeAreaProvider
+  const insets = useSafeAreaInsets();
+
   return (
-    <SafeAreaView
-      style={{
-        backgroundColor: 'transparent',
-        overflow: Platform.OS === 'ios' ? 'visible' : 'hidden',
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        bottom: bottomOffset,
-        zIndex: 2,
-      }}>
-      <Wrapper>
-        <Container>{renderButtons()}</Container>
-      </Wrapper>
-    </SafeAreaView>
+    <Wrapper>
+      <Container
+        style={{
+          paddingBottom: Platform.OS === 'ios' ? insets.bottom : undefined,
+        }}>
+        {renderButtons()}
+      </Container>
+    </Wrapper>
   );
 };

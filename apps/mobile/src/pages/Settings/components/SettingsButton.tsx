@@ -13,8 +13,8 @@ import {SettingsItemLabel} from './SettingsItemLabel';
 const StyledTouchHandler = styled(TouchHandler).attrs(() => ({
   animationType: 'opacity',
 }))({
-  paddingVertical: 15,
-  borderColor: '#2e2e2e',
+  paddingVertical: 20,
+  borderColor: '#2e2e2e'
 });
 
 const Row = styled.View({
@@ -32,7 +32,7 @@ const StyledIcon = styled(Icon).attrs(
   ({icon, accent, theme}: StyledIconParams & ThemeProps<DefaultTheme>) => ({
     name: icon || 'arrow-right',
     size: 16,
-    color: accent ? theme.colors.accent : 'white',
+    color: accent ? theme.colors.accent : 'white'
   }),
 )<StyledIconParams>({});
 
@@ -60,16 +60,8 @@ export interface SettingsButtonProps extends TouchHandlerProps {
 }
 
 export const SettingsButton = (props: SettingsButtonProps) => {
-  const {
-    label,
-    icon,
-    onPress,
-    accent,
-    preLabelComponent,
-    loading,
-    profileRow,
-    disabled,
-  } = props;
+  const {label, icon, onPress, accent, preLabelComponent, loading, profileRow, disabled} =
+    props;
   const {colors} = useTheme();
 
   const renderIcon = () => {
@@ -78,10 +70,7 @@ export const SettingsButton = (props: SettingsButtonProps) => {
 
   return (
     <SettingsItemWrapper>
-      <StyledTouchHandler
-        {...{onPress}}
-        style={{borderTopWidth: profileRow ? 0 : 1}}
-        disabled={loading || disabled}>
+      <StyledTouchHandler {...{onPress}} style={{borderTopWidth: profileRow ? 0 : 1}} disabled={loading || disabled}>
         <Row>
           <Row>
             {preLabelComponent}

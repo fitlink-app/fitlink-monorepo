@@ -17,6 +17,6 @@ export function useFindActivitiesMap(dto: FindActivitiesMapDto) {
         `/activities/map?${searchParams}`,
       );
     },
-    // {enabled: false},
+    {enabled: false},
   );
 }

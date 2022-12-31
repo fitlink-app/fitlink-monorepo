@@ -33,7 +33,7 @@ import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {getResultsFromPages} from 'utils/api';
 import {queryClient, QueryKeys} from '@query';
 import {PrivacySetting} from '@fitlink/api/src/modules/users-settings/users-settings.constants';
-import {calculateGoalsPercentage, widthLize} from '@utils';
+import {calculateGoalsPercentage} from '@utils';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -132,8 +132,7 @@ export const Profile = (
   const shouldRenderGoals = () => {
     if (!user) return false;
 
-    // @ts-ignore
-    switch (user?.privacy_daily_statistics) {
+    switch (user.privacy_daily_statistics) {
       case PrivacySetting.Public:
         return true;
 
@@ -151,8 +150,7 @@ export const Profile = (
   const shouldRenderFeed = () => {
     if (!user) return false;
 
-    // @ts-ignore
-    switch (user?.privacy_activities) {
+    switch (user.privacy_activities) {
       case PrivacySetting.Public:
         return true;
 
@@ -189,14 +187,12 @@ export const Profile = (
     );
 
     return (
-      <View style={{paddingHorizontal: widthLize(20)}}>
-        <FeedItem
-          key={item.id}
-          item={item}
-          unitSystem={me!.unit_system}
-          isLiked={isLiked}
-        />
-      </View>
+      <FeedItem
+        key={item.id}
+        item={item}
+        unitSystem={me!.unit_system}
+        isLiked={isLiked}
+      />
     );
   };
 

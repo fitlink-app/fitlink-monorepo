@@ -9,11 +9,11 @@ const Wrapper = styled.View({
 
 const Row = styled.View({
   flexDirection: 'row',
-  alignItems: 'center',
+  alignItems: 'center'
 });
 
 const SpacedRow = styled(Row)({
-  justifyContent: 'space-between',
+  justifyContent: 'space-between'
 });
 
 const MemberCounts = styled(Label).attrs(() => ({
@@ -29,7 +29,7 @@ const DividerLine = styled.View({
   marginLeft: 10,
   width: 2,
   height: 14,
-  backgroundColor: '#FFFFFF',
+  backgroundColor: '#FFFFFF'
 });
 
 const Title = styled(Label).attrs({
@@ -43,7 +43,7 @@ const Description = styled(Label).attrs({
   type: 'body',
   appearance: 'secondary',
 })({
-  marginTop: 14,
+  marginTop: 14, 
   color: '#ACACAC',
   fontSize: 18,
   lineHeight: 25,
@@ -57,7 +57,7 @@ const LeaderboardText = styled(Label).attrs(() => ({
   fontSize: 16,
   textTransform: 'uppercase',
   letterSpacing: 1,
-});
+})
 
 interface LeaderboardHeaderProps {
   memberCount: number;
@@ -72,13 +72,13 @@ export const LeaderboardHeader = ({
   resetDate,
   repeat,
   title,
-  description,
+  description
 }: LeaderboardHeaderProps) => (
   <Wrapper>
     <SpacedRow>
       <Row>
         <MemberCounts>
-          {memberCount} {memberCount === 1 ? 'member' : 'members'}
+          {memberCount} {memberCount === 1 ? "member" : "members"}
         </MemberCounts>
         <DividerLine />
         <LeaderboardCountback date={resetDate} {...{repeat}} />

@@ -28,7 +28,6 @@ export const NotificationsButton = ({count}: {count: number}) => {
 
   return (
     <TouchHandler
-      hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
       onPress={() => {
         navigation.navigate('Notifications');
       }}>

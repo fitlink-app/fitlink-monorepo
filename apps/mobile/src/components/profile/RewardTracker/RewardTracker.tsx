@@ -1,7 +1,41 @@
 import React from 'react';
-import {StyleSheet, View, ViewStyle} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
-import {Label, TouchHandler, TouchHandlerProps} from '../../common';
+import {
+  Card,
+  Icon,
+  CardLabel,
+  CardButton,
+  ProgressBar,
+  TouchHandlerProps,
+  TouchHandler,
+  Label,
+} from '../../common';
+import {LayoutUtils} from '@utils';
+import {ActivityIndicator} from 'react-native';
+
+const Wrapper = styled(Card)({
+  width: '100%',
+  height: 120,
+  paddingTop: 24,
+  paddingBottom: 24,
+  paddingLeft: 33,
+  paddingRight: 33,
+});
+
+const Row = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  flexWrap: 'wrap',
+  marginTop: 4,
+  marginBottom: 4,
+});
+
+const ContentContainer = styled.View({
+  marginLeft: 10,
+  justifyContent: 'center',
+  flex: 1,
+});
 
 const PointsLabel = styled(Label).attrs(() => ({
   type: 'caption',
@@ -10,24 +44,23 @@ const PointsLabel = styled(Label).attrs(() => ({
   color: '#565656',
   letterSpacing: 2,
   fontSize: 13,
-  marginBottom: 9,
 });
 
 const PointsStatusLabel = styled(Label).attrs(() => ({
-  type: 'caption',
+  type: 'caption'
 }))({
   fontSize: 15,
   letterSpacing: 2,
 });
 
 const Points = styled(Label).attrs(() => ({
-  type: 'title',
+  type: 'title'
 }))({
   fontSize: 42,
   lineHeight: 48,
 });
 
-const PointsChart = styled.Image({flex: 1, marginBottom: 6});
+const PointsChart = styled.Image({});
 
 interface RewardTrackerProps extends Omit<TouchHandlerProps, 'disabled'> {
   /** User's points */
@@ -45,54 +78,47 @@ interface RewardTrackerProps extends Omit<TouchHandlerProps, 'disabled'> {
   isLoading?: boolean;
 }
 
-export const _RewardTracker = ({...rest}: RewardTrackerProps) => {
+export const _RewardTracker = ({
+  points,
+  targetPoints,
+  claimableRewardsCount,
+  showNextReward,
+  isLoading,
+  ...rest
+}: RewardTrackerProps) => {
   const {colors} = useTheme();
 
+  const progress = points / targetPoints;
+  const pointsRemainingTillNextReward = targetPoints - points;
+
+  const renderCardLabel = () => {
+    let text = `${pointsRemainingTillNextReward} Points remaining`;
+
+    if (claimableRewardsCount > 1) {
+      text = `You have ${claimableRewardsCount} unclaimed rewards`;
+    } else if (claimableRewardsCount) {
+      text = `You have an unclaimed reward`;
+    }
+
+    return <CardLabel>{text}</CardLabel>;
+  };
+
   return (
-    <TouchHandler
-      {...rest}
-      style={StyleSheet.compose<ViewStyle>(
-        {backgroundColor: colors.card},
-        styles.wrapper,
-      )}
-      disabled={!rest.onPress}>
-      <View>
-        <PointsLabel>TOTAL $BFIT</PointsLabel>
-        <View style={styles.totalPointsWrapper}>
-          <Points style={{color: colors.grayText}}>00</Points>
-          <Points>640</Points>
-        </View>
-      </View>
-      <View>
-        <View style={styles.statusPointsWrapper}>
-          <PointsStatusLabel>$234.12</PointsStatusLabel>
-          <PointsStatusLabel>+23%</PointsStatusLabel>
-        </View>
-        <PointsChart
-          source={require('../../../../assets/images/wallet_chart2.png')}
-        />
-      </View>
+    <TouchHandler {...rest} disabled={!rest.onPress}>
+      <Wrapper>
+        <ContentContainer>
+          <Row>
+            <PointsLabel>TOTAL $BFIT</PointsLabel>
+            <PointsStatusLabel>+23%</PointsStatusLabel>
+          </Row>
+          <Row>
+            <Points>00640</Points>
+            <PointsChart source={require('../../../../assets/images/wallet_chart.png')} />
+          </Row>
+        </ContentContainer>
+      </Wrapper>
     </TouchHandler>
   );
 };
-
-const styles = StyleSheet.create({
-  wrapper: {
-    width: '100%',
-    height: 120,
-    borderRadius: 20,
-    paddingVertical: 24,
-    paddingHorizontal: 33,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  totalPointsWrapper: {flexDirection: 'row', flex: 1},
-  statusPointsWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-});
 
 export const RewardTracker = React.memo(_RewardTracker);

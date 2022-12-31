@@ -4,24 +4,24 @@ import {
   FlatList,
   FlatListProps,
   Dimensions,
+  View,
   ActivityIndicator,
 } from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {RewardPublic} from '@fitlink/api/src/modules/rewards/entities/reward.entity';
 import {RewardCard} from '.';
 import {useNavigation} from '@react-navigation/native';
-import {heightLize, widthLize} from '@utils';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
 const Wrapper = styled.View({
   marginTop: 40,
+  paddingHorizontal: 10
 });
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
-  marginHorizontal: widthLize(20),
 });
 
 const Title = styled(Label).attrs({
@@ -84,30 +84,14 @@ export const RewardSlider = ({
   const renderItem = ({item}: {item: RewardPublic}) => {
     return (
       <RewardCard
-        style={
-          LockedShow
-            ? {
-                marginLeft: widthLize(20),
-                marginVertical: heightLize(11),
-              }
-            : {
-                width: SCREEN_WIDTH * 0.87,
-                marginVertical: 10,
-                marginLeft: widthLize(20),
-              }
-        }
+        style={{marginRight: 10, width: !LockedShow ? SCREEN_WIDTH * 0.75 : '100%', marginVertical:10}}
         brand={item.brand}
         title={item.name_short}
         image={item.image.url_640x360}
         expiryDate={new Date(item.reward_expires_at)}
         currentPoints={userPoints}
         requiredPoints={item.points_required}
-        onPress={() =>
-          navigation.navigate('Reward', {
-            id: item.id,
-            image: item.image.url_512x512,
-          })
-        }
+        onPress={() => navigation.navigate('Reward', {id: item.id})}
         isClaimed={item.redeemed}
         organisation={
           item.organisation && {
@@ -126,9 +110,7 @@ export const RewardSlider = ({
     </NewItemLoadingContainer>
   ) : null;
 
-  if (!rest.data?.length) {
-    return null;
-  }
+  if (!rest.data?.length) return null;
 
   return (
     <Wrapper>
@@ -137,7 +119,8 @@ export const RewardSlider = ({
         <TouchHandler
           onPress={() => {
             navigation.navigate('Rewards');
-          }}>
+          }}
+        >
           <SeeAllText>see all</SeeAllText>
         </TouchHandler>
       </HeaderContainer>
@@ -151,8 +134,7 @@ export const RewardSlider = ({
           showsHorizontalScrollIndicator={false}
           onEndReachedThreshold={0.2}
           onEndReached={fetchNextPage}
-          horizontal={!LockedShow}
-          contentContainerStyle={{paddingRight: 20}}
+          horizontal={!LockedShow ? true : false}
         />
       )}
     </Wrapper>

@@ -15,13 +15,11 @@ import {
   resetTeamInvitation,
   selectTeamInvitation,
 } from 'redux/teamInvitation/teamInvitationSlice';
-import {heightLize} from "@utils";
 
 const mail_icon = require('../../../../assets/images/icon/mail.png');
 const google_icon = require('../../../../assets/images/icon/google.png');
 const apple_icon = require('../../../../assets/images/icon/apple.png');
 const metamask_icon = require('../../../../assets/images/icon/metamask.png');
-const kujira_icon = require('../../../../assets/images/icon/logo_kujira.png');
 
 const Wrapper = styled.View({flex: 1, alignItems: 'center'});
 
@@ -47,8 +45,7 @@ const HeaderContainer = styled.View({
 
 const Line = styled.View({
   position: 'relative',
-  marginTop: heightLize(2),
-  width: 68,
+  width: 70,
   height: 0,
   top: 18,
   right: -70,
@@ -93,8 +90,9 @@ export const Welcome = () => {
   const {colors} = useTheme();
   const dispatch = useDispatch() as AppDispatch;
 
-  const {invitation, isLoading: isLoadingTeamInvitation} =
-    useSelector(selectTeamInvitation);
+  const {invitation, isLoading: isLoadingTeamInvitation} = useSelector(
+    selectTeamInvitation,
+  );
 
   const [isGoogleLoading, setGoogleLoading] = useState(false);
   const [isAppleLoading, setAppleLoading] = useState(false);
@@ -156,10 +154,7 @@ export const Welcome = () => {
         <>
           {invitation ? (
             <InvitationContainer>
-              <InvitationLogoContainer
-                style={{
-                  top: insets.top + 40,
-                }}>
+              <InvitationLogoContainer style={{top: insets.top + 40}}>
                 <Logo />
               </InvitationLogoContainer>
               <TeamInvitation
@@ -181,7 +176,7 @@ export const Welcome = () => {
           <ButtonContainer>
             <SpacedButton
               text={'Sign up with your e-mail'}
-              textStyle={{marginLeft: 10}}
+              textStyle={{ marginLeft: 10 }}
               logo={mail_icon}
               onPress={handleOnSignUpPressed}
             />
@@ -189,7 +184,7 @@ export const Welcome = () => {
               disabled={isGoogleLoading}
               loading={isGoogleLoading}
               text={'Continue with Google'}
-              textStyle={{marginLeft: 10}}
+              textStyle={{ marginLeft: 10 }}
               logo={google_icon}
               onPress={handleOnGooglePressed}
             />
@@ -197,24 +192,16 @@ export const Welcome = () => {
               disabled={isAppleLoading}
               loading={isAppleLoading}
               text={'Continue with Apple ID'}
-              textStyle={{marginLeft: 10}}
+              textStyle={{ marginLeft: 10 }}
               logo={apple_icon}
               onPress={handleOnApplePressed}
             />
-            {/*<SpacedButton*/}
-            {/*  disabled={isMetaMaskLoading}*/}
-            {/*  loading={isMetaMaskLoading}*/}
-            {/*  text={'Continue with MetaMask'}*/}
-            {/*  textStyle={{marginLeft: 10}}*/}
-            {/*  logo={metamask_icon}*/}
-            {/*  onPress={handleOnMetaMaskPressed}*/}
-            {/*/>*/}
             <SpacedButton
-              disabled={true}
+              disabled={isMetaMaskLoading}
               loading={isMetaMaskLoading}
-              text={'Continue with Kujira (coming soon)'}
-              textStyle={{marginLeft: 10}}
-              logo={kujira_icon}
+              text={'Continue with MetaMask'}
+              textStyle={{ marginLeft: 10 }}
+              logo={metamask_icon}
               onPress={handleOnMetaMaskPressed}
             />
             <LoginButtonLabel type={'body'}>

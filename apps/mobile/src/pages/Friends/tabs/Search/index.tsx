@@ -20,9 +20,9 @@ const SearchBoxContainer = styled.View({
   paddingLeft: 30,
   paddingRight: 40,
   paddingBottom: 30,
-  // backgroundColor: '#181818',
-  // borderBottomLeftRadius: 31,
-  // borderBottomRightRadius: 31,
+  backgroundColor: '#181818',
+  borderBottomLeftRadius: 31,
+  borderBottomRightRadius: 31,
 });
 
 const EmptyContainer = styled.View({

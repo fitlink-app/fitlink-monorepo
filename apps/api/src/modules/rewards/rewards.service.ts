@@ -33,8 +33,7 @@ type ParentIds = {
 
 type QueryOptions = {
   checkExpiry?: boolean
-  checkAvailability?: boolean,
-  isPrivateOnly?: boolean,
+  checkAvailability?: boolean
 }
 
 type PublicPageReward = {
@@ -104,13 +103,9 @@ export class RewardsService {
   async findManyAccessibleToUser(
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface,
-    filters: RewardFiltersDto,
+    filters: RewardFiltersDto
   ) {
-    let query = this.queryFindAccessibleToUser(userId, {
-      isPrivateOnly: filters.isPrivateOnly,
-      checkExpiry: true,
-      checkAvailability: true,
-    })
+    let query = this.queryFindAccessibleToUser(userId)
 
     // Where rewards are not available (not enough points) and not redeemed
     if (filters.locked) {
@@ -264,8 +259,7 @@ export class RewardsService {
     userId: string,
     options: QueryOptions = {
       checkExpiry: true,
-      checkAvailability: true,
-      isPrivateOnly: false,
+      checkAvailability: true
     }
   ) {
     let query = this.rewardsRepository
@@ -291,10 +285,11 @@ export class RewardsService {
 
       .where(
         new Brackets((qb) => {
-          // The reward is public
-          const checkedQb = options.isPrivateOnly ? qb : qb.where('reward.access = :accessPublic')
+          // The league is public
           return (
-            checkedQb
+            qb
+              .where('reward.access = :accessPublic')
+
               // The user belongs to the team that the league belongs to
               .orWhere(
                 `(reward.access = :accessTeam AND teamUser.id = :userId)`

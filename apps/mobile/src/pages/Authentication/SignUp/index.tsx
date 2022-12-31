@@ -9,11 +9,8 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import styled from 'styled-components/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {SignUpForm} from './components';
-import {Platform, Text} from 'react-native';
-import {Background} from '../Welcome/components/Background';
-import {GradientUnderlay} from '../Welcome/components';
-import {widthLize} from '@utils';
+import {SignUpForm, Background} from './components';
+import {Platform} from 'react-native';
 
 const Wrapper = styled.ScrollView.attrs(() => ({
   contentContainerStyle: {
@@ -30,7 +27,7 @@ const FormContainer = styled.View({
   flex: 1,
   alignItems: 'center',
   justifyContent: 'center',
-  paddingHorizontal: widthLize(54),
+  paddingHorizontal: 20,
   width: '100%',
 });
 
@@ -43,20 +40,7 @@ export const SignUp = () => {
 
   return (
     <Wrapper>
-      <GradientUnderlay />
-      <Navbar
-        centerComponent={
-          <Text
-            style={{
-              alignSelf: 'center',
-              color: '#00E9D7',
-              fontSize: 15,
-              fontWeight: '500',
-            }}>
-            SIGN UP
-          </Text>
-        }
-      />
+      <Navbar centerComponent={<Logo />} />
       <ContentContainer>
         <KeyboardAvoidingView
           keyboardVerticalOffset={NAVBAR_HEIGHT}

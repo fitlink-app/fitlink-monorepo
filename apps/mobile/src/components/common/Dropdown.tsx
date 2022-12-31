@@ -10,8 +10,6 @@ import {
   Modal,
   StyleSheet,
   TextStyle,
-  View,
-  Text,
 } from 'react-native';
 import {Label} from '@components';
 
@@ -20,7 +18,7 @@ const Wrapper = styled.View({});
 const PickerWrapperIOS = styled.View({
   flexDirection: 'row',
   width: '100%',
-  justifyContent: 'flex-end',
+  justifyContent: 'space-between',
   alignItems: 'center',
 });
 
@@ -75,13 +73,12 @@ export interface DropdownProps {
 
 export const Dropdown = (props: DropdownProps) => {
   const {style, value, items, prompt, labelStyle, ...rest} = props;
-  console.log({items});
 
   const [modalVisible, setModalVisible] = useState(false);
 
-  if (!items || !(items.length > 0)) {
-    return null;
-  }
+  const {colors} = useTheme();
+
+  if (!items || !(items.length > 0)) return null;
 
   const renderPicker = () => {
     return (
@@ -107,21 +104,9 @@ export const Dropdown = (props: DropdownProps) => {
         justifyContent: 'center',
       }}>
       <PickerWrapperIOS>
-        {value === 'gbp' && (
-          <View
-            style={{
-              backgroundColor: '#ACACAC',
-              height: 25,
-              width: 25,
-              borderRadius: 25 / 2,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginRight: 4,
-            }}>
-            <Text>£</Text>
-          </View>
-        )}
-        <Label>{items.find(x => x.value === value)?.label}</Label>
+        <Label appearance={'primary'} type={'subheading'} style={labelStyle}>
+          {items.find(x => x.value === value)?.label}
+        </Label>
 
         <Icon
           style={{transform: [{rotateZ: '-90deg'}]}}
@@ -134,9 +119,7 @@ export const Dropdown = (props: DropdownProps) => {
   );
 
   const renderPickerModalIOS = () => {
-    if (Platform.OS !== 'ios') {
-      return null;
-    }
+    if (Platform.OS !== 'ios') return null;
 
     return (
       <Modal

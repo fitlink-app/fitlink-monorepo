@@ -1,9 +1,11 @@
 import React from 'react';
-import {Dimensions, StyleSheet, Text} from 'react-native';
+import {ImageSourcePropType, StyleSheet, Dimensions, Text} from 'react-native';
 import styled from 'styled-components/native';
-import {Label, TouchHandler} from '../../common';
+import LinearGradient from 'react-native-linear-gradient';
+import {Avatar, Icon, Label, TouchHandler} from '../../common';
+import {LeagueStats} from './components/LeagueCardStats';
 import {NumberFormatterUtils} from '@utils';
-import {BlurView} from '@react-native-community/blur';
+import { BlurView  } from '@react-native-community/blur';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
@@ -84,6 +86,18 @@ const Title = styled(Text)({
   marginTop: 6,
 });
 
+const Col = styled.View({});
+
+const PrivateLabel = styled.View(({theme}) => ({
+  paddingVertical: 4,
+  paddingHorizontal: 8,
+  backgroundColor: theme.colors.background,
+  borderRadius: 999,
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+}));
+
 export interface LeagueCardInterface {
   name: string;
   sport: string;
@@ -97,12 +111,25 @@ export interface LeagueCardInterface {
 }
 
 export const LeagueCard = (props: LeagueCardInterface) => {
-  const {name, imageUrl, position, memberCount, onPress} = props;
+  const {
+    name,
+    sport,
+    imageUrl,
+    privateLeague,
+    position,
+    memberCount,
+    invitedBy,
+    organisation,
+    onPress,
+  } = props;
 
   return (
     <TouchWrapper {...{onPress}}>
       <Wrapper>
-        <BackgroundImage source={{uri: imageUrl}} />
+        <BackgroundImage
+          source={require('../../../../assets/images/leagues/nature-zen.png')}
+        />
+
         <Row>
           {position && (
             <PositionStats>
@@ -114,19 +141,15 @@ export const LeagueCard = (props: LeagueCardInterface) => {
         </Row>
         <Line style={{marginTop: position ? 134 : 194}} />
         <CardContent>
-          <BlurView
+          <BlurView 
             style={{
-              position: 'absolute',
+              position: "absolute",
               width: SCREEN_WIDTH,
               height: 100,
-              borderBottomLeftRadius: 20,
-              borderBottomRightRadius: 20,
-              backgroundColor: 'rgba(0,0,0,0.2)',
-              bottom: -4,
+              borderRadius: 20,
+              backgroundColor: 'rgba(0,0,0,0.2)'
             }}
-            blurType={'dark'}
             blurRadius={1}
-            blurAmount={1}
             overlayColor={'transparent'}
           />
           <MembersLabel>

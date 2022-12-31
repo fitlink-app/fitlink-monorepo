@@ -1,5 +1,5 @@
 import React from 'react';
-import {Card, Label, Modal, TouchHandler} from '../../common';
+import {Card, CardLabel, Label, Modal, TouchHandler} from '../../common';
 import styled from 'styled-components/native';
 import {Goal} from './components/Goal';
 import {useModal, useProviders} from '@hooks';
@@ -23,7 +23,7 @@ const WidgetContainer = styled.ScrollView.attrs(() => ({
   overScrollMode: 'never',
   showsHorizontalScrollIndicator: false,
   contentContainerStyle: {
-    // paddingHorizontal: 15,
+    paddingHorizontal: 15,
     justifyContent: 'space-between',
   },
 }))({

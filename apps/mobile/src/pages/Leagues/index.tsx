@@ -1,5 +1,5 @@
 import React, {useCallback, useRef} from 'react';
-import {ScrollView, Text, View} from 'react-native';
+import {ScrollView, Image, Text} from 'react-native';
 import styled from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Route} from 'react-native-tab-view';
@@ -13,11 +13,8 @@ import {RootStackParamList} from 'routes/types';
 import {ExploreLeagues, Invitations, MyLeagues} from './tabs';
 import {TabView, Label, Card, TouchHandler} from '@components';
 import {useMe} from '@hooks';
-import {BlurView} from '@react-native-community/blur';
-import {RankCard} from './components/RankCard';
-import {widthLize} from '@utils';
-import {CaloriesCard} from 'pages/Feed/components/CaloriesCard';
-import LinearGradient from 'react-native-linear-gradient';
+import { BlurView  } from '@react-native-community/blur';
+import { RankCard } from './components/RankCard';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -41,7 +38,6 @@ const LeaguesTitleContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
-  marginHorizontal: widthLize(20),
 });
 
 const Title = styled(Label).attrs(() => ({
@@ -76,7 +72,6 @@ const SliderContainer = styled.ScrollView.attrs(() => ({
   showsHorizontalScrollIndicator: false,
   contentContainerStyle: {
     justifyContent: 'space-between',
-    paddingLeft: widthLize(20),
   },
 }))({});
 
@@ -153,7 +148,7 @@ const MembersText = styled(Text)({
   lineHeight: 16,
   letterSpacing: 1,
   textTransform: 'uppercase',
-  color: '#FFFFFF',
+  color: '#FFFFFF'
 });
 
 const CompeteName = styled(Text)({
@@ -163,7 +158,7 @@ const CompeteName = styled(Text)({
   lineHeight: 21,
   color: '#FFFFFF',
   marginTop: 7,
-  textAlign: 'left',
+  textAlign: 'left'
 });
 
 const compete_data = [
@@ -211,9 +206,8 @@ export const Leagues = (
 
   useFocusEffect(
     useCallback(() => {
-      if (!!tabViewRef.current?.jumpToIndex && tab !== undefined) {
+      if (!!tabViewRef.current?.jumpToIndex && tab !== undefined)
         tabViewRef.current.jumpToIndex(tab);
-      }
 
       // Reset navigation params
       navigation.dispatch(CommonActions.setParams({tab: undefined}));
@@ -239,13 +233,11 @@ export const Leagues = (
     <Wrapper style={{marginTop: insets.top}}>
       <ScrollView
         contentContainerStyle={{
-          paddingBottom: 79,
+          paddingHorizontal: 15,
+          paddingBottom: 20,
         }}>
         <PageTitle>Gold Leagues</PageTitle>
-        <View style={{marginHorizontal: widthLize(20)}}>
-          {/* <RankCard /> */}
-          <CaloriesCard />
-        </View>
+        <RankCard />
         <LeaguesTitleContainer>
           <Title>Compete to earn leagues</Title>
           <TouchHandler>
@@ -264,28 +256,16 @@ export const Leagues = (
                 </Row>
                 <Line />
                 <CardInfo>
-                  <BlurView
+                  <BlurView 
                     style={{
-                      position: 'absolute',
+                      position: "absolute",
                       width: 327,
                       height: 87,
-                      backgroundColor: 'transparent',
-                      bottom: 0,
+                      backgroundColor: 'rgba(0,0,0,0.2)'
                     }}
                     blurRadius={1}
-                    blurAmount={2}
-                    blurType="dark"
                     overlayColor={'transparent'}
                   />
-                  {/* <LinearGradient
-                    style={{
-                      position: 'absolute',
-                      width: 327,
-                      height: 87,
-                      backgroundColor: 'rgba(0,0,0,0.2)',
-                    }}
-                    colors={['rgba(0, 0, 0, 0.2)', 'rgba(0, 0, 0, 0) 100%)']}
-                  /> */}
                   <MembersText>
                     <Text style={{color: '#00E9D7'}}>{members}</Text> Members
                   </MembersText>
