@@ -1,10 +1,10 @@
 import React from 'react';
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
 import styled from 'styled-components/native';
-import {View, Pressable, Platform, SafeAreaView} from 'react-native';
+import {View, Pressable, Platform} from 'react-native';
 import {Label} from '@components';
 import {widthLize} from '@utils';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const Wrapper = styled.View(() => ({
   width: '100%',
@@ -123,6 +123,7 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
   }
 
   const insets = useSafeAreaInsets();
+  const bottomOffset = insets.bottom === 0 ? 10 : 0;
   const focusedOptions = descriptors[state.routes[state.index].key].options;
 
   if (focusedOptions.tabBarVisible === false) {
@@ -137,7 +138,7 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: insets.bottom + 10,
+        bottom: bottomOffset,
         zIndex: 2,
       }}>
       <Wrapper>
