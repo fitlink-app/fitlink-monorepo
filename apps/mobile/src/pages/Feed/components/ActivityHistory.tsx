@@ -1,17 +1,23 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import styled from 'styled-components/native';
 import {TouchHandler, Card, Label} from '@components';
 import {useNavigation} from '@react-navigation/core';
-import { BlurView  } from '@react-native-community/blur';
+import {BlurView} from '@react-native-community/blur';
+import {formatDate, widthLize} from "@utils";
+import {useSelector} from "react-redux";
+import {memoSelectFeedPreferences} from "../../../redux/feedPreferences/feedPreferencesSlice";
+import {useFeed} from "@hooks";
+import moment from "moment";
 
 const Wrapper = styled.View({
-  paddingHorizontal: 10
+  // paddingLeft: widthLize(20),
 });
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   marginTop: 40,
+  marginHorizontal: widthLize(20),
 });
 
 const Title = styled(Label).attrs(() => ({
@@ -39,6 +45,7 @@ const SliderContainer = styled.ScrollView.attrs(() => ({
   showsHorizontalScrollIndicator: false,
   contentContainerStyle: {
     justifyContent: 'space-between',
+    paddingLeft: widthLize(20),
   },
 }))({});
 
@@ -113,7 +120,7 @@ const RecordValue = styled(Label).attrs(() => ({
 
 const PlaceText = styled(Label).attrs(() => ({
   type: 'caption',
-  appearance: 'accent'
+  appearance: 'accent',
 }))({
   fontSize: 18,
   lineHeight: 21,
@@ -136,6 +143,23 @@ const data = [
 
 export const ActivityHistory = () => {
   const navigation = useNavigation();
+  const feedPreferences = useSelector(memoSelectFeedPreferences);
+
+  const {
+    data: feed,
+    refetch: refetchFeed,
+    fetchNextPage: fetchFeedNextPage,
+    isFetchingNextPage: isFeedFetchingNextPage,
+    isFetchedAfterMount: isFeedFetchedAfterMount,
+  } = useFeed({
+    my_goals: feedPreferences.showGoals,
+    friends_activities: feedPreferences.showFriends,
+    my_updates: feedPreferences.showUpdates,
+  });
+
+  const activities = useMemo(() => {
+    return feed?.pages[0].results.filter(e => e.category === 'my_activities')
+  }, [feed])
 
   return (
     <Wrapper>
@@ -151,30 +175,37 @@ export const ActivityHistory = () => {
 
       <SliderContainer>
         <>
-          {data.map(({date, record_today, place, img}) => (
-            <CardContainer>
-              <CardImage source={img} />
-              <BlurView 
-                style={{
-                  position: "absolute",
-                  width: '100%',
-                  height: 53,
-                  backgroundColor: 'rgba(0,0,0,0.2)'
-                }}
-                blurRadius={1}
-                overlayColor={'transparent'}
-              />
-              <CardHeader>
-                <DateText>today at {date}</DateText>
-              </CardHeader>
-              <Line />
-              <CardBody>
-                <RecordValue>{record_today}</RecordValue>
-                <PlaceSection>
-                  <PlaceText>{place}</PlaceText>
-                </PlaceSection>
-              </CardBody>
-            </CardContainer>
+          {activities?.map((item, index) => (
+            <TouchHandler key={index} onPress={() => {
+              navigation.navigate('HealthActivityDetails', {
+                id: item.health_activity!.id,
+              });
+            }}>
+              <CardContainer>
+                <CardImage source={{uri: item?.health_activity?.sport.image_url}} />
+                <BlurView
+                  style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: 53,
+                    backgroundColor: 'rgba(0,0,0,0.2)',
+                  }}
+                  blurRadius={1}
+                  overlayColor={'transparent'}
+                />
+                <CardHeader>
+                  <DateText>{moment(item?.health_activity?.start_time).calendar()}</DateText>
+                </CardHeader>
+                <Line />
+                <CardBody>
+                  <RecordValue>{item?.health_activity?.points} points</RecordValue>
+                  <PlaceSection>
+                    <PlaceText>{item?.health_activity?.title}</PlaceText>
+                  </PlaceSection>
+                </CardBody>
+              </CardContainer>
+            </TouchHandler>
+
           ))}
         </>
       </SliderContainer>

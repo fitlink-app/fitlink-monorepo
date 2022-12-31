@@ -1,7 +1,13 @@
 import {TouchHandler} from '@components';
 import {useNavigation} from '@react-navigation/core';
 import React from 'react';
-import {Animated, StyleProp, TextStyle, ViewStyle, StyleSheet} from 'react-native';
+import {
+  Animated,
+  StyleProp,
+  TextStyle,
+  ViewStyle,
+  StyleSheet,
+} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {Icon} from './Icon';
@@ -78,6 +84,8 @@ interface NavbarProps {
 
   /** Set this as an overlay navbar so content can appear below it */
   overlay?: boolean;
+
+  containerStyle?: any;
 }
 
 export const Navbar = ({
@@ -92,6 +100,7 @@ export const Navbar = ({
   overlay,
   titleProps,
   scrollAnimatedValue,
+  containerStyle,
 }: NavbarProps) => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
@@ -165,6 +174,7 @@ export const Navbar = ({
     <Wrapper
       style={{
         paddingTop: insets.top,
+        ...containerStyle,
       }}>
       <Background style={{...overlayStyle, opacity: fixedHeaderOpacity}} />
 

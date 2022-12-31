@@ -23,7 +23,12 @@ import {
 } from '@components';
 import {Activity} from '@fitlink/api/src/modules/activities/entities/activity.entity';
 import {RootStackParamList} from 'routes/types';
-import {useDeleteActivity, useModal, useMyActivities, useFindActivities} from '@hooks';
+import {
+  useDeleteActivity,
+  useModal,
+  useMyActivities,
+  useFindActivities,
+} from '@hooks';
 import {getResultsFromPages} from 'utils/api';
 import {ActivityItem} from './components';
 import {
@@ -259,15 +264,17 @@ export const MyActivities = (
             overflow: 'visible',
           }}
           contentContainerStyle={{
+            marginTop: 20,
             paddingTop: Platform.select({
               android: 20,
               ios: 0,
             }) as number,
-            paddingBottom: insets.bottom + LOADING_NEXT_PAGE_BOTTOM_INDICATOR_HEIGHT,
+            paddingBottom:
+              insets.bottom + LOADING_NEXT_PAGE_BOTTOM_INDICATOR_HEIGHT,
             marginHorizontal: 20,
             backgroundColor: colors.card,
             borderRadius: 31,
-            overflow: 'hidden'
+            overflow: 'hidden',
           }}
           data={activities}
           renderItem={renderItem}
@@ -280,11 +287,11 @@ export const MyActivities = (
         rightComponent={
           <View style={{alignItems: 'flex-end'}}>
             <Button
-              text='Add'
+              text="Add"
               textStyle={{
                 fontFamily: 'Roboto',
                 fontSize: 14,
-                fontWeight: '700'
+                fontWeight: '700',
               }}
               containerStyle={{
                 width: 66,
@@ -301,7 +308,7 @@ export const MyActivities = (
         titleStyle={{
           fontSize: 15,
           letterSpacing: 1,
-          color: colors.accent
+          color: colors.accent,
         }}
         iconColor={colors.text}
       />

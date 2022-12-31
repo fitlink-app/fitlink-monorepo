@@ -2,19 +2,14 @@ import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import styled, {useTheme} from 'styled-components/native';
 import {BottomTabBar} from './components';
-import {Discover, Feed, ActivityFeed, Leagues, Rewards} from 'pages';
+import {ActivityFeed, Discover, Feed, Leagues, Rewards} from 'pages';
 import {useMe} from '@hooks';
 
 const HomeIcon = require('../../../assets/images/icon/navigator-icons/home.png');
-const HomeActiveIcon = require('../../../assets/images/icon/navigator-icons/home-active.png');
 const ActivityIcon = require('../../../assets/images/icon/navigator-icons/users.png');
-const ActivityActiveIcon = require('../../../assets/images/icon/navigator-icons/users-active.png');
 const LeaguesIcon = require('../../../assets/images/icon/navigator-icons/award.png');
-const LeaguesActiveIcon = require('../../../assets/images/icon/navigator-icons/award-active.png');
 const RewardsIcon = require('../../../assets/images/icon/navigator-icons/gift.png');
-const RewardsActiveIcon = require('../../../assets/images/icon/navigator-icons/gift-active.png');
 const DiscoverIcon = require('../../../assets/images/icon/navigator-icons/map.png');
-const DiscoverActiveIcon = require('../../../assets/images/icon/navigator-icons/map-active.png');
 
 const Tab = createBottomTabNavigator();
 
@@ -30,18 +25,39 @@ export const HomeNavigator = () => {
   const renderTabIcon = (focused: boolean, name: string) => {
     switch (name) {
       case 'home':
-        return <IconImage source={focused ? HomeActiveIcon : HomeIcon} />;
+        return (
+          <IconImage
+            style={{tintColor: focused ? '#fff' : '#000'}}
+            source={HomeIcon}
+          />
+        );
       case 'activityfeed':
         return (
-          <IconImage source={focused ? ActivityActiveIcon : ActivityIcon} />
+          <IconImage
+            style={{tintColor: focused ? '#fff' : '#000'}}
+            source={ActivityIcon}
+          />
         );
       case 'leagues':
-        return <IconImage source={focused ? LeaguesActiveIcon : LeaguesIcon} />;
+        return (
+          <IconImage
+            style={{tintColor: focused ? '#fff' : '#000'}}
+            source={LeaguesIcon}
+          />
+        );
       case 'reward':
-        return <IconImage source={focused ? RewardsActiveIcon : RewardsIcon} />;
+        return (
+          <IconImage
+            style={{tintColor: focused ? '#fff' : '#000'}}
+            source={RewardsIcon}
+          />
+        );
       case 'discover':
         return (
-          <IconImage source={focused ? DiscoverActiveIcon : DiscoverIcon} />
+          <IconImage
+            style={{tintColor: focused ? '#fff' : '#000'}}
+            source={DiscoverIcon}
+          />
         );
 
       default:

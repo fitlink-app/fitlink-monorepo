@@ -32,13 +32,13 @@ export const PRIVACY_ITEMS = [
 export const CURRENCY_ITEMS = [
   {
     label: 'GBP',
-    value: 'gbp'
+    value: 'gbp',
   },
   {
     label: 'USD',
-    value: 'usd'
+    value: 'usd',
   },
-]
+];
 
 export type UserGoalPreferences = {
   goal_mindfulness_minutes: number;
@@ -104,7 +104,7 @@ export const submit = createAsyncThunk(
         });
 
         // Upload image
-        const uploadResult = await api.uploadFile<Image>(`/images`, {payload});
+        const uploadResult = await api.uploadFile<Image>('/images', {payload});
 
         // Update user avatar with the ID of the uploaded image
         await api.put<any>('/me/avatar', {payload: {imageId: uploadResult.id}});
@@ -203,15 +203,15 @@ const settingsSlice = createSlice({
   extraReducers: builder => {
     builder
       // Submit reducers
-      .addCase(submit.pending, (state, {payload}) => {
+      .addCase(submit.pending, (state, {}) => {
         state.isSaving = true;
       })
 
-      .addCase(submit.fulfilled, (state, {payload}) => {
+      .addCase(submit.fulfilled, (state, {}) => {
         state.isSaving = false;
       })
 
-      .addCase(submit.rejected, (state, {payload}) => {
+      .addCase(submit.rejected, (state, {}) => {
         state.isSaving = false;
       });
   },

@@ -12,9 +12,9 @@ import {useAnimatedStyle, useSharedValue} from 'react-native-reanimated';
 import styled, {useTheme} from 'styled-components/native';
 import {getResultsFromPages} from 'utils/api';
 import {Activity} from '@fitlink/api/src/modules/activities/entities/activity.entity';
-import {ActivityItem, Handle, ModalBackground} from '../components';
+import {ActivityItem} from '../components';
 import {Search, Filters, ResultsLabel} from './components';
-import {getDistanceFromLatLonInKm} from '@utils';
+import {getDistanceFromLatLonInKm, heightLize} from '@utils';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   selectQuery,
@@ -24,16 +24,47 @@ import {
 } from 'redux/discover/discoverSlice';
 import {AppDispatch} from 'redux/store';
 import {useEffect} from 'react';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {Dimensions} from 'react-native';
 
 const HANDLE_HEIGHT = 90;
 
 const AboveContentContainer = styled.View({
-  paddingHorizontal: 20, 
+  paddingHorizontal: 20,
   backgroundColor: '#181818',
   borderTopLeftRadius: 32,
   borderTopRightRadius: 32,
+  paddingTop: 10,
+});
+const {width: SCREEN_WIDTH} = Dimensions.get('screen');
+
+const IndicatorContainer = styled.View({
+  width: SCREEN_WIDTH / 5,
+  height: 25,
+  marginBottom: -15,
+  backgroundColor: '#181818',
+  borderTopRightRadius: 20,
+  borderTopLeftRadius: 20,
+  alignSelf: 'center',
 });
 
+const FirstIndicator = styled.View({
+  alignSelf: 'center',
+  width: (0.25 * SCREEN_WIDTH) / 6,
+  height: 1,
+  borderRadius: 4,
+  backgroundColor: '#ACACAC',
+  marginTop: 5,
+});
+
+const SecondIndicator = styled.View({
+  alignSelf: 'center',
+  width: (0.4 * SCREEN_WIDTH) / 6,
+  height: 1,
+  borderRadius: 4,
+  backgroundColor: '#ACACAC',
+  marginTop: 3,
+});
 interface ListModalProps
   extends Omit<
     BottomSheetModalProps,
@@ -53,8 +84,12 @@ interface ListModalProps
 export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
   ({onActivityPressed, onExpand, isFetchingMarkers, ...rest}, ref) => {
     const {colors} = useTheme();
+    const {bottom} = useSafeAreaInsets();
     const dispatch = useDispatch() as AppDispatch;
-    const snapPoints = useMemo(() => [HANDLE_HEIGHT, '90%'], []);
+    const snapPoints = useMemo(
+      () => [bottom + HANDLE_HEIGHT + heightLize(72), '90%'],
+      [bottom],
+    );
 
     const searchQuery = useSelector(selectQuery);
     const searchTypes = useSelector(selectTypes);
@@ -89,7 +124,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
 
     const scrollViewAnimatedStyle = useAnimatedStyle(() => ({
       // opacity: animatedIndex.value,
-      backgroundColor: '#181818'
+      backgroundColor: '#181818',
     }));
 
     const scrollViewStyle = useMemo(
@@ -124,7 +159,6 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
     const handleComponent = useCallback(
       () => (
         <>
-          <Handle />
           <AboveContentContainer>
             <Search onSubmit={handleFetchResults} key={'searchComponent'} />
             <Filters
@@ -194,7 +228,7 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
       return (
         <ActivityItem
           key={item.name + index}
-          number={index+1}
+          number={index + 1}
           onPress={() => onActivityPressed(item.id)}
           name={item.name}
           activityType={item.activity}
@@ -235,12 +269,17 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
         keyboardBehavior={'extend'}
         handleHeight={HANDLE_HEIGHT}
         snapPoints={snapPoints}
-        handleComponent={null}
+        handleComponent={() => (
+          <IndicatorContainer>
+            <FirstIndicator />
+            <SecondIndicator />
+          </IndicatorContainer>
+        )}
+        backgroundComponent={null}
         animatedPosition={animatedPosition}
         animatedIndex={animatedIndex}
         enableDismissOnClose={false}
         enablePanDownToClose={false}
-        backgroundComponent={ModalBackground}
         backdropComponent={renderModalBackdrop}>
         {handleComponent()}
 

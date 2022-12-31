@@ -30,7 +30,6 @@ export const LeagueList = ({
   isFetching,
   isFetchingNextPage,
   isFetchedAfterMount,
-  error,
   onRefresh,
   ListEmptyComponent,
   ...rest

@@ -6,7 +6,7 @@ const Wrapper = styled.View({
   width: '100%',
 });
 
-const ContentContainer = styled.View(({theme}) => ({
+const ContentContainer = styled.View(() => ({
   minHeight: 50,
   marginHorizontal: 20,
   justifyContent: 'center',
@@ -14,7 +14,6 @@ const ContentContainer = styled.View(({theme}) => ({
 
 export const SettingsItemWrapper: React.FC<ViewProps> = props => {
   const {children, ...rest} = props;
-
   return (
     <Wrapper>
       <ContentContainer {...rest}>{children}</ContentContainer>

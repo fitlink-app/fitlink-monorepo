@@ -1,18 +1,16 @@
-import {Button, Icon, Label, TouchHandler} from '@components';
+import {Button, Navbar} from '@components';
 import {useJoinLeague} from '@hooks';
 import {useNavigation} from '@react-navigation/native';
 import {useLeaveLeague} from 'hooks/api/leagues/useLeaveLeague';
 import React from 'react';
 import {Animated, Image, Text} from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import styled from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import { BlurView } from '@react-native-community/blur';
+import {BlurView} from '@react-native-community/blur';
 
 const Wrapper = styled(Animated.View)({
   width: '100%',
   justifyContent: 'flex-start',
-  position: 'absolute',
 });
 
 // TODO: Gradient overlay above image
@@ -21,7 +19,7 @@ const HeaderImage = styled(Image)({
   width: '100%',
   height: '100%',
   borderRadius: 26,
-  overflow: 'hidden'
+  overflow: 'hidden',
 });
 
 const ContentHeader = styled.View({
@@ -29,18 +27,17 @@ const ContentHeader = styled.View({
   justifyContent: 'center',
   width: '100%',
   height: 69,
-  paddingTop: 31,
-  borderTopLeftRadius: 26,
-  borderTopRightRadius: 26,
+  borderTopLeftRadius: 30,
+  borderTopRightRadius: 30,
+  overflow: 'hidden',
 });
 
 const HeaderTitle = styled(Text)({
   color: '#FFFFFF',
   fontSize: 17,
-  lineHeight: 20,
   textAlign: 'center',
   textTransform: 'uppercase',
-  letterSpacing: 1,
+  fontWeight: '600',
 });
 
 const HeaderContent = styled.View({
@@ -111,7 +108,7 @@ export const Header = ({
               fontFamily: 'Roboto',
               fontSize: 14,
               lineHeight: 16,
-              fontWeight: '700'
+              fontWeight: '700',
             }}
             text={'Join League'}
             onPress={handleOnJoinPressed}
@@ -133,7 +130,7 @@ export const Header = ({
               fontFamily: 'Roboto',
               fontSize: 14,
               lineHeight: 16,
-              fontWeight: '700'
+              fontWeight: '700',
             }}
             text={'Leave League'}
             onPress={handleOnLeavePressed}
@@ -154,7 +151,7 @@ export const Header = ({
               fontFamily: 'Roboto',
               fontSize: 14,
               lineHeight: 16,
-              fontWeight: '700'
+              fontWeight: '700',
             }}
             text={'Edit League'}
             onPress={handleOnEditPressed}
@@ -166,42 +163,49 @@ export const Header = ({
     }
   };
 
-  const wrapperPosition = {
-    transform: [
-      {
-        translateY: scrollAnimatedValue.interpolate({
-          inputRange: [-250, 0],
-          outputRange: [0, -250],
-          extrapolate: 'clamp',
-        }),
-      },
-    ],
-  };
+  // const wrapperPosition = {
+  //   transform: [
+  //     {
+  //       translateY: scrollAnimatedValue.interpolate({
+  //         inputRange: [-10, 0],
+  //         outputRange: [0, -10],
+  //         extrapolate: 'clamp',
+  //       }),
+  //     },
+  //   ],
+  // };
 
   return (
-    <Wrapper style={{...wrapperPosition, height, marginTop: 66}}>
-      <HeaderImage
-        source={require('../../../../assets/images/leagues/trail-running.png')}
-      />
+    <Wrapper style={{marginTop: insets.top, marginBottom: 30}}>
+      <HeaderImage source={{uri: headerImage}} />
       <ContentHeader>
+        <Navbar
+          iconColor={'white'}
+          title="GOLD LEAGUE"
+          titleStyle={{fontSize: 18}}
+          containerStyle={{
+            paddingTop: 0,
+            height: 86,
+          }}
+        />
         <BlurView
           style={{
-            position: "absolute",
+            left: 0,
+            right: 0,
+            top: 0,
+            position: 'absolute',
             width: '100%',
             height: 69,
-            backgroundColor: 'rgba(0,0,0,0.2)'
+            backgroundColor: 'rgba(0,0,0,0.2)',
           }}
           blurRadius={1}
+          blurAmount={1}
+          blurType="light"
           overlayColor={'transparent'}
         />
-        <HeaderTitle>
-          Gold League
-        </HeaderTitle>
       </ContentHeader>
       <HeaderContent>
-        <ContentRow>
-          {renderLeftButton()}
-        </ContentRow>
+        <ContentRow>{renderLeftButton()}</ContentRow>
       </HeaderContent>
     </Wrapper>
   );
