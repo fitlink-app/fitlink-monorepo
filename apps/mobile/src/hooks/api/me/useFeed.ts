@@ -6,7 +6,7 @@ import {getNextPageParam} from 'utils/api';
 import {FeedItem} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
 import {FeedFilterDto} from '@fitlink/api/src/modules/feed-items/dto/feed-filter.dto';
 
-const limit = 25;
+const limit = 20;
 
 const fetchFeed = ({
   pageParam = 0,
