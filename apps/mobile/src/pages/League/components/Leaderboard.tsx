@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   FlatList,
   FlatListProps,
+  ListRenderItem,
   PixelRatio,
   RefreshControl,
   View,
@@ -36,7 +37,8 @@ const LoadingContainer = styled.View({
   justifyContent: 'center',
 });
 
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+const AnimatedFlatList =
+  Animated.createAnimatedComponent<FlatListProps<LeaderboardEntry>>(FlatList);
 
 interface LeaderboardProps
   extends Omit<FlatListProps<LeaderboardEntry>, 'renderItem'> {
@@ -96,30 +98,18 @@ export const Leaderboard = ({
     participant => participant.user_id === userId,
   );
 
-  const renderItem = ({
-    item,
-    index,
-    key,
-  }: {
-    item: LeaderboardEntry;
-    index: number;
-    sourceLength: number;
-    key?: string;
-  }) => {
-    return (
-      <LeaderboardItem
-        key={item.id + key}
-        rank={item.rank || (index + 1).toString()}
-        onPress={() => navigation.navigate('Profile', {id: item.user.id})}
-        disabled={userId === item.user.id}
-        name={item.user.name}
-        avatarUrl={item.user.avatar?.url_128x128}
-        wins={item.wins}
-        points={item.points}
-        isSelf={item.user_id === userId}
-      />
-    );
-  };
+  const renderItem: ListRenderItem<LeaderboardEntry> = ({item, index}) => (
+    <LeaderboardItem
+      key={item.id}
+      wins={item.wins}
+      points={item.points}
+      name={item.user.name}
+      isSelf={item.user.id === userId}
+      avatarUrl={item.user.avatar?.url_128x128}
+      rank={item.rank ?? String(index + 1)}
+      onPress={() => navigation.navigate('Profile', {id: item.user.id})}
+    />
+  );
 
   const renderFlanks = () => {
     return flanksData.map(entry => {
@@ -206,11 +196,9 @@ export const Leaderboard = ({
       <AnimatedFlatList
         showsVerticalScrollIndicator={false}
         /* {...{ListHeaderComponent, ListFooterComponent}} */
-        ListHeaderComponent={() => <View style={{height: 183}}/>}
+        ListHeaderComponent={() => <View style={{height: 183}} />}
         data={displayResults}
-        renderItem={({item, index}) =>
-          renderItem({item, index, sourceLength: displayResults?.length || 0})
-        }
+        renderItem={renderItem}
         initialNumToRender={25}
         onScroll={handler}
         // onEndReachedThreshold={0.1}
