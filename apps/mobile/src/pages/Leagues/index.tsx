@@ -1,26 +1,30 @@
-import React, {useCallback, useRef} from 'react';
-import {ScrollView, Text, View} from 'react-native';
-import styled from 'styled-components/native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Route} from 'react-native-tab-view';
-import {StackScreenProps} from '@react-navigation/stack';
+import {Label, TabView, TouchHandler} from '@components';
+import {useMe} from '@hooks';
 import {
   CommonActions,
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
-import {RootStackParamList} from 'routes/types';
-import {ExploreLeagues, Invitations, MyLeagues} from './tabs';
-import {TabView, Label, Card, TouchHandler} from '@components';
-import {useMe} from '@hooks';
-import {BlurView} from '@react-native-community/blur';
-import {RankCard} from './components/RankCard';
+import {StackScreenProps} from '@react-navigation/stack';
 import {widthLize} from '@utils';
+import {CteLeagueCard} from 'components/league/LeagueCard/CteLeagueCard';
 import {CaloriesCard} from 'pages/Feed/components/CaloriesCard';
-import LinearGradient from 'react-native-linear-gradient';
+import React, {useCallback, useRef} from 'react';
+import {ScrollView, View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {Route} from 'react-native-tab-view';
+import {RootStackParamList} from 'routes/types';
+import styled from 'styled-components/native';
+import {ExploreLeagues, Invitations, MyLeagues} from './tabs';
 
 const Wrapper = styled.View({
   flex: 1,
+});
+
+const StyledCteLeagueCard = styled(CteLeagueCard)({
+  marginTop: 23,
+  marginRight: 14,
+  marginBottom: 20,
 });
 
 const PageTitle = styled(Label).attrs(() => ({
@@ -80,92 +84,6 @@ const SliderContainer = styled.ScrollView.attrs(() => ({
   },
 }))({});
 
-const CardContainer = styled(Card)({
-  width: 327,
-  height: 350,
-  marginTop: 23,
-  marginRight: 14,
-  marginBottom: 20,
-  overflow: 'hidden',
-});
-
-const CardImage = styled.Image({
-  position: 'absolute',
-  width: '100%',
-  height: '100%',
-});
-
-const Row = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-});
-
-const Bfit = styled.View({
-  marginTop: 24,
-  marginLeft: 24,
-  paddingTop: 8,
-  paddingBottom: 8,
-  paddingLeft: 12,
-  paddingRight: 12,
-  borderRadius: 20,
-  backgroundColor: '#060606',
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignItems: 'center',
-});
-
-const BfitValue = styled(Label).attrs(() => ({
-  type: 'caption',
-}))({
-  fontFamily: 'Roboto',
-  fontSize: 14,
-  lineHeight: 16,
-  letterSpacing: 2,
-  textAlign: 'center',
-});
-
-const Line = styled.View({
-  position: 'relative',
-  width: '100%',
-  height: 2,
-  backgroundColor: '#ffffff',
-  marginTop: 209,
-  border: 0,
-  opacity: 0.2,
-});
-
-const CardInfo = styled.View({
-  position: 'relative',
-  width: '100%',
-  height: 87,
-  paddingTop: 20,
-  paddingLeft: 24,
-  paddingBottom: 22,
-  paddingRight: 24,
-});
-
-const MembersText = styled(Text)({
-  position: 'relative',
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
-  fontWeight: 'bold',
-  fontSize: 14,
-  lineHeight: 16,
-  letterSpacing: 1,
-  textTransform: 'uppercase',
-  color: '#FFFFFF',
-});
-
-const CompeteName = styled(Text)({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
-  fontSize: 17,
-  lineHeight: 21,
-  color: '#FFFFFF',
-  marginTop: 7,
-  textAlign: 'left',
-});
-
 const compete_data = [
   {
     id: 1,
@@ -217,7 +135,7 @@ export const Leagues = (
 
       // Reset navigation params
       navigation.dispatch(CommonActions.setParams({tab: undefined}));
-    }, [tab]),
+    }, [navigation, tab]),
   );
 
   const renderTabs = ({route, ...rest}: {route: Route}) => {
@@ -253,47 +171,14 @@ export const Leagues = (
           </TouchHandler>
         </LeaguesTitleContainer>
         <SliderContainer>
-          <>
-            {compete_data.map(({bfit, members, compete_name, img}) => (
-              <CardContainer>
-                <CardImage source={img} />
-                <Row>
-                  <Bfit>
-                    <BfitValue>{bfit} $BFIT</BfitValue>
-                  </Bfit>
-                </Row>
-                <Line />
-                <CardInfo>
-                  <BlurView
-                    style={{
-                      position: 'absolute',
-                      width: 327,
-                      height: 87,
-                      backgroundColor: 'transparent',
-                      bottom: 0,
-                    }}
-                    blurRadius={1}
-                    blurAmount={2}
-                    blurType="dark"
-                    overlayColor={'transparent'}
-                  />
-                  {/* <LinearGradient
-                    style={{
-                      position: 'absolute',
-                      width: 327,
-                      height: 87,
-                      backgroundColor: 'rgba(0,0,0,0.2)',
-                    }}
-                    colors={['rgba(0, 0, 0, 0.2)', 'rgba(0, 0, 0, 0) 100%)']}
-                  /> */}
-                  <MembersText>
-                    <Text style={{color: '#00E9D7'}}>{members}</Text> Members
-                  </MembersText>
-                  <CompeteName>{compete_name}</CompeteName>
-                </CardInfo>
-              </CardContainer>
-            ))}
-          </>
+          {compete_data.map(({bfit, members, compete_name, img}) => (
+            <StyledCteLeagueCard
+              bfitValue={bfit}
+              memberCount={members}
+              name={compete_name}
+              imageUrl={img}
+            />
+          ))}
         </SliderContainer>
         <TabView
           ref={tabViewRef}

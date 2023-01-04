@@ -61,7 +61,6 @@ interface HeaderProps {
 }
 
 export const Header = ({
-  height,
   leagueId,
   headerImage,
   onEditPressed,

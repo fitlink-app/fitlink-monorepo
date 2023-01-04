@@ -4,7 +4,9 @@ import {
   ActivityIndicator,
   FlatList,
   FlatListProps,
+  PixelRatio,
   RefreshControl,
+  View,
 } from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {LeaderboardItem} from './LeaderboardItem';
@@ -14,6 +16,11 @@ import {useState} from 'react';
 import {LeaderboardSeparator} from './LeaderboardSeparator';
 import {useNavigation} from '@react-navigation/core';
 import {useMe} from '@hooks';
+import {Header} from 'pages/LeagueNew/components/Header';
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from 'react-native-reanimated';
 
 const INITIAL_MEMBER_COUNT_TO_DISPLAY = 10;
 
@@ -28,6 +35,8 @@ const LoadingContainer = styled.View({
   height: 40,
   justifyContent: 'center',
 });
+
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 interface LeaderboardProps
   extends Omit<FlatListProps<LeaderboardEntry>, 'renderItem'> {
@@ -46,6 +55,7 @@ interface LeaderboardProps
   membership: 'none' | 'member' | 'owner';
   onRefresh: () => void;
   renderHeader?: any;
+  imageUri: string;
 }
 
 export const Leaderboard = ({
@@ -63,6 +73,7 @@ export const Leaderboard = ({
   onRefresh,
   description,
   renderHeader,
+  imageUri,
   onScroll,
 }: LeaderboardProps) => {
   const {colors} = useTheme();
@@ -171,28 +182,50 @@ export const Leaderboard = ({
     return null;
   };
 
+  const sv = useSharedValue(0);
+
+  const handler = useAnimatedScrollHandler({
+    onScroll: e => {
+      sv.value = e.contentOffset.y / 1;
+      console.log(sv.value);
+    },
+  });
+
   return (
-    <FlatList
-      showsVerticalScrollIndicator={false}
-      {...{ListHeaderComponent, ListFooterComponent}}
-      data={displayResults}
-      renderItem={({item, index}) =>
-        renderItem({item, index, sourceLength: displayResults?.length || 0})
-      }
-      initialNumToRender={25}
-      onScroll={onScroll}
-      // onEndReachedThreshold={0.1}
-      // onEndReached={() => {
-      //   if (showAll) {
-      //     fetchNextPage();
-      //   }
-      // }}
-      refreshControl={
-        <RefreshControl
-          {...{refreshing, onRefresh}}
-          tintColor={colors.accent}
-        />
-      }
-    />
+    <>
+      <Header
+        memberCount={memberCount}
+        resetDate={endDate}
+        repeat={isRepeat}
+        title={title}
+        description={description}
+        imageSource={{uri: imageUri}}
+        scrollAnimatedValue={sv}
+        bfitValue={15.41}
+      />
+      <AnimatedFlatList
+        showsVerticalScrollIndicator={false}
+        /* {...{ListHeaderComponent, ListFooterComponent}} */
+        ListHeaderComponent={() => <View style={{height: 183}}/>}
+        data={displayResults}
+        renderItem={({item, index}) =>
+          renderItem({item, index, sourceLength: displayResults?.length || 0})
+        }
+        initialNumToRender={25}
+        onScroll={handler}
+        // onEndReachedThreshold={0.1}
+        // onEndReached={() => {
+        //   if (showAll) {
+        //     fetchNextPage();
+        //   }
+        // }}
+        refreshControl={
+          <RefreshControl
+            {...{refreshing, onRefresh}}
+            tintColor={colors.accent}
+          />
+        }
+      />
+    </>
   );
 };

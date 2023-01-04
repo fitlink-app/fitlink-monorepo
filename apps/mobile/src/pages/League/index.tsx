@@ -99,7 +99,7 @@ export const League = (
     ) {
       fetchMoreMembers();
     }
-  }
+  };
 
   if (!Object.keys(activeLeague).length) {
     return (
@@ -151,8 +151,9 @@ export const League = (
         flex: 1,
       }}>
       <Wrapper>
-        {renderHeader()}
+        {/* {renderHeader()} */}
         <Leaderboard
+          imageUri={activeLeague?.image.url_640x360}
           // renderHeader={renderHeader()}
           fetchingNextPage={isFetchingMembersNextPage}
           isRepeat={activeLeague.repeat}
