@@ -14,7 +14,6 @@ const ALLOW_ANIMATED_STYLE_TIMEOUT = 100;
 
 export const useHeaderAnimatedStyles = (
   scrollAnimatedValue: Animated.SharedValue<number>,
-  descriptionHeight: number = 75,
   firstScrollAnchor: number = 146,
   secondScrollAnchor: number = 221,
 ) => {
@@ -64,65 +63,12 @@ export const useHeaderAnimatedStyles = (
     };
   });
 
-  const isDescriptionVisible = useSharedValue(true);
-
   const descriptionStyle = useAnimatedStyle(() => {
-    if (
-      scrollAnimatedValue.value > secondScrollAnchor &&
-      isDescriptionVisible.value
-    ) {
-      isDescriptionVisible.value = false;
-      return {
-        opacity: withTiming(0, {
-          duration: 200,
-          easing: Easing.ease,
-        }),
-        transform: [
-          {
-            translateY: withTiming(-200, {
-              duration: 200,
-              easing: Easing.ease,
-            }),
-          },
-        ],
-      };
-    }
-    if (
-      scrollAnimatedValue.value <= secondScrollAnchor &&
-      !isDescriptionVisible.value
-    ) {
-      isDescriptionVisible.value = true;
-      return {
-        opacity: withTiming(1, {
-          duration: 200,
-          easing: Easing.ease,
-        }),
-        transform: [
-          {
-            translateY: withTiming(200, {
-              duration: 200,
-              easing: Easing.ease,
-            }),
-          },
-        ],
-      };
-    }
-    return {};
-    /* const marginTop = interpolate(
-      scrollAnimatedValue.value,
-      [0, firstScrollAnchor, secondScrollAnchor, Number.MAX_SAFE_INTEGER],
-      [40, 40, 0, 0],
-    );
-    const height = interpolate(
-      scrollAnimatedValue.value,
-      [0, firstScrollAnchor, secondScrollAnchor, Number.MAX_SAFE_INTEGER],
-      [descriptionHeight, descriptionHeight, 0, 0],
-    );
+    const marginTop = scrollAnimatedValue.value - firstScrollAnchor;
     return {
-      marginTop,
-      height: descriptionHeight === 0 ? 'auto' : height,
-    }; */
-  }, [descriptionHeight]);
+      marginTop: marginTop > 0 ? -marginTop : 0,
+    }
+  }, [secondScrollAnchor]);
   return {
     blurSectionStyle,
     imageBackgroundStyle,

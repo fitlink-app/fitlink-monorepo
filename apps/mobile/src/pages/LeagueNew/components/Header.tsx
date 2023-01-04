@@ -1,7 +1,7 @@
 import {Label, Navbar} from '@components';
 import {ImageCardBlurSection} from 'components/common/ImageCard';
 import {LeaderboardCountback} from 'pages/League/components/LeaderboardCountback';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback} from 'react';
 import {ImageSourcePropType, LayoutChangeEvent, StyleSheet} from 'react-native';
 import Animated from 'react-native-reanimated';
 import styled from 'styled-components/native';
@@ -66,6 +66,7 @@ const AnimatedBlurSectionContainer = styled(Animated.View)({
 const DescriptionContainer = Animated.createAnimatedComponent(
   styled.View({
     overflow: 'hidden',
+    zIndex: -20,
   }),
 );
 
@@ -74,8 +75,7 @@ const Description = Animated.createAnimatedComponent(
     type: 'body',
     appearance: 'secondary',
   })({
-    marginTop: 14,
-    color: '#ACACAC',
+    marginTop: 39,
     fontSize: 18,
     lineHeight: 25,
   }),
