@@ -1,78 +1,146 @@
-import {Button, Navbar} from '@components';
-import {useJoinLeague} from '@hooks';
-import {useNavigation} from '@react-navigation/native';
-import {useLeaveLeague} from 'hooks/api/leagues/useLeaveLeague';
-import React from 'react';
-import {Animated, Image, Text} from 'react-native';
+import {FitButton, Label, Navbar} from '@components';
+import {ImageCardBlurSection} from 'components/common/ImageCard';
+import {LeaderboardCountback} from 'pages/League/components/LeaderboardCountback';
+import React, {useRef} from 'react';
+import {
+  ImageSourcePropType,
+  LayoutChangeEvent,
+  StyleSheet,
+  View,
+} from 'react-native';
+import Animated from 'react-native-reanimated';
 import styled from 'styled-components/native';
+import {useHeaderAnimatedStyles} from '../hooks/useHeaderAnimatedStyles';
+import theme from '../../../theme/themes/fitlink';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {BlurView} from '@react-native-community/blur';
+import {useJoinLeague} from '@hooks';
+import {useLeaveLeague} from '../../../hooks/api/leagues/useLeaveLeague';
+import {useNavigation} from '@react-navigation/core';
 
-const Wrapper = styled(Animated.View)({
-  width: '100%',
-  justifyContent: 'flex-start',
-});
-
-// TODO: Gradient overlay above image
-const HeaderImage = styled(Image)({
-  position: 'absolute',
-  width: '100%',
-  height: '100%',
-  borderRadius: 26,
-  overflow: 'hidden',
-});
-
-const ContentHeader = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'center',
-  width: '100%',
-  height: 69,
-  borderTopLeftRadius: 30,
-  borderTopRightRadius: 30,
-  overflow: 'hidden',
-});
-
-const HeaderTitle = styled(Text)({
-  color: '#FFFFFF',
-  fontSize: 17,
-  textAlign: 'center',
-  textTransform: 'uppercase',
-  fontWeight: '600',
-});
-
-const HeaderContent = styled.View({
-  padding: 20,
-  justifyContent: 'flex-end',
-  height: 231,
-});
-
-const ContentRow = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'flex-end',
-});
-
-interface HeaderProps {
+type HeaderProps = {
+  imageSource: ImageSourcePropType;
+  scrollAnimatedValue: Animated.SharedValue<number>;
+  memberCount: number;
+  title: string;
+  resetDate: Date;
+  repeat: boolean;
+  bfitValue?: number;
+  description: string;
+  onHeightMeasure?: (height: number) => void;
   membership: 'none' | 'member' | 'owner';
-  height: number;
   leagueId: string;
-  headerImage: string;
-  scrollAnimatedValue: Animated.Value;
-  onEditPressed: () => void;
-}
+};
+
+const BackgroundImage = styled(Animated.Image)({
+  resizeMode: 'cover',
+  ...StyleSheet.absoluteFillObject,
+});
+
+const Title = styled(Label).attrs({
+  type: 'title',
+})({
+  marginBottom: 7,
+  fontSize: 32,
+});
+
+const MemberCounts = styled(Label).attrs(() => ({
+  appearance: 'accent',
+  bold: true,
+}))({
+  fontSize: 16,
+  letterSpacing: 1,
+  textTransform: 'uppercase',
+  marginBottom: 8,
+});
+
+const ImageContainer = styled(Animated.View)({
+  width: '100%',
+});
+
+const BlurSection = styled(ImageCardBlurSection).attrs({
+  type: 'footer',
+})({
+  top: 0,
+  paddingTop: 17,
+  paddingBottom: 23,
+  paddingLeft: 20,
+  paddingRight: 20,
+  justifyContent: 'flex-end',
+});
+
+const AnimatedBlurSectionContainer = styled(Animated.View)({
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  right: 0,
+});
+
+const DescriptionContainer = Animated.createAnimatedComponent(
+  styled.View({
+    overflow: 'hidden',
+    zIndex: -20,
+  }),
+);
+
+const Description = Animated.createAnimatedComponent(
+  styled(Label).attrs({
+    type: 'body',
+    appearance: 'secondary',
+  })({
+    marginTop: 39,
+    fontSize: 18,
+    lineHeight: 25,
+    paddingLeft: 20,
+    paddingRight: 20,
+    flexShrink: 1,
+  }),
+);
+
+const BfitValueContainer = Animated.createAnimatedComponent(
+  styled.View({
+    paddingRight: 30,
+    paddingLeft: 30,
+    paddingTop: 12,
+    paddingBottom: 12,
+    right: 19,
+    borderRadius: 20,
+    position: 'absolute',
+  }),
+);
+
+const BfitValueText = Animated.createAnimatedComponent(
+  styled(Label)({
+    letterSpacing: 1,
+    fontSize: 14,
+    lineHeight: 16,
+    textTransform: 'uppercase',
+  }),
+);
 
 export const Header = ({
-  leagueId,
-  headerImage,
-  onEditPressed,
-  membership = 'none',
+  imageSource,
+  description,
   scrollAnimatedValue,
-}: HeaderProps) => {
+  bfitValue,
+  title,
+  resetDate,
+  repeat,
+  memberCount,
+  onHeightMeasure,
+  membership,
+  leagueId,
+}: HeaderProps): JSX.Element => {
   const navigation = useNavigation();
+  const initialDescriptionHeightRef = useRef(-1);
+
   const insets = useSafeAreaInsets();
+
+  const isMember = membership !== 'none';
 
   const {mutateAsync: joinLeague, isLoading: isJoining} = useJoinLeague();
   const {mutateAsync: leaveLeague, isLoading: isLeaving} = useLeaveLeague();
 
+  // TODO: add three dots to the header and attach these actions
   const handleOnInvitePressed = () => {
     navigation.navigate('LeagueInviteFriends', {leagueId});
   };
@@ -85,127 +153,108 @@ export const Header = ({
     leaveLeague(leagueId);
   };
 
-  const handleOnEditPressed = () => {
-    onEditPressed();
-  };
-
-  const renderLeftButton = () => {
-    switch (membership) {
-      case 'none':
-        return (
-          <Button
-            wrapContent
-            loading={isJoining}
-            disabled={isJoining}
-            type={'accent'}
-            containerStyle={{
-              height: 40,
-              paddingHorizontal: 0,
-            }}
-            textStyle={{
-              textTransform: 'uppercase',
-              fontFamily: 'Roboto',
-              fontSize: 14,
-              lineHeight: 16,
-              fontWeight: '700',
-            }}
-            text={'Join League'}
-            onPress={handleOnJoinPressed}
-          />
-        );
-
-      case 'member':
-        return (
-          <Button
-            wrapContent
-            loading={isLeaving}
-            disabled={isLeaving}
-            containerStyle={{
-              height: 40,
-              paddingHorizontal: 0,
-            }}
-            textStyle={{
-              textTransform: 'uppercase',
-              fontFamily: 'Roboto',
-              fontSize: 14,
-              lineHeight: 16,
-              fontWeight: '700',
-            }}
-            text={'Leave League'}
-            onPress={handleOnLeavePressed}
-          />
-        );
-
-      case 'owner':
-        return (
-          <Button
-            wrapContent
-            outline
-            containerStyle={{
-              height: 40,
-              paddingHorizontal: 0,
-            }}
-            textStyle={{
-              textTransform: 'uppercase',
-              fontFamily: 'Roboto',
-              fontSize: 14,
-              lineHeight: 16,
-              fontWeight: '700',
-            }}
-            text={'Edit League'}
-            onPress={handleOnEditPressed}
-          />
-        );
-
-      default:
-        return null;
+  const handleButtonAction = () => {
+    if (!isMember) {
+      handleOnLeavePressed();
     }
   };
 
-  // const wrapperPosition = {
-  //   transform: [
-  //     {
-  //       translateY: scrollAnimatedValue.interpolate({
-  //         inputRange: [-10, 0],
-  //         outputRange: [0, -10],
-  //         extrapolate: 'clamp',
-  //       }),
-  //     },
-  //   ],
-  // };
+  const onAnimatedContainerLayout = (e: LayoutChangeEvent) => {
+    if (scrollAnimatedValue.value === 0 && onHeightMeasure) {
+      onHeightMeasure(e.nativeEvent.layout.height);
+    }
+  };
+
+  const measureInitialDescriptionHeight = (event: LayoutChangeEvent) => {
+    if (initialDescriptionHeightRef.current === -1) {
+      initialDescriptionHeightRef.current = event.nativeEvent.layout.height;
+    }
+  };
+
+  const actionButtonText = isMember
+    ? `CLAIM ${bfitValue} $BFIT`
+    : 'JOIN LEAGUE';
+
+  const {
+    blurSectionStyle,
+    imageBackgroundStyle,
+    bfitValueContainerStyle,
+    bfitValueTextStyle,
+    descriptionStyle,
+  } = useHeaderAnimatedStyles(scrollAnimatedValue, initialDescriptionHeightRef);
 
   return (
-    <Wrapper style={{marginTop: insets.top, marginBottom: 30}}>
-      <HeaderImage source={{uri: headerImage}} />
-      <ContentHeader>
-        <Navbar
-          iconColor={'white'}
-          title="GOLD LEAGUE"
-          titleStyle={{fontSize: 18}}
-          containerStyle={{
-            paddingTop: 0,
-            height: 86,
-          }}
+    <Animated.View
+      onLayout={onAnimatedContainerLayout}
+      style={styles.container}>
+      <Navbar
+        iconColor="white"
+        title="LEAGUE"
+        titleStyle={{fontSize: 18}}
+        containerStyle={{
+          paddingTop: insets.top,
+          height: 24,
+        }}
+      />
+      <ImageContainer style={imageBackgroundStyle}>
+        <BackgroundImage source={imageSource} />
+        <AnimatedBlurSectionContainer style={blurSectionStyle}>
+          <BlurSection>
+            <MemberCounts>
+              {memberCount} {memberCount === 1 ? 'member' : 'members'}
+            </MemberCounts>
+            <Title>{title}</Title>
+            <LeaderboardCountback
+              color={theme.colors.text}
+              date={resetDate}
+              {...{repeat}}
+            />
+          </BlurSection>
+        </AnimatedBlurSectionContainer>
+        {bfitValue !== undefined && (
+          <BfitValueContainer style={bfitValueContainerStyle}>
+            <BfitValueText style={bfitValueTextStyle}>
+              {bfitValue} $BFIT
+            </BfitValueText>
+          </BfitValueContainer>
+        )}
+      </ImageContainer>
+      <DescriptionContainer
+        style={descriptionStyle}
+        onLayout={measureInitialDescriptionHeight}>
+        <Description>{description}</Description>
+      </DescriptionContainer>
+      <View style={styles.subheader}>
+        <Label style={styles.subheaderLabel}>LEADERBOARD</Label>
+        <FitButton
+          onPress={handleButtonAction}
+          text={actionButtonText}
+          variant="primary-outlined"
         />
-        <BlurView
-          style={{
-            left: 0,
-            right: 0,
-            top: 0,
-            position: 'absolute',
-            width: '100%',
-            height: 69,
-            backgroundColor: 'rgba(0,0,0,0.2)',
-          }}
-          blurRadius={1}
-          blurAmount={1}
-          blurType="light"
-          overlayColor={'transparent'}
-        />
-      </ContentHeader>
-      <HeaderContent>
-        <ContentRow>{renderLeftButton()}</ContentRow>
-      </HeaderContent>
-    </Wrapper>
+      </View>
+    </Animated.View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    zIndex: 400,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: theme.colors.background,
+  },
+  subheader: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    paddingRight: 18,
+    paddingLeft: 18,
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  subheaderLabel: {
+    fontSize: 19,
+  },
+});

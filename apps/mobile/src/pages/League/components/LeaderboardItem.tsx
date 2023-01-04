@@ -11,7 +11,7 @@ const Row = styled.View({
 });
 
 const ContainerRow = styled(Row)({
-  height: ITEM_HEIGHT - 1, // subtract margin
+  height: ITEM_HEIGHT,
   justifyContent: 'space-between',
   paddingRight: 20,
   paddingLeft: 20,
@@ -21,7 +21,7 @@ const SelfLine = styled.View({
   position: 'absolute',
   backgroundColor: '#00E9D7',
   width: 2,
-  height: 81,
+  height: ITEM_HEIGHT,
 });
 
 const SelfTriangle = styled.View({
@@ -124,7 +124,7 @@ export const LeaderboardItem: React.FC<LeaderboardItemProps> = ({
   wins,
 }) => {
   const rowBackgroundColor =
-    parseInt(rank) % 2 === 0 ? theme.colors.background : theme.colors.card;
+    parseInt(rank) % 2 === 1 ? theme.colors.background : theme.colors.card;
 
   return (
     <TouchHandler onPress={onPress} disabled={isSelf}>

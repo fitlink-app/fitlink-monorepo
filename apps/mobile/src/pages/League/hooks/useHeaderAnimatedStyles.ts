@@ -1,37 +1,41 @@
-import {useCallback, useEffect, useState} from 'react';
-import {PixelRatio, Platform} from 'react-native';
+import {MutableRefObject} from 'react';
 import Animated, {
   interpolate,
-  useAnimatedStyle,
-  Extrapolate,
   interpolateColor,
-  useSharedValue,
-  withTiming,
-  Easing,
+  useAnimatedStyle,
 } from 'react-native-reanimated';
 
-const ALLOW_ANIMATED_STYLE_TIMEOUT = 100;
+// Note: blur collapses when image expands
+const COLLAPSED_BLUR_HEIGHT = 132;
+const COLLAPSED_IMAGE_HEIGHT = 204;
+const EXPANDED_IMAGE_HEIGHT = 348;
 
 export const useHeaderAnimatedStyles = (
   scrollAnimatedValue: Animated.SharedValue<number>,
+  initialDescriptionHeight: MutableRefObject<number>,
   firstScrollAnchor: number = 146,
   secondScrollAnchor: number = 221,
 ) => {
   const blurSectionStyle = useAnimatedStyle(() => {
     const height = interpolate(
       scrollAnimatedValue.value,
-      [0, firstScrollAnchor, Number.MAX_SAFE_INTEGER],
-      [132, 204, 204],
+      [-Number.MAX_SAFE_INTEGER, 0, firstScrollAnchor, Number.MAX_SAFE_INTEGER],
+      [
+        COLLAPSED_BLUR_HEIGHT,
+        COLLAPSED_BLUR_HEIGHT,
+        COLLAPSED_IMAGE_HEIGHT + 2,
+        COLLAPSED_IMAGE_HEIGHT + 2,
+      ], // 204 + 2 (border)
     );
     return {height};
   });
+
   const imageBackgroundStyle = useAnimatedStyle(() => {
     const height = interpolate(
       scrollAnimatedValue.value,
       [0, firstScrollAnchor, Number.MAX_SAFE_INTEGER],
-      [348, 204, 204],
+      [EXPANDED_IMAGE_HEIGHT, COLLAPSED_IMAGE_HEIGHT, COLLAPSED_IMAGE_HEIGHT],
     );
-    console.log('height', height);
     return {height};
   });
 
@@ -64,11 +68,24 @@ export const useHeaderAnimatedStyles = (
   });
 
   const descriptionStyle = useAnimatedStyle(() => {
-    const marginTop = scrollAnimatedValue.value - firstScrollAnchor;
-    return {
-      marginTop: marginTop > 0 ? -marginTop : 0,
-    }
-  }, [secondScrollAnchor]);
+    const height = interpolate(
+      scrollAnimatedValue.value,
+      [
+        -Number.MAX_SAFE_INTEGER,
+        firstScrollAnchor,
+        firstScrollAnchor + initialDescriptionHeight.current,
+        Number.MAX_SAFE_INTEGER,
+      ],
+      [
+        initialDescriptionHeight.current,
+        initialDescriptionHeight.current,
+        0,
+        0,
+      ],
+    );
+    return {height};
+  });
+
   return {
     blurSectionStyle,
     imageBackgroundStyle,

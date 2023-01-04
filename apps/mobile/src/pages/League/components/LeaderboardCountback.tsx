@@ -2,15 +2,16 @@ import {Label} from '@components';
 import {getTimeRemaining} from '@utils';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
+import theme from '../../../theme/themes/fitlink';
 
 const ResetText = styled(Label).attrs(() => ({
   type: 'caption',
 }))<{color: string}>(({color}) => ({
   fontSize: 14,
-  marginLeft: 10,
   lineHeight: 19,
   letterSpacing: 1,
   textTransform: 'uppercase',
+  fontFamily: theme.fonts.regular,
   color,
 }));
 

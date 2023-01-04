@@ -86,28 +86,28 @@ const SliderContainer = styled.ScrollView.attrs(() => ({
 
 const compete_data = [
   {
-    id: 1,
+    id: '2f0f7e47-1f14-4b33-a8bd-d23c9665e7ad',
     bfit: 40,
     members: 1117,
     compete_name: 'Global Steps Challenge',
     img: require('../../../assets/images/leagues/laufen-running-EVO-Fitness.png'),
   },
   {
-    id: 2,
+    id: '813e033d-9035-4ee0-817a-e75059a78fa6',
     bfit: 40,
     members: 293,
     compete_name: 'Your Daily Yoga',
     img: require('../../../assets/images/leagues/nature-zen.png'),
   },
   {
-    id: 3,
+    id: 'b0ae65cf-4c80-48c0-a93f-89c6a3c2cbd5',
     bfit: 40,
     members: 293,
     compete_name: 'Your Daily Yoga',
     img: require('../../../assets/images/leagues/josh-duke.png'),
   },
   {
-    id: 4,
+    id: '9ca51868-cb2f-4bb6-bb14-56c44f85b16f',
     bfit: 40,
     members: 300,
     compete_name: 'Every Morning Run',
@@ -171,12 +171,15 @@ export const Leagues = (
           </TouchHandler>
         </LeaguesTitleContainer>
         <SliderContainer>
-          {compete_data.map(({bfit, members, compete_name, img}) => (
+          {compete_data.map(({id, bfit, members, compete_name, img}) => (
             <StyledCteLeagueCard
               bfitValue={bfit}
               memberCount={members}
               name={compete_name}
               imageUrl={img}
+              onPress={() => {
+                navigation.navigate('League', {id, isBfit: true});
+              }}
             />
           ))}
         </SliderContainer>
