@@ -176,10 +176,13 @@ export const Leaderboard = ({
 
   const handler = useAnimatedScrollHandler({
     onScroll: e => {
+      console.log('scroll', e);
       sv.value = e.contentOffset.y / 1;
       console.log(sv.value);
     },
   });
+
+  const [headerHeight, setHeaderHeight] = useState(0);
 
   return (
     <>
@@ -192,28 +195,31 @@ export const Leaderboard = ({
         imageSource={{uri: imageUri}}
         scrollAnimatedValue={sv}
         bfitValue={15.41}
+        onHeightMesure={setHeaderHeight}
       />
-      <AnimatedFlatList
-        showsVerticalScrollIndicator={false}
-        /* {...{ListHeaderComponent, ListFooterComponent}} */
-        ListHeaderComponent={() => <View style={{height: 183}} />}
-        data={displayResults}
-        renderItem={renderItem}
-        initialNumToRender={25}
-        onScroll={handler}
-        // onEndReachedThreshold={0.1}
-        // onEndReached={() => {
-        //   if (showAll) {
-        //     fetchNextPage();
-        //   }
-        // }}
-        refreshControl={
-          <RefreshControl
-            {...{refreshing, onRefresh}}
-            tintColor={colors.accent}
-          />
-        }
-      />
+      {headerHeight !== 0 && (
+        <AnimatedFlatList
+          showsVerticalScrollIndicator={false}
+          /* {...{ListHeaderComponent, ListFooterComponent}} */
+          ListHeaderComponent={() => <View style={{height: headerHeight}} />}
+          data={displayResults}
+          renderItem={renderItem}
+          initialNumToRender={25}
+          onScroll={handler}
+          // onEndReachedThreshold={0.1}
+          // onEndReached={() => {
+          //   if (showAll) {
+          //     fetchNextPage();
+          //   }
+          // }}
+          refreshControl={
+            <RefreshControl
+              {...{refreshing, onRefresh}}
+              tintColor={colors.accent}
+            />
+          }
+        />
+      )}
     </>
   );
 };

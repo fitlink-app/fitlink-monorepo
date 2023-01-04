@@ -1,9 +1,9 @@
 import {Label, Navbar} from '@components';
 import {ImageCardBlurSection} from 'components/common/ImageCard';
 import {LeaderboardCountback} from 'pages/League/components/LeaderboardCountback';
-import React from 'react';
-import {ImageSourcePropType, StyleSheet} from 'react-native';
-import Animated, {useAnimatedStyle} from 'react-native-reanimated';
+import React, {useCallback, useState} from 'react';
+import {ImageSourcePropType, LayoutChangeEvent, StyleSheet} from 'react-native';
+import Animated from 'react-native-reanimated';
 import styled from 'styled-components/native';
 import {useHeaderAnimatedStyles} from './useHeaderAnimatedStyles';
 
@@ -16,6 +16,7 @@ type HeaderProps = {
   repeat: boolean;
   bfitValue: number;
   description: string;
+  onHeightMesure?: (height: number) => void;
 };
 
 const BackgroundImage = styled(Animated.Image)({
@@ -87,6 +88,7 @@ const BfitValueContainer = Animated.createAnimatedComponent(
     paddingTop: 12,
     paddingBottom: 12,
     right: 19,
+    borderRadius: 20,
     position: 'absolute',
   }),
 );
@@ -109,7 +111,17 @@ export const Header = ({
   resetDate,
   repeat,
   memberCount,
+  onHeightMesure,
 }: HeaderProps): JSX.Element => {
+  const onAnimatedContainerLayout = useCallback(
+    (e: LayoutChangeEvent) => {
+      if (scrollAnimatedValue.value === 0 && onHeightMesure) {
+        onHeightMesure(e.nativeEvent.layout.height);
+      }
+    },
+    [onHeightMesure, scrollAnimatedValue.value],
+  );
+
   const {
     blurSectionStyle,
     imageBackgroundStyle,
@@ -117,11 +129,10 @@ export const Header = ({
     bfitValueTextStyle,
     descriptionStyle,
   } = useHeaderAnimatedStyles(scrollAnimatedValue);
-  /* const animatedStyle = useAnimatedStyle(() => {
-    return {transform: [{translateY: scrollAnimatedValue.value}]};
-  }); */
+
   return (
     <Animated.View
+      onLayout={onAnimatedContainerLayout}
       style={[
         {
           zIndex: 400,
@@ -131,7 +142,6 @@ export const Header = ({
           right: 0,
           backgroundColor: '#1E1E1E',
         },
-        // animatedStyle,
       ]}>
       <ImageContainer style={imageBackgroundStyle}>
         <BackgroundImage source={imageSource} />

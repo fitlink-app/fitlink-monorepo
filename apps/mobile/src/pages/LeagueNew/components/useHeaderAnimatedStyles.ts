@@ -5,6 +5,9 @@ import Animated, {
   useAnimatedStyle,
   Extrapolate,
   interpolateColor,
+  useSharedValue,
+  withTiming,
+  Easing,
 } from 'react-native-reanimated';
 
 const ALLOW_ANIMATED_STYLE_TIMEOUT = 100;
@@ -36,13 +39,13 @@ export const useHeaderAnimatedStyles = (
   const bfitValueContainerStyle = useAnimatedStyle(() => {
     const bottom = interpolate(
       scrollAnimatedValue.value,
-      [firstScrollAnchor, secondScrollAnchor],
-      [-9, 8],
+      [0, firstScrollAnchor, secondScrollAnchor, Number.MAX_SAFE_INTEGER],
+      [-20, -20, 10, 10],
     );
     const opacity = interpolate(
       scrollAnimatedValue.value,
-      [firstScrollAnchor, secondScrollAnchor],
-      [1, 0],
+      [0, firstScrollAnchor, secondScrollAnchor, Number.MAX_SAFE_INTEGER],
+      [1, 1, 0, 0],
     );
     return {
       bottom,
@@ -61,22 +64,65 @@ export const useHeaderAnimatedStyles = (
     };
   });
 
+  const isDescriptionVisible = useSharedValue(true);
+
   const descriptionStyle = useAnimatedStyle(() => {
-    const marginTop = interpolate(
+    if (
+      scrollAnimatedValue.value > secondScrollAnchor &&
+      isDescriptionVisible.value
+    ) {
+      isDescriptionVisible.value = false;
+      return {
+        opacity: withTiming(0, {
+          duration: 200,
+          easing: Easing.ease,
+        }),
+        transform: [
+          {
+            translateY: withTiming(-200, {
+              duration: 200,
+              easing: Easing.ease,
+            }),
+          },
+        ],
+      };
+    }
+    if (
+      scrollAnimatedValue.value <= secondScrollAnchor &&
+      !isDescriptionVisible.value
+    ) {
+      isDescriptionVisible.value = true;
+      return {
+        opacity: withTiming(1, {
+          duration: 200,
+          easing: Easing.ease,
+        }),
+        transform: [
+          {
+            translateY: withTiming(200, {
+              duration: 200,
+              easing: Easing.ease,
+            }),
+          },
+        ],
+      };
+    }
+    return {};
+    /* const marginTop = interpolate(
       scrollAnimatedValue.value,
-      [0, firstScrollAnchor, secondScrollAnchor],
-      [40, 40, 0],
+      [0, firstScrollAnchor, secondScrollAnchor, Number.MAX_SAFE_INTEGER],
+      [40, 40, 0, 0],
     );
     const height = interpolate(
       scrollAnimatedValue.value,
-      [0, firstScrollAnchor, secondScrollAnchor],
-      [descriptionHeight, descriptionHeight, 0],
+      [0, firstScrollAnchor, secondScrollAnchor, Number.MAX_SAFE_INTEGER],
+      [descriptionHeight, descriptionHeight, 0, 0],
     );
     return {
       marginTop,
-      height,
-    };
-  });
+      height: descriptionHeight === 0 ? 'auto' : height,
+    }; */
+  }, [descriptionHeight]);
   return {
     blurSectionStyle,
     imageBackgroundStyle,
