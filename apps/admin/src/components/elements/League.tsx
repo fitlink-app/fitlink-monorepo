@@ -10,7 +10,7 @@ export type LeagueProps = {
   resetDate: string | Date
   sport: string
   repeats?: boolean
-  earn?: boolean
+  compete_to_earn?: boolean
   onClick?: (e: any) => void
 }
 
@@ -23,7 +23,7 @@ export default function League({
   resetDate,
   sport = '',
   repeats = true,
-  earn = false,
+  compete_to_earn = false,
   onClick
 }: LeagueProps) {
   return (
@@ -38,7 +38,7 @@ export default function League({
       </div>
 
       <div className="card__top">
-        {earn && <small className="earn">$</small>}
+        {compete_to_earn && <small className="earn">$</small>}
 
         <div className="card__chip">
           {sport.length > 0 ? sport[0].toUpperCase() + sport.slice(1) : sport}
