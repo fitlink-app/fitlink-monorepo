@@ -6,6 +6,7 @@
     "start": "react-native start",
     "start:reset": "react-native start --reset-cache",
     "test": "jest",
+    "link": "react-native link",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "postinstall": "patch-package",
     "android:dev": "react-native run-android --variant=devDebug --appIdSuffix=dev",

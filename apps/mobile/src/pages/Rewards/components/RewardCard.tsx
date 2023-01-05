@@ -90,7 +90,9 @@ export interface RewardOrganisation {
 }
 
 function calculateDaysLeft(expiryDate: Date, isExpired: boolean) {
-  if (isExpired) return 0;
+  if (isExpired) {
+    return 0;
+  }
   const now = Date.now();
   return Math.ceil((expiryDate.getTime() - now) / (1000 * 3600 * 24));
 }
@@ -150,10 +152,14 @@ export const RewardCard = (props: RewardCardProps) => {
           <Line />
           <Row style={styles.bottomRow}>
             <View style={styles.leftCol}>
-              <Label type="title" appearance="primary" numberOfLines={1}>
+              <Label type="title" appearance="accent" numberOfLines={1}>
                 {brand}
               </Label>
-              <Label type="body" appearance="primary" numberOfLines={1}>
+              <Label
+                style={styles.bottomLabel}
+                type="body"
+                appearance="primary"
+                numberOfLines={1}>
                 {title}
               </Label>
             </View>
@@ -195,5 +201,8 @@ const styles = StyleSheet.create({
   leftCol: {
     flex: 1,
     marginRight: 10,
+  },
+  bottomLabel: {
+    marginTop: 5,
   },
 });
