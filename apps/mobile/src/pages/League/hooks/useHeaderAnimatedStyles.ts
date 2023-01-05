@@ -33,8 +33,13 @@ export const useHeaderAnimatedStyles = (
   const imageBackgroundStyle = useAnimatedStyle(() => {
     const height = interpolate(
       scrollAnimatedValue.value,
-      [0, firstScrollAnchor, Number.MAX_SAFE_INTEGER],
-      [EXPANDED_IMAGE_HEIGHT, COLLAPSED_IMAGE_HEIGHT, COLLAPSED_IMAGE_HEIGHT],
+      [-Number.MAX_SAFE_INTEGER, 0, firstScrollAnchor, Number.MAX_SAFE_INTEGER],
+      [
+        EXPANDED_IMAGE_HEIGHT,
+        EXPANDED_IMAGE_HEIGHT,
+        COLLAPSED_IMAGE_HEIGHT,
+        COLLAPSED_IMAGE_HEIGHT,
+      ],
     );
     return {height};
   });

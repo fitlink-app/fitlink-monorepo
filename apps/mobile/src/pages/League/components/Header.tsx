@@ -145,7 +145,6 @@ export const Header = ({
   const {mutateAsync: joinLeague} = useJoinLeague();
   const {mutateAsync: leaveLeague} = useLeaveLeague();
 
-  // TODO: add three dots to the header and attach these actions
   const handleOnInvitePressed = () => {
     navigation.navigate('LeagueInviteFriends', {leagueId});
   };
