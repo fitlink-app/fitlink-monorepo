@@ -16,7 +16,7 @@ export type RootStackParamList = {
   Webview: {url: string; title: string};
   Friends: {tab: number};
   Leagues: {tab: number};
-  League: {id: string; league?: League};
+  League: {id: string; league?: League; isBfit?: boolean};
   Profile: {id: string};
   LeagueInviteFriends: {
     leagueId: string;

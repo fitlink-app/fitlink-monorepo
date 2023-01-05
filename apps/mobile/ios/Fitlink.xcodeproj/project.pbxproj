@@ -39,6 +39,7 @@
 		00E356EE1AD99517003FC87E /* FitlinkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitlinkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* FitlinkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FitlinkTests.m; sourceTree = "<group>"; };
+		02899A3AF44C4024B0F0AC49 /* Foundation.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Foundation.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/Foundation.ttf"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Fitlink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fitlink.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Fitlink/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = Fitlink/AppDelegate.m; sourceTree = "<group>"; };
@@ -47,8 +48,10 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Fitlink/main.m; sourceTree = "<group>"; };
 		17799D050B35B47895A74CC5 /* Pods-Fitlink.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink.staging.xcconfig"; path = "Target Support Files/Pods-Fitlink/Pods-Fitlink.staging.xcconfig"; sourceTree = "<group>"; };
 		2164BB8554474E28A86EDF99 /* Lato-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Lato-Bold.ttf"; path = "../assets/fonts/Lato-Bold.ttf"; sourceTree = "<group>"; };
+		2FDA5675FDCD40E5825C9279 /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		34046B0EBC223EC47B407500 /* Pods_Fitlink.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Fitlink.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A6BD20438AB8E9AD4A86424 /* Pods-Fitlink-FitlinkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink-FitlinkTests.release.xcconfig"; path = "Target Support Files/Pods-Fitlink-FitlinkTests/Pods-Fitlink-FitlinkTests.release.xcconfig"; sourceTree = "<group>"; };
+		495E681F29564650A66E0C1E /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
 		55091BABC1AFFECEF0A66158 /* Pods-Fitlink-FitlinkTests.release.development.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink-FitlinkTests.release.development.xcconfig"; path = "Target Support Files/Pods-Fitlink-FitlinkTests/Pods-Fitlink-FitlinkTests.release.development.xcconfig"; sourceTree = "<group>"; };
 		5865A5FC88403F83782EE204 /* Pods-Fitlink-FitlinkTests.development.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink-FitlinkTests.development.xcconfig"; path = "Target Support Files/Pods-Fitlink-FitlinkTests/Pods-Fitlink-FitlinkTests.development.xcconfig"; sourceTree = "<group>"; };
 		5B087F492697384100D8F85D /* Fitlink.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Fitlink.entitlements; path = Fitlink/Fitlink.entitlements; sourceTree = "<group>"; };
@@ -64,18 +67,31 @@
 		6C634EBD2AADFB18E8721255 /* Pods-Fitlink.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink.release.xcconfig"; path = "Target Support Files/Pods-Fitlink/Pods-Fitlink.release.xcconfig"; sourceTree = "<group>"; };
 		72C830C99202855B2D7B5754 /* Pods-Fitlink.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink.debug.xcconfig"; path = "Target Support Files/Pods-Fitlink/Pods-Fitlink.debug.xcconfig"; sourceTree = "<group>"; };
 		748C4D5F9BAC4AAC8C2EA8ED /* fitlink.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = fitlink.ttf; path = ../assets/fonts/fitlink.ttf; sourceTree = "<group>"; };
+		7D716A6203C94226A914B195 /* FontAwesome5_Solid.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Solid.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf"; sourceTree = "<group>"; };
 		7E6F44686D82B7250B7F6508 /* Pods-Fitlink.development.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink.development.xcconfig"; path = "Target Support Files/Pods-Fitlink/Pods-Fitlink.development.xcconfig"; sourceTree = "<group>"; };
+		7F20A68FB57D497B8A6F785B /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
 		84BF898F294D860F007C30C5 /* Roboto.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Roboto.ttf; path = ../assets/fonts/Roboto.ttf; sourceTree = "<group>"; };
 		84BF8990294D8610007C30C5 /* Roboto-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Regular.ttf"; path = "../assets/fonts/Roboto-Regular.ttf"; sourceTree = "<group>"; };
 		84BF8991294D8610007C30C5 /* Roboto-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Bold.ttf"; path = "../assets/fonts/Roboto-Bold.ttf"; sourceTree = "<group>"; };
 		885C13B11BE5E823465F59D7 /* Pods-Fitlink-FitlinkTests.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink-FitlinkTests.staging.xcconfig"; path = "Target Support Files/Pods-Fitlink-FitlinkTests/Pods-Fitlink-FitlinkTests.staging.xcconfig"; sourceTree = "<group>"; };
+		8A1D7A9F19E443E59448F36B /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		8A355F9674422A9F89593506 /* Pods-Fitlink-FitlinkTests.release.codepush.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink-FitlinkTests.release.codepush.xcconfig"; path = "Target Support Files/Pods-Fitlink-FitlinkTests/Pods-Fitlink-FitlinkTests.release.codepush.xcconfig"; sourceTree = "<group>"; };
+		90FDD52A1FB24DEE8E6BE3BE /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
+		9155AF4A7D494C688611B685 /* AntDesign.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = AntDesign.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/AntDesign.ttf"; sourceTree = "<group>"; };
 		91E592B5C21E52DD94904B8E /* Pods-Fitlink.release.codepush.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink.release.codepush.xcconfig"; path = "Target Support Files/Pods-Fitlink/Pods-Fitlink.release.codepush.xcconfig"; sourceTree = "<group>"; };
+		9B4B928C5132468E9960E21A /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
+		A3A7DC4F3C3547D6BC87A46C /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Brands.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf"; sourceTree = "<group>"; };
+		AC0EAE9206FD46C8BB0A0F88 /* FontAwesome5_Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Regular.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Regular.ttf"; sourceTree = "<group>"; };
+		AE2ED9A2A4AA4D0CA74E924F /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
+		B296F91F621243DFAED95A52 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
 		B3A0D7E44DF84DC9BC705B2C /* Lato-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Lato-Regular.ttf"; path = "../assets/fonts/Lato-Regular.ttf"; sourceTree = "<group>"; };
 		B7C3654B7BD4A9173B8A4878 /* Pods-Fitlink-FitlinkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink-FitlinkTests.debug.xcconfig"; path = "Target Support Files/Pods-Fitlink-FitlinkTests/Pods-Fitlink-FitlinkTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BB78D4B6A6B083660876AEA1 /* Pods-Fitlink.release.development.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink.release.development.xcconfig"; path = "Target Support Files/Pods-Fitlink/Pods-Fitlink.release.development.xcconfig"; sourceTree = "<group>"; };
 		C3112D0A8B9C3FAA2502D70E /* Pods-Fitlink-FitlinkTests.release.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink-FitlinkTests.release.staging.xcconfig"; path = "Target Support Files/Pods-Fitlink-FitlinkTests/Pods-Fitlink-FitlinkTests.release.staging.xcconfig"; sourceTree = "<group>"; };
+		C7985855506A4C93812A640C /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
+		CA752D533151433FAA543C4B /* EvilIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = EvilIcons.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
 		D6AF66F82B3016A64B8F6395 /* Pods-Fitlink.release.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fitlink.release.staging.xcconfig"; path = "Target Support Files/Pods-Fitlink/Pods-Fitlink.release.staging.xcconfig"; sourceTree = "<group>"; };
+		DD88DC8E362244B0BF8C53A6 /* Fontisto.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Fontisto.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/Fontisto.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -189,6 +205,22 @@
 				748C4D5F9BAC4AAC8C2EA8ED /* fitlink.ttf */,
 				2164BB8554474E28A86EDF99 /* Lato-Bold.ttf */,
 				B3A0D7E44DF84DC9BC705B2C /* Lato-Regular.ttf */,
+				9155AF4A7D494C688611B685 /* AntDesign.ttf */,
+				90FDD52A1FB24DEE8E6BE3BE /* Entypo.ttf */,
+				CA752D533151433FAA543C4B /* EvilIcons.ttf */,
+				8A1D7A9F19E443E59448F36B /* Feather.ttf */,
+				2FDA5675FDCD40E5825C9279 /* FontAwesome.ttf */,
+				A3A7DC4F3C3547D6BC87A46C /* FontAwesome5_Brands.ttf */,
+				AC0EAE9206FD46C8BB0A0F88 /* FontAwesome5_Regular.ttf */,
+				7D716A6203C94226A914B195 /* FontAwesome5_Solid.ttf */,
+				DD88DC8E362244B0BF8C53A6 /* Fontisto.ttf */,
+				02899A3AF44C4024B0F0AC49 /* Foundation.ttf */,
+				C7985855506A4C93812A640C /* Ionicons.ttf */,
+				AE2ED9A2A4AA4D0CA74E924F /* MaterialCommunityIcons.ttf */,
+				7F20A68FB57D497B8A6F785B /* MaterialIcons.ttf */,
+				B296F91F621243DFAED95A52 /* Octicons.ttf */,
+				9B4B928C5132468E9960E21A /* SimpleLineIcons.ttf */,
+				495E681F29564650A66E0C1E /* Zocial.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -337,8 +369,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "
-";
+			shellScript = "set -e\n\nexport NODE_BINARY=/usr/local/bin/node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		135A72A2DF9EE2600DF72212 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -575,12 +606,12 @@
 				CODE_SIGN_ENTITLEMENTS = Fitlink/Fitlink.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 58US58KL26;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Fitlink/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BFIT;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -609,11 +640,11 @@
 				CODE_SIGN_ENTITLEMENTS = Fitlink/FitlinkRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 58US58KL26;
 				INFOPLIST_FILE = Fitlink/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BFIT;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -708,12 +739,12 @@
 				CODE_SIGN_ENTITLEMENTS = Fitlink/FitlinkDevelopment.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 58US58KL26;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Fitlink/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BFIT;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -829,11 +860,11 @@
 				CODE_SIGN_ENTITLEMENTS = Fitlink/FitlinkRelease.Development.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 58US58KL26;
 				INFOPLIST_FILE = Fitlink/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BFIT;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -945,11 +976,11 @@
 				CODE_SIGN_ENTITLEMENTS = Fitlink/FitlinkRelease.Codepush.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 58US58KL26;
 				INFOPLIST_FILE = Fitlink/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BFIT;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

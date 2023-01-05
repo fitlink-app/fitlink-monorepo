@@ -139,6 +139,7 @@ export const Navbar = ({
       <TouchHandler onPress={handleOnBackPressed}>
         <BackButtonRow>
           <Icon
+            style={{padding: 5}}
             name={backButtonIcon}
             size={22}
             color={iconColor || colors.accent}

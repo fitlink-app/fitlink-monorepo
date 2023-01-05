@@ -1,33 +1,23 @@
-import {Label} from '@components';
-import React from 'react';
+import React, {useState} from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   FlatListProps,
+  ListRenderItem,
   RefreshControl,
+  View,
 } from 'react-native';
-import styled, {useTheme} from 'styled-components/native';
+import {useTheme} from 'styled-components/native';
 import {LeaderboardItem} from './LeaderboardItem';
 import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/entities/leaderboard-entry.entity';
-import {LeaderboardHeader} from './LeaderboardHeader';
-import {useState} from 'react';
-import {LeaderboardSeparator} from './LeaderboardSeparator';
 import {useNavigation} from '@react-navigation/core';
-import {useMe} from '@hooks';
+import {Header} from 'pages/League/components/Header';
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from 'react-native-reanimated';
 
-const INITIAL_MEMBER_COUNT_TO_DISPLAY = 10;
-
-const EmptyContainer = styled.View({
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginBottom: 40,
-});
-
-const LoadingContainer = styled.View({
-  height: 40,
-  justifyContent: 'center',
-});
+const AnimatedFlatList =
+  Animated.createAnimatedComponent<FlatListProps<LeaderboardEntry>>(FlatList);
 
 interface LeaderboardProps
   extends Omit<FlatListProps<LeaderboardEntry>, 'renderItem'> {
@@ -46,153 +36,91 @@ interface LeaderboardProps
   membership: 'none' | 'member' | 'owner';
   onRefresh: () => void;
   renderHeader?: any;
+  imageUri: string;
+  isBfit?: boolean;
+  leagueId: string;
+  isPublic: boolean;
+  onEditPressed: () => void;
 }
 
+// TODO: support pagination, page = 10 users
 export const Leaderboard = ({
-  data,
-  fetchNextPage,
-  fetchingNextPage,
-  flanksData,
+  data = [],
   userId,
   refreshing,
-  isLoaded,
   isRepeat,
   title,
   memberCount,
   endDate,
   onRefresh,
   description,
-  renderHeader,
-  onScroll,
+  imageUri,
+  membership,
+  leagueId,
+  onEditPressed,
+  isPublic,
+  isBfit = false,
 }: LeaderboardProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
-  const {data: user} = useMe();
+  const [headerHeight, setHeaderHeight] = useState(0);
 
-  const [showAll, setShowAll] = useState(false);
+  const sharedOffsetY = useSharedValue(0);
 
-  let displayResults = data;
-
-  if (!showAll) {
-    const partialData = [...(data || [])];
-    if (partialData.length > INITIAL_MEMBER_COUNT_TO_DISPLAY) {
-      partialData.length = INITIAL_MEMBER_COUNT_TO_DISPLAY;
-    }
-    displayResults = partialData;
-  }
-
-  const displayResultsContainsUser = displayResults?.find(
-    participant => participant.user_id === userId,
+  const renderItem: ListRenderItem<LeaderboardEntry> = ({item, index}) => (
+    <LeaderboardItem
+      key={item.id}
+      isBfit={isBfit}
+      wins={item.wins}
+      points={item.points}
+      name={item.user.name}
+      isSelf={item.user.id === userId}
+      avatarUrl={item.user.avatar?.url_128x128}
+      rank={item.rank ?? String(index + 1)}
+      onPress={() => navigation.navigate('Profile', {id: item.user.id})}
+    />
   );
 
-  const renderItem = ({
-    item,
-    index,
-    key,
-  }: {
-    item: LeaderboardEntry;
-    index: number;
-    sourceLength: number;
-    key?: string;
-  }) => {
-    return (
-      <LeaderboardItem
-        key={item.id + key}
-        rank={item.rank || (index + 1).toString()}
-        onPress={() => navigation.navigate('Profile', {id: item.user.id})}
-        disabled={userId === item.user.id}
-        name={item.user.name}
-        avatarUrl={item.user.avatar?.url_128x128}
-        wins={item.wins}
-        points={item.points}
-        isSelf={item.user_id === userId}
-      />
-    );
-  };
+  const handler = useAnimatedScrollHandler({
+    onScroll: e => {
+      sharedOffsetY.value = e.contentOffset.y;
+    },
+  });
 
-  const renderFlanks = () => {
-    return flanksData.map(entry => {
-      return renderItem({
-        item: entry,
-        index: entry.rank,
-        sourceLength: flanksData?.length || 0,
-        key: '_flanks',
-      });
-    });
-  };
-
-  const ListHeaderComponent = (
+  return (
     <>
-      {renderHeader}
-      <LeaderboardHeader
+      <Header
+        leagueId={leagueId}
+        membership={membership}
         memberCount={memberCount}
         resetDate={endDate}
         repeat={isRepeat}
         title={title}
         description={description}
+        imageSource={{uri: imageUri}}
+        scrollAnimatedValue={sharedOffsetY}
+        bfitValue={isBfit ? 15.41 : undefined}
+        onHeightMeasure={setHeaderHeight}
+        handleOnEditPressed={onEditPressed}
+        isCteLeague={isBfit}
+        isPublic={isPublic}
       />
-    </>
-  );
-
-  const ListFooterComponent = () => {
-    if (!data?.length && isLoaded) {
-      return (
-        <EmptyContainer style={{paddingVertical: 10}}>
-          <Label>This league has no participants yet.</Label>
-        </EmptyContainer>
-      );
-    }
-
-    if (!isLoaded || fetchingNextPage) {
-      return (
-        <LoadingContainer>
-          <ActivityIndicator color={colors.accent} />
-        </LoadingContainer>
-      );
-    }
-
-    if (
-      !showAll &&
-      displayResults &&
-      data &&
-      displayResults.length < data.length
-    ) {
-      return (
-        <>
-          <LeaderboardSeparator onPress={() => setShowAll(true)} />
-          {!!flanksData &&
-            !!displayResults &&
-            !displayResultsContainsUser &&
-            renderFlanks()}
-        </>
-      );
-    }
-
-    return null;
-  };
-
-  return (
-    <FlatList
-      showsVerticalScrollIndicator={false}
-      {...{ListHeaderComponent, ListFooterComponent}}
-      data={displayResults}
-      renderItem={({item, index}) =>
-        renderItem({item, index, sourceLength: displayResults?.length || 0})
-      }
-      initialNumToRender={25}
-      onScroll={onScroll}
-      // onEndReachedThreshold={0.1}
-      // onEndReached={() => {
-      //   if (showAll) {
-      //     fetchNextPage();
-      //   }
-      // }}
-      refreshControl={
-        <RefreshControl
-          {...{refreshing, onRefresh}}
-          tintColor={colors.accent}
+      {headerHeight !== 0 && (
+        <AnimatedFlatList
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={() => <View style={{height: headerHeight}} />}
+          data={data}
+          renderItem={renderItem}
+          onScroll={handler}
+          refreshControl={
+            <RefreshControl
+              {...{refreshing, onRefresh}}
+              progressViewOffset={headerHeight}
+              tintColor={colors.accent}
+            />
+          }
         />
-      }
-    />
+      )}
+    </>
   );
 };
