@@ -1,3 +1,4 @@
+import { RewardRedeemType } from '@fitlink/api/src/modules/rewards/rewards.constants'
 import { format } from 'date-fns'
 import Card from './Card'
 
@@ -7,7 +8,7 @@ export type RewardProps = {
   brand: string
   shortTitle: string
   points: number
-  redeemType: 'bfit' | 'points'
+  redeemType?: RewardRedeemType
   expires: string | Date
   redeemed?: number
   onClick?: (e: any) => void
@@ -69,7 +70,7 @@ export default function Reward({
               {points > 0 && (
                 <div className="card__chip">
                   {points.toLocaleString()}{' '}
-                  {redeemType === 'bfit' ? '$BFIT' : 'points'}
+                  {redeemType === RewardRedeemType.BFIT ? '$BFIT' : 'points'}
                 </div>
               )}
               {redeemed > 0 && (

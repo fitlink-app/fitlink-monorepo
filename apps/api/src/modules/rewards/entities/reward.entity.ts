@@ -14,7 +14,11 @@ import { Image } from '../../images/entities/image.entity'
 import { RewardsRedemption } from '../../rewards-redemptions/entities/rewards-redemption.entity'
 import { ApiProperty } from '@nestjs/swagger'
 import { FeedItem } from '../../feed-items/entities/feed-item.entity'
-import { RewardAccess, RewardPlatform } from '../rewards.constants'
+import {
+  RewardAccess,
+  RewardPlatform,
+  RewardRedeemType
+} from '../rewards.constants'
 
 @Entity()
 export class Reward extends CreatableEntity {
@@ -61,8 +65,20 @@ export class Reward extends CreatableEntity {
   brand: string
 
   @ApiProperty()
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: RewardRedeemType,
+    default: RewardRedeemType.Points
+  })
+  redeem_type: RewardRedeemType
+
+  @ApiProperty()
+  @Column({ nullable: true })
   points_required: number
+
+  @ApiProperty()
+  @Column({ nullable: true })
+  bfit_required: number
 
   @ApiProperty()
   @Column({

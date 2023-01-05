@@ -3,14 +3,14 @@ name: Deploy
 on:
   push:
     branches:
-    - develop
+      - develop
   pull_request:
     branches:
-    - develop
+      - develop
 
 jobs:
   test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     steps:
       - uses: actions/checkout@v2
@@ -61,7 +61,7 @@ jobs:
         run: docker-compose down
 
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     env:
       # Serverless
@@ -150,7 +150,7 @@ jobs:
           path: dist
 
   deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs: [test, build]
     if: "!contains(github.event.head_commit.message, 'skip ci') && github.ref == 'refs/heads/develop'"
     steps:
@@ -206,4 +206,4 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DEV_EB_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_EB_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: "eu-west-2"
+          AWS_DEFAULT_REGION: 'eu-west-2'

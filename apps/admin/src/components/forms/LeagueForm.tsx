@@ -53,7 +53,7 @@ const getFields = (league: Partial<LeagueEntity>) => {
     sport: league.sport ? league.sport.name : undefined,
     sportId: league.sport ? league.sport.id : undefined,
     repeat: league.repeat,
-    earn: league.earn,
+    compete_to_earn: league.compete_to_earn,
     image_upload: undefined
   }
 }
@@ -111,7 +111,7 @@ export default function LeagueForm({
   const startsAt = watch('starts_at')
   const duration = watch('duration')
   const repeats = watch('repeat')
-  const earn = watch('earn')
+  const compete_to_earn = watch('compete_to_earn')
   const sport = watch('sport') || 'Choose sport'
   const sportId = watch('sportId')
 
@@ -153,7 +153,7 @@ export default function LeagueForm({
         resetDate={endsAt || add(new Date(), { days: duration })}
         sport={sport}
         repeats={repeats}
-        earn={earn}
+        compete_to_earn={compete_to_earn}
       />
 
       <div className="basic-file-select">
@@ -246,11 +246,11 @@ export default function LeagueForm({
 
       {modeRole === 'app' && (
         <Checkbox
-          label="This is an earn league"
-          name="earn"
-          checked={earn}
+          label="This is an compete to earn league"
+          name="compete_to_earn"
+          checked={compete_to_earn}
           showSwitch={true}
-          register={register('earn')}
+          register={register('compete_to_earn')}
         />
       )}
 
