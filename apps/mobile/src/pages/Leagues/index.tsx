@@ -1,21 +1,20 @@
-import {Label, TabView, TouchHandler} from '@components';
+import {Label, PlotCard, TabView, TouchHandler} from '@components';
 import {useMe} from '@hooks';
 import {
   CommonActions,
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
-import {StackScreenProps} from '@react-navigation/stack';
 import {widthLize} from '@utils';
-import {CteLeagueCard} from 'components/league/LeagueCard/CteLeagueCard';
-import {CaloriesCard} from 'pages/Feed/components/CaloriesCard';
 import React, {useCallback, useRef} from 'react';
-import {ScrollView, View} from 'react-native';
+import {ScrollView, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Route} from 'react-native-tab-view';
-import {RootStackParamList} from 'routes/types';
 import styled from 'styled-components/native';
+import {StackScreenProps} from '@react-navigation/stack';
+import {RootStackParamList} from '../../routes/types';
 import {ExploreLeagues, Invitations, MyLeagues} from './tabs';
+import {CteLeagueCard} from '../../components/league/LeagueCard/CteLeagueCard';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -160,10 +159,12 @@ export const Leagues = (
           paddingBottom: 79,
         }}>
         <PageTitle>Gold Leagues</PageTitle>
-        <View style={{marginHorizontal: widthLize(20)}}>
-          {/* <RankCard /> */}
-          <CaloriesCard />
-        </View>
+        <PlotCard.Calories
+          wrapperStyle={styles.rewardCard}
+          totalAmount={355}
+          gainedPerDay={123}
+          percentsPerDay={45.3}
+        />
         <LeaguesTitleContainer>
           <Title>Compete to earn leagues</Title>
           <TouchHandler>
@@ -200,3 +201,10 @@ export const Leagues = (
     </Wrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  rewardCard: {
+    marginHorizontal: widthLize(20),
+    marginTop: 27,
+  },
+});

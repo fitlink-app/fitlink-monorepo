@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef} from 'react';
-import {GoalTracker, Modal, RewardTracker} from '@components';
+import {GoalTracker, Modal, PlotCard} from '@components';
 import {
   useGoals,
   useMe,
@@ -12,7 +12,7 @@ import {
 import {UserWidget, TouchHandler} from '@components';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
-import {ScrollView} from 'react-native';
+import {ScrollView, StyleSheet} from 'react-native';
 import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {calculateGoalsPercentage, getPersistedData, persistData} from '@utils';
 import {NewsletterModal, NotificationsButton} from './components';
@@ -23,9 +23,7 @@ import {CompeteLeagues} from './components/CompeteLeagues';
 import {RewardSlider} from '../Rewards/components';
 import {ActivityHistory} from './components/ActivityHistory';
 import {RoutesClasses} from './components/RoutesClasses';
-import {CaloriesCard} from './components/CaloriesCard';
-import { RankCard } from 'pages/Leagues/components/RankCard';
-import {BottomSheetModalProvider} from "@gorhom/bottom-sheet";
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -249,22 +247,21 @@ export const Feed = () => {
                 />
               </HeaderWidgetContainer>
             </HeaderContainer>
-
             <StatContainer>
-              <HeaderWidgetContainer>
-                <RewardTracker
-                  points={user.points_total || 0}
-                  targetPoints={nextReward?.reward.points_required || 0}
-                  isLoading={!isNextRewardFetched}
-                  claimableRewardsCount={nextReward?.unclaimed_rewards_total || 0}
-                  onPress={() => navigation.navigate('Wallet')}
-                />
-              </HeaderWidgetContainer>
-              <CaloriesCard />
-              {/* Remove RankCard */}
-              {/* <RankCard /> */}
+              <PlotCard.Calories
+                wrapperStyle={styles.calories}
+                totalAmount={355}
+                gainedPerDay={123}
+                percentsPerDay={45.3}
+              />
+              <PlotCard.BFIT
+                totalAmount={user.points_total ?? 0}
+                gainedPerDay={100}
+                percentsPerDay={23.4}
+                onPress={() => navigation.navigate('Wallet')}
+                wrapperStyle={styles.bfit}
+              />
             </StatContainer>
-
             <FeedContainer>
               <CompeteLeagues />
               <RewardSlider
@@ -284,3 +281,12 @@ export const Feed = () => {
     </Wrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  calories: {
+    marginTop: 10,
+  },
+  bfit: {
+    marginTop: 20,
+  },
+});

@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Label, RewardTracker} from '@components';
+import {Label, PlotCard} from '@components';
 import {useMe, useMyRewards, useNextReward, useRewards} from '@hooks';
 import {RewardSlider} from './components';
 import {getResultsFromPages} from 'utils/api';
@@ -212,13 +212,10 @@ export const Rewards = () => {
 
               {(!!nextReward?.reward?.points_required ||
                 !!nextReward?.unclaimed_rewards_total) && (
-                <RewardTracker
-                  points={user?.points_total || 0}
-                  targetPoints={nextReward?.reward.points_required || 0}
-                  claimableRewardsCount={
-                    nextReward?.unclaimed_rewards_total || 0
-                  }
-                  showNextReward={true}
+                <PlotCard.BFIT
+                  totalAmount={user?.points_total ?? 0}
+                  gainedPerDay={100}
+                  percentsPerDay={23.4}
                 />
               )}
             </ListHeaderContainer>
