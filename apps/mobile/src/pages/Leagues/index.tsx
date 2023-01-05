@@ -1,20 +1,20 @@
-import {Card, Label, PlotCard, TabView, TouchHandler} from '@components';
+import {Label, PlotCard, TabView, TouchHandler} from '@components';
 import {useMe} from '@hooks';
 import {
   CommonActions,
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
-import {BlurView} from '@react-native-community/blur';
 import {widthLize} from '@utils';
 import React, {useCallback, useRef} from 'react';
-import {ScrollView, StyleSheet, Text} from 'react-native';
+import {ScrollView, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Route} from 'react-native-tab-view';
 import styled from 'styled-components/native';
 import {StackScreenProps} from '@react-navigation/stack';
 import {RootStackParamList} from '../../routes/types';
 import {ExploreLeagues, Invitations, MyLeagues} from './tabs';
+import {CteLeagueCard} from '../../components/league/LeagueCard/CteLeagueCard';
 
 const Wrapper = styled.View({
   flex: 1,
