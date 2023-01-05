@@ -68,7 +68,7 @@ export const useHeaderAnimatedStyles = (
   });
 
   const descriptionStyle = useAnimatedStyle(() => {
-    const height = interpolate(
+    const marginTop = interpolate(
       scrollAnimatedValue.value,
       [
         -Number.MAX_SAFE_INTEGER,
@@ -77,13 +77,13 @@ export const useHeaderAnimatedStyles = (
         Number.MAX_SAFE_INTEGER,
       ],
       [
-        initialDescriptionHeight.current,
-        initialDescriptionHeight.current,
         0,
         0,
+        -initialDescriptionHeight.current,
+        -initialDescriptionHeight.current,
       ],
     );
-    return {height};
+    return {marginTop};
   });
 
   return {
