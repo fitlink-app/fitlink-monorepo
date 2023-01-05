@@ -103,12 +103,6 @@ export class League extends CreatableEntity {
 
   @ApiProperty()
   @Column({
-    default: false
-  })
-  compete_to_earn: boolean
-
-  @ApiProperty()
-  @Column({
     type: 'enum',
     enum: LeagueAccess,
     default: LeagueAccess.Private

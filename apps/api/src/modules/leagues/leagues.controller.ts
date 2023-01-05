@@ -75,8 +75,10 @@ export class LeaguesController {
   ) {
     // A non-superadmin tries to create a public league
     if (
-      createLeagueDto.access !== LeagueAccess.Private &&
-      !authUser.isSuperAdmin()
+      (createLeagueDto.access !== LeagueAccess.Private &&
+        !authUser.isSuperAdmin()) ||
+      (createLeagueDto.access !== LeagueAccess.CompeteToEarn &&
+        !authUser.isSuperAdmin())
     ) {
       throw new ForbiddenException(
         'You do not have permission to create non-private leagues'
@@ -382,7 +384,7 @@ export class LeaguesController {
   }
 
   /**
-   * A user can join a public league
+   * A user can join a public or compete to earn league
    *
    * @param id
    * @param joinLeagueDto

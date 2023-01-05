@@ -13,7 +13,7 @@ import {
   MaxLength,
   MinLength
 } from 'class-validator'
-import { RewardAccess } from '../rewards.constants'
+import { RewardAccess, RewardRedeemType } from '../rewards.constants'
 
 export class CreateRewardDto {
   @ApiProperty()
@@ -77,10 +77,24 @@ export class CreateRewardDto {
   brand: string
 
   @ApiProperty()
+  @IsEnum(RewardRedeemType, {
+    message: 'Must be a valid access type'
+  })
+  redeem_type: RewardRedeemType = RewardRedeemType.Points
+
+  @ApiProperty()
   @IsInt({
     message: 'Must be a number'
   })
-  points_required: number
+  @IsOptional()
+  points_required?: number
+
+  @ApiProperty()
+  @IsInt({
+    message: 'Must be a number'
+  })
+  @IsOptional()
+  bfit_required?: number
 
   @ApiProperty()
   @IsBoolean()

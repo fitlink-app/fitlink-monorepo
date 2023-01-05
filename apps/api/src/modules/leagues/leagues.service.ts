@@ -351,7 +351,7 @@ export class LeaguesService {
   }
 
   getLeaguePublic(league: League, userId: string) {
-    const leaguePublic = (league as unknown) as LeaguePublic
+    const leaguePublic = league as unknown as LeaguePublic
     leaguePublic.participating = Boolean(league.users.length > 0)
     leaguePublic.is_owner = Boolean(league.owner && league.owner.id === userId)
     leaguePublic.rank = Number(leaguePublic.rank) || null
@@ -365,7 +365,7 @@ export class LeaguesService {
 
     // Ensure personal user data of owner is sanitized.
     if (leaguePublic.owner) {
-      ;((leaguePublic.owner as unknown) as UserPublic) = plainToClass(
+      ;(leaguePublic.owner as unknown as UserPublic) = plainToClass(
         UserPublic,
         leaguePublic.owner,
         {
@@ -461,6 +461,9 @@ export class LeaguesService {
               qb
                 .where('league.access = :accessPublic')
 
+                // the league is a compete to earn league
+                .orWhere(`league.access = :accessCompeteToEarn`)
+
                 // The league is private & owned by the user
                 .orWhere(
                   '(league.access = :accessPrivate AND owner.id = :userId)'
@@ -481,6 +484,7 @@ export class LeaguesService {
           {
             accessPrivate: LeagueAccess.Private,
             accessPublic: LeagueAccess.Public,
+            accessCompeteToEarn: LeagueAccess.CompeteToEarn,
             userId
           }
         )
@@ -529,9 +533,8 @@ export class LeaguesService {
     const leaderboardEntry = await this.leaguesRepository.manager.transaction(
       async (manager) => {
         const repository = manager.getRepository(League)
-        const leaderboardEntryRepository = manager.getRepository(
-          LeaderboardEntry
-        )
+        const leaderboardEntryRepository =
+          manager.getRepository(LeaderboardEntry)
         const invitationRepository = manager.getRepository(LeaguesInvitation)
         const userRepository = manager.getRepository(User)
         await repository
@@ -876,10 +879,11 @@ export class LeaguesService {
       return false
     }
 
-    const rank = await this.leaderboardEntriesService.findRankAndFlanksInLeaderboard(
-      userId,
-      league.active_leaderboard.id
-    )
+    const rank =
+      await this.leaderboardEntriesService.findRankAndFlanksInLeaderboard(
+        userId,
+        league.active_leaderboard.id
+      )
 
     const entries: LeaderboardEntry[] = []
 
