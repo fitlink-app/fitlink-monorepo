@@ -2,7 +2,8 @@ export enum LeagueAccess {
   Private = 'private',
   Public = 'public',
   Team = 'team',
-  Organisation = 'organisation'
+  Organisation = 'organisation',
+  CompeteToEarn = 'competetoearn'
 }
 
 export enum LeagueInvitePermission {
