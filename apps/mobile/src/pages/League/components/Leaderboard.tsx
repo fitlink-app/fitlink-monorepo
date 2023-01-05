@@ -115,6 +115,7 @@ export const Leaderboard = ({
           refreshControl={
             <RefreshControl
               {...{refreshing, onRefresh}}
+              progressViewOffset={headerHeight}
               tintColor={colors.accent}
             />
           }
