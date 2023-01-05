@@ -1,4 +1,6 @@
-import {FitButton, Label, Navbar} from '@components';
+import {Icon, Label, Navbar} from '@components';
+import {useJoinLeague} from '@hooks';
+import {useNavigation} from '@react-navigation/core';
 import {ImageCardBlurSection} from 'components/common/ImageCard';
 import {LeaderboardCountback} from 'pages/League/components/LeaderboardCountback';
 import React, {useRef} from 'react';
@@ -10,12 +12,11 @@ import {
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import styled from 'styled-components/native';
-import {useHeaderAnimatedStyles} from '../hooks/useHeaderAnimatedStyles';
-import theme from '../../../theme/themes/fitlink';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useJoinLeague} from '@hooks';
 import {useLeaveLeague} from '../../../hooks/api/leagues/useLeaveLeague';
-import {useNavigation} from '@react-navigation/core';
+import theme from '../../../theme/themes/fitlink';
+import {useHeaderAnimatedStyles} from '../hooks/useHeaderAnimatedStyles';
+import {useLeagueMenuModal} from '../hooks/useLeagueMenuModal';
+import {ActionButton} from './ActionButton';
 
 type HeaderProps = {
   imageSource: ImageSourcePropType;
@@ -29,6 +30,9 @@ type HeaderProps = {
   onHeightMeasure?: (height: number) => void;
   membership: 'none' | 'member' | 'owner';
   leagueId: string;
+  isPublic: boolean;
+  isCteLeague?: boolean;
+  handleOnEditPressed: () => void;
 };
 
 const BackgroundImage = styled(Animated.Image)({
@@ -129,16 +133,17 @@ export const Header = ({
   onHeightMeasure,
   membership,
   leagueId,
+  isPublic,
+  isCteLeague = false,
+  handleOnEditPressed,
 }: HeaderProps): JSX.Element => {
   const navigation = useNavigation();
   const initialDescriptionHeightRef = useRef(-1);
 
-  const insets = useSafeAreaInsets();
-
   const isMember = membership !== 'none';
 
-  const {mutateAsync: joinLeague, isLoading: isJoining} = useJoinLeague();
-  const {mutateAsync: leaveLeague, isLoading: isLeaving} = useLeaveLeague();
+  const {mutateAsync: joinLeague} = useJoinLeague();
+  const {mutateAsync: leaveLeague} = useLeaveLeague();
 
   // TODO: add three dots to the header and attach these actions
   const handleOnInvitePressed = () => {
@@ -153,11 +158,13 @@ export const Header = ({
     leaveLeague(leagueId);
   };
 
-  const handleButtonAction = () => {
-    if (!isMember) {
-      handleOnLeavePressed();
-    }
-  };
+  const handleOnMenuPressed = useLeagueMenuModal({
+    membership,
+    isPublic,
+    handleOnInvitePressed,
+    handleOnLeavePressed,
+    handleOnEditPressed,
+  });
 
   const onAnimatedContainerLayout = (e: LayoutChangeEvent) => {
     if (scrollAnimatedValue.value === 0 && onHeightMeasure) {
@@ -170,10 +177,6 @@ export const Header = ({
       initialDescriptionHeightRef.current = event.nativeEvent.layout.height;
     }
   };
-
-  const actionButtonText = isMember
-    ? `CLAIM ${bfitValue} $BFIT`
-    : 'JOIN LEAGUE';
 
   const {
     blurSectionStyle,
@@ -191,10 +194,17 @@ export const Header = ({
         iconColor="white"
         title="LEAGUE"
         titleStyle={{fontSize: 18}}
-        containerStyle={{
-          paddingTop: insets.top,
-          height: 24,
-        }}
+        rightComponent={
+          isMember ? (
+            <Icon
+              hitSlop={30}
+              name={'ellipsis'}
+              color={'white'}
+              size={32}
+              onPress={handleOnMenuPressed}
+            />
+          ) : undefined
+        }
       />
       <ImageContainer style={imageBackgroundStyle}>
         <BackgroundImage source={imageSource} />
@@ -226,10 +236,11 @@ export const Header = ({
       </DescriptionContainer>
       <View style={styles.subheader}>
         <Label style={styles.subheaderLabel}>LEADERBOARD</Label>
-        <FitButton
-          onPress={handleButtonAction}
-          text={actionButtonText}
-          variant="primary-outlined"
+        <ActionButton
+          isMember={isMember}
+          isCteLeague={isCteLeague}
+          handleOnJoinPressed={handleOnJoinPressed}
+          bfitValue={bfitValue}
         />
       </View>
     </Animated.View>
@@ -238,7 +249,7 @@ export const Header = ({
 
 const styles = StyleSheet.create({
   container: {
-    zIndex: 400,
+    zIndex: 5,
     position: 'absolute',
     top: 0,
     left: 0,

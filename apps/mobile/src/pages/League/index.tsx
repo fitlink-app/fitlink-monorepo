@@ -13,6 +13,8 @@ import styled, {useTheme} from 'styled-components/native';
 import {Leaderboard} from './components';
 import {League as LeagueType} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useNavigation} from '@react-navigation/native';
+import {LeagueAccess} from '@fitlink/api/src/modules/leagues/leagues.constants';
 const HEADER_HEIGHT = 300;
 
 const Wrapper = styled.View({flex: 1});
@@ -27,6 +29,7 @@ export const League = (
   props: StackScreenProps<RootStackParamList, 'League'>,
 ) => {
   const {colors} = useTheme();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
   const {data: user} = useMe({
@@ -113,6 +116,7 @@ export const League = (
       <Leaderboard
         leagueId={id}
         isBfit={isBfit}
+        isPublic={activeLeague.access === LeagueAccess.Public}
         imageUri={activeLeague?.image.url_640x360}
         fetchingNextPage={isFetchingMembersNextPage}
         isRepeat={activeLeague.repeat}
@@ -152,6 +156,21 @@ export const League = (
         initialNumToRender={25}
         onScroll={({nativeEvent}: any) => handleScroll(nativeEvent)}
         scrollEventThrottle={16}
+        onEditPressed={() => {
+          navigation.navigate('LeagueForm', {
+            data: {
+              id,
+              dto: {
+                name: activeLeague.name,
+                description: activeLeague.description,
+                duration: activeLeague.duration,
+                repeat: activeLeague.repeat,
+                sportId: activeLeague.sport.id,
+              },
+              imageUrl: activeLeague.image.url_640x360,
+            },
+          });
+        }}
       />
     </Wrapper>
   );

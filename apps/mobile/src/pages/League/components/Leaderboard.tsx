@@ -39,6 +39,8 @@ interface LeaderboardProps
   imageUri: string;
   isBfit?: boolean;
   leagueId: string;
+  isPublic: boolean;
+  onEditPressed: () => void;
 }
 
 // TODO: support pagination, page = 10 users
@@ -55,6 +57,8 @@ export const Leaderboard = ({
   imageUri,
   membership,
   leagueId,
+  onEditPressed,
+  isPublic,
   isBfit = false,
 }: LeaderboardProps) => {
   const {colors} = useTheme();
@@ -97,6 +101,9 @@ export const Leaderboard = ({
         scrollAnimatedValue={sharedOffsetY}
         bfitValue={isBfit ? 15.41 : undefined}
         onHeightMeasure={setHeaderHeight}
+        handleOnEditPressed={onEditPressed}
+        isCteLeague={isBfit}
+        isPublic={isPublic}
       />
       {headerHeight !== 0 && (
         <AnimatedFlatList
