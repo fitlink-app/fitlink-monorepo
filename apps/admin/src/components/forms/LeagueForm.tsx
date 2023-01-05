@@ -168,7 +168,7 @@ export default function LeagueForm({
                 resetDate={endsAt || add(new Date(), { days: duration })}
                 sport={sport}
                 repeats={repeats}
-                access={access}
+                access={access ? 'competetoearn' : 'public'}
             />
 
             <div className="basic-file-select">
