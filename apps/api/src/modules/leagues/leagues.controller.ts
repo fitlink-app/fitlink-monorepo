@@ -384,7 +384,7 @@ export class LeaguesController {
   }
 
   /**
-   * A user can join a public league
+   * A user can join a public or compete to earn league
    *
    * @param id
    * @param joinLeagueDto

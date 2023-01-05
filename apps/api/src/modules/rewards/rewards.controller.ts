@@ -37,6 +37,7 @@ import {
   RewardGlobalFilterDto
 } from './dto/reward-filters.dto'
 import { Public } from '../../decorators/public.decorator'
+import { RewardRedeemType } from './rewards.constants'
 
 @ApiBaseResponses()
 @Controller()
@@ -57,6 +58,22 @@ export class RewardsController {
     @Param('organisationId') organisationId: string,
     @User() authUser: AuthenticatedUser
   ) {
+    if (
+      createRewardDto.redeem_type === RewardRedeemType.BFIT &&
+      !createRewardDto.bfit_required
+    ) {
+      throw new BadRequestException(
+        'Field bfit_required is required when redeem_type is BFIT'
+      )
+    }
+    if (
+      createRewardDto.redeem_type === RewardRedeemType.Points &&
+      !createRewardDto.points_required
+    ) {
+      throw new BadRequestException(
+        'Field points_required is required when redeem_type is Points'
+      )
+    }
     // For team admins and organisation admin
     if (teamId) {
       createRewardDto.teamId = teamId

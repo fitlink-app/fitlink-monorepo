@@ -461,6 +461,9 @@ export class LeaguesService {
               qb
                 .where('league.access = :accessPublic')
 
+                // the league is a compete to earn league
+                .orWhere(`league.access = :accessCompeteToEarn`)
+
                 // The league is private & owned by the user
                 .orWhere(
                   '(league.access = :accessPrivate AND owner.id = :userId)'
@@ -481,6 +484,7 @@ export class LeaguesService {
           {
             accessPrivate: LeagueAccess.Private,
             accessPublic: LeagueAccess.Public,
+            accessCompeteToEarn: LeagueAccess.CompeteToEarn,
             userId
           }
         )
