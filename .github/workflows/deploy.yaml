@@ -185,6 +185,9 @@ jobs:
           # Try to skip Chromium install
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
 
+      - name: Change to project root
+        run: cd ../
+
       - name: Run database migrations
         run: yarn migration:run
 
