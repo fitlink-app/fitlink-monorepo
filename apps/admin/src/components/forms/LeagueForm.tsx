@@ -71,7 +71,10 @@ export default function LeagueForm({
     const { sportsOptionsList } = useSports()
 
     const { register, handleSubmit, watch, setValue } = useForm({
-        defaultValues: getFields(current)
+        defaultValues: {
+            ...getFields(current),
+            access: current.access === LeagueAccess.CompeteToEarn
+        }
     })
 
     const { errors, createOrUpdate, uploadReplaceOrKeep } = useFormMutations<
@@ -261,9 +264,9 @@ export default function LeagueForm({
 
             {modeRole === 'app' && (
                 <Checkbox
-                    label="This is an compete to earn league"
+                    label="This is a compete to earn league"
                     name="access"
-                    checked={access == 'competetoearn'}
+                    checked={current.access === LeagueAccess.CompeteToEarn}
                     showSwitch={true}
                     register={register('access')}
                 />

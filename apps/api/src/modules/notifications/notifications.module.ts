@@ -26,21 +26,21 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
           return { credential: {} as admin.credential.Credential }
         }
 
-        const credential = admin.credential.cert(
-          JSON.parse(
-            Buffer.from(
-              configCredential
-                ? configCredential
-                : // As a work around for Lambda configuration size limits,
-                  // we need to replace this secret during the deploy process
-                  // on Github actions using sed 's/word1/word2/g'
-                  '{GITHUB_REPLACE_FIREBASE_ADMIN_CREDENTIAL}',
-              'base64'
-            ).toString('utf8')
-          )
-        )
-
-        return { credential }
+        // const credential = admin.credential.cert(
+        //   JSON.parse(
+        //     Buffer.from(
+        //       configCredential
+        //         ? configCredential
+        //         : // As a work around for Lambda configuration size limits,
+        //           // we need to replace this secret during the deploy process
+        //           // on Github actions using sed 's/word1/word2/g'
+        //           '{GITHUB_REPLACE_FIREBASE_ADMIN_CREDENTIAL}',
+        //       'base64'
+        //     ).toString('utf8')
+        //   )
+        // )
+        //
+        // return { credential }
       }
     })
   ],
