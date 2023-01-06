@@ -178,6 +178,9 @@ jobs:
           name: dist
           path: dist
 
+      - name: Run database migrations
+        run: yarn migration:run
+
       - name: Download dependencies
         run: yarn install --frozen-lockfile
         working-directory: artifacts
