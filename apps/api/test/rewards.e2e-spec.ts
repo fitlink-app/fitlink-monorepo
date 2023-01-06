@@ -13,7 +13,10 @@ import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import { User } from '../src/modules/users/entities/user.entity'
 import { Connection, getConnection } from 'typeorm'
 import { Reward } from '../src/modules/rewards/entities/reward.entity'
-import { RewardAccess } from '../src/modules/rewards/rewards.constants'
+import {
+  RewardAccess,
+  RewardRedeemType
+} from '../src/modules/rewards/rewards.constants'
 import { RewardsSetup, RewardsTeardown } from './seeds/rewards.seed'
 import { startOfDay } from 'date-fns'
 import { FeedItem } from '../src/modules/feed-items/entities/feed-item.entity'
@@ -142,6 +145,7 @@ describe('Rewards', () => {
     brand: 'Fitlink',
     name_short: '10% off Fitlink subscription',
     code: 'FIT10',
+    redeem_type: RewardRedeemType.Points,
     points_required: 10,
     redeem_url: 'https://fitlinkteams.com?redeem=fit10',
     reward_expires_at: new Date().toISOString(),
