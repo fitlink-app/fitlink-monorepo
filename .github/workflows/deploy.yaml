@@ -178,15 +178,15 @@ jobs:
           name: dist
           path: dist
 
-      - name: Run database migrations
-        run: yarn migration:run
-
       - name: Download dependencies
         run: yarn install --frozen-lockfile
         working-directory: artifacts
         env:
           # Try to skip Chromium install
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+
+      - name: Run database migrations
+        run: yarn migration:run
 
       - name: Copy environment
         run: |
