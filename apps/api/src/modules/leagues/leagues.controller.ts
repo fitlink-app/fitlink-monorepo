@@ -47,6 +47,7 @@ import { SearchUserForLeaguesDto } from '../users/dto/search-user.dto'
 import { ConfigService } from '@nestjs/config'
 import { LeagueJobDto } from './dto/league-job.dto'
 import { Public } from '../../decorators/public.decorator'
+import { LeaguesIsPrivateOnlyDto } from './dto/is-private-only.dto'
 
 @ApiTags('leagues')
 @ApiBaseResponses()
@@ -171,14 +172,16 @@ export class LeaguesController {
   @PaginationBody()
   findAll(
     @User() authUser: AuthenticatedUser,
-    @Pagination() pagination: PaginationQuery
+    @Pagination() pagination: PaginationQuery,
+    @Query() isPrivateQuery: LeaguesIsPrivateOnlyDto,
   ) {
     if (authUser.isSuperAdmin()) {
       return this.leaguesService.findAll({}, pagination)
     } else {
       return this.leaguesService.findAllNotParticipating(
         authUser.id,
-        pagination
+        pagination,
+        isPrivateQuery.isPrivateOnly,
       )
     }
   }
@@ -217,12 +220,14 @@ export class LeaguesController {
   search(
     @Query() query: SearchLeagueDto,
     @User() user: AuthenticatedUser,
-    @Pagination() pagination: PaginationQuery
+    @Pagination() pagination: PaginationQuery,
+    @Query() isPrivateQuery: LeaguesIsPrivateOnlyDto,
   ) {
     return this.leaguesService.searchManyAccessibleToUser(
       query.q,
       user.id,
-      pagination
+      pagination,
+      isPrivateQuery.isPrivateOnly,
     )
   }
 

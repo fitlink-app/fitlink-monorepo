@@ -36,6 +36,8 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useEffect} from 'react';
 import {Dialog, DialogButton} from 'components/modal';
 import {getDistanceFromLatLonInKm} from '@utils';
+import {useSelector} from "react-redux";
+import {selectCurrentLocation} from "../../../../../redux/discover/discoverSlice";
 
 const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
@@ -108,9 +110,11 @@ export const ActivityDetailsModal = React.forwardRef<
 
   const [contentHeight, setContentHeight] = useState(0);
   const snapPoints = useMemo(
-    () => (!!activity ? ['45%', contentHeight + HANDLE_HEIGHT] : ['45%']),
+    () => (!!activity ? ['90%', contentHeight + HANDLE_HEIGHT] : ['45%']),
     [contentHeight, activity],
   );
+
+  const actualUserLocation = useSelector(selectCurrentLocation);
 
   // Refs
   const hadActivityLastRender = useRef(false);
@@ -209,9 +213,7 @@ export const ActivityDetailsModal = React.forwardRef<
               borderBottomColor: 'rgba(86, 86, 86, 0.3)',
             }}>
             <Icon name={'arrow-left'} size={20} color={colors.text} />
-            <Label
-              appearance={'primary'}
-              style={{marginLeft: 8}}>
+            <Label appearance={'primary'} style={{marginLeft: 8}}>
               Back
             </Label>
           </TouchHandler>
@@ -322,7 +324,7 @@ export const ActivityDetailsModal = React.forwardRef<
     if (!activity) return null;
 
     // TODO: Use actual user location
-    const userLocation = {lat: 51.752022, lng: -1.257677};
+    const userLocation = {lat: actualUserLocation?.lat, lng: actualUserLocation?.lng};
 
     const dist = getDistanceFromLatLonInKm(
       //@ts-ignore
@@ -363,9 +365,13 @@ export const ActivityDetailsModal = React.forwardRef<
                 containerStyle={{
                   width: 160,
                   borderRadius: 12,
-                  backgroundColor: colors.text
+                  backgroundColor: colors.text,
                 }}
-                textStyle={{color: colors.background, fontSize: 14, fontFamily: 'Roboto'}}
+                textStyle={{
+                  color: colors.background,
+                  fontSize: 14,
+                  fontFamily: 'Roboto',
+                }}
                 type={'default'}
                 text={'GET DIRECTION'}
                 onPress={handleOnDirectionsPressed}
@@ -381,9 +387,13 @@ export const ActivityDetailsModal = React.forwardRef<
                     containerStyle={{
                       width: 160,
                       borderRadius: 12,
-                      backgroundColor: colors.text
+                      backgroundColor: colors.text,
                     }}
-                    textStyle={{color: colors.background, fontSize: 14, fontFamily: 'Roboto'}}
+                    textStyle={{
+                      color: colors.background,
+                      fontSize: 14,
+                      fontFamily: 'Roboto',
+                    }}
                     text={'CONTACT'}
                     onPress={handleOnContactPressed}
                   />
@@ -422,9 +432,7 @@ export const ActivityDetailsModal = React.forwardRef<
         {/* Render Bottom Content */}
         <ContentContainer>
           <Section>
-            <Label bold>
-              {activity.name}
-            </Label>
+            <Label bold>{activity.name}</Label>
 
             <SectionContent>
               <Label appearance={'secondary'}>{activity.description}</Label>
@@ -451,8 +459,8 @@ export const ActivityDetailsModal = React.forwardRef<
         {...{...rest, ref, handleComponent}}
         index={0}
         name={DETAILS_MODAL_KEY}
-        handleHeight={200}
-        topInset={insets.top + 50}
+        handleHeight={90}
+        // topInset={insets.top + 50}
         snapPoints={snapPoints}
         animatedIndex={animatedIndex}
         enablePanDownToClose={true}
@@ -467,7 +475,7 @@ export const ActivityDetailsModal = React.forwardRef<
             style={scrollViewStyle}>
             <BottomSheetView
               onLayout={handleOnLayout}
-              style={{paddingBottom: 20}}>
+              style={{paddingBottom: 200}}>
               {renderContent()}
             </BottomSheetView>
           </BottomSheetScrollView>

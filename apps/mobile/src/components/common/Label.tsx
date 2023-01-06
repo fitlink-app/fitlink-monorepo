@@ -16,6 +16,7 @@ export interface LabelProps extends TextProps {
   type?: LabelType;
   appearance?: LabelAppearance;
   bold?: boolean;
+  numberOfNumbers?: number;
 }
 
 export const Label: React.FC<LabelProps> = React.forwardRef(

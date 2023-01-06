@@ -30,7 +30,6 @@ export const LeagueList = ({
   isFetching,
   isFetchingNextPage,
   isFetchedAfterMount,
-  error,
   onRefresh,
   ListEmptyComponent,
   ...rest
@@ -57,7 +56,7 @@ export const LeagueList = ({
         name={item.name}
         sport={item.sport?.name}
         organisation={organisation}
-        imageUrl={item.image?.url}
+        imageSource={{uri: item.image?.url}}
         memberCount={item.participants_total}
         position={item.rank}
         privateLeague={item.access === ('Private' as LeagueAccess)}

@@ -44,6 +44,9 @@ declare module 'styled-components' {
 
     /** Card background color */
     card: string;
+
+    /** Text gray color */
+    grayText: string;
   };
 
   type ThemeTextStyle = {

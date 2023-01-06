@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Label, RewardTracker} from '@components';
+import {Label, PlotCard} from '@components';
 import {useMe, useMyRewards, useNextReward, useRewards} from '@hooks';
 import {RewardSlider} from './components';
 import {getResultsFromPages} from 'utils/api';
@@ -23,11 +23,11 @@ const ListHeaderContainer = styled.View({
 
 const PageTitleContainer = styled.View({
   alignItems: 'center',
-  marginBottom: 10,
+  marginBottom: 21,
 });
 
 const PageTitle = styled(Label).attrs(() => ({
-  appearance: 'accent'
+  appearance: 'accent',
 }))({
   letterSpacing: 1,
   fontSize: 15,
@@ -69,18 +69,14 @@ export const Rewards = () => {
   const {
     data: myRewards,
     isFetching: isFetchingMyRewards,
-    isFetchingNextPage: isFetchingMyRewardsNextPage,
     isFetchedAfterMount: isMyRewardsFetchedAfterMount,
-    fetchNextPage: fetchMyRewardsNextPage,
     refetch: refetchMyRewards,
   } = useMyRewards();
 
   const {
     data: unclaimedRewards,
     isFetching: isFetchingUnclaimedRewards,
-    isFetchingNextPage: isFetchingUnclaimedRewardsNextPage,
     isFetchedAfterMount: isUnclaimedRewardsFetchedAfterMount,
-    fetchNextPage: fetchUnclaimedRewardsNextPage,
     refetch: refetchUnclaimedRewards,
   } = useRewards({available: true});
 
@@ -105,9 +101,7 @@ export const Rewards = () => {
   const {
     data: expiredRewards,
     isFetching: isFetchingExpiredRewards,
-    isFetchingNextPage: isFetchingExpiredRewardsNextPage,
     isFetchedAfterMount: isExpiredRewardsFetchedAfterMount,
-    fetchNextPage: fetchExpiredRewardsNextPage,
     refetch: refetchExpiredRewards,
   } = useRewards({expired: true});
 
@@ -141,10 +135,10 @@ export const Rewards = () => {
     ...expiredRewardsEntries,
   ].length;
 
-  const pointsTotal = user?.points_total;
-
   useEffect(() => {
-    Promise.all([refetchNextReward(), refetchAllRewards()]);
+    if (user?.points_total) {
+      Promise.all([refetchNextReward(), refetchAllRewards()]);
+    }
   }, [user?.points_total]);
 
   const refetchAllRewards = () =>
@@ -176,7 +170,9 @@ export const Rewards = () => {
   );
 
   const renderEmpty = () => {
-    if (!isFetchedAfterMount || isLoading) return renderLoading();
+    if (!isFetchedAfterMount || isLoading) {
+      return renderLoading();
+    }
 
     return (
       <Label style={{textAlign: 'center'}}>
@@ -193,7 +189,7 @@ export const Rewards = () => {
         ref={scrollRef}
         style={{height: '100%'}}
         contentContainerStyle={{
-          paddingBottom: 20,
+          paddingBottom: 44 + 79,
           flexGrow: 1,
           paddingTop: Platform.OS === 'ios' ? 0 : insets.top,
         }}
@@ -206,8 +202,7 @@ export const Rewards = () => {
             refreshing={isLoading && isFetchedAfterMount && isManualRefresh}
             onRefresh={handleRefresh}
           />
-        }
-      >
+        }>
         {isFetchedAfterMount ? (
           <>
             <ListHeaderContainer>
@@ -217,13 +212,10 @@ export const Rewards = () => {
 
               {(!!nextReward?.reward?.points_required ||
                 !!nextReward?.unclaimed_rewards_total) && (
-                <RewardTracker
-                  points={user?.points_total || 0}
-                  targetPoints={nextReward?.reward.points_required || 0}
-                  claimableRewardsCount={
-                    nextReward?.unclaimed_rewards_total || 0
-                  }
-                  showNextReward={true}
+                <PlotCard.BFIT
+                  totalAmount={user?.points_total ?? 0}
+                  gainedPerDay={100}
+                  percentsPerDay={23.4}
                 />
               )}
             </ListHeaderContainer>

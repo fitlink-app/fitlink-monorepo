@@ -26,7 +26,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
           return { credential: {} as admin.credential.Credential }
         }
 
-        const credential = admin.credential.cert(
+        /* const credential = admin.credential.cert(
           JSON.parse(
             Buffer.from(
               configCredential
@@ -38,9 +38,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
               'base64'
             ).toString('utf8')
           )
-        )
+        ) */
 
-        return { credential }
+        return { }
       }
     })
   ],

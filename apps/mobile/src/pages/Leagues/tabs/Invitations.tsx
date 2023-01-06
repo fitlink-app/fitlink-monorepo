@@ -84,7 +84,7 @@ export const Invitations = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
         {...{organisation, invitedBy}}
         name={league.name}
         sport={league.sport.name}
-        imageUrl={league.image.url}
+        imageSource={{uri: league.image.url}}
         memberCount={league.participants_total}
         position={league.rank}
         privateLeague={league.access === ('Private' as LeagueAccess)}
