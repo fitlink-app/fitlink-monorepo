@@ -47,6 +47,7 @@ import { SearchUserForLeaguesDto } from '../users/dto/search-user.dto'
 import { ConfigService } from '@nestjs/config'
 import { LeagueJobDto } from './dto/league-job.dto'
 import { Public } from '../../decorators/public.decorator'
+import { ClaimLeagueBfitDto } from './dto/claim-league-bfit.dto'
 
 @ApiTags('leagues')
 @ApiBaseResponses()
@@ -181,6 +182,54 @@ export class LeaguesController {
         pagination
       )
     }
+  }
+
+  /**
+   * All users can fetch compete to earn leagues
+   */
+  @Get('/leagues/compete-to-earn')
+  @ApiTags('leagues')
+  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
+  @PaginationBody()
+  findAllCompeteToEarnLeagues(@Pagination() pagination: PaginationQuery) {
+    return this.leaguesService.findAll(
+      { access: LeagueAccess.CompeteToEarn },
+      pagination
+    )
+  }
+
+  /**
+   * 1. Anyone can create a private league
+   * 2. Only superadmin can create a public league
+   * All other scenarios are handled by nested routes (e..g /team/ /organisation/ routes)
+   *
+   * @param createLeagueDto
+   * @returns
+   */
+  @Post('/leagues/:leagueId/compete-to-earn')
+  @ApiTags('leagues')
+  @ApiResponse({ type: League, status: 201 })
+  claimBFIT(
+    @Body() claimLeagueBfitDto: ClaimLeagueBfitDto,
+    @User() authUser: AuthenticatedUser,
+    @Param('leagueId') leagueId: string
+  ) {
+    return this.leaguesService.claimLeagueBfit(
+      leagueId,
+      authUser.id,
+      claimLeagueBfitDto
+    )
+  }
+
+  @Get('/leagues/bfit/claims')
+  @ApiTags('leagues')
+  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
+  @PaginationBody()
+  findUserBfitClaims(
+    @User() authUser: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.leaguesService.getUserBfitClaims(authUser.id, pagination)
   }
 
   @Iam(Roles.OrganisationAdmin, Roles.TeamAdmin)

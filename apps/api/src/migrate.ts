@@ -34,6 +34,7 @@ import { User } from './modules/users/entities/user.entity'
 import { UserRole } from './modules/user-roles/entities/user-role.entity'
 import { UsersSetting } from './modules/users-settings/entities/users-setting.entity'
 import { Notification } from './modules/notifications/entities/notification.entity'
+import { LeagueBfitClaim } from './modules/leagues/entities/bfit-claim.entity'
 
 export async function migrate() {
   const connection = await createConnection({
@@ -42,7 +43,7 @@ export async function migrate() {
     password: process.env.DB_PASSWORD,
     username: process.env.DB_USERNAME,
     host: process.env.DB_HOST,
-    port: (process.env.DB_PORT as unknown) as number,
+    port: process.env.DB_PORT as unknown as number,
     synchronize: false,
     logging: true,
     dropSchema: false,
@@ -77,7 +78,8 @@ export async function migrate() {
       User,
       UserRole,
       UsersSetting,
-      Notification
+      Notification,
+      LeagueBfitClaim
     ]
   })
 

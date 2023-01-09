@@ -78,6 +78,9 @@ import { FixAvatarId1634980861273 } from '../database/migrations/1634980861273-F
 import { AddTokenError1635682297056 } from '../database/migrations/1635682297056-AddTokenError'
 import { AddActiveMinutesGoal1637156314894 } from '../database/migrations/1637156314894-AddActiveMinutesGoal'
 import { AddUtcOffsetToHealthActivities1641556069365 } from '../database/migrations/1641556069365-AddUtcOffsetToHealthActivities'
+import { Update1672872041732 } from '../database/migrations/1672872041732-Update'
+import { Update1672951695915 } from '../database/migrations/1672951695915-Update'
+import { Update1673269889422 } from '../database/migrations/1673269889422-Update'
 
 export default [
   InitializeSchema1614887523112,
@@ -154,5 +157,8 @@ export default [
   FixAvatarId1634980861273,
   AddTokenError1635682297056,
   AddActiveMinutesGoal1637156314894,
-  AddUtcOffsetToHealthActivities1641556069365
+  AddUtcOffsetToHealthActivities1641556069365,
+  Update1672872041732,
+  Update1672951695915,
+  Update1673269889422
 ]

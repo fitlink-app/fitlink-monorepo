@@ -47,6 +47,24 @@ export class LeaderboardEntry extends CreatableEntity {
   })
   points: number
 
+  // bfit accumulated in this league if it's a compete to earn league
+  @Index()
+  @IsInt()
+  @Min(0)
+  @Column({
+    default: 0
+  })
+  bfit_earned: number
+
+  // bfit accumulated in this league if it's a compete to earn league
+  @Index()
+  @IsInt()
+  @Min(0)
+  @Column({
+    default: 0
+  })
+  bfit_claimed: number
+
   @Column({
     default: 0
   })
