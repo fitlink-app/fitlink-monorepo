@@ -10,16 +10,16 @@ import {useTheme} from 'styled-components/native';
 import {LeaderboardItem} from './LeaderboardItem';
 import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/entities/leaderboard-entry.entity';
 import {useNavigation} from '@react-navigation/core';
-import {Header} from 'pages/League/components/Header';
 import Animated, {
   useAnimatedScrollHandler,
   useSharedValue,
 } from 'react-native-reanimated';
+import AnimatedLeaderboardHeaderCard from './AnimatedLeaderboardHeaderCard';
 
 const AnimatedFlatList =
   Animated.createAnimatedComponent<FlatListProps<LeaderboardEntry>>(FlatList);
 
-interface LeaderboardProps
+export interface LeaderboardProps
   extends Omit<FlatListProps<LeaderboardEntry>, 'renderItem'> {
   fetchNextPage: () => void;
   fetchingNextPage: boolean;
@@ -65,7 +65,7 @@ export const Leaderboard = ({
   const navigation = useNavigation();
   const [headerHeight, setHeaderHeight] = useState(0);
 
-  const sharedOffsetY = useSharedValue(0);
+  const sharedContentOffset = useSharedValue(0);
 
   const renderItem: ListRenderItem<LeaderboardEntry> = ({item, index}) => (
     <LeaderboardItem
@@ -83,13 +83,13 @@ export const Leaderboard = ({
 
   const handler = useAnimatedScrollHandler({
     onScroll: e => {
-      sharedOffsetY.value = e.contentOffset.y;
+      sharedContentOffset.value = e.contentOffset.y;
     },
   });
 
   return (
     <>
-      <Header
+      <AnimatedLeaderboardHeaderCard
         leagueId={leagueId}
         membership={membership}
         memberCount={memberCount}
@@ -98,7 +98,7 @@ export const Leaderboard = ({
         title={title}
         description={description}
         imageSource={{uri: imageUri}}
-        scrollAnimatedValue={sharedOffsetY}
+        sharedContentOffset={sharedContentOffset}
         bfitValue={isBfit ? 15.41 : undefined}
         onHeightMeasure={setHeaderHeight}
         handleOnEditPressed={onEditPressed}

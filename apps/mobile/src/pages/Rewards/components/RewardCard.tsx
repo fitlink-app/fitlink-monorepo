@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 import {Label, TouchHandler} from '@components';
 import {BlurView} from '@react-native-community/blur';
 import ProgressBar from './ProgressBar';
+import {calculateDaysLeft} from '@utils';
 
 const TouchWrapper = styled(TouchHandler)({
   marginBottom: 10,
@@ -87,14 +88,6 @@ const AddIcon = styled.Text(({theme: {colors}}) => ({
 export interface RewardOrganisation {
   name: string;
   image?: string;
-}
-
-function calculateDaysLeft(expiryDate: Date, isExpired: boolean) {
-  if (isExpired) {
-    return 0;
-  }
-  const now = Date.now();
-  return Math.ceil((expiryDate.getTime() - now) / (1000 * 3600 * 24));
 }
 
 interface RewardCardProps extends ViewProps {

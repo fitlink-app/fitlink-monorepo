@@ -10,11 +10,12 @@ import {
 } from 'react-native';
 import {RootStackParamList} from 'routes/types';
 import styled, {useTheme} from 'styled-components/native';
-import {Leaderboard} from './components';
+import {Leaderboard} from './components/Leaderboard';
 import {League as LeagueType} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {LeagueAccess} from '@fitlink/api/src/modules/leagues/leagues.constants';
+
 const HEADER_HEIGHT = 300;
 
 const Wrapper = styled.View({flex: 1});

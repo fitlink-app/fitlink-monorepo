@@ -1,4 +1,3 @@
-import {MutableRefObject} from 'react';
 import Animated, {
   interpolate,
   interpolateColor,
@@ -12,7 +11,7 @@ const EXPANDED_IMAGE_HEIGHT = 348;
 
 export const useHeaderAnimatedStyles = (
   scrollAnimatedValue: Animated.SharedValue<number>,
-  initialDescriptionHeight: MutableRefObject<number>,
+  initialDescriptionHeight: number,
   firstScrollAnchor: number = 146,
   secondScrollAnchor: number = 221,
 ) => {
@@ -68,7 +67,7 @@ export const useHeaderAnimatedStyles = (
       ['#060606', '#FFFFFF'],
     );
     return {
-      color: textColor,
+      color: textColor as string,
     };
   });
 
@@ -78,15 +77,10 @@ export const useHeaderAnimatedStyles = (
       [
         -Number.MAX_SAFE_INTEGER,
         firstScrollAnchor,
-        firstScrollAnchor + initialDescriptionHeight.current,
+        firstScrollAnchor + initialDescriptionHeight,
         Number.MAX_SAFE_INTEGER,
       ],
-      [
-        0,
-        0,
-        -initialDescriptionHeight.current,
-        -initialDescriptionHeight.current,
-      ],
+      [0, 0, -initialDescriptionHeight, -initialDescriptionHeight],
     );
     return {marginTop};
   });
