@@ -19,6 +19,7 @@ import { LeagueJoinedListener } from './listeners/LeagueJoinedListener'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { LeagueWonListener } from './listeners/LeagueWonListener'
 import { NotificationsModule } from '../notifications/notifications.module'
+import { LeagueBfitClaim } from './entities/bfit-claim.entity'
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { NotificationsModule } from '../notifications/notifications.module'
       Team,
       Organisation,
       HealthActivity,
+      LeagueBfitClaim,
       User
     ]),
     CommonModule,

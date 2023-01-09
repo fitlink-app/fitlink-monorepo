@@ -67,6 +67,7 @@ import { UserRolesModule } from './modules/user-roles/user-roles.module'
 import { UsersInvitationsModule } from './modules/users-invitations/users-invitations.module'
 import { AppController } from './api.controller'
 import { NotificationsModule } from './modules/notifications/notifications.module'
+import { LeagueBfitClaim } from './modules/leagues/entities/bfit-claim.entity'
 
 @Module({
   imports: [
@@ -118,7 +119,8 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
             User,
             UserRole,
             UsersSetting,
-            Notification
+            Notification,
+            LeagueBfitClaim
           ],
           synchronize: false,
           logging: false,

@@ -16,6 +16,7 @@ import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-en
 import { CommonModule } from '../common/common.module'
 import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 import { NotificationsModule } from '../notifications/notifications.module'
+import { LeagueBfitClaim } from '../leagues/entities/bfit-claim.entity'
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { NotificationsModule } from '../notifications/notifications.module'
       Team,
       Organisation,
       User,
-      HealthActivity
+      HealthActivity,
+      LeagueBfitClaim
     ]),
     NotificationsModule,
     JwtModule.registerAsync({

@@ -35,6 +35,8 @@ import { differenceInMilliseconds } from 'date-fns'
 import { NotificationsService } from '../notifications/notifications.service'
 import { NotificationAction } from '../notifications/notifications.constants'
 import { LeaguesInvitation } from '../leagues-invitations/entities/leagues-invitation.entity'
+import { LeagueBfitClaim } from './entities/bfit-claim.entity'
+import { ClaimLeagueBfitDto } from './dto/claim-league-bfit.dto'
 
 type LeagueOptions = {
   teamId?: string
@@ -53,6 +55,9 @@ export class LeaguesService {
 
     @InjectRepository(LeaderboardEntry)
     private leaderboardEntryRepository: Repository<LeaderboardEntry>,
+
+    @InjectRepository(LeagueBfitClaim)
+    private leagueBfitClaimRepository: Repository<LeagueBfitClaim>,
 
     @InjectRepository(Team)
     private teamRepository: Repository<Team>,
@@ -151,6 +156,62 @@ export class LeaguesService {
     }
 
     return league
+  }
+
+  async claimLeagueBfit(
+    leagueId: string,
+    userId: string,
+    claimLeagueBfitDto: ClaimLeagueBfitDto
+  ) {
+    const league = await this.leaguesRepository.findOne(leagueId, {
+      relations: ['active_leaderboard']
+    })
+    if (!league) {
+      throw new NotFoundException(`League with ID ${leagueId} not found`)
+    }
+    const leagueBfitClaim = new LeagueBfitClaim()
+    leagueBfitClaim.league_id = leagueId
+    leagueBfitClaim.user_id = userId
+    leagueBfitClaim.bfit_amount = claimLeagueBfitDto.amount
+    let createdClaim = await this.leagueBfitClaimRepository.save(
+      leagueBfitClaim
+    )
+    // update claimed bfit in this user's leaderboard entry
+    await this.leaderboardEntryRepository.increment(
+      {
+        leaderboard: { id: league.active_leaderboard.id },
+        user: { id: userId }
+      },
+
+      'bfit_claimed',
+      claimLeagueBfitDto.amount * 1000_000
+    )
+    // update user bfit balance
+    await this.userRepository.increment(
+      {
+        id: userId
+      },
+
+      'bfit_balance',
+      claimLeagueBfitDto.amount * 1000_000
+    )
+    return createdClaim
+  }
+
+  async getUserBfitClaims(
+    userId: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ) {
+    let query = { user_id: userId }
+    const [results, total] = await this.leagueBfitClaimRepository.findAndCount({
+      ...query,
+      take: limit,
+      skip: page * limit
+    })
+    return new Pagination<LeagueBfitClaim>({
+      results,
+      total
+    })
   }
 
   async isOwnedBy(leagueId: string, userId: string) {

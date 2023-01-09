@@ -387,6 +387,12 @@ export class User extends CreatableEntity {
     type: 'varchar'
   })
   mobile_os: string
+
+  @ApiProperty()
+  @Column({
+    default: 0
+  })
+  bfit_balance?: number
 }
 
 export class UserPublic {

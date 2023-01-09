@@ -78,6 +78,12 @@ export class League extends CreatableEntity {
   @ManyToOne(() => FeedItem, (item) => item.league)
   feed_items: FeedItem
 
+  // bfit accumulated in this league if it's a compete to earn league
+  @Column({
+    default: 0
+  })
+  bfit?: number
+
   @OneToMany(() => LeaguesInvitation, (invitation) => invitation.league)
   invitations: LeaguesInvitation[]
 
