@@ -1,6 +1,6 @@
 import {Label} from '@components';
 import React from 'react';
-import { View } from 'react-native';
+import {View} from 'react-native';
 import {
   NavigationState,
   SceneRendererProps,
@@ -15,6 +15,7 @@ type State = NavigationState<Route>;
 const LabelRow = styled.View({
   flexDirection: 'row',
   alignItems: 'center',
+  backgroundColor: '',
 });
 
 const BadgeWrapper = styled.View(({theme: {colors}}) => ({
@@ -30,7 +31,7 @@ const BadgeWrapper = styled.View(({theme: {colors}}) => ({
 const PeopleCountWrapper = styled.View(() => ({
   backgroundColor: '#181818',
   height: 30,
-  marginTop: 5
+  marginTop: 5,
 }));
 
 const TabButton = ({
@@ -45,13 +46,20 @@ const TabButton = ({
   peopleCount?: number;
 }) => {
   return (
-    <View style={{height: 35}}>
+    <View style={{height: 36}}>
       <LabelRow>
         <Label
           type={'subheading'}
-          appearance={(peopleCount || title==='SEARCH') ? (focused ? 'accent' : 'secondary') : (focused ? 'primary' : 'secondary')}
-          style={{fontSize: 17}}
-        >
+          appearance={
+            peopleCount || title === 'SEARCH'
+              ? focused
+                ? 'accent'
+                : 'secondary'
+              : focused
+              ? 'primary'
+              : 'secondary'
+          }
+          style={{fontSize: 15}}>
           {title}
         </Label>
         {badgeCount ? (
@@ -62,13 +70,16 @@ const TabButton = ({
           </BadgeWrapper>
         ) : null}
       </LabelRow>
-      {focused && (peopleCount || title==='SEARCH') ? (
-        <PeopleCountWrapper>
-          <Label type={'caption'} appearance={'secondary'} style={{textAlign: 'center'}}>
-            {peopleCount} {peopleCount ? 'People' : null}
-          </Label>
-        </PeopleCountWrapper>
-      ) : null}
+      {/*{focused && (peopleCount || title !== 'SEARCH') ? (*/}
+      {/*  <PeopleCountWrapper>*/}
+      {/*    <Label*/}
+      {/*      type={'caption'}*/}
+      {/*      appearance={'secondary'}*/}
+      {/*      style={{textAlign: 'center'}}>*/}
+      {/*      {peopleCount} {peopleCount ? 'People' : null}*/}
+      {/*    </Label>*/}
+      {/*  </PeopleCountWrapper>*/}
+      {/*) : null}*/}
     </View>
   );
 };
@@ -93,7 +104,7 @@ export const TabBar = (
               width: 36,
               left: `${(widthPercentFloat - marginPercent) / 2}%`,
               backgroundColor: colors.accent,
-              marginBottom: 4,
+              marginBottom: 10,
               height: 3,
             }}
           />
@@ -104,10 +115,14 @@ export const TabBar = (
         borderBottomWidth: 1,
         borderColor: 'transparent',
         elevation: 0,
+        paddingHorizontal: 20,
       }}
       renderLabel={(params): Element => {
         const {focused} = params;
-        const route = params.route as Route & {badgeCount: number, peopleCount: number};
+        const route = params.route as Route & {
+          badgeCount: number;
+          peopleCount: number;
+        };
 
         return (
           <TabButton

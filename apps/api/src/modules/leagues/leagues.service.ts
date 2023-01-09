@@ -269,7 +269,8 @@ export class LeaguesService {
 
   async findAllNotParticipating(
     userId: string,
-    { limit = 10, page = 0 }: PaginationOptionsInterface
+    { limit = 10, page = 0 }: PaginationOptionsInterface,
+    isPrivateOnly = false,
   ) {
     // Use a subquery inside a where statement to determine
     // leagues that the user does not yet belong to.
@@ -279,7 +280,7 @@ export class LeaguesService {
       .innerJoin('league.users', 'user')
       .where('user.id = :userId', { userId })
 
-    const query = this.queryFindAccessibleToUser(userId)
+    const query = this.queryFindAccessibleToUser(userId, isPrivateOnly)
       .andWhere(`league.id NOT IN (${where.getQuery()})`)
       .take(limit)
       .skip(page * limit)
@@ -391,9 +392,10 @@ export class LeaguesService {
   async searchManyAccessibleToUser(
     keyword: string,
     userId: string,
-    { limit = 10, page = 0 }: PaginationOptionsInterface
+    { limit = 10, page = 0 }: PaginationOptionsInterface,
+    isPrivateOnly = false
   ) {
-    const query = this.queryFindAccessibleToUser(userId)
+    const query = this.queryFindAccessibleToUser(userId, isPrivateOnly)
       .andWhere(
         '(league.name ILIKE :keyword OR league.description ILIKE :keyword)',
         { keyword: `%${keyword}%` }
@@ -473,7 +475,7 @@ export class LeaguesService {
    * @param userId
    * @returns
    */
-  queryFindAccessibleToUser(userId: string) {
+  queryFindAccessibleToUser(userId: string, isPrivateOnly = false) {
     const rankQb = this.leaderboardEntryRepository
       .createQueryBuilder('entry')
       .select(
@@ -518,13 +520,11 @@ export class LeaguesService {
         .where(
           new Brackets((qb) => {
             // The league is public
+            const checkedQb = isPrivateOnly ? qb : qb.where('league.access = :accessPublic')
             return (
-              qb
-                .where('league.access = :accessPublic')
-
+              checkedQb
                 // the league is a compete to earn league
                 .orWhere(`league.access = :accessCompeteToEarn`)
-
                 // The league is private & owned by the user
                 .orWhere(
                   '(league.access = :accessPrivate AND owner.id = :userId)'

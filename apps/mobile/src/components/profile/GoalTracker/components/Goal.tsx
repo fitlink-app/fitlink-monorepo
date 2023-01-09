@@ -17,19 +17,14 @@ interface GoalProps {
 
 const Wrapper = styled.View({alignItems: 'center'});
 
-const Value = styled(Label).attrs(() => ({
-  type: 'caption',
-  bold: true,
-}))({
-  marginTop: 5,
-});
+// const Value = styled(Label).attrs(() => ({
+//   type: 'caption',
+//   bold: true,
+// }))({
+//   marginTop: 5,
+// });
 
-export const Goal = ({
-  disabled,
-  goal,
-  icon,
-  ...rest
-}: GoalProps & ViewProps) => {
+export const Goal = ({goal, icon, ...rest}: GoalProps & ViewProps & any) => {
   const {colors} = useTheme();
 
   const progress = goal.value / goal.target;

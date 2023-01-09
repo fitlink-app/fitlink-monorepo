@@ -1,17 +1,25 @@
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Card, Label, TouchHandler} from '../../../components/common';
 import styled from 'styled-components/native';
-import { BlurView  } from '@react-native-community/blur';
-import { useNavigation } from '@react-navigation/core';
+import {BlurView} from '@react-native-community/blur';
+import {useNavigation} from '@react-navigation/core';
+import {getDistanceFromLatLonInKm, widthLize} from "@utils";
+import {useFindActivitiesMap} from "@hooks";
+import MapboxGL from '@react-native-mapbox-gl/maps';
+import {ActivityDetailsModal} from "../../Discover/components";
+import {BottomSheetModal} from "@gorhom/bottom-sheet";
+import {setCurrentLocation} from "../../../redux/discover/discoverSlice";
+import {useDispatch} from "react-redux";
 
 const Wrapper = styled.View({
-  paddingHorizontal: 10
+  // paddingHorizontal: 10,
 });
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   marginTop: 40,
+  marginHorizontal: widthLize(20),
 });
 
 const Title = styled(Label).attrs(() => ({
@@ -39,6 +47,7 @@ const SliderContainer = styled.ScrollView.attrs(() => ({
   showsHorizontalScrollIndicator: false,
   contentContainerStyle: {
     justifyContent: 'space-between',
+    paddingLeft: widthLize(20),
   },
 }))({});
 
@@ -90,7 +99,7 @@ const Line = styled.View({
 
 const CardBody = styled.View({
   width: '100%',
-  height: 120,
+  height: '100%',
   paddingTop: 23,
   paddingLeft: 24,
   paddingRight: 18,
@@ -115,30 +124,120 @@ const RecordValue = styled(Label).attrs(() => ({
 const GoalText = styled(Label).attrs(() => ({
   type: 'subheading',
   bold: true,
-  appearance: 'accent'
+  appearance: 'accent',
 }))({
   fontSize: 18,
   lineHeight: 21,
 });
 
-const data = [
-  {
-    title: 'Sunrise Yoga',
-    record_today: 'Daily At The Reef Centre 6 AM Start',
-    goal_title: 'Climbed Goal',
-    img: require('../../../../assets/images/classes-1.png'),
-  },
-  {
-    title: 'today at 1:24 PM',
-    record_today: 'Daily At The Reef Centre 6 AM Start',
-    goal_title: 'Climbed Goal',
-    img: require('../../../../assets/images/classes-2.png'),
-  },
-];
-
 export const RoutesClasses = () => {
   const navigation = useNavigation();
-  
+  const dispatch = useDispatch();
+  const [userLocation, setUserLocation] = useState({
+    lat: 0,
+    lng: 0
+  })
+  const [modalActivityId, setModalActivityId] = useState<string>();
+
+  const detailsModalRef = useRef<BottomSheetModal>(null);
+
+  useEffect(() => {
+    MapboxGL.requestAndroidLocationPermissions();
+  }, [])
+
+  const handleOnDetailsBackPressed = () => {
+    detailsModalRef.current?.close();
+  };
+
+  const onUserLocationUpdate = (location: any) => {
+    const {latitude, longitude} = location.coords
+    setUserLocation({lat: latitude, lng: longitude})
+    dispatch(setCurrentLocation({lat: latitude, lng: longitude}));
+  }
+
+  const {
+    refetch: fetchActivityMarkers,
+    data: activityMarkersData,
+    isFetching: isFetchingMarkers,
+  } = useFindActivitiesMap({
+    geo_radial: `${userLocation?.lat},${userLocation?.lng},15`,
+  });
+
+  const renderActivities = () => {
+    const d = activityMarkersData?.results.sort((a, b) => {
+      const aDist = getDistanceFromLatLonInKm(
+        //@ts-ignore
+        a.meeting_point.coordinates[0],
+        //@ts-ignore
+        a.meeting_point.coordinates[1],
+        userLocation?.lat,
+        userLocation?.lng,
+      );
+      const bDist = getDistanceFromLatLonInKm(
+        //@ts-ignore
+        b.meeting_point.coordinates[0],
+        //@ts-ignore
+        b.meeting_point.coordinates[1],
+        userLocation?.lat,
+        userLocation?.lng,
+      );
+      return aDist - bDist;
+    });
+
+    return d?.map((item, index) => {
+      const dist = getDistanceFromLatLonInKm(
+        //@ts-ignore
+        item.meeting_point.coordinates[0],
+        //@ts-ignore
+        item.meeting_point.coordinates[1],
+        userLocation?.lat,
+        userLocation?.lng,
+      );
+
+      let distanceString = '';
+
+      if (dist >= 1) {
+        // km
+        const value = dist >= 1000 ? dist.toFixed(0) : dist.toFixed(1);
+        distanceString = `${value} km away`;
+      } else {
+        // meter
+        const value = (dist * 1000).toFixed(0);
+        distanceString = `${value} meters away`;
+      }
+      return (
+        <TouchHandler key={index} onPress={() => {
+          setModalActivityId(item.id)
+          detailsModalRef.current?.present();
+        }}>
+          <CardContainer>
+            <CardImage source={require('../../../../assets/images/classes-2.png')} />
+            <BlurView
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: 53,
+                backgroundColor: 'rgba(0,0,0,0.2)',
+              }}
+              blurRadius={1}
+              overlayColor={'transparent'}
+            />
+            <CardHeader>
+              <DateText>{item.type.toUpperCase()}</DateText>
+            </CardHeader>
+            {/*<Line />*/}
+            <CardBody style={{backgroundColor: 'rgba(0, 0, 0, 0.4)'}}>
+              <RecordValue>{distanceString}</RecordValue>
+              <GoalSection>
+                <GoalText>{item.name}</GoalText>
+              </GoalSection>
+            </CardBody>
+          </CardContainer>
+        </TouchHandler>
+      )
+    })
+  }
+
   return (
     <Wrapper>
       <HeaderContainer>
@@ -153,33 +252,19 @@ export const RoutesClasses = () => {
 
       <SliderContainer>
         <>
-          {data.map(({title, record_today, goal_title, img}) => (
-            <CardContainer>
-              <CardImage source={img} />
-              <BlurView 
-                style={{
-                  position: "absolute",
-                  width: '100%',
-                  height: 53,
-                  backgroundColor: 'rgba(0,0,0,0.2)'
-                }}
-                blurRadius={1}
-                overlayColor={'transparent'}
-              />
-              <CardHeader>
-                <DateText>{title}</DateText>
-              </CardHeader>
-              <Line />
-              <CardBody>
-                <RecordValue>{record_today}</RecordValue>
-                <GoalSection>
-                  <GoalText>{goal_title}</GoalText>
-                </GoalSection>
-              </CardBody>
-            </CardContainer>
-          ))}
+          {renderActivities()}
         </>
       </SliderContainer>
+      <MapboxGL.UserLocation
+        visible={true}
+        onUpdate={onUserLocationUpdate}
+      />
+      <ActivityDetailsModal
+        ref={detailsModalRef}
+        onBack={handleOnDetailsBackPressed}
+        stackBehavior={'push'}
+        activityId={modalActivityId}
+      />
     </Wrapper>
   );
 };

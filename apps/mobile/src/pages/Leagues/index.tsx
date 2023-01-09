@@ -1,23 +1,29 @@
-import React, {useCallback, useRef} from 'react';
-import {ScrollView, Image, Text} from 'react-native';
-import styled from 'styled-components/native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Route} from 'react-native-tab-view';
-import {StackScreenProps} from '@react-navigation/stack';
+import {Label, PlotCard, TabView, TouchHandler} from '@components';
+import {useMe} from '@hooks';
 import {
   CommonActions,
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
-import {RootStackParamList} from 'routes/types';
+import {widthLize} from '@utils';
+import React, {useCallback, useRef} from 'react';
+import {ScrollView, StyleSheet} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {Route} from 'react-native-tab-view';
+import styled from 'styled-components/native';
+import {StackScreenProps} from '@react-navigation/stack';
+import {RootStackParamList} from '../../routes/types';
 import {ExploreLeagues, Invitations, MyLeagues} from './tabs';
-import {TabView, Label, Card, TouchHandler} from '@components';
-import {useMe} from '@hooks';
-import { BlurView  } from '@react-native-community/blur';
-import { RankCard } from './components/RankCard';
+import {CteLeagueCard} from '../../components/league/LeagueCard/CteLeagueCard';
 
 const Wrapper = styled.View({
   flex: 1,
+});
+
+const StyledCteLeagueCard = styled(CteLeagueCard)({
+  marginTop: 23,
+  marginRight: 14,
+  marginBottom: 20,
 });
 
 const PageTitle = styled(Label).attrs(() => ({
@@ -38,6 +44,7 @@ const LeaguesTitleContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
+  marginHorizontal: widthLize(20),
 });
 
 const Title = styled(Label).attrs(() => ({
@@ -72,119 +79,34 @@ const SliderContainer = styled.ScrollView.attrs(() => ({
   showsHorizontalScrollIndicator: false,
   contentContainerStyle: {
     justifyContent: 'space-between',
+    paddingLeft: widthLize(20),
   },
 }))({});
 
-const CardContainer = styled(Card)({
-  width: 327,
-  height: 350,
-  marginTop: 23,
-  marginRight: 14,
-  marginBottom: 20,
-  overflow: 'hidden',
-});
-
-const CardImage = styled.Image({
-  position: 'absolute',
-  width: '100%',
-  height: '100%',
-});
-
-const Row = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-});
-
-const Bfit = styled.View({
-  marginTop: 24,
-  marginLeft: 24,
-  paddingTop: 8,
-  paddingBottom: 8,
-  paddingLeft: 12,
-  paddingRight: 12,
-  borderRadius: 20,
-  backgroundColor: '#060606',
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignItems: 'center',
-});
-
-const BfitValue = styled(Label).attrs(() => ({
-  type: 'caption',
-}))({
-  fontFamily: 'Roboto',
-  fontSize: 14,
-  lineHeight: 16,
-  letterSpacing: 2,
-  textAlign: 'center',
-});
-
-const Line = styled.View({
-  position: 'relative',
-  width: '100%',
-  height: 2,
-  backgroundColor: '#ffffff',
-  marginTop: 209,
-  border: 0,
-  opacity: 0.2,
-});
-
-const CardInfo = styled.View({
-  position: 'relative',
-  width: '100%',
-  height: 87,
-  paddingTop: 20,
-  paddingLeft: 24,
-  paddingBottom: 22,
-  paddingRight: 24,
-});
-
-const MembersText = styled(Text)({
-  position: 'relative',
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
-  fontWeight: 'bold',
-  fontSize: 14,
-  lineHeight: 16,
-  letterSpacing: 1,
-  textTransform: 'uppercase',
-  color: '#FFFFFF'
-});
-
-const CompeteName = styled(Text)({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
-  fontSize: 17,
-  lineHeight: 21,
-  color: '#FFFFFF',
-  marginTop: 7,
-  textAlign: 'left'
-});
-
 const compete_data = [
   {
-    id: 1,
+    id: '2f0f7e47-1f14-4b33-a8bd-d23c9665e7ad',
     bfit: 40,
     members: 1117,
     compete_name: 'Global Steps Challenge',
     img: require('../../../assets/images/leagues/laufen-running-EVO-Fitness.png'),
   },
   {
-    id: 2,
+    id: '813e033d-9035-4ee0-817a-e75059a78fa6',
     bfit: 40,
     members: 293,
     compete_name: 'Your Daily Yoga',
     img: require('../../../assets/images/leagues/nature-zen.png'),
   },
   {
-    id: 3,
+    id: 'b0ae65cf-4c80-48c0-a93f-89c6a3c2cbd5',
     bfit: 40,
     members: 293,
     compete_name: 'Your Daily Yoga',
     img: require('../../../assets/images/leagues/josh-duke.png'),
   },
   {
-    id: 4,
+    id: '9ca51868-cb2f-4bb6-bb14-56c44f85b16f',
     bfit: 40,
     members: 300,
     compete_name: 'Every Morning Run',
@@ -206,12 +128,13 @@ export const Leagues = (
 
   useFocusEffect(
     useCallback(() => {
-      if (!!tabViewRef.current?.jumpToIndex && tab !== undefined)
+      if (!!tabViewRef.current?.jumpToIndex && tab !== undefined) {
         tabViewRef.current.jumpToIndex(tab);
+      }
 
       // Reset navigation params
       navigation.dispatch(CommonActions.setParams({tab: undefined}));
-    }, [tab]),
+    }, [navigation, tab]),
   );
 
   const renderTabs = ({route, ...rest}: {route: Route}) => {
@@ -233,11 +156,15 @@ export const Leagues = (
     <Wrapper style={{marginTop: insets.top}}>
       <ScrollView
         contentContainerStyle={{
-          paddingHorizontal: 15,
-          paddingBottom: 20,
+          paddingBottom: 79,
         }}>
         <PageTitle>Gold Leagues</PageTitle>
-        <RankCard />
+        <PlotCard.Calories
+          wrapperStyle={styles.rewardCard}
+          totalAmount={355}
+          gainedPerDay={123}
+          percentsPerDay={45.3}
+        />
         <LeaguesTitleContainer>
           <Title>Compete to earn leagues</Title>
           <TouchHandler>
@@ -245,35 +172,17 @@ export const Leagues = (
           </TouchHandler>
         </LeaguesTitleContainer>
         <SliderContainer>
-          <>
-            {compete_data.map(({bfit, members, compete_name, img}) => (
-              <CardContainer>
-                <CardImage source={img} />
-                <Row>
-                  <Bfit>
-                    <BfitValue>{bfit} $BFIT</BfitValue>
-                  </Bfit>
-                </Row>
-                <Line />
-                <CardInfo>
-                  <BlurView 
-                    style={{
-                      position: "absolute",
-                      width: 327,
-                      height: 87,
-                      backgroundColor: 'rgba(0,0,0,0.2)'
-                    }}
-                    blurRadius={1}
-                    overlayColor={'transparent'}
-                  />
-                  <MembersText>
-                    <Text style={{color: '#00E9D7'}}>{members}</Text> Members
-                  </MembersText>
-                  <CompeteName>{compete_name}</CompeteName>
-                </CardInfo>
-              </CardContainer>
-            ))}
-          </>
+          {compete_data.map(({id, bfit, members, compete_name, img}) => (
+            <StyledCteLeagueCard
+              bfitValue={bfit}
+              memberCount={members}
+              name={compete_name}
+              imageUrl={img}
+              onPress={() => {
+                navigation.navigate('League', {id, isBfit: true});
+              }}
+            />
+          ))}
         </SliderContainer>
         <TabView
           ref={tabViewRef}
@@ -292,3 +201,10 @@ export const Leagues = (
     </Wrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  rewardCard: {
+    marginHorizontal: widthLize(20),
+    marginTop: 27,
+  },
+});

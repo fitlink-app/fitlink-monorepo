@@ -111,8 +111,6 @@ export const HealthActivityDetails = (
 
   const {data} = useHealthActivity(id, areInteractionsDone);
 
-  console.log(data);
-
   const {shareActivity, isLoading: isShareActivityLoading} =
     useShareHealthActivity();
 

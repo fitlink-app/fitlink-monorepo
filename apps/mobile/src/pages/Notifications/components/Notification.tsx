@@ -1,16 +1,11 @@
-import {
-  Label,
-  TouchHandler,
-  Avatar,
-  Button,
-  TouchHandlerProps,
-} from '@components';
+import {Label, TouchHandler, Avatar, TouchHandlerProps} from '@components';
 import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {Notification as NotificationClass} from '@fitlink/api/src/modules/notifications/entities/notification.entity';
 import {formatDistanceToNow} from 'date-fns';
 import {NotificationAction} from '@fitlink/api/src/modules/notifications/notifications.constants';
+import {View} from 'react-native';
 
 /** Styled Components */
 const Wrapper = styled.View({
@@ -46,6 +41,7 @@ const Name = styled(Label).attrs(() => ({
 }))({
   fontSize: 16,
   lineHeight: 25,
+  fontWeight: '400',
 });
 
 const Message = styled(Label).attrs(() => ({
@@ -54,6 +50,7 @@ const Message = styled(Label).attrs(() => ({
 }))({
   fontSize: 14,
   lineHeight: 21,
+  fontWeight: '400',
 });
 
 const Subject = styled(Label).attrs(() => ({
@@ -66,28 +63,21 @@ const Time = styled(Label).attrs(() => ({
   type: 'caption',
   appearance: 'secondary',
 }))({
-  fontSize: 13
+  fontSize: 13,
+  fontWeight: '400',
 });
 
-const ButtonsContainer = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'flex-end',
-  marginTop: 10,
-});
-
-const ButtonSpacer = styled.View({width: 10});
-
-const UnreadMark = styled.View(({theme: {colors}}) => ({
-  borderRadius: 99,
-  width: 13,
-  height: 13,
-  backgroundColor: colors.danger,
-  position: 'absolute',
-  left: 0,
-  top: -3,
-  borderColor: colors.background,
-  borderWidth: 2,
-}));
+// const UnreadMark = styled.View(({theme: {colors}}) => ({
+//   borderRadius: 99,
+//   width: 13,
+//   height: 13,
+//   backgroundColor: colors.danger,
+//   position: 'absolute',
+//   left: 0,
+//   top: -3,
+//   borderColor: colors.background,
+//   borderWidth: 2,
+// }));
 
 interface NotificationProps extends TouchHandlerProps {
   item: NotificationClass;
@@ -95,7 +85,6 @@ interface NotificationProps extends TouchHandlerProps {
 
 export const Notification = ({item, ...rest}: NotificationProps) => {
   const navigation = useNavigation();
-  const {colors} = useTheme();
 
   const avatar = item.avatar?.url_128x128;
 
@@ -276,47 +265,60 @@ export const Notification = ({item, ...rest}: NotificationProps) => {
   const onPressAction = generateOnPressAction();
 
   const handleOnPress = () => {
-    if (typeof onPressAction === 'function') onPressAction();
+    if (typeof onPressAction === 'function') {
+      onPressAction();
+    }
   };
 
   return (
-    <TouchHandler
-      {...rest}
-      onPress={handleOnPress}
-      disabled={!onPressAction}
-      style={{
-        backgroundColor: item.seen ? undefined : colors.surface,
-      }}>
-      <Wrapper>
-        <ContentContainer>
-          <Row style={{alignItems: 'flex-start'}}>
-            <Avatar url={avatar} size={49} radius={10} />
-            <Row style={{flex: 1}}>
-              <NotificationDetailsContainer>
-                <Row style={{marginBottom: 2, justifyContent: 'space-between', alignItems: 'center'}}>
-                  <Name>{item.title}</Name>
-                  <Time>
-                    {formatDistanceToNow(new Date(item.created_at), {
-                      addSuffix: true,
-                    })}
-                  </Time>
-                </Row>
-
-                {renderMessage()}
-
-                {/* Buttons? */}
-                {renderAdditional()}
-              </NotificationDetailsContainer>
-            </Row>
-
-            {!item.seen && <UnreadMark />}
-          </Row>
-        </ContentContainer>
-
-        <BottomSeparator
-          style={{backgroundColor: item.seen ? '#2e2e2e' : '#3b3b3b'}}
+    <>
+      {item.seen && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            zIndex: 10,
+          }}
         />
-      </Wrapper>
-    </TouchHandler>
+      )}
+      <TouchHandler {...rest} onPress={handleOnPress} disabled={!onPressAction}>
+        <Wrapper>
+          <ContentContainer>
+            <Row style={{alignItems: 'flex-start'}}>
+              <Avatar url={avatar} size={49} radius={10} />
+              <Row style={{flex: 1}}>
+                <NotificationDetailsContainer>
+                  <Row
+                    style={{
+                      marginBottom: 2,
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}>
+                    <Name>{item.title}</Name>
+                    <Time>
+                      {formatDistanceToNow(new Date(item.created_at), {
+                        addSuffix: true,
+                      })}
+                    </Time>
+                  </Row>
+                  {renderMessage()}
+                  {renderAdditional()}
+                </NotificationDetailsContainer>
+              </Row>
+            </Row>
+          </ContentContainer>
+
+          <BottomSeparator
+            style={{backgroundColor: item.seen ? '#2e2e2e' : '#3b3b3b'}}
+          />
+        </Wrapper>
+      </TouchHandler>
+    </>
   );
 };

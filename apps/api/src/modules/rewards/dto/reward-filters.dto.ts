@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { Transform } from 'class-transformer'
 import { IsBoolean, IsInt, IsNumberString, IsOptional } from 'class-validator'
 
 export class RewardFiltersDto {
@@ -22,6 +23,16 @@ export class RewardFiltersDto {
   })
   @IsOptional()
   available?: boolean = false
+
+  @ApiProperty({
+    required: false,
+    nullable: true
+  })
+  @IsOptional()
+  @Transform(({value}) =>
+    value === 'true'
+  )
+  isPrivateOnly?: boolean = false
 }
 
 export class RewardGlobalFilterDto {
