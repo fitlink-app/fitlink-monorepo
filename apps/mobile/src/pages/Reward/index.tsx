@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {ActivityIndicator, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
@@ -28,11 +28,17 @@ export const Reward = (
   const {id, image} = props.route.params;
   const {colors} = useTheme();
 
+  const [isBfitReward, setIsBfitReward] = useState(true);
+
   const insets = useSafeAreaInsets();
   const {data: user} = useMe();
   const {data: reward} = useReward(id);
 
   const sharedContentOffset = useSharedValue(0);
+
+  const swapRewardCurrency = () => {
+    setIsBfitReward(prev => !prev);
+  };
 
   if (!reward || !user) {
     return (
@@ -42,6 +48,9 @@ export const Reward = (
     );
   }
 
+  const requiredReward = isBfitReward
+    ? `${reward.points_required} $BFIT`
+    : `${reward.points_required * 0.2} $`;
   const expirationDate = new Date(reward.reward_expires_at);
   const isExpired = new Date() > expirationDate;
   const restDays = calculateDaysLeft(expirationDate, isExpired);
@@ -61,14 +70,15 @@ export const Reward = (
     <Wrapper>
       <AnimatedHeaderCard
         headerProps={{
-          title: 'GOLD REWARD',
+          title: 'REWARD',
         }}
         imageContainerProps={{
           imageSource: {uri: image},
           p1,
           p2: reward.name,
           p3: reward.name_short,
-          animatedValue: `${reward.points_required} $BFIT`,
+          animatedValue: requiredReward,
+          onAnimatedValuePress: swapRewardCurrency,
         }}
         descriptionProps={{
           description: reward.description,
@@ -84,7 +94,7 @@ export const Reward = (
           />
         ) : (
           <DetailedProgressBar
-            height={40}
+            height={10}
             width="100%"
             currentPoint={user.points_total}
             requiredPoint={reward.points_required}

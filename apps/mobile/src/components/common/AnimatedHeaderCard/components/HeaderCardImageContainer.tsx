@@ -4,6 +4,7 @@ import {
   StyleProp,
   StyleSheet,
   TextStyle,
+  TouchableOpacity,
   ViewStyle,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -21,6 +22,7 @@ export interface IHeaderCardImageContainerProps {
   p2: string;
   p3?: string | null;
   animatedValue?: string;
+  onAnimatedValuePress?: () => unknown;
 }
 
 const HeaderCardImageContainer: FC<IHeaderCardImageContainerProps> = ({
@@ -31,6 +33,7 @@ const HeaderCardImageContainer: FC<IHeaderCardImageContainerProps> = ({
   p2,
   p3,
   animatedValue,
+  onAnimatedValuePress,
   animatedValueStyle,
   animatedContainerStyle,
 }) => {
@@ -39,10 +42,14 @@ const HeaderCardImageContainer: FC<IHeaderCardImageContainerProps> = ({
       <Animated.Image style={styles.image} source={imageSource} />
       <Animated.View style={[blurSectionStyle, styles.blurContainer]}>
         <ImageCardBlurSection style={styles.imageBlur} type="footer">
-          <Label style={styles.p1} appearance="accent" bold={true}>
+          <Label
+            numberOfLines={1}
+            style={styles.p1}
+            appearance="accent"
+            bold={true}>
             {p1}
           </Label>
-          <Label style={styles.p2} type="title">
+          <Label numberOfLines={1} style={styles.p2} type="title">
             {p2}
           </Label>
           {!!p3 && (
@@ -53,16 +60,21 @@ const HeaderCardImageContainer: FC<IHeaderCardImageContainerProps> = ({
         </ImageCardBlurSection>
       </Animated.View>
       {animatedValue !== undefined && (
-        <Animated.View style={[styles.valueContainer, animatedContainerStyle]}>
+        <AnimatedTouchableOpacity
+          activeOpacity={1}
+          onPress={onAnimatedValuePress}
+          style={[styles.valueContainer, animatedContainerStyle]}>
           <AnimatedLabel style={[styles.value, animatedValueStyle]}>
             {animatedValue}
           </AnimatedLabel>
-        </Animated.View>
+        </AnimatedTouchableOpacity>
       )}
     </Animated.View>
   );
 };
 
+const AnimatedTouchableOpacity =
+  Animated.createAnimatedComponent(TouchableOpacity);
 const AnimatedLabel = Animated.createAnimatedComponent(Label);
 
 const styles = StyleSheet.create({

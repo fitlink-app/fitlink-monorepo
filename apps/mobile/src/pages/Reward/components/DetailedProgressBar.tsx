@@ -1,6 +1,7 @@
 import React, {FC} from 'react';
 import {StyleProp, StyleSheet, View, ViewStyle, Text} from 'react-native';
 import theme from '../../../theme/themes/fitlink';
+import {Icon} from '@components';
 
 interface DetailedProgressBarProps {
   currentPoint: number;
@@ -45,12 +46,18 @@ const DetailedProgressBar: FC<DetailedProgressBarProps> = ({
             backgroundColor: foregroundColor,
           }}
         />
-        <Text style={[styles.text, styles.textLeft, {lineHeight: height - 1}]}>
-          {currentBfitText}
-        </Text>
-        <Text style={[styles.text, styles.textRight, {lineHeight: height - 1}]}>
-          {requiredBfitText}
-        </Text>
+      </View>
+      <View style={styles.row}>
+        <View style={{flexDirection: 'row'}}>
+          <Icon
+            style={styles.icon}
+            name="wallet-solid"
+            color={theme.colors.text}
+            size={18}
+          />
+          <Text style={styles.text}>{currentBfitText}</Text>
+        </View>
+        <Text style={styles.text}>{requiredBfitText}</Text>
       </View>
     </View>
   );
@@ -63,18 +70,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   text: {
-    position: 'absolute',
     fontFamily: 'Roboto',
     fontSize: 14,
     fontWeight: '500',
+    color: theme.colors.text,
   },
-  textLeft: {
-    left: 20,
-    color: theme.colors.background,
+  row: {
+    paddingTop: 13,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
   },
-  textRight: {
-    right: 20,
-    color: theme.colors.accent,
+  icon: {
+    marginRight: 5,
   },
 });
 

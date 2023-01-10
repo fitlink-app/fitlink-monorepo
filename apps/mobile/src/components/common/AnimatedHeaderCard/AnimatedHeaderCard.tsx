@@ -25,7 +25,12 @@ interface IAnimatedHeaderCardProps {
   headerProps: IAnimatedHeaderCardNavbarProps;
   imageContainerProps: Pick<
     IHeaderCardImageContainerProps,
-    'imageSource' | 'p1' | 'p2' | 'p3' | 'animatedValue'
+    | 'imageSource'
+    | 'p1'
+    | 'p2'
+    | 'p3'
+    | 'animatedValue'
+    | 'onAnimatedValuePress'
   >;
   descriptionProps: Pick<
     IHeaderCardDescriptionProps,
