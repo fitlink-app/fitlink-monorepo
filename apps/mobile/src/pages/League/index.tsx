@@ -37,7 +37,7 @@ export const League = (
     refetchOnMount: false,
   });
 
-  const {league, id, isBfit} = props.route.params;
+  const {league, id} = props.route.params;
 
   const [areInteractionsDone, setInteractionsDone] = useState(false);
 
@@ -71,6 +71,8 @@ export const League = (
   const {data: flanksData, refetch: refetchFlanks} = useRank(id);
 
   const activeLeague = {...league, ...fetchedLeague} as LeagueType as any;
+
+  const isBfit = activeLeague?.access === LeagueAccess.CompeteToEarn;
 
   const scrollValue = useRef(new Animated.Value(0)).current;
 
