@@ -606,7 +606,7 @@
 				CODE_SIGN_ENTITLEMENTS = Fitlink/Fitlink.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = 58US58KL26;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Fitlink/Info.plist;
@@ -640,7 +640,7 @@
 				CODE_SIGN_ENTITLEMENTS = Fitlink/FitlinkRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = 58US58KL26;
 				INFOPLIST_FILE = Fitlink/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BFIT;
@@ -739,7 +739,7 @@
 				CODE_SIGN_ENTITLEMENTS = Fitlink/FitlinkDevelopment.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = 58US58KL26;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Fitlink/Info.plist;
@@ -756,7 +756,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bfitcoin;
-				PRODUCT_NAME = "(DEV) Fitlink";
+				PRODUCT_NAME = DevFitlink;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -860,7 +860,7 @@
 				CODE_SIGN_ENTITLEMENTS = Fitlink/FitlinkRelease.Development.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = 58US58KL26;
 				INFOPLIST_FILE = Fitlink/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BFIT;
@@ -876,7 +876,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bfitcoin;
-				PRODUCT_NAME = "(DEV) Fitlink";
+				PRODUCT_NAME = DevFitlink;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -976,7 +976,7 @@
 				CODE_SIGN_ENTITLEMENTS = Fitlink/FitlinkRelease.Codepush.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = 58US58KL26;
 				INFOPLIST_FILE = Fitlink/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BFIT;
@@ -992,7 +992,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bfitcoin;
-				PRODUCT_NAME = "(Codepush) Fitlink";
+				PRODUCT_NAME = CodepushFitlink;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
