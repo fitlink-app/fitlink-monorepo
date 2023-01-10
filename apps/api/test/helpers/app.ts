@@ -37,6 +37,7 @@ import { UsersSetting } from '../../src/modules/users-settings/entities/users-se
 import { Subscription } from '../../src/modules/subscriptions/entities/subscription.entity'
 import { SubscriptionsInvitation } from '../../src/modules/subscriptions/entities/subscriptions-invitation.entity'
 import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity'
+import { LeagueBfitClaim } from '../../src/modules/leagues/entities/bfit-claim.entity'
 import {
   mockConfigService,
   mockConfigServiceProvider,
@@ -85,7 +86,8 @@ export const entities = [
   TeamsInvitation,
   User,
   UserRole,
-  UsersSetting
+  UsersSetting,
+  LeagueBfitClaim
 ]
 
 export async function mockApp({
@@ -129,9 +131,8 @@ export async function mockApp({
   const fastifyAdapter = new FastifyAdapter()
   fastifyAdapter.register(fastifyMultipart)
 
-  const app = result.createNestApplication<NestFastifyApplication>(
-    fastifyAdapter
-  )
+  const app =
+    result.createNestApplication<NestFastifyApplication>(fastifyAdapter)
 
   // TODO: Lock to specific origins
   app.enableCors({

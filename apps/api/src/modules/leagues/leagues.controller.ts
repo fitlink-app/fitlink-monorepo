@@ -174,7 +174,7 @@ export class LeaguesController {
   findAll(
     @User() authUser: AuthenticatedUser,
     @Pagination() pagination: PaginationQuery,
-    @Query() isPrivateQuery: LeaguesIsPrivateOnlyDto,
+    @Query() isPrivateQuery: LeaguesIsPrivateOnlyDto
   ) {
     if (authUser.isSuperAdmin()) {
       return this.leaguesService.findAll({}, pagination)
@@ -182,7 +182,7 @@ export class LeaguesController {
       return this.leaguesService.findAllNotParticipating(
         authUser.id,
         pagination,
-        isPrivateQuery.isPrivateOnly,
+        isPrivateQuery.isPrivateOnly
       )
     }
   }
@@ -209,7 +209,7 @@ export class LeaguesController {
    * @param createLeagueDto
    * @returns
    */
-  @Post('/leagues/:leagueId/compete-to-earn')
+  @Post('/leagues/:leagueId/claim')
   @ApiTags('leagues')
   @ApiResponse({ type: League, status: 201 })
   claimBFIT(
@@ -270,13 +270,13 @@ export class LeaguesController {
     @Query() query: SearchLeagueDto,
     @User() user: AuthenticatedUser,
     @Pagination() pagination: PaginationQuery,
-    @Query() isPrivateQuery: LeaguesIsPrivateOnlyDto,
+    @Query() isPrivateQuery: LeaguesIsPrivateOnlyDto
   ) {
     return this.leaguesService.searchManyAccessibleToUser(
       query.q,
       user.id,
       pagination,
-      isPrivateQuery.isPrivateOnly,
+      isPrivateQuery.isPrivateOnly
     )
   }
 
@@ -597,5 +597,5 @@ export class LeaguesController {
       pending,
       ending
     }
-    }
+  }
 }
