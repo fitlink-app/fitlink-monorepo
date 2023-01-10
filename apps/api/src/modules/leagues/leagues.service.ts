@@ -169,6 +169,11 @@ export class LeaguesService {
     if (!league) {
       throw new NotFoundException(`League with ID ${leagueId} not found`)
     }
+    if (league.access !== LeagueAccess.CompeteToEarn) {
+      throw new NotFoundException(
+        'The provided league is not a compete to ear league'
+      )
+    }
     const leagueBfitClaim = new LeagueBfitClaim()
     leagueBfitClaim.league_id = leagueId
     leagueBfitClaim.user_id = userId
@@ -270,7 +275,7 @@ export class LeaguesService {
   async findAllNotParticipating(
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface,
-    isPrivateOnly = false,
+    isPrivateOnly = false
   ) {
     // Use a subquery inside a where statement to determine
     // leagues that the user does not yet belong to.
@@ -520,7 +525,9 @@ export class LeaguesService {
         .where(
           new Brackets((qb) => {
             // The league is public
-            const checkedQb = isPrivateOnly ? qb : qb.where('league.access = :accessPublic')
+            const checkedQb = isPrivateOnly
+              ? qb
+              : qb.where('league.access = :accessPublic')
             return (
               checkedQb
                 // the league is a compete to earn league
