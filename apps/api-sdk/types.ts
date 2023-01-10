@@ -184,6 +184,7 @@ export type ListResource =
   | '/subscriptions/:subscriptionId/chargebee/invoices'
   | '/users-invitations'
   | '/leagues'
+  | '/leagues/search'
   | '/me'
   | '/me/activities'
   | '/me/teams'
@@ -413,6 +414,15 @@ export type ListParams = NodeJS.Dict<any> & {
   limit?: number
   page?: number
   query?: NodeJS.Dict<any>
+  leagueFilter?: LeagueFilter
+}
+
+export type LeagueFilter = {
+  isPublic?: boolean
+  isCte?: boolean
+  isPrivate?: boolean
+  isTeam?: boolean
+  isOrganization?: boolean
 }
 
 export type ListResponse<T> = {

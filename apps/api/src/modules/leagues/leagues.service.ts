@@ -38,6 +38,7 @@ import { NotificationAction } from '../notifications/notifications.constants'
 import { LeaguesInvitation } from '../leagues-invitations/entities/leagues-invitation.entity'
 import { LeagueBfitClaim } from './entities/bfit-claim.entity'
 import { ClaimLeagueBfitDto } from './dto/claim-league-bfit.dto'
+import { LeagueFilter } from 'apps/api-sdk/types'
 import { LeagueBfitEarnings } from './entities/bfit-earnings.entity'
 
 type LeagueOptions = {
@@ -298,7 +299,7 @@ export class LeaguesService {
   async findAllNotParticipating(
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface,
-    isPrivateOnly = false
+    leagueFilters: LeagueFilter = {},
   ) {
     // Use a subquery inside a where statement to determine
     // leagues that the user does not yet belong to.
@@ -308,7 +309,7 @@ export class LeaguesService {
       .innerJoin('league.users', 'user')
       .where('user.id = :userId', { userId })
 
-    const query = this.queryFindAccessibleToUser(userId, isPrivateOnly)
+    const query = this.queryFindAccessibleToUser(userId, leagueFilters)
       .andWhere(`league.id NOT IN (${where.getQuery()})`)
       .take(limit)
       .skip(page * limit)
@@ -421,9 +422,9 @@ export class LeaguesService {
     keyword: string,
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface,
-    isPrivateOnly = false
+    leagueFilters: LeagueFilter = {},
   ) {
-    const query = this.queryFindAccessibleToUser(userId, isPrivateOnly)
+    const query = this.queryFindAccessibleToUser(userId, leagueFilters)
       .andWhere(
         '(league.name ILIKE :keyword OR league.description ILIKE :keyword)',
         { keyword: `%${keyword}%` }
@@ -503,7 +504,13 @@ export class LeaguesService {
    * @param userId
    * @returns
    */
-  queryFindAccessibleToUser(userId: string, isPrivateOnly = false) {
+  queryFindAccessibleToUser(userId: string, {
+    isCte = true,
+    isOrganization = true,
+    isPrivate = true,
+    isPublic = true,
+    isTeam = true,
+  }: LeagueFilter = {}) {
     const rankQb = this.leaderboardEntryRepository
       .createQueryBuilder('entry')
       .select(
@@ -547,14 +554,20 @@ export class LeaguesService {
 
         .where(
           new Brackets((qb) => {
+            let filteredQb = qb;
+
             // The league is public
-            const checkedQb = isPrivateOnly
-              ? qb
-              : qb.where('league.access = :accessPublic')
-            return (
-              checkedQb
-                // the league is a compete to earn league
-                .orWhere(`league.access = :accessCompeteToEarn`)
+            if (isPublic) {
+              filteredQb = filteredQb.where('league.access = :accessPublic')
+            }
+
+            // the league is a compete to earn league
+            if (isCte) {
+              filteredQb = filteredQb.orWhere('league.access = :accessCompeteToEarn')
+            }
+            // The league is private
+            if (isPrivate) {
+              filteredQb = filteredQb
                 // The league is private & owned by the user
                 .orWhere(
                   '(league.access = :accessPrivate AND owner.id = :userId)'
@@ -564,13 +577,18 @@ export class LeaguesService {
                 .orWhere(
                   `(league.access = :accessPrivate AND leagueUser.id = :userId)`
                 )
+            }
 
-                // The user belongs to the team that the league belongs to
-                .orWhere(`(teamUser.id = :userId)`)
+            // The user belongs to the team that the league belongs to
+            if (isTeam) {
+              filteredQb = filteredQb.orWhere(`(teamUser.id = :userId)`)
+            }
 
-                // The user belongs to the organisation that the league belongs to
-                .orWhere(`(organisationUser.id = :userId)`)
-            )
+            // The user belongs to the organisation that the league belongs to
+            if (isOrganization) {
+                filteredQb = filteredQb.orWhere(`(organisationUser.id = :userId)`)
+            }
+            return filteredQb;
           }),
           {
             accessPrivate: LeagueAccess.Private,

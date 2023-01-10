@@ -76,6 +76,7 @@ export const ExploreLeagues = () => {
   const activeError = displaySearchResults ? searchError : error;
 
   const results = getResultsFromPages(activeData);
+  console.log({results})
 
   const handleOnChangeText = (text: string) => {
     setQuery(text);
