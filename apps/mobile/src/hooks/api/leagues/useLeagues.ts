@@ -11,14 +11,27 @@ const limit = 25;
 const fetchLeagues = ({
   pageParam = 0,
   isPrivateOnly = false,
+  isCte = false,
 }: {
   pageParam?: number | undefined;
-  isPrivateOnly: boolean;
+  isPrivateOnly?: boolean;
+  isCte?: boolean;
 }) =>
   api.list<League>('/leagues', {
     page: pageParam,
     limit,
-    isPrivateOnly,
+    leagueFilter: isCte
+      ? {
+          isCte: true,
+          isPublic: false,
+          isOrganization: false,
+          isPrivate: false,
+          isTeam: false,
+        }
+      : {
+          isPublic: !isPrivateOnly,
+          isCte: false,
+        },
   });
 
 export function useLeagues() {
@@ -27,8 +40,18 @@ export function useLeagues() {
   });
   const isPrivateOnly = Boolean(user?.teams.length);
   return useInfiniteQuery<ListResponse<League>, Error>(
-    QueryKeys.Leagues,
+    [QueryKeys.Leagues, isPrivateOnly, false],
     ({pageParam}) => fetchLeagues({pageParam, isPrivateOnly}),
+    {
+      getNextPageParam: getNextPageParam(limit),
+    },
+  );
+}
+
+export function useCteLeagues() {
+  return useInfiniteQuery<ListResponse<League>, Error>(
+    [QueryKeys.Leagues, false, true],
+    ({pageParam}) => fetchLeagues({pageParam, isCte: true}),
     {
       getNextPageParam: getNextPageParam(limit),
     },

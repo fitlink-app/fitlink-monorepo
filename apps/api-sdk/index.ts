@@ -229,13 +229,14 @@ export class Api {
     options: ListParams = {},
     config?: MethodConfig
   ) {
-    const { limit = 10, page = 0, query, ...rest } = options
+    const { limit = 10, page = 0, query, leagueFilter, ...rest } = options
     const response = await this.axios.get(this.applyParams(url, rest, config), {
       params: {
         limit,
         page,
         ...query,
-        ...rest
+        ...rest,
+        ...leagueFilter
       }
     })
 
