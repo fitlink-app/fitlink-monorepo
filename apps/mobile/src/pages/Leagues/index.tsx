@@ -82,7 +82,6 @@ export const Leagues = (
     useCteLeagues();
 
   const results = getResultsFromPages(data);
-  // navigation.navigate('League', {id, isBfit: true});
 
   return (
     <Wrapper style={{marginTop: insets.top}}>
