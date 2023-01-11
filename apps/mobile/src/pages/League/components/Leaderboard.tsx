@@ -32,6 +32,9 @@ export interface LeaderboardProps
   isRepeat: boolean;
   title: string;
   memberCount: number;
+  bFitToClaim?: number;
+  bFitEarned?: number;
+  onClaimPressed?: () => void;
   endDate: Date;
   membership: 'none' | 'member' | 'owner';
   onRefresh: () => void;
@@ -49,6 +52,8 @@ export const Leaderboard = ({
   userId,
   refreshing,
   isRepeat,
+  bFitToClaim,
+  bFitEarned,
   title,
   memberCount,
   endDate,
@@ -60,6 +65,7 @@ export const Leaderboard = ({
   onEditPressed,
   isPublic,
   isBfit = false,
+  onClaimPressed,
 }: LeaderboardProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
@@ -72,7 +78,7 @@ export const Leaderboard = ({
       key={item.id}
       isBfit={isBfit}
       wins={item.wins}
-      points={item.points}
+      points={isBfit ? item.bfit_earned : item.points}
       name={item.user.name}
       isSelf={item.user.id === userId}
       avatarUrl={item.user.avatar?.url_128x128}
@@ -99,7 +105,9 @@ export const Leaderboard = ({
         description={description}
         imageSource={{uri: imageUri}}
         sharedContentOffset={sharedContentOffset}
-        bfitValue={isBfit ? 15.41 : undefined}
+        bFitToClaim={bFitToClaim}
+        bFitEarned={bFitEarned}
+        onClaimPressed={onClaimPressed}
         onHeightMeasure={setHeaderHeight}
         handleOnEditPressed={onEditPressed}
         isCteLeague={isBfit}

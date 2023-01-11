@@ -850,6 +850,33 @@ export class LeaguesService {
     })
   }
 
+  /**
+   * Find Leaderboard entry by user id
+   *
+   * @param leaderboardId
+   * @param userId
+   */
+  async getLeaderboardMemberByUserId(
+    leagueId: string,
+    userId: string,
+  ): Promise<LeaderboardEntry & { user: UserPublic }> {
+    const query = this.leaderboardEntryRepository
+      .createQueryBuilder('entry')
+      .innerJoin('entry.leaderboard', 'entryLeaderboard')
+      .innerJoin('entryLeaderboard.league', 'league')
+      .innerJoin('league.active_leaderboard', 'leaderboard')
+      .innerJoinAndSelect('entry.user', 'user')
+      .leftJoinAndSelect('user.avatar', 'avatar')
+      .where('league.id = :leagueId AND leaderboard.id = entryLeaderboard.id AND entry.user.id = :userId', {
+        leagueId,
+        userId
+      })
+    const result = await query.getOne()
+
+    return this.getLeaderboardEntryPublic(result)
+  }
+
+
   async getLeagueIfInvited(leagueId: string, userId: string) {
     const league = await this.leaguesRepository
       .createQueryBuilder('league')

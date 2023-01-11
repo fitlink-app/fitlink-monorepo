@@ -446,6 +446,42 @@ export class LeaguesController {
   }
 
   /**
+   * 1. Gets a current user leaderboard entry
+   *
+   * @param id
+   * @returns
+   */
+  @Get('/leagues/:leagueId/members/me')
+  @ApiTags('leagues')
+  @ApiResponse({ type: League, status: 200 })
+  async getLeagueMembersMe(
+    @Param('leagueId') leagueId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      let league = await this.leaguesService.getLeagueIfInvited(
+        leagueId,
+        authUser.id
+      )
+
+      if (!league) {
+        league = await this.leaguesService.findOneAccessibleToUser(
+          leagueId,
+          authUser.id
+        )
+      }
+
+      if (!league) {
+        throw new ForbiddenException(
+          'You do not have permission to view this league'
+        )
+      }
+    }
+
+    return this.leaguesService.getLeaderboardMemberByUserId(leagueId, authUser.id)
+  }
+
+  /**
    * Gets the rank of the user and 2 users flanking it.
    *
    * @param leagueId

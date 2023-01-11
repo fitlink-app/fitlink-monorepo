@@ -5,7 +5,6 @@ import {useMyLeagues} from '@hooks';
 import {ActivityIndicator} from 'react-native';
 import {getResultsFromPages} from 'utils/api';
 import {LeagueList} from './components';
-import {useNavigation} from '@react-navigation/native';
 import {widthLize} from '@utils';
 
 const Wrapper = styled.View({

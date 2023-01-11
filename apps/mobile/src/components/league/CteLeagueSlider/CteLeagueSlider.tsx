@@ -67,6 +67,7 @@ export const CteLeagueSlider = ({
             onPress={() => {
               onCardPress(item.id, item);
             }}
+            bfitValue={item.bfit}
           />
         )}
         horizontal

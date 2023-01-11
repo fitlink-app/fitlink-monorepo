@@ -1,7 +1,13 @@
 import {Navbar} from '@components';
-import {useLeague, useLeagueMembers, useMe, useRank} from '@hooks';
+import {
+  useLeague,
+  useLeagueMembers,
+  useLeagueMembersMe,
+  useMe,
+  useRank,
+} from '@hooks';
 import {StackScreenProps} from '@react-navigation/stack';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -15,6 +21,7 @@ import {League as LeagueType} from '@fitlink/api/src/modules/leagues/entities/le
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {LeagueAccess} from '@fitlink/api/src/modules/leagues/leagues.constants';
+import {useClaimLeagueBfit} from 'hooks/api/leagues/useClaimLeagueBfit';
 
 const HEADER_HEIGHT = 300;
 
@@ -74,6 +81,12 @@ export const League = (
 
   const isBfit = activeLeague?.access === LeagueAccess.CompeteToEarn;
 
+  const {data: memberMe, refetch: refetchMemberMe} = useLeagueMembersMe(
+    activeLeague.id,
+  );
+
+  const {mutateAsync: claimBfit} = useClaimLeagueBfit();
+
   const scrollValue = useRef(new Animated.Value(0)).current;
 
   if (Platform.OS === 'android') {
@@ -101,6 +114,7 @@ export const League = (
     refetchLeague();
     refetchMembers();
     refetchFlanks();
+    refetchMemberMe();
   };
 
   if (!Object.keys(activeLeague).length) {
@@ -114,11 +128,24 @@ export const League = (
     );
   }
 
+  const bFitToClaim = memberMe
+    ? memberMe.bfit_earned - memberMe.bfit_claimed
+    : undefined;
+
+  const claimBfitCallback = () => {
+    if (memberMe && bFitToClaim && league) {
+      claimBfit({id: league.id, dto: {amount: bFitToClaim}});
+    }
+  };
+
   return (
     <Wrapper>
       <Leaderboard
         leagueId={id}
         isBfit={isBfit}
+        bFitToClaim={bFitToClaim}
+        bFitEarned={memberMe?.bfit_earned}
+        onClaimPressed={claimBfitCallback}
         isPublic={activeLeague.access === LeagueAccess.Public}
         imageUri={activeLeague?.image.url_640x360}
         fetchingNextPage={isFetchingMembersNextPage}

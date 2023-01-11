@@ -9,7 +9,7 @@ import {RootState} from 'redux/reducer';
 import {logout} from 'redux/auth/authSlice';
 
 const axios = Axios.create({
-  baseURL: Config.API_URL,
+  baseURL: 'http://10.0.2.2:3000/api/v1/',
 });
 
 export type RequestError = {
