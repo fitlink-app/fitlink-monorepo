@@ -20,8 +20,6 @@ const TotalAmount = ({
       : 0;
   const zeros = new Array(zerosLength).fill(0).join('');
 
-  console.log(numberOfDigits, zerosLength, zeros, totalAmount);
-
   return (
     <Text style={totalAmountStyles.text}>
       {zerosLength && <Text style={totalAmountStyles.zeros}>{zeros}</Text>}
