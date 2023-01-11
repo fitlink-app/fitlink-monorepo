@@ -16,6 +16,8 @@ export function useClaimLeagueBfit() {
     {
       onSuccess: (data, leagueId) => {
         queryClient.invalidateQueries([QueryKeys.LeagueMembersMe, leagueId]);
+        queryClient.invalidateQueries([QueryKeys.League, leagueId]);
+        queryClient.invalidateQueries(QueryKeys.CteLeagues);
       },
     },
   );

@@ -5,7 +5,7 @@ import {ListResponse} from '@fitlink/api-sdk/types';
 import {getNextPageParam} from 'utils/api';
 import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 
-const limit = 25;
+const limit = 10;
 
 const fetchCteLeagues = ({pageParam = 0}: {pageParam?: number | undefined}) =>
   api.list<League>('/leagues/compete-to-earn', {
