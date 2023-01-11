@@ -66,94 +66,96 @@ import { UsersSettingsModule } from '../../src/modules/users-settings/users-sett
 import { UserRolesModule } from '../../src/modules/user-roles/user-roles.module'
 import { UsersInvitationsModule } from '../../src/modules/users-invitations/users-invitations.module'
 import { NotificationsModule } from '../../src/modules/notifications/notifications.module'
+import { LeagueBfitClaim } from '../../src/modules/leagues/entities/bfit-claim.entity'
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      envFilePath: ['.env.local', '.env']
-    }),
+    imports: [
+        ConfigModule.forRoot({
+            envFilePath: ['.env.local', '.env']
+        }),
 
-    EventEmitterModule.forRoot(),
+        EventEmitterModule.forRoot(),
 
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        return {
-          name: 'firebase_migration',
-          type: 'postgres',
-          database: configService.get('DB_DATABASE_NAME'),
-          password: configService.get('DB_PASSWORD'),
-          username: configService.get('DB_USERNAME'),
-          host: configService.get('DB_HOST'),
-          port: configService.get('DB_PORT'),
-          dropSchema: false,
-          entities: [
-            FirebaseMigration,
-            Activity,
-            AuthProvider,
-            Following,
-            FeedItem,
-            FeedItemLike,
-            HealthActivity,
-            HealthActivityDebug,
-            GoalsEntry,
-            Image,
-            Leaderboard,
-            LeaderboardEntry,
-            League,
-            LeaguesInvitation,
-            Notification,
-            Organisation,
-            OrganisationsInvitation,
-            Page,
-            Provider,
-            Queueable,
-            RefreshToken,
-            Reward,
-            RewardsRedemption,
-            Sport,
-            Subscription,
-            SubscriptionsInvitation,
-            Team,
-            TeamsInvitation,
-            User,
-            UserRole,
-            UsersSetting
-          ],
-          synchronize: false,
-          logging: false,
-          retryAttempts: 1
-        }
-      }
-    }),
-    AuthModule,
-    ActivitiesModule,
-    CommonModule,
-    FeedItemsModule,
-    FollowingsModule,
-    NotificationsModule,
-    ImagesModule,
-    LeaderboardsModule,
-    LeaderboardEntriesModule,
-    LeaguesModule,
-    LeaguesInvitationModule,
-    OrganisationsModule,
-    OrganisationsInvitationsModule,
-    ProvidersModule,
-    QueueModule,
-    RewardsModule,
-    RewardsRedemptionsModule,
-    SportsModule,
-    TeamsModule,
-    TeamsInvitationsModule,
-    UsersModule,
-    UsersSettingsModule,
-    GoalsEntriesModule,
-    HealthActivitiesModule,
-    UserRolesModule,
-    SubscriptionsModule,
-    UsersInvitationsModule
-  ]
+        TypeOrmModule.forRootAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => {
+                return {
+                    name: 'firebase_migration',
+                    type: 'postgres',
+                    database: configService.get('DB_DATABASE_NAME'),
+                    password: configService.get('DB_PASSWORD'),
+                    username: configService.get('DB_USERNAME'),
+                    host: configService.get('DB_HOST'),
+                    port: configService.get('DB_PORT'),
+                    dropSchema: false,
+                    entities: [
+                        FirebaseMigration,
+                        Activity,
+                        AuthProvider,
+                        Following,
+                        FeedItem,
+                        FeedItemLike,
+                        HealthActivity,
+                        HealthActivityDebug,
+                        GoalsEntry,
+                        Image,
+                        Leaderboard,
+                        LeaderboardEntry,
+                        League,
+                        LeaguesInvitation,
+                        Notification,
+                        Organisation,
+                        OrganisationsInvitation,
+                        Page,
+                        Provider,
+                        Queueable,
+                        RefreshToken,
+                        Reward,
+                        RewardsRedemption,
+                        Sport,
+                        Subscription,
+                        SubscriptionsInvitation,
+                        Team,
+                        TeamsInvitation,
+                        User,
+                        UserRole,
+                        UsersSetting,
+                        LeagueBfitClaim
+                    ],
+                    synchronize: false,
+                    logging: false,
+                    retryAttempts: 1
+                }
+            }
+        }),
+        AuthModule,
+        ActivitiesModule,
+        CommonModule,
+        FeedItemsModule,
+        FollowingsModule,
+        NotificationsModule,
+        ImagesModule,
+        LeaderboardsModule,
+        LeaderboardEntriesModule,
+        LeaguesModule,
+        LeaguesInvitationModule,
+        OrganisationsModule,
+        OrganisationsInvitationsModule,
+        ProvidersModule,
+        QueueModule,
+        RewardsModule,
+        RewardsRedemptionsModule,
+        SportsModule,
+        TeamsModule,
+        TeamsInvitationsModule,
+        UsersModule,
+        UsersSettingsModule,
+        GoalsEntriesModule,
+        HealthActivitiesModule,
+        UserRolesModule,
+        SubscriptionsModule,
+        UsersInvitationsModule
+    ]
 })
-export class MigrationModule {}
+export class MigrationModule { }
