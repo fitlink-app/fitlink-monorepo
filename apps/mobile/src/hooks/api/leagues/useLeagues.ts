@@ -47,3 +47,13 @@ export function useLeagues() {
     },
   );
 }
+
+export function useCteLeagues() {
+  return useInfiniteQuery<ListResponse<League>, Error>(
+    [QueryKeys.Leagues, false, true],
+    ({pageParam}) => fetchLeagues({pageParam, isCte: true}),
+    {
+      getNextPageParam: getNextPageParam(limit),
+    },
+  );
+}
