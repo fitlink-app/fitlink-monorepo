@@ -7,7 +7,7 @@ import {
   useRank,
 } from '@hooks';
 import {StackScreenProps} from '@react-navigation/stack';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   Animated,
