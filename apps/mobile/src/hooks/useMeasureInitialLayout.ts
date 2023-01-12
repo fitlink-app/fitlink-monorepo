@@ -1,24 +1,22 @@
-import {useRef} from 'react';
+import {useRef, useState} from 'react';
 import {LayoutChangeEvent, LayoutRectangle} from 'react-native';
 
 export const useMeasureInitialLayout = () => {
-  const initialLayoutReactRef = useRef<LayoutRectangle>({
-    width: 0,
-    height: 0,
+  const [initialLayout, setInitialLayout] = useState<LayoutRectangle>({
     x: 0,
     y: 0,
+    width: 0,
+    height: 0,
   });
-  const initialLayoutRef = useRef<LayoutRectangle>(
-    initialLayoutReactRef.current,
-  );
+  const isMeasuredRef = useRef(false);
 
   const measureInitialLayout = (event: LayoutChangeEvent) => {
-    if (initialLayoutRef.current === initialLayoutReactRef.current) {
-      initialLayoutRef.current = event.nativeEvent.layout;
+    if (!isMeasuredRef.current) {
+      setInitialLayout(event.nativeEvent.layout);
     }
   };
 
-  return {initialLayoutRef, measureInitialLayout};
+  return {initialLayout, measureInitialLayout};
 };
 
 export default useMeasureInitialLayout;

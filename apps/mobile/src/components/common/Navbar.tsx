@@ -7,6 +7,7 @@ import {
   TextStyle,
   ViewStyle,
   StyleSheet,
+  LayoutChangeEvent,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
@@ -85,7 +86,8 @@ interface NavbarProps {
   /** Set this as an overlay navbar so content can appear below it */
   overlay?: boolean;
 
-  containerStyle?: any;
+  containerStyle?: StyleProp<ViewStyle>;
+  onLayout?: (event: LayoutChangeEvent) => void;
 }
 
 export const Navbar = ({
@@ -101,6 +103,7 @@ export const Navbar = ({
   titleProps,
   scrollAnimatedValue,
   containerStyle,
+  onLayout,
 }: NavbarProps) => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
@@ -173,12 +176,14 @@ export const Navbar = ({
 
   return (
     <Wrapper
-      style={{
-        paddingTop: insets.top,
-        ...containerStyle,
-      }}>
+      onLayout={onLayout}
+      style={[
+        {
+          paddingTop: insets.top,
+        },
+        containerStyle,
+      ]}>
       <Background style={{...overlayStyle, opacity: fixedHeaderOpacity}} />
-
       <ContentContainer>
         <LeftContent>
           {leftComponent ? leftComponent : renderBackButton()}

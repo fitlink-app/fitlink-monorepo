@@ -50,7 +50,7 @@ export const AnimatedHeaderCard: FC<
   sharedContentOffset,
   children,
 }) => {
-  const {measureInitialLayout, initialLayoutRef} = useMeasureInitialLayout();
+  const {measureInitialLayout, initialLayout} = useMeasureInitialLayout();
 
   const {
     blurSectionStyle,
@@ -58,10 +58,7 @@ export const AnimatedHeaderCard: FC<
     bfitValueContainerStyle,
     bfitValueTextStyle,
     descriptionStyle,
-  } = useHeaderAnimatedStyles(
-    sharedContentOffset,
-    initialLayoutRef.current.height,
-  );
+  } = useHeaderAnimatedStyles(sharedContentOffset, initialLayout.height);
 
   const onAnimatedContainerLayout = (e: LayoutChangeEvent) => {
     if (sharedContentOffset.value === 0 && onHeightLayout) {
