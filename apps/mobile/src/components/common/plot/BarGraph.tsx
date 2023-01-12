@@ -44,6 +44,7 @@ const BarGraph: FC<IBarGraphProps> = ({
         showGrid={false}
         colors={colors}
         data={graphData}
+        animate
         style={{height}}
         spacingInner={spacingInner}
         contentInset={contentInset}
