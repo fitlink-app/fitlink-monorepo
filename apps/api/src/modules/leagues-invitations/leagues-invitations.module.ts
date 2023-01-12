@@ -17,6 +17,7 @@ import { CommonModule } from '../common/common.module'
 import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 import { NotificationsModule } from '../notifications/notifications.module'
 import { LeagueBfitClaim } from '../leagues/entities/bfit-claim.entity'
+import { LeagueBfitEarnings } from '../leagues/entities/bfit-earnings.entity'
 
 @Module({
   imports: [
@@ -31,7 +32,8 @@ import { LeagueBfitClaim } from '../leagues/entities/bfit-claim.entity'
       Organisation,
       User,
       HealthActivity,
-      LeagueBfitClaim
+      LeagueBfitClaim,
+      LeagueBfitEarnings
     ]),
     NotificationsModule,
     JwtModule.registerAsync({

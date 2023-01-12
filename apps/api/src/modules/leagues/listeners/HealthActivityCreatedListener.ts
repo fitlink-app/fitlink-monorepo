@@ -17,6 +17,7 @@ import {
 import { UserPointsIncrementedEvent } from '../../users/events/user-points-incremented.event'
 import { Events } from '../../../../src/events'
 import { LeagueAccess } from '../leagues.constants'
+import { LeagueBfitEarnings } from '../entities/bfit-earnings.entity'
 
 @Injectable()
 export class HealthActivityCreatedListener {
@@ -30,6 +31,9 @@ export class HealthActivityCreatedListener {
 
     @InjectRepository(League)
     private leaguesRepository: Repository<League>,
+
+    @InjectRepository(LeagueBfitEarnings)
+    private leagueBfitEarningsRepository: Repository<LeagueBfitEarnings>,
 
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -168,6 +172,14 @@ export class HealthActivityCreatedListener {
           bfit
         )
       )
+
+      let bfitEarnings = new LeagueBfitEarnings()
+      bfitEarnings.user_id = userId
+      bfitEarnings.league_id = league.id
+      bfitEarnings.bfit_amount = bfit
+      incrementEntryPromises.push(
+        this.leagueBfitEarningsRepository.save(bfitEarnings)
+      )
     }
 
     await Promise.all(incrementEntryPromises)
@@ -216,5 +228,7 @@ export class HealthActivityCreatedListener {
       this.addFeedItem(user, healthActivity)
     ]
     await Promise.all(promises)
+    // update league bfit after user points and league points have been updated
+    await this.updateLeagueBfit(sport, user.id)
   }
 }
