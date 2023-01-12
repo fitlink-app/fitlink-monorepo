@@ -6,6 +6,7 @@ import {
   FindOneOptions,
   getManager,
   LessThan,
+  MoreThan,
   Not,
   Repository
 } from 'typeorm'
@@ -37,6 +38,7 @@ import { NotificationAction } from '../notifications/notifications.constants'
 import { LeaguesInvitation } from '../leagues-invitations/entities/leagues-invitation.entity'
 import { LeagueBfitClaim } from './entities/bfit-claim.entity'
 import { ClaimLeagueBfitDto } from './dto/claim-league-bfit.dto'
+import { LeagueBfitEarnings } from './entities/bfit-earnings.entity'
 
 type LeagueOptions = {
   teamId?: string
@@ -58,6 +60,9 @@ export class LeaguesService {
 
     @InjectRepository(LeagueBfitClaim)
     private leagueBfitClaimRepository: Repository<LeagueBfitClaim>,
+
+    @InjectRepository(LeagueBfitEarnings)
+    private LeagueBfitEarningsRepository: Repository<LeagueBfitEarnings>,
 
     @InjectRepository(Team)
     private teamRepository: Repository<Team>,
@@ -214,6 +219,24 @@ export class LeaguesService {
       skip: page * limit
     })
     return new Pagination<LeagueBfitClaim>({
+      results,
+      total
+    })
+  }
+
+  async getUserBfitEarningsHistory(
+    userId: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ) {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    let query = { user_id: userId, created_at: MoreThan(sevenDaysAgo) }
+    const [results, total] =
+      await this.LeagueBfitEarningsRepository.findAndCount({
+        ...query,
+        take: limit,
+        skip: page * limit
+      })
+    return new Pagination<LeagueBfitEarnings>({
       results,
       total
     })

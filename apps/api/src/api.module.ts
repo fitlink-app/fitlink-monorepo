@@ -68,6 +68,7 @@ import { UsersInvitationsModule } from './modules/users-invitations/users-invita
 import { AppController } from './api.controller'
 import { NotificationsModule } from './modules/notifications/notifications.module'
 import { LeagueBfitClaim } from './modules/leagues/entities/bfit-claim.entity'
+import { LeagueBfitEarnings } from './modules/leagues/entities/bfit-earnings.entity'
 
 @Module({
   imports: [
@@ -120,7 +121,8 @@ import { LeagueBfitClaim } from './modules/leagues/entities/bfit-claim.entity'
             UserRole,
             UsersSetting,
             Notification,
-            LeagueBfitClaim
+            LeagueBfitClaim,
+            LeagueBfitEarnings
           ],
           synchronize: false,
           logging: false,

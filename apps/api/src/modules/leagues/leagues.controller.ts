@@ -235,6 +235,21 @@ export class LeaguesController {
     return this.leaguesService.getUserBfitClaims(authUser.id, pagination)
   }
 
+  // user league bfit earnings history for the past 7 days
+  @Get('/leagues/bfit/earnings')
+  @ApiTags('leagues')
+  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
+  @PaginationBody()
+  findUserBfitEarningsHistory(
+    @User() authUser: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.leaguesService.getUserBfitEarningsHistory(
+      authUser.id,
+      pagination
+    )
+  }
+
   @Iam(Roles.OrganisationAdmin, Roles.TeamAdmin)
   @ApiTags('leagues')
   @ApiResponse({ type: LeaguePublicPagination, status: 200 })
