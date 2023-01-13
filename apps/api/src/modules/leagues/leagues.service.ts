@@ -117,7 +117,7 @@ export class LeaguesService {
       if (!team)
         throw new NotFoundException(`The Team with ID ${teamId} does not exist`)
       league.team = team
-      league.access = LeagueAccess.Team
+      league.access = league.access || LeagueAccess.Team
       league.organisation = team.organisation
 
       // Assign the organisation if required (organisation leagues)
