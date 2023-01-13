@@ -93,7 +93,7 @@ export class RewardsController {
     @User() authUser: AuthenticatedUser,
     @Pagination() pagination: PaginationQuery,
     @Query() appFilters: RewardFiltersDto,
-    @Query() dashboardFilters: RewardGlobalFilterDto,
+    @Query() dashboardFilters: RewardGlobalFilterDto
   ) {
     if (authUser.isSuperAdmin()) {
       return this.rewardsService.findAll(pagination, dashboardFilters)
@@ -101,7 +101,7 @@ export class RewardsController {
     return this.rewardsService.findManyAccessibleToUser(
       authUser.id,
       pagination,
-      appFilters,
+      appFilters
     )
   }
 
