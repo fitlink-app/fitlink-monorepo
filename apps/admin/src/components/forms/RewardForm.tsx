@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import Input from '../elements/Input'
 import Reward from '../elements/Reward'
@@ -12,6 +12,7 @@ import { AuthContext } from '../../context/Auth.context'
 import Checkbox from '../elements/Checkbox'
 import Feedback from '../elements/Feedback'
 import { RewardRedeemType } from '@fitlink/api/src/modules/rewards/rewards.constants'
+import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 
 export type RewardFormProps = {
     current?: Partial<RewardEntity>
@@ -52,6 +53,7 @@ export default function RewardForm({
 }: RewardFormProps) {
     const { api, modeRole, primary } = useContext(AuthContext)
     const [image, setImage] = useState(current?.image?.url || '')
+    const [isSuperAdmin, setIsSuperAdmin] = useState(false)
     const isUpdate = !!current.id
 
     const { register, handleSubmit, watch, setValue } = useForm({
@@ -89,6 +91,15 @@ export default function RewardForm({
                 }
             )
     })
+    const getRoles = async () => {
+        const res = await api.get<UserRole>('/me/roles')
+        if (res[0].role === 'super_admin') {
+            setIsSuperAdmin(true)
+        }
+    }
+    useEffect(() => {
+        getRoles()
+    }, [])
 
     const brand = watch('brand')
     const shortTitle = watch('name_short')
@@ -178,29 +189,31 @@ export default function RewardForm({
                 )}
             </div>
 
-            {modeRole === 'app' && (
-                <div className="radio-toggles">
-                    <label>
-                        <input
-                            type="radio"
-                            value={RewardRedeemType.Points}
-                            {...register('redeem_type')}
-                        />
-                        Points
-                    </label>
+            {modeRole === 'app' ||
+                (isSuperAdmin && (
+                    <div className="radio-toggles">
+                        <label>
+                            <input
+                                type="radio"
+                                value={RewardRedeemType.Points}
+                                {...register('redeem_type')}
+                            />
+                            Points
+                        </label>
 
-                    <label>
-                        <input
-                            type="radio"
-                            value={RewardRedeemType.BFIT}
-                            {...register('redeem_type')}
-                        />
-                        BFIT
-                    </label>
-                </div>
-            )}
+                        <label>
+                            <input
+                                type="radio"
+                                value={RewardRedeemType.BFIT}
+                                {...register('redeem_type')}
+                            />
+                            BFIT
+                        </label>
+                    </div>
+                ))}
 
-            {modeRole === 'app' && redeem_type === RewardRedeemType.BFIT ? (
+            {(modeRole === 'app' || isSuperAdmin) &&
+                redeem_type === RewardRedeemType.BFIT ? (
                 <>
                     <Input
                         name="bfit_required"
