@@ -202,7 +202,7 @@ export class LeaguesController {
   /**
    * All users can fetch compete to earn leagues
    */
-  @Get('/leagues/compete-to-earn')
+  @Get('/leagues/access/compete-to-earn')
   @ApiTags('leagues')
   @ApiResponse({ type: LeaguePublicPagination, status: 200 })
   @PaginationBody()
