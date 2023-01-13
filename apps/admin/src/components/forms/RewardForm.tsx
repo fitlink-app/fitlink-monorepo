@@ -189,28 +189,27 @@ export default function RewardForm({
                 )}
             </div>
 
-            {modeRole === 'app' ||
-                (isSuperAdmin && (
-                    <div className="radio-toggles">
-                        <label>
-                            <input
-                                type="radio"
-                                value={RewardRedeemType.Points}
-                                {...register('redeem_type')}
-                            />
-                            Points
-                        </label>
+            {(modeRole === 'app' || isSuperAdmin) && (
+                <div className="radio-toggles">
+                    <label>
+                        <input
+                            type="radio"
+                            value={RewardRedeemType.Points}
+                            {...register('redeem_type')}
+                        />
+                        Points
+                    </label>
 
-                        <label>
-                            <input
-                                type="radio"
-                                value={RewardRedeemType.BFIT}
-                                {...register('redeem_type')}
-                            />
-                            BFIT
-                        </label>
-                    </div>
-                ))}
+                    <label>
+                        <input
+                            type="radio"
+                            value={RewardRedeemType.BFIT}
+                            {...register('redeem_type')}
+                        />
+                        BFIT
+                    </label>
+                </div>
+            )}
 
             {(modeRole === 'app' || isSuperAdmin) &&
                 redeem_type === RewardRedeemType.BFIT ? (
