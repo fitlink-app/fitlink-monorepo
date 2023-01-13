@@ -90,7 +90,7 @@ interface PlotCardWrapperProps
 // TODO: provide interface for plot data
 const BFIT = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
   const Plot = () => (
-    <Image source={require('../../../assets/images/total_rank_chart2.png')} />
+    <Image source={require('../../../../assets/images/wallet_chart2.png')} />
   );
 
   return (
@@ -106,7 +106,7 @@ const BFIT = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
 
 const Calories = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
   const Plot = () => (
-    <Image source={require('../../../../assets/images/wallet_chart2.png')} />
+    <Image source={require('../../../assets/images/total_rank_chart2.png')} />
   );
 
   return (

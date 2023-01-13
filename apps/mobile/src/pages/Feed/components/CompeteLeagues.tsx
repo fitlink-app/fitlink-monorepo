@@ -18,6 +18,10 @@ export const CompeteLeagues = () => {
 
   const results = getResultsFromPages(data);
 
+  if (!results.length) {
+    return null;
+  }
+
   return (
     <Wrapper>
       <CteLeagueSlider

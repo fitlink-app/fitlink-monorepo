@@ -248,18 +248,18 @@ export const Feed = () => {
               </HeaderWidgetContainer>
             </HeaderContainer>
             <StatContainer>
-              <PlotCard.Calories
-                wrapperStyle={styles.calories}
-                totalAmount={355}
-                gainedPerDay={123}
-                percentsPerDay={45.3}
-              />
               <PlotCard.BFIT
                 totalAmount={user.points_total ?? 0}
                 gainedPerDay={100}
                 percentsPerDay={23.4}
                 onPress={() => navigation.navigate('Wallet')}
                 wrapperStyle={styles.bfit}
+              />
+              <PlotCard.Calories
+                wrapperStyle={styles.calories}
+                totalAmount={355}
+                gainedPerDay={123}
+                percentsPerDay={45.3}
               />
             </StatContainer>
             <FeedContainer>
@@ -284,9 +284,9 @@ export const Feed = () => {
 
 const styles = StyleSheet.create({
   calories: {
-    marginTop: 10,
+    marginTop: 20,
   },
   bfit: {
-    marginTop: 20,
+    marginTop: 10,
   },
 });
