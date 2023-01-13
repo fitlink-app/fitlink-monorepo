@@ -48,7 +48,7 @@ import { ConfigService } from '@nestjs/config'
 import { LeagueJobDto } from './dto/league-job.dto'
 import { Public } from '../../decorators/public.decorator'
 import { ClaimLeagueBfitDto } from './dto/claim-league-bfit.dto'
-import { LeaguesIsPrivateOnlyDto } from './dto/is-private-only.dto'
+import { LeaguesFiltersDto } from './dto/league-filter.dto'
 
 @ApiTags('leagues')
 @ApiBaseResponses()
@@ -174,7 +174,13 @@ export class LeaguesController {
   findAll(
     @User() authUser: AuthenticatedUser,
     @Pagination() pagination: PaginationQuery,
-    @Query() isPrivateQuery: LeaguesIsPrivateOnlyDto
+    @Query() {
+      isCte = true,
+      isOrganization = true,
+      isPrivate = true,
+      isPublic = true,
+      isTeam = true,
+    }: LeaguesFiltersDto,
   ) {
     if (authUser.isSuperAdmin()) {
       return this.leaguesService.findAll({}, pagination)
@@ -182,7 +188,13 @@ export class LeaguesController {
       return this.leaguesService.findAllNotParticipating(
         authUser.id,
         pagination,
-        isPrivateQuery.isPrivateOnly
+        {
+          isCte,
+          isOrganization,
+          isPrivate,
+          isPublic,
+          isTeam,
+        },
       )
     }
   }
@@ -285,13 +297,25 @@ export class LeaguesController {
     @Query() query: SearchLeagueDto,
     @User() user: AuthenticatedUser,
     @Pagination() pagination: PaginationQuery,
-    @Query() isPrivateQuery: LeaguesIsPrivateOnlyDto
+    @Query() {
+      isCte = true,
+      isOrganization = true,
+      isPrivate = true,
+      isPublic = true,
+      isTeam = true,
+    }: LeaguesFiltersDto,
   ) {
     return this.leaguesService.searchManyAccessibleToUser(
       query.q,
       user.id,
       pagination,
-      isPrivateQuery.isPrivateOnly
+      {
+        isCte,
+        isOrganization,
+        isPrivate,
+        isPublic,
+        isTeam,
+      },
     )
   }
 
@@ -419,6 +443,42 @@ export class LeaguesController {
     }
 
     return this.leaguesService.getLeaderboardMembers(leagueId, pagination)
+  }
+
+  /**
+   * 1. Gets a current user leaderboard entry
+   *
+   * @param id
+   * @returns
+   */
+  @Get('/leagues/:leagueId/members/me')
+  @ApiTags('leagues')
+  @ApiResponse({ type: League, status: 200 })
+  async getLeagueMembersMe(
+    @Param('leagueId') leagueId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      let league = await this.leaguesService.getLeagueIfInvited(
+        leagueId,
+        authUser.id
+      )
+
+      if (!league) {
+        league = await this.leaguesService.findOneAccessibleToUser(
+          leagueId,
+          authUser.id
+        )
+      }
+
+      if (!league) {
+        throw new ForbiddenException(
+          'You do not have permission to view this league'
+        )
+      }
+    }
+
+    return this.leaguesService.getLeaderboardMemberByUserId(leagueId, authUser.id)
   }
 
   /**

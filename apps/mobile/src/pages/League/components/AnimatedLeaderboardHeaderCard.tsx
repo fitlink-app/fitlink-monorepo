@@ -15,14 +15,16 @@ interface IAnimatedLeaderboardHeaderCardProps {
   title: string;
   resetDate: Date;
   repeat: boolean;
-  bfitValue?: number;
   description: string;
   onHeightMeasure?: (height: number) => void;
   membership: 'none' | 'member' | 'owner';
   leagueId: string;
   isPublic: boolean;
+  bFitToClaim?: number;
+  bFitEarned?: number;
   isCteLeague?: boolean;
   handleOnEditPressed: () => void;
+  onClaimPressed?: () => void;
   sharedContentOffset: Animated.SharedValue<number>;
 }
 
@@ -32,13 +34,15 @@ const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardProps> =
     membership,
     isPublic,
     handleOnEditPressed,
+    onClaimPressed,
     isCteLeague = false,
     imageSource,
     memberCount,
+    bFitToClaim,
+    bFitEarned,
     title,
     resetDate,
     repeat,
-    bfitValue,
     description,
     onHeightMeasure: onHeightLayout,
     sharedContentOffset,
@@ -87,7 +91,7 @@ const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardProps> =
           p1: `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`,
           p2: title,
           p3: countback,
-          animatedValue: `${bfitValue} $BFIT`,
+          animatedValue: `${bFitEarned} $BFIT`,
         }}
         descriptionProps={{
           description,
@@ -100,7 +104,8 @@ const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardProps> =
             isMember={isMember}
             isCteLeague={isCteLeague}
             handleOnJoinPressed={handleOnJoinPressed}
-            bfitValue={bfitValue}
+            handleClaimBfitPressed={onClaimPressed}
+            bfitValue={bFitToClaim}
           />
         </View>
       </AnimatedHeaderCard>
