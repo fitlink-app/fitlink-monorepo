@@ -1,23 +1,128 @@
+import {Icon, Label, Navbar} from '@components';
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import {useMeasureInitialLayout, useModal} from '@hooks';
 import React, {useState} from 'react';
-import {View, Dimensions, ScrollView} from 'react-native';
-import {Navbar, Label, Card, Icon, Button} from '@components';
-import {useNavigation} from '@react-navigation/core';
+import {
+  ActivityIndicator,
+  FlatList,
+  ListRenderItem,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
-import {HistoryCard} from './components/HistoryCard';
+import theme from '../../theme/themes/fitlink';
+import {WalletHeader} from './components/WalletHeader';
+import WalletHistoryCard from './components/WalletHistoryCard';
+import WalletModal from './components/WalletModal';
+import WalletNotConnectedContent from './components/WalletNotConnectedContent';
+import {useTransactionHistory} from './hooks/useTransactionHistory';
+import {useWeeklyEarnings} from './hooks/useWeeklyEarnings';
+import {TransactionUIModel} from './types';
 
-const {width: SCREEN_WIDTH} = Dimensions.get('screen');
+const NavbarTitle = () => (
+  <View style={{flexDirection: 'row'}}>
+    <Icon name="wallet-solid" size={18} color={theme.colors.accent} />
+    <WalletLabel>WALLET</WalletLabel>
+  </View>
+);
 
-const Wrapper = styled.View({
-  paddingHorizontal: 10,
-  paddingTop: 40,
+export const Wallet = () => {
+  const {colors} = useTheme();
+
+  const [isConnected] = useState<Boolean>(true);
+
+  const {openModal} = useModal();
+  const {measureInitialLayout, initialLayout: initialNavbarLayout} =
+    useMeasureInitialLayout();
+
+  const bfitAmount = 640;
+  const usdAmount = bfitAmount * 0.2;
+
+  const openInfoModel = () => {
+    openModal(() => <WalletModal.Info />);
+  };
+
+  const openComingSoonModal = () => {
+    openModal(() => <WalletModal.ComingSoon />);
+  };
+
+  const {weeklyEarnings} = useWeeklyEarnings();
+
+  const {
+    data,
+    refresh,
+    isRefreshing,
+    isLoading: isLoadingTransactions,
+  } = useTransactionHistory();
+
+  const renderItem: ListRenderItem<TransactionUIModel> = ({item}) => (
+    <WalletHistoryCard key={Number(item.date)} {...item} />
+  );
+
+  if (!isConnected) {
+    return WalletNotConnectedContent;
+  }
+
+  const renderSeparator = () => <View style={{height: 26}} />;
+
+  const renderEmptyComponent = () => (
+    <>
+      {isLoadingTransactions && (
+        <ActivityIndicator color={theme.colors.accent} />
+      )}
+    </>
+  );
+
+  return (
+    <BottomSheetModalProvider>
+      <SFlexed>
+        <Navbar
+          onLayout={measureInitialLayout}
+          containerStyle={{backgroundColor: theme.colors.background}}
+          centerComponent={<NavbarTitle />}
+          iconColor={colors.text}
+        />
+        <View style={{paddingTop: initialNavbarLayout.height + 20}}>
+          <FlatList
+            refreshControl={
+              <RefreshControl
+                tintColor={theme.colors.accent}
+                refreshing={isRefreshing}
+                onRefresh={refresh}
+              />
+            }
+            data={data}
+            renderItem={renderItem}
+            ListHeaderComponent={
+              <WalletHeader
+                bfitAmount={bfitAmount}
+                usdAmount={usdAmount}
+                onInfoPress={openInfoModel}
+                weeklyEarnings={weeklyEarnings}
+                onBuy={openComingSoonModal}
+                onSell={openComingSoonModal}
+                onStock={openComingSoonModal}
+              />
+            }
+            ItemSeparatorComponent={renderSeparator}
+            ListEmptyComponent={renderEmptyComponent}
+            contentContainerStyle={styles.contentContainer}
+          />
+        </View>
+      </SFlexed>
+    </BottomSheetModalProvider>
+  );
+};
+
+const styles = StyleSheet.create({
+  contentContainer: {
+    paddingHorizontal: 10,
+  },
 });
 
-const WalletCard = styled(Card)({
-  borderRadius: 26,
-  paddingTop: 32,
-  paddingBottom: 41,
-  alignItems: 'center',
-  justifyContent: 'center',
+const SFlexed = styled.View({
+  flex: 1,
 });
 
 const WalletLabel = styled(Label).attrs(() => ({
@@ -27,126 +132,3 @@ const WalletLabel = styled(Label).attrs(() => ({
 }))({
   marginLeft: 11,
 });
-
-const WalletChart = styled.Image({
-  marginTop: 22,
-});
-
-const ButtonGroup = styled.View({
-  width: SCREEN_WIDTH * 0.7,
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  alignSelf: 'center',
-  marginTop: 28,
-});
-
-const ButtonContainer = styled.View({
-  width: 68,
-  height: 68,
-  borderRadius: 999,
-  borderWidth: 2,
-  borderColor: '#FFFFFF',
-  justifyContent: 'center',
-  alignItems: 'center',
-});
-
-const SellIcon = styled.Image({});
-
-const StakeIcon = styled.Image({});
-
-export const Wallet = () => {
-  const navigation = useNavigation();
-  const {colors} = useTheme();
-
-  const [isConnected] = useState<Boolean>(false);
-
-  return (
-    <Wrapper>
-      {isConnected ? (
-        <ScrollView>
-          <WalletCard>
-            <Navbar
-              centerComponent={<WalletLabel>WALLET</WalletLabel>}
-              iconColor={colors.text}
-            />
-            <Label style={{fontSize: 38, marginTop: 40}}>00640 $BFIT</Label>
-            <Label
-              style={{fontSize: 20, marginTop: 10}}
-              appearance={'secondary'}>
-              $ 286.74
-            </Label>
-            <WalletChart
-              source={require('../../../assets/images/wallet_chart_3x.png')}
-            />
-          </WalletCard>
-
-          <ButtonGroup>
-            <View>
-              <ButtonContainer>
-                <Icon name={'plus'} size={20} color={colors.accent} />
-              </ButtonContainer>
-              <Label style={{alignSelf: 'center', marginTop: 16}}>BUY</Label>
-            </View>
-            <View>
-              <ButtonContainer>
-                <SellIcon
-                  source={require('../../../assets/images/icon/sell.png')}
-                />
-              </ButtonContainer>
-              <Label style={{alignSelf: 'center', marginTop: 16}}>BUY</Label>
-            </View>
-            <View>
-              <ButtonContainer>
-                <StakeIcon
-                  source={require('../../../assets/images/icon/stake.png')}
-                />
-              </ButtonContainer>
-              <Label style={{alignSelf: 'center', marginTop: 16}}>BUY</Label>
-            </View>
-          </ButtonGroup>
-
-          <Label type={'title'} style={{marginTop: 40, marginBottom: 17}}>
-            EARNING HISTORY
-          </Label>
-
-          <HistoryCard />
-        </ScrollView>
-      ) : (
-        <WalletCard>
-          <Navbar
-            centerComponent={<WalletLabel>WALLET</WalletLabel>}
-            iconColor={colors.text}
-          />
-          <Label
-            appearance={'secondary'}
-            style={{
-              marginTop: 80,
-              fontSize: 18,
-              lineHeight: 25,
-              width: 227,
-              textAlign: 'center',
-            }}>
-            Head over to settings to connect your wallet.
-          </Label>
-          <Button
-            text={'SETTINGS'}
-            textStyle={{
-              fontSize: 14,
-              marginLeft: 10,
-            }}
-            containerStyle={{
-              borderRadius: 12,
-              width: 184,
-              marginTop: 18,
-            }}
-            logo={require('../../../assets/images/icon/settings.png')}
-            onPress={() => {
-              navigation.navigate('Settings');
-            }}
-          />
-        </WalletCard>
-      )}
-    </Wrapper>
-  );
-};

@@ -8,40 +8,7 @@ import {
   Text,
   Image,
 } from 'react-native';
-
-const TotalAmount = ({
-  totalAmount,
-  totalNumberOfDigits,
-}: Pick<PlotCardProps, 'totalAmount' | 'totalNumberOfDigits'>) => {
-  const numberOfDigits = String(totalAmount).length;
-  const zerosLength =
-    totalNumberOfDigits - numberOfDigits > 0
-      ? totalNumberOfDigits - numberOfDigits
-      : 0;
-  const zeros = new Array(zerosLength).fill(0).join('');
-
-  console.log(numberOfDigits, zerosLength, zeros, totalAmount);
-
-  return (
-    <Text style={totalAmountStyles.text}>
-      {zerosLength && <Text style={totalAmountStyles.zeros}>{zeros}</Text>}
-      {totalAmount}
-    </Text>
-  );
-};
-
-const totalAmountStyles = StyleSheet.create({
-  text: {
-    fontFamily: 'Roboto',
-    fontSize: 42,
-    lineHeight: 48,
-    fontWeight: '500',
-    color: '#ffffff',
-  },
-  zeros: {
-    color: '#565656',
-  },
-});
+import PaddedNumber from '../numbers/PaddedNumber';
 
 interface PlotCardProps {
   title: string;
@@ -70,8 +37,8 @@ const PlotCard = ({
     <TouchableOpacity onPress={onPress} style={[styles.wrapper, wrapperStyle]}>
       <View>
         <Text style={styles.text}>{title}</Text>
-        <TotalAmount
-          totalAmount={totalAmount}
+        <PaddedNumber
+          amount={totalAmount}
           totalNumberOfDigits={totalNumberOfDigits}
         />
         <Text style={styles.text}>{subtitle}</Text>
