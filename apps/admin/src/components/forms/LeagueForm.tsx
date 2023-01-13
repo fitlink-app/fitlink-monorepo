@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext, useState, useEffect } from 'react'
 import Input from '../elements/Input'
 import Checkbox from '../elements/Checkbox'
 import League from '../elements/League'
@@ -15,6 +15,7 @@ import useSports from '../../hooks/api/useSports'
 import noop from 'lodash/noop'
 import Feedback from '../elements/Feedback'
 import { LeagueAccess } from '@fitlink/api/src/modules/leagues/leagues.constants'
+import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
 
 export type LeagueFormProps = {
     current?: Partial<LeagueEntity>
@@ -67,6 +68,7 @@ export default function LeagueForm({
 }: LeagueFormProps) {
     const { api, modeRole, primary } = useContext(AuthContext)
     const [image, setImage] = useState(current?.image?.url || '')
+    const [isSuperAdmin, setIsSuperAdmin] = useState(false)
     const isUpdate = !!current.id
     const { sportsOptionsList } = useSports()
 
@@ -122,6 +124,15 @@ export default function LeagueForm({
         }
     })
 
+    const getRoles = async () => {
+        const res = await api.get<UserRole>('/me/roles')
+        if (res[0].role === 'super_admin') {
+            setIsSuperAdmin(true)
+        }
+    }
+    useEffect(() => {
+        getRoles()
+    }, [])
     const name = watch('name')
     const description = watch('description')
     const members = watch('participants_total')
@@ -262,7 +273,7 @@ export default function LeagueForm({
                 register={register('repeat')}
             />
 
-            {modeRole === 'app' && (
+            {(modeRole === 'app' || isSuperAdmin) && (
                 <Checkbox
                     label="This is a compete to earn league"
                     name="access"
