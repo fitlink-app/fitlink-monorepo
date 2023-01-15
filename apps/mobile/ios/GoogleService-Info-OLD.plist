@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>369193601741-pe17bpkcfgfqb8l3ritl8att1kdk4d34.apps.googleusercontent.com</string>
+	<string>369193601741-bkluos3jpe42b0a5pqfuv7lg5f640n8t.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.369193601741-pe17bpkcfgfqb8l3ritl8att1kdk4d34</string>
+	<string>com.googleusercontent.apps.369193601741-bkluos3jpe42b0a5pqfuv7lg5f640n8t</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>369193601741-5lktfsjujrrursm157kf81va1bnqet99.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.bfitcoin</string>
+	<string>com.fathomux.Fit-Link</string>
 	<key>PROJECT_ID</key>
 	<string>fitlink-rn</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,7 +31,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:369193601741:ios:e59b6d6e7a108abb3ff784</string>
+	<string>1:369193601741:ios:752043a2bc2b6da03ff784</string>
 	<key>DATABASE_URL</key>
 	<string>https://fitlink-rn.firebaseio.com</string>
 </dict>
