@@ -32,8 +32,6 @@ const App = () => {
     GoogleSignin.configure({
       webClientId:
         '369193601741-o9ao2iqikmcm0fte2t4on85hrni4dsjc.apps.googleusercontent.com',
-      iosClientId:
-        '369193601741-bkluos3jpe42b0a5pqfuv7lg5f640n8t.apps.googleusercontent.com',
     });
 
     setTimeout(() => {
