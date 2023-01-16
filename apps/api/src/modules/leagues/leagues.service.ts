@@ -117,7 +117,10 @@ export class LeaguesService {
       if (!team)
         throw new NotFoundException(`The Team with ID ${teamId} does not exist`)
       league.team = team
-      league.access = league.access || LeagueAccess.Team
+      league.access =
+        league.access === LeagueAccess.CompeteToEarn
+          ? league.access
+          : LeagueAccess.Team
       league.organisation = team.organisation
 
       // Assign the organisation if required (organisation leagues)
@@ -299,7 +302,7 @@ export class LeaguesService {
   async findAllNotParticipating(
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface,
-    leagueFilters: LeagueFilter = {},
+    leagueFilters: LeagueFilter = {}
   ) {
     // Use a subquery inside a where statement to determine
     // leagues that the user does not yet belong to.
@@ -422,7 +425,7 @@ export class LeaguesService {
     keyword: string,
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface,
-    leagueFilters: LeagueFilter = {},
+    leagueFilters: LeagueFilter = {}
   ) {
     const query = this.queryFindAccessibleToUser(userId, leagueFilters)
       .andWhere(
@@ -504,13 +507,16 @@ export class LeaguesService {
    * @param userId
    * @returns
    */
-  queryFindAccessibleToUser(userId: string, {
-    isCte = true,
-    isOrganization = true,
-    isPrivate = true,
-    isPublic = true,
-    isTeam = true,
-  }: LeagueFilter = {}) {
+  queryFindAccessibleToUser(
+    userId: string,
+    {
+      isCte = true,
+      isOrganization = true,
+      isPrivate = true,
+      isPublic = true,
+      isTeam = true
+    }: LeagueFilter = {}
+  ) {
     const rankQb = this.leaderboardEntryRepository
       .createQueryBuilder('entry')
       .select(
@@ -554,7 +560,7 @@ export class LeaguesService {
 
         .where(
           new Brackets((qb) => {
-            let filteredQb = qb;
+            let filteredQb = qb
 
             // The league is public
             if (isPublic) {
@@ -563,7 +569,9 @@ export class LeaguesService {
 
             // the league is a compete to earn league
             if (isCte) {
-              filteredQb = filteredQb.orWhere('league.access = :accessCompeteToEarn')
+              filteredQb = filteredQb.orWhere(
+                'league.access = :accessCompeteToEarn'
+              )
             }
             // The league is private
             if (isPrivate) {
@@ -586,9 +594,9 @@ export class LeaguesService {
 
             // The user belongs to the organisation that the league belongs to
             if (isOrganization) {
-                filteredQb = filteredQb.orWhere(`(organisationUser.id = :userId)`)
+              filteredQb = filteredQb.orWhere(`(organisationUser.id = :userId)`)
             }
-            return filteredQb;
+            return filteredQb
           }),
           {
             accessPrivate: LeagueAccess.Private,
@@ -858,7 +866,7 @@ export class LeaguesService {
    */
   async getLeaderboardMemberByUserId(
     leagueId: string,
-    userId: string,
+    userId: string
   ): Promise<LeaderboardEntry & { user: UserPublic }> {
     const query = this.leaderboardEntryRepository
       .createQueryBuilder('entry')
@@ -867,15 +875,17 @@ export class LeaguesService {
       .innerJoin('league.active_leaderboard', 'leaderboard')
       .innerJoinAndSelect('entry.user', 'user')
       .leftJoinAndSelect('user.avatar', 'avatar')
-      .where('league.id = :leagueId AND leaderboard.id = entryLeaderboard.id AND entry.user.id = :userId', {
-        leagueId,
-        userId
-      })
+      .where(
+        'league.id = :leagueId AND leaderboard.id = entryLeaderboard.id AND entry.user.id = :userId',
+        {
+          leagueId,
+          userId
+        }
+      )
     const result = await query.getOne()
 
     return this.getLeaderboardEntryPublic(result)
   }
-
 
   async getLeagueIfInvited(leagueId: string, userId: string) {
     const league = await this.leaguesRepository
