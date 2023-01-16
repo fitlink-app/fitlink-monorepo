@@ -420,7 +420,7 @@ export const _FeedItem = ({
         break;
 
       case FeedItemType.HealthActivity:
-        navigation.navigate('HealthActivityDetails', {
+        navigation.navigate('ActivityPage', {
           id: item.health_activity!.id,
         });
         break;
