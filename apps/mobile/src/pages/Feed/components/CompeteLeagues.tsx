@@ -1,13 +1,13 @@
-import {useCteLeagues} from '@hooks';
-import {useNavigation} from '@react-navigation/core';
-import {widthLize} from '@utils';
-import {CteLeagueSlider} from 'components/league/CteLeagueSlider';
 import React from 'react';
+import {useNavigation} from '@react-navigation/core';
 import styled from 'styled-components/native';
+
+import {useCteLeagues} from '@hooks';
+
+import {CteLeagueSlider} from 'components/league/CteLeagueSlider';
 import {getResultsFromPages} from 'utils/api';
 
 const Wrapper = styled.View({
-  paddingLeft: widthLize(20),
   marginTop: 40,
 });
 
