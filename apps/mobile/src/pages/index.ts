@@ -10,7 +10,6 @@ export * from './LeagueForm';
 export * from './Rewards';
 export * from './Reward';
 export * from './Profile';
-export * from './HealthActivityDetails';
 export * from './Route';
 export * from './Discover';
 export * from './MyActivities';
