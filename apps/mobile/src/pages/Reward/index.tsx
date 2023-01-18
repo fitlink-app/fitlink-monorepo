@@ -1,16 +1,18 @@
 import React, {useState} from 'react';
 import {ActivityIndicator, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import styled, {useTheme} from 'styled-components/native';
 import {StackScreenProps} from '@react-navigation/stack';
+import styled, {useTheme} from 'styled-components/native';
 import {RootStackParamList} from 'routes/types';
+import {useSharedValue} from 'react-native-reanimated';
+import {format} from 'date-fns';
+
 import {FitButton, NAVBAR_HEIGHT} from '@components';
 import {useMe, useReward} from '@hooks';
-import {format} from 'date-fns';
-import AnimatedHeaderCard from '../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
-import {useSharedValue} from 'react-native-reanimated';
+import {calculateDaysLeft, convertBfitToUsd} from '@utils';
+
 import DetailedProgressBar from './components/DetailedProgressBar';
-import {calculateDaysLeft} from '@utils';
+import AnimatedHeaderCard from '../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -28,8 +30,7 @@ export const Reward = (
   const {id, image} = props.route.params;
   const {colors} = useTheme();
 
-  const [isBfitReward, setIsBfitReward] = useState(true);
-
+  const [showAltCurrency, setShowAltCurrency] = useState(false);
   const insets = useSafeAreaInsets();
   const {data: user} = useMe();
   const {data: reward} = useReward(id);
@@ -37,7 +38,7 @@ export const Reward = (
   const sharedContentOffset = useSharedValue(0);
 
   const swapRewardCurrency = () => {
-    setIsBfitReward(prev => !prev);
+    setShowAltCurrency(prev => !prev);
   };
 
   if (!reward || !user) {
@@ -48,9 +49,15 @@ export const Reward = (
     );
   }
 
+  const isBfitReward = reward.bfit_required !== null;
+  const requiredBfitReward = showAltCurrency
+    ? `$${convertBfitToUsd(reward.bfit_required)}`
+    : `${reward.bfit_required} BFIT`;
+  const requiredPointsReward = `${reward.points_required} Points`;
   const requiredReward = isBfitReward
-    ? `${reward.points_required} $BFIT`
-    : `${reward.points_required * 0.2} $`;
+    ? requiredBfitReward
+    : requiredPointsReward;
+
   const expirationDate = new Date(reward.reward_expires_at);
   const isExpired = new Date() > expirationDate;
   const restDays = calculateDaysLeft(expirationDate, isExpired);
@@ -78,7 +85,7 @@ export const Reward = (
           p2: reward.name,
           p3: reward.name_short,
           animatedValue: requiredReward,
-          onAnimatedValuePress: swapRewardCurrency,
+          onAnimatedValuePress: isBfitReward ? swapRewardCurrency : undefined,
         }}
         descriptionProps={{
           description: reward.description,
