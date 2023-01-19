@@ -91,7 +91,7 @@ const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardProps> =
           p1: `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`,
           p2: title,
           p3: countback,
-          animatedValue: `${bFitEarned} $BFIT`,
+          animatedValue: `${bFitEarned} BFIT`,
         }}
         descriptionProps={{
           description,

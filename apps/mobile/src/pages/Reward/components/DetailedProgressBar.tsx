@@ -23,8 +23,8 @@ const DetailedProgressBar: FC<DetailedProgressBarProps> = ({
   backgroundColor = theme.colors.background,
 }) => {
   const progress = currentPoint / requiredPoint;
-  const currentBfitText = `${currentPoint} $BFIT`;
-  const requiredBfitText = `YOU NEED ${requiredPoint - currentPoint} $BFIT`;
+  const currentBfitText = `${currentPoint} BFIT`;
+  const requiredBfitText = `YOU NEED ${requiredPoint - currentPoint} BFIT`;
 
   return (
     <View style={wrapperStyle}>

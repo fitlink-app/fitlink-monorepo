@@ -134,7 +134,7 @@ export const RewardCard = (props: RewardCardProps) => {
           />
           <Row style={styles.topRow}>
             <Points>
-              {requiredPoints} <Label>$BFIT</Label>
+              {requiredPoints} <Label>BFIT</Label>
             </Points>
             <ProgressBar
               progress={currentPoints / requiredPoints}

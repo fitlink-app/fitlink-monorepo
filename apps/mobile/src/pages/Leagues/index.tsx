@@ -36,7 +36,6 @@ const PageTitle = styled(Label).attrs(() => ({
 
 const StyledCteLeagueSlider = styled(CteLeagueSlider)({
   marginTop: 41,
-  marginHorizontal: widthLize(20),
 });
 
 export const Leagues = (

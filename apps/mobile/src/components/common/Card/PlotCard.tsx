@@ -96,7 +96,7 @@ const BFIT = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
   return (
     <PlotCard
       {...rest}
-      title="TOTAL $BFIT"
+      title="TOTAL BFIT"
       subtitle={`$${gainedPerDay}`}
       totalNumberOfDigits={5}
       Plot={<Plot />}

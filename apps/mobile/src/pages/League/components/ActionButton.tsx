@@ -31,7 +31,7 @@ export const ActionButton = ({
   return (
     <FitButton
       onPress={handleClaimBfitPressed}
-      text={`CLAIM ${bfitValue} $BFIT`}
+      text={`CLAIM ${bfitValue} BFIT`}
       variant="primary-outlined"
     />
   );

@@ -11,8 +11,8 @@ function generateStubTransaction(): TransactionUIModel {
   const type = parseFloat(getRandomArbitrary(0, 1)) > 0.5 ? 'claim' : 'spend';
   const text =
     type === 'claim'
-      ? 'Congrats! You finished 3rd place in the steps challenge league and earned 21 $BFIT.'
-      : 'Nice one! You spent 159 $BFIT on a Garmin Watch Fenix 6S Pro as a Fitlink reward.';
+      ? 'Congrats! You finished 3rd place in the steps challenge league and earned 21 BFIT.'
+      : 'Nice one! You spent 159 BFIT on a Garmin Watch Fenix 6S Pro as a Fitlink reward.';
 
   return {
     amount,
