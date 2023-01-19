@@ -3,7 +3,7 @@ import {StackedBarChart, StackedBarChartProps} from 'react-native-svg-charts';
 import {StyleProp, View, ViewStyle} from 'react-native';
 import theme from '../../../theme/themes/fitlink';
 
-interface IBarGraphProps
+export interface IBarGraphProps
   extends Pick<StackedBarChartProps<any>, 'contentInset'> {
   height: number;
   normalisedData: number[];

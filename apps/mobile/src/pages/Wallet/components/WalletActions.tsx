@@ -50,7 +50,11 @@ interface WalletActionsProps {
   onStock: () => unknown;
 }
 
-const WalletActions: FC<WalletActionsProps> = ({onBuy, onSell, onStock}) => {
+export const WalletActions: FC<WalletActionsProps> = ({
+  onBuy,
+  onSell,
+  onStock,
+}) => {
   return (
     <ButtonGroup>
       <ActionButton onPress={onBuy} iconName="plus" label="BUY" />

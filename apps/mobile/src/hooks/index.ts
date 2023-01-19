@@ -7,3 +7,4 @@ export * from './useCodePush';
 export * from './useIntercomNotifications';
 export * from './useUpdateIntercomUser';
 export * from './useMeasureInitialLayout';
+export * from './useWeeklyEarnings';

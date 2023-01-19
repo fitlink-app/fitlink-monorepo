@@ -9,6 +9,7 @@ import {
   Image,
 } from 'react-native';
 import PaddedNumber from '../numbers/PaddedNumber';
+import {WeeklyEarningsGraph} from '@components';
 
 interface PlotCardProps {
   title: string;
@@ -87,10 +88,9 @@ interface PlotCardWrapperProps
   gainedPerDay: number;
 }
 
-// TODO: provide interface for plot data
 const BFIT = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
   const Plot = () => (
-    <Image source={require('../../../../assets/images/wallet_chart2.png')} />
+    <WeeklyEarningsGraph height={50} barWidth={4} gapWidth={18} />
   );
 
   return (

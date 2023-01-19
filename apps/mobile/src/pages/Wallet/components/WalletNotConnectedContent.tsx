@@ -25,7 +25,7 @@ const WalletLabel = styled(Label).attrs(() => ({
   marginLeft: 11,
 });
 
-const WalletNotConnectedContent = (): JSX.Element => {
+export const WalletNotConnectedContent = (): JSX.Element => {
   const navigation = useNavigation();
 
   return (

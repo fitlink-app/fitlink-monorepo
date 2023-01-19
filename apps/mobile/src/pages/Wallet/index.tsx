@@ -1,6 +1,3 @@
-import {Icon, Label, Navbar} from '@components';
-import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-import {useMeasureInitialLayout, useModal} from '@hooks';
 import React, {useState} from 'react';
 import {
   ActivityIndicator,
@@ -10,15 +7,22 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import styled, {useTheme} from 'styled-components/native';
+
+import {Icon, Label, Navbar} from '@components';
+import {useMe, useMeasureInitialLayout, useModal} from '@hooks';
+import {convertBfitToUsd} from '@utils';
+
 import theme from '../../theme/themes/fitlink';
-import {WalletHeader} from './components/WalletHeader';
-import WalletHistoryCard from './components/WalletHistoryCard';
-import WalletModal from './components/WalletModal';
-import WalletNotConnectedContent from './components/WalletNotConnectedContent';
-import {useTransactionHistory} from './hooks/useTransactionHistory';
-import {useWeeklyEarnings} from './hooks/useWeeklyEarnings';
+import {useTransactionHistory, useClaimBfit} from './hooks/';
 import {TransactionUIModel} from './types';
+import WalletModal from './components/WalletModal';
+import {
+  WalletHeader,
+  WalletHistoryCard,
+  WalletNotConnectedContent,
+} from './components';
 
 const NavbarTitle = () => (
   <View style={{flexDirection: 'row'}}>
@@ -35,9 +39,11 @@ export const Wallet = () => {
   const {openModal} = useModal();
   const {measureInitialLayout, initialLayout: initialNavbarLayout} =
     useMeasureInitialLayout();
+  const {data: me} = useMe();
+  const {data: claims} = useClaimBfit();
 
-  const bfitAmount = 640;
-  const usdAmount = bfitAmount * 0.2;
+  const bfitAmount = me?.bfit_balance ?? 0;
+  const usdAmount = convertBfitToUsd(bfitAmount);
 
   const openInfoModel = () => {
     openModal(() => <WalletModal.Info />);
@@ -46,8 +52,6 @@ export const Wallet = () => {
   const openComingSoonModal = () => {
     openModal(() => <WalletModal.ComingSoon />);
   };
-
-  const {weeklyEarnings} = useWeeklyEarnings();
 
   const {
     data,
@@ -99,7 +103,6 @@ export const Wallet = () => {
                 bfitAmount={bfitAmount}
                 usdAmount={usdAmount}
                 onInfoPress={openInfoModel}
-                weeklyEarnings={weeklyEarnings}
                 onBuy={openComingSoonModal}
                 onSell={openComingSoonModal}
                 onStock={openComingSoonModal}
