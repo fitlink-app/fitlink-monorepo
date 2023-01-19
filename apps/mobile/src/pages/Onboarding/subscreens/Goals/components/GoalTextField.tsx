@@ -11,6 +11,7 @@ const StyledLabel = styled(Label)(({theme}) => ({
   fontSize: 22,
   color: 'white',
   flex: 1,
+  padding: 8,
 }));
 
 const StyledTextField = styled(NumberInputField)(({theme}) => ({

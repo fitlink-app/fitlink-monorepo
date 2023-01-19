@@ -32,8 +32,10 @@ const BackgroundImageContainer = styled.View({
   position: 'absolute',
   alignItems: 'flex-end',
   justifyContent: 'center',
-  width: '100%',
-  height: '100%',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
   zIndex: -1,
 });
 
@@ -41,7 +43,7 @@ const StyledPager = styled(PagerView)({flex: 1});
 
 const ButtonContainer = styled.View({
   alignItems: 'center',
-  marginBottom: 25,
+  marginBottom: 10,
   paddingHorizontal: 20,
 });
 
