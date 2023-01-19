@@ -97,7 +97,7 @@ export const Leagues = (
             colors={[colors.accent]}
           />
         }>
-        <PageTitle>Gold Leagues</PageTitle>
+        <PageTitle>Leagues</PageTitle>
         <PlotCard.Calories
           wrapperStyle={styles.rewardCard}
           totalAmount={355}

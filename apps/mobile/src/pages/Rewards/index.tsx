@@ -207,7 +207,7 @@ export const Rewards = () => {
           <>
             <ListHeaderContainer>
               <PageTitleContainer>
-                <PageTitle>GOLD REWARDS</PageTitle>
+                <PageTitle>REWARDS</PageTitle>
               </PageTitleContainer>
 
               {(!!nextReward?.reward?.points_required ||

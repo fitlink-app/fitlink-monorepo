@@ -51,19 +51,6 @@ const RankContainer = styled.View({
   marginBottom: 12,
 });
 
-const Rank = styled(Label).attrs(() => ({
-  type: 'caption',
-  appearance: 'accent',
-}))({});
-
-const RankLine = styled.View({
-  width: 2,
-  height: 10,
-  marginTop: 3,
-  marginHorizontal: 5,
-  backgroundColor: '#565656',
-});
-
 const Level = styled(Label).attrs(() => ({
   type: 'caption',
 }))({});
@@ -151,16 +138,6 @@ export const UserWidget = (props: UserWidgetProps) => {
         </Name>
 
         <RankContainer>
-          <Rank
-            style={{
-              fontFamily: 'Roboto',
-              fontSize: 14,
-              textTransform: 'uppercase',
-              lineHeight: 18,
-            }}>
-            BRONZE MEMBER
-          </Rank>
-          <RankLine style={{marginHorizontal: 6}} />
           <Level
             style={{
               fontFamily: 'Roboto',
