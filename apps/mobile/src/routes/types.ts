@@ -24,7 +24,6 @@ export type RootStackParamList = {
   LeagueForm: {data?: {id: string; dto: UpdateLeagueDto; imageUrl: string}};
   Rewards: undefined;
   Reward: {id: string; image: string};
-  HealthActivityDetails: {id: string};
   Route: {
     polyline: string;
   };
@@ -45,6 +44,6 @@ export type RootStackParamList = {
     ) => void;
   };
   Notifications: undefined;
-  ActivityPage: undefined;
+  ActivityPage: {id: string};
   Wallet: undefined;
 };

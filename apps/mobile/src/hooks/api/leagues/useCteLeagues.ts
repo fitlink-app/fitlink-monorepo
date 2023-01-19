@@ -8,7 +8,7 @@ import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 const limit = 10;
 
 const fetchCteLeagues = ({pageParam = 0}: {pageParam?: number | undefined}) =>
-  api.list<League>('/leagues/compete-to-earn', {
+  api.list<League>('/leagues/access/compete-to-earn', {
     page: pageParam,
     limit,
   });

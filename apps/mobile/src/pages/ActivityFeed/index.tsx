@@ -103,12 +103,12 @@ export const ActivityFeed = () => {
     });
 
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, refetchFeed]);
 
   useEffect(() => {
     queryClient.removeQueries(QueryKeys.Feed);
     refetchFeed();
-  }, [feedPreferences]);
+  }, [feedPreferences, refetchFeed]);
 
   const keyExtractor = (item: FeedItemType) => item.id as string;
 
@@ -197,7 +197,8 @@ export const ActivityFeed = () => {
         </TouchHandler>
       </View>
       <FlatList
-        {...{renderItem, keyExtractor}}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
         ref={scrollRef}
         data={feedResults}
         showsVerticalScrollIndicator={false}

@@ -51,7 +51,7 @@ export function useRewards(params: RewardsParams) {
   const {data: user} = useMe({
     refetchOnMount: false,
   });
-  const isPrivateOnly = Boolean(user?.teams.length);
+  const isPrivateOnly = Boolean(user?.teams?.length);
   return useInfiniteQuery<ListResponse<RewardPublic>, Error>(
     [QueryKeys.Rewards, JSON.stringify(params), isPrivateOnly],
     ({pageParam}) => fetchRewards({pageParam, params, isPrivateOnly}),

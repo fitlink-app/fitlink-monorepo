@@ -16,6 +16,7 @@ const LeaguesTitleContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
+  marginLeft: '20',
 });
 
 const Title = styled(Label).attrs(() => ({
@@ -51,9 +52,6 @@ export const CteLeagueSlider = ({
     <View style={style}>
       <LeaguesTitleContainer>
         <Title>Compete to earn leagues</Title>
-        {/* <TouchHandler>
-        <SeeAllText>see all</SeeAllText>
-      </TouchHandler> */}
       </LeaguesTitleContainer>
       <FlatList<League>
         onEndReached={onEndReached}

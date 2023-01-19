@@ -3,11 +3,11 @@ import styled from 'styled-components/native';
 import {TouchHandler, Card, Label} from '@components';
 import {useNavigation} from '@react-navigation/core';
 import {BlurView} from '@react-native-community/blur';
-import {formatDate, widthLize} from "@utils";
-import {useSelector} from "react-redux";
-import {memoSelectFeedPreferences} from "../../../redux/feedPreferences/feedPreferencesSlice";
-import {useFeed} from "@hooks";
-import moment from "moment";
+import {formatDate, widthLize} from '@utils';
+import {useSelector} from 'react-redux';
+import {memoSelectFeedPreferences} from '../../../redux/feedPreferences/feedPreferencesSlice';
+import {useFeed} from '@hooks';
+import moment from 'moment';
 
 const Wrapper = styled.View({
   // paddingLeft: widthLize(20),
@@ -158,8 +158,8 @@ export const ActivityHistory = () => {
   });
 
   const activities = useMemo(() => {
-    return feed?.pages[0].results.filter(e => e.category === 'my_activities')
-  }, [feed])
+    return feed?.pages[0].results.filter(e => e.category === 'my_activities');
+  }, [feed]);
 
   return (
     <Wrapper>
@@ -176,13 +176,17 @@ export const ActivityHistory = () => {
       <SliderContainer>
         <>
           {activities?.map((item, index) => (
-            <TouchHandler key={index} onPress={() => {
-              navigation.navigate('HealthActivityDetails', {
-                id: item.health_activity!.id,
-              });
-            }}>
+            <TouchHandler
+              key={index}
+              onPress={() => {
+                navigation.navigate('ActivityPage', {
+                  id: item.health_activity!.id,
+                });
+              }}>
               <CardContainer>
-                <CardImage source={{uri: item?.health_activity?.sport.image_url}} />
+                <CardImage
+                  source={{uri: item?.health_activity?.sport.image_url}}
+                />
                 <BlurView
                   style={{
                     position: 'absolute',
@@ -194,18 +198,21 @@ export const ActivityHistory = () => {
                   overlayColor={'transparent'}
                 />
                 <CardHeader>
-                  <DateText>{moment(item?.health_activity?.start_time).calendar()}</DateText>
+                  <DateText>
+                    {moment(item?.health_activity?.start_time).calendar()}
+                  </DateText>
                 </CardHeader>
                 <Line />
                 <CardBody>
-                  <RecordValue>{item?.health_activity?.points} points</RecordValue>
+                  <RecordValue>
+                    {item?.health_activity?.points} points
+                  </RecordValue>
                   <PlaceSection>
                     <PlaceText>{item?.health_activity?.title}</PlaceText>
                   </PlaceSection>
                 </CardBody>
               </CardContainer>
             </TouchHandler>
-
           ))}
         </>
       </SliderContainer>
