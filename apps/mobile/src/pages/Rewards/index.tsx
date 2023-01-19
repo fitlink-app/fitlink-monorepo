@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Label, PlotCard} from '@components';
-import {useMe, useMyRewards, useNextReward, useRewards} from '@hooks';
+import {useMe, useNextReward, useRewards} from '@hooks';
 import {RewardSlider} from './components';
 import {getResultsFromPages} from 'utils/api';
 import {
@@ -67,20 +67,6 @@ export const Rewards = () => {
   } = useNextReward();
 
   const {
-    data: myRewards,
-    isFetching: isFetchingMyRewards,
-    isFetchedAfterMount: isMyRewardsFetchedAfterMount,
-    refetch: refetchMyRewards,
-  } = useMyRewards();
-
-  const {
-    data: unclaimedRewards,
-    isFetching: isFetchingUnclaimedRewards,
-    isFetchedAfterMount: isUnclaimedRewardsFetchedAfterMount,
-    refetch: refetchUnclaimedRewards,
-  } = useRewards({available: true});
-
-  const {
     data: unlockedRewards,
     isFetching: isFetchingUnLockedRewards,
     isFetchingNextPage: isFetchingUnLockedRewardsNextPage,
@@ -98,42 +84,20 @@ export const Rewards = () => {
     refetch: refetchLockedRewards,
   } = useRewards({locked: true});
 
-  const {
-    data: expiredRewards,
-    isFetching: isFetchingExpiredRewards,
-    isFetchedAfterMount: isExpiredRewardsFetchedAfterMount,
-    refetch: refetchExpiredRewards,
-  } = useRewards({expired: true});
-
-  const myRewardsEntries = getResultsFromPages(myRewards);
-  const unclaimedRewardEntries = getResultsFromPages(unclaimedRewards);
   const unlockedRewardsEntries = getResultsFromPages(unlockedRewards);
   const lockedRewardsEntries = getResultsFromPages(lockedRewards);
-  const expiredRewardsEntries = getResultsFromPages(expiredRewards);
 
   // Whether any of the reward list calls are loading
-  const isLoading =
-    isFetchingUnclaimedRewards ||
-    isFetchingUnLockedRewards ||
-    isFetchingLockedRewards ||
-    isFetchingExpiredRewards ||
-    isFetchingMyRewards;
+  const isLoading = isFetchingUnLockedRewards || isFetchingLockedRewards;
 
   const isFetchedAfterMount =
-    isUnclaimedRewardsFetchedAfterMount &&
     isUnLockedRewardsFetchedAfterMount &&
     isLockedRewardsFetchedAfterMount &&
-    isExpiredRewardsFetchedAfterMount &&
-    isMyRewardsFetchedAfterMount &&
     userIsFetchedAfterMount &&
     nextRewardIsFetchedAfterMount;
 
-  const totalRewardsCount = [
-    ...myRewardsEntries,
-    ...unclaimedRewardEntries,
-    ...lockedRewardsEntries,
-    ...expiredRewardsEntries,
-  ].length;
+  const totalRewardsCount =
+    unlockedRewardsEntries.length + lockedRewardsEntries.length;
 
   useEffect(() => {
     if (user?.points_total) {
@@ -142,13 +106,7 @@ export const Rewards = () => {
   }, [user?.points_total]);
 
   const refetchAllRewards = () =>
-    Promise.all([
-      refetchMyRewards(),
-      refetchUnclaimedRewards(),
-      refetchUnLockedRewards(),
-      refetchLockedRewards(),
-      refetchExpiredRewards(),
-    ]);
+    Promise.all([refetchUnLockedRewards(), refetchLockedRewards()]);
 
   // Refetch all reward lists
   const handleRefresh = async () => {
@@ -224,25 +182,9 @@ export const Rewards = () => {
               renderEmpty()
             ) : (
               <>
-                {/* <RewardSlider
-                  data={myRewardsEntries}
-                  title={'My Rewards'}
-                  isLoading={isFetchingMyRewards && !isManualRefresh}
-                  isLoadingNextPage={isFetchingMyRewardsNextPage}
-                  userPoints={user!.points_total}
-                  fetchNextPage={fetchMyRewardsNextPage}
-                /> */}
-                {/* <RewardSlider
-                  data={unclaimedRewardEntries}
-                  title={'Unclaimed Rewards'}
-                  isLoading={isFetchingUnclaimedRewards && !isManualRefresh}
-                  isLoadingNextPage={isFetchingUnclaimedRewardsNextPage}
-                  userPoints={user!.points_total}
-                  fetchNextPage={fetchUnclaimedRewardsNextPage}
-                /> */}
                 <RewardSlider
                   data={unlockedRewardsEntries}
-                  title={'UnLocked'}
+                  title="UNLOCKED"
                   isLoading={isFetchingUnLockedRewards && !isManualRefresh}
                   isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
                   userPoints={user!.points_total}
@@ -250,21 +192,13 @@ export const Rewards = () => {
                 />
                 <RewardSlider
                   data={lockedRewardsEntries}
-                  title={'Locked'}
+                  title="LOCKED"
                   isLoading={isFetchingLockedRewards && !isManualRefresh}
                   isLoadingNextPage={isFetchingLockedRewardsNextPage}
                   userPoints={user!.points_total}
                   fetchNextPage={fetchLockedRewardsNextPage}
                   LockedShow={true}
                 />
-                {/* <RewardSlider
-                  data={expiredRewardsEntries}
-                  title={'Expired Rewards'}
-                  isLoading={isFetchingExpiredRewards && !isManualRefresh}
-                  isLoadingNextPage={isFetchingExpiredRewardsNextPage}
-                  userPoints={user!.points_total}
-                  fetchNextPage={fetchExpiredRewardsNextPage}
-                /> */}
               </>
             )}
           </>
