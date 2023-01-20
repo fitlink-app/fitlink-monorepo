@@ -212,6 +212,23 @@ export class LeaguesService {
     return createdClaim
   }
 
+  async incrementUserBfit(email: string, amount: number) {
+    const user = await this.userRepository.findOne({ email })
+    if (!user) {
+      throw new NotFoundException('User with the provided email not found')
+    }
+
+    const incremented = await this.userRepository.increment(
+      {
+        id: user.id
+      },
+
+      'bfit_balance',
+      amount * 1000_000
+    )
+    return incremented
+  }
+
   async getUserBfitClaims(
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface

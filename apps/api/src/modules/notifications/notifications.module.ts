@@ -40,7 +40,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
           )
         )
 
-        return { credential }
+        return {
+          credential
+        }
       }
     })
   ],

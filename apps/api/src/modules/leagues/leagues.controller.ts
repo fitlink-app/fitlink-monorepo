@@ -25,7 +25,7 @@ import {
 import { PaginationQuery } from '../../helpers/paginate'
 import { AuthenticatedUser } from '../../models'
 import { Roles } from '../user-roles/user-roles.constants'
-import { CreateLeagueDto } from './dto/create-league.dto'
+import { CreateLeagueDto, RewardBfitDto } from './dto/create-league.dto'
 import { UpdateLeagueDto } from './dto/update-league.dto'
 import { SearchLeagueDto } from './dto/search-league.dto'
 import {
@@ -102,6 +102,22 @@ export class LeaguesController {
     return this.leaguesService.create(createLeagueDto, options)
   }
 
+  // this endpoint is only for issuing test bfit in dev
+  @Post('/leagues/users/reward-bfit')
+  issueTestBfit(
+    @Body() rewardBfitDto: RewardBfitDto,
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      throw new ForbiddenException('Forbidden')
+    }
+
+    return this.leaguesService.incrementUserBfit(
+      rewardBfitDto.email,
+      rewardBfitDto.amount
+    )
+  }
+
   /**
    * 1. Owner of the league can update the league (but cannot set to public)
    * 2. Superadmin can update any league
@@ -174,13 +190,14 @@ export class LeaguesController {
   findAll(
     @User() authUser: AuthenticatedUser,
     @Pagination() pagination: PaginationQuery,
-    @Query() {
+    @Query()
+    {
       isCte = true,
       isOrganization = true,
       isPrivate = true,
       isPublic = true,
-      isTeam = true,
-    }: LeaguesFiltersDto,
+      isTeam = true
+    }: LeaguesFiltersDto
   ) {
     if (authUser.isSuperAdmin()) {
       return this.leaguesService.findAll({}, pagination)
@@ -193,8 +210,8 @@ export class LeaguesController {
           isOrganization,
           isPrivate,
           isPublic,
-          isTeam,
-        },
+          isTeam
+        }
       )
     }
   }
@@ -297,13 +314,14 @@ export class LeaguesController {
     @Query() query: SearchLeagueDto,
     @User() user: AuthenticatedUser,
     @Pagination() pagination: PaginationQuery,
-    @Query() {
+    @Query()
+    {
       isCte = true,
       isOrganization = true,
       isPrivate = true,
       isPublic = true,
-      isTeam = true,
-    }: LeaguesFiltersDto,
+      isTeam = true
+    }: LeaguesFiltersDto
   ) {
     return this.leaguesService.searchManyAccessibleToUser(
       query.q,
@@ -314,8 +332,8 @@ export class LeaguesController {
         isOrganization,
         isPrivate,
         isPublic,
-        isTeam,
-      },
+        isTeam
+      }
     )
   }
 
@@ -478,7 +496,10 @@ export class LeaguesController {
       }
     }
 
-    return this.leaguesService.getLeaderboardMemberByUserId(leagueId, authUser.id)
+    return this.leaguesService.getLeaderboardMemberByUserId(
+      leagueId,
+      authUser.id
+    )
   }
 
   /**
