@@ -6,9 +6,11 @@ import {Label} from '@components';
 import {widthLize} from '@utils';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 
+export const BOTTOM_TAB_BAR_HEIGHT = 79;
+
 const Wrapper = styled.View(() => ({
   width: '100%',
-  height: 79,
+  height: BOTTOM_TAB_BAR_HEIGHT,
 }));
 
 const Container = styled.View(({theme}) => ({
@@ -45,12 +47,6 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
   function renderButtons() {
     return state.routes.map((route, index) => {
       const {options} = descriptors[route.key];
-      // const label =
-      //   options.tabBarLabel !== undefined
-      //     ? options.tabBarLabel
-      //     : options.title !== undefined
-      //     ? options.title
-      //     : route.name;
 
       const isFocused = state.index === index;
 
@@ -111,12 +107,6 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
           onPress={onPress}
           onLongPress={onLongPress}>
           {renderIcon(isFocused)}
-          {/* <Label
-            style={{marginTop: 5, fontSize: 11}}
-            bold={isFocused}
-            appearance={isFocused ? 'accent' : 'accentSecondary'}>
-            {label}
-          </Label> */}
         </Button>
       );
     });

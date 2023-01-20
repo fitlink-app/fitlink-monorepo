@@ -4,7 +4,6 @@ import {
   useGoals,
   useMe,
   useModal,
-  useNextReward,
   useProviders,
   useUpdateIntercomUser,
   useRewards,
@@ -18,21 +17,24 @@ import {calculateGoalsPercentage, getPersistedData, persistData} from '@utils';
 import {NewsletterModal, NotificationsButton} from './components';
 import {getResultsFromPages} from 'utils/api';
 import {saveCurrentToken} from '@api';
-import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 import {CompeteLeagues} from './components/CompeteLeagues';
 import {RewardSlider} from '../Rewards/components';
 import {ActivityHistory} from './components/ActivityHistory';
 import {RoutesClasses} from './components/RoutesClasses';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
+import {FEED_CONTAINER_SPACE} from './constants';
 
 const Wrapper = styled.View({
   flex: 1,
 });
 
 const TopButtonRow = styled.View({
+  position: 'absolute',
+  right: 0,
   flexDirection: 'row',
   justifyContent: 'flex-end',
-  marginBottom: -10,
+  marginRight: 20,
 });
 
 const TopButtonSpacer = styled.View({width: 10});
@@ -40,17 +42,15 @@ const TopButtonSpacer = styled.View({width: 10});
 const SettingsButton = styled.Image({});
 
 const HeaderContainer = styled.View({
+  paddingTop: 20,
   paddingHorizontal: 10,
-  marginVertical: 10,
+  marginBottom: 10,
 });
-
-const HeaderWidgetContainer = styled.View({marginTop: 10});
 
 const StatContainer = styled.View({
   paddingHorizontal: 10,
+  marginBottom: FEED_CONTAINER_SPACE,
 });
-
-const FeedContainer = styled.View({});
 
 export const Feed = () => {
   const insets = useSafeAreaInsets();
@@ -68,20 +68,9 @@ export const Feed = () => {
   // Update intercom on user change
   useUpdateIntercomUser();
 
-  const {data: user} = useMe({
-    refetchOnMount: false,
-    refetchInterval: 10000,
-  });
+  const {data: user} = useMe();
 
-  const {data: goals} = useGoals({
-    refetchOnMount: false,
-    refetchInterval: 10000,
-  });
-
-  const {data: nextReward, isFetched: isNextRewardFetched} = useNextReward({
-    refetchOnMount: false,
-    refetchInterval: 10000,
-  });
+  const {data: goals} = useGoals();
 
   const {
     data: unlockedRewards,
@@ -135,10 +124,10 @@ export const Feed = () => {
       <BottomSheetModalProvider>
         <ScrollView
           contentContainerStyle={{
-            paddingBottom: 44 + 79,
+            paddingBottom: insets.bottom + BOTTOM_TAB_BAR_HEIGHT,
           }}>
           <>
-            <HeaderContainer>
+            <HeaderContainer style={{paddingTop: 20}}>
               <TopButtonRow>
                 <NotificationsButton count={user.unread_notifications} />
                 <TopButtonSpacer />
@@ -152,100 +141,20 @@ export const Feed = () => {
                   />
                 </TouchHandler>
               </TopButtonRow>
-
-              <HeaderWidgetContainer style={{marginBottom: 5}}>
-                <UserWidget
-                  goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
-                  name={user.name}
-                  rank={user.rank}
-                  avatar={user.avatar?.url_512x512}
-                  friendCount={user.following_total}
-                  followerCount={user.followers_total}
-                  pointCount={user.points_total}
-                />
-              </HeaderWidgetContainer>
-
-              <HeaderWidgetContainer>
-                <GoalTracker
-                  isLocalUser={true}
-                  trackers={[
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                        ProviderType.Fitbit,
-                      ],
-                      identifier: 'steps',
-                      goal: {
-                        value: goals?.current_steps || 0,
-                        target: goals?.target_steps || 0,
-                      },
-                      icon: 'steps',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                      ],
-                      identifier: 'mindfulness',
-                      goal: {
-                        value: goals?.current_mindfulness_minutes || 0,
-                        target: goals?.target_mindfulness_minutes || 0,
-                      },
-                      icon: 'yoga',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                      ],
-                      identifier: 'water',
-                      goal: {
-                        value: goals?.current_water_litres || 0,
-                        target: goals?.target_water_litres || 0,
-                      },
-                      icon: 'water',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.AppleHealthkit,
-                        ProviderType.Fitbit,
-                      ],
-                      identifier: 'sleep',
-                      goal: {
-                        value: goals?.current_sleep_hours || 0,
-                        target: goals?.target_sleep_hours || 0,
-                      },
-                      icon: 'sleep',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                      ],
-                      identifier: 'active_minutes',
-                      goal: {
-                        value: goals?.current_active_minutes || 0,
-                        target: goals?.target_active_minutes || 0,
-                      },
-                      icon: 'stopwatch',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                        ProviderType.Fitbit,
-                      ],
-                      identifier: 'floors',
-                      goal: {
-                        value: goals?.current_floors_climbed || 0,
-                        target: goals?.target_floors_climbed || 0,
-                      },
-                      icon: 'stairs',
-                    },
-                  ]}
-                />
-              </HeaderWidgetContainer>
+              <UserWidget
+                goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
+                name={user.name}
+                rank={user.rank}
+                avatar={user.avatar?.url_512x512}
+                friendCount={user.following_total}
+                followerCount={user.followers_total}
+                pointCount={user.points_total}
+                containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+              />
+              <GoalTracker
+                isLocalUser={true}
+                containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+              />
             </HeaderContainer>
             <StatContainer>
               <PlotCard.BFIT
@@ -256,25 +165,29 @@ export const Feed = () => {
                 wrapperStyle={styles.bfit}
               />
               <PlotCard.Calories
-                wrapperStyle={styles.calories}
                 totalAmount={355}
                 gainedPerDay={123}
                 percentsPerDay={45.3}
               />
             </StatContainer>
-            <FeedContainer>
-              <CompeteLeagues />
-              <RewardSlider
-                data={unlockedRewardsEntries}
-                title={'Unlocked Rewards'}
-                isLoading={isFetchingLockedRewards}
-                isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
-                userPoints={user!.points_total}
-                fetchNextPage={fetchUnLockedRewardsNextPage}
-              />
-              <ActivityHistory />
-              <RoutesClasses />
-            </FeedContainer>
+            <CompeteLeagues
+              containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+            />
+            <RewardSlider
+              data={unlockedRewardsEntries}
+              title="Unlocked Rewards"
+              isLoading={isFetchingLockedRewards}
+              isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
+              userPoints={user!.points_total}
+              fetchNextPage={fetchUnLockedRewardsNextPage}
+              containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+            />
+            <ActivityHistory
+              containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+            />
+            <RoutesClasses
+              containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+            />
           </>
         </ScrollView>
       </BottomSheetModalProvider>
@@ -283,10 +196,7 @@ export const Feed = () => {
 };
 
 const styles = StyleSheet.create({
-  calories: {
-    marginTop: 20,
-  },
   bfit: {
-    marginTop: 10,
+    marginBottom: 20,
   },
 });

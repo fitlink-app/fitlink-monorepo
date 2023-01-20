@@ -1,17 +1,17 @@
-import React from 'react';
+import React, {FC} from 'react';
 import {useNavigation} from '@react-navigation/core';
-import styled from 'styled-components/native';
 
 import {useCteLeagues} from '@hooks';
 
 import {CteLeagueSlider} from 'components/league/CteLeagueSlider';
 import {getResultsFromPages} from 'utils/api';
+import {StyleProp, View, ViewStyle} from 'react-native';
 
-const Wrapper = styled.View({
-  marginTop: 40,
-});
+interface CompeteLeaguesProps {
+  containerStyle?: StyleProp<ViewStyle>;
+}
 
-export const CompeteLeagues = () => {
+export const CompeteLeagues: FC<CompeteLeaguesProps> = ({containerStyle}) => {
   const navigation = useNavigation();
 
   const {data, fetchNextPage} = useCteLeagues();
@@ -23,7 +23,7 @@ export const CompeteLeagues = () => {
   }
 
   return (
-    <Wrapper>
+    <View style={containerStyle}>
       <CteLeagueSlider
         leagues={results}
         onCardPress={(id, league) =>
@@ -31,6 +31,6 @@ export const CompeteLeagues = () => {
         }
         onEndReached={fetchNextPage}
       />
-    </Wrapper>
+    </View>
   );
 };

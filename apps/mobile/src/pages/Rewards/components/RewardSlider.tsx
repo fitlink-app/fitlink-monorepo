@@ -3,20 +3,17 @@ import React from 'react';
 import {
   FlatList,
   FlatListProps,
-  Dimensions,
   ActivityIndicator,
+  StyleProp,
+  ViewStyle,
+  View,
 } from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {RewardPublic} from '@fitlink/api/src/modules/rewards/entities/reward.entity';
 import {RewardCard} from '.';
 import {useNavigation} from '@react-navigation/native';
 import {heightLize, widthLize} from '@utils';
-
-const {width: SCREEN_WIDTH} = Dimensions.get('screen');
-
-const Wrapper = styled.View({
-  marginTop: 40,
-});
+import {FEED_CAROUSEL_CARD_WIDTH} from '../../Feed/constants';
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
@@ -67,6 +64,7 @@ interface RewardSliderProps
   isLoadingNextPage?: boolean;
   LockedShow?: boolean;
   fetchNextPage: () => void;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export const RewardSlider = ({
@@ -76,6 +74,7 @@ export const RewardSlider = ({
   fetchNextPage,
   LockedShow,
   isLoadingNextPage,
+  containerStyle,
   ...rest
 }: RewardSliderProps) => {
   const {colors} = useTheme();
@@ -91,7 +90,7 @@ export const RewardSlider = ({
                 marginVertical: heightLize(11),
               }
             : {
-                width: SCREEN_WIDTH * 0.87,
+                width: FEED_CAROUSEL_CARD_WIDTH,
                 marginVertical: 10,
                 marginLeft: widthLize(20),
               }
@@ -131,7 +130,7 @@ export const RewardSlider = ({
   }
 
   return (
-    <Wrapper>
+    <View style={containerStyle}>
       <HeaderContainer>
         <Title>{title}</Title>
         <TouchHandler
@@ -155,6 +154,6 @@ export const RewardSlider = ({
           contentContainerStyle={{paddingRight: 20}}
         />
       )}
-    </Wrapper>
+    </View>
   );
 };

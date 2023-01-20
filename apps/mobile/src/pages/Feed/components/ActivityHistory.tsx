@@ -1,22 +1,19 @@
-import React, {useMemo} from 'react';
+import React, {FC, useMemo} from 'react';
 import styled from 'styled-components/native';
 import {TouchHandler, Card, Label} from '@components';
 import {useNavigation} from '@react-navigation/core';
 import {BlurView} from '@react-native-community/blur';
-import {formatDate, widthLize} from '@utils';
+import {widthLize} from '@utils';
 import {useSelector} from 'react-redux';
 import {memoSelectFeedPreferences} from '../../../redux/feedPreferences/feedPreferencesSlice';
 import {useFeed} from '@hooks';
 import moment from 'moment';
-
-const Wrapper = styled.View({
-  // paddingLeft: widthLize(20),
-});
+import {StyleProp, View, ViewStyle} from 'react-native';
+import {FEED_CARD_HEIGHT, FEED_CAROUSEL_CARD_WIDTH} from '../constants';
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
-  marginTop: 40,
   marginHorizontal: widthLize(20),
 });
 
@@ -50,8 +47,8 @@ const SliderContainer = styled.ScrollView.attrs(() => ({
 }))({});
 
 const CardContainer = styled(Card)({
-  width: 327,
-  height: 175,
+  width: FEED_CAROUSEL_CARD_WIDTH,
+  height: FEED_CARD_HEIGHT,
   marginTop: 23,
   marginRight: 14,
   overflow: 'hidden',
@@ -98,14 +95,9 @@ const CardBody = styled.View({
   width: '100%',
   height: 120,
   paddingTop: 34,
-  paddingLeft: 24,
-  paddingRight: 18,
-});
-
-const PlaceSection = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginTop: 4,
+  paddingHorizontal: 24,
+  paddingBottom: 24,
+  justifyContent: 'flex-end',
 });
 
 const RecordValue = styled(Label).attrs(() => ({
@@ -115,7 +107,7 @@ const RecordValue = styled(Label).attrs(() => ({
   lineHeight: 16,
   letterSpacing: 1,
   textTransform: 'capitalize',
-  width: 194,
+  marginTop: 11,
 });
 
 const PlaceText = styled(Label).attrs(() => ({
@@ -126,32 +118,15 @@ const PlaceText = styled(Label).attrs(() => ({
   lineHeight: 21,
 });
 
-const data = [
-  {
-    date: '1:24 PM',
-    record_today: 'Congratulations You Swam 45 Min Today',
-    place: 'Swimming',
-    img: require('../../../../assets/images/history-1.png'),
-  },
-  {
-    date: '1:24 PM',
-    record_today: 'Congratulations You Swam 45 Min Today',
-    place: 'Climbing',
-    img: require('../../../../assets/images/history-1.png'),
-  },
-];
+interface ActivityHistoryProps {
+  containerStyle?: StyleProp<ViewStyle>;
+}
 
-export const ActivityHistory = () => {
+export const ActivityHistory: FC<ActivityHistoryProps> = ({containerStyle}) => {
   const navigation = useNavigation();
   const feedPreferences = useSelector(memoSelectFeedPreferences);
 
-  const {
-    data: feed,
-    refetch: refetchFeed,
-    fetchNextPage: fetchFeedNextPage,
-    isFetchingNextPage: isFeedFetchingNextPage,
-    isFetchedAfterMount: isFeedFetchedAfterMount,
-  } = useFeed({
+  const {data: feed} = useFeed({
     my_goals: feedPreferences.showGoals,
     friends_activities: feedPreferences.showFriends,
     my_updates: feedPreferences.showUpdates,
@@ -162,7 +137,7 @@ export const ActivityHistory = () => {
   }, [feed]);
 
   return (
-    <Wrapper>
+    <View style={containerStyle}>
       <HeaderContainer>
         <Title>Activity History</Title>
         <TouchHandler
@@ -204,18 +179,16 @@ export const ActivityHistory = () => {
                 </CardHeader>
                 <Line />
                 <CardBody>
+                  <PlaceText>{item?.health_activity?.title}</PlaceText>
                   <RecordValue>
                     {item?.health_activity?.points} points
                   </RecordValue>
-                  <PlaceSection>
-                    <PlaceText>{item?.health_activity?.title}</PlaceText>
-                  </PlaceSection>
                 </CardBody>
               </CardContainer>
             </TouchHandler>
           ))}
         </>
       </SliderContainer>
-    </Wrapper>
+    </View>
   );
 };

@@ -6,6 +6,7 @@ import {Label, TouchHandler} from '@components';
 import {BlurView} from '@react-native-community/blur';
 import ProgressBar from './ProgressBar';
 import {calculateDaysLeft} from '@utils';
+import {FEED_CARD_HEIGHT} from '../../Feed/constants';
 
 const TouchWrapper = styled(TouchHandler)({
   marginBottom: 10,
@@ -17,7 +18,7 @@ const ContentContainer = styled.View({
 });
 
 const Wrapper = styled.View({
-  height: 211,
+  height: FEED_CARD_HEIGHT,
   borderRadius: 20,
   overflow: 'hidden',
 });
