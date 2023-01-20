@@ -111,17 +111,10 @@ export const ActivityPage = (
 
   const {data} = useHealthActivity(id, areInteractionsDone);
 
-  const {
-    distance,
-    speed,
-    elevation,
-    calories,
-    time,
-    title,
-    images,
-    date,
-    userName,
-  } = useActivityInfoData(data, user);
+  const {details, title, images, date, userName} = useActivityInfoData(
+    data,
+    user,
+  );
 
   const {
     handleOnSharePressed,
@@ -145,16 +138,12 @@ export const ActivityPage = (
         selectedIndex={selectedIndex}
         setSelectedIndex={setSelectedIndex}>
         <SDetails>
-          <DetailName>Distance</DetailName>
-          <DetailValue>{distance} mi</DetailValue>
-          <DetailName>Speed</DetailName>
-          <DetailValue>{speed}</DetailValue>
-          <DetailName>Calories</DetailName>
-          <DetailValue>{calories}</DetailValue>
-          <DetailName>Time</DetailName>
-          <DetailValue>{time} m</DetailValue>
-          <DetailName>Elevation Gain</DetailName>
-          <DetailValue>{elevation} ft</DetailValue>
+          {details.map(item => (
+            <View key={item.title}>
+              <DetailName>{item.title}</DetailName>
+              <DetailValue>{item.value}</DetailValue>
+            </View>
+          ))}
           <SRow>
             {!!images.length && isOwnedActivity && (
               <Icon

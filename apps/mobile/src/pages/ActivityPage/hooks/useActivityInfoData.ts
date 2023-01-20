@@ -43,7 +43,9 @@ export const useActivityInfoData = (
       : `${Math.round(data?.elevation * 3.2808399)} ft`
     : undefined;
 
-  const calories = data?.calories.toString();
+  const calories = data?.calories
+    ? Math.floor(data?.calories).toString()
+    : undefined;
 
   const time = data
     ? formatDistanceStrict(new Date(data.start_time), new Date(data.end_time), {
@@ -63,11 +65,13 @@ export const useActivityInfoData = (
       )
     : '';
   return {
-    distance,
-    speed,
-    elevation,
-    calories,
-    time,
+    details: [
+      {title: 'Distance', value: distance},
+      {title: 'Speed', value: speed},
+      {title: 'Calories', value: calories},
+      {title: 'Time', value: time},
+      {title: 'Elevation Gain', value: elevation},
+    ].filter(({value}) => !!value),
     title: data?.sport.name,
     date,
     userName: data?.user.name,
