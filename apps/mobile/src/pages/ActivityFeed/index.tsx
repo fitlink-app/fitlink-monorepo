@@ -17,47 +17,15 @@ import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/enti
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import styled, {useTheme} from 'styled-components/native';
 import {queryClient, QueryKeys} from '@query';
-import {Card, Label, FeedItem, TouchHandler, Modal} from '@components';
-import {widthLize} from '@utils';
+import {FeedItem, TouchHandler, Modal} from '@components';
 import {Filter} from 'components/feed/FeedFilter/components';
 
 const Wrapper = styled.View({flex: 1});
 
-const CoverImage = styled(Card)({
-  width: '100%',
-  height: 237,
-  overflow: 'hidden',
-  marginBottom: 5,
-});
-
-const CoverBackgroundImage = styled.Image({
-  position: 'absolute',
-  width: '100%',
-  height: '100%',
-});
-
-const CoverInfo = styled.View({
-  width: 253,
-  marginLeft: 21,
-});
-
-const CoverTitle = styled(Label).attrs(() => ({
-  type: 'title',
-}))({});
-
-const CoverDate = styled(Label).attrs(() => ({
-  type: 'caption',
-  appearance: 'accent',
-}))({});
-
-// const UserList = styled.View({
-//   marginBottom: 38,
-// });
-
-const FilterText = styled(Label)({
-  fontWeight: '400',
-  fontSize: 17,
-  color: '#ACACAC',
+const SFeedItemSeparator = styled.View({
+  height: 3,
+  backgroundColor: '#565656',
+  paddingHorizontal: 20,
 });
 
 const ListFooterContainer = styled.View({
@@ -127,23 +95,6 @@ export const ActivityFeed = () => {
     );
   };
 
-  const FilterView = () => {
-    return (
-      <View style={{height: 50}}>
-        <View
-          style={{
-            flexDirection: 'row',
-            paddingVertical: 12,
-          }}>
-          <FilterText>My Activities</FilterText>
-        </View>
-        <Text>Friends Activities</Text>
-        <Text>My Goal</Text>
-        <Text>My Updates</Text>
-      </View>
-    );
-  };
-
   const handleFilterPressed = () => {
     openModal(id => {
       return (
@@ -166,12 +117,7 @@ export const ActivityFeed = () => {
   };
 
   return (
-    <Wrapper
-      style={{
-        paddingTop: insets.top,
-        // paddingLeft: widthLize(20),
-        // paddingRight: widthLize(20),
-      }}>
+    <Wrapper style={{paddingTop: insets.top}}>
       <View
         style={{
           flexDirection: 'row',
@@ -197,20 +143,18 @@ export const ActivityFeed = () => {
         </TouchHandler>
       </View>
       <FlatList
+        ItemSeparatorComponent={SFeedItemSeparator}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         ref={scrollRef}
         data={feedResults}
         showsVerticalScrollIndicator={false}
-        // style={{overflow: 'visible'}}
         contentContainerStyle={{
           paddingBottom: 44 + 79,
         }}
         onMomentumScrollEnd={({nativeEvent}: {nativeEvent: any}) => {
           onCheckScrollToEnd(nativeEvent);
         }}
-        // onEndReachedThreshold={0.4}
-        // onEndReached={() => fetchFeedNextPage()}
         refreshControl={
           <RefreshControl
             tintColor={colors.accent}
@@ -233,58 +177,8 @@ export const ActivityFeed = () => {
             }}
           />
         }
-        // ListHeaderComponent={
-        //   <CoverImage>
-        //     <CoverBackgroundImage
-        //       source={require('../../../assets/images/activity_feed/cover-1.png')}
-        //     />
-        //     <CoverInfo style={{marginTop: 137}}>
-        //       <CoverTitle
-        //         style={{
-        //           fontFamily: 'Roboto',
-        //           fontSize: 22,
-        //           fontWeight: '500',
-        //           lineHeight: 26,
-        //         }}>
-        //         10-minute Mindfulness Exercises You Can Do
-        //       </CoverTitle>
-        //       <CoverDate style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
-        //         <Label
-        //           type="caption"
-        //           style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
-        //           Fitlink
-        //         </Label>{' '}
-        //         - Tuesday at 9:28 AM
-        //       </CoverDate>
-        //     </CoverInfo>
-        //   </CoverImage>
-        // }
         ListFooterComponent={
           <ListFooterContainer>
-            {/* <CoverImage>
-              <CoverBackgroundImage
-                source={require('../../../assets/images/activity_feed/cover-2.png')}
-              />
-              <CoverInfo style={{marginTop: 113}}>
-                <CoverTitle
-                  style={{
-                    fontFamily: 'Roboto',
-                    fontSize: 22,
-                    fontWeight: '500',
-                    lineHeight: 26,
-                  }}>
-                  Why Trees Are Good For Our Mental & Physical Wellbeing
-                </CoverTitle>
-                <CoverDate style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
-                  <Label
-                    type="caption"
-                    style={{marginTop: 6, fontSize: 14, lineHeight: 16}}>
-                    Fitlink
-                  </Label>{' '}
-                  - Tuesday at 9:28 AM
-                </CoverDate>
-              </CoverInfo>
-            </CoverImage> */}
             {isFeedFetchingNextPage && (
               <ActivityIndicator color={colors.accent} />
             )}
