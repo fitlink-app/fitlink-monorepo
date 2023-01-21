@@ -15,7 +15,7 @@ import {
   resetTeamInvitation,
   selectTeamInvitation,
 } from 'redux/teamInvitation/teamInvitationSlice';
-import {heightLize} from "@utils";
+import {heightLize} from '@utils';
 
 const mail_icon = require('../../../../assets/images/icon/mail.png');
 const google_icon = require('../../../../assets/images/icon/google.png');
@@ -114,7 +114,9 @@ export const Welcome = () => {
 
       await GoogleSignin.signOut();
       const {idToken} = await GoogleSignin.signIn();
-      if (idToken) await dispatch(signInWithGoogle(idToken));
+      if (idToken) {
+        await dispatch(signInWithGoogle(idToken));
+      }
     } catch (e) {
       setGoogleLoading(false);
     }
@@ -185,15 +187,17 @@ export const Welcome = () => {
               logo={mail_icon}
               onPress={handleOnSignUpPressed}
             />
+            {Platform.OS === 'ios' ? (
+              <SpacedButton
+                disabled={isGoogleLoading}
+                loading={isGoogleLoading}
+                text={'Continue with Google'}
+                textStyle={{marginLeft: 10}}
+                logo={google_icon}
+                onPress={handleOnGooglePressed}
+              />
+            ) : null}
             {/* <SpacedButton
-              disabled={isGoogleLoading}
-              loading={isGoogleLoading}
-              text={'Continue with Google'}
-              textStyle={{marginLeft: 10}}
-              logo={google_icon}
-              onPress={handleOnGooglePressed}
-            />
-            <SpacedButton
               disabled={isAppleLoading}
               loading={isAppleLoading}
               text={'Continue with Apple ID'}
