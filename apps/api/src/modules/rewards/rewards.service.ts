@@ -10,7 +10,7 @@ import { User } from '../users/entities/user.entity'
 import { CreateRewardDto } from './dto/create-reward.dto'
 import { UpdateRewardDto } from './dto/update-reward.dto'
 import { Reward, RewardPublic, RewardNext } from './entities/reward.entity'
-import { RewardAccess } from './rewards.constants'
+import { RewardAccess, RewardRedeemType } from './rewards.constants'
 import { startOfDay, startOfToday } from 'date-fns'
 import {
   RewardFiltersDto,
@@ -33,8 +33,8 @@ type ParentIds = {
 
 type QueryOptions = {
   checkExpiry?: boolean
-  checkAvailability?: boolean,
-  isPrivateOnly?: boolean,
+  checkAvailability?: boolean
+  isPrivateOnly?: boolean
 }
 
 type PublicPageReward = {
@@ -104,12 +104,12 @@ export class RewardsService {
   async findManyAccessibleToUser(
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface,
-    filters: RewardFiltersDto,
+    filters: RewardFiltersDto
   ) {
     let query = this.queryFindAccessibleToUser(userId, {
       isPrivateOnly: filters.isPrivateOnly,
       checkExpiry: true,
-      checkAvailability: true,
+      checkAvailability: true
     })
 
     // Where rewards are not available (not enough points) and not redeemed
@@ -117,6 +117,7 @@ export class RewardsService {
       query = query
         .andWhere('redemptions.id IS NULL')
         .andWhere('reward.points_required > user.points_total')
+        .andWhere('reward.bfit_required > user.bfit_balance')
     }
 
     // Where rewards are available (enough points) but not redeemed
@@ -265,7 +266,7 @@ export class RewardsService {
     options: QueryOptions = {
       checkExpiry: true,
       checkAvailability: true,
-      isPrivateOnly: false,
+      isPrivateOnly: false
     }
   ) {
     let query = this.rewardsRepository
@@ -292,7 +293,9 @@ export class RewardsService {
       .where(
         new Brackets((qb) => {
           // The reward is public
-          const checkedQb = options.isPrivateOnly ? qb : qb.where('reward.access = :accessPublic')
+          const checkedQb = options.isPrivateOnly
+            ? qb
+            : qb.where('reward.access = :accessPublic')
           return (
             checkedQb
               // The user belongs to the team that the league belongs to
@@ -345,10 +348,10 @@ export class RewardsService {
     userId: string,
     options: QueryOptions = {}
   ) {
-    let query = this.queryFindAccessibleToUser(
-      userId,
-      options
-    ).andWhere('reward.id = :rewardId', { rewardId })
+    let query = this.queryFindAccessibleToUser(userId, options).andWhere(
+      'reward.id = :rewardId',
+      { rewardId }
+    )
 
     const result = await query.getOne()
     if (result) {
@@ -365,7 +368,7 @@ export class RewardsService {
   }
 
   getRewardPublic(reward: Reward) {
-    ;((reward as unknown) as RewardPublic).redeemed =
+    ;(reward as unknown as RewardPublic).redeemed =
       reward.redemptions.length > 0
     return reward as RewardPublic
   }
@@ -530,15 +533,24 @@ export class RewardsService {
       return 'already redeemed'
     }
 
-    if (user.points_total < reward.points_required) {
-      return false
+    if (
+      reward.redeem_type === RewardRedeemType.Points &&
+      user.points_total < reward.points_required
+    ) {
+      return 'insufficient points'
+    }
+
+    if (
+      reward.redeem_type === RewardRedeemType.BFIT &&
+      user.points_total < reward.points_required
+    ) {
+      return 'insufficient bfit'
     }
 
     const result = await this.rewardsRepository.manager.transaction(
       async (manager) => {
-        const rewardsRedemptionRepository = manager.getRepository(
-          RewardsRedemption
-        )
+        const rewardsRedemptionRepository =
+          manager.getRepository(RewardsRedemption)
         const userRepository = manager.getRepository(User)
         const rewardRepository = manager.getRepository(Reward)
         const redemption = rewardsRedemptionRepository.create({
@@ -546,11 +558,21 @@ export class RewardsService {
           reward: { id: reward.id }
         })
         const result = await rewardsRedemptionRepository.save(redemption)
-        await userRepository.decrement(
-          { id: user.id },
-          'points_total',
-          reward.points_required
-        )
+        if (reward.redeem_type === RewardRedeemType.Points) {
+          await userRepository.decrement(
+            { id: user.id },
+            'points_total',
+            reward.points_required
+          )
+        }
+
+        if (reward.redeem_type === RewardRedeemType.BFIT) {
+          await userRepository.decrement(
+            { id: user.id },
+            'bfit_balance',
+            reward.bfit_required
+          )
+        }
 
         await rewardRepository.increment({ id: reward.id }, 'redeemed_count', 1)
 
