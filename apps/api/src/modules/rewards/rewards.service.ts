@@ -10,7 +10,7 @@ import { User } from '../users/entities/user.entity'
 import { CreateRewardDto } from './dto/create-reward.dto'
 import { UpdateRewardDto } from './dto/update-reward.dto'
 import { Reward, RewardPublic, RewardNext } from './entities/reward.entity'
-import { RewardAccess } from './rewards.constants'
+import { RewardAccess, RewardRedeemType } from './rewards.constants'
 import { startOfDay, startOfToday } from 'date-fns'
 import {
   RewardFiltersDto,
@@ -533,8 +533,18 @@ export class RewardsService {
       return 'already redeemed'
     }
 
-    if (user.points_total < reward.points_required) {
-      return false
+    if (
+      reward.redeem_type === RewardRedeemType.Points &&
+      user.points_total < reward.points_required
+    ) {
+      return 'insufficient points'
+    }
+
+    if (
+      reward.redeem_type === RewardRedeemType.BFIT &&
+      user.points_total < reward.points_required
+    ) {
+      return 'insufficient bfit'
     }
 
     const result = await this.rewardsRepository.manager.transaction(
@@ -548,11 +558,21 @@ export class RewardsService {
           reward: { id: reward.id }
         })
         const result = await rewardsRedemptionRepository.save(redemption)
-        await userRepository.decrement(
-          { id: user.id },
-          'points_total',
-          reward.points_required
-        )
+        if (reward.redeem_type === RewardRedeemType.Points) {
+          await userRepository.decrement(
+            { id: user.id },
+            'points_total',
+            reward.points_required
+          )
+        }
+
+        if (reward.redeem_type === RewardRedeemType.BFIT) {
+          await userRepository.decrement(
+            { id: user.id },
+            'bfit_balance',
+            reward.bfit_required
+          )
+        }
 
         await rewardRepository.increment({ id: reward.id }, 'redeemed_count', 1)
 

@@ -271,9 +271,15 @@ export class RewardsController {
     }
 
     // If the reward could not be redeemed, it's due to lack of points
-    if (!result) {
+    if (result === 'insufficient points') {
       throw new BadRequestException(
         'You have insufficient points to redeem this reward'
+      )
+    }
+
+    if (result === 'insufficient bfit') {
+      throw new BadRequestException(
+        'You have insufficient bfit to redeem this reward'
       )
     }
 
