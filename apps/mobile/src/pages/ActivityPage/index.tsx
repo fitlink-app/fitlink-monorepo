@@ -1,20 +1,23 @@
-import {Navbar} from '@components';
-import {useHealthActivity, useMe} from '@hooks';
-import {StackScreenProps} from '@react-navigation/stack';
-import React, {useEffect, useState} from 'react';
-import {
-  ActivityIndicator,
-  InteractionManager,
-  ScrollView,
-  View,
-} from 'react-native';
-import {RootStackParamList} from 'routes/types';
+import React, {useState} from 'react';
+import {ActivityIndicator, ScrollView, View} from 'react-native';
+import {RouteProp, useRoute} from '@react-navigation/native';
 import styled from 'styled-components/native';
-import {Avatar, Icon, Label, TouchHandler} from '../../components/common';
+
+import {
+  Avatar,
+  Icon,
+  Label,
+  TouchHandler,
+  ErrorContent,
+  Navbar,
+} from '@components';
+
+import {RootStackParamList} from 'routes/types';
 import {ActivityCarousel} from './components/ActivityCarousel';
 import {ActivityMap} from './components/ActivityMap';
 import {useActivityCamera} from './hooks/useActivityCamera';
 import {useActivityInfoData} from './hooks/useActivityInfoData';
+import theme from '../../theme/themes/fitlink';
 
 const SDetails = styled.View({
   position: 'absolute',
@@ -90,31 +93,24 @@ const UserDate = styled(Label).attrs(() => ({
 
 const ShareIcon = styled.Image({});
 
-// Carousal Component
-export const ActivityPage = (
-  props: StackScreenProps<RootStackParamList, 'ActivityPage'>,
-) => {
-  const [areInteractionsDone, setInteractionsDone] = useState(false);
+export const ActivityPage = () => {
+  const {id: activityId} =
+    useRoute<RouteProp<RootStackParamList, 'ActivityPage'>>().params;
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  useEffect(() => {
-    InteractionManager.runAfterInteractions(() => {
-      setInteractionsDone(true);
-    });
-  }, []);
-
-  const {id} = props.route.params;
-
-  const {data: user} = useMe({
-    refetchOnMount: false,
-  });
-
-  const {data} = useHealthActivity(id, areInteractionsDone);
-
-  const {details, title, images, date, userName} = useActivityInfoData(
+  const {
     data,
-    user,
-  );
+    isLoading,
+    isContentLoaded,
+    isOwnedActivity,
+    details,
+    title,
+    images,
+    date,
+    userName,
+    refetch,
+    isError,
+  } = useActivityInfoData({activityId});
 
   const {
     handleOnSharePressed,
@@ -125,12 +121,16 @@ export const ActivityPage = (
     isAddingHealthActivityImage,
   } = useActivityCamera(data, selectedIndex);
 
-  const isOwnedActivity = data?.user.id === user?.id;
-  if (!data) {
-    return null;
+  if (isError) {
+    return <ErrorContent onRefresh={refetch} />;
   }
+
+  if (!isContentLoaded || isLoading) {
+    return <ActivityIndicator style={{flex: 1}} color={theme.colors.accent} />;
+  }
+
   return (
-    <ScrollView>
+    <ScrollView bounces={false}>
       <Navbar iconColor="white" />
       <ActivityCarousel
         images={images}

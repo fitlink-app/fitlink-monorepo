@@ -1,5 +1,3 @@
-import {HealthActivity} from '@fitlink/api/src/modules/health-activities/entities/health-activity.entity';
-import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
 import {
   formatDateWithoutOffset,
@@ -9,11 +7,45 @@ import {
 } from '@utils';
 import {formatDistanceStrict} from 'date-fns';
 import locale from 'date-fns/locale/en-US';
+import {useEffect, useState} from 'react';
+import {InteractionManager} from 'react-native';
+import {useHealthActivity, useMe} from '@hooks';
 
-export const useActivityInfoData = (
-  data: HealthActivity | undefined,
-  user: User | undefined,
-) => {
+export const useActivityInfoData = ({activityId}: {activityId: string}) => {
+  const [areInteractionsDone, setInteractionsDone] = useState(false);
+
+  useEffect(() => {
+    InteractionManager.runAfterInteractions(() => {
+      setInteractionsDone(true);
+    });
+  }, []);
+
+  const {
+    data: user,
+    isLoading: isLoadingUser,
+    refetch: refetchMe,
+    isRefetching: isRefetchingMe,
+    isError: isErrorMe,
+  } = useMe({
+    refetchOnMount: false,
+  });
+
+  const {
+    data,
+    isLoading: isLoadingActivity,
+    refetch: refetchActivity,
+    isRefetching: isRefetchingActivity,
+    isError: isActivityError,
+  } = useHealthActivity(activityId, areInteractionsDone);
+
+  const isContentLoaded = !!(data && user);
+  const isLoading = isLoadingActivity || isLoadingUser;
+  const isRefetching = isRefetchingActivity || isRefetchingMe;
+  const isOwnedActivity = data?.user.id === user?.id;
+  const isError = isErrorMe || isActivityError;
+
+  const refetch = () => Promise.all([refetchMe(), refetchActivity()]);
+
   const distance =
     user && data?.distance
       ? (getActivityDistance(user.unit_system, data.distance, {
@@ -64,19 +96,31 @@ export const useActivityInfoData = (
         new Date(Date.now() + (data?.utc_offset || 0) * 1000),
       )
     : '';
+
+  const details = [
+    {title: 'Distance', value: distance},
+    {title: 'Speed', value: speed},
+    {title: 'Calories', value: calories},
+    {title: 'Time', value: time},
+    {title: 'Elevation Gain', value: elevation},
+  ].filter(({value}) => !!value);
+
+  const images = data?.images.length
+    ? data?.images.map(({url}) => url)
+    : [data?.sport.image_url || ''];
+
   return {
-    details: [
-      {title: 'Distance', value: distance},
-      {title: 'Speed', value: speed},
-      {title: 'Calories', value: calories},
-      {title: 'Time', value: time},
-      {title: 'Elevation Gain', value: elevation},
-    ].filter(({value}) => !!value),
-    title: data?.sport.name,
+    data,
     date,
+    images,
+    details,
+    title: data?.sport.name,
     userName: data?.user.name,
-    images: data?.images.length
-      ? data?.images.map(({url}) => url)
-      : [data?.sport.image_url || ''],
+    isContentLoaded,
+    isOwnedActivity,
+    refetch,
+    isLoading,
+    isRefetching,
+    isError,
   };
 };

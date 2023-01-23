@@ -1,5 +1,5 @@
 import React from 'react';
-import {Icon, Label, TouchHandler} from '@components';
+import {Label, TouchHandler} from '@components';
 import styled from 'styled-components/native';
 import {useNavigation} from '@react-navigation/core';
 
@@ -14,12 +14,6 @@ const BadgeWrapper = styled.View(({theme: {colors}}) => ({
   left: 8,
   bottom: 10,
 }));
-
-// const NotificationsButtonIcon = styled(Icon).attrs(({theme: {colors}}) => ({
-//   name: 'bell',
-//   size: 20,
-//   color: colors.text,
-// }))({});
 
 const NotificationsButtonIcon = styled.Image({});
 

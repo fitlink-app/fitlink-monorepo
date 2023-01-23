@@ -212,7 +212,6 @@ export const GoalTracker = ({
         {disabledTrackers.map(
           ({goal, icon, identifier, supportedProviders}) => (
             <TouchHandler
-              style={{backgroundColor: 'blue'}}
               onPress={() => {
                 showDisabledModal(identifier, supportedProviders!);
               }}>
