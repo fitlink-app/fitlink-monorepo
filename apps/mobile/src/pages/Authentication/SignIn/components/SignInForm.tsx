@@ -47,11 +47,11 @@ export const SignInForm = ({onEmailChanged}: SignInFormProps) => {
 
   const onSubmit = async () => {
     const credentials = {email: values.email, password: values.password};
-
-    const result = await dispatch(signIn(credentials));
-    return result.type === signIn.rejected.toString()
-      ? (result.payload as RequestError)
-      : undefined;
+    try {
+      await dispatch(signIn(credentials)).unwrap();
+    } catch (e) {
+      return e as RequestError;
+    }
   };
 
   return (

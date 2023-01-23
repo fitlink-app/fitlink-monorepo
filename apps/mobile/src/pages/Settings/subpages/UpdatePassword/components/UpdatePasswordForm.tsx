@@ -8,6 +8,7 @@ import {getErrors} from '@api';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from 'redux/store';
 import {signIn} from 'redux/auth';
+import {ResponseError} from '@fitlink/api-sdk/types';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -59,9 +60,9 @@ export const UpdatePasswordForm = () => {
 
       await dispatch(
         signIn({email: me?.email!, password: values.confirmPassword}),
-      );
+      ).unwrap();
     } catch (e) {
-      const requestErrors = getErrors(e);
+      const requestErrors = getErrors(e as ResponseError);
       console.log(requestErrors);
       return requestErrors;
     }
