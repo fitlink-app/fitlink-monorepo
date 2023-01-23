@@ -35,7 +35,6 @@ const TopButtonRow = styled.View({
   flexDirection: 'row',
   justifyContent: 'flex-end',
   marginRight: 20,
-  marginTop: 10,
 });
 
 const TopButtonSpacer = styled.View({width: 10});
