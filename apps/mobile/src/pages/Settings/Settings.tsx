@@ -36,7 +36,7 @@ import {SettingsItemWrapper} from './components/SettingsItemWrapper';
 import {SettingsItemLabel} from './components/SettingsItemLabel';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch} from 'redux/store';
-import {logout} from 'redux/auth/authSlice';
+import {logout} from 'redux/auth';
 import {
   clearChanges,
   CURRENCY_ITEMS,

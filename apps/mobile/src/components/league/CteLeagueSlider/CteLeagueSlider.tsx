@@ -9,7 +9,6 @@ import {CteLeagueCard} from '../LeagueCard';
 const StyledCteLeagueCard = styled(CteLeagueCard)({
   marginTop: 23,
   marginRight: 14,
-  marginBottom: 20,
 });
 
 const LeaguesTitleContainer = styled.View({

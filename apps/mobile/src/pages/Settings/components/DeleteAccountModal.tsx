@@ -3,8 +3,7 @@ import {Button} from '@components';
 import {Alert} from 'react-native';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from 'redux/store';
-import {deleteAccount} from 'redux/auth/authSlice';
-import api from '@api';
+import {deleteAccount} from 'redux/auth';
 
 interface DeleteAccountModalProps {
   onCloseCallback: (deleted: boolean) => void;

@@ -230,9 +230,7 @@ export const GoalTracker = ({
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={[
         containerStyle,
-        {
-          justifyContent: 'space-between',
-        },
+        {justifyContent: 'space-between'},
       ]}>
       {renderWidgets()}
     </ScrollView>

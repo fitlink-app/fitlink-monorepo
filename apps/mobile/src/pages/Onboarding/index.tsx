@@ -15,10 +15,9 @@ import {
 } from 'redux/settings/settingsSlice';
 import {AppDispatch} from 'redux/store';
 import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
-import {Trackers} from './subscreens/Trackers';
-import {Privacy} from './subscreens/Privacy';
+import {Trackers, Privacy} from './subscreens';
 import {Navigation} from './components';
-import {logout} from 'redux/auth/authSlice';
+import {logout} from 'redux/auth';
 import {
   resetTeamInvitation,
   selectTeamInvitation,

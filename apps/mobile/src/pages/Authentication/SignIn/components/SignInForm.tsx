@@ -5,7 +5,7 @@ import styled from 'styled-components/native';
 import {TextInput} from 'react-native';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from 'redux/store';
-import {signIn} from 'redux/auth/authSlice';
+import {signIn} from 'redux/auth';
 import {RequestError} from '@api';
 
 const Wrapper = styled.View({
@@ -43,7 +43,6 @@ export const SignInForm = ({onEmailChanged}: SignInFormProps) => {
     fieldErrors,
     errorMessage,
     isSubmitting,
-    isSubmitted,
   } = useForm(initialValues);
 
   const onSubmit = async () => {

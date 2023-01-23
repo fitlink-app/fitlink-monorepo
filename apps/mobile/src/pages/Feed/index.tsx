@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import {GoalTracker, Modal, PlotCard} from '@components';
 import {
   useGoals,
@@ -8,15 +8,19 @@ import {
   useUpdateIntercomUser,
   useRewards,
 } from '@hooks';
-import {UserWidget, TouchHandler} from '@components';
+import {UserWidget} from '@components';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import {ScrollView, StyleSheet} from 'react-native';
 import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {calculateGoalsPercentage, getPersistedData, persistData} from '@utils';
-import {NewsletterModal, NotificationsButton} from './components';
+import {
+  NewsletterModal,
+  NotificationsButton,
+  SettingsButton,
+} from './components';
 import {getResultsFromPages} from 'utils/api';
-import {saveCurrentToken} from '@api';
+import api, {saveCurrentToken} from '@api';
 import {CompeteLeagues} from './components/CompeteLeagues';
 import {RewardSlider} from '../Rewards/components';
 import {ActivityHistory} from './components/ActivityHistory';
@@ -30,16 +34,14 @@ const Wrapper = styled.View({
 });
 
 const TopButtonRow = styled.View({
-  position: 'absolute',
+  top: 10,
   right: 0,
+  zIndex: 1,
+  marginRight: 20,
+  position: 'absolute',
   flexDirection: 'row',
   justifyContent: 'flex-end',
-  marginRight: 20,
 });
-
-const TopButtonSpacer = styled.View({width: 10});
-
-const SettingsButton = styled.Image({});
 
 const HeaderContainer = styled.View({
   paddingTop: 20,
@@ -115,6 +117,22 @@ export const Feed = () => {
     saveCurrentToken();
   }, []);
 
+  const totalBfitAmount = useMemo(
+    () => user?.points_total ?? 0,
+    [user?.points_total],
+  );
+
+  const navigateToWallet = useCallback(
+    () => navigation.navigate('Wallet'),
+    [navigation],
+  );
+
+  const bfitStyles = useMemo(() => styles.bfit, []);
+
+  useEffect(() => {
+    console.log('api.getTokens()', api.getTokens());
+  }, []);
+
   if (!user) {
     return null;
   }
@@ -126,69 +144,58 @@ export const Feed = () => {
           contentContainerStyle={{
             paddingBottom: insets.bottom + BOTTOM_TAB_BAR_HEIGHT,
           }}>
-          <>
-            <HeaderContainer style={{paddingTop: 20}}>
-              <TopButtonRow>
-                <NotificationsButton count={user.unread_notifications} />
-                <TopButtonSpacer />
-                <TouchHandler
-                  hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
-                  onPress={() => {
-                    navigation.navigate('Settings');
-                  }}>
-                  <SettingsButton
-                    source={require('../../../assets/images/icon/sliders.png')}
-                  />
-                </TouchHandler>
-              </TopButtonRow>
-              <UserWidget
-                goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
-                name={user.name}
-                rank={user.rank}
-                avatar={user.avatar?.url_512x512}
-                friendCount={user.following_total}
-                followerCount={user.followers_total}
-                pointCount={user.points_total}
-                containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
-              />
-              <GoalTracker
-                isLocalUser={true}
-                containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
-              />
-            </HeaderContainer>
-            <StatContainer>
-              <PlotCard.BFIT
-                totalAmount={user.points_total ?? 0}
-                gainedPerDay={100}
-                percentsPerDay={23.4}
-                onPress={() => navigation.navigate('Wallet')}
-                wrapperStyle={styles.bfit}
-              />
-              <PlotCard.Calories
-                totalAmount={355}
-                gainedPerDay={123}
-                percentsPerDay={45.3}
-              />
-            </StatContainer>
-            <CompeteLeagues
+          <HeaderContainer style={{paddingTop: 20}}>
+            <TopButtonRow>
+              <NotificationsButton count={user.unread_notifications} />
+              <SettingsButton />
+            </TopButtonRow>
+            <UserWidget
+              goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
+              name={user.name}
+              rank={user.rank}
+              avatar={user.avatar?.url_512x512}
+              friendCount={user.following_total}
+              followerCount={user.followers_total}
+              pointCount={user.points_total}
               containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
             />
-            <RewardSlider
-              data={unlockedRewardsEntries}
-              title="Unlocked Rewards"
-              isLoading={isFetchingLockedRewards}
-              isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
-              userPoints={user!.points_total}
-              fetchNextPage={fetchUnLockedRewardsNextPage}
-              containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+            <GoalTracker
+              isLocalUser={true}
+              containerStyle={{marginBottom: FEED_CONTAINER_SPACE - 10}}
             />
-            <ActivityHistory
-              containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+          </HeaderContainer>
+          <StatContainer>
+            <PlotCard.BFIT
+              totalAmount={totalBfitAmount}
+              gainedPerDay={100}
+              percentsPerDay={23.4}
+              onPress={navigateToWallet}
+              wrapperStyle={bfitStyles}
             />
-            <RoutesClasses
-              containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+            <PlotCard.Calories
+              totalAmount={355}
+              gainedPerDay={123}
+              percentsPerDay={45.3}
             />
-          </>
+          </StatContainer>
+          <CompeteLeagues
+            containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+          />
+          <RewardSlider
+            data={unlockedRewardsEntries}
+            title="Unlocked Rewards"
+            isLoading={isFetchingLockedRewards}
+            isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
+            userPoints={user!.points_total}
+            fetchNextPage={fetchUnLockedRewardsNextPage}
+            containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+          />
+          <ActivityHistory
+            containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+          />
+          <RoutesClasses
+            containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+          />
         </ScrollView>
       </BottomSheetModalProvider>
     </Wrapper>

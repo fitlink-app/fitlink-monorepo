@@ -7,7 +7,7 @@ import {useNavigation} from '@react-navigation/native';
 import {getErrors} from '@api';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from 'redux/store';
-import {signIn} from 'redux/auth/authSlice';
+import {signIn} from 'redux/auth';
 
 const Wrapper = styled.View({
   width: '100%',

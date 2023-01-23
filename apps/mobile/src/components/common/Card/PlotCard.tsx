@@ -88,7 +88,7 @@ interface PlotCardWrapperProps
   gainedPerDay: number;
 }
 
-const BFIT = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
+const BFITInner = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
   const Plot = () => (
     <WeeklyEarningsGraph height={50} barWidth={4} gapWidth={18} />
   );
@@ -120,4 +120,4 @@ const Calories = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
   );
 };
 
-export default {BFIT, Calories};
+export default {BFIT: React.memo(BFITInner), Calories};

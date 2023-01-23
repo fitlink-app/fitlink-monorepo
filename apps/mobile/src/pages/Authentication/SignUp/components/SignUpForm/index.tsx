@@ -6,7 +6,7 @@ import {TextInput} from 'react-native';
 import {PrivacyPolicyLabel, TermsOfServiceLabel} from './components';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from 'redux/store';
-import {signUp} from 'redux/auth/authSlice';
+import {signUp} from 'redux/auth';
 import {RequestError} from '@api';
 
 const Wrapper = styled.View({
@@ -46,7 +46,6 @@ export const SignUpForm = () => {
     fieldErrors,
     errorMessage,
     isSubmitting,
-    isSubmitted,
   } = useForm(initialValues);
 
   const onSubmit = async () => {

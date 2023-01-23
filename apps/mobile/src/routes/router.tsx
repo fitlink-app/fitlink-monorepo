@@ -29,7 +29,7 @@ import {
 } from 'pages';
 import {SettingsNavigator} from './Settings';
 import {useSelector} from 'react-redux';
-import {memoSelectIsAuthenticated} from 'redux/auth/authSlice';
+import {memoSelectIsAuthenticated} from 'redux/auth';
 import {Onboarding} from 'pages/Onboarding';
 import {CustomInterpolators} from './interpolators';
 import {useMe} from '@hooks';
