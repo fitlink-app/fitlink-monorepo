@@ -30,4 +30,5 @@ export enum QueryKeys {
   HealthActivity = 'health-activity',
   Notifications = 'me/notifications',
   UserFeed = 'users/feed',
+  BfitClaims = '/leagues/bfit/claims',
 }

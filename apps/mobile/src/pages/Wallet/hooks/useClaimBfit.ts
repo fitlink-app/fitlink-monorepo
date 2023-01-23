@@ -17,7 +17,7 @@ const claimBfit = ({pageParam = 0}: {pageParam?: number | undefined}) =>
 
 export function useClaimBfit() {
   return useInfiniteQuery<ListResponse<LeagueBfitClaim>, Error>(
-    [QueryKeys.CteLeagues],
+    [QueryKeys.BfitClaims],
     ({pageParam}) => claimBfit({pageParam}),
     {
       getNextPageParam: getNextPageParam(limit),
