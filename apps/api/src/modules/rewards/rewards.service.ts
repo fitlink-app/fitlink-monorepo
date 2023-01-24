@@ -114,10 +114,17 @@ export class RewardsService {
 
     // Where rewards are not available (not enough points) and not redeemed
     if (filters.locked) {
+      console.log('here')
       query = query
         .andWhere('redemptions.id IS NULL')
-        .andWhere('reward.points_required > user.points_total')
-        .andWhere('reward.bfit_required > user.bfit_balance')
+        .andWhere(
+          'reward.redeem_type = :pointRedeemType AND reward.points_required > user.points_total',
+          { pointRedeemType: RewardRedeemType.Points }
+        )
+        .andWhere(
+          'reward.redeem_type = :bfitRedeemType AND reward.bfit_required > user.bfit_balance',
+          { bfitRedeemType: RewardRedeemType.BFIT }
+        )
     }
 
     // Where rewards are available (enough points) but not redeemed
@@ -125,6 +132,12 @@ export class RewardsService {
       query = query
         .andWhere('redemptions.id IS NULL')
         .andWhere('reward.points_required <= user.points_total')
+    }
+
+    if (filters.redeem_type) {
+      query = query.andWhere('reward.redeem_type = :redeemType', {
+        redeemType: filters.redeem_type
+      })
     }
 
     // Where rewards are expired

@@ -125,6 +125,7 @@ import { LeagueBfitEarnings } from './modules/leagues/entities/bfit-earnings.ent
             LeagueBfitEarnings
           ],
           synchronize: false,
+          bigNumberStrings: false,
           logging: false,
           retryAttempts: 1
         }
