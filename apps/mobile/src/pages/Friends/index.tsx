@@ -1,7 +1,7 @@
 import React, {useCallback, useRef} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {Route} from 'react-native-tab-view';
-import {HeaderBackButton, StackScreenProps} from '@react-navigation/stack';
+import {StackScreenProps} from '@react-navigation/stack';
 import {
   CommonActions,
   useFocusEffect,
@@ -11,7 +11,6 @@ import {RootStackParamList} from 'routes/types';
 import {Following, Followers, Search} from './tabs';
 import {Navbar, TabView} from '@components';
 import {useMe} from '@hooks';
-import {SafeAreaView} from "react-native-safe-area-context";
 
 const Wrapper = styled.View({
   flex: 1,
@@ -32,19 +31,17 @@ export const Friends = (
 
   const tabViewRef = useRef<any>(null);
 
-  const {data: user} = useMe({
-    refetchOnMount: false,
-    refetchInterval: 10000,
-  });
+  const {data: user} = useMe();
 
   useFocusEffect(
     useCallback(() => {
-      if (!!tabViewRef.current?.jumpToIndex && tab !== undefined)
+      if (!!tabViewRef.current?.jumpToIndex && tab !== undefined) {
         tabViewRef.current.jumpToIndex(tab);
+      }
 
       // Reset navigation params
       navigation.dispatch(CommonActions.setParams({tab: undefined}));
-    }, [tab]),
+    }, [navigation, tab]),
   );
 
   const renderTabs = ({route, ...rest}: {route: Route}) => {
@@ -65,7 +62,8 @@ export const Friends = (
   return (
     <>
       <HeaderView>
-        <Navbar containerStyle={{position: 'relative'}}
+        <Navbar
+          containerStyle={{position: 'relative'}}
           iconColor={colors.accent}
           title="FRIENDS"
           titleStyle={{fontSize: 18, color: colors.accent}}

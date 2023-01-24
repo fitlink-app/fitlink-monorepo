@@ -11,8 +11,12 @@ import {
 import {UserWidget} from '@components';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
-import {ScrollView, StyleSheet} from 'react-native';
-import {useNavigation, useScrollToTop} from '@react-navigation/native';
+import {RefreshControl, ScrollView, StyleSheet} from 'react-native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useScrollToTop,
+} from '@react-navigation/native';
 import {calculateGoalsPercentage, getPersistedData, persistData} from '@utils';
 import {
   NewsletterModal,
@@ -20,7 +24,7 @@ import {
   SettingsButton,
 } from './components';
 import {getResultsFromPages} from 'utils/api';
-import api, {saveCurrentToken} from '@api';
+import {saveCurrentToken} from '@api';
 import {CompeteLeagues} from './components/CompeteLeagues';
 import {RewardSlider} from '../Rewards/components';
 import {ActivityHistory} from './components/ActivityHistory';
@@ -28,6 +32,7 @@ import {RoutesClasses} from './components/RoutesClasses';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
 import {SCREEN_CONTAINER_SPACE} from '@constants';
+import theme from '../../theme/themes/fitlink';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -70,8 +75,16 @@ export const Feed = () => {
   // Update intercom on user change
   useUpdateIntercomUser();
 
-  const {data: user} = useMe();
-  const {data: goals} = useGoals();
+  const {
+    data: user,
+    refetch: refetchUser,
+    isRefetching: isUserRefetching,
+  } = useMe();
+  const {
+    data: goals,
+    refetch: refetchGoals,
+    isRefetching: isGoalsRefetching,
+  } = useGoals();
 
   const {
     data: unlockedRewards,
@@ -108,6 +121,21 @@ export const Feed = () => {
     }
   }, [closeModal, openModal, user]);
 
+  const refresh = useCallback(async () => {
+    try {
+      await Promise.all([refetchGoals(), refetchUser()]);
+    } catch (e) {
+      console.warn('refresh', e);
+    }
+  }, [refetchGoals, refetchUser]);
+  const isRefreshing = isUserRefetching || isGoalsRefetching;
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
+
   useEffect(() => {
     promptNewsletterModal();
   }, [promptNewsletterModal]);
@@ -128,10 +156,6 @@ export const Feed = () => {
 
   const bfitStyles = useMemo(() => styles.bfit, []);
 
-  useEffect(() => {
-    console.log('api.getTokens()', api.getTokens());
-  }, []);
-
   if (!user) {
     return null;
   }
@@ -140,6 +164,13 @@ export const Feed = () => {
     <Wrapper style={{paddingTop: insets.top}}>
       <BottomSheetModalProvider>
         <ScrollView
+          refreshControl={
+            <RefreshControl
+              onRefresh={refresh}
+              refreshing={isRefreshing}
+              tintColor={theme.colors.accent}
+            />
+          }
           contentContainerStyle={{
             paddingBottom: insets.bottom + BOTTOM_TAB_BAR_HEIGHT,
           }}>

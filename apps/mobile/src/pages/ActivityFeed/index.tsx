@@ -41,10 +41,7 @@ export const ActivityFeed = () => {
   const scrollRef = useRef(null);
   useScrollToTop(scrollRef);
 
-  const {data: user} = useMe({
-    refetchOnMount: false,
-    refetchInterval: 10000,
-  });
+  const {data: user} = useMe();
 
   const feedPreferences = useSelector(memoSelectFeedPreferences);
 
