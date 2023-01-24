@@ -1,4 +1,4 @@
-import React, {FC, useMemo} from 'react';
+import React, {FC} from 'react';
 import styled from 'styled-components/native';
 import {TouchHandler, Card, Label} from '@components';
 import {useNavigation} from '@react-navigation/core';
@@ -10,6 +10,8 @@ import {useFeed} from '@hooks';
 import moment from 'moment';
 import {StyleProp, View, ViewStyle} from 'react-native';
 import {FEED_CARD_HEIGHT, FEED_CAROUSEL_CARD_WIDTH} from '../constants';
+import {getResultsFromPages} from '../../../utils/api';
+import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
@@ -122,19 +124,21 @@ interface ActivityHistoryProps {
   containerStyle?: StyleProp<ViewStyle>;
 }
 
-export const ActivityHistory: FC<ActivityHistoryProps> = ({containerStyle}) => {
+export const UserActivityHistory: FC<ActivityHistoryProps> = ({
+  containerStyle,
+}) => {
   const navigation = useNavigation();
   const feedPreferences = useSelector(memoSelectFeedPreferences);
 
   const {data: feed} = useFeed({
     my_goals: feedPreferences.showGoals,
-    friends_activities: feedPreferences.showFriends,
     my_updates: feedPreferences.showUpdates,
+    friends_activities: false,
   });
 
-  const activities = useMemo(() => {
-    return feed?.pages[0].results.filter(e => e.category === 'my_activities');
-  }, [feed]);
+  const activities = getResultsFromPages<FeedItemType>(feed).filter(
+    ({health_activity}) => !!health_activity?.id,
+  );
 
   return (
     <View style={containerStyle}>
@@ -150,43 +154,42 @@ export const ActivityHistory: FC<ActivityHistoryProps> = ({containerStyle}) => {
 
       <SliderContainer>
         <>
-          {activities?.map((item, index) => (
-            <TouchHandler
-              key={index}
-              onPress={() => {
-                navigation.navigate('ActivityPage', {
-                  id: item.health_activity!.id,
-                });
-              }}>
-              <CardContainer>
-                <CardImage
-                  source={{uri: item?.health_activity?.sport.image_url}}
-                />
-                <BlurView
-                  style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: 53,
-                    backgroundColor: 'rgba(0,0,0,0.2)',
-                  }}
-                  blurRadius={1}
-                  overlayColor={'transparent'}
-                />
-                <CardHeader>
-                  <DateText>
-                    {moment(item?.health_activity?.start_time).calendar()}
-                  </DateText>
-                </CardHeader>
-                <Line />
-                <CardBody>
-                  <PlaceText>{item?.health_activity?.title}</PlaceText>
-                  <RecordValue>
-                    {item?.health_activity?.points} points
-                  </RecordValue>
-                </CardBody>
-              </CardContainer>
-            </TouchHandler>
-          ))}
+          {activities.map(({health_activity}, index) => {
+            const activityImgUrl =
+              health_activity?.images[0]?.url_640x360 ??
+              health_activity?.sport.image_url;
+            const {id, start_time, title, points} = health_activity ?? {};
+
+            return (
+              <TouchHandler
+                key={index}
+                onPress={() => {
+                  navigation.navigate('ActivityPage', {id: id!});
+                }}>
+                <CardContainer>
+                  <CardImage source={{uri: activityImgUrl}} />
+                  <BlurView
+                    style={{
+                      position: 'absolute',
+                      width: '100%',
+                      height: 53,
+                      backgroundColor: 'rgba(0,0,0,0.2)',
+                    }}
+                    blurRadius={1}
+                    overlayColor={'transparent'}
+                  />
+                  <CardHeader>
+                    <DateText>{moment(start_time).calendar()}</DateText>
+                  </CardHeader>
+                  <Line />
+                  <CardBody>
+                    <PlaceText>{title}</PlaceText>
+                    <RecordValue>{points} points</RecordValue>
+                  </CardBody>
+                </CardContainer>
+              </TouchHandler>
+            );
+          })}
         </>
       </SliderContainer>
     </View>

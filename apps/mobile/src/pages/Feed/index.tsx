@@ -1,14 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef} from 'react';
-import {GoalTracker, Modal, PlotCard} from '@components';
-import {
-  useGoals,
-  useMe,
-  useModal,
-  useProviders,
-  useUpdateIntercomUser,
-  useRewards,
-} from '@hooks';
-import {UserWidget} from '@components';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import {RefreshControl, ScrollView, StyleSheet} from 'react-native';
@@ -17,21 +7,32 @@ import {
   useNavigation,
   useScrollToTop,
 } from '@react-navigation/native';
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+
+import {GoalTracker, Modal, PlotCard, UserWidget} from '@components';
+import {
+  useGoals,
+  useMe,
+  useModal,
+  useProviders,
+  useUpdateIntercomUser,
+  useRewards,
+} from '@hooks';
 import {calculateGoalsPercentage, getPersistedData, persistData} from '@utils';
+import {saveCurrentToken} from '@api';
+import {SCREEN_CONTAINER_SPACE} from '@constants';
+
 import {
   NewsletterModal,
   NotificationsButton,
   SettingsButton,
+  UserActivityHistory,
+  RoutesClasses,
+  CompeteLeagues,
 } from './components';
 import {getResultsFromPages} from 'utils/api';
-import {saveCurrentToken} from '@api';
-import {CompeteLeagues} from './components/CompeteLeagues';
 import {RewardSlider} from '../Rewards/components';
-import {ActivityHistory} from './components/ActivityHistory';
-import {RoutesClasses} from './components/RoutesClasses';
-import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
-import {SCREEN_CONTAINER_SPACE} from '@constants';
 import theme from '../../theme/themes/fitlink';
 
 const Wrapper = styled.View({
@@ -69,22 +70,16 @@ export const Feed = () => {
   const scrollRef = useRef(null);
   useScrollToTop(scrollRef);
 
+  const [isManuallyRefreshing, setIsManuallyRefreshing] = useState(false);
+
   // Preload providers
   useProviders();
 
   // Update intercom on user change
   useUpdateIntercomUser();
 
-  const {
-    data: user,
-    refetch: refetchUser,
-    isRefetching: isUserRefetching,
-  } = useMe();
-  const {
-    data: goals,
-    refetch: refetchGoals,
-    isRefetching: isGoalsRefetching,
-  } = useGoals();
+  const {data: user, refetch: refetchUser} = useMe();
+  const {data: goals, refetch: refetchGoals} = useGoals();
 
   const {
     data: unlockedRewards,
@@ -123,17 +118,19 @@ export const Feed = () => {
 
   const refresh = useCallback(async () => {
     try {
+      setIsManuallyRefreshing(true);
       await Promise.all([refetchGoals(), refetchUser()]);
     } catch (e) {
       console.warn('refresh', e);
+    } finally {
+      setIsManuallyRefreshing(false);
     }
   }, [refetchGoals, refetchUser]);
-  const isRefreshing = isUserRefetching || isGoalsRefetching;
 
   useFocusEffect(
     useCallback(() => {
-      refresh();
-    }, [refresh]),
+      refetchGoals();
+    }, [refetchGoals]),
   );
 
   useEffect(() => {
@@ -167,7 +164,7 @@ export const Feed = () => {
           refreshControl={
             <RefreshControl
               onRefresh={refresh}
-              refreshing={isRefreshing}
+              refreshing={isManuallyRefreshing}
               tintColor={theme.colors.accent}
             />
           }
@@ -222,7 +219,7 @@ export const Feed = () => {
               marginBottom: SCREEN_CONTAINER_SPACE - 10 /* card margin */,
             }}
           />
-          <ActivityHistory
+          <UserActivityHistory
             containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
           />
           <RoutesClasses
