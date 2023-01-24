@@ -9,7 +9,7 @@ import {format} from 'date-fns';
 
 import {FitButton, NAVBAR_HEIGHT} from '@components';
 import {useMe, useReward} from '@hooks';
-import {calculateDaysLeft, convertBfitToUsd} from '@utils';
+import {calculateDaysLeft, convertBfitToUsd, getViewBfitValue} from '@utils';
 
 import DetailedProgressBar from './components/DetailedProgressBar';
 import AnimatedHeaderCard from '../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
@@ -49,10 +49,12 @@ export const Reward = (
     );
   }
 
+  const viewBfitValue = getViewBfitValue(reward.bfit_required);
+
   const isBfitReward = reward.bfit_required !== null;
   const requiredBfitReward = showAltCurrency
-    ? `$${convertBfitToUsd(reward.bfit_required)}`
-    : `${reward.bfit_required} BFIT`;
+    ? `$${convertBfitToUsd(viewBfitValue)}`
+    : `${viewBfitValue} BFIT`;
   const requiredPointsReward = `${reward.points_required} Points`;
   const requiredReward = isBfitReward
     ? requiredBfitReward

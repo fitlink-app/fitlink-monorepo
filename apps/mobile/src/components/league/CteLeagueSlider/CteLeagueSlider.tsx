@@ -1,6 +1,6 @@
 import {Label} from '@components';
 import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
-import {widthLize} from '@utils';
+import {getViewBfitValue, widthLize} from '@utils';
 import React from 'react';
 import {FlatList, StyleProp, View, ViewStyle} from 'react-native';
 import styled from 'styled-components/native';
@@ -64,7 +64,7 @@ export const CteLeagueSlider = ({
             onPress={() => {
               onCardPress(item.id, item);
             }}
-            bfitValue={item.bfit}
+            bfitValue={getViewBfitValue(item.bfit)}
           />
         )}
         horizontal

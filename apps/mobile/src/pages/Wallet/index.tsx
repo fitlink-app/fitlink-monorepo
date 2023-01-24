@@ -12,7 +12,7 @@ import styled, {useTheme} from 'styled-components/native';
 
 import {Icon, Label, Navbar} from '@components';
 import {useMe, useMeasureInitialLayout, useModal} from '@hooks';
-import {convertBfitToUsd} from '@utils';
+import {convertBfitToUsd, getViewBfitValue} from '@utils';
 
 import theme from '../../theme/themes/fitlink';
 import {useTransactionHistory, useClaimBfit} from './hooks/';
@@ -42,7 +42,7 @@ export const Wallet = () => {
   const {data: me} = useMe();
   const {data: claims} = useClaimBfit();
 
-  const bfitAmount = me?.bfit_balance ?? 0;
+  const bfitAmount = getViewBfitValue(me?.bfit_balance);
   const usdAmount = convertBfitToUsd(bfitAmount);
 
   const openInfoModel = () => {
