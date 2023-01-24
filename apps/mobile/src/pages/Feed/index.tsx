@@ -27,7 +27,7 @@ import {ActivityHistory} from './components/ActivityHistory';
 import {RoutesClasses} from './components/RoutesClasses';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
-import {FEED_CONTAINER_SPACE} from './constants';
+import {SCREEN_CONTAINER_SPACE} from '@constants';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -51,7 +51,7 @@ const HeaderContainer = styled.View({
 
 const StatContainer = styled.View({
   paddingHorizontal: 10,
-  marginBottom: FEED_CONTAINER_SPACE,
+  marginBottom: SCREEN_CONTAINER_SPACE,
 });
 
 export const Feed = () => {
@@ -71,7 +71,6 @@ export const Feed = () => {
   useUpdateIntercomUser();
 
   const {data: user} = useMe();
-
   const {data: goals} = useGoals();
 
   const {
@@ -157,11 +156,11 @@ export const Feed = () => {
               friendCount={user.following_total}
               followerCount={user.followers_total}
               pointCount={user.points_total}
-              containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+              containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
             />
             <GoalTracker
               isLocalUser={true}
-              containerStyle={{marginBottom: FEED_CONTAINER_SPACE - 10}}
+              containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE - 10}}
             />
           </HeaderContainer>
           <StatContainer>
@@ -179,7 +178,7 @@ export const Feed = () => {
             />
           </StatContainer>
           <CompeteLeagues
-            containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+            containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
           />
           <RewardSlider
             data={unlockedRewardsEntries}
@@ -188,13 +187,15 @@ export const Feed = () => {
             isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
             userPoints={user!.points_total}
             fetchNextPage={fetchUnLockedRewardsNextPage}
-            containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+            containerStyle={{
+              marginBottom: SCREEN_CONTAINER_SPACE - 10 /* card margin */,
+            }}
           />
           <ActivityHistory
-            containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+            containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
           />
           <RoutesClasses
-            containerStyle={{marginBottom: FEED_CONTAINER_SPACE}}
+            containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
           />
         </ScrollView>
       </BottomSheetModalProvider>
