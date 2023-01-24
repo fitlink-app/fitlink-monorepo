@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Brackets, FindOperator, IsNull, MoreThan, Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
@@ -114,7 +114,6 @@ export class RewardsService {
 
     // Where rewards are not available (not enough points) and not redeemed
     if (filters.locked) {
-      console.log('here')
       query = query
         .andWhere('redemptions.id IS NULL')
         .andWhere(
@@ -411,9 +410,34 @@ export class RewardsService {
     }
 
     if (teamId) {
+      const reward = await this.isTeamReward(rewardId, teamId)
       // Verify reward belongs to team
-      if (!(await this.isTeamReward(rewardId, teamId))) {
+      if (!reward) {
         return false
+      }
+      // dont allow users to update point rewards to bfit rewards and vice versa
+      if (
+        reward.redeem_type === RewardRedeemType.Points &&
+        fields.bfit_required
+      ) {
+        throw new BadRequestException(
+          'You cannot update bfit_required in a points reward'
+        )
+      }
+
+      if (
+        reward.redeem_type === RewardRedeemType.BFIT &&
+        fields.points_required
+      ) {
+        throw new BadRequestException(
+          'You cannot update points_required in a bfit reward'
+        )
+      }
+
+      if (fields.redeem_type && reward.redeem_type !== fields.redeem_type) {
+        throw new BadRequestException(
+          'You cannot update the redeem type of a reward'
+        )
       }
 
       return this.rewardsRepository.update(
@@ -433,11 +457,35 @@ export class RewardsService {
     }
 
     if (organisationId) {
+      let reward = await this.isOrganisationReward(rewardId, organisationId)
       // Verify reward belongs to organisation
-      if (!(await this.isOrganisationReward(rewardId, organisationId))) {
+      if (!reward) {
         return false
       }
+      // dont allow users to update point rewards to bfit rewards and vice versa
+      if (
+        reward.redeem_type === RewardRedeemType.Points &&
+        fields.bfit_required
+      ) {
+        throw new BadRequestException(
+          'You cannot update bfit_required in a points reward'
+        )
+      }
 
+      if (
+        reward.redeem_type === RewardRedeemType.BFIT &&
+        fields.points_required
+      ) {
+        throw new BadRequestException(
+          'You cannot update points_required in a bfit reward'
+        )
+      }
+
+      if (fields.redeem_type && reward.redeem_type !== fields.redeem_type) {
+        throw new BadRequestException(
+          'You cannot update the redeem type of a reward'
+        )
+      }
       return this.rewardsRepository.update(
         {
           id: rewardId
@@ -454,6 +502,34 @@ export class RewardsService {
       )
     }
 
+    const reward = await this.rewardsRepository.findOne({
+      id: rewardId
+    })
+
+    // dont allow users to update point rewards to bfit rewards and vice versa
+    if (
+      reward.redeem_type === RewardRedeemType.Points &&
+      fields.bfit_required
+    ) {
+      throw new BadRequestException(
+        'You cannot update bfit_required in a points reward'
+      )
+    }
+
+    if (
+      reward.redeem_type === RewardRedeemType.BFIT &&
+      fields.points_required
+    ) {
+      throw new BadRequestException(
+        'You cannot update points_required in a bfit reward'
+      )
+    }
+
+    if (fields.redeem_type && reward.redeem_type !== fields.redeem_type) {
+      throw new BadRequestException(
+        'You cannot update the redeem type of a reward'
+      )
+    }
     return this.rewardsRepository.update(rewardId, {
       ...fields,
       image
@@ -465,7 +541,7 @@ export class RewardsService {
       id: rewardId,
       team: { id: teamId }
     })
-    return !!reward
+    return reward
   }
 
   async isOrganisationReward(rewardId: string, organisationId: string) {
@@ -473,7 +549,7 @@ export class RewardsService {
       id: rewardId,
       organisation: { id: organisationId }
     })
-    return !!reward
+    return reward
   }
 
   async remove(rewardId: string, { teamId, organisationId }: ParentIds = {}) {
