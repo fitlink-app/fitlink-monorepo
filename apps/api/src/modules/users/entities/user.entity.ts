@@ -38,6 +38,21 @@ import { Notification } from '../../notifications/entities/notification.entity'
 import { HealthActivityDebug } from '../../health-activities/entities/health-activity-debug.entity'
 import { PrivacySetting } from '../../users-settings/users-settings.constants'
 
+// when saving numbers as bigint postgress will return them as strings, we use this to convert them to integers
+export class ColumnNumberTransformer {
+  public to(data: number): number {
+    return data
+  }
+
+  public from(data: string): number {
+    // output value, you can use Number, parseFloat variations
+    // also you can add nullable condition:
+    // if (!Boolean(data)) return 0;
+
+    return parseInt(data)
+  }
+}
+
 @Entity()
 export class User extends CreatableEntity {
   @ApiProperty()
@@ -390,7 +405,9 @@ export class User extends CreatableEntity {
 
   @ApiProperty()
   @Column({
-    default: 0
+    type: 'bigint',
+    default: 0,
+    transformer: new ColumnNumberTransformer()
   })
   bfit_balance?: number
 }

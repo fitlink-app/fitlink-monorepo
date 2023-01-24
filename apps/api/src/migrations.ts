@@ -83,6 +83,7 @@ import { Update1672951695915 } from '../database/migrations/1672951695915-Update
 import { Update1673269889422 } from '../database/migrations/1673269889422-Update'
 import { Update1673355837904 } from '../database/migrations/1673355837904-Update'
 import { addedLeagueBfitEarningsEntity1673516909181 } from '../database/migrations/1673516909181-addedLeagueBfitEarningsEntity'
+import { changeUserBfitBalanceToBigInt1674579033783 } from '../database/migrations/1674579033783-changeUserBfitBalanceToBigInt'
 
 export default [
   InitializeSchema1614887523112,
@@ -164,5 +165,6 @@ export default [
   Update1672951695915,
   Update1673269889422,
   Update1673355837904,
-  addedLeagueBfitEarningsEntity1673516909181
+  addedLeagueBfitEarningsEntity1673516909181,
+  changeUserBfitBalanceToBigInt1674579033783
 ]
