@@ -1,6 +1,6 @@
 import React, {ComponentProps} from 'react';
 import styled from 'styled-components/native';
-import {Label} from '../Label';
+import theme from '../../../theme/themes/fitlink';
 
 const Row = styled.View({
   flexDirection: 'row',
@@ -19,14 +19,14 @@ const LabelContainer = styled.View({
   alignItems: 'center',
 });
 
-const LabelText = styled(Label).attrs(() => ({
-  type: 'body',
-}))({
-  fontFamily: 'Roboto',
+const SText = styled.Text({
   fontSize: 14,
   lineHeight: 16,
-  textTransform: 'uppercase',
+  fontWeight: 500,
   textAlign: 'center',
+  fontFamily: 'Roboto',
+  textTransform: 'uppercase',
+  color: theme.colors.text,
 });
 
 type ImageCardLabelProps = ComponentProps<typeof Row> & {
@@ -36,7 +36,7 @@ type ImageCardLabelProps = ComponentProps<typeof Row> & {
 export const ImageCardLabel = ({text, ...props}: ImageCardLabelProps) => (
   <Row {...props}>
     <LabelContainer>
-      <LabelText>{text}</LabelText>
+      <SText>{text}</SText>
     </LabelContainer>
   </Row>
 );
