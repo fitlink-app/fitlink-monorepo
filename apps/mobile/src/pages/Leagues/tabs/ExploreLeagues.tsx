@@ -1,4 +1,9 @@
-import React, {useState} from 'react';
+import React, {
+  forwardRef,
+  ForwardRefRenderFunction,
+  useImperativeHandle,
+  useState,
+} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {Icon, Label, SearchBox, TouchHandler} from '@components';
 import {useLeagues, useSearchLeagues} from '@hooks';
@@ -6,6 +11,7 @@ import {LeagueList} from './components';
 import {getResultsFromPages} from 'utils/api';
 import {ActivityIndicator} from 'react-native';
 import {widthLize} from '@utils';
+import {IRefreshableTabHandle} from './types';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -39,7 +45,10 @@ const EmptyContainer = styled.View({
   alignItems: 'center',
 });
 
-export const ExploreLeagues = () => {
+const ExploreLeaguesInner: ForwardRefRenderFunction<IRefreshableTabHandle> = (
+  _,
+  forwardedRef,
+) => {
   const {colors} = useTheme();
 
   const [query, setQuery] = useState('');
@@ -62,8 +71,21 @@ export const ExploreLeagues = () => {
     isFetchingNextPage: isSearchFetchingNextPage,
     isFetched: isSearchFetched,
     fetchNextPage: searchFetchNextPage,
-    error: searchError,
   } = useSearchLeagues(query);
+
+  const refresh = async () => {
+    try {
+      setDisplaySearchResults(false);
+      setQuery('');
+      await refetch();
+    } catch (e) {
+      console.warn('explore refresh', e);
+    }
+  };
+
+  useImperativeHandle(forwardedRef, () => ({
+    refresh,
+  }));
 
   const activeData = displaySearchResults ? searchData : data;
   const activeFetchNextPage = displaySearchResults
@@ -73,7 +95,6 @@ export const ExploreLeagues = () => {
   const activeIsFetchingNextPage = displaySearchResults
     ? isSearchFetchingNextPage
     : isFetchingNextPage;
-  const activeError = displaySearchResults ? searchError : error;
 
   const results = getResultsFromPages(activeData);
 
@@ -182,12 +203,10 @@ export const ExploreLeagues = () => {
         isFetchingNextPage={activeIsFetchingNextPage}
         isFetchedAfterMount={isFetchedAfterMount}
         onEndReached={() => activeFetchNextPage()}
-        onRefresh={() => {
-          setDisplaySearchResults(false);
-          setQuery('');
-          refetch();
-        }}
+        onRefresh={refresh}
       />
     </Wrapper>
   );
 };
+
+export const ExploreLeagues = forwardRef(ExploreLeaguesInner);

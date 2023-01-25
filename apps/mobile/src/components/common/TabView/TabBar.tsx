@@ -28,12 +28,6 @@ const BadgeWrapper = styled.View(({theme: {colors}}) => ({
   marginLeft: 5,
 }));
 
-const PeopleCountWrapper = styled.View(() => ({
-  backgroundColor: '#181818',
-  height: 30,
-  marginTop: 5,
-}));
-
 const TabButton = ({
   focused,
   title,
@@ -59,7 +53,7 @@ const TabButton = ({
               ? 'primary'
               : 'secondary'
           }
-          style={{fontSize: 15}}>
+          style={{fontSize: 18}}>
           {title}
         </Label>
         {badgeCount ? (
@@ -70,16 +64,6 @@ const TabButton = ({
           </BadgeWrapper>
         ) : null}
       </LabelRow>
-      {/*{focused && (peopleCount || title !== 'SEARCH') ? (*/}
-      {/*  <PeopleCountWrapper>*/}
-      {/*    <Label*/}
-      {/*      type={'caption'}*/}
-      {/*      appearance={'secondary'}*/}
-      {/*      style={{textAlign: 'center'}}>*/}
-      {/*      {peopleCount} {peopleCount ? 'People' : null}*/}
-      {/*    </Label>*/}
-      {/*  </PeopleCountWrapper>*/}
-      {/*) : null}*/}
     </View>
   );
 };

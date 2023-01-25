@@ -15,7 +15,7 @@ export type RootStackParamList = {
   UpdatePassword: undefined;
   Webview: {url: string; title: string};
   Friends: {tab: number};
-  Leagues: {tab: number};
+  Leagues: {tab: number} | undefined;
   League: {id: string; league?: League};
   Profile: {id: string};
   LeagueInviteFriends: {
