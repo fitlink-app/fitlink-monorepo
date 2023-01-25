@@ -150,6 +150,7 @@ export const Rewards = () => {
               isLoading={isFetchingUnLockedRewards && !isRefreshing}
               isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
               userPoints={user!.points_total}
+              userBfit={user!.bfit_balance ?? 0}
               fetchNextPage={fetchUnLockedRewardsNextPage}
               containerStyle={{
                 marginBottom: SCREEN_CONTAINER_SPACE - 10 /* card margin */,
@@ -161,6 +162,7 @@ export const Rewards = () => {
               isLoading={isFetchingLockedRewards && !isRefreshing}
               isLoadingNextPage={isFetchingLockedRewardsNextPage}
               userPoints={user!.points_total}
+              userBfit={user!.bfit_balance ?? 0}
               fetchNextPage={fetchLockedRewardsNextPage}
               LockedShow={true}
             />
