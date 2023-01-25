@@ -61,7 +61,7 @@ export const Rewards = () => {
     isFetchingNextPage: isFetchingUnLockedRewardsNextPage,
     fetchNextPage: fetchUnLockedRewardsNextPage,
     refetch: refetchUnLockedRewards,
-  } = useRewards({locked: false});
+  } = useRewards({available: true});
 
   const {
     data: lockedRewards,

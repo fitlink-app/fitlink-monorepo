@@ -86,7 +86,7 @@ export const Feed = () => {
     isFetching: isFetchingLockedRewards,
     isFetchingNextPage: isFetchingUnLockedRewardsNextPage,
     fetchNextPage: fetchUnLockedRewardsNextPage,
-  } = useRewards({locked: false});
+  } = useRewards({available: true});
 
   const unlockedRewardsEntries = getResultsFromPages(unlockedRewards);
 
