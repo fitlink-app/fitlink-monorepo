@@ -13,6 +13,7 @@ import {ResponseError} from '@fitlink/api-sdk/types';
 import {PrivacySetting} from '@fitlink/api/src/modules/users-settings/users-settings.constants';
 import {UpdateUsersSettingDto} from '@fitlink/api/src/modules/users-settings/dto/update-users-setting.dto';
 import {Platform} from 'react-native';
+import {SUPPORTED_CURRENCIES} from '@constants';
 
 export const PRIVACY_ITEMS = [
   {
@@ -29,16 +30,12 @@ export const PRIVACY_ITEMS = [
   },
 ];
 
-export const CURRENCY_ITEMS = [
-  {
-    label: 'GBP',
-    value: 'gbp',
-  },
-  {
-    label: 'USD',
-    value: 'usd',
-  },
-];
+export const CURRENCY_ITEMS = Object.entries(SUPPORTED_CURRENCIES).map(
+  ([key, value]) => ({
+    label: value.displayValue,
+    value: key,
+  }),
+);
 
 export type UserGoalPreferences = {
   goal_mindfulness_minutes: number;
@@ -57,6 +54,7 @@ type Settings = {
   avatar?: Image;
   tempAvatar?: ImagePickerDialogResponse;
   userSettings?: Partial<UpdateUsersSettingDto>;
+  displayCurrency: keyof typeof SUPPORTED_CURRENCIES;
 };
 
 export type SettingsState = {
@@ -148,6 +146,7 @@ export const initialState: SettingsState = {
     },
     unitSystem: UnitSystem.Imperial,
     timezone: 'Etc/UTC',
+    displayCurrency: SUPPORTED_CURRENCIES.usd.value,
   },
   isSaving: false,
 };
@@ -158,6 +157,12 @@ const settingsSlice = createSlice({
   reducers: {
     clearChanges: state => {
       state = {...initialState};
+    },
+    setDisplayCurrency: (
+      state,
+      {payload}: PayloadAction<keyof typeof SUPPORTED_CURRENCIES>,
+    ) => {
+      state.currentState.displayCurrency = payload;
     },
     setState: (state, {payload}: PayloadAction<Partial<Settings>>) => {
       state.lastSetState = {...state.currentState, ...payload};
@@ -236,6 +241,7 @@ export const {
   setNewsletterSubscription,
   setActivitiesPrivacy,
   setDailyStatisticsPrivacy,
+  setDisplayCurrency,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

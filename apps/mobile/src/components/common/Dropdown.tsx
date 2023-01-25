@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import styled, {useTheme} from 'styled-components/native';
+import styled from 'styled-components/native';
 import {Picker, PickerItemProps} from '@react-native-picker/picker';
 import {Icon} from './Icon';
 import {TouchHandler} from './TouchHandler';
@@ -10,10 +10,10 @@ import {
   Modal,
   StyleSheet,
   TextStyle,
-  View,
   Text,
 } from 'react-native';
 import {Label} from '@components';
+import {SUPPORTED_CURRENCIES} from '@constants';
 
 const Wrapper = styled.View({});
 
@@ -64,6 +64,16 @@ const SelectionIndicator = styled.View(({theme: {colors}}) => ({
   opacity: 1,
 }));
 
+const SCurrencyCircle = styled.View({
+  backgroundColor: '#ACACAC',
+  height: 25,
+  width: 25,
+  borderRadius: 25 / 2,
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginRight: 4,
+});
+
 export interface DropdownProps {
   value: any;
   items: Array<PickerItemProps>;
@@ -73,9 +83,22 @@ export interface DropdownProps {
   labelStyle?: StyleProp<TextStyle>;
 }
 
+const CurrencyIcon = ({value: dropdownValue}: Pick<DropdownProps, 'value'>) => {
+  if (Object.keys(SUPPORTED_CURRENCIES).includes(dropdownValue)) {
+    const currencySymbol =
+      SUPPORTED_CURRENCIES[dropdownValue as keyof typeof SUPPORTED_CURRENCIES]
+        .symbol;
+    return (
+      <SCurrencyCircle>
+        <Text>{currencySymbol}</Text>
+      </SCurrencyCircle>
+    );
+  }
+  return null;
+};
+
 export const Dropdown = (props: DropdownProps) => {
-  const {style, value, items, prompt, labelStyle, ...rest} = props;
-  console.log({items});
+  const {style, value, items, prompt, ...rest} = props;
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -107,20 +130,7 @@ export const Dropdown = (props: DropdownProps) => {
         justifyContent: 'center',
       }}>
       <PickerWrapperIOS>
-        {value === 'gbp' && (
-          <View
-            style={{
-              backgroundColor: '#ACACAC',
-              height: 25,
-              width: 25,
-              borderRadius: 25 / 2,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginRight: 4,
-            }}>
-            <Text>£</Text>
-          </View>
-        )}
+        <CurrencyIcon value={value} />
         <Label>{items.find(x => x.value === value)?.label}</Label>
 
         <Icon
