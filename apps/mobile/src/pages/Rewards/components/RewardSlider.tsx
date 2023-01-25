@@ -58,6 +58,7 @@ interface RewardSliderProps
     | 'contentContainerStyle'
     | 'ListFooterComponent'
   > {
+  userBfit: number;
   title: string;
   userPoints: number;
   isLoading?: boolean;
@@ -70,6 +71,7 @@ interface RewardSliderProps
 export const RewardSlider = ({
   title,
   userPoints,
+  userBfit,
   isLoading,
   fetchNextPage,
   LockedShow,
@@ -99,8 +101,10 @@ export const RewardSlider = ({
         title={item.name_short}
         image={item.image.url_640x360}
         expiryDate={new Date(item.reward_expires_at)}
-        currentPoints={userPoints}
-        requiredPoints={item.points_required}
+        currentValue={item.bfit_required ? userBfit : userPoints}
+        requiredValue={
+          item.bfit_required ? item.bfit_required : item.points_required
+        }
         onPress={() =>
           navigation.navigate('Reward', {
             id: item.id,
@@ -115,6 +119,7 @@ export const RewardSlider = ({
           }
         }
         code={item.code}
+        label={item.bfit_required ? 'BFIT' : 'Points'}
       />
     );
   };

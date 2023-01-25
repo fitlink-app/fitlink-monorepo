@@ -86,7 +86,7 @@ export const Feed = () => {
     isFetching: isFetchingLockedRewards,
     isFetchingNextPage: isFetchingUnLockedRewardsNextPage,
     fetchNextPage: fetchUnLockedRewardsNextPage,
-  } = useRewards({locked: false});
+  } = useRewards({available: true});
 
   const unlockedRewardsEntries = getResultsFromPages(unlockedRewards);
 
@@ -218,6 +218,7 @@ export const Feed = () => {
             containerStyle={{
               marginBottom: SCREEN_CONTAINER_SPACE - 10 /* card margin */,
             }}
+            userBfit={user!.bfit_balance ?? 0}
           />
           <UserActivityHistory
             containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
