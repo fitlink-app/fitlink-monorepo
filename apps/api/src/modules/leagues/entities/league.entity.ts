@@ -22,6 +22,21 @@ import { FeedItem } from '../../feed-items/entities/feed-item.entity'
 import { LeagueAccess, LeagueInvitePermission } from '../leagues.constants'
 import { LeaguesInvitation } from '../../leagues-invitations/entities/leagues-invitation.entity'
 
+// when saving numbers as bigint postgress will return them as strings, we use this to convert them to integers
+export class ColumnNumberTransformer {
+  public to(data: number): number {
+    return data
+  }
+
+  public from(data: string): number {
+    // output value, you can use Number, parseFloat variations
+    // also you can add nullable condition:
+    // if (!Boolean(data)) return 0;
+
+    return parseInt(data)
+  }
+}
+
 @Entity()
 export class League extends CreatableEntity {
   @ApiProperty()
@@ -80,7 +95,9 @@ export class League extends CreatableEntity {
 
   // bfit accumulated in this league if it's a compete to earn league
   @Column({
-    default: 0
+    type: 'bigint',
+    default: 0,
+    transformer: new ColumnNumberTransformer()
   })
   bfit?: number
 

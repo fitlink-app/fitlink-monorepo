@@ -9,6 +9,7 @@ import {
 } from 'typeorm'
 import { IsInt, Min } from 'class-validator'
 import { CreatableEntity } from '../../../classes/entity/creatable'
+import { League } from './league.entity'
 
 @Entity()
 export class LeagueBfitClaim extends CreatableEntity {
