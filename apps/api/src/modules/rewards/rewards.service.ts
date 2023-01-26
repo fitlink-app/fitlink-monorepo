@@ -449,6 +449,10 @@ export class RewardsService {
         )
       }
 
+      if (updateRewardDto.redeem_type === RewardRedeemType.BFIT) {
+        updateRewardDto.bfit_required = updateRewardDto.bfit_required * 1000_000
+      }
+
       return this.rewardsRepository.update(
         {
           id: rewardId
