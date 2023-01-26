@@ -5,7 +5,7 @@ import {useEffect, useRef} from 'react';
 import {AppState, AppStateStatus, Platform} from 'react-native';
 import BackgroundFetch from 'react-native-background-fetch';
 import {useSelector} from 'react-redux';
-import {memoSelectIsAuthenticated} from 'redux/auth/authSlice';
+import {memoSelectIsAuthenticated} from 'redux/auth';
 import * as RNLocalize from 'react-native-localize';
 import {syncAllPlatformActivities} from 'services/common';
 

@@ -8,12 +8,17 @@ import {
   Text,
   Image,
 } from 'react-native';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+
+import {WeeklyEarningsGraph} from '@components';
+
 import PaddedNumber from '../numbers/PaddedNumber';
 
 interface PlotCardProps {
   title: string;
   subtitle: string;
   totalAmount: number;
+  isLoading?: boolean;
   percentsPerDay: number;
   onPress?: () => unknown;
   Plot: React.ReactElement;
@@ -26,27 +31,35 @@ const PlotCard = ({
   title,
   onPress,
   subtitle,
+  isLoading,
   totalAmount,
   wrapperStyle,
   percentsPerDay,
   totalNumberOfDigits,
 }: PlotCardProps): JSX.Element => {
   const gain = `${percentsPerDay} %`;
-
   return (
-    <TouchableOpacity onPress={onPress} style={[styles.wrapper, wrapperStyle]}>
-      <View>
-        <Text style={styles.text}>{title}</Text>
-        <PaddedNumber
-          amount={totalAmount}
-          totalNumberOfDigits={totalNumberOfDigits}
-        />
-        <Text style={styles.text}>{subtitle}</Text>
-      </View>
-      <View style={styles.rightCol}>
-        <Text style={[styles.text, styles.selfEnd]}>{gain}</Text>
-        <View style={styles.plotWrapper}>{Plot}</View>
-      </View>
+    <TouchableOpacity onPress={onPress} style={wrapperStyle}>
+      {isLoading ? (
+        <SkeletonPlaceholder highlightColor="#565656" backgroundColor="#161616">
+          <View style={styles.wrapper} />
+        </SkeletonPlaceholder>
+      ) : (
+        <View style={styles.wrapper}>
+          <View>
+            <Text style={styles.text}>{title}</Text>
+            <PaddedNumber
+              amount={totalAmount}
+              totalNumberOfDigits={totalNumberOfDigits}
+            />
+            <Text style={styles.text}>{subtitle}</Text>
+          </View>
+          <View style={styles.rightCol}>
+            <Text style={[styles.text, styles.selfEnd]}>{gain}</Text>
+            <View style={styles.plotWrapper}>{Plot}</View>
+          </View>
+        </View>
+      )}
     </TouchableOpacity>
   );
 };
@@ -87,16 +100,15 @@ interface PlotCardWrapperProps
   gainedPerDay: number;
 }
 
-// TODO: provide interface for plot data
-const BFIT = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
+const BFITInner = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
   const Plot = () => (
-    <Image source={require('../../../../assets/images/wallet_chart2.png')} />
+    <WeeklyEarningsGraph height={50} barWidth={4} gapWidth={18} />
   );
 
   return (
     <PlotCard
       {...rest}
-      title="TOTAL $BFIT"
+      title="TOTAL BFIT"
       subtitle={`$${gainedPerDay}`}
       totalNumberOfDigits={5}
       Plot={<Plot />}
@@ -120,4 +132,4 @@ const Calories = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
   );
 };
 
-export default {BFIT, Calories};
+export default {BFIT: React.memo(BFITInner), Calories};

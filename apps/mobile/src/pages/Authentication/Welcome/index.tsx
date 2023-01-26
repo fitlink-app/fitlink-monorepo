@@ -7,20 +7,15 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ActivityIndicator, Platform} from 'react-native';
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {signInWithApple, signInWithGoogle} from 'redux/auth/authSlice';
+import {signInWithApple, signInWithGoogle} from 'redux/auth';
 import {AppDispatch} from 'redux/store';
 import appleAuth from '@invertase/react-native-apple-authentication';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import {
-  resetTeamInvitation,
-  selectTeamInvitation,
-} from 'redux/teamInvitation/teamInvitationSlice';
-import {heightLize} from "@utils";
+import {selectTeamInvitation} from 'redux/teamInvitation/teamInvitationSlice';
+import {heightLize} from '@utils';
 
 const mail_icon = require('../../../../assets/images/icon/mail.png');
 const google_icon = require('../../../../assets/images/icon/google.png');
-const apple_icon = require('../../../../assets/images/icon/apple.png');
-const metamask_icon = require('../../../../assets/images/icon/metamask.png');
 const kujira_icon = require('../../../../assets/images/icon/logo_kujira.png');
 
 const Wrapper = styled.View({flex: 1, alignItems: 'center'});
@@ -114,7 +109,9 @@ export const Welcome = () => {
 
       await GoogleSignin.signOut();
       const {idToken} = await GoogleSignin.signIn();
-      if (idToken) await dispatch(signInWithGoogle(idToken));
+      if (idToken) {
+        await dispatch(signInWithGoogle(idToken));
+      }
     } catch (e) {
       setGoogleLoading(false);
     }
@@ -185,22 +182,24 @@ export const Welcome = () => {
               logo={mail_icon}
               onPress={handleOnSignUpPressed}
             />
-            <SpacedButton
-              disabled={isGoogleLoading}
-              loading={isGoogleLoading}
-              text={'Continue with Google'}
-              textStyle={{marginLeft: 10}}
-              logo={google_icon}
-              onPress={handleOnGooglePressed}
-            />
-            <SpacedButton
+            {Platform.OS === 'ios' ? (
+              <SpacedButton
+                disabled={isGoogleLoading}
+                loading={isGoogleLoading}
+                text={'Continue with Google'}
+                textStyle={{marginLeft: 10}}
+                logo={google_icon}
+                onPress={handleOnGooglePressed}
+              />
+            ) : null}
+            {/* <SpacedButton
               disabled={isAppleLoading}
               loading={isAppleLoading}
               text={'Continue with Apple ID'}
               textStyle={{marginLeft: 10}}
               logo={apple_icon}
               onPress={handleOnApplePressed}
-            />
+            /> */}
             {/*<SpacedButton*/}
             {/*  disabled={isMetaMaskLoading}*/}
             {/*  loading={isMetaMaskLoading}*/}

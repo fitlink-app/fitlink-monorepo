@@ -15,6 +15,7 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import AnimatedLeaderboardHeaderCard from './AnimatedLeaderboardHeaderCard';
+import {getViewBfitValue} from '@utils';
 
 const AnimatedFlatList =
   Animated.createAnimatedComponent<FlatListProps<LeaderboardEntry>>(FlatList);
@@ -78,7 +79,7 @@ export const Leaderboard = ({
       key={item.id}
       isBfit={isBfit}
       wins={item.wins}
-      points={isBfit ? item.bfit_earned : item.points}
+      points={isBfit ? getViewBfitValue(item.bfit_earned) : item.points}
       name={item.user.name}
       isSelf={item.user.id === userId}
       avatarUrl={item.user.avatar?.url_128x128}

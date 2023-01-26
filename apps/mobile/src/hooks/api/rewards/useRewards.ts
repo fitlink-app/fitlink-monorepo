@@ -25,33 +25,30 @@ const fetchRewards = ({
 }) => {
   const searchParams = new URLSearchParams();
 
-  if (params.locked) {
-    searchParams.append('locked', String(!!params.locked));
+  if (params.locked !== undefined) {
+    searchParams.append('locked', String(params.locked));
   }
 
-  if (params.expired) {
-    searchParams.append('expired', String(!!params.expired));
+  if (params.expired !== undefined) {
+    searchParams.append('expired', String(params.expired));
   }
 
-  if (params.available) {
-    searchParams.append('available', String(!!params.available));
+  if (params.available !== undefined) {
+    searchParams.append('available', String(params.available));
   }
 
-  return api.list<RewardPublic>(
-    `/rewards${Array.from(searchParams).length ? `?${searchParams}` : ''}`,
-    {
-      page: pageParam,
-      limit: REWARD_RESULTS_PER_PAGE,
-      isPrivateOnly,
-    },
-  );
+  return api.list<RewardPublic>(`/rewards?${searchParams}`, {
+    page: pageParam,
+    limit: REWARD_RESULTS_PER_PAGE,
+    isPrivateOnly,
+  });
 };
 
 export function useRewards(params: RewardsParams) {
   const {data: user} = useMe({
     refetchOnMount: false,
   });
-  const isPrivateOnly = Boolean(user?.teams.length);
+  const isPrivateOnly = Boolean(user?.teams?.length);
   return useInfiniteQuery<ListResponse<RewardPublic>, Error>(
     [QueryKeys.Rewards, JSON.stringify(params), isPrivateOnly],
     ({pageParam}) => fetchRewards({pageParam, params, isPrivateOnly}),

@@ -22,6 +22,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {LeagueAccess} from '@fitlink/api/src/modules/leagues/leagues.constants';
 import {useClaimLeagueBfit} from 'hooks/api/leagues/useClaimLeagueBfit';
+import {getViewBfitValue} from '@utils';
 
 const HEADER_HEIGHT = 300;
 
@@ -143,8 +144,8 @@ export const League = (
       <Leaderboard
         leagueId={id}
         isBfit={isBfit}
-        bFitToClaim={bFitToClaim}
-        bFitEarned={memberMe?.bfit_earned}
+        bFitToClaim={getViewBfitValue(bFitToClaim)}
+        bFitEarned={getViewBfitValue(memberMe?.bfit_earned)}
         onClaimPressed={claimBfitCallback}
         isPublic={activeLeague.access === LeagueAccess.Public}
         imageUri={activeLeague?.image.url_640x360}

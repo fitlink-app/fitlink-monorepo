@@ -1,6 +1,6 @@
 import Intercom from '@intercom/intercom-react-native';
 import {AnyAction, combineReducers} from '@reduxjs/toolkit';
-import authSlice, {clearAuthResult} from './auth/authSlice';
+import authSlice, {clearAuthResult} from './auth/slice';
 import discoverSlice from './discover/discoverSlice';
 import feedPreferencesSlice from './feedPreferences/feedPreferencesSlice';
 import settingsSlice from './settings/settingsSlice';

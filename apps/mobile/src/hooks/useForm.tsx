@@ -45,6 +45,7 @@ export function useForm<T, K extends keyof T>(initialValues: T) {
         setSubmitted(true);
       }
     } catch (e) {
+      console.warn('handleSubmit', e);
       setErrorMessage('Something went wrong. Please try again.');
     }
 

@@ -9,6 +9,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 import {NumberFormatterUtils} from '@utils';
 import {useNavigation} from '@react-navigation/core';
+import {StyleProp, ViewStyle} from 'react-native';
 
 interface UserWidgetProps {
   name: string;
@@ -22,16 +23,15 @@ interface UserWidgetProps {
   friendsOnPress?: () => void;
   followersOnPress?: () => void;
   pointsOnPress?: () => void;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 const Wrapper = styled.View({
   flexDirection: 'row',
-  width: '100%',
 });
 
 const ContentContainer = styled.View({
   justifyContent: 'center',
-  // paddingTop: 15,
   paddingLeft: 15,
   flex: 1,
 });
@@ -49,19 +49,6 @@ const RankContainer = styled.View({
   flexDirection: 'row',
   marginTop: 8,
   marginBottom: 12,
-});
-
-const Rank = styled(Label).attrs(() => ({
-  type: 'caption',
-  appearance: 'accent',
-}))({});
-
-const RankLine = styled.View({
-  width: 2,
-  height: 10,
-  marginTop: 3,
-  marginHorizontal: 5,
-  backgroundColor: '#565656',
 });
 
 const Level = styled(Label).attrs(() => ({
@@ -127,7 +114,7 @@ const UserStat = ({
 
 export const UserWidget = (props: UserWidgetProps) => {
   return (
-    <Wrapper>
+    <Wrapper style={props.containerStyle}>
       <TouchHandler onPress={props.avatarOnPress}>
         <ProgressCircle
           progress={props.goalProgress}
@@ -139,7 +126,6 @@ export const UserWidget = (props: UserWidgetProps) => {
           <Avatar url={props.avatar} />
         </ProgressCircle>
       </TouchHandler>
-
       <ContentContainer>
         <Name
           style={{
@@ -151,16 +137,6 @@ export const UserWidget = (props: UserWidgetProps) => {
         </Name>
 
         <RankContainer>
-          <Rank
-            style={{
-              fontFamily: 'Roboto',
-              fontSize: 14,
-              textTransform: 'uppercase',
-              lineHeight: 18,
-            }}>
-            BRONZE MEMBER
-          </Rank>
-          <RankLine style={{marginHorizontal: 6}} />
           <Level
             style={{
               fontFamily: 'Roboto',

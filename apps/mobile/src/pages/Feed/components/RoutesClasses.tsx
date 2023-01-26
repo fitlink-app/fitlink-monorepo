@@ -1,24 +1,21 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {FC, useEffect, useRef, useState} from 'react';
 import {Card, Label, TouchHandler} from '../../../components/common';
 import styled from 'styled-components/native';
 import {BlurView} from '@react-native-community/blur';
 import {useNavigation} from '@react-navigation/core';
-import {getDistanceFromLatLonInKm, widthLize} from "@utils";
-import {useFindActivitiesMap} from "@hooks";
+import {getDistanceFromLatLonInKm, widthLize} from '@utils';
+import {useFindActivitiesMap} from '@hooks';
 import MapboxGL from '@react-native-mapbox-gl/maps';
-import {ActivityDetailsModal} from "../../Discover/components";
-import {BottomSheetModal} from "@gorhom/bottom-sheet";
-import {setCurrentLocation} from "../../../redux/discover/discoverSlice";
-import {useDispatch} from "react-redux";
-
-const Wrapper = styled.View({
-  // paddingHorizontal: 10,
-});
+import {ActivityDetailsModal} from '../../Discover/components';
+import {BottomSheetModal} from '@gorhom/bottom-sheet';
+import {setCurrentLocation} from '../../../redux/discover/discoverSlice';
+import {useDispatch} from 'react-redux';
+import {StyleProp, View, ViewStyle} from 'react-native';
+import {FEED_CARD_HEIGHT, FEED_CAROUSEL_CARD_WIDTH} from '../constants';
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
-  marginTop: 40,
   marginHorizontal: widthLize(20),
 });
 
@@ -52,8 +49,8 @@ const SliderContainer = styled.ScrollView.attrs(() => ({
 }))({});
 
 const CardContainer = styled(Card)({
-  width: 327,
-  height: 175,
+  width: FEED_CAROUSEL_CARD_WIDTH,
+  height: FEED_CARD_HEIGHT,
   marginTop: 23,
   marginRight: 14,
   overflow: 'hidden',
@@ -88,27 +85,11 @@ const DateText = styled(Label).attrs(() => ({
   opacity: 0.6,
 });
 
-const Line = styled.View({
-  position: 'relative',
-  width: '100%',
-  height: 2,
-  backgroundColor: '#ffffff',
-  border: 0,
-  opacity: 0.2,
-});
-
 const CardBody = styled.View({
-  width: '100%',
-  height: '100%',
-  paddingTop: 23,
-  paddingLeft: 24,
-  paddingRight: 18,
-});
-
-const GoalSection = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginTop: 22,
+  flex: 1,
+  paddingHorizontal: 24,
+  paddingVertical: 24,
+  justifyContent: 'flex-end',
 });
 
 const RecordValue = styled(Label).attrs(() => ({
@@ -118,7 +99,7 @@ const RecordValue = styled(Label).attrs(() => ({
   lineHeight: 16,
   letterSpacing: 1,
   textTransform: 'capitalize',
-  width: 176,
+  marginTop: 11,
 });
 
 const GoalText = styled(Label).attrs(() => ({
@@ -130,36 +111,36 @@ const GoalText = styled(Label).attrs(() => ({
   lineHeight: 21,
 });
 
-export const RoutesClasses = () => {
+interface RoutesClassesProps {
+  containerStyle?: StyleProp<ViewStyle>;
+}
+
+export const RoutesClasses: FC<RoutesClassesProps> = ({containerStyle}) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const [userLocation, setUserLocation] = useState({
     lat: 0,
-    lng: 0
-  })
+    lng: 0,
+  });
   const [modalActivityId, setModalActivityId] = useState<string>();
 
   const detailsModalRef = useRef<BottomSheetModal>(null);
 
   useEffect(() => {
     MapboxGL.requestAndroidLocationPermissions();
-  }, [])
+  }, []);
 
   const handleOnDetailsBackPressed = () => {
     detailsModalRef.current?.close();
   };
 
   const onUserLocationUpdate = (location: any) => {
-    const {latitude, longitude} = location.coords
-    setUserLocation({lat: latitude, lng: longitude})
+    const {latitude, longitude} = location.coords;
+    setUserLocation({lat: latitude, lng: longitude});
     dispatch(setCurrentLocation({lat: latitude, lng: longitude}));
-  }
+  };
 
-  const {
-    refetch: fetchActivityMarkers,
-    data: activityMarkersData,
-    isFetching: isFetchingMarkers,
-  } = useFindActivitiesMap({
+  const {data: activityMarkersData} = useFindActivitiesMap({
     geo_radial: `${userLocation?.lat},${userLocation?.lng},15`,
   });
 
@@ -206,12 +187,16 @@ export const RoutesClasses = () => {
         distanceString = `${value} meters away`;
       }
       return (
-        <TouchHandler key={index} onPress={() => {
-          setModalActivityId(item.id)
-          detailsModalRef.current?.present();
-        }}>
+        <TouchHandler
+          key={index}
+          onPress={() => {
+            setModalActivityId(item.id);
+            detailsModalRef.current?.present();
+          }}>
           <CardContainer>
-            <CardImage source={require('../../../../assets/images/classes-2.png')} />
+            <CardImage
+              source={require('../../../../assets/images/classes-2.png')}
+            />
             <BlurView
               style={{
                 position: 'absolute',
@@ -225,21 +210,18 @@ export const RoutesClasses = () => {
             <CardHeader>
               <DateText>{item.type.toUpperCase()}</DateText>
             </CardHeader>
-            {/*<Line />*/}
             <CardBody style={{backgroundColor: 'rgba(0, 0, 0, 0.4)'}}>
+              <GoalText>{item.name}</GoalText>
               <RecordValue>{distanceString}</RecordValue>
-              <GoalSection>
-                <GoalText>{item.name}</GoalText>
-              </GoalSection>
             </CardBody>
           </CardContainer>
         </TouchHandler>
-      )
-    })
-  }
+      );
+    });
+  };
 
   return (
-    <Wrapper>
+    <View style={containerStyle}>
       <HeaderContainer>
         <Title>Routes And Classes</Title>
         <TouchHandler
@@ -250,21 +232,14 @@ export const RoutesClasses = () => {
         </TouchHandler>
       </HeaderContainer>
 
-      <SliderContainer>
-        <>
-          {renderActivities()}
-        </>
-      </SliderContainer>
-      <MapboxGL.UserLocation
-        visible={true}
-        onUpdate={onUserLocationUpdate}
-      />
+      <SliderContainer>{renderActivities()}</SliderContainer>
+      <MapboxGL.UserLocation visible={true} onUpdate={onUserLocationUpdate} />
       <ActivityDetailsModal
         ref={detailsModalRef}
         onBack={handleOnDetailsBackPressed}
         stackBehavior={'push'}
         activityId={modalActivityId}
       />
-    </Wrapper>
+    </View>
   );
 };

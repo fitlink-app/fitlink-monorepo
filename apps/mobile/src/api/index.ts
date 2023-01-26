@@ -6,7 +6,7 @@ import Config from 'react-native-config';
 import {Alert} from 'react-native';
 import {store} from 'redux/store';
 import {RootState} from 'redux/reducer';
-import {logout} from 'redux/auth/authSlice';
+import {logout} from 'redux/auth';
 
 const axios = Axios.create({
   baseURL: Config.API_URL,
@@ -23,22 +23,6 @@ export function getErrors(e: ResponseError) {
     fields: getErrorFields(e),
   } as RequestError;
 }
-
-// axios.interceptors.request.use(request => {
-//   console.log('Request:', request);
-//   return request;
-// });
-
-// axios.interceptors.response.use(response => {
-//   console.log('Response:', response);
-//   return response;
-// });
-
-// axios.interceptors.response.use(async response => {
-//   console.warn('Remember to remove `sleep` from axios interceptors');
-//   await new Promise(resolve => setTimeout(resolve, 2000));
-//   return response;
-// });
 
 /**
   Callback to gracefully log the user out when the refresh token is invalidated/revoked server side

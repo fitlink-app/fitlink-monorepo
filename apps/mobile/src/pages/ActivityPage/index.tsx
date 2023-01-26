@@ -1,48 +1,29 @@
-import React, {useRef, useState, useEffect} from 'react';
-import {StackScreenProps} from '@react-navigation/stack';
+import React, {useState} from 'react';
+import {ActivityIndicator, ScrollView, View} from 'react-native';
+import {RouteProp, useRoute} from '@react-navigation/native';
+import styled from 'styled-components/native';
+
+import {
+  Avatar,
+  Icon,
+  Label,
+  TouchHandler,
+  ErrorContent,
+  Navbar,
+} from '@components';
+
 import {RootStackParamList} from 'routes/types';
-import {View, ScrollView, Dimensions, StyleSheet} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Navbar} from '@components';
-import styled, {useTheme} from 'styled-components/native';
-import LinearGradient from 'react-native-linear-gradient';
-import {Label, Avatar} from '../../components/common';
+import {ActivityCarousel} from './components/ActivityCarousel';
+import {ActivityMap} from './components/ActivityMap';
+import {useActivityCamera} from './hooks/useActivityCamera';
+import {useActivityInfoData} from './hooks/useActivityInfoData';
+import theme from '../../theme/themes/fitlink';
 
-const CarouselContainer = styled.View({
-  flexDirection: 'row',
-  width: '100%',
-});
-
-const CarouselItem = styled.View({
-  height: 473,
-});
-
-const DotView = styled.View({
+const SDetails = styled.View({
   position: 'absolute',
-  flexDirection: 'row',
-  marginTop: 441,
+  top: 59,
   right: 23,
-});
-
-const BackgroundImage = styled.Image({
-  position: 'absolute',
-  width: '100%',
-});
-
-const BackgroundOverlay = styled(LinearGradient).attrs(() => ({
-  start: {x: 1, y: 0},
-  end: {x: 0, y: 0},
-  colors: ['rgba(6, 6, 6, 0.85)', 'rgba(6, 6, 6, 0)'],
-}))({
-  ...StyleSheet.absoluteFillObject,
-  opacity: 0.9,
-});
-
-const Details = styled.View({
-  width: '100%',
-  paddingLeft: 23,
-  paddingRight: 23,
-  paddingTop: 35,
+  alignItems: 'flex-end',
 });
 
 const DetailName = styled(Label).attrs(() => ({
@@ -62,17 +43,6 @@ const DetailValue = styled(Label).attrs(() => ({
   textAlign: 'right',
   fontSize: 16,
   marginBottom: 4,
-});
-
-const FitnessName = styled(Label).attrs(() => ({
-  type: 'title',
-  bold: true,
-  numberOfLines: 2,
-}))({
-  textAlign: 'right',
-  fontSize: 40,
-  marginTop: 21,
-  marginLeft: 10,
 });
 
 const UserSection = styled.View({
@@ -101,6 +71,11 @@ const UserInfo = styled.View({
   marginLeft: 17,
 });
 
+const SRow = styled.View({
+  flexDirection: 'row',
+  marginTop: 8,
+});
+
 const UserName = styled(Label).attrs(() => ({
   type: 'subheading',
 }))({
@@ -118,152 +93,112 @@ const UserDate = styled(Label).attrs(() => ({
 
 const ShareIcon = styled.Image({});
 
-const MapImage = styled.Image({
-  position: 'relative',
-  width: '100%',
-  height: 316,
-  resizeMode: 'stretch',
-});
-
-const data = [
-  {
-    id: 1,
-    title: 'Morning Run',
-    distance: 4.97,
-    speed: '8:22/mile',
-    calories: 735,
-    time: 43,
-    elevation_gain: 235,
-    image: require('../../../assets/images/activity_feed/background.png'),
-  },
-  {
-    id: 2,
-    title: 'Early Morning Run',
-    distance: 4.97,
-    speed: '8:22/mile',
-    calories: 735,
-    time: 43,
-    elevation_gain: 235,
-    image: require('../../../assets/images/activity_feed/background.png'),
-  },
-  {
-    id: 3,
-    title: 'Morning Yoga',
-    distance: 4.97,
-    speed: '8:22/mile',
-    calories: 735,
-    time: 43,
-    elevation_gain: 235,
-    image: require('../../../assets/images/activity_feed/background.png'),
-  },
-];
-
-const width = Dimensions.get('window').width;
-const delay = 5000;
-
-// Carousal Component
 export const ActivityPage = () => {
-  const insets = useSafeAreaInsets();
-  const {colors} = useTheme();
+  const {id: activityId} =
+    useRoute<RouteProp<RootStackParamList, 'ActivityPage'>>().params;
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const [selectedIndex, setselectedIndex] = useState<Number>(0);
-  const scrollView = useRef<ScrollView>(null);
+  const {
+    data,
+    isLoading,
+    isContentLoaded,
+    isOwnedActivity,
+    details,
+    title,
+    images,
+    date,
+    userName,
+    refetch,
+    isError,
+  } = useActivityInfoData({activityId});
 
-  // Script which will only executed when component initilizes
-  useEffect(() => {
-    const fn = setInterval(() => {
-      setselectedIndex((oldCount: Number) =>
-        oldCount === data.length - 1 ? 0 : Number(oldCount) + 1,
-      );
-    }, delay);
-    return () => {
-      clearInterval(fn);
-    };
-  }, []);
+  const {
+    handleOnSharePressed,
+    handleOnImageOptionsPressed,
+    handleOnImagePickerPressed,
+    isShareActivityLoading,
+    isUploadingImage,
+    isAddingHealthActivityImage,
+  } = useActivityCamera(data, selectedIndex);
 
-  // Script will executed every time selectedIndex updates
-  useEffect(() => {
-    scrollView?.current?.scrollTo({
-      animated: true,
-      x: width * Number(selectedIndex),
-      y: 0,
-    });
-  }, [selectedIndex]);
+  if (isError) {
+    return <ErrorContent onRefresh={refetch} />;
+  }
 
-  const setIndex = (event: any) => {
-    const contentOffset = event.nativeEvent.contentOffset;
-    const viewSize = event.nativeEvent.layoutMeasurement;
-
-    // Divide the horizontal offset by the width of the view to see which page is visible
-    setselectedIndex(Math.floor(contentOffset.x / viewSize.width));
-  };
+  if (!isContentLoaded || isLoading) {
+    return <ActivityIndicator style={{flex: 1}} color={theme.colors.accent} />;
+  }
 
   return (
-    <ScrollView>
-      <View>
-        <ScrollView
-          ref={scrollView}
-          horizontal
-          pagingEnabled
-          onMomentumScrollEnd={setIndex}
-          onContentSizeChange={() => scrollView?.current?.scrollToEnd()}>
-          <CarouselContainer>
-            {data.map(item => (
-              <CarouselItem style={{width: width}}>
-                <BackgroundImage source={item.image} />
-                <BackgroundOverlay />
-                <View style={{marginTop: 28}}>
-                  <Navbar iconColor={colors.text} />
-                </View>
-                <Details>
-                  <DetailName>Distance</DetailName>
-                  <DetailValue>{item.distance} mi</DetailValue>
-                  <DetailName>Speed</DetailName>
-                  <DetailValue>{item.speed}</DetailValue>
-                  <DetailName>Calories</DetailName>
-                  <DetailValue>{item.calories}</DetailValue>
-                  <DetailName>Time</DetailName>
-                  <DetailValue>{item.time} m</DetailValue>
-                  <DetailName>Elevation Gain</DetailName>
-                  <DetailValue>{item.elevation_gain} ft</DetailValue>
-                  <FitnessName>{item.title}</FitnessName>
-                </Details>
-              </CarouselItem>
-            ))}
-          </CarouselContainer>
-        </ScrollView>
-        <DotView>
-          {data.map((item, index) => (
-            <View
-              style={{
-                width: 9,
-                height: 9,
-                backgroundColor:
-                  index === selectedIndex
-                    ? colors.accent
-                    : 'rgba(255, 255, 255, 0.4)',
-                borderRadius: 5,
-                marginLeft: 7,
-              }}
-            />
+    <ScrollView bounces={false}>
+      <Navbar iconColor="white" />
+      <ActivityCarousel
+        images={images}
+        title={title || ''}
+        selectedIndex={selectedIndex}
+        setSelectedIndex={setSelectedIndex}>
+        <SDetails>
+          {details.map(item => (
+            <View key={item.title}>
+              <DetailName>{item.title}</DetailName>
+              <DetailValue>{item.value}</DetailValue>
+            </View>
           ))}
-        </DotView>
-      </View>
+          <SRow>
+            {!!images.length && isOwnedActivity && (
+              <Icon
+                name={'ellipsis'}
+                color={'white'}
+                size={26}
+                onPress={handleOnImageOptionsPressed}
+              />
+            )}
+
+            {isOwnedActivity && (
+              <Icon
+                name={'camera'}
+                style={{
+                  marginLeft: 12,
+                }}
+                size={26}
+                color={'white'}
+                isLoading={isAddingHealthActivityImage || isUploadingImage}
+                disabled={isAddingHealthActivityImage || isUploadingImage}
+                onPress={handleOnImagePickerPressed}
+              />
+            )}
+          </SRow>
+        </SDetails>
+      </ActivityCarousel>
       <UserSection>
         <UserProfile>
-          <Avatar size={76} radius={18} />
+          <Avatar size={76} radius={18} url={data?.user.avatar?.url_512x512} />
           <UserInfo>
-            <UserName>Jennifer</UserName>
-            <UserDate>Tuesday 7:30 AM</UserDate>
+            <UserName>{userName}</UserName>
+            <UserDate>{date}</UserDate>
           </UserInfo>
         </UserProfile>
-        <ShareIcon
-          source={require('../../../assets/images/icon/share-2.png')}
-        />
+        {isOwnedActivity && (
+          <TouchHandler onPress={handleOnSharePressed}>
+            {isShareActivityLoading ? (
+              <View
+                style={{
+                  height: 24,
+                  width: 24,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <ActivityIndicator color="white" />
+              </View>
+            ) : (
+              <ShareIcon
+                source={require('../../../assets/images/icon/share-2.png')}
+              />
+            )}
+          </TouchHandler>
+        )}
       </UserSection>
-      <MapImage
-        source={require('../../../assets/images/activity_feed/map.png')}
-      />
+      <ActivityMap polyline={data?.polyline} />
     </ScrollView>
   );
 };

@@ -205,6 +205,9 @@ export type ListResource =
   | '/stats/health-activities'
   | '/stats'
   | '/health-activities-debug'
+  | '/leagues/access/compete-to-earn'
+  | '/leagues/bfit/claims'
+  | '/leagues/bfit/earnings'
 
 export type ReadResource =
   | '/organisations/:organisationId'

@@ -3,20 +3,17 @@ import React from 'react';
 import {
   FlatList,
   FlatListProps,
-  Dimensions,
   ActivityIndicator,
+  StyleProp,
+  ViewStyle,
+  View,
 } from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {RewardPublic} from '@fitlink/api/src/modules/rewards/entities/reward.entity';
 import {RewardCard} from '.';
 import {useNavigation} from '@react-navigation/native';
 import {heightLize, widthLize} from '@utils';
-
-const {width: SCREEN_WIDTH} = Dimensions.get('screen');
-
-const Wrapper = styled.View({
-  marginTop: 40,
-});
+import {FEED_CAROUSEL_CARD_WIDTH} from '../../Feed/constants';
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
@@ -61,21 +58,25 @@ interface RewardSliderProps
     | 'contentContainerStyle'
     | 'ListFooterComponent'
   > {
+  userBfit: number;
   title: string;
   userPoints: number;
   isLoading?: boolean;
   isLoadingNextPage?: boolean;
   LockedShow?: boolean;
   fetchNextPage: () => void;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export const RewardSlider = ({
   title,
   userPoints,
+  userBfit,
   isLoading,
   fetchNextPage,
   LockedShow,
   isLoadingNextPage,
+  containerStyle,
   ...rest
 }: RewardSliderProps) => {
   const {colors} = useTheme();
@@ -91,7 +92,7 @@ export const RewardSlider = ({
                 marginVertical: heightLize(11),
               }
             : {
-                width: SCREEN_WIDTH * 0.87,
+                width: FEED_CAROUSEL_CARD_WIDTH,
                 marginVertical: 10,
                 marginLeft: widthLize(20),
               }
@@ -100,8 +101,10 @@ export const RewardSlider = ({
         title={item.name_short}
         image={item.image.url_640x360}
         expiryDate={new Date(item.reward_expires_at)}
-        currentPoints={userPoints}
-        requiredPoints={item.points_required}
+        currentValue={item.bfit_required ? userBfit : userPoints}
+        requiredValue={
+          item.bfit_required ? item.bfit_required : item.points_required
+        }
         onPress={() =>
           navigation.navigate('Reward', {
             id: item.id,
@@ -116,6 +119,7 @@ export const RewardSlider = ({
           }
         }
         code={item.code}
+        label={item.bfit_required ? 'BFIT' : 'Points'}
       />
     );
   };
@@ -131,7 +135,7 @@ export const RewardSlider = ({
   }
 
   return (
-    <Wrapper>
+    <View style={containerStyle}>
       <HeaderContainer>
         <Title>{title}</Title>
         <TouchHandler
@@ -155,6 +159,6 @@ export const RewardSlider = ({
           contentContainerStyle={{paddingRight: 20}}
         />
       )}
-    </Wrapper>
+    </View>
   );
 };

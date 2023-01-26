@@ -6,6 +6,7 @@ import {Label, TouchHandler} from '@components';
 import {BlurView} from '@react-native-community/blur';
 import ProgressBar from './ProgressBar';
 import {calculateDaysLeft} from '@utils';
+import {FEED_CARD_HEIGHT} from '../../Feed/constants';
 
 const TouchWrapper = styled(TouchHandler)({
   marginBottom: 10,
@@ -17,7 +18,7 @@ const ContentContainer = styled.View({
 });
 
 const Wrapper = styled.View({
-  height: 211,
+  height: FEED_CARD_HEIGHT,
   borderRadius: 20,
   overflow: 'hidden',
 });
@@ -95,8 +96,9 @@ interface RewardCardProps extends ViewProps {
   title: string;
   image: string;
   expiryDate: Date;
-  currentPoints: number;
-  requiredPoints: number;
+  currentValue: number;
+  requiredValue: number;
+  label: string;
   onPress: () => void;
   organisation: RewardOrganisation;
   isClaimed?: boolean;
@@ -109,15 +111,16 @@ export const RewardCard = (props: RewardCardProps) => {
     title,
     image, // TODO: fallback image
     expiryDate,
-    currentPoints,
-    requiredPoints,
+    currentValue,
+    requiredValue,
+    label,
     onPress,
     style,
   } = props;
 
   const isExpired = new Date() > expiryDate;
   const restDays = calculateDaysLeft(expiryDate, isExpired);
-  const isLocked = currentPoints >= requiredPoints;
+  const isLocked = currentValue >= requiredValue;
 
   return (
     <TouchWrapper {...{onPress, style}}>
@@ -134,10 +137,10 @@ export const RewardCard = (props: RewardCardProps) => {
           />
           <Row style={styles.topRow}>
             <Points>
-              {requiredPoints} <Label>$BFIT</Label>
+              {requiredValue} <Label>{label}</Label>
             </Points>
             <ProgressBar
-              progress={currentPoints / requiredPoints}
+              progress={currentValue / requiredValue}
               height={8}
               width={100}
             />

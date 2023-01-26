@@ -1,4 +1,4 @@
-import {Label, Navbar, NAVBAR_HEIGHT, TouchHandler} from '@components';
+import {Icon, Label, Navbar, NAVBAR_HEIGHT} from '@components';
 import {useMe, useNotifications} from '@hooks';
 import React, {useEffect, useState} from 'react';
 import {
@@ -6,7 +6,6 @@ import {
   Dimensions,
   FlatList,
   RefreshControl,
-  View,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
@@ -15,7 +14,6 @@ import {Notification} from './components';
 import {Notification as NotificationClass} from '@fitlink/api/src/modules/notifications/entities/notification.entity';
 import {queryClient, QueryKeys} from '@query';
 import {useNavigation} from '@react-navigation/core';
-import {widthLize} from "@utils";
 
 const Wrapper = styled.View({flex: 1});
 
@@ -29,12 +27,6 @@ const LoadingContainer = styled.View({
 const Flex = styled.View({
   flex: 1,
   justifyContent: 'center',
-  alignItems: 'center',
-});
-
-const Row = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
   alignItems: 'center',
 });
 
@@ -56,8 +48,6 @@ export const Notifications = () => {
     setNotificationsSeenQuery: {mutateAsync: setNotificationsSeenById},
     setAllNotificationsSeenQuery: {mutateAsync: setNotificationsSeenAll},
   } = useNotifications();
-
-  const clearNotifications = () => {};
 
   const {refetch: refetchUser} = useMe({enabled: false});
 
@@ -114,37 +104,24 @@ export const Notifications = () => {
 
   return (
     <Wrapper>
-      <View
-        style={{
-          width: '100%',
-          height: 50 + insets.top,
-          backgroundColor: '#181818',
-          borderBottomRightRadius: 31,
-          borderBottomLeftRadius: 31,
-        }}>
-        <Navbar
-          iconColor={'white'}
-          rightComponent={
-            <Row>
-              <Label type={'subheading'}>NOTIFICATIONS</Label>
-              <TouchHandler
-                onPress={() => setNotificationsSeenAll()}
-                style={{marginLeft: widthLize(20)}}>
-                <Label type={'body'} appearance={'secondary'}>
-                  Mark all as seen
-                </Label>
-              </TouchHandler>
-              <TouchHandler
-                onPress={() => clearNotifications()}
-                style={{marginLeft: 20}}>
-                <Label type={'body'} appearance={'secondary'}>
-                  Clean
-                </Label>
-              </TouchHandler>
-            </Row>
-          }
-        />
-      </View>
+      <Navbar
+        iconColor={'white'}
+        title="NOTIFICATIONS"
+        titleStyle={{
+          fontSize: 16,
+          letterSpacing: 1,
+          color: colors.accent,
+        }}
+        rightComponent={
+          <Icon
+            size={22}
+            style={{padding: 5, alignItems: 'center', justifyContent: 'center'}}
+            fill="white"
+            name="double-check"
+            onPress={() => setNotificationsSeenAll()}
+          />
+        }
+      />
 
       <FlatList
         {...{renderItem, ListFooterComponent, ListEmptyComponent}}
@@ -153,6 +130,7 @@ export const Notifications = () => {
           minHeight:
             Dimensions.get('window').height - NAVBAR_HEIGHT - insets.top - 20,
           paddingBottom: insets.bottom + 20,
+          marginTop: insets.top + NAVBAR_HEIGHT,
         }}
         onEndReached={() => fetchNextPage()}
         onEndReachedThreshold={0.25}

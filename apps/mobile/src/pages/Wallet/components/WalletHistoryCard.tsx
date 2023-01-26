@@ -79,7 +79,7 @@ const SDate = styled.Text({
   fontWeight: 400,
 });
 
-const WalletHistoryCard: FC<TransactionUIModel> = ({
+export const WalletHistoryCard: FC<TransactionUIModel> = ({
   type,
   amount,
   date,

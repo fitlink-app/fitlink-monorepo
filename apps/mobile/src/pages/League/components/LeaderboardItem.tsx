@@ -143,7 +143,7 @@ export const LeaderboardItem: React.FC<LeaderboardItemProps> = ({
           {points}
           {isBfit && (
             <>
-              &nbsp;<Label>$BFIT</Label>
+              &nbsp;<Label>BFIT</Label>
             </>
           )}
         </PointsText>

@@ -11,7 +11,6 @@ import {AvatarPicker} from './components';
 
 const Wrapper = styled.View({
   height: '100%',
-  padding: 20,
   backgroundColor: 'transparent',
 });
 
@@ -19,10 +18,9 @@ const ContentContainer = styled(ScrollView).attrs(() => ({
   contentContainerStyle: {
     justifyContent: 'center',
     alignItems: 'center',
-    flex: 1,
+    padding: 20,
   },
   keyboardShouldPersistTaps: 'never',
-  scrollEnabled: false,
 }))({});
 
 const NameFieldContainer = styled.View({

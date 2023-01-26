@@ -1,6 +1,6 @@
 import {Label} from '@components';
 import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
-import {widthLize} from '@utils';
+import {getViewBfitValue, widthLize} from '@utils';
 import React from 'react';
 import {FlatList, StyleProp, View, ViewStyle} from 'react-native';
 import styled from 'styled-components/native';
@@ -9,13 +9,13 @@ import {CteLeagueCard} from '../LeagueCard';
 const StyledCteLeagueCard = styled(CteLeagueCard)({
   marginTop: 23,
   marginRight: 14,
-  marginBottom: 20,
 });
 
 const LeaguesTitleContainer = styled.View({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
+  marginLeft: '20',
 });
 
 const Title = styled(Label).attrs(() => ({
@@ -51,9 +51,6 @@ export const CteLeagueSlider = ({
     <View style={style}>
       <LeaguesTitleContainer>
         <Title>Compete to earn leagues</Title>
-        {/* <TouchHandler>
-        <SeeAllText>see all</SeeAllText>
-      </TouchHandler> */}
       </LeaguesTitleContainer>
       <FlatList<League>
         onEndReached={onEndReached}
@@ -67,7 +64,7 @@ export const CteLeagueSlider = ({
             onPress={() => {
               onCardPress(item.id, item);
             }}
-            bfitValue={item.bfit}
+            bfitValue={getViewBfitValue(item.bfit)}
           />
         )}
         horizontal

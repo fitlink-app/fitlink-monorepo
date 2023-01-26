@@ -1,10 +1,11 @@
 import React, {FC} from 'react';
-import {Icon, Label} from '@components';
 import styled from 'styled-components/native';
-import BarGraph from 'components/common/plot/BarGraph';
-import WalletActions from './WalletActions';
+
+import {Icon, Label, WeeklyEarningsGraph} from '@components';
+
 import PaddedNumber from 'components/common/numbers/PaddedNumber';
 import theme from 'theme/themes/fitlink';
+import WalletActions from './WalletActions';
 
 interface BalanceProps {
   bfitAmount: number;
@@ -37,7 +38,6 @@ interface WalletHeaderProps {
   bfitAmount: number;
   usdAmount: number;
   onInfoPress: () => unknown;
-  weeklyEarnings: number[];
   onBuy: () => void;
   onSell: () => void;
   onStock: () => void;
@@ -47,7 +47,6 @@ export const WalletHeader = ({
   bfitAmount,
   usdAmount,
   onInfoPress,
-  weeklyEarnings,
   onBuy,
   onSell,
   onStock,
@@ -59,11 +58,10 @@ export const WalletHeader = ({
         onInfoPress={onInfoPress}
         usdAmount={usdAmount}
       />
-      <BarGraph
+      <WeeklyEarningsGraph
         barWidth={8}
         gapWidth={34}
         height={70}
-        normalisedData={weeklyEarnings}
         containerStyle={{marginVertical: 20}}
       />
     </SCentered>
@@ -95,3 +93,5 @@ const SSecondaryText = styled(Label).attrs({
 });
 
 const SSelfCentered = styled.View({alignSelf: 'center', marginLeft: 8});
+
+export default WalletHeader;

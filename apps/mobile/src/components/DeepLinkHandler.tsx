@@ -1,21 +1,18 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import dynamicLinks from '@react-native-firebase/dynamic-links';
 import {DeepLinkType} from '@fitlink/api/src/constants/deep-links';
-import messaging from '@react-native-firebase/messaging';
 import {useDispatch, useSelector} from 'react-redux';
-import {memoSelectIsAuthenticated} from 'redux/auth/authSlice';
+import {memoSelectIsAuthenticated} from 'redux/auth';
 import {getUrlParams} from 'utils/api';
 import {navigationRef} from 'routes/router';
-import api from '@api';
-import {Button, Modal, TeamInvitation} from '@components';
-import {useJoinTeamByCode, useMe, useModal} from '@hooks';
+import {Modal, TeamInvitation} from '@components';
+import {useMe, useModal} from '@hooks';
 import {AppDispatch} from 'redux/store';
 import {
   getInvitationData,
   resetTeamInvitation,
   selectTeamInvitation,
 } from 'redux/teamInvitation/teamInvitationSlice';
-import {useNavigation} from '@react-navigation/core';
 import {Team} from '@fitlink/api/src/modules/teams/entities/team.entity';
 
 export const DeeplinkHandler = () => {
@@ -27,18 +24,6 @@ export const DeeplinkHandler = () => {
   const {invitation, code} = useSelector(selectTeamInvitation);
 
   const {data: me, refetch: refetchUser} = useMe({enabled: isAuthenticated});
-
-  //   useEffect(() => {
-  //     messaging().onNotificationOpenedApp(remoteMessage => {
-  //       if (remoteMessage?.data) handlePushNotification(remoteMessage.data);
-  //     });
-
-  //     messaging()
-  //       .getInitialNotification()
-  //       .then(remoteMessage => {
-  //         if (remoteMessage?.data) handlePushNotification(remoteMessage.data);
-  //       });
-  //   }, []);
 
   useEffect(() => {
     dynamicLinks()
@@ -92,26 +77,6 @@ export const DeeplinkHandler = () => {
       showTeamInvitationModal(invitation, code);
     }
   }, [invitation]);
-
-  //   const handlePushNotification = async (data: {[key: string]: string}) => {
-  //     if (!data.type) return;
-
-  //     switch (data.type) {
-  //       case 'reward':
-  //         handleRewardOpen(data.id);
-  //         break;
-
-  //       case 'league':
-  //         handleLeagueOpen(data.id);
-  //         break;
-
-  //       case 'profile':
-  //         handleProfileOpen(data.id);
-
-  //       default:
-  //         break;
-  //     }
-  //   };
 
   const handleTeamInvitation = async (code: string) => {
     try {

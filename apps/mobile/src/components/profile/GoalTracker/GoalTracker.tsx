@@ -1,34 +1,14 @@
 import React from 'react';
-import {Card, Label, Modal, TouchHandler} from '../../common';
+import {Label, Modal, TouchHandler} from '../../common';
 import styled from 'styled-components/native';
 import {Goal} from './components/Goal';
-import {useModal, useProviders} from '@hooks';
+import {useGoals, useModal, useProviders} from '@hooks';
 import {
   ProviderType,
   ProviderTypeDisplay,
 } from '@fitlink/api/src/modules/providers/providers.constants';
 import {useNavigation} from '@react-navigation/core';
-
-const Wrapper = styled(Card)({
-  paddingVertical: 10,
-  backgroundColor: 'transparent !important',
-});
-
-// const Title = styled(CardLabel)({
-//   marginLeft: 15,
-// });
-
-const WidgetContainer = styled.ScrollView.attrs(() => ({
-  horizontal: true,
-  overScrollMode: 'never',
-  showsHorizontalScrollIndicator: false,
-  contentContainerStyle: {
-    // paddingHorizontal: 15,
-    justifyContent: 'space-between',
-  },
-}))({
-  marginTop: 12,
-});
+import {ScrollView, StyleProp, ViewStyle} from 'react-native';
 
 const StyledGoal = styled(Goal)({
   marginRight: 15,
@@ -42,7 +22,7 @@ type GoalIdentifier =
   | 'sleep'
   | 'active_minutes';
 
-type Tracker = {
+export type Tracker = {
   supportedProviders?: ProviderType[];
 
   /** Identifier of the goal e.g.: "steps" */
@@ -56,16 +36,85 @@ type Tracker = {
 };
 
 interface GoalTrackerProps {
-  trackers: Tracker[];
-
   // If set to false, it won't check enabled providers
   isLocalUser: boolean;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
-export const _GoalTracker = ({trackers, isLocalUser}: GoalTrackerProps) => {
+export const GoalTracker = ({
+  isLocalUser,
+  containerStyle,
+}: GoalTrackerProps) => {
   const navigation = useNavigation();
   const {data: providerList} = useProviders();
   const {openModal, closeModal} = useModal();
+
+  const {data: goals} = useGoals();
+
+  const trackers: Tracker[] = [
+    {
+      supportedProviders: [
+        ProviderType.GoogleFit,
+        ProviderType.AppleHealthkit,
+        ProviderType.Fitbit,
+      ],
+      identifier: 'steps',
+      goal: {
+        value: goals?.current_steps || 0,
+        target: goals?.target_steps || 0,
+      },
+      icon: 'steps',
+    },
+    {
+      supportedProviders: [ProviderType.GoogleFit, ProviderType.AppleHealthkit],
+      identifier: 'mindfulness',
+      goal: {
+        value: goals?.current_mindfulness_minutes || 0,
+        target: goals?.target_mindfulness_minutes || 0,
+      },
+      icon: 'yoga',
+    },
+    {
+      supportedProviders: [ProviderType.GoogleFit, ProviderType.AppleHealthkit],
+      identifier: 'water',
+      goal: {
+        value: goals?.current_water_litres || 0,
+        target: goals?.target_water_litres || 0,
+      },
+      icon: 'water',
+    },
+    {
+      supportedProviders: [ProviderType.AppleHealthkit, ProviderType.Fitbit],
+      identifier: 'sleep',
+      goal: {
+        value: goals?.current_sleep_hours || 0,
+        target: goals?.target_sleep_hours || 0,
+      },
+      icon: 'sleep',
+    },
+    {
+      supportedProviders: [ProviderType.GoogleFit, ProviderType.AppleHealthkit],
+      identifier: 'active_minutes',
+      goal: {
+        value: goals?.current_active_minutes || 0,
+        target: goals?.target_active_minutes || 0,
+      },
+      icon: 'stopwatch',
+    },
+    {
+      supportedProviders: [
+        ProviderType.GoogleFit,
+        ProviderType.AppleHealthkit,
+        ProviderType.Fitbit,
+      ],
+      identifier: 'floors',
+      goal: {
+        value: goals?.current_floors_climbed || 0,
+        target: goals?.target_floors_climbed || 0,
+      },
+      icon: 'stairs',
+    },
+  ];
 
   const getUserFriendlyName = (identifier: GoalIdentifier) => {
     switch (identifier) {
@@ -175,11 +224,15 @@ export const _GoalTracker = ({trackers, isLocalUser}: GoalTrackerProps) => {
   };
 
   return (
-    <Wrapper>
-      {/* <Title>Today's Goals</Title> */}
-      <WidgetContainer>{renderWidgets()}</WidgetContainer>
-    </Wrapper>
+    <ScrollView
+      horizontal
+      overScrollMode="never"
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={[
+        containerStyle,
+        {justifyContent: 'space-between'},
+      ]}>
+      {renderWidgets()}
+    </ScrollView>
   );
 };
-
-export const GoalTracker = React.memo(_GoalTracker);

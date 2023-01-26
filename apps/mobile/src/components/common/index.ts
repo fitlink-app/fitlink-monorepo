@@ -22,3 +22,5 @@ export * from './Swipeable';
 export * from './Accordion';
 export * from './NumberInputField';
 export * from './FitButton';
+export * from './plot';
+export * from './ErrorContent';

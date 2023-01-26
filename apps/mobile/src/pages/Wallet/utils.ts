@@ -10,7 +10,7 @@ export function mapTypeToTitle(
   } else if (type === 'spend') {
     action = 'Spent';
   }
-  return action.length ? `You ${action} ${bFitAmount} $BFIT` : '';
+  return action.length ? `You ${action} ${bFitAmount} BFIT` : '';
 }
 
 export function formatDate(date: Date) {

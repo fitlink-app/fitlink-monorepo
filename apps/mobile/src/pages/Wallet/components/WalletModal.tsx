@@ -32,7 +32,7 @@ const Info = () => (
     </SModalIconWrapper>
     <SModalText>
       The fiat value displayed here is based on our target listing price of 1
-      $BFIT = $0.20
+      BFIT = $0.20
     </SModalText>
     <SModalText>
       Please note that this target price could change after TGE
@@ -46,10 +46,10 @@ const ComingSoon = () => (
       <STitle>Coming Soon</STitle>
     </SModalIconWrapper>
     <SModalText>
-      The ability to Buy, Sell and Stake your $BFIT is coming soon.
+      The ability to Buy, Sell and Stake your BFIT is coming soon.
     </SModalText>
     <SModalText>
-      For now, keep competing and earning to build up your $BFIT.
+      For now, keep competing and earning to build up your BFIT.
     </SModalText>
     <SModalText>We’ll alert you when this feature is live.</SModalText>
     <SModalText>Thank you</SModalText>

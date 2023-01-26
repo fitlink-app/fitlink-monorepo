@@ -1,56 +1,64 @@
-import React, {useCallback, useEffect, useRef} from 'react';
-import {GoalTracker, Modal, PlotCard} from '@components';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import styled from 'styled-components/native';
+import {RefreshControl, ScrollView, StyleSheet} from 'react-native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useScrollToTop,
+} from '@react-navigation/native';
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+
+import {GoalTracker, Modal, PlotCard, UserWidget} from '@components';
 import {
   useGoals,
   useMe,
   useModal,
-  useNextReward,
   useProviders,
   useUpdateIntercomUser,
   useRewards,
 } from '@hooks';
-import {UserWidget, TouchHandler} from '@components';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import styled from 'styled-components/native';
-import {ScrollView, StyleSheet} from 'react-native';
-import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {calculateGoalsPercentage, getPersistedData, persistData} from '@utils';
-import {NewsletterModal, NotificationsButton} from './components';
-import {getResultsFromPages} from 'utils/api';
 import {saveCurrentToken} from '@api';
-import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
-import {CompeteLeagues} from './components/CompeteLeagues';
+import {SCREEN_CONTAINER_SPACE} from '@constants';
+
+import {
+  NewsletterModal,
+  NotificationsButton,
+  SettingsButton,
+  UserActivityHistory,
+  RoutesClasses,
+  CompeteLeagues,
+} from './components';
+import {getResultsFromPages} from 'utils/api';
 import {RewardSlider} from '../Rewards/components';
-import {ActivityHistory} from './components/ActivityHistory';
-import {RoutesClasses} from './components/RoutesClasses';
-import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
+import theme from '../../theme/themes/fitlink';
 
 const Wrapper = styled.View({
   flex: 1,
 });
 
 const TopButtonRow = styled.View({
+  top: 10,
+  right: 0,
+  zIndex: 1,
+  marginRight: 20,
+  position: 'absolute',
   flexDirection: 'row',
   justifyContent: 'flex-end',
-  marginBottom: -10,
 });
-
-const TopButtonSpacer = styled.View({width: 10});
-
-const SettingsButton = styled.Image({});
 
 const HeaderContainer = styled.View({
+  paddingTop: 20,
   paddingHorizontal: 10,
-  marginVertical: 10,
+  marginBottom: 10,
 });
-
-const HeaderWidgetContainer = styled.View({marginTop: 10});
 
 const StatContainer = styled.View({
   paddingHorizontal: 10,
+  marginBottom: SCREEN_CONTAINER_SPACE,
 });
-
-const FeedContainer = styled.View({});
 
 export const Feed = () => {
   const insets = useSafeAreaInsets();
@@ -62,33 +70,23 @@ export const Feed = () => {
   const scrollRef = useRef(null);
   useScrollToTop(scrollRef);
 
+  const [isManuallyRefreshing, setIsManuallyRefreshing] = useState(false);
+
   // Preload providers
   useProviders();
 
   // Update intercom on user change
   useUpdateIntercomUser();
 
-  const {data: user} = useMe({
-    refetchOnMount: false,
-    refetchInterval: 10000,
-  });
-
-  const {data: goals} = useGoals({
-    refetchOnMount: false,
-    refetchInterval: 10000,
-  });
-
-  const {data: nextReward, isFetched: isNextRewardFetched} = useNextReward({
-    refetchOnMount: false,
-    refetchInterval: 10000,
-  });
+  const {data: user, refetch: refetchUser} = useMe();
+  const {data: goals, refetch: refetchGoals} = useGoals();
 
   const {
     data: unlockedRewards,
     isFetching: isFetchingLockedRewards,
     isFetchingNextPage: isFetchingUnLockedRewardsNextPage,
     fetchNextPage: fetchUnLockedRewardsNextPage,
-  } = useRewards({locked: false});
+  } = useRewards({available: true});
 
   const unlockedRewardsEntries = getResultsFromPages(unlockedRewards);
 
@@ -118,6 +116,23 @@ export const Feed = () => {
     }
   }, [closeModal, openModal, user]);
 
+  const refresh = useCallback(async () => {
+    try {
+      setIsManuallyRefreshing(true);
+      await Promise.all([refetchGoals(), refetchUser()]);
+    } catch (e) {
+      console.warn('refresh', e);
+    } finally {
+      setIsManuallyRefreshing(false);
+    }
+  }, [refetchGoals, refetchUser]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refetchGoals();
+    }, [refetchGoals]),
+  );
+
   useEffect(() => {
     promptNewsletterModal();
   }, [promptNewsletterModal]);
@@ -125,6 +140,18 @@ export const Feed = () => {
   useEffect(() => {
     saveCurrentToken();
   }, []);
+
+  const totalBfitAmount = useMemo(
+    () => user?.points_total ?? 0,
+    [user?.points_total],
+  );
+
+  const navigateToWallet = useCallback(
+    () => navigation.navigate('Wallet'),
+    [navigation],
+  );
+
+  const bfitStyles = useMemo(() => styles.bfit, []);
 
   if (!user) {
     return null;
@@ -134,148 +161,71 @@ export const Feed = () => {
     <Wrapper style={{paddingTop: insets.top}}>
       <BottomSheetModalProvider>
         <ScrollView
+          refreshControl={
+            <RefreshControl
+              onRefresh={refresh}
+              refreshing={isManuallyRefreshing}
+              tintColor={theme.colors.accent}
+            />
+          }
           contentContainerStyle={{
-            paddingBottom: 44 + 79,
+            paddingBottom: insets.bottom + BOTTOM_TAB_BAR_HEIGHT,
           }}>
-          <>
-            <HeaderContainer>
-              <TopButtonRow>
-                <NotificationsButton count={user.unread_notifications} />
-                <TopButtonSpacer />
-                <TouchHandler
-                  hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
-                  onPress={() => {
-                    navigation.navigate('Settings');
-                  }}>
-                  <SettingsButton
-                    source={require('../../../assets/images/icon/sliders.png')}
-                  />
-                </TouchHandler>
-              </TopButtonRow>
-
-              <HeaderWidgetContainer style={{marginBottom: 5}}>
-                <UserWidget
-                  goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
-                  name={user.name}
-                  rank={user.rank}
-                  avatar={user.avatar?.url_512x512}
-                  friendCount={user.following_total}
-                  followerCount={user.followers_total}
-                  pointCount={user.points_total}
-                />
-              </HeaderWidgetContainer>
-
-              <HeaderWidgetContainer>
-                <GoalTracker
-                  isLocalUser={true}
-                  trackers={[
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                        ProviderType.Fitbit,
-                      ],
-                      identifier: 'steps',
-                      goal: {
-                        value: goals?.current_steps || 0,
-                        target: goals?.target_steps || 0,
-                      },
-                      icon: 'steps',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                      ],
-                      identifier: 'mindfulness',
-                      goal: {
-                        value: goals?.current_mindfulness_minutes || 0,
-                        target: goals?.target_mindfulness_minutes || 0,
-                      },
-                      icon: 'yoga',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                      ],
-                      identifier: 'water',
-                      goal: {
-                        value: goals?.current_water_litres || 0,
-                        target: goals?.target_water_litres || 0,
-                      },
-                      icon: 'water',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.AppleHealthkit,
-                        ProviderType.Fitbit,
-                      ],
-                      identifier: 'sleep',
-                      goal: {
-                        value: goals?.current_sleep_hours || 0,
-                        target: goals?.target_sleep_hours || 0,
-                      },
-                      icon: 'sleep',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                      ],
-                      identifier: 'active_minutes',
-                      goal: {
-                        value: goals?.current_active_minutes || 0,
-                        target: goals?.target_active_minutes || 0,
-                      },
-                      icon: 'stopwatch',
-                    },
-                    {
-                      supportedProviders: [
-                        ProviderType.GoogleFit,
-                        ProviderType.AppleHealthkit,
-                        ProviderType.Fitbit,
-                      ],
-                      identifier: 'floors',
-                      goal: {
-                        value: goals?.current_floors_climbed || 0,
-                        target: goals?.target_floors_climbed || 0,
-                      },
-                      icon: 'stairs',
-                    },
-                  ]}
-                />
-              </HeaderWidgetContainer>
-            </HeaderContainer>
-            <StatContainer>
-              <PlotCard.BFIT
-                totalAmount={user.points_total ?? 0}
-                gainedPerDay={100}
-                percentsPerDay={23.4}
-                onPress={() => navigation.navigate('Wallet')}
-                wrapperStyle={styles.bfit}
-              />
-              <PlotCard.Calories
-                wrapperStyle={styles.calories}
-                totalAmount={355}
-                gainedPerDay={123}
-                percentsPerDay={45.3}
-              />
-            </StatContainer>
-            <FeedContainer>
-              <CompeteLeagues />
-              <RewardSlider
-                data={unlockedRewardsEntries}
-                title={'Unlocked Rewards'}
-                isLoading={isFetchingLockedRewards}
-                isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
-                userPoints={user!.points_total}
-                fetchNextPage={fetchUnLockedRewardsNextPage}
-              />
-              <ActivityHistory />
-              <RoutesClasses />
-            </FeedContainer>
-          </>
+          <HeaderContainer style={{paddingTop: 20}}>
+            <TopButtonRow>
+              <NotificationsButton count={user.unread_notifications} />
+              <SettingsButton />
+            </TopButtonRow>
+            <UserWidget
+              goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
+              name={user.name}
+              rank={user.rank}
+              avatar={user.avatar?.url_512x512}
+              friendCount={user.following_total}
+              followerCount={user.followers_total}
+              pointCount={user.points_total}
+              containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
+            />
+            <GoalTracker
+              isLocalUser={true}
+              containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE - 10}}
+            />
+          </HeaderContainer>
+          <StatContainer>
+            <PlotCard.BFIT
+              totalAmount={totalBfitAmount}
+              gainedPerDay={100}
+              percentsPerDay={23.4}
+              onPress={navigateToWallet}
+              wrapperStyle={bfitStyles}
+            />
+            <PlotCard.Calories
+              totalAmount={355}
+              gainedPerDay={123}
+              percentsPerDay={45.3}
+            />
+          </StatContainer>
+          <CompeteLeagues
+            containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
+          />
+          <RewardSlider
+            data={unlockedRewardsEntries}
+            title="Unlocked Rewards"
+            isLoading={isFetchingLockedRewards}
+            isLoadingNextPage={isFetchingUnLockedRewardsNextPage}
+            userPoints={user!.points_total}
+            fetchNextPage={fetchUnLockedRewardsNextPage}
+            containerStyle={{
+              marginBottom: SCREEN_CONTAINER_SPACE - 10 /* card margin */,
+            }}
+            userBfit={user!.bfit_balance ?? 0}
+          />
+          <UserActivityHistory
+            containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
+          />
+          <RoutesClasses
+            containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
+          />
         </ScrollView>
       </BottomSheetModalProvider>
     </Wrapper>
@@ -283,10 +233,7 @@ export const Feed = () => {
 };
 
 const styles = StyleSheet.create({
-  calories: {
-    marginTop: 20,
-  },
   bfit: {
-    marginTop: 10,
+    marginBottom: 20,
   },
 });

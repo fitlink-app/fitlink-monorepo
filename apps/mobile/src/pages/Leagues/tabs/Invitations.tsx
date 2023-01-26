@@ -1,4 +1,8 @@
-import React from 'react';
+import React, {
+  forwardRef,
+  ForwardRefRenderFunction,
+  useImperativeHandle,
+} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {Label, LeagueCard} from '@components';
 import {useLeagueInvitations} from '@hooks';
@@ -7,6 +11,7 @@ import {getResultsFromPages} from 'utils/api';
 import {useNavigation} from '@react-navigation/native';
 import {LeaguesInvitation} from '../../../../../api/src/modules/leagues-invitations/entities/leagues-invitation.entity';
 import {LeagueAccess} from '../../../../../api/src/modules/leagues/leagues.constants';
+import {IRefreshableTabHandle} from './types';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -19,7 +24,10 @@ const EmptyContainer = styled.View({
   alignItems: 'center',
 });
 
-export const Invitations = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
+const InvitationsInner: ForwardRefRenderFunction<IRefreshableTabHandle> = (
+  _,
+  forwardedRef,
+) => {
   const navigation = useNavigation();
   const {colors} = useTheme();
 
@@ -32,6 +40,10 @@ export const Invitations = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
     fetchNextPage,
     error,
   } = useLeagueInvitations();
+
+  useImperativeHandle(forwardedRef, () => ({
+    refresh: refetch,
+  }));
 
   const results = getResultsFromPages(data);
 
@@ -128,3 +140,5 @@ export const Invitations = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
     </Wrapper>
   );
 };
+
+export const Invitations = forwardRef(InvitationsInner);

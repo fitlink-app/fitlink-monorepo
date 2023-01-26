@@ -55,8 +55,8 @@ export const CteLeagueCard = ({
   onPress,
   style,
 }: LeagueCardInterface) => (
-  <Container onPress={onPress} imageSource={imageUrl} style={style}>
-    {!!bfitValue && <TopLabel text={`${bfitValue} $BFIT`} />}
+  <Container onPress={onPress} imageSource={{url: imageUrl}} style={style}>
+    {bfitValue !== undefined && <TopLabel text={`${bfitValue} BFIT`} />}
     <CardFooter>
       <LeagueCardMembers membersCount={memberCount} />
       <Title>{name}</Title>

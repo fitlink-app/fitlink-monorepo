@@ -8,9 +8,11 @@ import {
   ViewStyle,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
+
+import {Label} from '@components';
+
 import theme from '../../../../theme/themes/fitlink';
 import {ImageCardBlurSection} from '../../ImageCard';
-import {Label} from '@components';
 
 export interface IHeaderCardImageContainerProps {
   imageBackgroundStyle: StyleProp<ViewStyle>;
@@ -49,7 +51,10 @@ const HeaderCardImageContainer: FC<IHeaderCardImageContainerProps> = ({
             bold={true}>
             {p1}
           </Label>
-          <Label numberOfLines={1} style={styles.p2} type="title">
+          <Label
+            numberOfLines={1}
+            style={[styles.p2, !p3 && styles.p3absent]}
+            type="title">
             {p2}
           </Label>
           {!!p3 && (
@@ -108,6 +113,9 @@ const styles = StyleSheet.create({
   p2: {
     marginBottom: 7,
     fontSize: 32,
+  },
+  p3absent: {
+    marginBottom: 26,
   },
   p3: {
     fontSize: 14,

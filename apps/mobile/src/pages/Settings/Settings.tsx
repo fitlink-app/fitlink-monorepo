@@ -36,7 +36,7 @@ import {SettingsItemWrapper} from './components/SettingsItemWrapper';
 import {SettingsItemLabel} from './components/SettingsItemLabel';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch} from 'redux/store';
-import {logout} from 'redux/auth/authSlice';
+import {logout} from 'redux/auth';
 import {
   clearChanges,
   CURRENCY_ITEMS,
@@ -46,6 +46,7 @@ import {
   setActivitiesPrivacy,
   setAvatar,
   setDailyStatisticsPrivacy,
+  setDisplayCurrency,
   setGoals,
   setName,
   setNewsletterSubscription,
@@ -374,12 +375,14 @@ export const Settings = () => {
             displayName
           />
           <SettingsDropdown
-            label={'Display Currency'}
+            label="Display Currency"
             items={CURRENCY_ITEMS}
-            // value={settings.userSettings?.privacy_daily_statistics}
-            value={'gbp'}
-            prompt={'Select your currency'}
+            value={settings.displayCurrency}
+            prompt="Select your currency"
             valueTextWidth={50}
+            onValueChange={value => {
+              dispatch(setDisplayCurrency(value));
+            }}
           />
           <SettingsButton
             label={'Email Address'}
@@ -401,7 +404,7 @@ export const Settings = () => {
 
         <CategoryCard>
           <CategoryLabel>Wallet</CategoryLabel>
-          <SettingsButton label={'Kujira'} />
+          <SettingsButton label="Kujira (coming soon)" />
         </CategoryCard>
 
         {/* Linked Trackers */}
