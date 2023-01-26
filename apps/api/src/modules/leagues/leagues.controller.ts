@@ -573,10 +573,6 @@ export class LeaguesController {
 
     const result = await this.leaguesService.joinLeague(leagueId, authUser.id)
 
-    if (result === 'already joined') {
-      throw new BadRequestException('You have already joined this league')
-    }
-
     return result
   }
 

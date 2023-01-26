@@ -16,7 +16,7 @@ export class RewardFiltersDto {
   })
   @IsBoolean()
   @IsOptional()
-  @Transform(({ value }) => value === 'true')
+  @Transform(({ value }) => value === 'true' || value === true)
   locked?: boolean = false
 
   @ApiProperty({
@@ -25,7 +25,7 @@ export class RewardFiltersDto {
   })
   @IsBoolean()
   @IsOptional()
-  @Transform(({ value }) => value === 'true')
+  @Transform(({ value }) => value === 'true' || value === true)
   expired?: boolean = false
 
   @ApiProperty({
@@ -34,7 +34,7 @@ export class RewardFiltersDto {
   })
   @IsBoolean()
   @IsOptional()
-  @Transform(({ value }) => value === 'true')
+  @Transform(({ value }) => value === 'true' || value === true)
   available?: boolean = false
 
   @ApiProperty()
@@ -49,7 +49,7 @@ export class RewardFiltersDto {
     nullable: true
   })
   @IsOptional()
-  @Transform(({ value }) => value === 'true')
+  @Transform(({ value }) => value === 'true' || value === true)
   isPrivateOnly?: boolean = false
 }
 
