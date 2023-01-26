@@ -6,6 +6,7 @@ import {
   useFocusEffect,
   useNavigation,
   useRoute,
+  useScrollToTop,
 } from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Route} from 'react-native-tab-view';
@@ -50,6 +51,8 @@ export const Leagues = () => {
   const invitationsTabRef = useRef<IRefreshableTabHandle>(null);
   const exploreLeaguesTabRef = useRef<IRefreshableTabHandle>(null);
   const myLeaguesTabRef = useRef<IRefreshableTabHandle>(null);
+  const scrollRef = useRef(null);
+  useScrollToTop(scrollRef);
 
   const [isManuallyRefetching, setIsManuallyRefetching] = useState(false);
 
@@ -108,6 +111,7 @@ export const Leagues = () => {
   return (
     <Wrapper style={{marginTop: insets.top}}>
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={{
           paddingBottom: BOTTOM_TAB_BAR_HEIGHT,
         }}

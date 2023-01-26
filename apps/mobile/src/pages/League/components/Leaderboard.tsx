@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {
   FlatList,
   FlatListProps,
@@ -16,6 +16,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import AnimatedLeaderboardHeaderCard from './AnimatedLeaderboardHeaderCard';
 import {getViewBfitValue} from '@utils';
+import {useScrollToTop} from '@react-navigation/native';
 
 const AnimatedFlatList =
   Animated.createAnimatedComponent<FlatListProps<LeaderboardEntry>>(FlatList);
@@ -70,6 +71,10 @@ export const Leaderboard = ({
 }: LeaderboardProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
+
+  const scrollRef = useRef(null);
+  useScrollToTop(scrollRef);
+
   const [headerHeight, setHeaderHeight] = useState(0);
 
   const sharedContentOffset = useSharedValue(0);
@@ -116,6 +121,7 @@ export const Leaderboard = ({
       />
       {headerHeight !== 0 && (
         <AnimatedFlatList
+          ref={scrollRef}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={() => <View style={{height: headerHeight}} />}
           data={data}

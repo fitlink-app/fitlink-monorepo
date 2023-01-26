@@ -161,6 +161,7 @@ export const Feed = () => {
     <Wrapper style={{paddingTop: insets.top}}>
       <BottomSheetModalProvider>
         <ScrollView
+          ref={scrollRef}
           refreshControl={
             <RefreshControl
               onRefresh={refresh}
