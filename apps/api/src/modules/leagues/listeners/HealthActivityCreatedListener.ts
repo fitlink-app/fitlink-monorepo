@@ -145,10 +145,12 @@ export class HealthActivityCreatedListener {
           leagueId: league.id
         })
         .getRawOne()
-      total_user_league_points = parseInt(total_user_league_points, 10)
+      total_user_league_points = parseInt(
+        total_user_league_points.totalPoints,
+        10
+      )
       // we multiply by 1000_000 because $BFIT has 6 decimals
-      let bfit =
-        dailyBfit * Math.round(points / total_user_league_points) * 1000_000
+      let bfit = dailyBfit * ((points / total_user_league_points) * 1000_000)
       // increment user bfit
       incrementEntryPromises.push(
         this.leaderboardEntriesRepository.increment(

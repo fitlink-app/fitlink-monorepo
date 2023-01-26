@@ -84,6 +84,11 @@ import { Update1673269889422 } from '../database/migrations/1673269889422-Update
 import { Update1673355837904 } from '../database/migrations/1673355837904-Update'
 import { addedLeagueBfitEarningsEntity1673516909181 } from '../database/migrations/1673516909181-addedLeagueBfitEarningsEntity'
 import { changeUserBfitBalanceToBigInt1674579033783 } from '../database/migrations/1674579033783-changeUserBfitBalanceToBigInt'
+import { changeRewardBFITRequiredToBigInt1674725966038 } from '../database/migrations/1674725966038-changeRewardBFITRequiredToBigInt'
+import { changeBFITEarnedToBigInt1674744656218 } from '../database/migrations/1674744656218-changeBFITEarnedToBigInt'
+import { changeBFITClaimedToBigInt1674744806302 } from '../database/migrations/1674744806302-changeBFITClaimedToBigInt'
+import { changeBFITtoBigIntInLeague1674745166201 } from '../database/migrations/1674745166201-changeBFITtoBigIntInLeague'
+import { changeBFITAmountInEarningsAndClaimsToBigInt1674756830719 } from '../database/migrations/1674756830719-changeBFITAmountInEarningsAndClaimsToBigInt'
 
 export default [
   InitializeSchema1614887523112,
@@ -166,5 +171,10 @@ export default [
   Update1673269889422,
   Update1673355837904,
   addedLeagueBfitEarningsEntity1673516909181,
-  changeUserBfitBalanceToBigInt1674579033783
+  changeUserBfitBalanceToBigInt1674579033783,
+  changeRewardBFITRequiredToBigInt1674725966038,
+  changeBFITEarnedToBigInt1674744656218,
+  changeBFITClaimedToBigInt1674744806302,
+  changeBFITtoBigIntInLeague1674745166201,
+  changeBFITAmountInEarningsAndClaimsToBigInt1674756830719
 ]

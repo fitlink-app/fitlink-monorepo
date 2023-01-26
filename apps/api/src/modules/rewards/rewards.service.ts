@@ -61,6 +61,10 @@ export class RewardsService {
 
   create(createRewardDto: CreateRewardDto) {
     const { teamId, organisationId, imageId } = createRewardDto
+    // multiply bfit bfit_required by bfit decimals
+    if (createRewardDto.redeem_type === RewardRedeemType.BFIT) {
+      createRewardDto.bfit_required = createRewardDto.bfit_required * 1000_000
+    }
 
     const reward = this.rewardsRepository.create(createRewardDto)
 
@@ -117,12 +121,11 @@ export class RewardsService {
       query = query
         .andWhere('redemptions.id IS NULL')
         .andWhere(
-          'reward.redeem_type = :pointRedeemType AND reward.points_required > user.points_total',
-          { pointRedeemType: RewardRedeemType.Points }
-        )
-        .andWhere(
-          'reward.redeem_type = :bfitRedeemType AND reward.bfit_required > user.bfit_balance',
-          { bfitRedeemType: RewardRedeemType.BFIT }
+          'reward.redeem_type = :pointRedeemType AND reward.points_required > user.points_total OR reward.redeem_type = :bfitRedeemType AND reward.bfit_required > user.bfit_balance',
+          {
+            pointRedeemType: RewardRedeemType.Points,
+            bfitRedeemType: RewardRedeemType.BFIT
+          }
         )
     }
 
@@ -130,7 +133,13 @@ export class RewardsService {
     if (filters.available) {
       query = query
         .andWhere('redemptions.id IS NULL')
-        .andWhere('reward.points_required <= user.points_total')
+        .andWhere(
+          'reward.redeem_type = :pointRedeemType AND reward.points_required <= user.points_total OR reward.redeem_type = :bfitRedeemType AND reward.bfit_required <= user.bfit_balance',
+          {
+            pointRedeemType: RewardRedeemType.Points,
+            bfitRedeemType: RewardRedeemType.BFIT
+          }
+        )
     }
 
     if (filters.redeem_type) {
@@ -438,6 +447,10 @@ export class RewardsService {
         throw new BadRequestException(
           'You cannot update the redeem type of a reward'
         )
+      }
+
+      if (updateRewardDto.redeem_type === RewardRedeemType.BFIT) {
+        updateRewardDto.bfit_required = updateRewardDto.bfit_required * 1000_000
       }
 
       return this.rewardsRepository.update(

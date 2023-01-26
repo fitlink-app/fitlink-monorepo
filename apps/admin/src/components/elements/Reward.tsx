@@ -69,7 +69,9 @@ export default function Reward({
                         <div className="card__top">
                             {points > 0 && (
                                 <div className="card__chip">
-                                    {points.toLocaleString()}{' '}
+                                    {redeemType === RewardRedeemType.BFIT
+                                        ? (points / 1000_000).toLocaleString()
+                                        : points.toLocaleString()}{' '}
                                     {redeemType === RewardRedeemType.BFIT ? '$BFIT' : 'points'}
                                 </div>
                             )}
