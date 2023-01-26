@@ -13,22 +13,18 @@ import {widthLize} from '@utils';
 
 const Wrapper = styled.View({flex: 1});
 
-const ListHeaderContainer = styled.View({
-  paddingTop: 20,
-  marginHorizontal: widthLize(20),
-  marginBottom: SCREEN_CONTAINER_SPACE,
-});
-
-const PageTitleContainer = styled.View({
-  alignItems: 'center',
-  marginBottom: 21,
-});
-
 const PageTitle = styled(Label).attrs(() => ({
+  type: 'subheading',
   appearance: 'accent',
+  bold: true,
 }))({
-  letterSpacing: 1,
+  fontFamily: 'Roboto',
   fontSize: 15,
+  lineHeight: 18,
+  textTransform: 'uppercase',
+  textAlign: 'center',
+  marginTop: 12,
+  marginBottom: 27,
 });
 
 const ActivityIndicatorContainer = styled.View({
@@ -113,7 +109,7 @@ export const Rewards = () => {
   };
 
   return (
-    <Wrapper>
+    <Wrapper style={{marginTop: insets.top}}>
       <ScrollView
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
@@ -129,17 +125,17 @@ export const Rewards = () => {
             onRefresh={handleRefresh}
           />
         }>
-        <ListHeaderContainer>
-          <PageTitleContainer>
-            <PageTitle>REWARDS</PageTitle>
-          </PageTitleContainer>
-          <PlotCard.BFIT
-            totalAmount={user?.points_total ?? 0}
-            gainedPerDay={100}
-            percentsPerDay={23.4}
-            isLoading={isLoadingUser}
-          />
-        </ListHeaderContainer>
+        <PageTitle>REWARDS</PageTitle>
+        <PlotCard.BFIT
+          totalAmount={user?.points_total ?? 0}
+          gainedPerDay={100}
+          percentsPerDay={23.4}
+          isLoading={isLoadingUser}
+          wrapperStyle={{
+            marginHorizontal: widthLize(20),
+            marginBottom: SCREEN_CONTAINER_SPACE,
+          }}
+        />
         {!totalRewardsCount ? (
           <EmptyRewardsContent />
         ) : (

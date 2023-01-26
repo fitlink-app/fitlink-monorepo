@@ -39,6 +39,7 @@ const PageTitle = styled(Label).attrs(() => ({
   textTransform: 'uppercase',
   textAlign: 'center',
   marginTop: 12,
+  marginBottom: 27,
 });
 
 export const Leagues = () => {
@@ -158,7 +159,6 @@ export const Leagues = () => {
 
 const styles = StyleSheet.create({
   rewardCard: {
-    marginTop: 27,
     marginHorizontal: widthLize(20),
     marginBottom: SCREEN_CONTAINER_SPACE,
   },
