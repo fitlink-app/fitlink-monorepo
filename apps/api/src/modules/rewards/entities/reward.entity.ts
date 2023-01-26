@@ -20,6 +20,21 @@ import {
   RewardRedeemType
 } from '../rewards.constants'
 
+// when saving numbers as bigint postgress will return them as strings, we use this to convert them to integers
+export class ColumnNumberTransformer {
+  public to(data: number): number {
+    return data
+  }
+
+  public from(data: string): number {
+    // output value, you can use Number, parseFloat variations
+    // also you can add nullable condition:
+    // if (!Boolean(data)) return 0;
+
+    return parseInt(data)
+  }
+}
+
 @Entity()
 export class Reward extends CreatableEntity {
   @ApiProperty()
@@ -77,7 +92,11 @@ export class Reward extends CreatableEntity {
   points_required: number
 
   @ApiProperty()
-  @Column({ nullable: true })
+  @Column({
+    type: 'bigint',
+    nullable: true,
+    transformer: new ColumnNumberTransformer()
+  })
   bfit_required: number
 
   @ApiProperty()
