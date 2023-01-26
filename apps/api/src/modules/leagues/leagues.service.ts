@@ -188,6 +188,7 @@ export class LeaguesService {
         'The provided league is not a compete to ear league'
       )
     }
+
     const leagueBfitClaim = new LeagueBfitClaim()
     leagueBfitClaim.league_id = leagueId
     leagueBfitClaim.user_id = userId

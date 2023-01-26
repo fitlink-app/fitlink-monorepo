@@ -10,6 +10,21 @@ import {
 import { IsInt, Min } from 'class-validator'
 import { CreatableEntity } from '../../../classes/entity/creatable'
 
+// when saving numbers as bigint postgress will return them as strings, we use this to convert them to integers
+export class ColumnNumberTransformer {
+  public to(data: number): number {
+    return data
+  }
+
+  public from(data: string): number {
+    // output value, you can use Number, parseFloat variations
+    // also you can add nullable condition:
+    // if (!Boolean(data)) return 0;
+
+    return parseInt(data)
+  }
+}
+
 @Entity()
 export class LeagueBfitEarnings extends CreatableEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -21,11 +36,10 @@ export class LeagueBfitEarnings extends CreatableEntity {
   @Column()
   user_id: string
 
-  @Index()
-  @IsInt()
-  @Min(0)
   @Column({
-    default: 0
+    type: 'bigint',
+    default: 0,
+    transformer: new ColumnNumberTransformer()
   })
   bfit_amount: number
 }
