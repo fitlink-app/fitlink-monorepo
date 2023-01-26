@@ -128,8 +128,7 @@ export const Rewards = () => {
         <PageTitle>REWARDS</PageTitle>
         <PlotCard.BFIT
           totalAmount={user?.points_total ?? 0}
-          gainedPerDay={100}
-          percentsPerDay={23.4}
+          totalAmountAlt={100}
           isLoading={isLoadingUser}
           wrapperStyle={{
             marginHorizontal: widthLize(20),

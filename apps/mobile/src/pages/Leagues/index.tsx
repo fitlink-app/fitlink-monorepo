@@ -128,8 +128,7 @@ export const Leagues = () => {
         <PlotCard.Calories
           wrapperStyle={styles.rewardCard}
           totalAmount={355}
-          gainedPerDay={123}
-          percentsPerDay={45.3}
+          totalAmountAlt={123}
         />
         <CteLeagueSlider
           leagues={results}

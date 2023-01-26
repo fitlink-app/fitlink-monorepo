@@ -18,7 +18,12 @@ import {
   useUpdateIntercomUser,
   useRewards,
 } from '@hooks';
-import {calculateGoalsPercentage, getPersistedData, persistData} from '@utils';
+import {
+  calculateGoalsPercentage,
+  convertBfitToUsd,
+  getPersistedData,
+  persistData,
+} from '@utils';
 import {saveCurrentToken} from '@api';
 import {SCREEN_CONTAINER_SPACE} from '@constants';
 
@@ -195,16 +200,11 @@ export const Feed = () => {
           <StatContainer>
             <PlotCard.BFIT
               totalAmount={totalBfitAmount}
-              gainedPerDay={100}
-              percentsPerDay={23.4}
+              totalAmountAlt={convertBfitToUsd(totalBfitAmount)}
               onPress={navigateToWallet}
               wrapperStyle={bfitStyles}
             />
-            <PlotCard.Calories
-              totalAmount={355}
-              gainedPerDay={123}
-              percentsPerDay={45.3}
-            />
+            <PlotCard.Calories totalAmount={355} totalAmountAlt={123} />
           </StatContainer>
           <CompeteLeagues
             containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}

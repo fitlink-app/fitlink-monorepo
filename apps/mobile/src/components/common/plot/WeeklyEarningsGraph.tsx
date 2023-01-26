@@ -1,31 +1,18 @@
 import React, {FC} from 'react';
 
-import {useWeeklyEarnings} from '@hooks';
-
 import BarGraph, {IBarGraphProps} from './BarGraph';
 
-type WeeklyEarningsGraphProps = Pick<
-  IBarGraphProps,
-  'barWidth' | 'gapWidth' | 'height' | 'containerStyle'
->;
+interface WeeklyEarningsGraphProps
+  extends Pick<
+    IBarGraphProps,
+    'barWidth' | 'gapWidth' | 'height' | 'containerStyle'
+  > {
+  weeklyEarnings: number[];
+}
 
 export const WeeklyEarningsGraph: FC<WeeklyEarningsGraphProps> = ({
-  barWidth,
-  gapWidth,
-  height,
-  containerStyle,
-}) => {
-  const {weeklyEarnings} = useWeeklyEarnings();
-
-  return (
-    <BarGraph
-      barWidth={barWidth}
-      gapWidth={gapWidth}
-      height={height}
-      normalisedData={weeklyEarnings}
-      containerStyle={containerStyle}
-    />
-  );
-};
+  weeklyEarnings,
+  ...rest
+}) => <BarGraph {...rest} normalisedData={weeklyEarnings} />;
 
 export default WeeklyEarningsGraph;

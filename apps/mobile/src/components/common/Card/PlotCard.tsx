@@ -13,13 +13,14 @@ import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import {WeeklyEarningsGraph} from '@components';
 
 import PaddedNumber from '../numbers/PaddedNumber';
+import {useWeeklyEarnings} from '@hooks';
 
 interface PlotCardProps {
   title: string;
   subtitle: string;
   totalAmount: number;
   isLoading?: boolean;
-  percentsPerDay: number;
+  percentsGrowth: number;
   onPress?: () => unknown;
   Plot: React.ReactElement;
   totalNumberOfDigits: number;
@@ -34,10 +35,10 @@ const PlotCard = ({
   isLoading,
   totalAmount,
   wrapperStyle,
-  percentsPerDay,
+  percentsGrowth,
   totalNumberOfDigits,
 }: PlotCardProps): JSX.Element => {
-  const gain = `${percentsPerDay} %`;
+  const gain = `${percentsGrowth} %`;
   return (
     <TouchableOpacity onPress={onPress} style={wrapperStyle}>
       {isLoading ? (
@@ -95,28 +96,36 @@ const styles = StyleSheet.create({
 interface PlotCardWrapperProps
   extends Omit<
     PlotCardProps,
-    'totalNumberOfDigits' | 'Plot' | 'title' | 'subtitle'
+    'totalNumberOfDigits' | 'Plot' | 'title' | 'subtitle' | 'percentsGrowth'
   > {
-  gainedPerDay: number;
+  totalAmountAlt: number;
 }
 
-const BFITInner = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
+const BFITInner = ({totalAmountAlt, ...rest}: PlotCardWrapperProps) => {
+  const {weeklyEarnings, percentsGrowth} = useWeeklyEarnings();
+
   const Plot = () => (
-    <WeeklyEarningsGraph height={50} barWidth={4} gapWidth={18} />
+    <WeeklyEarningsGraph
+      height={50}
+      barWidth={4}
+      gapWidth={18}
+      weeklyEarnings={weeklyEarnings}
+    />
   );
 
   return (
     <PlotCard
       {...rest}
+      percentsGrowth={percentsGrowth}
       title="TOTAL BFIT"
-      subtitle={`$${gainedPerDay}`}
+      subtitle={`$${totalAmountAlt}`}
       totalNumberOfDigits={5}
       Plot={<Plot />}
     />
   );
 };
 
-const Calories = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
+const Calories = ({totalAmountAlt, ...rest}: PlotCardWrapperProps) => {
   const Plot = () => (
     <Image source={require('../../../assets/images/total_rank_chart2.png')} />
   );
@@ -124,8 +133,9 @@ const Calories = ({gainedPerDay, ...rest}: PlotCardWrapperProps) => {
   return (
     <PlotCard
       {...rest}
+      percentsGrowth={20}
       title="TOTAL CALORIES"
-      subtitle={`${gainedPerDay} POINTS`}
+      subtitle={`${totalAmountAlt} POINTS`}
       totalNumberOfDigits={6}
       Plot={<Plot />}
     />

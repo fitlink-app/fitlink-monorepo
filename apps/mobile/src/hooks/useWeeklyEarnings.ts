@@ -7,27 +7,57 @@ import {useQuery} from 'react-query';
 
 const DAYS_IN_WEEK = 7;
 
-function fetchWeeklyEarnings() {
+function fetchWeeklyEarnings(limit = DAYS_IN_WEEK) {
   return api.list<LeagueBfitEarnings>('/leagues/bfit/earnings', {
-    limit: DAYS_IN_WEEK,
+    limit,
   });
+}
+
+function extractBfitAmount(earning: LeagueBfitEarnings) {
+  return earning.bfit_amount;
+}
+
+function getWeekSumEarnings(weeklyEarnings: number[]) {
+  return weeklyEarnings.reduce((acc, cur) => acc + cur, 0);
 }
 
 export const useWeeklyEarnings = () => {
   const [weeklyEarnings, setWeeklyEarnings] = useState<number[]>(
     new Array(DAYS_IN_WEEK).fill(0),
   );
+  const [percentsGrowth, setPercentsGrowth] = useState(0);
 
-  const {data, isLoading} = useQuery('weeklyEarnings', fetchWeeklyEarnings);
+  const currentWeekLimit = new Date().getDay() + 1;
+  const limit = currentWeekLimit + DAYS_IN_WEEK;
+
+  const {data, isLoading} = useQuery('weeklyEarnings', () =>
+    fetchWeeklyEarnings(limit),
+  );
 
   useEffect(() => {
     if (data?.results?.length) {
-      setWeeklyEarnings(data.results.map(earning => earning.bfit_amount));
+      const prevWeekEarnings = data.results
+        .slice(0, DAYS_IN_WEEK)
+        .map(extractBfitAmount);
+      const curWeekEarnings = data.results
+        .slice(DAYS_IN_WEEK)
+        .map(extractBfitAmount);
+
+      const prevWeekSum = getWeekSumEarnings(prevWeekEarnings);
+      const curWeekSum = getWeekSumEarnings(curWeekEarnings);
+
+      setPercentsGrowth(Math.trunc((curWeekSum / prevWeekSum) * 100));
+
+      setWeeklyEarnings(prev => [
+        ...curWeekEarnings,
+        ...prev.slice(curWeekEarnings.length),
+      ]);
     }
   }, [data]);
 
   return {
     isLoading,
     weeklyEarnings,
+    percentsGrowth,
   };
 };
