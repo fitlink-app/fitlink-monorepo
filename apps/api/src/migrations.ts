@@ -88,6 +88,7 @@ import { changeRewardBFITRequiredToBigInt1674725966038 } from '../database/migra
 import { changeBFITEarnedToBigInt1674744656218 } from '../database/migrations/1674744656218-changeBFITEarnedToBigInt'
 import { changeBFITClaimedToBigInt1674744806302 } from '../database/migrations/1674744806302-changeBFITClaimedToBigInt'
 import { changeBFITtoBigIntInLeague1674745166201 } from '../database/migrations/1674745166201-changeBFITtoBigIntInLeague'
+import { changeBFITAmountInEarningsAndClaimsToBigInt1674756830719 } from '../database/migrations/1674756830719-changeBFITAmountInEarningsAndClaimsToBigInt'
 
 export default [
   InitializeSchema1614887523112,
@@ -174,5 +175,6 @@ export default [
   changeRewardBFITRequiredToBigInt1674725966038,
   changeBFITEarnedToBigInt1674744656218,
   changeBFITClaimedToBigInt1674744806302,
-  changeBFITtoBigIntInLeague1674745166201
+  changeBFITtoBigIntInLeague1674745166201,
+  changeBFITAmountInEarningsAndClaimsToBigInt1674756830719
 ]
