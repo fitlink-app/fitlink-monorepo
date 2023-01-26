@@ -1,4 +1,9 @@
-import { HttpService, Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  HttpService,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
@@ -661,7 +666,25 @@ export class LeaguesService {
     league.id = leagueId
 
     if (await this.isParticipant(leagueId, userId)) {
-      return 'already joined'
+      throw new BadRequestException('You have already joined this league')
+    }
+    let isCompeteToEarn = await this.leaguesRepository.findOne({
+      id: leagueId,
+      access: LeagueAccess.CompeteToEarn
+    })
+    // check if the user has already joined more than 3 leagues
+    if (isCompeteToEarn) {
+      const query = this.queryFindAccessibleToUser(userId, {
+        isCte: true
+      }).where('leagueUser.id = :userId', { userId })
+
+      const { entities, raw } = await query.getRawAndEntities()
+      const results = this.applyRawResults(entities, raw)
+      if (results.length >= 3) {
+        throw new BadRequestException(
+          'You can only join a maximum of 3 compete to earn leagues'
+        )
+      }
     }
 
     const leaderboardEntry = await this.leaguesRepository.manager.transaction(
