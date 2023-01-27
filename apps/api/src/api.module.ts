@@ -69,6 +69,8 @@ import { AppController } from './api.controller'
 import { NotificationsModule } from './modules/notifications/notifications.module'
 import { LeagueBfitClaim } from './modules/leagues/entities/bfit-claim.entity'
 import { LeagueBfitEarnings } from './modules/leagues/entities/bfit-earnings.entity'
+import { WalletTransaction } from './modules/wallet-transactions/entities/wallet-transaction.entity'
+import { WalletTransactionsModule } from './modules/wallet-transactions/wallet-transactions.module'
 
 @Module({
   imports: [
@@ -122,7 +124,8 @@ import { LeagueBfitEarnings } from './modules/leagues/entities/bfit-earnings.ent
             UsersSetting,
             Notification,
             LeagueBfitClaim,
-            LeagueBfitEarnings
+            LeagueBfitEarnings,
+            WalletTransaction
           ],
           synchronize: false,
           logging: false,
@@ -157,7 +160,8 @@ import { LeagueBfitEarnings } from './modules/leagues/entities/bfit-earnings.ent
     UserRolesModule,
     SubscriptionsModule,
     UsersInvitationsModule,
-    NotificationsModule
+    NotificationsModule,
+    WalletTransactionsModule
   ],
   providers: [
     {
