@@ -224,6 +224,7 @@ export const Feed = () => {
               marginBottom: SCREEN_CONTAINER_SPACE - 10 /* card margin */,
             }}
             userBfit={bfitViewValue}
+            showSeeAll={true}
           />
           <UserActivityHistory
             containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}

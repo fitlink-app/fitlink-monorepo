@@ -66,6 +66,7 @@ interface RewardSliderProps
   LockedShow?: boolean;
   fetchNextPage: () => void;
   containerStyle?: StyleProp<ViewStyle>;
+  showSeeAll?: boolean;
 }
 
 export const RewardSlider = ({
@@ -77,6 +78,7 @@ export const RewardSlider = ({
   LockedShow,
   isLoadingNextPage,
   containerStyle,
+  showSeeAll = false,
   ...rest
 }: RewardSliderProps) => {
   const {colors} = useTheme();
@@ -140,12 +142,14 @@ export const RewardSlider = ({
     <View style={containerStyle}>
       <HeaderContainer>
         <Title>{title}</Title>
-        <TouchHandler
-          onPress={() => {
-            navigation.navigate('Rewards');
-          }}>
-          <SeeAllText>see all</SeeAllText>
-        </TouchHandler>
+        {showSeeAll && (
+          <TouchHandler
+            onPress={() => {
+              navigation.navigate('Rewards');
+            }}>
+            <SeeAllText>see all</SeeAllText>
+          </TouchHandler>
+        )}
       </HeaderContainer>
       {isLoading && !isLoadingNextPage ? (
         <LoadingContainer>
