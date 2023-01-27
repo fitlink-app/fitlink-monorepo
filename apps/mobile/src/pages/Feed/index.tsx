@@ -21,6 +21,7 @@ import {
 import {
   calculateGoalsPercentage,
   convertBfitToUsd,
+  convertPointsToCalories,
   getPersistedData,
   getViewBfitValue,
   persistData,
@@ -96,6 +97,7 @@ export const Feed = () => {
 
   const unlockedRewardsEntries = getResultsFromPages(unlockedRewards);
   const bfitViewValue = getViewBfitValue(user?.bfit_balance);
+  const totalCalories = convertPointsToCalories(user?.points_total);
 
   const promptNewsletterModal = useCallback(async () => {
     const newsletterKey = 'NEWSLETTER_PROMPTED';
@@ -203,7 +205,10 @@ export const Feed = () => {
               onPress={navigateToWallet}
               wrapperStyle={bfitStyles}
             />
-            <PlotCard.Calories totalAmount={355} totalAmountAlt={123} />
+            <PlotCard.Calories
+              totalAmount={totalCalories}
+              totalAmountAlt={user?.points_total ?? 0}
+            />
           </StatContainer>
           <CompeteLeagues
             containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
