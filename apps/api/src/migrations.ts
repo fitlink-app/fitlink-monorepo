@@ -89,6 +89,11 @@ import { changeBFITEarnedToBigInt1674744656218 } from '../database/migrations/16
 import { changeBFITClaimedToBigInt1674744806302 } from '../database/migrations/1674744806302-changeBFITClaimedToBigInt'
 import { changeBFITtoBigIntInLeague1674745166201 } from '../database/migrations/1674745166201-changeBFITtoBigIntInLeague'
 import { changeBFITAmountInEarningsAndClaimsToBigInt1674756830719 } from '../database/migrations/1674756830719-changeBFITAmountInEarningsAndClaimsToBigInt'
+import { addedWalletTransactionsEntity1674817445470 } from '../database/migrations/1674817445470-addedWalletTransactionsEntity'
+import { replacedLeagueFieldWithLeagueIdInWalletTransactions1674819355931 } from '../database/migrations/1674819355931-replacedLeagueFieldWithLeagueIdInWalletTransactions'
+import { madeLeagueIdNullableInWalletTransactions1674819995011 } from '../database/migrations/1674819995011-madeLeagueIdNullableInWalletTransactions'
+import { convertUserFieldToUserId1674820498271 } from '../database/migrations/1674820498271-convertUserFieldToUserId'
+import { removedEntitiesFromWalletTransactions1674820950489 } from '../database/migrations/1674820950489-removedEntitiesFromWalletTransactions'
 
 export default [
   InitializeSchema1614887523112,
@@ -176,5 +181,10 @@ export default [
   changeBFITEarnedToBigInt1674744656218,
   changeBFITClaimedToBigInt1674744806302,
   changeBFITtoBigIntInLeague1674745166201,
-  changeBFITAmountInEarningsAndClaimsToBigInt1674756830719
+  changeBFITAmountInEarningsAndClaimsToBigInt1674756830719,
+  addedWalletTransactionsEntity1674817445470,
+  replacedLeagueFieldWithLeagueIdInWalletTransactions1674819355931,
+  madeLeagueIdNullableInWalletTransactions1674819995011,
+  convertUserFieldToUserId1674820498271,
+  removedEntitiesFromWalletTransactions1674820950489
 ]
