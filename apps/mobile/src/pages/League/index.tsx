@@ -130,7 +130,7 @@ export const League = (
   }
 
   const bFitToClaim = memberMe
-    ? memberMe.bfit_earned - memberMe.bfit_claimed
+    ? getViewBfitValue(memberMe.bfit_earned - memberMe.bfit_claimed)
     : undefined;
 
   const claimBfitCallback = () => {
@@ -144,7 +144,7 @@ export const League = (
       <Leaderboard
         leagueId={id}
         isBfit={isBfit}
-        bFitToClaim={getViewBfitValue(bFitToClaim)}
+        bFitToClaim={bFitToClaim}
         bFitEarned={getViewBfitValue(memberMe?.bfit_earned)}
         onClaimPressed={claimBfitCallback}
         isPublic={activeLeague.access === LeagueAccess.Public}
