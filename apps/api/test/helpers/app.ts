@@ -56,6 +56,7 @@ import { UploadGuardV2 } from '../../src/guards/upload-v2.guard'
 import { FirebaseAdminService } from '../../src/modules/notifications/firebase-admin.module'
 import * as admin from 'firebase-admin'
 import { LeagueBfitEarnings } from '../../src/modules/leagues/entities/bfit-earnings.entity'
+import { WalletTransaction } from '../../src/modules/wallet-transactions/entities/wallet-transaction.entity'
 
 export const entities = [
   Activity,
@@ -89,7 +90,8 @@ export const entities = [
   UserRole,
   UsersSetting,
   LeagueBfitClaim,
-  LeagueBfitEarnings
+  LeagueBfitEarnings,
+  WalletTransaction
 ]
 
 export async function mockApp({
