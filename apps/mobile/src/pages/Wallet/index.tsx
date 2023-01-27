@@ -15,18 +15,24 @@ import {useMe, useMeasureInitialLayout, useModal} from '@hooks';
 import {convertBfitToUsd, getViewBfitValue} from '@utils';
 
 import theme from '../../theme/themes/fitlink';
-import {useTransactionHistory, useClaimBfit} from './hooks/';
-import {TransactionUIModel} from './types';
+import {useWalletTransactions} from './hooks/';
 import WalletModal from './components/WalletModal';
 import {
   WalletHeader,
   WalletHistoryCard,
   WalletNotConnectedContent,
 } from './components';
+import {getResultsFromPages} from '../../utils/api';
+import {WalletTransaction} from '@fitlink/api/src/modules/wallet-transactions/entities/wallet-transaction.entity';
 
 const NavbarTitle = () => (
   <View style={{flexDirection: 'row'}}>
-    <Icon name="wallet-solid" size={18} color={theme.colors.accent} />
+    <Icon
+      style={{justifyContent: 'center'}}
+      name="wallet-solid"
+      size={18}
+      color={theme.colors.accent}
+    />
     <WalletLabel>WALLET</WalletLabel>
   </View>
 );
@@ -40,7 +46,15 @@ export const Wallet = () => {
   const {measureInitialLayout, initialLayout: initialNavbarLayout} =
     useMeasureInitialLayout();
   const {data: me} = useMe();
-  const {data: claims} = useClaimBfit();
+  const {
+    refetch,
+    isRefetching,
+    data: transactionsPages,
+    isLoading: isLoadingTransactions,
+    fetchNextPage,
+  } = useWalletTransactions();
+
+  const transactions = getResultsFromPages(transactionsPages);
 
   const bfitAmount = getViewBfitValue(me?.bfit_balance);
   const usdAmount = convertBfitToUsd(bfitAmount);
@@ -53,16 +67,13 @@ export const Wallet = () => {
     openModal(() => <WalletModal.ComingSoon />);
   };
 
-  const {
-    data,
-    refresh,
-    isRefreshing,
-    isLoading: isLoadingTransactions,
-  } = useTransactionHistory();
-
-  const renderItem: ListRenderItem<TransactionUIModel> = ({item}) => (
-    <WalletHistoryCard key={Number(item.date)} {...item} />
+  const renderItem: ListRenderItem<WalletTransaction> = ({item}) => (
+    <WalletHistoryCard key={Number(item.created_at)} {...item} />
   );
+
+  const fetchNextOnEndReached = async () => {
+    await fetchNextPage();
+  };
 
   if (!isConnected) {
     return WalletNotConnectedContent;
@@ -89,14 +100,15 @@ export const Wallet = () => {
         />
         <View style={{paddingTop: initialNavbarLayout.height + 20}}>
           <FlatList
+            onEndReached={fetchNextOnEndReached}
             refreshControl={
               <RefreshControl
                 tintColor={theme.colors.accent}
-                refreshing={isRefreshing}
-                onRefresh={refresh}
+                refreshing={isRefetching}
+                onRefresh={refetch}
               />
             }
-            data={data}
+            data={transactions}
             renderItem={renderItem}
             ListHeaderComponent={
               <WalletHeader

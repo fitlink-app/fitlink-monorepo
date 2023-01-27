@@ -6,3 +6,5 @@ export const SUPPORTED_CURRENCIES = {
   usd: {displayValue: 'USD', symbol: '$', value: 'usd'},
   gbp: {displayValue: 'GBP (coming soon)', symbol: '£', value: 'gbp'},
 } as const;
+
+export const BFIT_DECIMALS = 6;

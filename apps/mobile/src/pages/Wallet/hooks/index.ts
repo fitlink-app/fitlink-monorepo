@@ -1,2 +1,1 @@
-export * from './useClaimBfit';
-export * from './useTransactionHistory';
+export * from './useWalletTransactions';

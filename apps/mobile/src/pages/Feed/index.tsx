@@ -22,6 +22,7 @@ import {
   calculateGoalsPercentage,
   convertBfitToUsd,
   getPersistedData,
+  getViewBfitValue,
   persistData,
 } from '@utils';
 import {saveCurrentToken} from '@api';
@@ -94,6 +95,7 @@ export const Feed = () => {
   } = useRewards({available: true});
 
   const unlockedRewardsEntries = getResultsFromPages(unlockedRewards);
+  const bfitViewValue = getViewBfitValue(user?.bfit_balance);
 
   const promptNewsletterModal = useCallback(async () => {
     const newsletterKey = 'NEWSLETTER_PROMPTED';
@@ -146,10 +148,7 @@ export const Feed = () => {
     saveCurrentToken();
   }, []);
 
-  const totalBfitAmount = useMemo(
-    () => user?.points_total ?? 0,
-    [user?.points_total],
-  );
+  const totalBfitAmount = useMemo(() => bfitViewValue, [bfitViewValue]);
 
   const navigateToWallet = useCallback(
     () => navigation.navigate('Wallet'),
@@ -219,7 +218,7 @@ export const Feed = () => {
             containerStyle={{
               marginBottom: SCREEN_CONTAINER_SPACE - 10 /* card margin */,
             }}
-            userBfit={user!.bfit_balance ?? 0}
+            userBfit={bfitViewValue}
           />
           <UserActivityHistory
             containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}

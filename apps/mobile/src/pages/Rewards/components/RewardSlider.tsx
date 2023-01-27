@@ -12,7 +12,7 @@ import styled, {useTheme} from 'styled-components/native';
 import {RewardPublic} from '@fitlink/api/src/modules/rewards/entities/reward.entity';
 import {RewardCard} from '.';
 import {useNavigation} from '@react-navigation/native';
-import {heightLize, widthLize} from '@utils';
+import {getViewBfitValue, heightLize, widthLize} from '@utils';
 import {FEED_CAROUSEL_CARD_WIDTH} from '../../Feed/constants';
 
 const HeaderContainer = styled.View({
@@ -103,7 +103,9 @@ export const RewardSlider = ({
         expiryDate={new Date(item.reward_expires_at)}
         currentValue={item.bfit_required ? userBfit : userPoints}
         requiredValue={
-          item.bfit_required ? item.bfit_required : item.points_required
+          item.bfit_required
+            ? getViewBfitValue(item.bfit_required)
+            : item.points_required
         }
         onPress={() =>
           navigation.navigate('Reward', {

@@ -31,4 +31,5 @@ export enum QueryKeys {
   Notifications = 'me/notifications',
   UserFeed = 'users/feed',
   BfitClaims = '/leagues/bfit/claims',
+  WalletTransactions = 'wallet-transactions',
 }

@@ -1,9 +1,17 @@
 import React, {FC} from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
+
+import {WalletTransaction} from '@fitlink/api/src/modules/wallet-transactions/entities/wallet-transaction.entity';
+import {getViewBfitValue} from '@utils';
+
 import theme from '../../../theme/themes/fitlink';
-import {TransactionUIModel} from '../types';
-import {formatDate, mapTypeToTitle} from '../utils';
+import {
+  formatDate,
+  getTransactionDescription,
+  getTransactionType,
+  mapTypeToTitle,
+} from '../utils';
 
 const DividerLine = styled.View({
   width: '100%',
@@ -79,14 +87,23 @@ const SDate = styled.Text({
   fontWeight: 400,
 });
 
-export const WalletHistoryCard: FC<TransactionUIModel> = ({
-  type,
-  amount,
-  date,
-  text,
-}) => {
-  const title = mapTypeToTitle(type, amount);
-  const formattedDate = formatDate(date);
+export const WalletHistoryCard: FC<WalletTransaction> = transaction => {
+  const type = getTransactionType(transaction);
+
+  if (!type) {
+    console.warn('Unsupported transaction type');
+    return null;
+  }
+
+  const bfitViewValue = getViewBfitValue(transaction.bfit_amount);
+  const title = mapTypeToTitle(type, bfitViewValue);
+  const formattedDate = formatDate(new Date(transaction.created_at));
+  const description = getTransactionDescription(type, {
+    bfitViewValue,
+    // TODO: use reward_name when it's provided
+    issueName:
+      type === 'claim' ? transaction.league_name! : 'reward_name NOT PROVIDED',
+  });
 
   return (
     <View>
@@ -101,7 +118,7 @@ export const WalletHistoryCard: FC<TransactionUIModel> = ({
           <SDate>{formattedDate}</SDate>
         </STopRow>
         <DividerLine />
-        <SBottomText>{text}</SBottomText>
+        <SBottomText>{description}</SBottomText>
       </SCardWrapper>
     </View>
   );

@@ -208,6 +208,7 @@ export type ListResource =
   | '/leagues/access/compete-to-earn'
   | '/leagues/bfit/claims'
   | '/leagues/bfit/earnings'
+  | '/wallet-transactions'
 
 export type ReadResource =
   | '/organisations/:organisationId'
