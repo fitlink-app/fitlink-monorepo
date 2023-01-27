@@ -55,10 +55,6 @@ export default function RewardForm({
     const [image, setImage] = useState(current?.image?.url || '')
     const [isSuperAdmin, setIsSuperAdmin] = useState(false)
     const isUpdate = !!current.id
-    if (current && current.bfit_required) {
-        current.bfit_required = current.bfit_required / 1000_000
-    }
-
     const { register, handleSubmit, watch, setValue } = useForm({
         defaultValues: getFields(current)
     })
@@ -160,7 +156,7 @@ export default function RewardForm({
                 shortTitle={shortTitle}
                 points={
                     redeem_type === RewardRedeemType.BFIT
-                        ? bfit_required * 1000_000
+                        ? bfit_required
                         : points_required
                 }
                 redeemType={redeem_type}

@@ -139,10 +139,14 @@ export default function page() {
     }
 
     const loadReward = (reward: any) => {
+        const editedReward = { ...reward }
+        if (reward.bfit_required) {
+            editedReward.bfit_required = reward.bfit_required / 1000_000
+        }
         setWarning(true)
         setDrawContent(
             <RewardForm
-                current={reward}
+                current={editedReward}
                 onSave={() => {
                     setRefresh(Date.now())
                     closeDrawer(1000)()
@@ -309,11 +313,13 @@ export default function page() {
                                 <IconPlus />
                             </div>
                         </div>
-                        {sorted.map((r, i) => (
-                            <div className="rewards__wrap" key={`fl-r-${i}`}>
-                                <Reward {...formatReward(r)} onClick={() => loadReward(r)} />
-                            </div>
-                        ))}
+                        {sorted.map((r, i) => {
+                            return (
+                                <div className="rewards__wrap" key={`fl-r-${i}`}>
+                                    <Reward {...formatReward(r)} onClick={() => loadReward(r)} />
+                                </div>
+                            )
+                        })}
                     </div>
                 </>
             )}
@@ -423,7 +429,7 @@ const formatReward = (r: RewardEntity) => {
         expires: r.reward_expires_at,
         points:
             r.redeem_type === RewardRedeemType.BFIT
-                ? r.bfit_required
+                ? r.bfit_required / 1000_000
                 : r.points_required,
         shortTitle: r.name_short,
         code: r.code,

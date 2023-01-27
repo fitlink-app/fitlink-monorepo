@@ -18,6 +18,8 @@ import { UserPointsIncrementedEvent } from '../../users/events/user-points-incre
 import { Events } from '../../../../src/events'
 import { LeagueAccess } from '../leagues.constants'
 import { LeagueBfitEarnings } from '../entities/bfit-earnings.entity'
+import { WalletTransaction } from '../../wallet-transactions/entities/wallet-transaction.entity'
+import { WalletTransactionSource } from '../../wallet-transactions/wallet-transactions.constants'
 
 @Injectable()
 export class HealthActivityCreatedListener {
@@ -34,6 +36,9 @@ export class HealthActivityCreatedListener {
 
     @InjectRepository(LeagueBfitEarnings)
     private leagueBfitEarningsRepository: Repository<LeagueBfitEarnings>,
+
+    @InjectRepository(WalletTransaction)
+    private walletTransactionRepository: Repository<WalletTransaction>,
 
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -179,8 +184,18 @@ export class HealthActivityCreatedListener {
       bfitEarnings.user_id = userId
       bfitEarnings.league_id = league.id
       bfitEarnings.bfit_amount = bfit
+      let savedEarnings = await this.leagueBfitEarningsRepository.save(
+        bfitEarnings
+      )
+      let walletTransaction = new WalletTransaction()
+      walletTransaction.source = WalletTransactionSource.LeagueBfitEarnings
+      walletTransaction.earnings_id = savedEarnings.id
+      walletTransaction.league_id = league.id
+      walletTransaction.league_name = league.name
+      walletTransaction.user_id = userId
+      walletTransaction.bfit_amount = bfit
       incrementEntryPromises.push(
-        this.leagueBfitEarningsRepository.save(bfitEarnings)
+        this.walletTransactionRepository.save(walletTransaction)
       )
     }
 
