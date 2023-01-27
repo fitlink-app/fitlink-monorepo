@@ -2,6 +2,7 @@ import React, {FC} from 'react';
 import styled from 'styled-components/native';
 
 import {Icon, Label, WeeklyEarningsGraph} from '@components';
+import {useWeeklyEarnings} from '@hooks';
 
 import PaddedNumber from 'components/common/numbers/PaddedNumber';
 import theme from 'theme/themes/fitlink';
@@ -50,25 +51,30 @@ export const WalletHeader = ({
   onBuy,
   onSell,
   onStock,
-}: WalletHeaderProps) => (
-  <>
-    <SCentered>
-      <Balance
-        bfitAmount={bfitAmount}
-        onInfoPress={onInfoPress}
-        usdAmount={usdAmount}
-      />
-      <WeeklyEarningsGraph
-        barWidth={8}
-        gapWidth={34}
-        height={70}
-        containerStyle={{marginVertical: 20}}
-      />
-    </SCentered>
-    <WalletActions onBuy={onBuy} onSell={onSell} onStock={onStock} />
-    <SListTitle>TRANSACTION HISTORY</SListTitle>
-  </>
-);
+}: WalletHeaderProps) => {
+  const {weeklyEarnings} = useWeeklyEarnings();
+
+  return (
+    <>
+      <SCentered>
+        <Balance
+          bfitAmount={bfitAmount}
+          onInfoPress={onInfoPress}
+          usdAmount={usdAmount}
+        />
+        <WeeklyEarningsGraph
+          height={70}
+          barWidth={8}
+          gapWidth={34}
+          weeklyEarnings={weeklyEarnings}
+          containerStyle={{marginVertical: 20}}
+        />
+      </SCentered>
+      <WalletActions onBuy={onBuy} onSell={onSell} onStock={onStock} />
+      <SListTitle>TRANSACTION HISTORY</SListTitle>
+    </>
+  );
+};
 
 const SCentered = styled.View({
   alignItems: 'center',
