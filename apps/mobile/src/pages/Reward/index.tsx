@@ -105,8 +105,17 @@ export const Reward = (
           <DetailedProgressBar
             height={10}
             width="100%"
-            currentPoint={user.points_total}
-            requiredPoint={reward.points_required}
+            currentValue={
+              isBfitReward
+                ? getViewBfitValue(user.bfit_balance)
+                : user.points_total
+            }
+            isBfit={isBfitReward}
+            requiredValue={
+              isBfitReward
+                ? getViewBfitValue(reward.bfit_required)
+                : reward.points_required
+            }
             wrapperStyle={styles.progressWrapper}
           />
         )}

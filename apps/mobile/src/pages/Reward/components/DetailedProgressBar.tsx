@@ -4,8 +4,9 @@ import theme from '../../../theme/themes/fitlink';
 import {Icon} from '@components';
 
 interface DetailedProgressBarProps {
-  currentPoint: number;
-  requiredPoint: number;
+  currentValue: number;
+  requiredValue: number;
+  isBfit: boolean;
   height: number;
   width: number | string;
   backgroundColor?: string;
@@ -14,17 +15,21 @@ interface DetailedProgressBarProps {
 }
 
 const DetailedProgressBar: FC<DetailedProgressBarProps> = ({
-  currentPoint,
-  requiredPoint,
+  currentValue,
+  requiredValue,
   height,
   width,
+  isBfit = true,
   wrapperStyle,
   foregroundColor = theme.colors.accent,
   backgroundColor = theme.colors.background,
 }) => {
-  const progress = currentPoint / requiredPoint;
-  const currentBfitText = `${currentPoint} BFIT`;
-  const requiredBfitText = `YOU NEED ${requiredPoint - currentPoint} BFIT`;
+  const progress = currentValue / requiredValue;
+  const remainingValue = requiredValue - currentValue;
+  const currentBfitText = `${currentValue} BFIT`;
+  const requiredBfitText = `YOU NEED ${remainingValue} BFIT`;
+  const currentPointsText = `${currentValue} Points`;
+  const requiredPointsText = `YOU NEED ${remainingValue} Points`;
 
   return (
     <View style={wrapperStyle}>
@@ -55,9 +60,15 @@ const DetailedProgressBar: FC<DetailedProgressBarProps> = ({
             color={theme.colors.text}
             size={18}
           />
-          <Text style={styles.text}>{currentBfitText}</Text>
+          <Text style={styles.text}>
+            {isBfit ? currentBfitText : currentPointsText}
+          </Text>
         </View>
-        <Text style={styles.text}>{requiredBfitText}</Text>
+        {remainingValue > 0 && (
+          <Text style={styles.text}>
+            {isBfit ? requiredBfitText : requiredPointsText}
+          </Text>
+        )}
       </View>
     </View>
   );
