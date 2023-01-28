@@ -64,8 +64,8 @@ export const AnimatedHeaderCard: FC<
   } = useHeaderAnimatedStyles(sharedContentOffset, initialLayout.height);
 
   const onAnimatedContainerLayout = (e: LayoutChangeEvent) => {
-    if (sharedContentOffset.value === 0 && onHeightLayout && !containerHeight) {
-      onHeightLayout(e.nativeEvent.layout.height);
+    if (sharedContentOffset.value === 0 && !containerHeight) {
+      onHeightLayout?.(e.nativeEvent.layout.height);
       setContainerHeight(e.nativeEvent.layout.height);
     }
   };
