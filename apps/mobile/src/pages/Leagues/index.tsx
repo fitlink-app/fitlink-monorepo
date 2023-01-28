@@ -15,7 +15,7 @@ import styled, {useTheme} from 'styled-components/native';
 import {SCREEN_CONTAINER_SPACE} from '@constants';
 import {Label, PlotCard, TabView} from '@components';
 import {useCteLeagues, useMe} from '@hooks';
-import {widthLize} from '@utils';
+import {convertPointsToCalories, widthLize} from '@utils';
 
 import {CteLeagueSlider} from 'components/league/CteLeagueSlider';
 import {getResultsFromPages} from 'utils/api';
@@ -59,6 +59,8 @@ export const Leagues = () => {
 
   const insets = useSafeAreaInsets();
   const {data: me} = useMe({enabled: false});
+
+  const totalCalories = convertPointsToCalories(me?.points_total);
 
   useFocusEffect(
     useCallback(() => {
@@ -127,8 +129,8 @@ export const Leagues = () => {
         <PageTitle>Leagues</PageTitle>
         <PlotCard.Calories
           wrapperStyle={styles.rewardCard}
-          totalAmount={355}
-          totalAmountAlt={123}
+          totalAmount={totalCalories}
+          totalAmountAlt={me?.points_total ?? 0}
         />
         <CteLeagueSlider
           leagues={results}

@@ -9,7 +9,7 @@ import {ActivityIndicator, RefreshControl, ScrollView} from 'react-native';
 import {useScrollToTop} from '@react-navigation/native';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
 import {SCREEN_CONTAINER_SPACE} from '@constants';
-import {widthLize} from '@utils';
+import {convertBfitToUsd, getViewBfitValue, widthLize} from '@utils';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -76,6 +76,7 @@ export const Rewards = () => {
   const isRefreshing =
     isUserRefreshing || isUnlockedRefreshing || isLockedRefreshing;
 
+  const bfitViewValue = getViewBfitValue(user?.bfit_balance);
   const totalRewardsCount =
     unlockedRewardsEntries.length + lockedRewardsEntries.length;
 
@@ -127,8 +128,8 @@ export const Rewards = () => {
         }>
         <PageTitle>REWARDS</PageTitle>
         <PlotCard.BFIT
-          totalAmount={user?.points_total ?? 0}
-          totalAmountAlt={100}
+          totalAmount={bfitViewValue}
+          totalAmountAlt={convertBfitToUsd(bfitViewValue)}
           isLoading={isLoadingUser}
           wrapperStyle={{
             marginHorizontal: widthLize(20),
