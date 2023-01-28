@@ -1,24 +1,20 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  RefreshControl,
-  Text,
-  View,
-  Image,
-} from 'react-native';
-import {useMe, useFeed, useModal} from '@hooks';
+import {ActivityIndicator, FlatList, RefreshControl, View} from 'react-native';
 import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
 import {useSelector} from 'react-redux';
-import {getResultsFromPages} from 'utils/api';
-import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
-import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import styled, {useTheme} from 'styled-components/native';
+
 import {queryClient, QueryKeys} from '@query';
+import {useMe, useFeed, useModal} from '@hooks';
 import {FeedItem, TouchHandler, Modal} from '@components';
+import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
+import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
+
+import {getResultsFromPages} from 'utils/api';
+import theme from '../../theme/themes/fitlink';
 import {Filter} from 'components/feed/FeedFilter/components';
+import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -30,6 +26,27 @@ const SFeedItemSeparator = styled.View({
 
 const ListFooterContainer = styled.View({
   justifyContent: 'flex-end',
+});
+
+const SImage = styled.Image({
+  flex: 1,
+  width: 22,
+  height: 20,
+  resizeMode: 'contain',
+});
+
+const SHeader = styled.View({
+  flexDirection: 'row',
+  paddingTop: 12,
+  marginBottom: 30,
+  justifyContent: 'center',
+});
+
+const SHeaderTitle = styled.Text({
+  color: theme.colors.accent,
+  fontWeight: 500,
+  fontSize: 15,
+  lineHeight: 17.75,
 });
 
 export const ActivityFeed = () => {
@@ -115,30 +132,16 @@ export const ActivityFeed = () => {
 
   return (
     <Wrapper style={{paddingTop: insets.top}}>
-      <View
-        style={{
-          flexDirection: 'row',
-          paddingTop: 12,
-          marginBottom: 30,
-          justifyContent: 'center',
-        }}>
-        <Text
-          style={{
-            color: colors.accent,
-            fontWeight: '600',
-            fontSize: 15,
-            lineHeight: 17.75,
-          }}>
-          FEED
-        </Text>
+      <SHeader>
+        <SHeaderTitle>FEED</SHeaderTitle>
         <TouchHandler
-          style={{position: 'absolute', top: 12, right: 0}}
+          style={{position: 'absolute', top: 10, right: 20}}
           onPress={() => {
             handleFilterPressed();
           }}>
-          <Image source={require('../../../assets/images/filter.png')} />
+          <SImage source={require('../../../assets/images/filter.png')} />
         </TouchHandler>
-      </View>
+      </SHeader>
       <FlatList
         ItemSeparatorComponent={SFeedItemSeparator}
         renderItem={renderItem}
