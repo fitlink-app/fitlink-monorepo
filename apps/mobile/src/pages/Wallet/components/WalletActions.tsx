@@ -47,19 +47,19 @@ const actionStyles = StyleSheet.create({
 interface WalletActionsProps {
   onBuy: () => unknown;
   onSell: () => unknown;
-  onStock: () => unknown;
+  onStake: () => unknown;
 }
 
 export const WalletActions: FC<WalletActionsProps> = ({
   onBuy,
   onSell,
-  onStock,
+  onStake,
 }) => {
   return (
     <ButtonGroup>
       <ActionButton onPress={onBuy} iconName="plus" label="BUY" />
       <ActionButton onPress={onSell} iconName="plus" label="SELL" />
-      <ActionButton onPress={onStock} iconName="plus" label="STOCK" />
+      <ActionButton onPress={onStake} iconName="plus" label="STAKE" />
     </ButtonGroup>
   );
 };
