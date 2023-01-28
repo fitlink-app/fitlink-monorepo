@@ -9,7 +9,7 @@ import {
 } from '@react-navigation/native';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
-import {GoalTracker, Modal, PlotCard, UserWidget} from '@components';
+import {Modal, PlotCard, ProfileHeader} from '@components';
 import {
   useGoals,
   useMe,
@@ -19,7 +19,6 @@ import {
   useRewards,
 } from '@hooks';
 import {
-  calculateGoalsPercentage,
   convertBfitToUsd,
   convertPointsToCalories,
   getPersistedData,
@@ -86,7 +85,7 @@ export const Feed = () => {
   useUpdateIntercomUser();
 
   const {data: user, refetch: refetchUser} = useMe();
-  const {data: goals, refetch: refetchGoals} = useGoals();
+  const {refetch: refetchGoals} = useGoals();
 
   const {
     data: unlockedRewards,
@@ -183,20 +182,7 @@ export const Feed = () => {
               <NotificationsButton count={user.unread_notifications} />
               <SettingsButton />
             </TopButtonRow>
-            <UserWidget
-              goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
-              name={user.name}
-              rank={user.rank}
-              avatar={user.avatar?.url_512x512}
-              friendCount={user.following_total}
-              followerCount={user.followers_total}
-              pointCount={user.points_total}
-              containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
-            />
-            <GoalTracker
-              isLocalUser={true}
-              containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE - 10}}
-            />
+            <ProfileHeader user={user} />
           </HeaderContainer>
           <StatContainer>
             <PlotCard.BFIT

@@ -1,11 +1,25 @@
+import React, {useEffect, useState} from 'react';
+import {
+  ActivityIndicator,
+  RefreshControl,
+  FlatList,
+  View,
+  InteractionManager,
+  Platform,
+  ListRenderItem,
+} from 'react-native';
+import {StackScreenProps} from '@react-navigation/stack';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import styled, {useTheme} from 'styled-components/native';
+import {RootStackParamList} from 'routes/types';
+
 import {
   FeedItem,
-  GoalTracker,
   Icon,
   Label,
   Navbar,
   NAVBAR_HEIGHT,
-  UserWidget,
+  ProfileHeader,
 } from '@components';
 import {
   useFollowUser,
@@ -15,35 +29,17 @@ import {
   useUserFeed,
   useUserGoals,
 } from '@hooks';
-import {StackScreenProps} from '@react-navigation/stack';
-import React, {useEffect, useState} from 'react';
-import {
-  ActivityIndicator,
-  RefreshControl,
-  FlatList,
-  View,
-  InteractionManager,
-  Platform,
-} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import styled, {useTheme} from 'styled-components/native';
-import {RootStackParamList} from 'routes/types';
-import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
-import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
-import {getResultsFromPages} from 'utils/api';
 import {queryClient, QueryKeys} from '@query';
+import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
+import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
 import {PrivacySetting} from '@fitlink/api/src/modules/users-settings/users-settings.constants';
-import {calculateGoalsPercentage, widthLize} from '@utils';
+
+import {getResultsFromPages} from 'utils/api';
+import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
 
 const Wrapper = styled.View({
   flex: 1,
 });
-
-const HeaderContainer = styled.View({
-  paddingHorizontal: 20,
-});
-
-const WidgetContainer = styled.View({marginTop: 10});
 
 const FeedHeaderWrapper = styled.View(({theme: {colors}}) => ({
   flexDirection: 'row',
@@ -91,7 +87,7 @@ export const Profile = (
 
   const feedItems = getResultsFromPages<FeedItemType>(feedData);
 
-  const {data: goals, refetch: refetchGoals} = useUserGoals(id);
+  const {refetch: refetchGoals} = useUserGoals(id);
 
   const {mutate: followUser} = useFollowUser();
   const {mutate: unfollowUser} = useUnfollowUser();
@@ -114,7 +110,6 @@ export const Profile = (
 
   const handleOnRefresh = async () => {
     setIsFetchingManually(true);
-
     queryClient.setQueryData([QueryKeys.UserFeed, id], (data: any) => {
       return {
         pages: data.pages.length ? [data.pages[0]] : data.pages,
@@ -129,27 +124,10 @@ export const Profile = (
     });
   };
 
-  const shouldRenderGoals = () => {
-    if (!user) return false;
-
-    // @ts-ignore
-    switch (user?.privacy_daily_statistics) {
-      case PrivacySetting.Public:
-        return true;
-
-      case PrivacySetting.Private:
-        return false;
-
-      case PrivacySetting.Following:
-        return user.following;
-
-      default:
-        return false;
-    }
-  };
-
   const shouldRenderFeed = () => {
-    if (!user) return false;
+    if (!user) {
+      return false;
+    }
 
     // @ts-ignore
     switch (user?.privacy_activities) {
@@ -183,106 +161,37 @@ export const Profile = (
     />
   );
 
-  const renderFeedItem = ({item}: {item: FeedItemType}) => {
+  const renderFeedItem: ListRenderItem<FeedItemType> = ({item, index}) => {
     const isLiked = !!(item.likes as UserPublic[]).find(
       (feedItemUser: any) => feedItemUser.id === me?.id,
     );
 
     return (
-      <View style={{paddingHorizontal: widthLize(20)}}>
-        <FeedItem
-          key={item.id}
-          item={item}
-          unitSystem={me!.unit_system}
-          isLiked={isLiked}
-        />
-      </View>
+      <FeedItem
+        key={item.id}
+        item={item}
+        unitSystem={me!.unit_system}
+        isLiked={isLiked}
+        index={index}
+      />
     );
   };
 
-  const ListHeaderComponent = !!user ? (
+  const ListHeaderComponent = () => (
     <>
-      <HeaderContainer>
-        <WidgetContainer>
-          <UserWidget
-            goalProgress={goals ? calculateGoalsPercentage(goals) : 0}
-            avatar={user!.avatar?.url_512x512}
-            name={user!.name}
-            rank={user!.rank}
-            friendCount={user!.following_total}
-            followerCount={user!.followers_total}
-            pointCount={user!.points_total}
-          />
-        </WidgetContainer>
-
-        <WidgetContainer>
-          {shouldRenderGoals() && (
-            <GoalTracker
-              isLocalUser={false}
-              trackers={[
-                {
-                  identifier: 'steps',
-                  goal: {
-                    value: goals?.current_steps || 0,
-                    target: goals?.target_steps || 0,
-                  },
-                  icon: 'steps',
-                },
-                {
-                  identifier: 'mindfulness',
-                  goal: {
-                    value: goals?.current_mindfulness_minutes || 0,
-                    target: goals?.target_mindfulness_minutes || 0,
-                  },
-                  icon: 'yoga',
-                },
-                {
-                  identifier: 'water',
-                  goal: {
-                    value: goals?.current_water_litres || 0,
-                    target: goals?.target_water_litres || 0,
-                  },
-                  icon: 'water',
-                },
-                {
-                  identifier: 'sleep',
-                  goal: {
-                    value: goals?.current_sleep_hours || 0,
-                    target: goals?.target_sleep_hours || 0,
-                  },
-                  icon: 'sleep',
-                },
-                {
-                  identifier: 'active_minutes',
-                  goal: {
-                    value: goals?.current_active_minutes || 0,
-                    target: goals?.target_active_minutes || 0,
-                  },
-                  icon: 'stopwatch',
-                },
-                {
-                  identifier: 'floors',
-                  goal: {
-                    value: goals?.current_floors_climbed || 0,
-                    target: goals?.target_floors_climbed || 0,
-                  },
-                  icon: 'stairs',
-                },
-              ]}
-            />
-          )}
-        </WidgetContainer>
-      </HeaderContainer>
-
-      <WidgetContainer>
-        <FeedHeaderWrapper>
-          <Label type={'subheading'} appearance={'primary'}>
-            Recent Activities
-          </Label>
-        </FeedHeaderWrapper>
-      </WidgetContainer>
+      <ProfileHeader
+        user={user}
+        isLocalUser={false}
+        // TODO: temporary not showing goals of user since there is no API
+        showGoals={false}
+      />
+      <FeedHeaderWrapper>
+        <Label type={'subheading'} appearance={'primary'}>
+          Recent Activities
+        </Label>
+      </FeedHeaderWrapper>
     </>
-  ) : null;
+  );
 
   const ListEmptyComponent = () => {
     return (
@@ -315,45 +224,45 @@ export const Profile = (
     </View>
   ) : null;
 
-  const visibleFeedData = shouldRenderFeed() ? feedItems : ([] as any);
+  const visibleFeedData = shouldRenderFeed() ? feedItems : [];
+
+  if (!isUserFetched) {
+    return (
+      <LoadingContainer>
+        <ActivityIndicator color={colors.accent} />
+      </LoadingContainer>
+    );
+  }
 
   return (
     <Wrapper>
-      {isUserFetched ? (
-        <FlatList
-          {...{ListHeaderComponent, ListEmptyComponent, ListFooterComponent}}
-          renderItem={renderFeedItem}
-          data={visibleFeedData}
-          onEndReachedThreshold={0.2}
-          onEndReached={() => fetchFeedNextPage()}
-          refreshControl={
-            <RefreshControl
-              tintColor={colors.accent}
-              refreshing={isFetchingManually}
-              onRefresh={handleOnRefresh}
-            />
-          }
-          contentInset={{
-            top: NAVBAR_HEIGHT + insets.top,
-            bottom: -(NAVBAR_HEIGHT + insets.top),
-          }}
-          contentOffset={{x: 0, y: -(NAVBAR_HEIGHT + insets.top)}}
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingBottom: insets.bottom + 75,
-            paddingTop: Platform.OS === 'ios' ? 0 : NAVBAR_HEIGHT + insets.top,
-          }}
-        />
-      ) : (
-        <LoadingContainer>
-          <ActivityIndicator color={colors.accent} />
-        </LoadingContainer>
-      )}
-
       <Navbar
-        backButtonLabel={'Back'}
         overlay
         rightComponent={isUserFetched ? FollowButton : undefined}
+      />
+      <FlatList
+        {...{ListHeaderComponent, ListEmptyComponent, ListFooterComponent}}
+        renderItem={renderFeedItem}
+        data={visibleFeedData}
+        onEndReachedThreshold={0.2}
+        onEndReached={() => fetchFeedNextPage()}
+        refreshControl={
+          <RefreshControl
+            tintColor={colors.accent}
+            refreshing={isFetchingManually}
+            onRefresh={handleOnRefresh}
+          />
+        }
+        contentInset={{
+          top: NAVBAR_HEIGHT + insets.top,
+          bottom: -(NAVBAR_HEIGHT + insets.top),
+        }}
+        contentOffset={{x: 0, y: -(NAVBAR_HEIGHT + insets.top)}}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: insets.bottom + BOTTOM_TAB_BAR_HEIGHT,
+          paddingTop: Platform.OS === 'ios' ? 10 : NAVBAR_HEIGHT + insets.top,
+        }}
       />
     </Wrapper>
   );
