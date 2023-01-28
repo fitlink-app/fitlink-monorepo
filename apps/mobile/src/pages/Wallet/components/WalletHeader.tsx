@@ -41,7 +41,7 @@ interface WalletHeaderProps {
   onInfoPress: () => unknown;
   onBuy: () => void;
   onSell: () => void;
-  onStock: () => void;
+  onStake: () => void;
 }
 
 export const WalletHeader = ({
@@ -50,7 +50,7 @@ export const WalletHeader = ({
   onInfoPress,
   onBuy,
   onSell,
-  onStock,
+  onStake,
 }: WalletHeaderProps) => {
   const {weeklyEarnings} = useWeeklyEarnings();
 
@@ -70,7 +70,7 @@ export const WalletHeader = ({
           containerStyle={{marginVertical: 20}}
         />
       </SCentered>
-      <WalletActions onBuy={onBuy} onSell={onSell} onStock={onStock} />
+      <WalletActions onBuy={onBuy} onSell={onSell} onStake={onStake} />
       <SListTitle>TRANSACTION HISTORY</SListTitle>
     </>
   );

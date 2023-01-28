@@ -117,7 +117,7 @@ export const Wallet = () => {
                 onInfoPress={openInfoModel}
                 onBuy={openComingSoonModal}
                 onSell={openComingSoonModal}
-                onStock={openComingSoonModal}
+                onStake={openComingSoonModal}
               />
             }
             ItemSeparatorComponent={renderSeparator}
