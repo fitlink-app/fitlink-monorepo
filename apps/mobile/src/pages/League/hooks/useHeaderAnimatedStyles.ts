@@ -85,7 +85,27 @@ export const useHeaderAnimatedStyles = (
     return {marginTop};
   });
 
+  const containerStyle = useAnimatedStyle(() => {
+    const top = interpolate(
+      scrollAnimatedValue.value,
+      [
+        -Number.MAX_SAFE_INTEGER,
+        0,
+        firstScrollAnchor + initialDescriptionHeight,
+        Number.MAX_SAFE_INTEGER,
+      ],
+      [
+        0,
+        0,
+        -(firstScrollAnchor + initialDescriptionHeight),
+        -(firstScrollAnchor + initialDescriptionHeight),
+      ],
+    );
+    return {top};
+  });
+
   return {
+    containerStyle,
     blurSectionStyle,
     imageBackgroundStyle,
     bfitValueContainerStyle,

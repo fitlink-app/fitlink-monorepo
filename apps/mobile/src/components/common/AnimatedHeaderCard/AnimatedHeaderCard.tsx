@@ -1,4 +1,4 @@
-import React, {FC, PropsWithChildren} from 'react';
+import React, {FC, PropsWithChildren, useState} from 'react';
 import Animated from 'react-native-reanimated';
 import {
   LayoutChangeEvent,
@@ -52,49 +52,64 @@ export const AnimatedHeaderCard: FC<
 }) => {
   const {measureInitialLayout, initialLayout} = useMeasureInitialLayout();
 
+  const [containerHeight, setContainerHeight] = useState(0);
+
   const {
     blurSectionStyle,
     imageBackgroundStyle,
     bfitValueContainerStyle,
     bfitValueTextStyle,
     descriptionStyle,
+    containerStyle,
   } = useHeaderAnimatedStyles(sharedContentOffset, initialLayout.height);
 
   const onAnimatedContainerLayout = (e: LayoutChangeEvent) => {
-    if (sharedContentOffset.value === 0 && onHeightLayout) {
+    if (sharedContentOffset.value === 0 && onHeightLayout && !containerHeight) {
       onHeightLayout(e.nativeEvent.layout.height);
+      setContainerHeight(e.nativeEvent.layout.height);
     }
   };
 
   return (
     <Animated.View
-      onLayout={onAnimatedContainerLayout}
-      style={[styles.container, containerStyles]}>
-      <HeaderCardNavbar {...headerProps} />
-      <HeaderCardImageContainer
-        {...imageContainerProps}
-        imageBackgroundStyle={imageBackgroundStyle}
-        blurSectionStyle={blurSectionStyle}
-        animatedContainerStyle={bfitValueContainerStyle}
-        animatedValueStyle={bfitValueTextStyle}
-      />
-      {!!descriptionProps.description && (
-        <HeaderCardDescription
-          {...descriptionProps}
-          descriptionStyle={descriptionStyle}
-          measureInitialLayout={measureInitialLayout}
+      style={[
+        {
+          left: 0,
+          right: 0,
+          zIndex: 5,
+          position: 'absolute',
+          height: containerHeight,
+        },
+        containerStyle,
+      ]}>
+      <Animated.View
+        onLayout={onAnimatedContainerLayout}
+        style={[styles.container, containerStyles]}>
+        <HeaderCardNavbar {...headerProps} />
+        <HeaderCardImageContainer
+          {...imageContainerProps}
+          imageBackgroundStyle={imageBackgroundStyle}
+          blurSectionStyle={blurSectionStyle}
+          animatedContainerStyle={bfitValueContainerStyle}
+          animatedValueStyle={bfitValueTextStyle}
         />
-      )}
-      {children}
+        {!!descriptionProps.description && (
+          <HeaderCardDescription
+            {...descriptionProps}
+            descriptionStyle={descriptionStyle}
+            measureInitialLayout={measureInitialLayout}
+          />
+        )}
+        {children}
+      </Animated.View>
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    zIndex: 5,
     position: 'absolute',
-    top: 0,
+    bottom: 0,
     left: 0,
     right: 0,
     backgroundColor: theme.colors.background,
