@@ -43,6 +43,7 @@ export function useJoinLeague() {
 
       // Mutate League Invitations
       // TODO
+      queryClient.invalidateQueries([QueryKeys.LeagueMembersMe, leagueId]);
     },
   });
 }
