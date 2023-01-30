@@ -73,7 +73,11 @@ export const Reward = (
     ? `Expired on ${expiryDateFormatted}`
     : `${restDays} DAYS LEFT`;
 
-  const isReadyToBuy = user.points_total / reward.points_required === 1;
+  const bfitProgress = user?.bfit_balance ?? 0 / reward.bfit_required;
+  const pointsProgress = user.points_total / reward.points_required;
+  const isReadyToBuy = isBfitReward
+    ? getViewBfitValue(bfitProgress) >= 1
+    : pointsProgress >= 1;
 
   return (
     <Wrapper>
