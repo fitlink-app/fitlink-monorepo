@@ -23,6 +23,12 @@ import {RootStackParamList} from '../../routes/types';
 import {ExploreLeagues, Invitations, MyLeagues} from './tabs';
 import {IRefreshableTabHandle} from './tabs/types';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
+import {
+  selectUserPreferencesByEmail,
+  setUserPreferences,
+} from '../../redux/userPreferences';
+import {useAppDispatch, useAppSelector} from '../../redux/store';
+import {LeaguesTipBannerCard} from './components';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -47,6 +53,7 @@ export const Leagues = () => {
   const {tab} =
     useRoute<RouteProp<RootStackParamList, 'Leagues'>>().params ?? {};
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
 
   const tabViewRef = useRef<any>(null);
   const invitationsTabRef = useRef<IRefreshableTabHandle>(null);
@@ -59,6 +66,9 @@ export const Leagues = () => {
 
   const insets = useSafeAreaInsets();
   const {data: me} = useMe({enabled: false});
+  const userPreferences = useAppSelector(state =>
+    selectUserPreferencesByEmail(state, me?.email),
+  );
 
   const totalCalories = convertPointsToCalories(me?.points_total);
 
@@ -87,13 +97,25 @@ export const Leagues = () => {
   };
 
   const {
-    data,
+    data: c2eLeaguesData,
     isFetchedAfterMount,
     refetch: refetchC2ELeagues,
     fetchNextPage,
   } = useCteLeagues();
+  const c2eLeagues = getResultsFromPages(c2eLeaguesData);
 
-  const results = getResultsFromPages(data);
+  const closeTip = () => {
+    if (me?.email) {
+      dispatch(
+        setUserPreferences({
+          email: me.email,
+          preferences: {
+            showLeaguesTipBanner: false,
+          },
+        }),
+      );
+    }
+  };
 
   const refresh = async () => {
     try {
@@ -132,8 +154,13 @@ export const Leagues = () => {
           totalAmount={totalCalories}
           totalAmountAlt={me?.points_total ?? 0}
         />
+        <LeaguesTipBannerCard
+          onClose={closeTip}
+          isOpen={userPreferences?.showLeaguesTipBanner ?? false}
+        />
         <CteLeagueSlider
-          leagues={results}
+          key="leagues-c2e-slider"
+          leagues={c2eLeagues}
           onCardPress={(id, league) =>
             navigation.navigate('League', {id, league})
           }
@@ -141,6 +168,7 @@ export const Leagues = () => {
           style={{marginBottom: SCREEN_CONTAINER_SPACE}}
         />
         <TabView
+          key="leagues-tabs"
           ref={tabViewRef}
           routes={[
             {key: 'my_leagues', title: 'My Leagues'},

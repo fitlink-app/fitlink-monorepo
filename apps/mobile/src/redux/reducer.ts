@@ -5,6 +5,7 @@ import discoverSlice from './discover/discoverSlice';
 import feedPreferencesSlice from './feedPreferences/feedPreferencesSlice';
 import settingsSlice from './settings/settingsSlice';
 import teamInvitationSlice from './teamInvitation/teamInvitationSlice';
+import userPreferences from './userPreferences';
 
 const appReducer = combineReducers({
   auth: authSlice,
@@ -12,6 +13,7 @@ const appReducer = combineReducers({
   discover: discoverSlice,
   settings: settingsSlice,
   teamInvitation: teamInvitationSlice,
+  userPreferences: userPreferences,
 });
 
 const rootReducer = (
