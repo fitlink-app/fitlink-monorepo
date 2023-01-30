@@ -892,7 +892,6 @@ export class LeaguesService {
       .skip(options.page * options.limit)
 
     const [results, total] = await query.getManyAndCount()
-
     return new Pagination<LeaderboardEntry & { user: UserPublic }>({
       results: results.map(this.getLeaderboardEntryPublic),
       total
@@ -925,7 +924,7 @@ export class LeaguesService {
       )
     const result = await query.getOne()
 
-    return this.getLeaderboardEntryPublic(result)
+    return result ? this.getLeaderboardEntryPublic(result) : null
   }
 
   async getLeagueIfInvited(leagueId: string, userId: string) {

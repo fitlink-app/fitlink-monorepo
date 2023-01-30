@@ -84,6 +84,7 @@ export const League = (
 
   const {data: memberMe, refetch: refetchMemberMe} = useLeagueMembersMe(
     activeLeague.id,
+    activeLeague.participating,
   );
 
   const {mutateAsync: claimBfit} = useClaimLeagueBfit();
@@ -131,7 +132,7 @@ export const League = (
 
   const bFitToClaim = memberMe
     ? getViewBfitValue(memberMe.bfit_earned - memberMe.bfit_claimed)
-    : undefined;
+    : 0;
 
   const claimBfitCallback = () => {
     if (memberMe && bFitToClaim && league) {

@@ -496,10 +496,15 @@ export class LeaguesController {
       }
     }
 
-    return this.leaguesService.getLeaderboardMemberByUserId(
+    const leaderboardEntry = await this.leaguesService.getLeaderboardMemberByUserId(
       leagueId,
       authUser.id
     )
+
+    if (!leaderboardEntry) {
+      throw new NotFoundException('User isn\'t member yet')
+    }
+    return leaderboardEntry
   }
 
   /**
