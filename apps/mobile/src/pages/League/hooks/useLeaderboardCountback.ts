@@ -35,9 +35,11 @@ export const useLeaderboardCountback = ({
         : interval && clearInterval(interval);
     };
 
+    updateTimeRemaining();
     const interval = setInterval(() => {
       updateTimeRemaining(interval);
     }, 1000 * 30);
+
     return () => clearInterval(interval);
   }, [date, repeat]);
 
