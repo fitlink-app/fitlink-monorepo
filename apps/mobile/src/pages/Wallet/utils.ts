@@ -42,11 +42,9 @@ export function getTransactionDescription(
   replacement: DescriptionReplacements,
 ) {
   if (type === 'claim') {
-    return `You Claimed ${replacement.bfitViewValue} BFIT\n
-            Congrats! You claimed ${replacement.bfitViewValue} BFIT from the ${replacement.issueName}`;
+    return `Congrats! You claimed ${replacement.bfitViewValue} BFIT from the ${replacement.issueName}`;
   }
   if (type === 'spend') {
-    return `You Spent ${replacement.bfitViewValue} BFIT\n
-            Nice One! You spent ${replacement.bfitViewValue} BFIT on ${replacement.issueName}`;
+    return `Nice One! You spent ${replacement.bfitViewValue} BFIT on ${replacement.issueName}`;
   }
 }

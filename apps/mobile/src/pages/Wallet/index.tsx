@@ -11,7 +11,12 @@ import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import styled, {useTheme} from 'styled-components/native';
 
 import {Icon, Label, Navbar} from '@components';
-import {useMe, useMeasureInitialLayout, useModal} from '@hooks';
+import {
+  useManualQueryRefresh,
+  useMe,
+  useMeasureInitialLayout,
+  useModal,
+} from '@hooks';
 import {convertBfitToUsd, getViewBfitValue} from '@utils';
 
 import theme from '../../theme/themes/fitlink';
@@ -48,11 +53,13 @@ export const Wallet = () => {
   const {data: me} = useMe();
   const {
     refetch,
-    isRefetching,
     data: transactionsPages,
     isLoading: isLoadingTransactions,
     fetchNextPage,
   } = useWalletTransactions();
+
+  const {refresh, isRefreshing: isManuallyRefreshing} =
+    useManualQueryRefresh(refetch);
 
   const transactions = getResultsFromPages(transactionsPages);
 
@@ -104,8 +111,8 @@ export const Wallet = () => {
             refreshControl={
               <RefreshControl
                 tintColor={theme.colors.accent}
-                refreshing={isRefetching}
-                onRefresh={refetch}
+                refreshing={isManuallyRefreshing}
+                onRefresh={refresh}
               />
             }
             data={transactions}
