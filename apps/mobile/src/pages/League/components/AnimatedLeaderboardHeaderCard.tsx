@@ -21,7 +21,7 @@ interface IAnimatedLeaderboardHeaderCardProps {
   leagueId: string;
   isPublic: boolean;
   bFitToClaim?: number;
-  bFitEarned?: number;
+  bfit?: number;
   isCteLeague?: boolean;
   handleOnEditPressed: () => void;
   onClaimPressed?: () => void;
@@ -39,7 +39,7 @@ const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardProps> =
     imageSource,
     memberCount,
     bFitToClaim,
-    bFitEarned,
+    bfit,
     title,
     resetDate,
     repeat,
@@ -91,7 +91,7 @@ const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardProps> =
           p1: `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`,
           p2: title,
           p3: countback,
-          animatedValue: `${bFitEarned} BFIT`,
+          animatedValue: isCteLeague ? `${bfit} BFIT` : undefined,
         }}
         descriptionProps={{
           description,

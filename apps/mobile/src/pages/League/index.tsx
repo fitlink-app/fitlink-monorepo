@@ -146,7 +146,7 @@ export const League = (
         leagueId={id}
         isBfit={isBfit}
         bFitToClaim={bFitToClaim}
-        bFitEarned={getViewBfitValue(memberMe?.bfit_earned)}
+        bfit={getViewBfitValue(activeLeague.bfit)}
         onClaimPressed={claimBfitCallback}
         isPublic={activeLeague.access === LeagueAccess.Public}
         imageUri={activeLeague?.image.url_640x360}

@@ -23,7 +23,7 @@ export interface IHeaderCardImageContainerProps {
   p1: string;
   p2: string;
   p3?: string | null;
-  animatedValue?: string;
+  animatedValue?: string | null;
   onAnimatedValuePress?: () => unknown;
 }
 

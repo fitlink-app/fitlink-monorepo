@@ -35,7 +35,7 @@ export interface LeaderboardProps
   title: string;
   memberCount: number;
   bFitToClaim?: number;
-  bFitEarned?: number;
+  bfit?: number;
   onClaimPressed?: () => void;
   endDate: Date;
   membership: 'none' | 'member' | 'owner';
@@ -55,7 +55,7 @@ export const Leaderboard = ({
   refreshing,
   isRepeat,
   bFitToClaim,
-  bFitEarned,
+  bfit,
   title,
   memberCount,
   endDate,
@@ -112,7 +112,7 @@ export const Leaderboard = ({
         imageSource={{uri: imageUri}}
         sharedContentOffset={sharedContentOffset}
         bFitToClaim={bFitToClaim}
-        bFitEarned={bFitEarned}
+        bfit={bfit}
         onClaimPressed={onClaimPressed}
         onHeightMeasure={setHeaderHeight}
         handleOnEditPressed={onEditPressed}
