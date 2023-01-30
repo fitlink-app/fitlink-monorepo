@@ -18,6 +18,7 @@ export function useClaimLeagueBfit() {
         queryClient.invalidateQueries([QueryKeys.LeagueMembersMe, leagueId]);
         queryClient.invalidateQueries([QueryKeys.League, leagueId]);
         queryClient.invalidateQueries(QueryKeys.CteLeagues);
+        queryClient.invalidateQueries(QueryKeys.Me);
       },
     },
   );
