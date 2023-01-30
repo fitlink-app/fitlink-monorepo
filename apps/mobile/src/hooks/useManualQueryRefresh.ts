@@ -1,6 +1,6 @@
 import {useState} from 'react';
 
-// Use to wrap refetch from useQuery
+// Use to wrap refetch from useQuery (avoid jerky behaviour when passing to RefreshControl)
 // Issues:
 // - https://github.com/TanStack/query/issues/2380
 // - https://github.com/facebook/react-native/issues/32836
