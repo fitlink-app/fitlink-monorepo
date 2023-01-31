@@ -4,10 +4,12 @@ import {ActionButton} from './ActionButton';
 import {ImageSourcePropType, StyleSheet, View} from 'react-native';
 import {useLeagueMenuModal} from '../hooks/useLeagueMenuModal';
 import {useNavigation} from '@react-navigation/core';
-import {useJoinLeague, useLeaveLeague} from '@hooks';
+import {useJoinLeague, useLeaveLeague, useModal} from '@hooks';
 import {useLeaderboardCountback} from '../hooks/useLeaderboardCountback';
 import AnimatedHeaderCard from '../../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
 import Animated from 'react-native-reanimated';
+import {MaxedOutBanner} from './MaxedOutBanner';
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
 interface IAnimatedLeaderboardHeaderCardProps {
   imageSource: ImageSourcePropType;
@@ -49,17 +51,27 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
   }) => {
     const navigation = useNavigation();
 
-    const isMember = membership !== 'none';
-
     const {mutateAsync: joinLeague} = useJoinLeague();
     const {mutateAsync: leaveLeague} = useLeaveLeague();
+    const {openModal} = useModal();
+
+    const isMember = membership !== 'none';
 
     const handleOnInvitePressed = () => {
       navigation.navigate('LeagueInviteFriends', {leagueId});
     };
 
-    const handleOnJoinPressed = () => {
-      joinLeague(leagueId);
+    const openMaxedOutModal = () => {
+      openModal(() => <MaxedOutBanner />);
+    };
+
+    const handleOnJoinPressed = async () => {
+      try {
+        await joinLeague(leagueId);
+      } catch (e) {
+        // TODO: use when error code is provided
+        openMaxedOutModal();
+      }
     };
 
     const handleOnLeavePressed = () => {
@@ -80,35 +92,37 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     });
 
     return (
-      <AnimatedHeaderCard
-        headerProps={{
-          title: 'LEAGUE',
-          onNavbarRightPress: handleOnMenuPressed,
-          isNavbarRightVisible: true,
-        }}
-        imageContainerProps={{
-          imageSource,
-          p1: `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`,
-          p2: title,
-          p3: countback,
-          animatedValue: isCteLeague ? `${bfit} BFIT` : undefined,
-        }}
-        descriptionProps={{
-          description,
-        }}
-        onHeightLayout={onHeightLayout}
-        sharedContentOffset={sharedContentOffset}>
-        <View style={styles.subheader}>
-          <Label style={styles.subheaderLabel}>LEADERBOARD</Label>
-          <ActionButton
-            isMember={isMember}
-            isCteLeague={isCteLeague}
-            handleOnJoinPressed={handleOnJoinPressed}
-            handleClaimBfitPressed={onClaimPressed}
-            bfitValue={bFitToClaim}
-          />
-        </View>
-      </AnimatedHeaderCard>
+      <BottomSheetModalProvider>
+        <AnimatedHeaderCard
+          headerProps={{
+            title: 'LEAGUE',
+            onNavbarRightPress: handleOnMenuPressed,
+            isNavbarRightVisible: true,
+          }}
+          imageContainerProps={{
+            imageSource,
+            p1: `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`,
+            p2: title,
+            p3: countback,
+            animatedValue: isCteLeague ? `${bfit} BFIT` : undefined,
+          }}
+          descriptionProps={{
+            description,
+          }}
+          onHeightLayout={onHeightLayout}
+          sharedContentOffset={sharedContentOffset}>
+          <View style={styles.subheader}>
+            <Label style={styles.subheaderLabel}>LEADERBOARD</Label>
+            <ActionButton
+              isMember={isMember}
+              isCteLeague={isCteLeague}
+              handleOnJoinPressed={handleOnJoinPressed}
+              handleClaimBfitPressed={onClaimPressed}
+              bfitValue={bFitToClaim}
+            />
+          </View>
+        </AnimatedHeaderCard>
+      </BottomSheetModalProvider>
     );
   };
 
