@@ -94,6 +94,7 @@ import { replacedLeagueFieldWithLeagueIdInWalletTransactions1674819355931 } from
 import { madeLeagueIdNullableInWalletTransactions1674819995011 } from '../database/migrations/1674819995011-madeLeagueIdNullableInWalletTransactions'
 import { convertUserFieldToUserId1674820498271 } from '../database/migrations/1674820498271-convertUserFieldToUserId'
 import { removedEntitiesFromWalletTransactions1674820950489 } from '../database/migrations/1674820950489-removedEntitiesFromWalletTransactions'
+import { addedRewardNameColumnToWalletTransactions1675189321618 } from '../database/migrations/1675189321618-addedRewardNameColumnToWalletTransactions'
 
 export default [
   InitializeSchema1614887523112,
@@ -186,5 +187,6 @@ export default [
   replacedLeagueFieldWithLeagueIdInWalletTransactions1674819355931,
   madeLeagueIdNullableInWalletTransactions1674819995011,
   convertUserFieldToUserId1674820498271,
-  removedEntitiesFromWalletTransactions1674820950489
+  removedEntitiesFromWalletTransactions1674820950489,
+  addedRewardNameColumnToWalletTransactions1675189321618
 ]

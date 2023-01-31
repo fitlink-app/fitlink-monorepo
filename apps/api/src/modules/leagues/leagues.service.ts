@@ -45,6 +45,8 @@ import { LeagueBfitClaim } from './entities/bfit-claim.entity'
 import { ClaimLeagueBfitDto } from './dto/claim-league-bfit.dto'
 import { LeagueFilter } from 'apps/api-sdk/types'
 import { LeagueBfitEarnings } from './entities/bfit-earnings.entity'
+import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
+import { WalletTransactionSource } from '../wallet-transactions/wallet-transactions.constants'
 
 type LeagueOptions = {
   teamId?: string
@@ -63,6 +65,9 @@ export class LeaguesService {
 
     @InjectRepository(LeaderboardEntry)
     private leaderboardEntryRepository: Repository<LeaderboardEntry>,
+
+    @InjectRepository(WalletTransaction)
+    private walletTransactionRepository: Repository<WalletTransaction>,
 
     @InjectRepository(LeagueBfitClaim)
     private leagueBfitClaimRepository: Repository<LeagueBfitClaim>,
@@ -183,12 +188,31 @@ export class LeaguesService {
     if (!league) {
       throw new NotFoundException(`League with ID ${leagueId} not found`)
     }
+
+    const leaderboardEntry = await this.leaderboardEntryRepository.findOne({
+      leaderboard: { id: league.active_leaderboard.id },
+      user: { id: userId }
+    })
+    if (!leaderboardEntry) {
+      throw new NotFoundException('Leaderboard entry not found')
+    }
+
     if (league.access !== LeagueAccess.CompeteToEarn) {
-      throw new NotFoundException(
+      throw new BadRequestException(
         'The provided league is not a compete to ear league'
       )
     }
-
+    console.log(leaderboardEntry)
+    const claimableBfit =
+      leaderboardEntry.bfit_earned - leaderboardEntry.bfit_claimed
+    console.log(claimableBfit)
+    if (claimableBfit < claimLeagueBfitDto.amount) {
+      throw new BadRequestException(
+        `You have not earned enough bfit in this league to claim ${
+          claimLeagueBfitDto.amount / 1000_000
+        } BFIT`
+      )
+    }
     const leagueBfitClaim = new LeagueBfitClaim()
     leagueBfitClaim.league_id = leagueId
     leagueBfitClaim.user_id = userId
@@ -204,7 +228,7 @@ export class LeaguesService {
       },
 
       'bfit_claimed',
-      claimLeagueBfitDto.amount * 1000_000
+      claimLeagueBfitDto.amount
     )
     // update user bfit balance
     await this.userRepository.increment(
@@ -213,8 +237,17 @@ export class LeaguesService {
       },
 
       'bfit_balance',
-      claimLeagueBfitDto.amount * 1000_000
+      claimLeagueBfitDto.amount
     )
+
+    let walletTransaction = new WalletTransaction()
+    walletTransaction.source = WalletTransactionSource.LeagueBfitClaim
+    walletTransaction.claim_id = createdClaim.id
+    walletTransaction.league_id = league.id
+    walletTransaction.league_name = league.name
+    walletTransaction.user_id = userId
+    walletTransaction.bfit_amount = claimLeagueBfitDto.amount
+    await this.walletTransactionRepository.save(walletTransaction)
     return createdClaim
   }
 
@@ -669,10 +702,16 @@ export class LeaguesService {
     if (await this.isParticipant(leagueId, userId)) {
       throw new BadRequestException('You have already joined this league')
     }
-    let isCompeteToEarn = await this.leaguesRepository.findOne({
-      id: leagueId,
-      access: LeagueAccess.CompeteToEarn
-    })
+
+    let isCompeteToEarn = await this.leaguesRepository.findOne(
+      {
+        id: leagueId,
+        access: LeagueAccess.CompeteToEarn
+      },
+      {
+        relations: ['sport']
+      }
+    )
     // check if the user has already joined more than 3 leagues
     if (isCompeteToEarn) {
       const query = this.queryFindAccessibleToUser(userId, {

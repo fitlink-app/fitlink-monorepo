@@ -20,6 +20,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RewardClaimedEvent } from './events/reward-claimed.event'
 import { Events } from '../../events'
 import { FeedItem } from '../feed-items/entities/feed-item.entity'
+import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
+import { WalletTransactionSource } from '../wallet-transactions/wallet-transactions.constants'
 
 type EntityOwner = {
   organisationId?: string
@@ -54,6 +56,8 @@ export class RewardsService {
     private rewardsRepository: Repository<Reward>,
     @InjectRepository(RewardsRedemption)
     private rewardsRedemptionRepository: Repository<RewardsRedemption>,
+    @InjectRepository(WalletTransaction)
+    private walletTransactionRepository: Repository<WalletTransaction>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private eventEmitter: EventEmitter2
@@ -644,7 +648,7 @@ export class RewardsService {
 
     if (
       reward.redeem_type === RewardRedeemType.BFIT &&
-      user.points_total < reward.points_required
+      user.bfit_balance < reward.bfit_required
     ) {
       return 'insufficient bfit'
     }
@@ -674,6 +678,14 @@ export class RewardsService {
             'bfit_balance',
             reward.bfit_required
           )
+
+          let walletTransaction = new WalletTransaction()
+          walletTransaction.source = WalletTransactionSource.RewardRedemption
+          walletTransaction.reward_redemption_id = result.id
+          walletTransaction.reward_name = reward.name
+          walletTransaction.user_id = userId
+          walletTransaction.bfit_amount = reward.bfit_required
+          await this.walletTransactionRepository.save(walletTransaction)
         }
 
         await rewardRepository.increment({ id: reward.id }, 'redeemed_count', 1)
