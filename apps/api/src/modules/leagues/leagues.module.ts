@@ -22,6 +22,7 @@ import { NotificationsModule } from '../notifications/notifications.module'
 import { LeagueBfitClaim } from './entities/bfit-claim.entity'
 import { LeagueBfitEarnings } from './entities/bfit-earnings.entity'
 import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
+import { WalletTransactionsModule } from '../wallet-transactions/wallet-transactions.module'
 
 @Module({
   imports: [
