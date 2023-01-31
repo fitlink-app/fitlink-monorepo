@@ -20,7 +20,6 @@ import {
 } from '@hooks';
 import {
   convertBfitToUsd,
-  convertPointsToCalories,
   getPersistedData,
   getViewBfitValue,
   persistData,
@@ -96,7 +95,6 @@ export const Feed = () => {
 
   const unlockedRewardsEntries = getResultsFromPages(unlockedRewards);
   const bfitViewValue = getViewBfitValue(user?.bfit_balance);
-  const totalCalories = convertPointsToCalories(user?.points_total);
 
   const promptNewsletterModal = useCallback(async () => {
     const newsletterKey = 'NEWSLETTER_PROMPTED';
@@ -190,10 +188,6 @@ export const Feed = () => {
               totalAmountAlt={convertBfitToUsd(totalBfitAmount)}
               onPress={navigateToWallet}
               wrapperStyle={bfitStyles}
-            />
-            <PlotCard.Calories
-              totalAmount={totalCalories}
-              totalAmountAlt={user?.points_total ?? 0}
             />
           </StatContainer>
           <CompeteLeagues
