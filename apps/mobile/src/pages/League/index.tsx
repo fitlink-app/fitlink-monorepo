@@ -1,11 +1,3 @@
-import {Navbar} from '@components';
-import {
-  useLeague,
-  useLeagueMembers,
-  useLeagueMembersMe,
-  useMe,
-  useRank,
-} from '@hooks';
 import {StackScreenProps} from '@react-navigation/stack';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
@@ -16,13 +8,25 @@ import {
 } from 'react-native';
 import {RootStackParamList} from 'routes/types';
 import styled, {useTheme} from 'styled-components/native';
-import {Leaderboard} from './components/Leaderboard';
-import {League as LeagueType} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
-import {LeagueAccess} from '@fitlink/api/src/modules/leagues/leagues.constants';
-import {useClaimLeagueBfit} from 'hooks/api/leagues/useClaimLeagueBfit';
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+
 import {getViewBfitValue} from '@utils';
+import {Navbar} from '@components';
+import {
+  useLeague,
+  useLeagueMembers,
+  useLeagueMembersMe,
+  useMe,
+  useModal,
+  useRank,
+} from '@hooks';
+import {League as LeagueType} from '@fitlink/api/src/modules/leagues/entities/league.entity';
+import {LeagueAccess} from '@fitlink/api/src/modules/leagues/leagues.constants';
+
+import {Leaderboard, MaxedOutBanner} from './components';
+import {useClaimLeagueBfit} from 'hooks/api/leagues/useClaimLeagueBfit';
 
 const HEADER_HEIGHT = 300;
 
@@ -48,6 +52,8 @@ export const League = (
   const {league, id} = props.route.params;
 
   const [areInteractionsDone, setInteractionsDone] = useState(false);
+
+  const {openModal} = useModal();
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -101,6 +107,11 @@ export const League = (
     }
   }, [scrollValue]);
 
+  // TODO: use when error code is provided
+  const openMaxedOutModal = () => {
+    openModal(() => <MaxedOutBanner />);
+  };
+
   const handleScroll = (e: any) => {
     const {layoutMeasurement, contentOffset, contentSize} = e;
     const paddingToBottom = 0;
@@ -141,69 +152,71 @@ export const League = (
   };
 
   return (
-    <Wrapper>
-      <Leaderboard
-        leagueId={id}
-        isBfit={isBfit}
-        bFitToClaim={bFitToClaim}
-        bfit={getViewBfitValue(activeLeague.bfit)}
-        onClaimPressed={claimBfitCallback}
-        isPublic={activeLeague.access === LeagueAccess.Public}
-        imageUri={activeLeague?.image.url_640x360}
-        fetchingNextPage={isFetchingMembersNextPage}
-        isRepeat={activeLeague.repeat}
-        title={activeLeague.name}
-        memberCount={activeLeague.participants_total}
-        endDate={activeLeague.ends_at}
-        hasNextPage={!!membersHasNextPage}
-        fetchNextPage={() => membersHasNextPage && fetchMoreMembers()}
-        isLoaded={areMembersFetchedAfterMount || !!members?.length}
-        description={activeLeague.description}
-        // @ts-ignore
-        data={members}
-        flanksData={[...(flanksData?.results || [])].reverse()}
-        userId={user!.id}
-        refreshing={
-          (isFetchingLeague && isLeagueFetchedAfterMount) ||
-          (isFetchingMembers &&
-            areMembersFetchedAfterMount &&
-            !isFetchingMembersNextPage)
-        }
-        onRefresh={refreshLeaderboard}
-        membership={
-          activeLeague.participating
-            ? activeLeague.is_owner
-              ? 'owner'
-              : 'member'
-            : 'none'
-        }
-        style={{flex: 1}}
-        contentContainerStyle={{
-          paddingBottom: insets.bottom,
-          paddingTop: Platform.OS === 'ios' ? 20 : HEADER_HEIGHT + 20,
-        }}
-        contentInset={{top: HEADER_HEIGHT}}
-        contentOffset={{x: 0, y: -HEADER_HEIGHT}}
-        automaticallyAdjustContentInsets={false}
-        initialNumToRender={25}
-        onScroll={({nativeEvent}: any) => handleScroll(nativeEvent)}
-        scrollEventThrottle={16}
-        onEditPressed={() => {
-          navigation.navigate('LeagueForm', {
-            data: {
-              id,
-              dto: {
-                name: activeLeague.name,
-                description: activeLeague.description,
-                duration: activeLeague.duration,
-                repeat: activeLeague.repeat,
-                sportId: activeLeague.sport.id,
+    <BottomSheetModalProvider>
+      <Wrapper>
+        <Leaderboard
+          leagueId={id}
+          isBfit={isBfit}
+          bFitToClaim={bFitToClaim}
+          bfit={getViewBfitValue(activeLeague.bfit)}
+          onClaimPressed={claimBfitCallback}
+          isPublic={activeLeague.access === LeagueAccess.Public}
+          imageUri={activeLeague?.image.url_640x360}
+          fetchingNextPage={isFetchingMembersNextPage}
+          isRepeat={activeLeague.repeat}
+          title={activeLeague.name}
+          memberCount={activeLeague.participants_total}
+          endDate={activeLeague.ends_at}
+          hasNextPage={!!membersHasNextPage}
+          fetchNextPage={() => membersHasNextPage && fetchMoreMembers()}
+          isLoaded={areMembersFetchedAfterMount || !!members?.length}
+          description={activeLeague.description}
+          // @ts-ignore
+          data={members}
+          flanksData={[...(flanksData?.results || [])].reverse()}
+          userId={user!.id}
+          refreshing={
+            (isFetchingLeague && isLeagueFetchedAfterMount) ||
+            (isFetchingMembers &&
+              areMembersFetchedAfterMount &&
+              !isFetchingMembersNextPage)
+          }
+          onRefresh={refreshLeaderboard}
+          membership={
+            activeLeague.participating
+              ? activeLeague.is_owner
+                ? 'owner'
+                : 'member'
+              : 'none'
+          }
+          style={{flex: 1}}
+          contentContainerStyle={{
+            paddingBottom: insets.bottom,
+            paddingTop: Platform.OS === 'ios' ? 20 : HEADER_HEIGHT + 20,
+          }}
+          contentInset={{top: HEADER_HEIGHT}}
+          contentOffset={{x: 0, y: -HEADER_HEIGHT}}
+          automaticallyAdjustContentInsets={false}
+          initialNumToRender={25}
+          onScroll={({nativeEvent}: any) => handleScroll(nativeEvent)}
+          scrollEventThrottle={16}
+          onEditPressed={() => {
+            navigation.navigate('LeagueForm', {
+              data: {
+                id,
+                dto: {
+                  name: activeLeague.name,
+                  description: activeLeague.description,
+                  duration: activeLeague.duration,
+                  repeat: activeLeague.repeat,
+                  sportId: activeLeague.sport.id,
+                },
+                imageUrl: activeLeague.image.url_640x360,
               },
-              imageUrl: activeLeague.image.url_640x360,
-            },
-          });
-        }}
-      />
-    </Wrapper>
+            });
+          }}
+        />
+      </Wrapper>
+    </BottomSheetModalProvider>
   );
 };

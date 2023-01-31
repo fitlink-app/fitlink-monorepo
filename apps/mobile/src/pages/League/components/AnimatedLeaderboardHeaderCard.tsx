@@ -28,7 +28,7 @@ interface IAnimatedLeaderboardHeaderCardProps {
   sharedContentOffset: Animated.SharedValue<number>;
 }
 
-const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardProps> =
+export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardProps> =
   ({
     leagueId,
     membership,
