@@ -714,6 +714,28 @@ export class LeaguesService {
     )
     // check if the user has already joined more than 3 leagues
     if (isCompeteToEarn) {
+      // check if the user has joined the maximum number of c2e leagues with the same sport id,
+      // it should be a maximum of 3
+      const sameSportCount = await this.leaguesRepository
+        .createQueryBuilder('league')
+        .innerJoin('league.users', 'user')
+        .innerJoin('league.sport', 'sport')
+        .where(
+          'user.id = :userId AND sport.id = :sportId AND access = :leagueAccess',
+          {
+            userId,
+            leagueId,
+            sportId: isCompeteToEarn.sport.id,
+            leagueAccess: LeagueAccess.CompeteToEarn
+          }
+        )
+        .getCount()
+      if (sameSportCount >= 1) {
+        throw new BadRequestException(
+          'You can only join one sport type of a compete to earn league i.e. 1 x swim, 1 x cycle and 1 run'
+        )
+      }
+
       const query = this.queryFindAccessibleToUser(userId, {
         isCte: true
       }).where('leagueUser.id = :userId', { userId })
