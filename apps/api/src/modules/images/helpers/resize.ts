@@ -27,21 +27,33 @@ export type ResizedImage = {
  * @param fit one of 'contain', 'cover', 'fill', 'inside', 'outside' (https://sharp.pixelplumbing.com/api-resize#resize)
  * @param format optional arg for overriding output format (defaults to 'jpeg')
  */
-export const resizeFromBuffer = (
+export const resizeFromBuffer = async (
   source: Buffer,
   size: ImageSize,
   fit: keyof FitEnum,
   format: OutputFormat = 'jpeg'
-): Promise<Buffer> => {
-  let width = size[0]
+) => {
+  const width = size[0]
   let height = size[1]
-  let options = { fit }
+  const options = { fit }
+
   if (height === 0) {
     height = null
   }
-  const imageProcess = sharp(source).resize(width, height, options).rotate()
-  imageProcess.toFormat(format)
+
+  const sharpImage = sharp(source)
+
+  const metadata = await sharpImage.metadata()
+
+  const imageProcess = sharpImage.resize(width, height, options).rotate()
+
+  const imageFormat =
+    metadata.hasAlpha || metadata.format === 'png' ? 'png' : format
+
+  imageProcess.toFormat(imageFormat)
+
+  const buffer = await imageProcess.toBuffer()
 
   // Write output to a Buffer. JPEG, PNG, WebP, TIFF and RAW output are supported.
-  return imageProcess.toBuffer()
+  return { buffer, format: imageFormat }
 }

@@ -118,12 +118,12 @@ export class ImagesService {
     const variants = await Promise.all(
       uploadVariants.map(async (variant) => {
         const { size, fit, type, column } = variant
-        const buffer = await resizeFromBuffer(
+        const { buffer, format } = await resizeFromBuffer(
           file,
           size as [number, number],
           fit
         )
-        const name = `${fileName}-${type}.jpg`
+        const name = `${fileName}-${type}.${format}`
         let url = ''
         try {
           url = await this.upload(buffer, name)
