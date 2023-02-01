@@ -697,7 +697,7 @@ export class LeaguesController {
   }
 
   @Public()
-  @Get('/leagues/:teamId/public/leagues')
+  @Get('/teams/:teamId/public/leagues')
   async getTeamLeaguesForPublicPage(@Param('teamId') teamId: string) {
     const leagues = await this.leaguesService.getTeamLeaguesForPublicPage(
       teamId
