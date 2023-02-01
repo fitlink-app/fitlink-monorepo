@@ -35,7 +35,6 @@ export const resizeFromBuffer = async (
 ) => {
   const width = size[0]
   let height = size[1]
-  const options = { fit }
 
   if (height === 0) {
     height = null
@@ -45,12 +44,14 @@ export const resizeFromBuffer = async (
 
   const metadata = await sharpImage.metadata()
 
-  const imageProcess = sharpImage.resize(width, height, options).rotate()
+  const imageProcess = sharpImage
+    .rotate()
+    .resize(width, height, { fit, withoutEnlargement: true })
 
   const imageFormat =
     metadata.hasAlpha || metadata.format === 'png' ? 'png' : format
 
-  imageProcess.toFormat(imageFormat)
+  imageProcess.toFormat(imageFormat, { quality: 80 })
 
   const buffer = await imageProcess.toBuffer()
 
