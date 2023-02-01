@@ -14,9 +14,9 @@ export function useClaimLeagueBfit() {
     ({id, dto}: ClaimLeagueBfitParams) =>
       api.post<any>(`/leagues/${id}/claim`, {payload: dto}),
     {
-      onSuccess: (data, leagueId) => {
-        queryClient.invalidateQueries([QueryKeys.LeagueMembersMe, leagueId]);
-        queryClient.invalidateQueries([QueryKeys.League, leagueId]);
+      onSuccess: (data, {id}) => {
+        queryClient.invalidateQueries([QueryKeys.LeagueMembersMe, id]);
+        queryClient.invalidateQueries([QueryKeys.League, id]);
         queryClient.invalidateQueries(QueryKeys.CteLeagues);
         queryClient.invalidateQueries(QueryKeys.Me);
       },

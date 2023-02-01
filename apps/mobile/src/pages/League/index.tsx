@@ -11,7 +11,7 @@ import styled, {useTheme} from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 
-import {getViewBfitValue} from '@utils';
+import {getPositiveValueOrZero, getViewBfitValue} from '@utils';
 import {Navbar} from '@components';
 import {
   useLeague,
@@ -132,13 +132,15 @@ export const League = (
     );
   }
 
-  const bFitToClaim = memberMe
-    ? getViewBfitValue(memberMe.bfit_earned - memberMe.bfit_claimed)
+  const bFitToClaimRaw = memberMe
+    ? memberMe.bfit_earned - memberMe.bfit_claimed
     : 0;
 
+  const bFitToClaim = getPositiveValueOrZero(getViewBfitValue(bFitToClaimRaw));
+
   const claimBfitCallback = () => {
-    if (memberMe && bFitToClaim && league) {
-      claimBfit({id: league.id, dto: {amount: bFitToClaim}});
+    if (memberMe && bFitToClaimRaw > 0 && league) {
+      claimBfit({id: league.id, dto: {amount: bFitToClaimRaw}});
     }
   };
 
