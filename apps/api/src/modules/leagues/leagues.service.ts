@@ -54,6 +54,16 @@ type LeagueOptions = {
   userId?: string
 }
 
+type PublicPageLeague = {
+  photo_url: string
+  description: string
+  title: string
+  sport: Sport
+  repeat: boolean
+  participants_total: number
+  duration: number
+}
+
 @Injectable()
 export class LeaguesService {
   constructor(
@@ -1442,5 +1452,28 @@ export class LeaguesService {
       total: leagues.length,
       messages
     }
+  }
+
+  async getTeamLeaguesForPublicPage(
+    teamId: string
+  ): Promise<PublicPageLeague[]> {
+    const leagues = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .where('league.team.id = :teamId', {
+        teamId
+      })
+      .leftJoinAndSelect('league.image', 'image')
+      .limit(50)
+      .getMany()
+
+    return leagues.map((e) => ({
+      photo_url: e.image.url,
+      description: e.description,
+      title: e.name,
+      sport: e.sport,
+      repeat: e.repeat,
+      participants_total: e.participants_total,
+      duration: e.duration
+    }))
   }
 }

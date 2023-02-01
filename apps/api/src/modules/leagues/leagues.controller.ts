@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -496,13 +495,14 @@ export class LeaguesController {
       }
     }
 
-    const leaderboardEntry = await this.leaguesService.getLeaderboardMemberByUserId(
-      leagueId,
-      authUser.id
-    )
+    const leaderboardEntry =
+      await this.leaguesService.getLeaderboardMemberByUserId(
+        leagueId,
+        authUser.id
+      )
 
     if (!leaderboardEntry) {
-      throw new NotFoundException('User isn\'t member yet')
+      throw new NotFoundException("User isn't member yet")
     }
     return leaderboardEntry
   }
@@ -694,5 +694,14 @@ export class LeaguesController {
       pending,
       ending
     }
+  }
+
+  @Public()
+  @Get('/leagues/:teamId/public/leagues')
+  async getTeamLeaguesForPublicPage(@Param('teamId') teamId: string) {
+    const leagues = await this.leaguesService.getTeamLeaguesForPublicPage(
+      teamId
+    )
+    return leagues
   }
 }
