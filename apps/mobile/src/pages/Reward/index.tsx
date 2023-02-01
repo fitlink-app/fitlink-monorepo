@@ -51,7 +51,7 @@ export const Reward = (
 
   const viewBfitValue = getViewBfitValue(reward.bfit_required);
 
-  const isBfitReward = reward.bfit_required !== null;
+  const isBfitReward = reward.bfit_required != null;
   const requiredBfitReward = showAltCurrency
     ? `$${convertBfitToUsd(viewBfitValue)}`
     : `${viewBfitValue} BFIT`;
