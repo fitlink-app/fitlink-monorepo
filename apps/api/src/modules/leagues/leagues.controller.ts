@@ -223,10 +223,7 @@ export class LeaguesController {
   @ApiResponse({ type: LeaguePublicPagination, status: 200 })
   @PaginationBody()
   findAllCompeteToEarnLeagues(@Pagination() pagination: PaginationQuery) {
-    return this.leaguesService.findAll(
-      { access: LeagueAccess.CompeteToEarn },
-      pagination
-    )
+    return this.leaguesService.findAllCompeteToEarnLeagues(pagination)
   }
 
   /**

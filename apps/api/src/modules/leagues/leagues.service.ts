@@ -23,7 +23,11 @@ import { Team } from '../teams/entities/team.entity'
 import { Organisation } from '../organisations/entities/organisation.entity'
 import { CreateLeagueDto } from './dto/create-league.dto'
 import { UpdateLeagueDto } from './dto/update-league.dto'
-import { League, LeaguePublic } from './entities/league.entity'
+import {
+  League,
+  LeaguePublic,
+  LeagueWithDailyBfit
+} from './entities/league.entity'
 import { LeagueAccess } from './leagues.constants'
 import { User, UserPublic } from '../users/entities/user.entity'
 import { Image } from '../images/entities/image.entity'
@@ -340,8 +344,46 @@ export class LeaguesService {
       skip: page * limit,
       relations: ['image', 'sport']
     })
+
     return new Pagination<League>({
       results,
+      total
+    })
+  }
+
+  async findAllCompeteToEarnLeagues({
+    limit = 10,
+    page = 0
+  }: PaginationOptionsInterface) {
+    const [results, total] = await this.leaguesRepository.findAndCount({
+      where: {
+        access: LeagueAccess.CompeteToEarn
+      },
+      take: limit,
+      skip: page * limit,
+      relations: ['image', 'sport', 'users']
+    })
+
+    const totalCompeteToEarnLeaguesUsers = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .leftJoin('league.users', 'user')
+      .where('league.access = :access', {
+        access: LeagueAccess.CompeteToEarn
+      })
+      .getCount()
+    const leaguesWithDailyBfit = results.map((league) => {
+      const leagueObject: LeagueWithDailyBfit = { ...league }
+
+      const leagueUsers = league.users.length
+      // we multiply by 1000000 because BFIT has 6 decimals
+      const dailyBfit = Math.round(
+        (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
+      )
+      leagueObject.daily_bfit = dailyBfit
+      return leagueObject
+    })
+    return new Pagination<LeagueWithDailyBfit>({
+      results: leaguesWithDailyBfit,
       total
     })
   }

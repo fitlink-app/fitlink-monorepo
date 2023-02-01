@@ -10,6 +10,8 @@ import { PaginationQuery } from '../../helpers/paginate'
 import { AuthenticatedUser } from '../../models'
 import { Pagination } from '../../decorators/pagination.decorator'
 import { WalletTransactionsService } from './wallet-transactions.service'
+import { Not } from 'typeorm'
+import { WalletTransactionSource } from './wallet-transactions.constants'
 
 @ApiTags('wallet-transactions')
 @ApiBaseResponses()
@@ -35,7 +37,10 @@ export class WalletTransactionsController {
     @Pagination() pagination: PaginationQuery
   ) {
     return this.walletTransactionService.findAll(
-      { user_id: authUser.id },
+      {
+        user_id: authUser.id,
+        source: Not(WalletTransactionSource.LeagueBfitEarnings)
+      },
       pagination
     )
   }

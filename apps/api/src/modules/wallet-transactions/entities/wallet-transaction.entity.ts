@@ -6,13 +6,8 @@ import {
   OneToOne,
   PrimaryGeneratedColumn
 } from 'typeorm'
-import { League } from '../../leagues/entities/league.entity'
-import { RewardsRedemption } from '../../rewards-redemptions/entities/rewards-redemption.entity'
 import { ApiProperty } from '@nestjs/swagger'
 import { WalletTransactionSource } from '../wallet-transactions.constants'
-import { LeagueBfitEarnings } from '../../leagues/entities/bfit-earnings.entity'
-import { LeagueBfitClaim } from '../../leagues/entities/bfit-claim.entity'
-import { User } from '../../users/entities/user.entity'
 
 // when saving numbers as bigint postgress will return them as strings, we use this to convert them to integers
 export class ColumnNumberTransformer {
