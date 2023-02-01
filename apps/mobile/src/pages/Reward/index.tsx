@@ -9,7 +9,12 @@ import {format} from 'date-fns';
 
 import {FitButton, NAVBAR_HEIGHT} from '@components';
 import {useMe, useReward} from '@hooks';
-import {calculateDaysLeft, convertBfitToUsd, getViewBfitValue} from '@utils';
+import {
+  calculateDaysLeft,
+  convertBfitToUsd,
+  getPositiveValueOrZero,
+  getViewBfitValue,
+} from '@utils';
 
 import DetailedProgressBar from './components/DetailedProgressBar';
 import AnimatedHeaderCard from '../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
@@ -73,11 +78,10 @@ export const Reward = (
     ? `Expired on ${expiryDateFormatted}`
     : `${restDays} DAYS LEFT`;
 
-  const bfitProgress = (user?.bfit_balance ?? 0) / reward.bfit_required;
-  const pointsProgress = user.points_total / reward.points_required;
+  const bFitUserBalance = getPositiveValueOrZero(user?.bfit_balance);
   const isReadyToBuy = isBfitReward
-    ? getViewBfitValue(bfitProgress) >= 1
-    : pointsProgress >= 1;
+    ? bFitUserBalance >= reward.bfit_required
+    : user.points_total >= reward.points_required;
 
   return (
     <Wrapper>

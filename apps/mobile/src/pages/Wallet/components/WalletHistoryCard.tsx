@@ -100,9 +100,8 @@ export const WalletHistoryCard: FC<WalletTransaction> = transaction => {
   const formattedDate = formatDate(new Date(transaction.created_at));
   const description = getTransactionDescription(type, {
     bfitViewValue,
-    // TODO: use reward_name when it's provided
     issueName:
-      type === 'claim' ? transaction.league_name! : 'reward_name NOT PROVIDED',
+      type === 'claim' ? transaction.league_name! : transaction.reward_name!,
   });
 
   return (
