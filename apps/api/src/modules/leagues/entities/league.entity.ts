@@ -149,6 +149,12 @@ export class League extends CreatableEntity {
   rank: number
 }
 
+export class LeagueWithDailyBfit extends League {
+  @ApiProperty()
+  @Expose()
+  daily_bfit?: number
+}
+
 export class LeaguePublic extends League {
   @ApiProperty()
   @Expose()
@@ -161,6 +167,10 @@ export class LeaguePublic extends League {
   @ApiProperty()
   @Expose()
   rank: number
+
+  @ApiProperty()
+  @Expose()
+  daily_bfit?: number
 }
 
 export class LeaguePublicPagination {
