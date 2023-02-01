@@ -741,12 +741,12 @@ export class RewardsService {
         teamId,
         now: new Date()
       })
-      .orWhere(
-        'reward.team IS NULL and reward.organisation IS NULL AND reward.reward_expires_at > :now',
-        {
-          now: new Date()
-        }
-      )
+      // .orWhere(
+      //   'reward.team IS NULL and reward.organisation IS NULL AND reward.reward_expires_at > :now',
+      //   {
+      //     now: new Date()
+      //   }
+      // )
       .leftJoinAndSelect('reward.image', 'image')
       .limit(50)
       .getMany()
@@ -755,7 +755,9 @@ export class RewardsService {
       photo_url: e.image.url,
       brand: e.brand,
       description: e.description,
+      redeem_type: e.redeem_type,
       points_required: e.points_required,
+      bfit_required: e.bfit_required,
       reward_expires_at: e.reward_expires_at,
       title: e.name,
       title_short: e.name_short
