@@ -1463,6 +1463,7 @@ export class LeaguesService {
         teamId
       })
       .leftJoinAndSelect('league.image', 'image')
+      .leftJoinAndSelect('league.sport', 'sport')
       .limit(50)
       .getMany()
 
