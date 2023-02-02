@@ -5,7 +5,7 @@ import {
 } from '@constants';
 
 export const convertBfitToUsd = (bfitAmount: number) =>
-  bfitAmount * BFIT_TO_USD_COEFFICIENT;
+  Math.round(bfitAmount * BFIT_TO_USD_COEFFICIENT * 100) / 100;
 
 export const getViewBfitValue = (bfitAmount?: number) =>
   bfitAmount !== undefined
