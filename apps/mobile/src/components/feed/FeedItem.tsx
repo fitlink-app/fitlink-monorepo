@@ -34,6 +34,7 @@ import {
   UserPublic,
   User,
 } from '@fitlink/api/src/modules/users/entities/user.entity';
+import LinearGradient from 'react-native-linear-gradient';
 
 const {width} = Dimensions.get('window');
 
@@ -65,6 +66,15 @@ const NameText = styled(Text)({
 const LikeImage = styled.Image({
   width: widthLize(22),
   height: widthLize(22),
+});
+
+const SBackgroundOverlay = styled(LinearGradient).attrs(() => ({
+  start: {x: 1, y: 0},
+  end: {x: 0, y: 0},
+  colors: ['rgba(6, 6, 6, 0.85)', 'rgba(6, 6, 6, 0)'],
+}))({
+  ...StyleSheet.absoluteFillObject,
+  opacity: 0.9,
 });
 
 interface FeedItemProps {
@@ -380,9 +390,9 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
           marginRight: widthLize(17),
         }}>
         <TitleText numberOfLines={1}>{item.health_activity?.title}</TitleText>
-        <View style={{height: heightLize(8)}} />
+        <View style={{height: heightLize(6)}} />
         <NameText numberOfLines={1}>{item.user.name}</NameText>
-        <View style={{height: heightLize(8)}} />
+        <View style={{height: heightLize(6)}} />
         <NameText>{date}</NameText>
       </View>
     </View>
@@ -406,10 +416,15 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
             width: widthLize(36),
             height: widthLize(36),
             borderRadius: widthLize(18),
-            backgroundColor: isLiked ? colors.accent : colors.accentSecondary,
+            borderWidth: 1,
+            borderColor: isLiked ? colors.accent : colors.text,
+            backgroundColor: isLiked ? colors.accent : colors.background,
           }}>
-          <LikeImage
-            source={require('../../../assets/images/thumbs-up-new.png')}
+          <Icon
+            name="thumb"
+            size={17}
+            fill={isLiked ? colors.background : colors.text}
+            disabled
           />
         </View>
       </TouchHandler>
@@ -417,7 +432,12 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
   };
 
   const FeedItemActions = () => (
-    <View style={{alignItems: 'flex-end', flex: 1}}>
+    <View
+      style={{
+        alignItems: 'flex-end',
+        flex: 1,
+        justifyContent: 'space-between',
+      }}>
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <View
           style={{
@@ -434,21 +454,23 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
         </View>
         <FeedItemLise />
       </View>
-      {!!distance && (
-        <NameText style={{fontWeight: '300', marginTop: 15}}>
-          Distance: <NameText>{distance}</NameText>
-        </NameText>
-      )}
-      {!!speed && (
-        <NameText style={{marginTop: 10}}>
-          Speed: <NameText>{speed}</NameText>
-        </NameText>
-      )}
-      {!!duration && (
-        <NameText style={{marginTop: 10}}>
-          Time: <NameText>{duration}</NameText>
-        </NameText>
-      )}
+      <View style={{alignItems: 'flex-end'}}>
+        {!!distance && (
+          <NameText style={{fontWeight: '300', marginTop: 15}}>
+            Distance: <NameText>{distance}</NameText>
+          </NameText>
+        )}
+        {!!speed && (
+          <NameText style={{marginTop: 8}}>
+            Speed: <NameText>{speed}</NameText>
+          </NameText>
+        )}
+        {!!duration && (
+          <NameText style={{marginTop: 8}}>
+            Time: <NameText>{duration}</NameText>
+          </NameText>
+        )}
+      </View>
     </View>
   );
 
@@ -467,6 +489,7 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
             <ImageBackground
               source={{uri: image.url_640x360}}
               style={{width: '100%', flex: 1, height: 291}}>
+              <SBackgroundOverlay />
               <View
                 style={{
                   flex: 1,
@@ -527,7 +550,7 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
     <TouchHandler onPress={onContentPress}>
       <View
         style={{
-          paddingVertical: 18,
+          paddingVertical: 22,
           marginHorizontal: widthLize(20),
         }}>
         <View style={{flexDirection: 'row', flex: 1}}>
@@ -536,7 +559,7 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
             <View style={{width: widthLize(12)}} />
             <View style={{flex: 1}}>
               <TitleText>{newTitle()}</TitleText>
-              <View style={{height: heightLize(8)}} />
+              <View style={{height: heightLize(6)}} />
               <NameText>{date}</NameText>
             </View>
           </View>
