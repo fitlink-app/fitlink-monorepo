@@ -17,6 +17,7 @@ import {heightLize} from '@utils';
 const mail_icon = require('../../../../assets/images/icon/mail.png');
 const google_icon = require('../../../../assets/images/icon/google.png');
 const kujira_icon = require('../../../../assets/images/icon/logo_kujira.png');
+const apple_icon = require('../../../../assets/images/icon/apple.png');
 
 const Wrapper = styled.View({flex: 1, alignItems: 'center'});
 
@@ -123,11 +124,13 @@ export const Welcome = () => {
 
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: appleAuth.Operation.LOGIN,
-        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+        // Note: it appears putting FULL_NAME first is important, see issue #293
+        requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
       });
 
       await dispatch(signInWithApple(appleAuthRequestResponse));
     } catch (e) {
+      console.error('handleOnApplePressed', e);
       setAppleLoading(false);
     }
   };
@@ -192,14 +195,14 @@ export const Welcome = () => {
                 onPress={handleOnGooglePressed}
               />
             ) : null}
-            {/* <SpacedButton
+            <SpacedButton
               disabled={isAppleLoading}
               loading={isAppleLoading}
               text={'Continue with Apple ID'}
               textStyle={{marginLeft: 10}}
               logo={apple_icon}
               onPress={handleOnApplePressed}
-            /> */}
+            />
             {/*<SpacedButton*/}
             {/*  disabled={isMetaMaskLoading}*/}
             {/*  loading={isMetaMaskLoading}*/}
