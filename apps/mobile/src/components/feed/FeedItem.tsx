@@ -7,8 +7,9 @@ import {
   View,
   Image as RNImage,
   StyleSheet,
+  Text,
 } from 'react-native';
-import {Avatar, Icon, Label, ProgressCircle, TouchHandler} from '../common';
+import {Avatar, Icon, ProgressCircle, TouchHandler} from '../common';
 import {formatDistanceStrict, formatRelative} from 'date-fns';
 import locale from 'date-fns/locale/en-US';
 import {useNavigation} from '@react-navigation/native';
@@ -45,14 +46,18 @@ const IconContainer = styled.View(({theme: {colors}}) => ({
   backgroundColor: colors.surface,
 }));
 
-const TitleText = styled(Label)({
-  color: '#00E9D7',
+const TitleText = styled(Text)({
+  color: '#FFFFFF',
+  fontWeight: 500,
+  fontFamily: 'Roboto',
   fontSize: 16,
   lineHeight: 18,
 });
 
-const NameText = styled(Label)({
+const NameText = styled(Text)({
   color: '#FFFFFF',
+  fontWeight: 500,
+  fontFamily: 'Roboto',
   fontSize: 14,
   lineHeight: 16,
 });
@@ -353,7 +358,7 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
   };
 
   const FeedItemAvatar = ({targetUser}: {targetUser: User | UserPublic}) => (
-    <View style={{flexDirection: 'row', flex: 1, marginTop: 14}}>
+    <View style={{flexDirection: 'row', flex: 1}}>
       <TouchHandler
         disabled={me!.id === targetUser.id}
         onPress={() => {
@@ -371,14 +376,14 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
       </TouchHandler>
       <View
         style={{
-          marginLeft: widthLize(12),
+          marginLeft: widthLize(18),
           marginRight: widthLize(17),
         }}>
         <TitleText numberOfLines={1}>{item.health_activity?.title}</TitleText>
-        <View style={{height: heightLize(6)}} />
+        <View style={{height: heightLize(8)}} />
         <NameText numberOfLines={1}>{item.user.name}</NameText>
-        <View style={{height: heightLize(6)}} />
-        <NameText style={{color: '#ACACAC'}}>{date}</NameText>
+        <View style={{height: heightLize(8)}} />
+        <NameText>{date}</NameText>
       </View>
     </View>
   );
@@ -418,37 +423,30 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
           style={{
             paddingHorizontal: widthLize(12),
             paddingVertical: heightLize(8),
-            backgroundColor: 'white',
+            borderColor: 'white',
+            borderWidth: 1,
             borderRadius: 20,
             marginRight: widthLize(12),
           }}>
-          <NameText style={{color: 'black', fontWeight: '500', fontSize: 12}}>
+          <NameText style={{fontSize: 12}}>
             {`${item.health_activity?.points} Points`}
           </NameText>
         </View>
         <FeedItemLise />
       </View>
       {!!distance && (
-        <NameText style={{color: '#ACACAC', marginTop: 15}}>
+        <NameText style={{fontWeight: '300', marginTop: 15}}>
           Distance: <NameText>{distance}</NameText>
-          &nbsp;
-          <RNImage
-            source={require('../../../assets/images/feed_location.png')}
-          />
         </NameText>
       )}
       {!!speed && (
-        <NameText style={{color: '#ACACAC', marginTop: 10}}>
+        <NameText style={{marginTop: 10}}>
           Speed: <NameText>{speed}</NameText>
-          &nbsp;
-          <RNImage source={require('../../../assets/images/feed_speed.png')} />
         </NameText>
       )}
       {!!duration && (
-        <NameText style={{color: '#ACACAC', marginTop: 10}}>
+        <NameText style={{marginTop: 10}}>
           Time: <NameText>{duration}</NameText>
-          &nbsp;
-          <RNImage source={require('../../../assets/images/feed_time.png')} />
         </NameText>
       )}
     </View>
@@ -537,9 +535,9 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
             {renderAvatar()}
             <View style={{width: widthLize(12)}} />
             <View style={{flex: 1}}>
-              <TitleText style={{}}>{newTitle()}</TitleText>
-              <View style={{height: heightLize(6)}} />
-              <NameText style={{color: '#ACACAC'}}>{date}</NameText>
+              <TitleText>{newTitle()}</TitleText>
+              <View style={{height: heightLize(8)}} />
+              <NameText>{date}</NameText>
             </View>
           </View>
           <View style={{width: widthLize(17)}} />

@@ -216,17 +216,15 @@ export class LeaguesService {
         'The provided league is not a compete to ear league'
       )
     }
-    console.log(leaderboardEntry)
     const claimableBfit =
       leaderboardEntry.bfit_earned - leaderboardEntry.bfit_claimed
-    console.log(claimableBfit)
-    if (claimableBfit < claimLeagueBfitDto.amount) {
+    /* if (claimableBfit < claimLeagueBfitDto.amount) {
       throw new BadRequestException(
         `You have not earned enough bfit in this league to claim ${
           claimLeagueBfitDto.amount / 1000_000
         } BFIT`
       )
-    }
+    } */
     const leagueBfitClaim = new LeagueBfitClaim()
     leagueBfitClaim.league_id = leagueId
     leagueBfitClaim.user_id = userId
