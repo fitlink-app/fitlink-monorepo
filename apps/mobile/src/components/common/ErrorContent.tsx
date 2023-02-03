@@ -1,20 +1,62 @@
-import React from 'react';
-import {Text} from 'react-native';
+import React, {FC} from 'react';
+import {ImageBackground} from 'react-native';
 import styled from 'styled-components/native';
 
 import {FitButton} from '@components';
 
-const SCenteredView = styled.View({
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
+import theme from '../../theme/themes/fitlink';
+
+const bg = require('../../../assets/images/dead-end.jpg');
+
+interface IErrorContentProps {
+  onRefresh: () => unknown;
+  isRefreshing?: boolean;
+}
+
+export const ErrorContent: FC<IErrorContentProps> = ({
+  onRefresh,
+  isRefreshing = false,
+}) => (
+  <ImageBackground style={{flex: 1, justifyContent: 'flex-end'}} source={bg}>
+    <SContent>
+      <STitle>You caught us at a bad time!</STitle>
+      <SText>
+        Looks like something went wrong so hit the refresh button below to fix
+        it.
+      </SText>
+      <FitButton
+        style={{alignSelf: 'center'}}
+        disabled={isRefreshing}
+        onPress={onRefresh}
+        variant="primary"
+        text={isRefreshing ? 'REFRESH...' : 'REFRESH'}
+      />
+    </SContent>
+  </ImageBackground>
+);
+
+const STitle = styled.Text({
+  fontSize: 18,
+  fontWeight: 500,
+  fontFamily: 'Roboto',
+  color: theme.colors.text,
+  marginBottom: 14,
 });
 
-export const ErrorContent = ({onRefresh}: {onRefresh: () => unknown}) => (
-  <SCenteredView>
-    <Text>Something went wrong!</Text>
-    <FitButton variant="primary" text="Refresh" onPress={onRefresh} />
-  </SCenteredView>
-);
+const SText = styled.Text({
+  fontSize: 14,
+  fontWeight: 400,
+  fontFamily: 'Roboto',
+  color: theme.colors.text,
+  marginBottom: 24,
+  textAlign: 'center',
+});
+
+const SContent = styled.View({
+  marginBottom: 90,
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginHorizontal: 80,
+});
 
 export default ErrorContent;

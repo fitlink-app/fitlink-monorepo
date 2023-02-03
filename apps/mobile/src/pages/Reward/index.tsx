@@ -8,16 +8,26 @@ import {useSharedValue} from 'react-native-reanimated';
 import {format} from 'date-fns';
 
 import {FitButton, NAVBAR_HEIGHT} from '@components';
-import {useMe, useReward} from '@hooks';
+import {
+  useClaimReward,
+  useManualQueryRefresh,
+  useMe,
+  useModal,
+  useReward,
+} from '@hooks';
 import {
   calculateDaysLeft,
   convertBfitToUsd,
   getPositiveValueOrZero,
   getViewBfitValue,
 } from '@utils';
+import {getErrors} from '@api';
+import {ResponseError} from '@fitlink/api-sdk/types';
 
 import DetailedProgressBar from './components/DetailedProgressBar';
 import AnimatedHeaderCard from '../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
+import {RedeemSuccessBanner} from './components';
+import ErrorContent from '../../components/common/ErrorContent';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -37,21 +47,39 @@ export const Reward = (
 
   const [showAltCurrency, setShowAltCurrency] = useState(false);
   const insets = useSafeAreaInsets();
-  const {data: user} = useMe();
-  const {data: reward} = useReward(id);
+  const {data: user, isLoading: isLoadingUser, refetch: refetchUser} = useMe();
+  const {
+    data: reward,
+    isLoading: isLoadingReward,
+    refetch: refetchReward,
+  } = useReward(id);
 
   const sharedContentOffset = useSharedValue(0);
+
+  const {mutateAsync: claimReward} = useClaimReward();
+
+  const {openModal} = useModal();
 
   const swapRewardCurrency = () => {
     setShowAltCurrency(prev => !prev);
   };
 
-  if (!reward || !user) {
+  const refetch = async () => {
+    await Promise.all([refetchUser(), refetchReward()]);
+  };
+
+  const {refresh, isRefreshing} = useManualQueryRefresh(refetch);
+
+  if (isLoadingUser || isLoadingReward) {
     return (
       <EmptyContainer style={{marginTop: -(NAVBAR_HEIGHT + insets.top)}}>
         <ActivityIndicator color={colors.accent} />
       </EmptyContainer>
     );
+  }
+
+  if (!reward || !user) {
+    return <ErrorContent isRefreshing={isRefreshing} onRefresh={refresh} />;
   }
 
   const viewBfitValue = getViewBfitValue(reward.bfit_required);
@@ -83,6 +111,26 @@ export const Reward = (
     ? bFitUserBalance >= reward.bfit_required
     : user.points_total >= reward.points_required;
 
+  const onClaimReward = async () => {
+    try {
+      const claimedReward = await claimReward(reward.id);
+      openModal(() => (
+        <RedeemSuccessBanner
+          instructions={claimedReward.redeem_instructions}
+          url={claimedReward.redeem_url}
+          code={claimedReward.code}
+        />
+      ));
+    } catch (e) {
+      console.error('onClaimReward', getErrors(e as ResponseError));
+    }
+  };
+
+  const isUnableToBuy =
+    reward.limit_units && (reward.redeemed || reward.units_available === 0);
+  const disabledBuyButtonText = reward.redeemed ? 'REDEEMED' : 'UNAVAILABLE';
+  const buyButtonText = isUnableToBuy ? disabledBuyButtonText : 'BUY REWARD';
+
   return (
     <Wrapper>
       <AnimatedHeaderCard
@@ -104,9 +152,10 @@ export const Reward = (
         sharedContentOffset={sharedContentOffset}>
         {isReadyToBuy ? (
           <FitButton
+            disabled={isUnableToBuy}
             style={styles.buy}
-            onPress={() => null} // TODO: add handler
-            text="BUY REWARD"
+            onPress={onClaimReward}
+            text={buyButtonText}
             variant="primary"
           />
         ) : (

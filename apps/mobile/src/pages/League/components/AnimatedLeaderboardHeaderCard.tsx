@@ -1,15 +1,20 @@
 import React, {FC} from 'react';
-import {Label} from '@components';
-import {ActionButton} from './ActionButton';
 import {ImageSourcePropType, StyleSheet, View} from 'react-native';
-import {useLeagueMenuModal} from '../hooks/useLeagueMenuModal';
 import {useNavigation} from '@react-navigation/core';
+import Animated from 'react-native-reanimated';
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+
+import {Label} from '@components';
 import {useJoinLeague, useLeaveLeague, useModal} from '@hooks';
+import {ResponseError} from '@fitlink/api-sdk/types';
+import {getErrors} from '@api';
+import {c2eLimitReachedErrorMsg} from '@constants';
+
+import {ActionButton} from './ActionButton';
+import {useLeagueMenuModal} from '../hooks/useLeagueMenuModal';
 import {useLeaderboardCountback} from '../hooks/useLeaderboardCountback';
 import AnimatedHeaderCard from '../../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
-import Animated from 'react-native-reanimated';
 import {MaxedOutBanner} from './MaxedOutBanner';
-import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
 interface IAnimatedLeaderboardHeaderCardProps {
   imageSource: ImageSourcePropType;
@@ -69,8 +74,10 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
       try {
         await joinLeague(leagueId);
       } catch (e) {
-        // TODO: use when error code is provided
-        openMaxedOutModal();
+        const resError = e as ResponseError;
+        if (getErrors(resError).message === c2eLimitReachedErrorMsg) {
+          openMaxedOutModal();
+        }
       }
     };
 

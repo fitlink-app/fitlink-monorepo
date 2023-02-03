@@ -1,4 +1,4 @@
-import React, {FC} from 'react';
+import React, {FC, PropsWithChildren} from 'react';
 import {StyleProp, ViewStyle} from 'react-native';
 import styled from 'styled-components/native';
 
@@ -12,12 +12,13 @@ interface IBannerProps {
   iconName?: string;
   iconSize?: number;
   iconColor?: string;
-  paragraphs: string[];
+  paragraphs?: string[];
 }
 
-export const Banner: FC<IBannerProps> = ({
+export const Banner: FC<PropsWithChildren<IBannerProps>> = ({
   title,
   iconName,
+  children,
   paragraphs,
   containerStyle,
   iconSize = 24,
@@ -34,9 +35,10 @@ export const Banner: FC<IBannerProps> = ({
       />
     )}
     {!!title && <STitle>{title}</STitle>}
-    {paragraphs.map(p => (
+    {paragraphs?.map(p => (
       <SText>{p}</SText>
     ))}
+    {children}
   </Modal>
 );
 
