@@ -24,7 +24,7 @@ const fetchFeed = ({
 
 export function useFeed(dto: FeedFilterDto) {
   return useInfiniteQuery<ListResponse<FeedItem>, Error>(
-    QueryKeys.Feed,
+    [QueryKeys.Feed, {dto}],
     ({pageParam}) => fetchFeed({pageParam, dto}),
     {
       getNextPageParam: getNextPageParam(limit),

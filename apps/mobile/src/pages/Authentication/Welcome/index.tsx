@@ -185,24 +185,26 @@ export const Welcome = () => {
               logo={mail_icon}
               onPress={handleOnSignUpPressed}
             />
-            {Platform.OS === 'ios' ? (
-              <SpacedButton
-                disabled={isGoogleLoading}
-                loading={isGoogleLoading}
-                text={'Continue with Google'}
-                textStyle={{marginLeft: 10}}
-                logo={google_icon}
-                onPress={handleOnGooglePressed}
-              />
-            ) : null}
-            <SpacedButton
-              disabled={isAppleLoading}
-              loading={isAppleLoading}
-              text={'Continue with Apple ID'}
-              textStyle={{marginLeft: 10}}
-              logo={apple_icon}
-              onPress={handleOnApplePressed}
-            />
+            {Platform.OS === 'ios' && (
+              <>
+                <SpacedButton
+                  disabled={isGoogleLoading}
+                  loading={isGoogleLoading}
+                  text={'Continue with Google'}
+                  textStyle={{marginLeft: 10}}
+                  logo={google_icon}
+                  onPress={handleOnGooglePressed}
+                />
+                <SpacedButton
+                  disabled={isAppleLoading}
+                  loading={isAppleLoading}
+                  text={'Continue with Apple ID'}
+                  textStyle={{marginLeft: 10}}
+                  logo={apple_icon}
+                  onPress={handleOnApplePressed}
+                />
+              </>
+            )}
             {/*<SpacedButton*/}
             {/*  disabled={isMetaMaskLoading}*/}
             {/*  loading={isMetaMaskLoading}*/}
