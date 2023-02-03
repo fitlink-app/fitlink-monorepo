@@ -11,8 +11,6 @@ import {
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 import {WeeklyEarningsGraph} from '@components';
-
-import PaddedNumber from '../numbers/PaddedNumber';
 import {useWeeklyEarnings} from '@hooks';
 
 interface PlotCardProps {
@@ -36,7 +34,6 @@ const PlotCard = ({
   totalAmount,
   wrapperStyle,
   percentsGrowth,
-  totalNumberOfDigits,
 }: PlotCardProps): JSX.Element => {
   const gain = `${percentsGrowth} %`;
   return (
@@ -49,10 +46,7 @@ const PlotCard = ({
         <View style={styles.wrapper}>
           <View>
             <Text style={styles.text}>{title}</Text>
-            <PaddedNumber
-              amount={totalAmount}
-              totalNumberOfDigits={totalNumberOfDigits}
-            />
+            <Text style={styles.bfitText}>{Math.trunc(totalAmount)}</Text>
             <Text style={styles.text}>{subtitle}</Text>
           </View>
           <View style={styles.rightCol}>
@@ -90,6 +84,13 @@ const styles = StyleSheet.create({
   },
   selfEnd: {
     alignSelf: 'flex-end',
+  },
+  bfitText: {
+    fontFamily: 'Roboto',
+    fontSize: 42,
+    lineHeight: 48,
+    fontWeight: '500',
+    color: '#ffffff',
   },
 });
 

@@ -4,7 +4,6 @@ import styled from 'styled-components/native';
 import {Icon, Label, WeeklyEarningsGraph} from '@components';
 import {useWeeklyEarnings} from '@hooks';
 
-import PaddedNumber from 'components/common/numbers/PaddedNumber';
 import theme from 'theme/themes/fitlink';
 import WalletActions from './WalletActions';
 
@@ -16,11 +15,7 @@ interface BalanceProps {
 
 const Balance: FC<BalanceProps> = ({bfitAmount, usdAmount, onInfoPress}) => (
   <>
-    <PaddedNumber
-      amount={bfitAmount}
-      totalNumberOfDigits={5}
-      trailingString="BFIT"
-    />
+    <SBfitAmount>{Math.trunc(bfitAmount)} BFIT</SBfitAmount>
     <SRow>
       <SSecondaryText>{`$${usdAmount}`}</SSecondaryText>
       <SSelfCentered>
@@ -34,6 +29,14 @@ const Balance: FC<BalanceProps> = ({bfitAmount, usdAmount, onInfoPress}) => (
     </SRow>
   </>
 );
+
+const SBfitAmount = styled.Text({
+  fontFamily: 'Roboto',
+  fontSize: 42,
+  lineHeight: 48,
+  fontWeight: 500,
+  color: '#ffffff',
+});
 
 interface WalletHeaderProps {
   bfitAmount: number;
