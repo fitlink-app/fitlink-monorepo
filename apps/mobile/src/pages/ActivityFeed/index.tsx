@@ -18,12 +18,6 @@ import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSl
 
 const Wrapper = styled.View({flex: 1});
 
-const SFeedItemSeparator = styled.View({
-  height: 3,
-  backgroundColor: '#565656',
-  paddingHorizontal: 20,
-});
-
 const ListFooterContainer = styled.View({
   justifyContent: 'flex-end',
 });
@@ -143,7 +137,6 @@ export const ActivityFeed = () => {
         </TouchHandler>
       </SHeader>
       <FlatList
-        ItemSeparatorComponent={SFeedItemSeparator}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         ref={scrollRef}
