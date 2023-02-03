@@ -44,10 +44,11 @@ export class LeaderboardEntriesController {
     )
 
     if (query.user) {
-      const rank = await this.leaderboardEntriesService.findRankAndFlanksInLeaderboard(
-        query.user,
-        leaderboardId
-      )
+      const rank =
+        await this.leaderboardEntriesService.findRankAndFlanksInLeaderboard(
+          query.user,
+          leaderboardId
+        )
       return { ...results, rank }
     }
 

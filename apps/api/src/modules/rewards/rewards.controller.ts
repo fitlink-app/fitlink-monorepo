@@ -283,7 +283,11 @@ export class RewardsController {
       )
     }
 
-    return reward
+    // return updated reward
+    return await this.rewardsService.findOneAccessibleToUser(
+      rewardId,
+      authUser.id
+    )
   }
 
   @Public()
