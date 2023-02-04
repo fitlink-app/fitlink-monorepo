@@ -1,9 +1,9 @@
 ---
 name: RN bug report
 about: RN bug report
-title: ''
+title: "[screen] > [issue title]"
 labels: bug, high priority, RN app
-assignees: ''
+assignees: KirillRodichev
 
 ---
 
