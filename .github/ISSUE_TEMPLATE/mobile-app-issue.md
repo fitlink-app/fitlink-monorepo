@@ -1,6 +1,6 @@
 ---
-name: RN bug report
-about: RN bug report
+name: Mobile app issue
+about: Report a mobile / RN issue
 title: "[screen] > [issue title]"
 labels: bug, high priority, RN app
 assignees: KirillRodichev
