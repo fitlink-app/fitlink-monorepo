@@ -27,15 +27,18 @@ export const RedeemSuccessBanner: FC<IRedeemSuccessBannerProps> = ({
   };
 
   return (
-    <Banner paragraphs={[instructions]}>
-      <SLink onPress={openRewardUrl}>{url}</SLink>
+    <Banner title="Reward redeemed" paragraphs={[instructions]}>
+      <SText>CODE: {code}</SText>
       <SRow>
-        <SText>{code}</SText>
         <FitButton
           onPress={copyCodeToClipboard}
           variant="primary"
-          text="COPY"
-          style={{marginLeft: 14}}
+          text="COPY CODE"
+        />
+        <FitButton
+          onPress={openRewardUrl}
+          variant="secondary"
+          text="VISIT WEBSITE"
         />
       </SRow>
     </Banner>
@@ -43,24 +46,17 @@ export const RedeemSuccessBanner: FC<IRedeemSuccessBannerProps> = ({
 };
 
 const SText = styled.Text({
-  fontSize: 14,
-  lineHeight: 18,
+  fontSize: 22,
   fontWeight: 400,
   color: '#ACACAC',
   fontFamily: 'Roboto',
-});
-
-const SLink = styled.Text({
-  fontSize: 14,
-  lineHeight: 18,
-  fontWeight: 400,
-  color: '#0000EE',
-  marginBottom: 20,
-  fontFamily: 'Roboto',
+  textAlign: 'center',
+  marginBottom: 30,
 });
 
 const SRow = styled.View({
   flexDirection: 'row',
   alignItems: 'center',
+  justifyContent: 'space-between',
   marginBottom: 20,
 });
