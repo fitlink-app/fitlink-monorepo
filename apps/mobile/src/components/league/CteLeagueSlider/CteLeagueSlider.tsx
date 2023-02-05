@@ -1,9 +1,14 @@
-import {Label} from '@components';
-import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
-import {getViewBfitValue, widthLize} from '@utils';
 import React from 'react';
-import {FlatList, StyleProp, View, ViewStyle} from 'react-native';
 import styled from 'styled-components/native';
+import {FlatList, StyleProp, View, ViewStyle} from 'react-native';
+
+import {Label} from '@components';
+import {
+  League,
+  LeagueWithDailyBfit,
+} from '@fitlink/api/src/modules/leagues/entities/league.entity';
+import {widthLize} from '@utils';
+
 import {CteLeagueCard} from '../LeagueCard';
 
 const StyledCteLeagueCard = styled(CteLeagueCard)({
@@ -33,7 +38,7 @@ const Title = styled(Label).attrs(() => ({
 
 type CteLeagueSliderProps = {
   onCardPress: (id: string, league: League) => void;
-  leagues?: League[];
+  leagues?: LeagueWithDailyBfit[];
   style?: StyleProp<ViewStyle>;
   onEndReached: () => void;
 };
@@ -52,7 +57,7 @@ export const CteLeagueSlider = ({
       <LeaguesTitleContainer>
         <Title>Compete to earn leagues</Title>
       </LeaguesTitleContainer>
-      <FlatList<League>
+      <FlatList
         onEndReached={onEndReached}
         data={leagues}
         renderItem={({item}) => (
@@ -64,7 +69,7 @@ export const CteLeagueSlider = ({
             onPress={() => {
               onCardPress(item.id, item);
             }}
-            bfitValue={getViewBfitValue(item.bfit)}
+            bfitValue={item.daily_bfit}
           />
         )}
         horizontal

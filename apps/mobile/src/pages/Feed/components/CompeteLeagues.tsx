@@ -6,6 +6,7 @@ import {useMyLeagues} from '@hooks';
 import {CteLeagueSlider} from 'components/league/CteLeagueSlider';
 import {getResultsFromPages} from 'utils/api';
 import {StyleProp, View, ViewStyle} from 'react-native';
+import {LeagueWithDailyBfit} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 
 interface CompeteLeaguesProps {
   containerStyle?: StyleProp<ViewStyle>;
@@ -21,7 +22,9 @@ export const CompeteLeagues: FC<CompeteLeaguesProps> = ({containerStyle}) => {
 
   const results = getResultsFromPages(data);
   // TODO: temporary solution
-  const myC2ELeagues = results.filter(res => res.bfit !== undefined);
+  const myC2ELeagues = results.filter(
+    res => res.bfit !== undefined,
+  ) as LeagueWithDailyBfit[];
 
   if (!myC2ELeagues.length) {
     return null;
