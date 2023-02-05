@@ -6,7 +6,7 @@ import {Icon, Modal} from '@components';
 
 import theme from '../../theme/themes/fitlink';
 
-interface IBannerProps {
+export interface IBannerProps {
   containerStyle?: StyleProp<ViewStyle>;
   title?: string;
   iconName?: string;

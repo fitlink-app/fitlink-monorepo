@@ -15,7 +15,7 @@ import {useLeagueMenuModal} from '../hooks/useLeagueMenuModal';
 import {useLeaderboardCountback} from '../hooks/useLeaderboardCountback';
 import AnimatedHeaderCard from '../../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
 import {MaxedOutBanner} from './MaxedOutBanner';
-import {Banner} from '../../../components/modal';
+import {OnlyOneTypeBanner} from './OnlyOneTypeBanner';
 
 interface IAnimatedLeaderboardHeaderCardProps {
   imageSource: ImageSourcePropType;
@@ -77,11 +77,12 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
       } catch (e) {
         const resError = e as ResponseError;
         const errorMessage = getErrors(resError).message;
-        console.error('handleOnJoinPressed', errorMessage);
         if (errorMessage === c2eLimitReachedErrorMsg) {
           openMaxedOutModal();
         } else if (errorMessage === c2eLeagueTypeErrorMsg) {
-          openModal(() => <Banner paragraphs={[errorMessage]} />);
+          openModal(() => <OnlyOneTypeBanner errorMessage={errorMessage} />);
+        } else {
+          console.error('handleOnJoinPressed', errorMessage);
         }
       }
     };
