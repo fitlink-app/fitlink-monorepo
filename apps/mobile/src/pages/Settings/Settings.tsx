@@ -62,6 +62,7 @@ import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constan
 import {GoogleFitWrapper} from 'services/GoogleFit';
 import {AppleHealthKitWrapper} from 'services';
 import {widthLize} from '@utils';
+import DeviceInfo from 'react-native-device-info';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -170,7 +171,7 @@ export const Settings = () => {
 
       setInitialized(true);
     }
-  }, [user, providerList]);
+  }, [user, providerList, isInitialized, dispatch]);
 
   /**
    * We keep track of the goal input values in a local state
@@ -603,28 +604,18 @@ export const Settings = () => {
           />
           <SettingsButton
             label={'E-mail us'}
-            onPress={() => Linking.openURL('mailto:hello@fitlinkapp.com')}
-          />
-          <SettingsButton
-            label={'Chat with us'}
-            onPress={() => Intercom.displayMessenger()}
-          />
-          <SettingsButton
-            label={'About'}
-            onPress={() =>
-              navigation.navigate('Webview', {
-                url: 'https://fitlinkapp.com/about',
-                title: 'About',
-              })
-            }
+            onPress={() => Linking.openURL('mailto:hello@bfitcoin.com')}
           />
 
           <SettingsButton
             label={'Report an Issue'}
-            onPress={() => Intercom.displayMessenger()}
+            onPress={() => Linking.openURL('mailto:support@bfitcoin.com')}
           />
 
-          <SettingsButton label={'Version 3.0.1'} disabled={true} />
+          <SettingsButton
+            label={`Version ${DeviceInfo.getVersion()}`}
+            disabled={true}
+          />
         </CategoryCard>
 
         <DeleteButtonWrapper>

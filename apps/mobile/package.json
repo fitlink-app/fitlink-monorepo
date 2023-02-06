@@ -81,6 +81,7 @@
     "react-native-bootsplash": "^3.2.5",
     "react-native-code-push": "^7.0.3",
     "react-native-config": "^1.4.4",
+    "react-native-device-info": "^10.3.0",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-google-fit": "^0.19.0",
     "react-native-google-places": "github:krakz999/react-native-google-places",

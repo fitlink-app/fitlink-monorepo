@@ -151,7 +151,7 @@ android {
         resValue "string", "build_config_package", "app.fitlink"
         resValue 'string', "CODE_PUSH_APK_BUILD_TIME", String.format("\"%d\"", System.currentTimeMillis())
         versionCode 91
-        versionName "3.0.3"
+        versionName "3.0.9"
     }
     splits {
         abi {
