@@ -9,9 +9,9 @@ import {
 } from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {widthLize} from '@utils';
 
-import {CteLeagueCard} from '../LeagueCard';
+import {LeagueCard} from '../LeagueCard';
 
-const StyledCteLeagueCard = styled(CteLeagueCard)({
+const StyledCteLeagueCard = styled(LeagueCard)({
   marginTop: 23,
   marginRight: 14,
 });
@@ -65,11 +65,11 @@ export const CteLeagueSlider = ({
             key={item.id}
             memberCount={item.participants_total}
             name={item.name}
-            imageUrl={item.image.url_640x360}
+            imageSource={{uri: item.image.url_640x360}}
             onPress={() => {
               onCardPress(item.id, item);
             }}
-            bfitValue={item.daily_bfit}
+            bfitValue={item.daily_bfit ?? 0}
           />
         )}
         horizontal

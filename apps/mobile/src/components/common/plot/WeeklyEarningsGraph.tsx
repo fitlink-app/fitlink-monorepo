@@ -13,6 +13,12 @@ interface WeeklyEarningsGraphProps
 export const WeeklyEarningsGraph: FC<WeeklyEarningsGraphProps> = ({
   weeklyEarnings,
   ...rest
-}) => <BarGraph {...rest} normalisedData={weeklyEarnings} />;
+}) => {
+  // TODO: this normalization is not correct, confirm the max possible BFIT earned amount per day
+  const max = weeklyEarnings.reduce((max, cur) => (cur > max ? cur : max), 0);
+  const normalizedData = weeklyEarnings.map(e => e / max);
+
+  return <BarGraph {...rest} normalisedData={normalizedData} />;
+};
 
 export default WeeklyEarningsGraph;

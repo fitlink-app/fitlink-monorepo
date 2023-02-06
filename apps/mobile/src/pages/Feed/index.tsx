@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
-import {RefreshControl, ScrollView, StyleSheet} from 'react-native';
+import {RefreshControl, ScrollView} from 'react-native';
 import {
   useFocusEffect,
   useNavigation,
@@ -154,8 +154,6 @@ export const Feed = () => {
     [navigation],
   );
 
-  const bfitStyles = useMemo(() => styles.bfit, []);
-
   if (!user) {
     return null;
   }
@@ -187,7 +185,6 @@ export const Feed = () => {
               totalAmount={totalBfitAmount}
               totalAmountAlt={convertBfitToUsd(totalBfitAmount)}
               onPress={navigateToWallet}
-              wrapperStyle={bfitStyles}
             />
           </StatContainer>
           <CompeteLeagues
@@ -217,9 +214,3 @@ export const Feed = () => {
     </Wrapper>
   );
 };
-
-const styles = StyleSheet.create({
-  bfit: {
-    marginBottom: 20,
-  },
-});
