@@ -386,6 +386,43 @@ export class LeaguesController {
     }
   }
 
+  /*
+   * 1. Superadmin can get a single league
+   * 2. Ordinary user can read a public league
+   * 3. Owner user can read their own league
+   * 4. TODO: Users belonging to teams and organisations may also have access to read
+   * 5.
+   * @param id
+   * @returns
+   */
+  @Get('/leagues/:leagueId/dailybfit')
+  @ApiTags('leagues')
+  @ApiResponse({ type: LeaguePublic, status: 200 })
+  async findLeagueDailyBfit(
+    @Param('leagueId') leagueId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      const result = await this.leaguesService.findOneAccessibleToUser(
+        leagueId,
+        authUser.id
+      )
+      if (!result) {
+        const exists = await this.leaguesService.findOne(leagueId)
+        if (exists) {
+          throw new ForbiddenException(
+            'You do not have permission to view this league'
+          )
+        } else {
+          throw new NotFoundException('The league does not exist')
+        }
+      }
+      return this.leaguesService.findLeagueDailyBfit(leagueId)
+    } else {
+      return this.leaguesService.findLeagueDailyBfit(leagueId)
+    }
+  }
+
   /**
    * Get a list of users that be invited to the league
    *
