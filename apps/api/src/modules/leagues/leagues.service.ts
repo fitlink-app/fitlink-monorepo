@@ -386,6 +386,32 @@ export class LeaguesService {
     })
   }
 
+  async findLeagueDailyBfit(id: string) {
+    const league = await this.leaguesRepository.findOne(id, {
+      relations: ['active_leaderboard', 'users']
+    })
+    if (!league) {
+      throw new NotFoundException(`League with ID ${id} not found`)
+    }
+
+    const totalCompeteToEarnLeaguesUsers = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .leftJoin('league.users', 'user')
+      .where('league.access = :access', {
+        access: LeagueAccess.CompeteToEarn
+      })
+      .getCount()
+    const leagueObject: LeagueWithDailyBfit = { ...league }
+
+    const leagueUsers = league.users.length
+    // we multiply by 1000000 because BFIT has 6 decimals
+    const dailyBfit = Math.round(
+      (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
+    )
+    leagueObject.daily_bfit = dailyBfit
+    return leagueObject
+  }
+
   async findAllParticipating(
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
@@ -786,10 +812,15 @@ export class LeaguesService {
         )
       }
 
-      const query = this.queryFindAccessibleToUser(userId, {
-        isCte: true
-      }).where('leagueUser.id = :userId', { userId })
+      let query = this.queryFindAccessibleToUser(userId, {
+        isCte: true,
+        isOrganization: false,
+        isPrivate: false,
+        isPublic: false,
+        isTeam: false
+      })
 
+      query = query.andWhere('leagueUser.id = :userId', { userId })
       const { entities, raw } = await query.getRawAndEntities()
       const results = this.applyRawResults(entities, raw)
       if (results.length >= 3) {
