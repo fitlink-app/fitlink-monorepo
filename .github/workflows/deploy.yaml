@@ -9,56 +9,56 @@ on:
       - develop
 
 jobs:
-  # test:
-  #   runs-on: ubuntu-20.04
-  #   if: "!contains(github.event.head_commit.message, 'skip ci')"
-  #   steps:
-  #     - uses: actions/checkout@v2
+  test:
+    runs-on: ubuntu-20.04
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - uses: actions/setup-node@v1
-  #       with:
-  #         node-version: '14'
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14'
 
-  #     - name: Get yarn cache directory path
-  #       id: yarn-cache-dir-path
-  #       run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
 
-  #     - uses: actions/cache@v1
-  #       id: yarn-cache
-  #       with:
-  #         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-  #         key: ${{ runner.os }}-yarn-pkg-${{ hashFiles('**/yarn.lock') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-yarn-pkg-
+      - uses: actions/cache@v1
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-pkg-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-pkg-
 
-  #     - name: Install Dependencies
-  #       run: yarn install --frozen-lockfile
-  #       env:
-  #         # Try to skip Chromium install
-  #         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+        env:
+          # Try to skip Chromium install
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
 
-  #     - name: Setup docker
-  #       run: docker-compose up -d postgres-jest s3rver
+      - name: Setup docker
+        run: docker-compose up -d postgres-jest s3rver
 
-  #     - name: Allow docker postgres 10 seconds to startups
-  #       uses: jakejarvis/wait-action@v0.1.0
-  #       with:
-  #         time: '10s'
+      - name: Allow docker postgres 10 seconds to startups
+        uses: jakejarvis/wait-action@v0.1.0
+        with:
+          time: '10s'
 
-  #     - name: Migrate database database
-  #       run: yarn migration:run -c jest
+      - name: Migrate database database
+        run: yarn migration:run -c jest
 
-  #     - name: Test e2e
-  #       run: yarn run test
+      - name: Test e2e
+        run: yarn run test
 
-  #     - name: Test sdk
-  #       run: yarn run test:sdk
+      - name: Test sdk
+        run: yarn run test:sdk
 
-  #     # - name: Test admin
-  #     #   run: yarn run test:admin
+      # - name: Test admin
+      #   run: yarn run test:admin
 
-  #     - name: Stop docker
-  #       run: docker-compose down
+      - name: Stop docker
+        run: docker-compose down
 
   build:
     runs-on: ubuntu-20.04
@@ -151,7 +151,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-20.04
-    needs: [build]
+    needs: [test, build]
     if: "!contains(github.event.head_commit.message, 'skip ci') && github.ref == 'refs/heads/develop'"
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.DEV_EB_ACCESS_KEY_ID }}
@@ -203,14 +203,6 @@ jobs:
           chmod +x artifacts/.platform/hooks/postdeploy/00_migrate.sh;
           cd artifacts && zip -r app.zip app.js migrate.js .env .npmrc .platform node_modules;
           zipinfo -1 app.zip;
-
-      # - uses: hmanzur/actions-aws-eb@v1.0.0
-      #   with:
-      #     command: 'deploy --staged'
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.DEV_EB_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_EB_SECRET_ACCESS_KEY }}
-      #     AWS_DEFAULT_REGION: 'eu-west-2'
 
       - name: Install Python 3.9
         uses: actions/setup-python@v2
