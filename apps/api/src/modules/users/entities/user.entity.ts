@@ -471,6 +471,10 @@ export class UserPublic {
   @ApiProperty()
   @Expose()
   privacy_activities?: PrivacySetting
+
+  @ApiProperty()
+  @Expose()
+  rank?: UserRank
 }
 
 export class UserPublicPagination {
