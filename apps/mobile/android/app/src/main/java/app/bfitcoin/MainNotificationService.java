@@ -1,4 +1,4 @@
-package app.fitlink;
+package app.bfitcoin;
 
 import io.invertase.firebase.messaging.ReactNativeFirebaseMessagingService;
 import com.intercom.reactnative.IntercomModule;

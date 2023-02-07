@@ -145,10 +145,10 @@ android {
 
     defaultConfig {
         multiDexEnabled true
-        applicationId "app.fitlink"
+        applicationId "app.bfitcoin"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        resValue "string", "build_config_package", "app.fitlink"
+        resValue "string", "build_config_package", "app.bfitcoin"
         resValue 'string', "CODE_PUSH_APK_BUILD_TIME", String.format("\"%d\"", System.currentTimeMillis())
         versionCode 91
         versionName "3.0.9"

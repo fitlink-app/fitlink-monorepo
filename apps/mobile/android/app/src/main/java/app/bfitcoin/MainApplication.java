@@ -1,4 +1,4 @@
-package app.fitlink;
+package app.bfitcoin;
 
 import android.app.Application;
 import android.content.Context;
@@ -10,11 +10,10 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.soloader.SoLoader;
-import app.fitlink.BuildConfig;
+import app.bfitcoin.BuildConfig;
 import com.intercom.reactnative.IntercomModule;
 import com.microsoft.codepush.react.CodePush;
 import com.swmansion.reanimated.ReanimatedJSIModulePackage;
-import com.lugg.ReactNativeConfig.ReactNativeConfigPackage;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -81,7 +80,7 @@ public class MainApplication extends Application implements ReactApplication {
          We use reflection here to pick up the class that initializes Flipper,
         since Flipper library is not available in release mode
         */
-        Class<?> aClass = Class.forName("com.fitlink.ReactNativeFlipper");
+        Class<?> aClass = Class.forName("com.bfitcoin.ReactNativeFlipper");
         aClass
             .getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)
             .invoke(null, context, reactInstanceManager);

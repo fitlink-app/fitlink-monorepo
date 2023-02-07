@@ -1,4 +1,4 @@
-package app.fitlink;
+package app.bfitcoin;
 
 import android.os.Bundle;
 import android.view.View;
