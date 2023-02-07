@@ -48,6 +48,7 @@ import { LeagueJobDto } from './dto/league-job.dto'
 import { Public } from '../../decorators/public.decorator'
 import { ClaimLeagueBfitDto } from './dto/claim-league-bfit.dto'
 import { LeaguesFiltersDto } from './dto/league-filter.dto'
+import { FilterCompeteToEarnDto } from './dto/filter-compete-to-earn.dto'
 
 @ApiTags('leagues')
 @ApiBaseResponses()
@@ -222,8 +223,17 @@ export class LeaguesController {
   @ApiTags('leagues')
   @ApiResponse({ type: LeaguePublicPagination, status: 200 })
   @PaginationBody()
-  findAllCompeteToEarnLeagues(@Pagination() pagination: PaginationQuery) {
-    return this.leaguesService.findAllCompeteToEarnLeagues(pagination)
+  findAllCompeteToEarnLeagues(
+    @User() authUser: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery,
+    @Query()
+    query: FilterCompeteToEarnDto
+  ) {
+    return this.leaguesService.findAllCompeteToEarnLeagues(
+      pagination,
+      authUser.id,
+      query
+    )
   }
 
   /**
