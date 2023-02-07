@@ -349,18 +349,37 @@ export class LeaguesService {
     })
   }
 
-  async findAllCompeteToEarnLeagues({
-    limit = 10,
-    page = 0
-  }: PaginationOptionsInterface) {
-    const [results, total] = await this.leaguesRepository.findAndCount({
-      where: {
-        access: LeagueAccess.CompeteToEarn
-      },
-      take: limit,
-      skip: page * limit,
-      relations: ['image', 'sport', 'users']
-    })
+  async findAllCompeteToEarnLeagues(
+    { limit = 10, page = 0 }: PaginationOptionsInterface,
+    userId: string,
+    isParticipating: boolean
+  ) {
+    let results: League[]
+    let total: number
+    if (isParticipating) {
+      const query = this.queryFindAccessibleToUser(userId)
+        .where('leagueUser.id = :userId', { userId })
+        .andWhere('league.access = :access', {
+          access: LeagueAccess.CompeteToEarn
+        })
+        .take(limit)
+        .skip(page * limit)
+
+      const { entities, raw } = await query.getRawAndEntities()
+      results = this.applyRawResults(entities, raw)
+      total = await query.limit(0).getCount()
+    } else {
+      const query = this.queryFindAccessibleToUser(userId)
+        .where('league.access = :access', {
+          access: LeagueAccess.CompeteToEarn
+        })
+        .take(limit)
+        .skip(page * limit)
+
+      const { entities, raw } = await query.getRawAndEntities()
+      results = this.applyRawResults(entities, raw)
+      total = await query.limit(0).getCount()
+    }
 
     const totalCompeteToEarnLeaguesUsers = await this.leaguesRepository
       .createQueryBuilder('league')
