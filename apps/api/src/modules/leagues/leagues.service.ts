@@ -355,7 +355,6 @@ export class LeaguesService {
     userId: string,
     query: FilterCompeteToEarnDto
   ) {
-    console.log('query', query)
     let results: League[]
     let total: number
     if (Object.keys(query).length && query.isParticipating) {
@@ -371,7 +370,6 @@ export class LeaguesService {
       results = this.applyRawResults(entities, raw)
       total = await query.limit(0).getCount()
     } else if (Object.keys(query).length && !query.isParticipating) {
-      console.log('got here')
       const where = this.leaguesRepository
         .createQueryBuilder('league')
         .select('league.id')
