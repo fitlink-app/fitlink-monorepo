@@ -9,16 +9,24 @@ import {getNextPageParam} from 'utils/api';
 
 const limit = 10;
 
-const fetchCteLeagues = ({pageParam = 0}: {pageParam?: number | undefined}) =>
+type Params = {
+  isParticipating?: boolean;
+  pageParam?: number | undefined;
+};
+
+const fetchCteLeagues = ({pageParam = 0, isParticipating = false}: Params) =>
   api.list<LeagueWithDailyBfit>('/leagues/access/compete-to-earn', {
     page: pageParam,
     limit,
+    isParticipating,
   });
 
-export function useCteLeagues() {
+export function useCteLeagues({
+  isParticipating = false,
+}: Pick<Params, 'isParticipating'> = {}) {
   return useInfiniteQuery<ListResponse<LeagueWithDailyBfit>, Error>(
-    [QueryKeys.CteLeagues],
-    ({pageParam}) => fetchCteLeagues({pageParam}),
+    [QueryKeys.CteLeagues, isParticipating],
+    ({pageParam}) => fetchCteLeagues({pageParam, isParticipating}),
     {
       getNextPageParam: getNextPageParam(limit),
     },
