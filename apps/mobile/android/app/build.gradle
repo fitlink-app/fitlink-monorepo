@@ -138,21 +138,40 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    // TODO: Consider this https://stackoverflow.com/a/23265711/13205310
+    def versionPropsFile = file('version.properties')
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    defaultConfig {
-        multiDexEnabled true
-        applicationId "app.bfitcoin"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
-        resValue "string", "build_config_package", "app.bfitcoin"
-        resValue 'string', "CODE_PUSH_APK_BUILD_TIME", String.format("\"%d\"", System.currentTimeMillis())
-        versionCode 91
-        versionName "3.0.9"
+    if (versionPropsFile.canRead()) {
+        def Properties versionProps = new Properties()
+
+        versionProps.load(new FileInputStream(versionPropsFile))
+
+        def code = versionProps['VERSION_CODE'].toInteger() + 1
+
+        versionProps['VERSION_CODE']=code.toString()
+        versionProps.store(versionPropsFile.newWriter(), null)
+
+        defaultConfig {
+          multiDexEnabled true
+          applicationId "app.bfitcoin"
+          minSdkVersion rootProject.ext.minSdkVersion
+          targetSdkVersion rootProject.ext.targetSdkVersion
+          resValue "string", "build_config_package", "app.bfitcoin"
+          resValue 'string', "CODE_PUSH_APK_BUILD_TIME", String.format("\"%d\"", System.currentTimeMillis())
+          versionCode code
+          versionName "3.0.9"
+        }
     }
+    else {
+        throw new GradleException("Could not read version.properties!")
+    }
+
+
     splits {
         abi {
             reset()
