@@ -227,12 +227,12 @@ export class LeaguesController {
     @User() authUser: AuthenticatedUser,
     @Pagination() pagination: PaginationQuery,
     @Query()
-    { isParticipating = false }: FilterCompeteToEarnDto
+    query: FilterCompeteToEarnDto
   ) {
     return this.leaguesService.findAllCompeteToEarnLeagues(
       pagination,
       authUser.id,
-      isParticipating
+      query
     )
   }
 

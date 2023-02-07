@@ -51,6 +51,7 @@ import { LeagueFilter } from 'apps/api-sdk/types'
 import { LeagueBfitEarnings } from './entities/bfit-earnings.entity'
 import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
 import { WalletTransactionSource } from '../wallet-transactions/wallet-transactions.constants'
+import { FilterCompeteToEarnDto } from './dto/filter-compete-to-earn.dto'
 
 type LeagueOptions = {
   teamId?: string
@@ -352,11 +353,12 @@ export class LeaguesService {
   async findAllCompeteToEarnLeagues(
     { limit = 10, page = 0 }: PaginationOptionsInterface,
     userId: string,
-    isParticipating: boolean
+    query: FilterCompeteToEarnDto
   ) {
+    console.log('query', query)
     let results: League[]
     let total: number
-    if (isParticipating) {
+    if (Object.keys(query).length && query.isParticipating) {
       const query = this.queryFindAccessibleToUser(userId)
         .where('leagueUser.id = :userId', { userId })
         .andWhere('league.access = :access', {
@@ -368,6 +370,26 @@ export class LeaguesService {
       const { entities, raw } = await query.getRawAndEntities()
       results = this.applyRawResults(entities, raw)
       total = await query.limit(0).getCount()
+    } else if (Object.keys(query).length && !query.isParticipating) {
+      console.log('got here')
+      const where = this.leaguesRepository
+        .createQueryBuilder('league')
+        .select('league.id')
+        .innerJoin('league.users', 'user')
+        .where('user.id = :userId', { userId })
+
+      const query = this.queryFindAccessibleToUser(userId)
+        .leftJoinAndSelect('league.users', 'user')
+        .andWhere(`league.id NOT IN (${where.getQuery()})`)
+        .andWhere('league.access = :access', {
+          access: LeagueAccess.CompeteToEarn
+        })
+        .take(limit)
+        .skip(page * limit)
+
+      let { entities, raw } = await query.getRawAndEntities()
+      total = await query.limit(0).getCount()
+      results = this.applyRawResults(entities, raw)
     } else {
       const query = this.queryFindAccessibleToUser(userId)
         .where('league.access = :access', {
