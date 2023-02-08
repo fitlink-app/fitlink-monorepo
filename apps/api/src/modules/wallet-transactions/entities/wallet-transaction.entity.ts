@@ -68,6 +68,11 @@ export class WalletTransaction extends CreatableEntity {
   })
   league_name?: string
 
+  @Column({
+    nullable: true
+  })
+  transaction_id?: string
+
   @Column({})
   user_id: string
 
