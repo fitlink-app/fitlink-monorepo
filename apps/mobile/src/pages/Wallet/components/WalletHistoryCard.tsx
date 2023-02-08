@@ -1,9 +1,12 @@
 import React, {FC} from 'react';
 import {View} from 'react-native';
 import styled from 'styled-components/native';
+import Clipboard from '@react-native-community/clipboard';
 
 import {WalletTransaction} from '@fitlink/api/src/modules/wallet-transactions/entities/wallet-transaction.entity';
-import {getViewBfitValue} from '@utils';
+import {getViewBfitValue, openUrl} from '@utils';
+import {Icon} from '@components';
+import {txBaseUrl} from '@constants';
 
 import theme from '../../../theme/themes/fitlink';
 import {
@@ -12,6 +15,90 @@ import {
   getTransactionType,
   mapTypeToTitle,
 } from '../utils';
+import {cutLongString} from '../../../utils/formatting/string';
+
+export const WalletHistoryCard: FC<WalletTransaction> = transaction => {
+  const type = getTransactionType(transaction);
+
+  if (!type) {
+    console.warn('Unsupported transaction type');
+    return null;
+  }
+
+  const isClaimTx = type === 'claim';
+  const bfitViewValue = getViewBfitValue(transaction.bfit_amount);
+  const title = mapTypeToTitle(type, bfitViewValue);
+  const formattedDate = formatDate(new Date(transaction.created_at));
+  const description = getTransactionDescription(type, {
+    bfitViewValue,
+    issueName: isClaimTx ? transaction.league_name! : transaction.reward_name!,
+  });
+
+  return (
+    <View>
+      <SOuterCircle>
+        <SInnerCircle>
+          <SCircleTest>B</SCircleTest>
+        </SInnerCircle>
+      </SOuterCircle>
+      <SCardWrapper>
+        <STopRow>
+          <STitle>{title}</STitle>
+          <SDate>{formattedDate}</SDate>
+        </STopRow>
+        <DividerLine />
+        <SBottomText style={isClaimTx && {paddingBottom: 14}}>
+          {description}
+        </SBottomText>
+        {isClaimTx && (
+          <STxRow>
+            <SIconRow
+              onPress={() => Clipboard.setString(transaction.transaction_id!)}>
+              <STxId>{cutLongString(transaction.transaction_id!)}</STxId>
+              <Icon name="copy" size={14} color={theme.colors.accent} />
+            </SIconRow>
+            <SIconRow
+              onPress={() =>
+                openUrl(`${txBaseUrl}${transaction.transaction_id!}`)
+              }>
+              <SIconText>View TX</SIconText>
+              <Icon name="open" size={14} color={theme.colors.accent} />
+            </SIconRow>
+          </STxRow>
+        )}
+      </SCardWrapper>
+    </View>
+  );
+};
+
+const STxRow = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  paddingHorizontal: 24,
+  marginBottom: 20,
+});
+
+const STxId = styled.Text({
+  color: theme.colors.accent,
+  fontFamily: 'Roboto',
+  fontSize: 14,
+  marginRight: 10,
+  fontWeight: 400,
+  textTransform: 'uppercase',
+});
+
+const SIconText = styled.Text({
+  color: theme.colors.accent,
+  fontFamily: 'Roboto',
+  fontSize: 14,
+  marginRight: 10,
+  fontWeight: 400,
+});
+
+const SIconRow = styled.TouchableOpacity({
+  flexDirection: 'row',
+  alignItems: 'center',
+});
 
 const DividerLine = styled.View({
   width: '100%',
@@ -86,41 +173,5 @@ const SDate = styled.Text({
   lineHeight: 16,
   fontWeight: 400,
 });
-
-export const WalletHistoryCard: FC<WalletTransaction> = transaction => {
-  const type = getTransactionType(transaction);
-
-  if (!type) {
-    console.warn('Unsupported transaction type');
-    return null;
-  }
-
-  const bfitViewValue = getViewBfitValue(transaction.bfit_amount);
-  const title = mapTypeToTitle(type, bfitViewValue);
-  const formattedDate = formatDate(new Date(transaction.created_at));
-  const description = getTransactionDescription(type, {
-    bfitViewValue,
-    issueName:
-      type === 'claim' ? transaction.league_name! : transaction.reward_name!,
-  });
-
-  return (
-    <View>
-      <SOuterCircle>
-        <SInnerCircle>
-          <SCircleTest>B</SCircleTest>
-        </SInnerCircle>
-      </SOuterCircle>
-      <SCardWrapper>
-        <STopRow>
-          <STitle>{title}</STitle>
-          <SDate>{formattedDate}</SDate>
-        </STopRow>
-        <DividerLine />
-        <SBottomText>{description}</SBottomText>
-      </SCardWrapper>
-    </View>
-  );
-};
 
 export default WalletHistoryCard;
