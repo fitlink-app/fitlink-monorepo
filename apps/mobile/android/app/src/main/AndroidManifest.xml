@@ -46,19 +46,7 @@
       </intent-filter>
     </activity>
 
-    <service
-      android:name=".MainNotificationService"
-      android:exported="true">
-      <intent-filter>
-        <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-      </intent-filter>
-    </service>
-
-    <receiver
-      android:name="com.intercom.reactnative.RNIntercomPushBroadcastReceiver"
-      tools:replace="android:exported"
-      android:exported="true"/>
-    </application>
+  </application>
 
   <queries>
     <package android:name="com.google.android.apps.fitness" />

@@ -10,14 +10,7 @@ import {
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
 import {Modal, PlotCard, ProfileHeader} from '@components';
-import {
-  useGoals,
-  useMe,
-  useModal,
-  useProviders,
-  useUpdateIntercomUser,
-  useRewards,
-} from '@hooks';
+import {useGoals, useMe, useModal, useProviders, useRewards} from '@hooks';
 import {
   convertBfitToUsd,
   getPersistedData,
@@ -79,9 +72,6 @@ export const Feed = () => {
 
   // Preload providers
   useProviders();
-
-  // Update intercom on user change
-  useUpdateIntercomUser();
 
   const {data: user, refetch: refetchUser} = useMe();
   const {refetch: refetchGoals} = useGoals();
