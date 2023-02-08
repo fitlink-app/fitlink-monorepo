@@ -19,7 +19,10 @@ export class WalletTransactionsService {
       await this.walletTransactionRepository.findAndCount({
         where,
         take: limit,
-        skip: page * limit
+        skip: page * limit,
+        order: {
+          created_at: 'DESC'
+        }
       })
     return new Pagination<WalletTransaction>({
       results,
