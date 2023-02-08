@@ -52,7 +52,7 @@ import { LeagueBfitEarnings } from './entities/bfit-earnings.entity'
 import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
 import { WalletTransactionSource } from '../wallet-transactions/wallet-transactions.constants'
 import { FilterCompeteToEarnDto } from './dto/filter-compete-to-earn.dto'
-import { registry, msg } from 'kujira.js'
+// import { registry, msg } from 'kujira.js'
 import { GasPrice, SigningStargateClient, coins } from '@cosmjs/stargate'
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
 
@@ -255,11 +255,11 @@ export class LeaguesService {
       'bfit_balance',
       claimLeagueBfitDto.amount
     )
-    const transactionHash = await this.sendBfitClaimTransaction(
-      leagueId,
-      userId,
-      claimLeagueBfitDto.amount
-    )
+    // const transactionHash = await this.sendBfitClaimTransaction(
+    //   leagueId,
+    //   userId,
+    //   claimLeagueBfitDto.amount
+    // )
 
     let walletTransaction = new WalletTransaction()
     walletTransaction.source = WalletTransactionSource.LeagueBfitClaim
@@ -269,7 +269,7 @@ export class LeaguesService {
     walletTransaction.user_id = userId
     walletTransaction.bfit_amount = claimLeagueBfitDto.amount
     walletTransaction.bfit_amount = claimLeagueBfitDto.amount
-    walletTransaction.transaction_id = transactionHash
+    // walletTransaction.transaction_id = transactionHash
     await this.walletTransactionRepository.save(walletTransaction)
     return createdClaim
   }
@@ -1598,43 +1598,43 @@ export class LeaguesService {
     }))
   }
 
-  async sendBfitClaimTransaction(
-    league_id: string,
-    user_id: string,
-    amount: number
-  ) {
-    const RPC_ENDPOINT = 'https://rpc.harpoon.kujira.setten.io:443'
-    const { BFIT_EARNINGS_SC_ADDRESS } = process.env
-    const { MNEMONIC } = process.env
-
-    const signer = await DirectSecp256k1HdWallet.fromMnemonic(MNEMONIC, {
-      prefix: 'kujira'
-    })
-    const [account] = await signer.getAccounts()
-    const client = await SigningStargateClient.connectWithSigner(
-      RPC_ENDPOINT,
-      signer,
-      {
-        registry,
-        gasPrice: GasPrice.fromString('0.00125ukuji')
-      }
-    )
-
-    const mesg = msg.wasm.msgExecuteContract({
-      sender: account.address,
-      contract: BFIT_EARNINGS_SC_ADDRESS,
-      msg: Buffer.from(
-        JSON.stringify({
-          save_user_bfit_earnings: {
-            league_id,
-            participant: user_id,
-            amount: amount.toString()
-          }
-        })
-      ),
-      funds: []
-    })
-    const sig = await client.signAndBroadcast(account.address, [mesg], 'auto')
-    return sig.transactionHash
-  }
+  // async sendBfitClaimTransaction(
+  //   league_id: string,
+  //   user_id: string,
+  //   amount: number
+  // ) {
+  //   const RPC_ENDPOINT = 'https://rpc.harpoon.kujira.setten.io:443'
+  //   const { BFIT_EARNINGS_SC_ADDRESS } = process.env
+  //   const { MNEMONIC } = process.env
+  //
+  //   const signer = await DirectSecp256k1HdWallet.fromMnemonic(MNEMONIC, {
+  //     prefix: 'kujira'
+  //   })
+  //   const [account] = await signer.getAccounts()
+  //   const client = await SigningStargateClient.connectWithSigner(
+  //     RPC_ENDPOINT,
+  //     signer,
+  //     {
+  //       registry,
+  //       gasPrice: GasPrice.fromString('0.00125ukuji')
+  //     }
+  //   )
+  //
+  //   const mesg = msg.wasm.msgExecuteContract({
+  //     sender: account.address,
+  //     contract: BFIT_EARNINGS_SC_ADDRESS,
+  //     msg: Buffer.from(
+  //       JSON.stringify({
+  //         save_user_bfit_earnings: {
+  //           league_id,
+  //           participant: user_id,
+  //           amount: amount.toString()
+  //         }
+  //       })
+  //     ),
+  //     funds: []
+  //   })
+  //   const sig = await client.signAndBroadcast(account.address, [mesg], 'auto')
+  //   return sig.transactionHash
+  // }
 }
