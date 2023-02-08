@@ -112,6 +112,10 @@ jobs:
       # Firebase
       FIREBASE_ADMIN_CREDENTIAL: ${{ secrets.PROD_FIREBASE_ADMIN_CREDENTIAL }}
 
+      # Crypto
+      BFIT_EARNINGS_SC_ADDRESS: ${{ secrets.BFIT_EARNINGS_SC_ADDRESS }}
+      MNEMONIC: ${{ secrets.MNEMONIC }}
+
     steps:
       - uses: actions/checkout@v2
 
