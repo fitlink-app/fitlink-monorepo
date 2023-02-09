@@ -15,6 +15,7 @@ import codePush from 'react-native-code-push';
 import {useCodePush} from '@hooks';
 import {UpdateInfo} from 'components/UpdateInfo';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import Config from 'react-native-config';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -28,10 +29,8 @@ const App = () => {
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId:
-        '369193601741-o9ao2iqikmcm0fte2t4on85hrni4dsjc.apps.googleusercontent.com',
-      iosClientId:
-        '369193601741-bkluos3jpe42b0a5pqfuv7lg5f640n8t.apps.googleusercontent.com',
+      webClientId: Config.WEB_CLIENT_ID,
+      iosClientId: Config.IOS_CLIENT_ID,
     });
 
     setTimeout(() => {
