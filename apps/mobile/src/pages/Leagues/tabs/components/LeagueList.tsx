@@ -9,7 +9,6 @@ import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import styled, {useTheme} from 'styled-components/native';
 import {LeagueCard} from '@components';
 import {useNavigation} from '@react-navigation/core';
-import {LeagueAccess} from '../../../../../../api/src/modules/leagues/leagues.constants';
 import {useScrollToTop} from '@react-navigation/native';
 
 const EmptyContainer = styled.View({
@@ -44,22 +43,12 @@ export const LeagueList = ({
   const keyExtractor = (item: League) => item.id as string;
 
   const renderItem = ({item}: {item: League}) => {
-    const organisation = item.organisation
-      ? {
-          name: item.organisation?.name,
-          image: item.organisation?.avatar?.url_128x128,
-        }
-      : undefined;
-
     return (
       <LeagueCard
         name={item.name}
-        sport={item.sport?.name}
-        organisation={organisation}
         imageSource={{uri: item.image?.url}}
         memberCount={item.participants_total}
         position={item.rank}
-        privateLeague={item.access === ('Private' as LeagueAccess)}
         onPress={() => {
           navigation.navigate('League', {id: item.id, league: item});
         }}

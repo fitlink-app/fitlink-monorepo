@@ -7,6 +7,7 @@ const MembersLabel = styled(Text)({
   fontFamily: 'Roboto',
   fontSize: 14,
   lineHeight: 16,
+  fontWeight: 500,
   textTransform: 'uppercase',
 });
 

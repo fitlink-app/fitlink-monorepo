@@ -46,7 +46,6 @@
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^4.0.0-alpha.25",
-    "@intercom/intercom-react-native": "^1.0.5",
     "@invertase/react-native-apple-authentication": "2.2.2",
     "@mapbox/polyline": "^1.1.1",
     "@react-native-async-storage/async-storage": "^1.15.5",
@@ -81,6 +80,7 @@
     "react-native-bootsplash": "^3.2.5",
     "react-native-code-push": "^7.0.3",
     "react-native-config": "^1.4.4",
+    "react-native-device-info": "^10.3.0",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-google-fit": "^0.19.0",
     "react-native-google-places": "github:krakz999/react-native-google-places",
@@ -96,7 +96,6 @@
     "react-native-screens": "^3.3.0",
     "react-native-share": "^7.1.2",
     "react-native-skeleton-placeholder": "^5.2.4",
-    "react-native-snackbar-component": "1.1.11",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-svg": "^13.7.0",
     "react-native-svg-charts": "^5.4.0",

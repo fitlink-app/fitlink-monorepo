@@ -8,13 +8,14 @@ import {Label} from '@components';
 import {useJoinLeague, useLeaveLeague, useModal} from '@hooks';
 import {ResponseError} from '@fitlink/api-sdk/types';
 import {getErrors} from '@api';
-import {c2eLimitReachedErrorMsg} from '@constants';
+import {c2eLeagueTypeErrorMsg, c2eLimitReachedErrorMsg} from '@constants';
 
 import {ActionButton} from './ActionButton';
 import {useLeagueMenuModal} from '../hooks/useLeagueMenuModal';
 import {useLeaderboardCountback} from '../hooks/useLeaderboardCountback';
 import AnimatedHeaderCard from '../../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
 import {MaxedOutBanner} from './MaxedOutBanner';
+import {OnlyOneTypeBanner} from './OnlyOneTypeBanner';
 
 interface IAnimatedLeaderboardHeaderCardProps {
   imageSource: ImageSourcePropType;
@@ -75,8 +76,13 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
         await joinLeague(leagueId);
       } catch (e) {
         const resError = e as ResponseError;
-        if (getErrors(resError).message === c2eLimitReachedErrorMsg) {
+        const errorMessage = getErrors(resError).message;
+        if (errorMessage === c2eLimitReachedErrorMsg) {
           openMaxedOutModal();
+        } else if (errorMessage === c2eLeagueTypeErrorMsg) {
+          openModal(() => <OnlyOneTypeBanner errorMessage={errorMessage} />);
+        } else {
+          console.error('handleOnJoinPressed', errorMessage);
         }
       }
     };

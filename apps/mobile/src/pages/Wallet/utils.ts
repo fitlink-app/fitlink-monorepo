@@ -23,10 +23,10 @@ export function formatDate(date: Date) {
 export function getTransactionType(
   transaction: WalletTransaction,
 ): TransactionType | null {
-  if (transaction.claim_id !== undefined) {
+  if (transaction.claim_id != null) {
     return 'claim';
   }
-  if (transaction.reward_redemption_id !== undefined) {
+  if (transaction.reward_redemption_id != null) {
     return 'spend';
   }
   return null;

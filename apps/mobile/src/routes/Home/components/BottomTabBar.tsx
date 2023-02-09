@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 import {View, Pressable, Platform} from 'react-native';
 import {Label} from '@components';
 import {widthLize} from '@utils';
-import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 export const BOTTOM_TAB_BAR_HEIGHT = 79;
 
@@ -113,7 +113,7 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
   }
 
   const insets = useSafeAreaInsets();
-  const bottomOffset = insets.bottom === 0 ? 10 : 0;
+  const bottomOffset = insets.bottom === 0 ? 10 : insets.bottom;
   const focusedOptions = descriptors[state.routes[state.index].key].options;
 
   if (focusedOptions.tabBarVisible === false) {
@@ -121,7 +121,7 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
   }
 
   return (
-    <SafeAreaView
+    <View
       style={{
         backgroundColor: 'transparent',
         overflow: Platform.OS === 'ios' ? 'visible' : 'hidden',
@@ -134,6 +134,6 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
       <Wrapper>
         <Container>{renderButtons()}</Container>
       </Wrapper>
-    </SafeAreaView>
+    </View>
   );
 };

@@ -11,7 +11,6 @@
 #import <AppCenterReactNativeAnalytics.h>
 #import <AppCenterReactNativeCrashes.h>
 #import <CodePush/CodePush.h>
-#import <IntercomModule.h>
 #import <UserNotifications/UserNotifications.h>
 #import <React/RCTLinkingManager.h>
 #import <Firebase.h>
@@ -74,7 +73,6 @@ static void InitializeFlipper(UIApplication *application) {
   [AppCenterReactNative register];
   [AppCenterReactNativeAnalytics registerWithInitiallyEnabled:true];
   [AppCenterReactNativeCrashes registerWithAutomaticProcessing];
-  [IntercomModule initialize:@"ios_sdk-e9cecd16c2a508c21a63fd21d3b20a1fb7ada2cb" withAppId:@"jhnnkwbj"];
   
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
       [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert + UNAuthorizationOptionSound)
@@ -97,7 +95,6 @@ static void InitializeFlipper(UIApplication *application) {
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    [IntercomModule setDeviceToken:deviceToken];
 }
 
 - (BOOL)application:(UIApplication *)application
