@@ -5,7 +5,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
+import {LeagueWithDailyBfit} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import styled, {useTheme} from 'styled-components/native';
 import {LeagueCard} from '@components';
 import {useNavigation} from '@react-navigation/core';
@@ -17,7 +17,8 @@ const EmptyContainer = styled.View({
   alignItems: 'center',
 });
 
-interface LeagueListProps extends Omit<FlatListProps<League>, 'renderItem'> {
+interface LeagueListProps
+  extends Omit<FlatListProps<LeagueWithDailyBfit>, 'renderItem'> {
   isFetching: boolean;
   isFetchingNextPage: boolean;
   isFetchedAfterMount: boolean;
@@ -40,11 +41,13 @@ export const LeagueList = ({
   const scrollRef = useRef(null);
   useScrollToTop(scrollRef);
 
-  const keyExtractor = (item: League) => item.id as string;
+  const keyExtractor = (item: LeagueWithDailyBfit) => item.id as string;
 
-  const renderItem = ({item}: {item: League}) => {
+  const renderItem = ({item}: {item: LeagueWithDailyBfit}) => {
     return (
       <LeagueCard
+        isVertical
+        bfitValue={item.daily_bfit}
         name={item.name}
         imageSource={{uri: item.image?.url}}
         memberCount={item.participants_total}

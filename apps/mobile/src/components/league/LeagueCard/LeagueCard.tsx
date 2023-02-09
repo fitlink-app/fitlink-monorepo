@@ -50,6 +50,7 @@ export interface LeagueCardInterface {
   bfitValue?: number;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
+  isVertical?: boolean;
 }
 
 export const LeagueCard = ({
@@ -60,6 +61,7 @@ export const LeagueCard = ({
   bfitValue,
   onPress,
   style,
+  isVertical = false,
 }: LeagueCardInterface) => {
   const Label = () => {
     if (bfitValue !== undefined) {
@@ -75,7 +77,8 @@ export const LeagueCard = ({
     return null;
   };
 
-  const ImageContainer = bfitValue === undefined ? Container : C2EContainer;
+  const ImageContainer =
+    bfitValue === undefined || isVertical ? Container : C2EContainer;
 
   return (
     <ImageContainer onPress={onPress} imageSource={imageSource} style={style}>
