@@ -418,28 +418,18 @@ export class LeaguesService {
       .where('league.access = :access', {
         access: LeagueAccess.CompeteToEarn
       })
-      .select('COUNT(DISTINCT user.id)', 'totalUsers')
+      .select('COUNT(user.id)', 'totalUsers')
       .getRawOne()
-
-    const totalLeaguesWithUsers = await this.leaguesRepository
-      .createQueryBuilder('league')
-      .innerJoin('league.users', 'user')
-      .where('league.access = :access', {
-        access: LeagueAccess.CompeteToEarn
-      })
-      .groupBy('league.id')
-      .getCount()
 
     totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
 
     const leaguesWithDailyBfit = results.map((league) => {
       const leagueObject: LeagueWithDailyBfit = { ...league }
 
-      const leagueUsers = league.users.length
+      const leagueUsers = league.participants_total
       // we multiply by 1000000 because BFIT has 6 decimals
       const dailyBfit = Math.round(
-        ((leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850) /
-          totalLeaguesWithUsers
+        (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
       )
       leagueObject.daily_bfit = dailyBfit
       return leagueObject
@@ -464,25 +454,15 @@ export class LeaguesService {
       .where('league.access = :access', {
         access: LeagueAccess.CompeteToEarn
       })
-      .select('COUNT(DISTINCT user.id)', 'totalUsers')
+      .select('COUNT(user.id)', 'totalUsers')
       .getRawOne()
-
-    const totalLeaguesWithUsers = await this.leaguesRepository
-      .createQueryBuilder('league')
-      .innerJoin('league.users', 'user')
-      .where('league.access = :access', {
-        access: LeagueAccess.CompeteToEarn
-      })
-      .groupBy('league.id')
-      .getCount()
 
     totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
     const leagueObject: LeagueWithDailyBfit = { ...league }
 
-    const leagueUsers = league.users.length
+    const leagueUsers = league.participants_total
     const dailyBfit = Math.round(
-      ((leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850) /
-        totalLeaguesWithUsers
+      (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
     )
     leagueObject.daily_bfit = dailyBfit
     return leagueObject
@@ -506,26 +486,16 @@ export class LeaguesService {
       .where('league.access = :access', {
         access: LeagueAccess.CompeteToEarn
       })
-      .select('COUNT(DISTINCT user.id)', 'totalUsers')
+      .select('COUNT(user.id)', 'totalUsers')
       .getRawOne()
-
-    const totalLeaguesWithUsers = await this.leaguesRepository
-      .createQueryBuilder('league')
-      .innerJoin('league.users', 'user')
-      .where('league.access = :access', {
-        access: LeagueAccess.CompeteToEarn
-      })
-      .groupBy('league.id')
-      .getCount()
 
     totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
     const leaguesWithDailyBfit = results.map((league) => {
       if (league.access === LeagueAccess.CompeteToEarn) {
         const leagueObject: LeagueWithDailyBfit = { ...league }
-        const leagueUsers = league.users.length
+        const leagueUsers = league.participants_total
         const dailyBfit = Math.round(
-          ((leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850) /
-            totalLeaguesWithUsers
+          (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
         )
         leagueObject.daily_bfit = dailyBfit
         return leagueObject
