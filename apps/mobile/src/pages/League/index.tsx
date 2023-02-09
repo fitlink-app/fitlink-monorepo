@@ -22,7 +22,7 @@ import {
   useModal,
   useRank,
 } from '@hooks';
-import {League as LeagueType} from '@fitlink/api/src/modules/leagues/entities/league.entity';
+import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {LeagueAccess} from '@fitlink/api/src/modules/leagues/leagues.constants';
 
 import {Leaderboard, TryTomorrowBanner} from './components';
@@ -82,7 +82,10 @@ export const League = (
 
   const {data: flanksData, refetch: refetchFlanks} = useRank(id);
 
-  const activeLeague = {...league, ...fetchedLeague} as LeagueType as any;
+  const activeLeague = {
+    ...league,
+    ...fetchedLeague,
+  } as LeaguePublic;
 
   const isBfit = activeLeague?.access === LeagueAccess.CompeteToEarn;
 
@@ -157,7 +160,7 @@ export const League = (
           leagueId={id}
           isBfit={isBfit}
           bFitToClaim={bFitToClaim}
-          bfit={getViewBfitValue(activeLeague.bfit)}
+          bfit={activeLeague.daily_bfit}
           onClaimPressed={claimBfitCallback}
           isPublic={activeLeague.access === LeagueAccess.Public}
           imageUri={activeLeague?.image.url_640x360}
