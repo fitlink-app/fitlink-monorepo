@@ -137,7 +137,7 @@ export class HealthActivityCreatedListener {
 
     totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
     for (const league of leagues) {
-      const leagueUsers = league.users.length
+      const leagueUsers = league.participants_total
       // we multiply by 1000000 because BFIT has 6 decimals
       const dailyBfit = Math.round(
         (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850

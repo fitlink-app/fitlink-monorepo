@@ -460,7 +460,7 @@ export class LeaguesService {
     totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
     const leagueObject: LeagueWithDailyBfit = { ...league }
 
-    const leagueUsers = league.users.length
+    const leagueUsers = league.participants_total
     const dailyBfit = Math.round(
       (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
     )
@@ -493,7 +493,7 @@ export class LeaguesService {
     const leaguesWithDailyBfit = results.map((league) => {
       if (league.access === LeagueAccess.CompeteToEarn) {
         const leagueObject: LeagueWithDailyBfit = { ...league }
-        const leagueUsers = league.users.length
+        const leagueUsers = league.participants_total
         const dailyBfit = Math.round(
           (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
         )
