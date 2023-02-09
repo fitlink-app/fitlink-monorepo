@@ -50,7 +50,7 @@ export const WalletHistoryCard: FC<WalletTransaction> = transaction => {
         <SBottomText style={isClaimTx && {paddingBottom: 14}}>
           {description}
         </SBottomText>
-        {isClaimTx && (
+        {isClaimTx && transaction.transaction_id && (
           <STxRow>
             <SIconRow
               onPress={() => Clipboard.setString(transaction.transaction_id!)}>
