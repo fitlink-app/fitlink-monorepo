@@ -126,18 +126,31 @@ export class HealthActivityCreatedListener {
     )
     leaguesErr && console.error(leaguesErr)
     const incrementEntryPromises = []
-    const totalCompeteToEarnLeaguesUsers = await this.leaguesRepository
+    let totalCompeteToEarnLeaguesUsers = await this.leaguesRepository
       .createQueryBuilder('league')
       .leftJoin('league.users', 'user')
       .where('league.access = :access', {
         access: LeagueAccess.CompeteToEarn
       })
+      .select('COUNT(DISTINCT user.id)', 'totalUsers')
+      .getRawOne()
+
+    const totalLeaguesWithUsers = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .innerJoin('league.users', 'user')
+      .where('league.access = :access', {
+        access: LeagueAccess.CompeteToEarn
+      })
+      .groupBy('league.id')
       .getCount()
+
+    totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
     for (const league of leagues) {
       const leagueUsers = league.users.length
       // we multiply by 1000000 because BFIT has 6 decimals
       const dailyBfit = Math.round(
-        (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
+        ((leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850) /
+          totalLeaguesWithUsers
       )
       const { points } = await this.leaderboardEntriesRepository.findOne({
         user_id: userId,
