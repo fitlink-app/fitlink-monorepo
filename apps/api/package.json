@@ -46,7 +46,8 @@
     "typeorm-seeding": "^1.6.1",
     "uuid": "^8.3.2",
     "@cosmjs/proto-signing": "^0.29.5",
-    "@cosmjs/stargate": "^0.29.5"
+    "@cosmjs/stargate": "^0.29.5",
+    "kujira.js": "Team-Kujira/kujira.js.git#a08da88ca3065fffa9402c9ba554f4cb1ca221b6"
   },
   "devDependencies": {
     "@compodoc/compodoc": "^1.1.11",
