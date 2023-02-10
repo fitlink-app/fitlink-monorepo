@@ -56,6 +56,7 @@ import {
   UserGoalPreferences,
 } from 'redux/settings/settingsSlice';
 import {TransitionContext} from 'contexts';
+import Intercom from '@intercom/intercom-react-native';
 import {useCustomProvider} from 'hooks/api/providers/custom';
 import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 import {GoogleFitWrapper} from 'services/GoogleFit';
@@ -597,6 +598,10 @@ export const Settings = () => {
         {/* Help */}
         <CategoryCard>
           <CategoryLabel>Help</CategoryLabel>
+          <SettingsButton
+            label={'FAQs'}
+            onPress={() => Intercom.displayHelpCenter()}
+          />
           <SettingsButton
             label={'E-mail us'}
             onPress={() => Linking.openURL('mailto:hello@bfitcoin.com')}
