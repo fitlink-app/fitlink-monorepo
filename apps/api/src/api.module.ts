@@ -128,7 +128,7 @@ import { WalletTransactionsModule } from './modules/wallet-transactions/wallet-t
             WalletTransaction
           ],
           synchronize: false,
-          logging: false,
+          logging: true,
           retryAttempts: 1
         }
       }
