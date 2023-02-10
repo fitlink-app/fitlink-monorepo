@@ -371,14 +371,14 @@ export class LeaguesService {
     if (Object.keys(query).length && query.isParticipating) {
       const query = this.queryFindAccessibleToUser(userId)
         .andWhere(
-          'leagueUser.id = :userId AND league.access = :access AND league.team IS NOT NULL AND teamUser.id = :userId',
+          'leagueUser.id = :userId AND league.access = :access AND (league.team IS NOT NULL AND teamUser.id = :userId)',
           {
             access: LeagueAccess.CompeteToEarn,
             userId
           }
         )
         .orWhere(
-          'leagueUser.id = :userId AND league.access = :access AND league.team IS NULL',
+          'leagueUser.id = :userId AND league.access = :access AND (league.team IS NULL)',
           {
             access: LeagueAccess.CompeteToEarn,
             userId
@@ -400,13 +400,14 @@ export class LeaguesService {
       const query = this.queryFindAccessibleToUser(userId)
         .leftJoinAndSelect('league.users', 'user')
         .andWhere(
-          `league.id NOT IN (${where.getQuery()}) AND league.access = :access AND league.team IS NOT NULL AND teamUser.id = :userId`,
+          `league.id NOT IN (${where.getQuery()}) AND league.access = :access AND (league.team IS NOT NULL AND teamUser.id = :userId)`,
           {
-            access: LeagueAccess.CompeteToEarn
+            access: LeagueAccess.CompeteToEarn,
+            userId
           }
         )
         .orWhere(
-          `league.id NOT IN (${where.getQuery()}) AND league.access = :access AND league.team IS NULL`,
+          `league.id NOT IN (${where.getQuery()}) AND league.access = :access AND (league.team IS NULL)`,
           {
             access: LeagueAccess.CompeteToEarn
           }
@@ -419,16 +420,14 @@ export class LeaguesService {
       results = this.applyRawResults(entities, raw)
     } else {
       const query = this.queryFindAccessibleToUser(userId)
-        .where('league.access = :access', {
-          access: LeagueAccess.CompeteToEarn
-        })
         .andWhere(
-          'league.access = :access AND league.team IS NOT NULL AND teamUser.id = :userId',
+          'league.access = :access AND (league.team IS NOT NULL AND teamUser.id = :userId)',
           {
-            access: LeagueAccess.CompeteToEarn
+            access: LeagueAccess.CompeteToEarn,
+            userId
           }
         )
-        .orWhere('league.access = :access AND league.team IS NULL', {
+        .orWhere('league.access = :access AND (league.team IS NULL)', {
           access: LeagueAccess.CompeteToEarn
         })
         .take(limit)
