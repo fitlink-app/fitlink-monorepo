@@ -78,6 +78,25 @@ import { FixAvatarId1634980861273 } from '../database/migrations/1634980861273-F
 import { AddTokenError1635682297056 } from '../database/migrations/1635682297056-AddTokenError'
 import { AddActiveMinutesGoal1637156314894 } from '../database/migrations/1637156314894-AddActiveMinutesGoal'
 import { AddUtcOffsetToHealthActivities1641556069365 } from '../database/migrations/1641556069365-AddUtcOffsetToHealthActivities'
+import { Update1672872041732 } from '../database/migrations/1672872041732-Update'
+import { Update1672951695915 } from '../database/migrations/1672951695915-Update'
+import { Update1673269889422 } from '../database/migrations/1673269889422-Update'
+import { Update1673355837904 } from '../database/migrations/1673355837904-Update'
+import { addedLeagueBfitEarningsEntity1673516909181 } from '../database/migrations/1673516909181-addedLeagueBfitEarningsEntity'
+import { changeUserBfitBalanceToBigInt1674579033783 } from '../database/migrations/1674579033783-changeUserBfitBalanceToBigInt'
+import { changeRewardBFITRequiredToBigInt1674725966038 } from '../database/migrations/1674725966038-changeRewardBFITRequiredToBigInt'
+import { changeBFITEarnedToBigInt1674744656218 } from '../database/migrations/1674744656218-changeBFITEarnedToBigInt'
+import { changeBFITClaimedToBigInt1674744806302 } from '../database/migrations/1674744806302-changeBFITClaimedToBigInt'
+import { changeBFITtoBigIntInLeague1674745166201 } from '../database/migrations/1674745166201-changeBFITtoBigIntInLeague'
+import { changeBFITAmountInEarningsAndClaimsToBigInt1674756830719 } from '../database/migrations/1674756830719-changeBFITAmountInEarningsAndClaimsToBigInt'
+import { addedWalletTransactionsEntity1674817445470 } from '../database/migrations/1674817445470-addedWalletTransactionsEntity'
+import { replacedLeagueFieldWithLeagueIdInWalletTransactions1674819355931 } from '../database/migrations/1674819355931-replacedLeagueFieldWithLeagueIdInWalletTransactions'
+import { madeLeagueIdNullableInWalletTransactions1674819995011 } from '../database/migrations/1674819995011-madeLeagueIdNullableInWalletTransactions'
+import { convertUserFieldToUserId1674820498271 } from '../database/migrations/1674820498271-convertUserFieldToUserId'
+import { removedEntitiesFromWalletTransactions1674820950489 } from '../database/migrations/1674820950489-removedEntitiesFromWalletTransactions'
+import { addedRewardNameColumnToWalletTransactions1675189321618 } from '../database/migrations/1675189321618-addedRewardNameColumnToWalletTransactions'
+import { Update1675854302597 } from '../database/migrations/1675854302597-Update'
+import { addedTransactionIdToWalletTransactions1675859315063 } from '../database/migrations/1675859315063-addedTransactionIdToWalletTransactions'
 
 export default [
   InitializeSchema1614887523112,
@@ -154,5 +173,24 @@ export default [
   FixAvatarId1634980861273,
   AddTokenError1635682297056,
   AddActiveMinutesGoal1637156314894,
-  AddUtcOffsetToHealthActivities1641556069365
+  AddUtcOffsetToHealthActivities1641556069365,
+  Update1672872041732,
+  Update1672951695915,
+  Update1673269889422,
+  Update1673355837904,
+  addedLeagueBfitEarningsEntity1673516909181,
+  changeUserBfitBalanceToBigInt1674579033783,
+  changeRewardBFITRequiredToBigInt1674725966038,
+  changeBFITEarnedToBigInt1674744656218,
+  changeBFITClaimedToBigInt1674744806302,
+  changeBFITtoBigIntInLeague1674745166201,
+  changeBFITAmountInEarningsAndClaimsToBigInt1674756830719,
+  addedWalletTransactionsEntity1674817445470,
+  replacedLeagueFieldWithLeagueIdInWalletTransactions1674819355931,
+  madeLeagueIdNullableInWalletTransactions1674819995011,
+  convertUserFieldToUserId1674820498271,
+  removedEntitiesFromWalletTransactions1674820950489,
+  addedRewardNameColumnToWalletTransactions1675189321618,
+  Update1675854302597,
+  addedTransactionIdToWalletTransactions1675859315063
 ]

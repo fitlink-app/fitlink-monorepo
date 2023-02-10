@@ -77,9 +77,28 @@ const Overlay = styled.View.attrs({
 });
 
 const IconWrapper = styled.View(({theme: {colors}}) => ({
-  backgroundColor: colors.surfaceDark,
+  backgroundColor: colors.card,
   borderRadius: 999,
-  padding: 10,
+  padding: 15,
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const ContinueButton = styled.View(({theme: {colors}}) => ({
+  backgroundColor: colors.card,
+  borderRadius: 12,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingVertical: 13,
+  paddingHorizontal: 19,
+}));
+
+const ControlPanelIconWrapper = styled.View(({theme: {colors}}) => ({
+  backgroundColor: colors.card,
+  borderRadius: 999,
+  paddingVertical: 11,
+  paddingHorizontal: 11,
   alignItems: 'center',
   justifyContent: 'center',
 }));
@@ -96,7 +115,12 @@ const ControlPanel = styled.View({
   right: 0,
 });
 
-const ControlPanelSeparator = styled.View({height: 10});
+const ControlPanelSeparator = styled.View({
+  width: '100%',
+  height: 2,
+  backgroundColor: '#060606',
+  marginVertical: 9,
+});
 
 const positionToPoint = (coords: GeoJSON.Position) =>
   ({
@@ -460,7 +484,7 @@ export const Discover = () => {
 
       // @ts-ignore
       for (const feature of leaves.features) {
-        clusterActivityIds.push(feature.properties.id);
+        clusterActivityIds.push(feature.properties?.id);
       }
 
       // @ts-ignore
@@ -592,14 +616,14 @@ export const Discover = () => {
               onPress={handleOnToggleAddActivityModePressed}
               name={'times'}
               color={colors.accent}
-              size={25}
+              size={20}
             />
           ) : (
             <Icon
               onPress={handleOnToggleAddActivityModePressed}
               name={'plus'}
               color={colors.accent}
-              size={25}
+              size={20}
             />
           )}
         </IconWrapper>
@@ -610,7 +634,7 @@ export const Discover = () => {
   const renderControlPanel = () => {
     return (
       <ControlPanel>
-        <IconWrapper>
+        <ControlPanelIconWrapper>
           <Icon
             onPress={centerCamera}
             name={'location'}
@@ -639,21 +663,24 @@ export const Discover = () => {
             color={colors.accent}
             size={21}
           />
-        </IconWrapper>
+        </ControlPanelIconWrapper>
       </ControlPanel>
     );
   };
 
   const renderAddActivityOverlay = () => {
     return (
-      <View style={{position: 'absolute', bottom: 0, right: 0}}>
+      <View style={{position: 'absolute', alignSelf: 'center', bottom: 105}}>
         <TouchHandler
           onPress={() => {
             handleOnAddActivityContinuePress();
           }}>
-          <IconWrapper>
-            <Label appearance={'accent'}>Continue</Label>
-          </IconWrapper>
+          <ContinueButton>
+            <Label appearance={'accent'} style={{marginRight: 5}}>
+              CONTINUE
+            </Label>
+            <Icon name={'arrow-right'} size={16} color={'white'} />
+          </ContinueButton>
         </TouchHandler>
       </View>
     );
@@ -727,7 +754,7 @@ export const Discover = () => {
     <BottomSheetModalProvider>
       <MapView
         regionDidChangeDebounceTime={0}
-        style={StyleSheet.absoluteFillObject}
+        style={{...StyleSheet.absoluteFillObject, zIndex: -99999}}
         logoEnabled={false}
         ref={mapViewRef}
         onRegionIsChanging={feature => {

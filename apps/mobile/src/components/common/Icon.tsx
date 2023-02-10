@@ -1,24 +1,24 @@
 import React from 'react';
-import {ActivityIndicator} from 'react-native';
-import {createIconSetFromIcoMoon} from 'react-native-vector-icons';
-import {IconProps as IcoMoonIconProps} from 'react-native-vector-icons/Icon';
+import {ActivityIndicator, StyleProp, ViewStyle} from 'react-native';
 import styled from 'styled-components/native';
 import icoMoonConfig from '../../../assets/fitlink_icon_selection.json';
 import {TouchHandler, TouchHandlerProps} from './TouchHandler';
-
-export const IcoMoonIcon = createIconSetFromIcoMoon(icoMoonConfig);
+import IcoMoon, {IconProps} from 'react-icomoon';
+import {Svg, Path} from 'react-native-svg';
 
 const LoadingContainer = styled.View({
   justifyContent: 'center',
   alignItems: 'center',
 });
 
-interface IconProps
-  extends Omit<IcoMoonIconProps, 'onPress'>,
+interface Props
+  extends Omit<IconProps, 'onPress' | 'style' | 'icon'>,
     Pick<TouchHandlerProps, 'onPress'> {
   hitSlop?: number;
   disabled?: boolean;
   isLoading?: boolean;
+  name: string;
+  style?: StyleProp<ViewStyle>;
 }
 
 export const Icon = ({
@@ -27,8 +27,9 @@ export const Icon = ({
   hitSlop = 10,
   isLoading,
   style,
+  name,
   ...rest
-}: IconProps) => {
+}: Props) => {
   const hitSlopInsets = {
     top: hitSlop,
     left: hitSlop,
@@ -46,7 +47,14 @@ export const Icon = ({
           <ActivityIndicator color={rest.color} />
         </LoadingContainer>
       ) : (
-        <IcoMoonIcon {...rest} />
+        <IcoMoon
+          icon={name}
+          native
+          iconSet={icoMoonConfig}
+          SvgComponent={Svg}
+          PathComponent={Path}
+          {...rest}
+        />
       )}
     </TouchHandler>
   );

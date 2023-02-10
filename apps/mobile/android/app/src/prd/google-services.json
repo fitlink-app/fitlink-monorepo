@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:369193601741:android:4b3db2ba8134efba3ff784",
         "android_client_info": {
-          "package_name": "app.fitlink"
+          "package_name": "app.bfitcoin"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "369193601741-5lktfsjujrrursm157kf81va1bnqet99.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "app.fitlink",
+            "package_name": "app.bfitcoin",
             "certificate_hash": "259f16c3ec5a37f7250da6614b8013f42f238f08"
           }
         },
@@ -26,7 +26,7 @@
           "client_id": "369193601741-c6uh9lc51rsmkt926vu47toljkac40gu.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "app.fitlink",
+            "package_name": "app.bfitcoin",
             "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
           }
         },
@@ -34,7 +34,7 @@
           "client_id": "369193601741-erpupjrmo6ksrcrcn6383rqp14mi759p.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "app.fitlink",
+            "package_name": "app.bfitcoin",
             "certificate_hash": "3486608725728a0a6aa88f1ec9860067edf4a9ef"
           }
         },

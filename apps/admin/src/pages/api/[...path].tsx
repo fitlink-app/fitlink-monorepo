@@ -14,7 +14,7 @@ import { IncomingMessage, ServerResponse } from 'http'
  */
 
 // API_BASE_URL should be configured in Vercel
-const API_URL = process.env.API_BASE_URL || 'http://localhost:3000'
+const API_URL = process.env.API_BASE_URL || 'http://127.0.0.1:3000'
 
 const proxy = httpProxy.createProxyServer()
 // You can export a config variable from any API route in Next.js.

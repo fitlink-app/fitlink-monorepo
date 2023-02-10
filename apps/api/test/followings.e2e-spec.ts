@@ -31,7 +31,8 @@ describe('Followings', () => {
     following: 1,
     invited: 1,
     follower: 1,
-    avatar: 1
+    avatar: 1,
+    rank: 'Fitlink Newbie'
   }).sort()
 
   beforeAll(async () => {

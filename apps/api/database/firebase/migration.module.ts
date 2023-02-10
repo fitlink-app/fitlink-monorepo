@@ -66,6 +66,8 @@ import { UsersSettingsModule } from '../../src/modules/users-settings/users-sett
 import { UserRolesModule } from '../../src/modules/user-roles/user-roles.module'
 import { UsersInvitationsModule } from '../../src/modules/users-invitations/users-invitations.module'
 import { NotificationsModule } from '../../src/modules/notifications/notifications.module'
+import { LeagueBfitClaim } from '../../src/modules/leagues/entities/bfit-claim.entity'
+import { LeagueBfitEarnings } from '../../src/modules/leagues/entities/bfit-earnings.entity'
 
 @Module({
   imports: [
@@ -119,7 +121,9 @@ import { NotificationsModule } from '../../src/modules/notifications/notificatio
             TeamsInvitation,
             User,
             UserRole,
-            UsersSetting
+            UsersSetting,
+            LeagueBfitClaim,
+            LeagueBfitEarnings
           ],
           synchronize: false,
           logging: false,

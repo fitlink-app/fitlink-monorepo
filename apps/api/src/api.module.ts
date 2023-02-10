@@ -67,6 +67,10 @@ import { UserRolesModule } from './modules/user-roles/user-roles.module'
 import { UsersInvitationsModule } from './modules/users-invitations/users-invitations.module'
 import { AppController } from './api.controller'
 import { NotificationsModule } from './modules/notifications/notifications.module'
+import { LeagueBfitClaim } from './modules/leagues/entities/bfit-claim.entity'
+import { LeagueBfitEarnings } from './modules/leagues/entities/bfit-earnings.entity'
+import { WalletTransaction } from './modules/wallet-transactions/entities/wallet-transaction.entity'
+import { WalletTransactionsModule } from './modules/wallet-transactions/wallet-transactions.module'
 
 @Module({
   imports: [
@@ -118,7 +122,10 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
             User,
             UserRole,
             UsersSetting,
-            Notification
+            Notification,
+            LeagueBfitClaim,
+            LeagueBfitEarnings,
+            WalletTransaction
           ],
           synchronize: false,
           logging: false,
@@ -153,7 +160,8 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     UserRolesModule,
     SubscriptionsModule,
     UsersInvitationsModule,
-    NotificationsModule
+    NotificationsModule,
+    WalletTransactionsModule
   ],
   providers: [
     {

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Icon, Label, TouchHandler} from '@components';
+import {Label, TouchHandler} from '@components';
 import styled from 'styled-components/native';
 import {useNavigation} from '@react-navigation/core';
 
@@ -15,21 +15,20 @@ const BadgeWrapper = styled.View(({theme: {colors}}) => ({
   bottom: 10,
 }));
 
-const NotificationsButtonIcon = styled(Icon).attrs(({theme: {colors}}) => ({
-  name: 'bell',
-  size: 20,
-  color: colors.accentSecondary,
-}))({});
+const NotificationsButtonIcon = styled.Image({});
 
 export const NotificationsButton = ({count}: {count: number}) => {
   const navigation = useNavigation();
 
   return (
     <TouchHandler
+      hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
       onPress={() => {
         navigation.navigate('Notifications');
       }}>
-      <NotificationsButtonIcon disabled />
+      <NotificationsButtonIcon
+        source={require('../../../assets/images/icon/bell.png')}
+      />
 
       {!!count && (
         <BadgeWrapper>

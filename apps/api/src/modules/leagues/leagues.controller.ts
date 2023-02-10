@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -25,7 +24,7 @@ import {
 import { PaginationQuery } from '../../helpers/paginate'
 import { AuthenticatedUser } from '../../models'
 import { Roles } from '../user-roles/user-roles.constants'
-import { CreateLeagueDto } from './dto/create-league.dto'
+import { CreateLeagueDto, RewardBfitDto } from './dto/create-league.dto'
 import { UpdateLeagueDto } from './dto/update-league.dto'
 import { SearchLeagueDto } from './dto/search-league.dto'
 import {
@@ -47,6 +46,9 @@ import { SearchUserForLeaguesDto } from '../users/dto/search-user.dto'
 import { ConfigService } from '@nestjs/config'
 import { LeagueJobDto } from './dto/league-job.dto'
 import { Public } from '../../decorators/public.decorator'
+import { ClaimLeagueBfitDto } from './dto/claim-league-bfit.dto'
+import { LeaguesFiltersDto } from './dto/league-filter.dto'
+import { FilterCompeteToEarnDto } from './dto/filter-compete-to-earn.dto'
 
 @ApiTags('leagues')
 @ApiBaseResponses()
@@ -82,6 +84,14 @@ export class LeaguesController {
         'You do not have permission to create non-private leagues'
       )
     }
+    if (
+      createLeagueDto.access === LeagueAccess.CompeteToEarn &&
+      !authUser.isSuperAdmin()
+    ) {
+      throw new ForbiddenException(
+        'You do not have permission to create compete to earn leagues'
+      )
+    }
 
     let options
 
@@ -90,6 +100,22 @@ export class LeaguesController {
     }
 
     return this.leaguesService.create(createLeagueDto, options)
+  }
+
+  // this endpoint is only for issuing test bfit in dev
+  @Post('/leagues/users/reward-bfit')
+  issueTestBfit(
+    @Body() rewardBfitDto: RewardBfitDto,
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      throw new ForbiddenException('Forbidden')
+    }
+
+    return this.leaguesService.incrementUserBfit(
+      rewardBfitDto.email,
+      rewardBfitDto.amount
+    )
   }
 
   /**
@@ -163,16 +189,100 @@ export class LeaguesController {
   @PaginationBody()
   findAll(
     @User() authUser: AuthenticatedUser,
-    @Pagination() pagination: PaginationQuery
+    @Pagination() pagination: PaginationQuery,
+    @Query()
+    {
+      isCte = true,
+      isOrganization = true,
+      isPrivate = true,
+      isPublic = true,
+      isTeam = true
+    }: LeaguesFiltersDto
   ) {
     if (authUser.isSuperAdmin()) {
       return this.leaguesService.findAll({}, pagination)
     } else {
       return this.leaguesService.findAllNotParticipating(
         authUser.id,
-        pagination
+        pagination,
+        {
+          isCte,
+          isOrganization,
+          isPrivate,
+          isPublic,
+          isTeam
+        }
       )
     }
+  }
+
+  /**
+   * All users can fetch compete to earn leagues
+   */
+  @Get('/leagues/access/compete-to-earn')
+  @ApiTags('leagues')
+  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
+  @PaginationBody()
+  findAllCompeteToEarnLeagues(
+    @User() authUser: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery,
+    @Query()
+    query: FilterCompeteToEarnDto
+  ) {
+    return this.leaguesService.findAllCompeteToEarnLeagues(
+      pagination,
+      authUser.id,
+      query
+    )
+  }
+
+  /**
+   * 1. Anyone can create a private league
+   * 2. Only superadmin can create a public league
+   * All other scenarios are handled by nested routes (e..g /team/ /organisation/ routes)
+   *
+   * @param createLeagueDto
+   * @returns
+   */
+  @Post('/leagues/:leagueId/claim')
+  @ApiTags('leagues')
+  @ApiResponse({ type: League, status: 201 })
+  claimBFIT(
+    @Body() claimLeagueBfitDto: ClaimLeagueBfitDto,
+    @User() authUser: AuthenticatedUser,
+    @Param('leagueId') leagueId: string
+  ) {
+    return this.leaguesService.claimLeagueBfit(
+      leagueId,
+      authUser.id,
+      claimLeagueBfitDto
+    )
+  }
+
+  @Get('/leagues/bfit/claims')
+  @ApiTags('leagues')
+  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
+  @PaginationBody()
+  findUserBfitClaims(
+    @User() authUser: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.leaguesService.getUserBfitClaims(authUser.id, pagination)
+  }
+
+  // user league bfit earnings history for the past 7 days
+  @Get('/leagues/bfit/earnings')
+  @ApiTags('leagues')
+  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
+  @PaginationBody()
+  findUserBfitEarningsHistory(
+    @User() authUser: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.leaguesService.getUserBfitEarningsHistory(
+      authUser.id,
+      pagination
+    )
   }
 
   @Iam(Roles.OrganisationAdmin, Roles.TeamAdmin)
@@ -209,12 +319,27 @@ export class LeaguesController {
   search(
     @Query() query: SearchLeagueDto,
     @User() user: AuthenticatedUser,
-    @Pagination() pagination: PaginationQuery
+    @Pagination() pagination: PaginationQuery,
+    @Query()
+    {
+      isCte = true,
+      isOrganization = true,
+      isPrivate = true,
+      isPublic = true,
+      isTeam = true
+    }: LeaguesFiltersDto
   ) {
     return this.leaguesService.searchManyAccessibleToUser(
       query.q,
       user.id,
-      pagination
+      pagination,
+      {
+        isCte,
+        isOrganization,
+        isPrivate,
+        isPublic,
+        isTeam
+      }
     )
   }
 
@@ -268,6 +393,43 @@ export class LeaguesController {
       return result
     } else {
       return this.leaguesService.findOne(leagueId)
+    }
+  }
+
+  /*
+   * 1. Superadmin can get a single league
+   * 2. Ordinary user can read a public league
+   * 3. Owner user can read their own league
+   * 4. TODO: Users belonging to teams and organisations may also have access to read
+   * 5.
+   * @param id
+   * @returns
+   */
+  @Get('/leagues/:leagueId/dailybfit')
+  @ApiTags('leagues')
+  @ApiResponse({ type: LeaguePublic, status: 200 })
+  async findLeagueDailyBfit(
+    @Param('leagueId') leagueId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      const result = await this.leaguesService.findOneAccessibleToUser(
+        leagueId,
+        authUser.id
+      )
+      if (!result) {
+        const exists = await this.leaguesService.findOne(leagueId)
+        if (exists) {
+          throw new ForbiddenException(
+            'You do not have permission to view this league'
+          )
+        } else {
+          throw new NotFoundException('The league does not exist')
+        }
+      }
+      return this.leaguesService.findLeagueDailyBfit(leagueId)
+    } else {
+      return this.leaguesService.findLeagueDailyBfit(leagueId)
     }
   }
 
@@ -345,6 +507,51 @@ export class LeaguesController {
   }
 
   /**
+   * 1. Gets a current user leaderboard entry
+   *
+   * @param id
+   * @returns
+   */
+  @Get('/leagues/:leagueId/members/me')
+  @ApiTags('leagues')
+  @ApiResponse({ type: League, status: 200 })
+  async getLeagueMembersMe(
+    @Param('leagueId') leagueId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      let league = await this.leaguesService.getLeagueIfInvited(
+        leagueId,
+        authUser.id
+      )
+
+      if (!league) {
+        league = await this.leaguesService.findOneAccessibleToUser(
+          leagueId,
+          authUser.id
+        )
+      }
+
+      if (!league) {
+        throw new ForbiddenException(
+          'You do not have permission to view this league'
+        )
+      }
+    }
+
+    const leaderboardEntry =
+      await this.leaguesService.getLeaderboardMemberByUserId(
+        leagueId,
+        authUser.id
+      )
+
+    if (!leaderboardEntry) {
+      throw new NotFoundException("User isn't member yet")
+    }
+    return leaderboardEntry
+  }
+
+  /**
    * Gets the rank of the user and 2 users flanking it.
    *
    * @param leagueId
@@ -382,7 +589,7 @@ export class LeaguesController {
   }
 
   /**
-   * A user can join a public league
+   * A user can join a public or compete to earn league
    *
    * @param id
    * @param joinLeagueDto
@@ -414,10 +621,6 @@ export class LeaguesController {
     }
 
     const result = await this.leaguesService.joinLeague(leagueId, authUser.id)
-
-    if (result === 'already joined') {
-      throw new BadRequestException('You have already joined this league')
-    }
 
     return result
   }
@@ -535,5 +738,14 @@ export class LeaguesController {
       pending,
       ending
     }
+  }
+
+  @Public()
+  @Get('/teams/:teamId/public/leagues')
+  async getTeamLeaguesForPublicPage(@Param('teamId') teamId: string) {
+    const leagues = await this.leaguesService.getTeamLeaguesForPublicPage(
+      teamId
+    )
+    return leagues
   }
 }

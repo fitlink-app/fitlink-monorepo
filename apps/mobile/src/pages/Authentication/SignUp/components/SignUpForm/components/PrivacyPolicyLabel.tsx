@@ -16,7 +16,7 @@ export const PrivacyPolicyLabel = () => {
 
   const handlePrivacyPolicyPressed = () => {
     navigation.navigate('Webview', {
-      url: 'https://fitlinkteams.com/privacy-policy/',
+      url: 'https://fitlinkapp.com/privacy-policy/',
       title: 'Privacy Policy',
     });
   };

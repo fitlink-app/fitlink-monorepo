@@ -1,6 +1,5 @@
 import React, {useCallback, useRef} from 'react';
-import styled from 'styled-components/native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import styled, {useTheme} from 'styled-components/native';
 import {Route} from 'react-native-tab-view';
 import {StackScreenProps} from '@react-navigation/stack';
 import {
@@ -10,10 +9,15 @@ import {
 } from '@react-navigation/native';
 import {RootStackParamList} from 'routes/types';
 import {Following, Followers, Search} from './tabs';
-import {TabView} from '@components';
+import {Navbar, TabView} from '@components';
+import {useMe} from '@hooks';
 
 const Wrapper = styled.View({
   flex: 1,
+});
+
+const HeaderView = styled.View({
+  // position: 'absolute',
 });
 
 export const Friends = (
@@ -21,19 +25,23 @@ export const Friends = (
 ) => {
   const tab = props?.route?.params?.tab;
 
-  const insets = useSafeAreaInsets();
+  const {colors} = useTheme();
+
   const navigation = useNavigation();
 
   const tabViewRef = useRef<any>(null);
 
+  const {data: user} = useMe();
+
   useFocusEffect(
     useCallback(() => {
-      if (!!tabViewRef.current?.jumpToIndex && tab !== undefined)
+      if (!!tabViewRef.current?.jumpToIndex && tab !== undefined) {
         tabViewRef.current.jumpToIndex(tab);
+      }
 
       // Reset navigation params
       navigation.dispatch(CommonActions.setParams({tab: undefined}));
-    }, [tab]),
+    }, [navigation, tab]),
   );
 
   const renderTabs = ({route, ...rest}: {route: Route}) => {
@@ -52,16 +60,34 @@ export const Friends = (
   };
 
   return (
-    <Wrapper style={{marginTop: insets.top}}>
-      <TabView
-        ref={tabViewRef}
-        routes={[
-          {key: 'following', title: 'Following'},
-          {key: 'followers', title: 'My Followers'},
-          {key: 'search', title: 'Search'},
-        ]}
-        renderScene={renderTabs}
-      />
-    </Wrapper>
+    <>
+      <HeaderView>
+        <Navbar
+          containerStyle={{position: 'relative'}}
+          iconColor={colors.accent}
+          title="FRIENDS"
+          titleStyle={{fontSize: 18, color: colors.accent}}
+        />
+      </HeaderView>
+      <Wrapper>
+        <TabView
+          ref={tabViewRef}
+          routes={[
+            {
+              key: 'followers',
+              title: 'FOLLOWERS',
+              peopleCount: user?.followers_total || 0,
+            },
+            {
+              key: 'following',
+              title: 'FOLLOWING',
+              peopleCount: user?.following_total || 0,
+            },
+            {key: 'search', title: 'SEARCH'},
+          ]}
+          renderScene={renderTabs}
+        />
+      </Wrapper>
+    </>
   );
 };

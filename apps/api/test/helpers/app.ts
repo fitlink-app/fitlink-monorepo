@@ -37,6 +37,7 @@ import { UsersSetting } from '../../src/modules/users-settings/entities/users-se
 import { Subscription } from '../../src/modules/subscriptions/entities/subscription.entity'
 import { SubscriptionsInvitation } from '../../src/modules/subscriptions/entities/subscriptions-invitation.entity'
 import { UserRole } from '../../src/modules/user-roles/entities/user-role.entity'
+import { LeagueBfitClaim } from '../../src/modules/leagues/entities/bfit-claim.entity'
 import {
   mockConfigService,
   mockConfigServiceProvider,
@@ -54,6 +55,8 @@ import { validationExceptionFactory } from '../../src/exceptions/validation.exce
 import { UploadGuardV2 } from '../../src/guards/upload-v2.guard'
 import { FirebaseAdminService } from '../../src/modules/notifications/firebase-admin.module'
 import * as admin from 'firebase-admin'
+import { LeagueBfitEarnings } from '../../src/modules/leagues/entities/bfit-earnings.entity'
+import { WalletTransaction } from '../../src/modules/wallet-transactions/entities/wallet-transaction.entity'
 
 export const entities = [
   Activity,
@@ -85,7 +88,10 @@ export const entities = [
   TeamsInvitation,
   User,
   UserRole,
-  UsersSetting
+  UsersSetting,
+  LeagueBfitClaim,
+  LeagueBfitEarnings,
+  WalletTransaction
 ]
 
 export async function mockApp({
@@ -129,9 +135,8 @@ export async function mockApp({
   const fastifyAdapter = new FastifyAdapter()
   fastifyAdapter.register(fastifyMultipart)
 
-  const app = result.createNestApplication<NestFastifyApplication>(
-    fastifyAdapter
-  )
+  const app =
+    result.createNestApplication<NestFastifyApplication>(fastifyAdapter)
 
   // TODO: Lock to specific origins
   app.enableCors({

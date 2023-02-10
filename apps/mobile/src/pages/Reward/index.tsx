@@ -1,33 +1,37 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {
-  ActivityIndicator,
-  Animated,
-  Image,
-  Linking,
-  StyleSheet,
-  View,
-} from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import React, {useState} from 'react';
+import {ActivityIndicator, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import SnackBar from 'react-native-snackbar-component';
-import Clipboard from '@react-native-community/clipboard';
-import styled, {useTheme} from 'styled-components/native';
 import {StackScreenProps} from '@react-navigation/stack';
-import {useNavigation} from '@react-navigation/native';
+import styled, {useTheme} from 'styled-components/native';
 import {RootStackParamList} from 'routes/types';
-import {
-  Button,
-  Card,
-  Chip,
-  Label,
-  Navbar,
-  NAVBAR_HEIGHT,
-  TouchHandler,
-} from '@components';
-import {useClaimReward, useMe, useReward} from '@hooks';
+import {useSharedValue} from 'react-native-reanimated';
 import {format} from 'date-fns';
 
-const HEADER_HEIGHT = 250;
+import {FitButton, NAVBAR_HEIGHT} from '@components';
+import {
+  useClaimReward,
+  useManualQueryRefresh,
+  useMe,
+  useModal,
+  useReward,
+} from '@hooks';
+import {
+  calculateDaysLeft,
+  convertBfitToUsd,
+  getPositiveValueOrZero,
+  getViewBfitValue,
+} from '@utils';
+import {getErrors} from '@api';
+import {ResponseError} from '@fitlink/api-sdk/types';
+
+import DetailedProgressBar from './components/DetailedProgressBar';
+import AnimatedHeaderCard from '../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
+import {RedeemSuccessBanner} from './components';
+import ErrorContent from '../../components/common/ErrorContent';
+
+const Wrapper = styled.View({
+  flex: 1,
+});
 
 const EmptyContainer = styled.View({
   flex: 1,
@@ -35,88 +39,38 @@ const EmptyContainer = styled.View({
   alignItems: 'center',
 });
 
-const HeaderContainer = styled.View({
-  width: '100%',
-  height: HEADER_HEIGHT,
-});
-
-const HeaderContent = styled.View({
-  flex: 1,
-  ...StyleSheet.absoluteFillObject,
-  margin: 20,
-  justifyContent: 'flex-end',
-});
-
-const Row = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-});
-
-const HeaderImage = styled(Image)({
-  width: '100%',
-  height: HEADER_HEIGHT,
-});
-
-const ContentContainer = styled.View({
-  margin: 20,
-});
-
-const ImageOverlay = styled(LinearGradient).attrs(() => ({
-  colors: ['#0000004D', '#00000099'],
-}))({
-  ...StyleSheet.absoluteFillObject,
-  opacity: 0.9,
-});
-
-const InstructionsContainer = styled.View({
-  marginBottom: 10,
-  alignItems: 'center',
-});
-
-async function openUrl(url: string) {
-  const supported = await Linking.canOpenURL(url);
-
-  if (supported) {
-    await Linking.openURL(url);
-  }
-}
-
 export const Reward = (
   props: StackScreenProps<RootStackParamList, 'Reward'>,
 ) => {
-  const {id} = props.route.params;
+  const {id, image} = props.route.params;
+  const {colors} = useTheme();
 
-  const {colors, fonts} = useTheme();
-  const navigation = useNavigation();
+  const [showAltCurrency, setShowAltCurrency] = useState(false);
   const insets = useSafeAreaInsets();
+  const {data: user, isLoading: isLoadingUser, refetch: refetchUser} = useMe();
+  const {
+    data: reward,
+    isLoading: isLoadingReward,
+    refetch: refetchReward,
+  } = useReward(id);
 
-  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const sharedContentOffset = useSharedValue(0);
 
-  const {data: user} = useMe();
+  const {mutateAsync: claimReward} = useClaimReward();
 
-  const {data: reward} = useReward(id);
+  const {openModal} = useModal();
 
-  const {mutateAsync: claimReward, isLoading: isClaiming} = useClaimReward();
+  const swapRewardCurrency = () => {
+    setShowAltCurrency(prev => !prev);
+  };
 
-  const scrollAnim = useRef(new Animated.Value(0)).current;
-  let snackbarTimer = useRef<NodeJS.Timeout | null>(null);
+  const refetch = async () => {
+    await Promise.all([refetchUser(), refetchReward()]);
+  };
 
-  useEffect(() => {
-    const onFocusListener = navigation.addListener('focus', () => {
-      if (snackbarVisible) setSnackbarVisible(false);
-    });
+  const {refresh, isRefreshing} = useManualQueryRefresh(refetch);
 
-    const onBlurListener = navigation.addListener('blur', () => {
-      if (snackbarTimer.current) clearTimeout(snackbarTimer.current);
-    });
-
-    return () => {
-      onFocusListener();
-      onBlurListener();
-    };
-  }, [navigation]);
-
-  if (!reward || !user) {
+  if (isLoadingUser || isLoadingReward) {
     return (
       <EmptyContainer style={{marginTop: -(NAVBAR_HEIGHT + insets.top)}}>
         <ActivityIndicator color={colors.accent} />
@@ -124,248 +78,122 @@ export const Reward = (
     );
   }
 
-  const isExpired = new Date() > new Date(reward.reward_expires_at);
+  if (!reward || !user) {
+    return <ErrorContent isRefreshing={isRefreshing} onRefresh={refresh} />;
+  }
+
+  const viewBfitValue = getViewBfitValue(reward.bfit_required);
+
+  const isBfitReward = reward.bfit_required != null;
+  const requiredBfitReward = showAltCurrency
+    ? `$${convertBfitToUsd(viewBfitValue)}`
+    : `${viewBfitValue} BFIT`;
+  const requiredPointsReward = `${reward.points_required} Points`;
+  const requiredReward = isBfitReward
+    ? requiredBfitReward
+    : requiredPointsReward;
+
+  const expirationDate = new Date(reward.reward_expires_at);
+  const isExpired = new Date() > expirationDate;
+  const restDays = calculateDaysLeft(expirationDate, isExpired);
 
   const expiryDateFormatted = format(
     new Date(reward.reward_expires_at),
     'do MMMM yyyy',
   );
 
-  const scrollAnimInterpolated = scrollAnim.interpolate({
-    inputRange: [-500, 0],
-    outputRange: [-500, 0],
-    extrapolate: 'clamp',
-  });
+  const p1 = isExpired
+    ? `Expired on ${expiryDateFormatted}`
+    : `${restDays} DAYS LEFT`;
 
-  const copyToClipboard = (code: string) => {
-    Clipboard.setString(code);
-    if (snackbarTimer.current) clearTimeout(snackbarTimer.current);
+  const bFitUserBalance = getPositiveValueOrZero(user?.bfit_balance);
+  const isReadyToBuy = isBfitReward
+    ? bFitUserBalance >= reward.bfit_required
+    : user.points_total >= reward.points_required;
 
-    setSnackbarVisible(true);
-
-    snackbarTimer.current = setTimeout(() => {
-      setSnackbarVisible(false);
-    }, 1500);
-  };
-
-  /** returns true if the user has more points than the reward's requirement */
-  function isRewardUnclaimed() {
-    return reward && reward.points_required <= user!.points_total;
-  }
-
-  const renderContent = () => {
-    if (!isExpired) {
-      if (reward.redeemed) {
-        return (
-          <>
-            {reward.code && reward.redeem_url && (
-              <InstructionsContainer>
-                <Label appearance={'primary'} type={'body'}>
-                  Redeem this code at{' '}
-                  <Label onPress={() => openUrl(reward.redeem_url)}>
-                    {reward.redeem_url}
-                  </Label>
-                </Label>
-              </InstructionsContainer>
-            )}
-
-            {reward.code && (
-              <Card>
-                <TouchHandler
-                  style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    paddingVertical: 22,
-                  }}
-                  onPress={() => copyToClipboard(reward.code)}
-                  disabled={!reward.code}>
-                  <Label appearance={'primary'} bold style={{fontSize: 22}}>
-                    {reward.code}
-                  </Label>
-                </TouchHandler>
-              </Card>
-            )}
-
-            <View style={{alignItems: 'center'}}>
-              <Label type={'caption'} style={{marginTop: 10}}>
-                {reward.redeem_instructions
-                  ? reward.redeem_instructions
-                  : reward.code
-                  ? 'Tap code to copy to clipboard'
-                  : ''}
-              </Label>
-            </View>
-          </>
-        );
-      }
-
-      if (isRewardUnclaimed()) {
-        return (
-          <>
-            <Button
-              text={'Claim This Reward'}
-              onPress={() => claimReward(id)}
-              disabled={isClaiming}
-              loading={isClaiming}
-            />
-
-            <View style={{alignItems: 'center'}}>
-              <Label type={'caption'} style={{marginTop: 10}}>
-                Your points balance will be{' '}
-                {user!.points_total - reward.points_required} after claiming
-                this reward
-              </Label>
-            </View>
-          </>
-        );
-      }
-
-      return (
-        <Card>
-          <View
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingVertical: 22,
-              paddingHorizontal: 10,
-            }}>
-            <Label appearance={'secondary'} style={{textAlign: 'center'}}>
-              You need{' '}
-              <Label appearance={'accent'}>
-                {reward.points_required - user!.points_total}
-              </Label>{' '}
-              more points to claim this reward
-            </Label>
-          </View>
-        </Card>
-      );
-    } else {
-      return (
-        <Label appearance={'primary'} style={{textAlign: 'center'}}>
-          This code expired on {expiryDateFormatted}
-        </Label>
-      );
+  const onClaimReward = async () => {
+    try {
+      const claimedReward = await claimReward(reward.id);
+      openModal(() => (
+        <RedeemSuccessBanner
+          instructions={claimedReward.redeem_instructions}
+          url={claimedReward.redeem_url}
+          code={claimedReward.code}
+        />
+      ));
+    } catch (e) {
+      console.error('onClaimReward', getErrors(e as ResponseError));
     }
   };
 
+  const isUnableToBuy =
+    reward.limit_units && (reward.redeemed || reward.units_available === 0);
+  const disabledBuyButtonText = reward.redeemed ? 'REDEEMED' : 'UNAVAILABLE';
+  const buyButtonText = isUnableToBuy ? disabledBuyButtonText : 'BUY REWARD';
+
   return (
-    <>
-      <Navbar
-        scrollAnimatedValue={scrollAnim}
-        title={reward.name_short}
-        iconColor={'white'}
-        overlay
-        titleProps={{
-          type: 'title',
-          bold: false,
+    <Wrapper>
+      <AnimatedHeaderCard
+        headerProps={{
+          title: 'REWARD',
         }}
-      />
-
-      <Animated.ScrollView
-        bounces={false}
-        onScroll={Animated.event(
-          [{nativeEvent: {contentOffset: {y: scrollAnim}}}],
-          {useNativeDriver: true},
-        )}>
-        <Animated.View
-          style={{
-            transform: [{translateY: scrollAnimInterpolated}],
-          }}>
-          <HeaderContainer>
-            <HeaderImage
-              resizeMode={'cover'}
-              source={{
-                uri: reward.image.url_640x360,
-              }}
-            />
-            <ImageOverlay />
-            <HeaderContent>
-              <Row>
-                <View style={{flex: 2}}>
-                  <Row
-                    style={{
-                      alignItems: 'center',
-                      marginBottom: 20,
-                      justifyContent: 'flex-start',
-                    }}>
-                    <Chip
-                      textStyle={{
-                        fontFamily: fonts.bold,
-                        color: colors.chartUnfilled,
-                      }}
-                      style={{backgroundColor: 'rgba(255,255,255,.5)'}}
-                      progress={
-                        isRewardUnclaimed() || reward.redeemed || isExpired
-                          ? 1
-                          : user!.points_total / reward.points_required
-                      }
-                      text={`${reward.points_required} points`}
-                      disabled={true}
-                    />
-
-                    {!reward.redeemed && !isRewardUnclaimed() && !isExpired && (
-                      <Label
-                        style={{marginLeft: 5, fontSize: 10}}
-                        type={'caption'}
-                        appearance={'primary'}
-                        bold>
-                        {reward.points_required - user!.points_total} points
-                        remaining
-                      </Label>
-                    )}
-                  </Row>
-                  <Label type={'body'} appearance={'primary'} bold>
-                    {reward.brand}
-                  </Label>
-                  <Label
-                    type={'title'}
-                    appearance={'primary'}
-                    numberOfLines={2}>
-                    {reward.name_short}
-                  </Label>
-                </View>
-                <View
-                  style={{
-                    justifyContent: 'flex-end',
-                    marginLeft: 10,
-                    flex: 1,
-                  }}>
-                  <Label
-                    type={'caption'}
-                    appearance={'primary'}
-                    style={{textAlign: 'right'}}>
-                    {isExpired
-                      ? `Expired on ${expiryDateFormatted}`
-                      : `Expires at ${expiryDateFormatted}`}
-                  </Label>
-                </View>
-              </Row>
-            </HeaderContent>
-          </HeaderContainer>
-        </Animated.View>
-
-        <ContentContainer>
-          <Label type={'subheading'}>{reward.name}</Label>
-          <Label style={{marginTop: 10, marginBottom: 20}}>
-            {reward.description}
-          </Label>
-
-          {renderContent()}
-        </ContentContainer>
-      </Animated.ScrollView>
-
-      {/* // TODO: Fix snackbar props */}
-      <SnackBar
-        visible={snackbarVisible}
-        textMessage={`Code was copied to your clipboard`}
-        // @ts-ignore
-        containerStyle={{
-          paddingBottom: insets.bottom,
+        imageContainerProps={{
+          imageSource: {uri: image},
+          p1,
+          p2: reward.name,
+          p3: reward.name_short,
+          animatedValue: requiredReward,
+          onAnimatedValuePress: isBfitReward ? swapRewardCurrency : undefined,
         }}
-        backgroundColor={colors.accent}
-        messageColor={colors.chartUnfilled}
-        messageStyle={{fontFamily: fonts.bold}}
-      />
-    </>
+        descriptionProps={{
+          description: reward.description,
+          textStyle: styles.description,
+        }}
+        sharedContentOffset={sharedContentOffset}>
+        {isReadyToBuy ? (
+          <FitButton
+            disabled={isUnableToBuy}
+            style={styles.buy}
+            onPress={onClaimReward}
+            text={buyButtonText}
+            variant="primary"
+          />
+        ) : (
+          <DetailedProgressBar
+            height={10}
+            width="100%"
+            currentValue={
+              isBfitReward
+                ? getViewBfitValue(user.bfit_balance)
+                : user.points_total
+            }
+            isBfit={isBfitReward}
+            requiredValue={
+              isBfitReward
+                ? getViewBfitValue(reward.bfit_required)
+                : reward.points_required
+            }
+            wrapperStyle={styles.progressWrapper}
+          />
+        )}
+      </AnimatedHeaderCard>
+    </Wrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  progressWrapper: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  buy: {
+    marginTop: 20,
+    height: 40,
+    justifyContent: 'center',
+    alignSelf: 'flex-end',
+    marginHorizontal: 20,
+  },
+  description: {
+    fontWeight: '400',
+  },
+});

@@ -7,13 +7,8 @@ import {Avatar, Label, Icon, TouchHandler} from '../common';
 /** Styled Components */
 const Wrapper = styled.View({
   width: '100%',
-  height: 74,
-});
-
-const BottomSeparator = styled.View({
-  height: 1,
-  marginHorizontal: 20,
-  backgroundColor: '#2e2e2e',
+  height: 57,
+  marginTop: 14
 });
 
 const Flex = styled.View({
@@ -34,20 +29,25 @@ const ContentRow = styled(Row)({
 });
 
 const UserDetailsContainer = styled(Flex)({
-  justifyContent: 'center',
-  marginLeft: 15,
+  justifyContent: 'flex-start',
+  height: '100%',
+  marginLeft: 20,
 });
 
 const Name = styled(Label).attrs(() => ({
   type: 'subheading',
   appearance: 'primary',
-}))({});
+}))({
+  fontSize: 15,
+  lineHeight: 25,
+});
 
 const Team = styled(Label).attrs(() => ({
   type: 'caption',
-  bold: true,
-  appearance: 'primary',
-}))({});
+  appearance: 'secondary',
+}))({
+  fontSize: 14,
+});
 
 const League = styled(Label).attrs(() => ({
   type: 'caption',
@@ -58,7 +58,15 @@ const League = styled(Label).attrs(() => ({
   flex: 1,
 });
 
-const UserIconButton = styled(Icon)({marginLeft: 45});
+const UserImageContainer = styled(TouchHandler)({
+  width: 24,
+  height: 24,
+});
+
+const UserImage = styled.Image({
+  width: '100%',
+  height: '100%',
+});
 
 interface ProfileRowProps {
   userId: string;
@@ -116,27 +124,27 @@ const _ProfileRow = (props: ProfileRowProps) => {
       <Wrapper>
         <ContentContainer>
           <ContentRow>
-            <Avatar url={avatar} size={44} />
-            <ContentRow>
-              <UserDetailsContainer>
-                <Name>{name}</Name>
+            <Avatar url={avatar} size={57} radius={16} />
+            <UserDetailsContainer>
+              <Name>{name}</Name>
 
-                <Row>
-                  {renderTeam()}
-                  {renderLeagues()}
-                </Row>
-              </UserDetailsContainer>
+              <Row>
+                {renderTeam()}
+                {renderLeagues()}
+              </Row>
+            </UserDetailsContainer>
 
-              <UserIconButton
-                color={isFollowed ? colors.secondaryText : colors.accent}
-                name={isFollowed ? 'user-minus' : 'user-plus'}
-                size={24}
-                onPress={handleUserIconPress}
+            <UserImageContainer onPress={handleUserIconPress} >
+              <UserImage 
+                source={
+                  isFollowed 
+                  ? require('../../../assets/images/icon/users.png') 
+                  : require('../../../assets/images/icon/user.png')
+                }
               />
-            </ContentRow>
+            </UserImageContainer>
           </ContentRow>
         </ContentContainer>
-        <BottomSeparator />
       </Wrapper>
     </TouchHandler>
   );

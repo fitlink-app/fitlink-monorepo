@@ -15,7 +15,7 @@ export type RootStackParamList = {
   UpdatePassword: undefined;
   Webview: {url: string; title: string};
   Friends: {tab: number};
-  Leagues: {tab: number};
+  Leagues: {tab: number} | undefined;
   League: {id: string; league?: League};
   Profile: {id: string};
   LeagueInviteFriends: {
@@ -23,8 +23,7 @@ export type RootStackParamList = {
   };
   LeagueForm: {data?: {id: string; dto: UpdateLeagueDto; imageUrl: string}};
   Rewards: undefined;
-  Reward: {id: string};
-  HealthActivityDetails: {id: string};
+  Reward: {id: string; image: string};
   Route: {
     polyline: string;
   };
@@ -45,4 +44,6 @@ export type RootStackParamList = {
     ) => void;
   };
   Notifications: undefined;
+  ActivityPage: {id: string};
+  Wallet: undefined;
 };

@@ -8,6 +8,8 @@ import {Avatar, Label, ProgressCircle, TouchHandler} from '../common';
 import React from 'react';
 import styled from 'styled-components/native';
 import {NumberFormatterUtils} from '@utils';
+import {useNavigation} from '@react-navigation/core';
+import {StyleProp, ViewStyle} from 'react-native';
 
 interface UserWidgetProps {
   name: string;
@@ -21,11 +23,11 @@ interface UserWidgetProps {
   friendsOnPress?: () => void;
   followersOnPress?: () => void;
   pointsOnPress?: () => void;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 const Wrapper = styled.View({
   flexDirection: 'row',
-  width: '100%',
 });
 
 const ContentContainer = styled.View({
@@ -38,26 +40,29 @@ const StatContainer = styled.View({
   flexDirection: 'row',
 });
 
-const Separator = styled.View(({theme: {colors}}) => ({
-  width: '100%',
-  height: 1,
-  marginVertical: 5,
-  backgroundColor: colors.separator,
-}));
-
 const Name = styled(Label).attrs(() => ({
   type: 'title',
   bold: true,
 }))({});
 
-const Rank = styled(Label).attrs(() => ({
-  type: 'subheading',
-  appearance: 'secondary',
+const RankContainer = styled.View({
+  flexDirection: 'row',
+  marginTop: 8,
+  marginBottom: 12,
+});
+
+const Level = styled(Label).attrs(() => ({
+  type: 'caption',
 }))({});
 
 const StatValue = styled(Label).attrs(() => ({
   type: 'caption',
-  appearance: 'accent',
+}))({});
+
+const StatNumber = styled(Label).attrs(() => ({
+  type: 'caption',
+  appearance: 'text',
+  bold: true,
 }))({});
 
 const StatLabel = styled(Label).attrs(() => ({
@@ -70,17 +75,38 @@ const UserStatWrapper = styled(TouchHandler)({marginRight: 15});
 const UserStat = ({
   value,
   label,
-  onPress,
+  tabNumber,
 }: {
   value: number;
   label: string;
-  onPress?: () => void;
+  tabNumber: number;
 }) => {
+  const navigation = useNavigation();
+
   return (
-    <UserStatWrapper {...onPress}>
+    <UserStatWrapper
+      onPress={() => {
+        navigation.navigate('Friends', {tab: tabNumber});
+      }}>
       <StatValue>
-        {NumberFormatterUtils.toCommaSeparated(value.toString())}{' '}
-        <StatLabel>{label}</StatLabel>
+        <StatNumber
+          style={{
+            fontFamily: 'Roboto',
+            fontSize: 13,
+            lineHeight: 15.23,
+            letterSpacing: 2,
+          }}>
+          {NumberFormatterUtils.toCommaSeparated(value.toString())}{' '}
+        </StatNumber>
+        <StatLabel
+          style={{
+            fontFamily: 'Roboto',
+            fontSize: 13,
+            lineHeight: 15.23,
+            letterSpacing: 1,
+          }}>
+          {label}
+        </StatLabel>
       </StatValue>
     </UserStatWrapper>
   );
@@ -88,7 +114,7 @@ const UserStat = ({
 
 export const UserWidget = (props: UserWidgetProps) => {
   return (
-    <Wrapper>
+    <Wrapper style={props.containerStyle}>
       <TouchHandler onPress={props.avatarOnPress}>
         <ProgressCircle
           progress={props.goalProgress}
@@ -100,17 +126,39 @@ export const UserWidget = (props: UserWidgetProps) => {
           <Avatar url={props.avatar} />
         </ProgressCircle>
       </TouchHandler>
-
       <ContentContainer>
-        <Name>{props.name}</Name>
-        <Rank>{props.rank}</Rank>
+        <Name
+          style={{
+            fontFamily: 'Roboto',
+            fontSize: 28,
+            lineHeight: 32,
+          }}>
+          {props.name}
+        </Name>
 
-        <Separator />
+        <RankContainer>
+          <Level
+            style={{
+              fontFamily: 'Roboto',
+              fontSize: 14,
+              textTransform: 'uppercase',
+              lineHeight: 18,
+            }}>
+            {props.rank}
+          </Level>
+        </RankContainer>
 
         <StatContainer>
-          <UserStat value={props.friendCount || 0} label={'Friends'} />
-          <UserStat value={props.followerCount || 0} label={'Followers'} />
-          <UserStat value={props.pointCount || 0} label={'Points'} />
+          <UserStat
+            value={props.friendCount || 0}
+            label={'Following'}
+            tabNumber={1}
+          />
+          <UserStat
+            value={props.followerCount || 0}
+            label={'Followers'}
+            tabNumber={0}
+          />
         </StatContainer>
       </ContentContainer>
     </Wrapper>

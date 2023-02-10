@@ -14,3 +14,6 @@ export function calculateGoalsPercentage(goalsEntry: GoalsEntry) {
     .reduce((a, b) => a + b, 0);
   return Math.round((total / 5) * 100) / 100;
 }
+
+export const getPositiveValueOrZero = (value?: number | null) =>
+  value !== null && value !== undefined && value >= 0 ? value : 0;

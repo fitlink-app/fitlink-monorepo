@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import styled, {useTheme} from 'styled-components/native';
+import styled from 'styled-components/native';
 import {Picker, PickerItemProps} from '@react-native-picker/picker';
 import {Icon} from './Icon';
 import {TouchHandler} from './TouchHandler';
@@ -10,15 +10,17 @@ import {
   Modal,
   StyleSheet,
   TextStyle,
+  Text,
 } from 'react-native';
 import {Label} from '@components';
+import {SUPPORTED_CURRENCIES} from '@constants';
 
 const Wrapper = styled.View({});
 
 const PickerWrapperIOS = styled.View({
   flexDirection: 'row',
   width: '100%',
-  justifyContent: 'space-between',
+  justifyContent: 'flex-end',
   alignItems: 'center',
 });
 
@@ -62,6 +64,16 @@ const SelectionIndicator = styled.View(({theme: {colors}}) => ({
   opacity: 1,
 }));
 
+const SCurrencyCircle = styled.View({
+  backgroundColor: '#ACACAC',
+  height: 25,
+  width: 25,
+  borderRadius: 25 / 2,
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginRight: 4,
+});
+
 export interface DropdownProps {
   value: any;
   items: Array<PickerItemProps>;
@@ -71,14 +83,28 @@ export interface DropdownProps {
   labelStyle?: StyleProp<TextStyle>;
 }
 
+const CurrencyIcon = ({value: dropdownValue}: Pick<DropdownProps, 'value'>) => {
+  if (Object.keys(SUPPORTED_CURRENCIES).includes(dropdownValue)) {
+    const currencySymbol =
+      SUPPORTED_CURRENCIES[dropdownValue as keyof typeof SUPPORTED_CURRENCIES]
+        .symbol;
+    return (
+      <SCurrencyCircle>
+        <Text>{currencySymbol}</Text>
+      </SCurrencyCircle>
+    );
+  }
+  return null;
+};
+
 export const Dropdown = (props: DropdownProps) => {
-  const {style, value, items, prompt, labelStyle, ...rest} = props;
+  const {style, value, items, prompt, ...rest} = props;
 
   const [modalVisible, setModalVisible] = useState(false);
 
-  const {colors} = useTheme();
-
-  if (!items || !(items.length > 0)) return null;
+  if (!items || !(items.length > 0)) {
+    return null;
+  }
 
   const renderPicker = () => {
     return (
@@ -88,7 +114,7 @@ export const Dropdown = (props: DropdownProps) => {
         selectedValue={value}
         style={{color: 'white'}}
         itemStyle={{color: 'white'}}
-        dropdownIconColor={colors.accentSecondary}>
+        dropdownIconColor={'transparent'}>
         {items.map(({label, value}) => (
           <Picker.Item key={label} {...{label, value}} />
         ))}
@@ -104,14 +130,13 @@ export const Dropdown = (props: DropdownProps) => {
         justifyContent: 'center',
       }}>
       <PickerWrapperIOS>
-        <Label appearance={'primary'} type={'subheading'} style={labelStyle}>
-          {items.find(x => x.value === value)?.label}
-        </Label>
+        <CurrencyIcon value={value} />
+        <Label>{items.find(x => x.value === value)?.label}</Label>
 
         <Icon
           style={{transform: [{rotateZ: '-90deg'}]}}
           size={14}
-          color={colors.accentSecondary}
+          color={'transparent'}
           name={'arrow-left'}
         />
       </PickerWrapperIOS>
@@ -119,7 +144,9 @@ export const Dropdown = (props: DropdownProps) => {
   );
 
   const renderPickerModalIOS = () => {
-    if (Platform.OS !== 'ios') return null;
+    if (Platform.OS !== 'ios') {
+      return null;
+    }
 
     return (
       <Modal

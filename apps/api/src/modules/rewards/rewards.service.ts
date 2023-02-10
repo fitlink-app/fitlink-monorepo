@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Brackets, FindOperator, IsNull, MoreThan, Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
@@ -10,7 +10,7 @@ import { User } from '../users/entities/user.entity'
 import { CreateRewardDto } from './dto/create-reward.dto'
 import { UpdateRewardDto } from './dto/update-reward.dto'
 import { Reward, RewardPublic, RewardNext } from './entities/reward.entity'
-import { RewardAccess } from './rewards.constants'
+import { RewardAccess, RewardRedeemType } from './rewards.constants'
 import { startOfDay, startOfToday } from 'date-fns'
 import {
   RewardFiltersDto,
@@ -20,6 +20,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { RewardClaimedEvent } from './events/reward-claimed.event'
 import { Events } from '../../events'
 import { FeedItem } from '../feed-items/entities/feed-item.entity'
+import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
+import { WalletTransactionSource } from '../wallet-transactions/wallet-transactions.constants'
 
 type EntityOwner = {
   organisationId?: string
@@ -34,6 +36,7 @@ type ParentIds = {
 type QueryOptions = {
   checkExpiry?: boolean
   checkAvailability?: boolean
+  isPrivateOnly?: boolean
 }
 
 type PublicPageReward = {
@@ -53,6 +56,8 @@ export class RewardsService {
     private rewardsRepository: Repository<Reward>,
     @InjectRepository(RewardsRedemption)
     private rewardsRedemptionRepository: Repository<RewardsRedemption>,
+    @InjectRepository(WalletTransaction)
+    private walletTransactionRepository: Repository<WalletTransaction>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private eventEmitter: EventEmitter2
@@ -60,6 +65,10 @@ export class RewardsService {
 
   create(createRewardDto: CreateRewardDto) {
     const { teamId, organisationId, imageId } = createRewardDto
+    // multiply bfit bfit_required by bfit decimals
+    if (createRewardDto.redeem_type === RewardRedeemType.BFIT) {
+      createRewardDto.bfit_required = createRewardDto.bfit_required * 1000_000
+    }
 
     const reward = this.rewardsRepository.create(createRewardDto)
 
@@ -105,20 +114,42 @@ export class RewardsService {
     { limit = 10, page = 0 }: PaginationOptionsInterface,
     filters: RewardFiltersDto
   ) {
-    let query = this.queryFindAccessibleToUser(userId)
+    let query = this.queryFindAccessibleToUser(userId, {
+      isPrivateOnly: filters.isPrivateOnly,
+      checkExpiry: true,
+      checkAvailability: true
+    })
 
     // Where rewards are not available (not enough points) and not redeemed
     if (filters.locked) {
       query = query
         .andWhere('redemptions.id IS NULL')
-        .andWhere('reward.points_required > user.points_total')
+        .andWhere(
+          'reward.redeem_type = :pointRedeemType AND reward.points_required > user.points_total OR reward.redeem_type = :bfitRedeemType AND reward.bfit_required > user.bfit_balance',
+          {
+            pointRedeemType: RewardRedeemType.Points,
+            bfitRedeemType: RewardRedeemType.BFIT
+          }
+        )
     }
 
     // Where rewards are available (enough points) but not redeemed
     if (filters.available) {
       query = query
         .andWhere('redemptions.id IS NULL')
-        .andWhere('reward.points_required <= user.points_total')
+        .andWhere(
+          'reward.redeem_type = :pointRedeemType AND reward.points_required <= user.points_total OR reward.redeem_type = :bfitRedeemType AND reward.bfit_required <= user.bfit_balance',
+          {
+            pointRedeemType: RewardRedeemType.Points,
+            bfitRedeemType: RewardRedeemType.BFIT
+          }
+        )
+    }
+
+    if (filters.redeem_type) {
+      query = query.andWhere('reward.redeem_type = :redeemType', {
+        redeemType: filters.redeem_type
+      })
     }
 
     // Where rewards are expired
@@ -259,7 +290,8 @@ export class RewardsService {
     userId: string,
     options: QueryOptions = {
       checkExpiry: true,
-      checkAvailability: true
+      checkAvailability: true,
+      isPrivateOnly: false
     }
   ) {
     let query = this.rewardsRepository
@@ -285,11 +317,12 @@ export class RewardsService {
 
       .where(
         new Brackets((qb) => {
-          // The league is public
+          // The reward is public
+          const checkedQb = options.isPrivateOnly
+            ? qb
+            : qb.where('reward.access = :accessPublic')
           return (
-            qb
-              .where('reward.access = :accessPublic')
-
+            checkedQb
               // The user belongs to the team that the league belongs to
               .orWhere(
                 `(reward.access = :accessTeam AND teamUser.id = :userId)`
@@ -340,10 +373,10 @@ export class RewardsService {
     userId: string,
     options: QueryOptions = {}
   ) {
-    let query = this.queryFindAccessibleToUser(
-      userId,
-      options
-    ).andWhere('reward.id = :rewardId', { rewardId })
+    let query = this.queryFindAccessibleToUser(userId, options).andWhere(
+      'reward.id = :rewardId',
+      { rewardId }
+    )
 
     const result = await query.getOne()
     if (result) {
@@ -360,7 +393,7 @@ export class RewardsService {
   }
 
   getRewardPublic(reward: Reward) {
-    ;((reward as unknown) as RewardPublic).redeemed =
+    ;(reward as unknown as RewardPublic).redeemed =
       reward.redemptions.length > 0
     return reward as RewardPublic
   }
@@ -390,9 +423,38 @@ export class RewardsService {
     }
 
     if (teamId) {
+      const reward = await this.isTeamReward(rewardId, teamId)
       // Verify reward belongs to team
-      if (!(await this.isTeamReward(rewardId, teamId))) {
+      if (!reward) {
         return false
+      }
+      // dont allow users to update point rewards to bfit rewards and vice versa
+      if (
+        reward.redeem_type === RewardRedeemType.Points &&
+        fields.bfit_required
+      ) {
+        throw new BadRequestException(
+          'You cannot update bfit_required in a points reward'
+        )
+      }
+
+      if (
+        reward.redeem_type === RewardRedeemType.BFIT &&
+        fields.points_required
+      ) {
+        throw new BadRequestException(
+          'You cannot update points_required in a bfit reward'
+        )
+      }
+
+      if (fields.redeem_type && reward.redeem_type !== fields.redeem_type) {
+        throw new BadRequestException(
+          'You cannot update the redeem type of a reward'
+        )
+      }
+
+      if (updateRewardDto.redeem_type === RewardRedeemType.BFIT) {
+        updateRewardDto.bfit_required = updateRewardDto.bfit_required * 1000_000
       }
 
       return this.rewardsRepository.update(
@@ -412,11 +474,35 @@ export class RewardsService {
     }
 
     if (organisationId) {
+      let reward = await this.isOrganisationReward(rewardId, organisationId)
       // Verify reward belongs to organisation
-      if (!(await this.isOrganisationReward(rewardId, organisationId))) {
+      if (!reward) {
         return false
       }
+      // dont allow users to update point rewards to bfit rewards and vice versa
+      if (
+        reward.redeem_type === RewardRedeemType.Points &&
+        fields.bfit_required
+      ) {
+        throw new BadRequestException(
+          'You cannot update bfit_required in a points reward'
+        )
+      }
 
+      if (
+        reward.redeem_type === RewardRedeemType.BFIT &&
+        fields.points_required
+      ) {
+        throw new BadRequestException(
+          'You cannot update points_required in a bfit reward'
+        )
+      }
+
+      if (fields.redeem_type && reward.redeem_type !== fields.redeem_type) {
+        throw new BadRequestException(
+          'You cannot update the redeem type of a reward'
+        )
+      }
       return this.rewardsRepository.update(
         {
           id: rewardId
@@ -433,6 +519,34 @@ export class RewardsService {
       )
     }
 
+    const reward = await this.rewardsRepository.findOne({
+      id: rewardId
+    })
+
+    // dont allow users to update point rewards to bfit rewards and vice versa
+    if (
+      reward.redeem_type === RewardRedeemType.Points &&
+      fields.bfit_required
+    ) {
+      throw new BadRequestException(
+        'You cannot update bfit_required in a points reward'
+      )
+    }
+
+    if (
+      reward.redeem_type === RewardRedeemType.BFIT &&
+      fields.points_required
+    ) {
+      throw new BadRequestException(
+        'You cannot update points_required in a bfit reward'
+      )
+    }
+
+    if (fields.redeem_type && reward.redeem_type !== fields.redeem_type) {
+      throw new BadRequestException(
+        'You cannot update the redeem type of a reward'
+      )
+    }
     return this.rewardsRepository.update(rewardId, {
       ...fields,
       image
@@ -444,7 +558,7 @@ export class RewardsService {
       id: rewardId,
       team: { id: teamId }
     })
-    return !!reward
+    return reward
   }
 
   async isOrganisationReward(rewardId: string, organisationId: string) {
@@ -452,7 +566,7 @@ export class RewardsService {
       id: rewardId,
       organisation: { id: organisationId }
     })
-    return !!reward
+    return reward
   }
 
   async remove(rewardId: string, { teamId, organisationId }: ParentIds = {}) {
@@ -525,15 +639,24 @@ export class RewardsService {
       return 'already redeemed'
     }
 
-    if (user.points_total < reward.points_required) {
-      return false
+    if (
+      reward.redeem_type === RewardRedeemType.Points &&
+      user.points_total < reward.points_required
+    ) {
+      return 'insufficient points'
+    }
+
+    if (
+      reward.redeem_type === RewardRedeemType.BFIT &&
+      user.bfit_balance < reward.bfit_required
+    ) {
+      return 'insufficient bfit'
     }
 
     const result = await this.rewardsRepository.manager.transaction(
       async (manager) => {
-        const rewardsRedemptionRepository = manager.getRepository(
-          RewardsRedemption
-        )
+        const rewardsRedemptionRepository =
+          manager.getRepository(RewardsRedemption)
         const userRepository = manager.getRepository(User)
         const rewardRepository = manager.getRepository(Reward)
         const redemption = rewardsRedemptionRepository.create({
@@ -541,11 +664,29 @@ export class RewardsService {
           reward: { id: reward.id }
         })
         const result = await rewardsRedemptionRepository.save(redemption)
-        await userRepository.decrement(
-          { id: user.id },
-          'points_total',
-          reward.points_required
-        )
+        if (reward.redeem_type === RewardRedeemType.Points) {
+          await userRepository.decrement(
+            { id: user.id },
+            'points_total',
+            reward.points_required
+          )
+        }
+
+        if (reward.redeem_type === RewardRedeemType.BFIT) {
+          await userRepository.decrement(
+            { id: user.id },
+            'bfit_balance',
+            reward.bfit_required
+          )
+
+          let walletTransaction = new WalletTransaction()
+          walletTransaction.source = WalletTransactionSource.RewardRedemption
+          walletTransaction.reward_redemption_id = result.id
+          walletTransaction.reward_name = reward.name
+          walletTransaction.user_id = userId
+          walletTransaction.bfit_amount = reward.bfit_required
+          await this.walletTransactionRepository.save(walletTransaction)
+        }
 
         await rewardRepository.increment({ id: reward.id }, 'redeemed_count', 1)
 
@@ -600,12 +741,12 @@ export class RewardsService {
         teamId,
         now: new Date()
       })
-      .orWhere(
-        'reward.team IS NULL and reward.organisation IS NULL AND reward.reward_expires_at > :now',
-        {
-          now: new Date()
-        }
-      )
+      // .orWhere(
+      //   'reward.team IS NULL and reward.organisation IS NULL AND reward.reward_expires_at > :now',
+      //   {
+      //     now: new Date()
+      //   }
+      // )
       .leftJoinAndSelect('reward.image', 'image')
       .limit(50)
       .getMany()
@@ -614,7 +755,9 @@ export class RewardsService {
       photo_url: e.image.url,
       brand: e.brand,
       description: e.description,
+      redeem_type: e.redeem_type,
       points_required: e.points_required,
+      bfit_required: e.bfit_required,
       reward_expires_at: e.reward_expires_at,
       title: e.name,
       title_short: e.name_short

@@ -51,7 +51,6 @@ export const SettingsHealthActivityButton = ({
   return (
     <SettingsButton
       {...rest}
-      accent={isLinked}
       icon={isLinked ? 'link' : undefined}
       onPress={handleOnPress}
       loading={isLoading}

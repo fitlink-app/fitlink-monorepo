@@ -138,20 +138,40 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    // TODO: Consider this https://stackoverflow.com/a/23265711/13205310
+    def versionPropsFile = file('version.properties')
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    defaultConfig {
-        applicationId "app.fitlink"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
-      resValue "string", "build_config_package", "app.fitlink"
-      resValue 'string', "CODE_PUSH_APK_BUILD_TIME", String.format("\"%d\"", System.currentTimeMillis())
-      versionCode 91
-        versionName "3.0.3"
+    if (versionPropsFile.canRead()) {
+        def Properties versionProps = new Properties()
+
+        versionProps.load(new FileInputStream(versionPropsFile))
+
+        def code = versionProps['VERSION_CODE'].toInteger() + 1
+
+        versionProps['VERSION_CODE']=code.toString()
+        versionProps.store(versionPropsFile.newWriter(), null)
+
+        defaultConfig {
+          multiDexEnabled true
+          applicationId "app.bfitcoin"
+          minSdkVersion rootProject.ext.minSdkVersion
+          targetSdkVersion rootProject.ext.targetSdkVersion
+          resValue "string", "build_config_package", "app.bfitcoin"
+          resValue 'string', "CODE_PUSH_APK_BUILD_TIME", String.format("\"%d\"", System.currentTimeMillis())
+          versionCode code
+          versionName "3.0.9"
+        }
     }
+    else {
+        throw new GradleException("Could not read version.properties!")
+    }
+
+
     splits {
         abi {
             reset()
@@ -162,21 +182,28 @@ android {
     }
     signingConfigs {
         debug {
-            storeFile file('debug.keystore')
+            storeFile file('fitlinkappdebug.keystore')
             storePassword 'android'
-            keyAlias 'androiddebugkey'
+            keyAlias 'fitlinkappdebug'
+            keyPassword 'android'
+        }
+        release {
+            storeFile file('fitlinkappdebug.keystore')
+            storePassword 'android'
+            keyAlias 'fitlinkappdebug'
             keyPassword 'android'
         }
     }
     buildTypes {
-        debug {
-            signingConfig signingConfigs.debug
-        }
+        // debug {
+        //     signingConfig signingConfigs.debug
+        // }
         release {
           // Caution! In production, you need to generate your own keystore file.
           // see https://reactnative.dev/docs/signed-apk-android.
-          minifyEnabled enableProguardInReleaseBuilds
-          proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            // minifyEnabled enableProguardInReleaseBuilds
+            // proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            signingConfig signingConfigs.release
       }
     }
 
@@ -230,6 +257,8 @@ dependencies {
 
   implementation 'com.google.firebase:firebase-messaging:20.2.+'
 
+  implementation 'androidx.multidex:multidex:2.0.1'
+
   implementation(project(":react-native-google-signin"))
 
   debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
@@ -259,6 +288,10 @@ dependencies {
 task copyDownloadableDepsToLibs(type: Copy) {
     from configurations.compile
     into 'libs'
+}
+
+task wrapper(type: Wrapper) {
+   gradleVersion = '6.7.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

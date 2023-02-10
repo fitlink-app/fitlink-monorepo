@@ -4,3 +4,5 @@ export * from './persistor';
 export * from './date';
 export * from './geo';
 export * from './other';
+export * from './currency';
+export * from './url';

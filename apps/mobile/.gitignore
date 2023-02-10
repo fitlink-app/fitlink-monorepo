@@ -59,6 +59,9 @@ buck-out/
 /ios/Pods/
 
 # .env files
-.env.development
-.env.production
+# .env.development
+# .env.production
 
+!.env*
+!.env.development
+!.env.production

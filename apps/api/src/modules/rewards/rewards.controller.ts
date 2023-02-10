@@ -37,6 +37,7 @@ import {
   RewardGlobalFilterDto
 } from './dto/reward-filters.dto'
 import { Public } from '../../decorators/public.decorator'
+import { RewardRedeemType } from './rewards.constants'
 
 @ApiBaseResponses()
 @Controller()
@@ -57,6 +58,22 @@ export class RewardsController {
     @Param('organisationId') organisationId: string,
     @User() authUser: AuthenticatedUser
   ) {
+    if (
+      createRewardDto.redeem_type === RewardRedeemType.BFIT &&
+      !createRewardDto.bfit_required
+    ) {
+      throw new BadRequestException(
+        'Field bfit_required is required when redeem_type is BFIT'
+      )
+    }
+    if (
+      createRewardDto.redeem_type === RewardRedeemType.Points &&
+      !createRewardDto.points_required
+    ) {
+      throw new BadRequestException(
+        'Field points_required is required when redeem_type is Points'
+      )
+    }
     // For team admins and organisation admin
     if (teamId) {
       createRewardDto.teamId = teamId
@@ -81,7 +98,6 @@ export class RewardsController {
     if (authUser.isSuperAdmin()) {
       return this.rewardsService.findAll(pagination, dashboardFilters)
     }
-
     return this.rewardsService.findManyAccessibleToUser(
       authUser.id,
       pagination,
@@ -255,13 +271,23 @@ export class RewardsController {
     }
 
     // If the reward could not be redeemed, it's due to lack of points
-    if (!result) {
+    if (result === 'insufficient points') {
       throw new BadRequestException(
         'You have insufficient points to redeem this reward'
       )
     }
 
-    return reward
+    if (result === 'insufficient bfit') {
+      throw new BadRequestException(
+        'You have insufficient bfit to redeem this reward'
+      )
+    }
+
+    // return updated reward
+    return await this.rewardsService.findOneAccessibleToUser(
+      rewardId,
+      authUser.id
+    )
   }
 
   @Public()

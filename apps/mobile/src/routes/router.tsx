@@ -13,7 +13,6 @@ import {
 } from '@react-navigation/stack';
 import {RootStackParamList} from './types';
 import {
-  HealthActivityDetails,
   League,
   LeagueForm,
   LeagueInviteFriends,
@@ -24,10 +23,13 @@ import {
   MyActivities,
   ActivityForm,
   Notifications,
+  ActivityPage,
+  Friends,
+  Wallet,
 } from 'pages';
 import {SettingsNavigator} from './Settings';
 import {useSelector} from 'react-redux';
-import {memoSelectIsAuthenticated} from 'redux/auth/authSlice';
+import {memoSelectIsAuthenticated} from 'redux/auth';
 import {Onboarding} from 'pages/Onboarding';
 import {CustomInterpolators} from './interpolators';
 import {useMe} from '@hooks';
@@ -82,10 +84,6 @@ export default function Router() {
                 }}
               />
               <Stack.Screen name={'Profile'} component={Profile} />
-              <Stack.Screen
-                name={'HealthActivityDetails'}
-                component={HealthActivityDetails}
-              />
               <Stack.Screen name={'Route'} component={Route} />
               <Stack.Screen name={'Reward'} component={Reward} />
               <Stack.Screen name={'Webview'} component={Webview} />
@@ -105,6 +103,9 @@ export default function Router() {
                 }}
               />
               <Stack.Screen name={'ActivityForm'} component={ActivityForm} />
+              <Stack.Screen name={'ActivityPage'} component={ActivityPage} />
+              <Stack.Screen name={'Friends'} component={Friends} />
+              <Stack.Screen name={'Wallet'} component={Wallet} />
             </>
           ) : (
             <Stack.Screen name={'Onboarding'} component={Onboarding} />

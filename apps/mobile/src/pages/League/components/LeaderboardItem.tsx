@@ -1,80 +1,106 @@
 import React from 'react';
-import styled, {DefaultTheme} from 'styled-components/native';
-import {ViewProps} from 'react-native';
+import styled from 'styled-components/native';
 import {Avatar, Icon, Label, LabelProps, TouchHandler} from '@components';
+import theme from '../../../theme/themes/fitlink';
 
-export const ITEM_HEIGHT = 41;
+export const ITEM_HEIGHT = 82;
 
 const Row = styled.View({
   flexDirection: 'row',
   alignItems: 'center',
 });
 
-type WrapperParams = {
-  theme: DefaultTheme;
-  renderBorder: boolean;
-};
-
-const Wrapper = styled(TouchHandler)(
-  ({theme, renderBorder}: WrapperParams) => ({
-    borderBottomWidth: renderBorder ? 1 : 0,
-    borderBottomColor: theme.colors.separator,
-    marginHorizontal: 20,
-  }),
-);
-
 const ContainerRow = styled(Row)({
-  height: ITEM_HEIGHT - 1, // subtract margin
+  height: ITEM_HEIGHT,
   justifyContent: 'space-between',
+  paddingRight: 20,
+  paddingLeft: 20,
 });
 
-const Column = styled.View({
-  marginHorizontal: 2,
+const SelfLine = styled.View({
+  position: 'absolute',
+  backgroundColor: '#00E9D7',
+  width: 2,
+  height: ITEM_HEIGHT,
 });
 
-const PlaceTextContainer = styled.View({
-  width: 28,
-  alignItems: 'flex-start',
+const SelfTriangle = styled.View({
+  position: 'absolute',
+  width: 0,
+  height: 0,
+  backgroundColor: 'transparent',
+  borderStyle: 'solid',
+  borderTopWidth: 5,
+  borderBottomWidth: 5,
+  borderLeftWidth: 8,
+  borderTopColor: 'transparent',
+  borderRightColor: 'transparent',
+  borderBottomColor: 'transparent',
+  borderLeftColor: '#00E9D7',
 });
 
 const PlaceText = styled(Label)<LabelProps>({
-  fontSize: 10,
+  color: '#fff',
+  fontSize: 17,
   textAlign: 'center',
-  width: 18,
+  marginRight: 17,
 });
 
-const NameContainer = styled(Row)({
+const ShrunkContainer = styled(Row)({
   flexShrink: 1,
   marginRight: 15,
 });
 
-const NameText = styled(Label)({
-  marginLeft: 8,
+const NameText = styled(Label).attrs(() => ({
+  bold: true,
+}))({
+  color: '#fff',
+  fontSize: 16,
+  marginLeft: 15,
   flexShrink: 1,
 });
 
-const PreviousWonsText = styled(Label).attrs(() => ({
-  type: 'caption',
+const WinsNumber = styled(Label).attrs(() => ({
   appearance: 'accent',
-  bold: true,
 }))({
-  marginLeft: 4,
+  fontSize: 17,
+  marginLeft: 10,
+  fontFamily: theme.fonts.regular,
 });
 
 const PointsText = styled(Label).attrs(() => ({
   type: 'caption',
-  bold: true,
 }))({
+  color: '#00E9D7',
   textAlign: 'right',
+  fontSize: 15,
 });
 
 const CrownIcon = styled(Icon).attrs(({theme}) => ({
   name: 'crown',
-  size: 14,
+  size: 19,
   color: theme.colors.accent,
 }))({
   marginLeft: 8,
 });
+
+const ShrunkRow = styled(Row)({
+  flexShrink: 1,
+});
+
+const SelfIndicator = () => (
+  <>
+    <SelfLine />
+    <SelfTriangle />
+  </>
+);
+
+const Wins = ({wins}: {wins: number}) => (
+  <Row>
+    <WinsNumber>{wins}</WinsNumber>
+    <CrownIcon />
+  </Row>
+);
 
 interface LeaderboardItemProps {
   rank: string;
@@ -83,61 +109,45 @@ interface LeaderboardItemProps {
   wins: number;
   points: number;
   isSelf: boolean;
-  isLast: boolean;
-  disabled?: boolean;
   onPress?: () => void;
+  isBfit?: boolean;
 }
 
-export const LeaderboardItem: React.FC<LeaderboardItemProps & ViewProps> =
-  props => {
-    const {
-      rank,
-      name,
-      avatarUrl,
-      wins,
-      points,
-      isSelf,
-      isLast,
-      onPress,
-      disabled,
-    } = props;
+export const LeaderboardItem: React.FC<LeaderboardItemProps> = ({
+  rank,
+  name,
+  avatarUrl,
+  points,
+  isSelf,
+  onPress,
+  isBfit = false,
+  wins,
+}) => {
+  const rowBackgroundColor =
+    parseInt(rank) % 2 === 1 ? theme.colors.background : theme.colors.card;
 
-    return (
-      <Wrapper {...{onPress, disabled}} renderBorder={!isLast}>
-        <ContainerRow>
-          <Row style={{flexShrink: 1}}>
-            <PlaceTextContainer>
-              <PlaceText appearance={isSelf ? 'accent' : undefined}>
-                {rank}
-              </PlaceText>
-            </PlaceTextContainer>
+  return (
+    <TouchHandler onPress={onPress} disabled={isSelf}>
+      <ContainerRow style={{backgroundColor: rowBackgroundColor}}>
+        {isSelf && <SelfIndicator />}
+        <ShrunkRow>
+          <PlaceText>{rank}</PlaceText>
+          <Avatar url={avatarUrl} size={40} />
+          <ShrunkContainer>
+            <NameText numberOfLines={1}>{name}</NameText>
+            {wins !== 0 && <Wins wins={wins} />}
+          </ShrunkContainer>
+        </ShrunkRow>
 
-            <Avatar url={avatarUrl} size={28} />
-
-            <NameContainer>
-              <NameText
-                appearance={isSelf ? 'accent' : 'primary'}
-                numberOfLines={1}>
-                {name}
-              </NameText>
-              {wins !== 0 && (
-                <Row>
-                  <CrownIcon />
-                  <PreviousWonsText>{wins}</PreviousWonsText>
-                </Row>
-              )}
-            </NameContainer>
-          </Row>
-
-          <Column>
-            <PointsText
-              appearance={
-                isSelf ? 'accent' : rank === '1' ? 'primary' : undefined
-              }>
-              {points}
-            </PointsText>
-          </Column>
-        </ContainerRow>
-      </Wrapper>
-    );
-  };
+        <PointsText>
+          {points}
+          {isBfit && (
+            <>
+              &nbsp;<Label>BFIT</Label>
+            </>
+          )}
+        </PointsText>
+      </ContainerRow>
+    </TouchHandler>
+  );
+};

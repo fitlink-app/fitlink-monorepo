@@ -2,11 +2,11 @@ import React from 'react';
 import {View, Image, ActivityIndicator, Dimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTheme} from 'styled-components/native';
-import {Label} from './common';
+import {Label, Logo} from './common';
 
 const {width: screenWidth} = Dimensions.get('screen');
 
-const splashImage = require('../../assets/bootsplash_logo.png');
+const splashImage = require('../../assets/images/logo_new.png');
 
 interface UpdateInfoProps {
   message: string;
@@ -43,7 +43,7 @@ export const UpdateInfo = ({message, progress}: UpdateInfoProps) => {
         flex: 1,
       }}>
       <ProgressBar {...{progress}} />
-      <Image fadeDuration={0} source={splashImage} />
+      <Logo size={'large'} />
       <View style={{position: 'absolute', bottom: 100}}>
         <ActivityIndicator
           style={{paddingVertical: 20}}

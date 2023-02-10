@@ -6,23 +6,25 @@ import {
 } from 'styled-components';
 
 const fonts: ThemeFonts = {
-  regular: 'Lato-Regular',
-  bold: 'Lato-Bold',
+  regular: 'Roboto-Regular',
+  bold: 'Roboto-Bold',
 };
 
 const colors: ThemeColors = {
   text: '#FFFFFF',
   secondaryText: '#939393',
   buttonText: '#232323',
-  background: '#232323',
+  background: '#000000',
   surface: '#2e2e2e',
   surfaceDark: '#202020',
   separator: '#2e2e2e',
   accent: '#00e9d7',
   accentSecondary: '#939393',
-  chartUnfilled: '#202020',
+  chartUnfilled: '#FFFFFF33',
   danger: '#D32F2F',
-  navbar: '#111111',
+  navbar: '#565656',
+  card: '#181818',
+  grayText: '#565656',
 };
 
 const typography: ThemeTypography = {

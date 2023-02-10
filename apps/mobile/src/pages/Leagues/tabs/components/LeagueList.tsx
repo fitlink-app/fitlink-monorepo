@@ -5,11 +5,10 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
+import {LeagueWithDailyBfit} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import styled, {useTheme} from 'styled-components/native';
 import {LeagueCard} from '@components';
 import {useNavigation} from '@react-navigation/core';
-import {LeagueAccess} from '../../../../../../api/src/modules/leagues/leagues.constants';
 import {useScrollToTop} from '@react-navigation/native';
 
 const EmptyContainer = styled.View({
@@ -18,7 +17,8 @@ const EmptyContainer = styled.View({
   alignItems: 'center',
 });
 
-interface LeagueListProps extends Omit<FlatListProps<League>, 'renderItem'> {
+interface LeagueListProps
+  extends Omit<FlatListProps<LeagueWithDailyBfit>, 'renderItem'> {
   isFetching: boolean;
   isFetchingNextPage: boolean;
   isFetchedAfterMount: boolean;
@@ -30,7 +30,6 @@ export const LeagueList = ({
   isFetching,
   isFetchingNextPage,
   isFetchedAfterMount,
-  error,
   onRefresh,
   ListEmptyComponent,
   ...rest
@@ -42,26 +41,17 @@ export const LeagueList = ({
   const scrollRef = useRef(null);
   useScrollToTop(scrollRef);
 
-  const keyExtractor = (item: League) => item.id as string;
+  const keyExtractor = (item: LeagueWithDailyBfit) => item.id as string;
 
-  const renderItem = ({item}: {item: League}) => {
-    console.log(item.organisation);
-    const organisation = item.organisation
-      ? {
-          name: item.organisation?.name,
-          image: item.organisation?.avatar?.url_128x128,
-        }
-      : undefined;
-
+  const renderItem = ({item}: {item: LeagueWithDailyBfit}) => {
     return (
       <LeagueCard
+        isVertical
+        bfitValue={item.daily_bfit}
         name={item.name}
-        sport={item.sport.name}
-        organisation={organisation}
-        imageUrl={item.image.url}
+        imageSource={{uri: item.image?.url}}
         memberCount={item.participants_total}
         position={item.rank}
-        privateLeague={item.access === ('Private' as LeagueAccess)}
         onPress={() => {
           navigation.navigate('League', {id: item.id, league: item});
         }}
@@ -84,7 +74,7 @@ export const LeagueList = ({
       }}
       ref={scrollRef}
       ListEmptyComponent={<EmptyContainer>{ListEmptyComponent}</EmptyContainer>}
-      contentContainerStyle={{padding: 20}}
+      contentContainerStyle={{paddingTop: 20}}
       onEndReachedThreshold={0.2}
       refreshControl={
         <RefreshControl

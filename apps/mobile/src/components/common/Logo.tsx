@@ -1,7 +1,7 @@
 import React from 'react';
 import {Image} from 'react-native';
 
-const logo_resource = require('../../../assets/images/logo.png');
+const logo_resource = require('../../../assets/images/logo_new.png');
 
 const LARGE_SIZE: ImageSize = {width: 180, height: 35};
 const MEDIUM_SIZE: ImageSize = {width: 144, height: 28};
@@ -41,6 +41,7 @@ export const Logo = ({size = 'medium'}: LogoProps) => {
       style={{
         width,
         height,
+        marginRight: -20,
       }}
     />
   );

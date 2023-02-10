@@ -17,11 +17,9 @@ const GoalChooserContainer = styled(ScrollView).attrs(() => ({
   contentContainerStyle: {
     justifyContent: 'center',
     alignItems: 'center',
-    flex: 1,
     paddingHorizontal: 20,
   },
   keyboardShouldPersistTaps: 'never',
-  scrollEnabled: false,
 }))({});
 
 const FieldsWrapper = styled(Card)({

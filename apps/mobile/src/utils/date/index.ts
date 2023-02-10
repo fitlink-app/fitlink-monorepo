@@ -14,7 +14,9 @@ export function getTimeRemaining(toDate: Date): CountdownTime | 0 {
   const then = new Date(toDate);
   let diff = then.getTime() - now.getTime();
 
-  if (diff <= 0) return 0;
+  if (diff <= 0) {
+    return 0;
+  }
 
   // calculate (and subtract) whole days
   const d = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -105,3 +107,23 @@ export function durationToCountDown(duration: Duration) {
 
   return result;
 }
+export function formatDate(date: any): string {
+  if (!date) {
+    return '';
+  }
+  var d = new Date(date),
+    month = '' + (d.getMonth() + 1),
+    day = '' + d.getDate(),
+    year = d.getFullYear();
+
+  if (month.length < 2) {
+    month = '0' + month;
+  }
+  if (day.length < 2) {
+    day = '0' + day;
+  }
+
+  return [day, month, year].join('-');
+}
+
+export * from './rewards';

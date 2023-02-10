@@ -10,7 +10,7 @@ import {
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {useAnimatedStyle, useSharedValue} from 'react-native-reanimated';
 import styled, {useTheme} from 'styled-components/native';
-import {Handle, ModalBackground} from '../components';
+import {Handle, ModalBackground, ActivityItem} from '../components';
 import {BottomSheetScrollViewMethods} from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetScrollable/types';
 import {
   Avatar,
@@ -35,13 +35,16 @@ import {useActivity, useModal} from '@hooks';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useEffect} from 'react';
 import {Dialog, DialogButton} from 'components/modal';
+import {getDistanceFromLatLonInKm} from '@utils';
+import {useSelector} from "react-redux";
+import {selectCurrentLocation} from "../../../../../redux/discover/discoverSlice";
 
 const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
 const DETAILS_MODAL_KEY = 'DETAILS_MODAL_KEY';
 
-const imageHeight = SCREEN_WIDTH * 0.4;
-const imageWidth = SCREEN_WIDTH / 2.5;
+const imageHeight = SCREEN_WIDTH * 0.5;
+const imageWidth = SCREEN_WIDTH * 0.8;
 
 const HANDLE_HEIGHT = 80;
 
@@ -62,13 +65,13 @@ const ContentContainer = styled.View({
 });
 
 const Section = styled.View({
-  marginTop: 15,
+  marginTop: 30,
 });
 
 const SectionContent = styled.View({marginTop: 5});
 
 const CarouselImage = styled.Image({
-  borderRadius: 10,
+  borderRadius: 24,
   height: imageHeight,
   width: imageWidth,
 });
@@ -107,9 +110,11 @@ export const ActivityDetailsModal = React.forwardRef<
 
   const [contentHeight, setContentHeight] = useState(0);
   const snapPoints = useMemo(
-    () => (!!activity ? ['45%', contentHeight + HANDLE_HEIGHT] : ['45%']),
+    () => (!!activity ? ['90%', contentHeight + HANDLE_HEIGHT] : ['45%']),
     [contentHeight, activity],
   );
+
+  const actualUserLocation = useSelector(selectCurrentLocation);
 
   // Refs
   const hadActivityLastRender = useRef(false);
@@ -202,14 +207,13 @@ export const ActivityDetailsModal = React.forwardRef<
               flex: 1,
               flexDirection: 'row',
               alignItems: 'center',
-              paddingTop: 4,
-              paddingBottom: 12,
+              paddingTop: 20,
+              paddingBottom: 20,
+              borderBottomWidth: 1,
+              borderBottomColor: 'rgba(86, 86, 86, 0.3)',
             }}>
-            <Icon name={'arrow-left'} size={24} color={colors.accent} />
-            <Label
-              type={'subheading'}
-              appearance={'primary'}
-              style={{marginLeft: 8}}>
+            <Icon name={'arrow-left'} size={20} color={colors.text} />
+            <Label appearance={'primary'} style={{marginLeft: 8}}>
               Back
             </Label>
           </TouchHandler>
@@ -319,43 +323,57 @@ export const ActivityDetailsModal = React.forwardRef<
   const renderContent = () => {
     if (!activity) return null;
 
+    // TODO: Use actual user location
+    const userLocation = {lat: actualUserLocation?.lat, lng: actualUserLocation?.lng};
+
+    const dist = getDistanceFromLatLonInKm(
+      //@ts-ignore
+      activity.meeting_point.coordinates[0],
+      //@ts-ignore
+      activity.meeting_point.coordinates[1],
+      userLocation?.lat,
+      userLocation?.lng,
+    );
+
+    let distanceString = '';
+
+    if (dist >= 1) {
+      // km
+      const value = dist >= 1000 ? dist.toFixed(0) : dist.toFixed(1);
+      distanceString = `${value} km away`;
+    } else {
+      // meter
+      const value = (dist * 1000).toFixed(0);
+      distanceString = `${value} meters away`;
+    }
+
     return (
       <>
         {/* Render Top Section */}
         <ContentContainer>
-          <Section>
-            <Row>
-              <Label
-                type={'title'}
-                bold
-                style={{flexShrink: 1, paddingRight: 10}}>
-                {activity.name}
-              </Label>
-              <Label style={{flexShrink: 1, textAlign: 'right'}}>
-                {activity.activity}
-              </Label>
-            </Row>
-
-            <Row style={{marginTop: 5}}>
-              <Label appearance={'accent'} style={{flexShrink: 1}}>
-                {activity.date}
-              </Label>
-              <Label appearance={'accentSecondary'}>{activity.cost}</Label>
-            </Row>
-          </Section>
+          <ActivityItem
+            name={activity.name}
+            activityType={activity.activity}
+            distance={distanceString}
+            date={activity.date}
+          />
 
           <Section>
             <Row>
               <Button
                 style={{flex: 1}}
                 containerStyle={{
-                  minWidth: undefined,
-                  borderColor: colors.accentSecondary,
+                  width: 160,
+                  borderRadius: 12,
+                  backgroundColor: colors.text,
                 }}
-                textStyle={{color: colors.accentSecondary}}
+                textStyle={{
+                  color: colors.background,
+                  fontSize: 14,
+                  fontFamily: 'Roboto',
+                }}
                 type={'default'}
-                outline
-                text={'Get Directions'}
+                text={'GET DIRECTION'}
                 onPress={handleOnDirectionsPressed}
               />
 
@@ -367,9 +385,16 @@ export const ActivityDetailsModal = React.forwardRef<
                   <Button
                     style={{flex: 1}}
                     containerStyle={{
-                      minWidth: undefined,
+                      width: 160,
+                      borderRadius: 12,
+                      backgroundColor: colors.text,
                     }}
-                    text={'Contact'}
+                    textStyle={{
+                      color: colors.background,
+                      fontSize: 14,
+                      fontFamily: 'Roboto',
+                    }}
+                    text={'CONTACT'}
                     onPress={handleOnContactPressed}
                   />
                 </Row>
@@ -407,12 +432,10 @@ export const ActivityDetailsModal = React.forwardRef<
         {/* Render Bottom Content */}
         <ContentContainer>
           <Section>
-            <Label type={'subheading'} bold>
-              {activity.name}
-            </Label>
+            <Label bold>{activity.name}</Label>
 
             <SectionContent>
-              <Label>{activity.description}</Label>
+              <Label appearance={'secondary'}>{activity.description}</Label>
             </SectionContent>
           </Section>
 
@@ -436,8 +459,8 @@ export const ActivityDetailsModal = React.forwardRef<
         {...{...rest, ref, handleComponent}}
         index={0}
         name={DETAILS_MODAL_KEY}
-        handleHeight={200}
-        topInset={insets.top + 50}
+        handleHeight={90}
+        // topInset={insets.top + 50}
         snapPoints={snapPoints}
         animatedIndex={animatedIndex}
         enablePanDownToClose={true}
@@ -452,7 +475,7 @@ export const ActivityDetailsModal = React.forwardRef<
             style={scrollViewStyle}>
             <BottomSheetView
               onLayout={handleOnLayout}
-              style={{paddingBottom: 20}}>
+              style={{paddingBottom: 200}}>
               {renderContent()}
             </BottomSheetView>
           </BottomSheetScrollView>

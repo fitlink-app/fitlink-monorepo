@@ -1,4 +1,9 @@
-import { HttpService, Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  HttpService,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
@@ -6,6 +11,7 @@ import {
   FindOneOptions,
   getManager,
   LessThan,
+  MoreThan,
   Not,
   Repository
 } from 'typeorm'
@@ -17,7 +23,11 @@ import { Team } from '../teams/entities/team.entity'
 import { Organisation } from '../organisations/entities/organisation.entity'
 import { CreateLeagueDto } from './dto/create-league.dto'
 import { UpdateLeagueDto } from './dto/update-league.dto'
-import { League, LeaguePublic } from './entities/league.entity'
+import {
+  League,
+  LeaguePublic,
+  LeagueWithDailyBfit
+} from './entities/league.entity'
 import { LeagueAccess } from './leagues.constants'
 import { User, UserPublic } from '../users/entities/user.entity'
 import { Image } from '../images/entities/image.entity'
@@ -35,11 +45,31 @@ import { differenceInMilliseconds } from 'date-fns'
 import { NotificationsService } from '../notifications/notifications.service'
 import { NotificationAction } from '../notifications/notifications.constants'
 import { LeaguesInvitation } from '../leagues-invitations/entities/leagues-invitation.entity'
+import { LeagueBfitClaim } from './entities/bfit-claim.entity'
+import { ClaimLeagueBfitDto } from './dto/claim-league-bfit.dto'
+import { LeagueFilter } from 'apps/api-sdk/types'
+import { LeagueBfitEarnings } from './entities/bfit-earnings.entity'
+import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
+import { WalletTransactionSource } from '../wallet-transactions/wallet-transactions.constants'
+import { FilterCompeteToEarnDto } from './dto/filter-compete-to-earn.dto'
+import { registry, msg } from 'kujira.js'
+import { GasPrice, SigningStargateClient, coins } from '@cosmjs/stargate'
+import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
 
 type LeagueOptions = {
   teamId?: string
   organisationId?: string
   userId?: string
+}
+
+type PublicPageLeague = {
+  photo_url: string
+  description: string
+  title: string
+  sport: Sport
+  repeat: boolean
+  participants_total: number
+  duration: number
 }
 
 @Injectable()
@@ -53,6 +83,15 @@ export class LeaguesService {
 
     @InjectRepository(LeaderboardEntry)
     private leaderboardEntryRepository: Repository<LeaderboardEntry>,
+
+    @InjectRepository(WalletTransaction)
+    private walletTransactionRepository: Repository<WalletTransaction>,
+
+    @InjectRepository(LeagueBfitClaim)
+    private leagueBfitClaimRepository: Repository<LeagueBfitClaim>,
+
+    @InjectRepository(LeagueBfitEarnings)
+    private LeagueBfitEarningsRepository: Repository<LeagueBfitEarnings>,
 
     @InjectRepository(Team)
     private teamRepository: Repository<Team>,
@@ -106,7 +145,10 @@ export class LeaguesService {
       if (!team)
         throw new NotFoundException(`The Team with ID ${teamId} does not exist`)
       league.team = team
-      league.access = LeagueAccess.Team
+      league.access =
+        league.access === LeagueAccess.CompeteToEarn
+          ? league.access
+          : LeagueAccess.Team
       league.organisation = team.organisation
 
       // Assign the organisation if required (organisation leagues)
@@ -153,6 +195,137 @@ export class LeaguesService {
     return league
   }
 
+  async claimLeagueBfit(
+    leagueId: string,
+    userId: string,
+    claimLeagueBfitDto: ClaimLeagueBfitDto
+  ) {
+    const league = await this.leaguesRepository.findOne(leagueId, {
+      relations: ['active_leaderboard']
+    })
+    if (!league) {
+      throw new NotFoundException(`League with ID ${leagueId} not found`)
+    }
+
+    const leaderboardEntry = await this.leaderboardEntryRepository.findOne({
+      leaderboard: { id: league.active_leaderboard.id },
+      user: { id: userId }
+    })
+    if (!leaderboardEntry) {
+      throw new NotFoundException('Leaderboard entry not found')
+    }
+
+    if (league.access !== LeagueAccess.CompeteToEarn) {
+      throw new BadRequestException(
+        'The provided league is not a compete to ear league'
+      )
+    }
+    const claimableBfit =
+      leaderboardEntry.bfit_earned - leaderboardEntry.bfit_claimed
+    if (claimableBfit < claimLeagueBfitDto.amount) {
+      throw new BadRequestException(
+        `You have not earned enough bfit in this league to claim ${
+          claimLeagueBfitDto.amount / 1000_000
+        } BFIT`
+      )
+    }
+    const leagueBfitClaim = new LeagueBfitClaim()
+    leagueBfitClaim.league_id = leagueId
+    leagueBfitClaim.user_id = userId
+    leagueBfitClaim.bfit_amount = claimLeagueBfitDto.amount
+    let createdClaim = await this.leagueBfitClaimRepository.save(
+      leagueBfitClaim
+    )
+    // update claimed bfit in this user's leaderboard entry
+    await this.leaderboardEntryRepository.increment(
+      {
+        leaderboard: { id: league.active_leaderboard.id },
+        user: { id: userId }
+      },
+
+      'bfit_claimed',
+      claimLeagueBfitDto.amount
+    )
+    // update user bfit balance
+    await this.userRepository.increment(
+      {
+        id: userId
+      },
+
+      'bfit_balance',
+      claimLeagueBfitDto.amount
+    )
+
+    const transactionHash = await this.sendBfitClaimTransaction(
+      leagueId,
+      userId,
+      claimLeagueBfitDto.amount
+    )
+
+    let walletTransaction = new WalletTransaction()
+    walletTransaction.source = WalletTransactionSource.LeagueBfitClaim
+    walletTransaction.claim_id = createdClaim.id
+    walletTransaction.league_id = league.id
+    walletTransaction.league_name = league.name
+    walletTransaction.user_id = userId
+    walletTransaction.bfit_amount = claimLeagueBfitDto.amount
+    walletTransaction.bfit_amount = claimLeagueBfitDto.amount
+    walletTransaction.transaction_id = transactionHash
+    await this.walletTransactionRepository.save(walletTransaction)
+    return createdClaim
+  }
+
+  async incrementUserBfit(email: string, amount: number) {
+    const user = await this.userRepository.findOne({ email })
+    if (!user) {
+      throw new NotFoundException('User with the provided email not found')
+    }
+
+    const incremented = await this.userRepository.increment(
+      {
+        id: user.id
+      },
+
+      'bfit_balance',
+      amount * 1000_000
+    )
+    return incremented
+  }
+
+  async getUserBfitClaims(
+    userId: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ) {
+    let query = { user_id: userId }
+    const [results, total] = await this.leagueBfitClaimRepository.findAndCount({
+      ...query,
+      take: limit,
+      skip: page * limit
+    })
+    return new Pagination<LeagueBfitClaim>({
+      results,
+      total
+    })
+  }
+
+  async getUserBfitEarningsHistory(
+    userId: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ) {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    let query = { user_id: userId, created_at: MoreThan(sevenDaysAgo) }
+    const [results, total] =
+      await this.LeagueBfitEarningsRepository.findAndCount({
+        ...query,
+        take: limit,
+        skip: page * limit
+      })
+    return new Pagination<LeagueBfitEarnings>({
+      results,
+      total
+    })
+  }
+
   async isOwnedBy(leagueId: string, userId: string) {
     const result = await this.leaguesRepository.findOne({
       where: { id: leagueId, owner: { id: userId } }
@@ -181,10 +354,118 @@ export class LeaguesService {
       skip: page * limit,
       relations: ['image', 'sport']
     })
+
     return new Pagination<League>({
       results,
       total
     })
+  }
+
+  async findAllCompeteToEarnLeagues(
+    { limit = 10, page = 0 }: PaginationOptionsInterface,
+    userId: string,
+    query: FilterCompeteToEarnDto
+  ) {
+    let results: League[]
+    let total: number
+    if (Object.keys(query).length && query.isParticipating) {
+      const query = this.queryFindAccessibleToUser(userId)
+        .where('leagueUser.id = :userId', { userId })
+        .andWhere('league.access = :access', {
+          access: LeagueAccess.CompeteToEarn
+        })
+        .take(limit)
+        .skip(page * limit)
+
+      const { entities, raw } = await query.getRawAndEntities()
+      results = this.applyRawResults(entities, raw)
+      total = await query.limit(0).getCount()
+    } else if (Object.keys(query).length && !query.isParticipating) {
+      const where = this.leaguesRepository
+        .createQueryBuilder('league')
+        .select('league.id')
+        .innerJoin('league.users', 'user')
+        .where('user.id = :userId', { userId })
+
+      const query = this.queryFindAccessibleToUser(userId)
+        .leftJoinAndSelect('league.users', 'user')
+        .andWhere(`league.id NOT IN (${where.getQuery()})`)
+        .andWhere('league.access = :access', {
+          access: LeagueAccess.CompeteToEarn
+        })
+        .take(limit)
+        .skip(page * limit)
+
+      let { entities, raw } = await query.getRawAndEntities()
+      total = await query.limit(0).getCount()
+      results = this.applyRawResults(entities, raw)
+    } else {
+      const query = this.queryFindAccessibleToUser(userId)
+        .where('league.access = :access', {
+          access: LeagueAccess.CompeteToEarn
+        })
+        .take(limit)
+        .skip(page * limit)
+
+      const { entities, raw } = await query.getRawAndEntities()
+      results = this.applyRawResults(entities, raw)
+      total = await query.limit(0).getCount()
+    }
+
+    let totalCompeteToEarnLeaguesUsers = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .leftJoin('league.users', 'user')
+      .where('league.access = :access', {
+        access: LeagueAccess.CompeteToEarn
+      })
+      .select('COUNT(user.id)', 'totalUsers')
+      .getRawOne()
+
+    totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
+
+    const leaguesWithDailyBfit = results.map((league) => {
+      const leagueObject: LeagueWithDailyBfit = { ...league }
+
+      const leagueUsers = league.participants_total
+      // we multiply by 1000000 because BFIT has 6 decimals
+      const dailyBfit = Math.round(
+        (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
+      )
+      leagueObject.daily_bfit = dailyBfit
+      return leagueObject
+    })
+    return new Pagination<LeagueWithDailyBfit>({
+      results: leaguesWithDailyBfit,
+      total
+    })
+  }
+
+  async findLeagueDailyBfit(id: string) {
+    const league = await this.leaguesRepository.findOne(id, {
+      relations: ['active_leaderboard', 'users']
+    })
+    if (!league) {
+      throw new NotFoundException(`League with ID ${id} not found`)
+    }
+
+    let totalCompeteToEarnLeaguesUsers = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .leftJoin('league.users', 'user')
+      .where('league.access = :access', {
+        access: LeagueAccess.CompeteToEarn
+      })
+      .select('COUNT(user.id)', 'totalUsers')
+      .getRawOne()
+
+    totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
+    const leagueObject: LeagueWithDailyBfit = { ...league }
+
+    const leagueUsers = league.participants_total
+    const dailyBfit = Math.round(
+      (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
+    )
+    leagueObject.daily_bfit = dailyBfit
+    return leagueObject
   }
 
   async findAllParticipating(
@@ -198,17 +479,43 @@ export class LeaguesService {
 
     const { entities, raw } = await query.getRawAndEntities()
     const results = this.applyRawResults(entities, raw)
+
+    let totalCompeteToEarnLeaguesUsers = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .leftJoin('league.users', 'user')
+      .where('league.access = :access', {
+        access: LeagueAccess.CompeteToEarn
+      })
+      .select('COUNT(user.id)', 'totalUsers')
+      .getRawOne()
+
+    totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
+    const leaguesWithDailyBfit = results.map((league) => {
+      if (league.access === LeagueAccess.CompeteToEarn) {
+        const leagueObject: LeagueWithDailyBfit = { ...league }
+        const leagueUsers = league.participants_total
+        const dailyBfit = Math.round(
+          (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
+        )
+        leagueObject.daily_bfit = dailyBfit
+        return leagueObject
+      }
+      return league
+    })
     const total = await query.limit(0).getCount()
 
     return new Pagination<LeaguePublic>({
-      results: results.map((league) => this.getLeaguePublic(league, userId)),
+      results: leaguesWithDailyBfit.map((league) =>
+        this.getLeaguePublic(league, userId)
+      ),
       total
     })
   }
 
   async findAllNotParticipating(
     userId: string,
-    { limit = 10, page = 0 }: PaginationOptionsInterface
+    { limit = 10, page = 0 }: PaginationOptionsInterface,
+    leagueFilters: LeagueFilter = {}
   ) {
     // Use a subquery inside a where statement to determine
     // leagues that the user does not yet belong to.
@@ -218,7 +525,7 @@ export class LeaguesService {
       .innerJoin('league.users', 'user')
       .where('user.id = :userId', { userId })
 
-    const query = this.queryFindAccessibleToUser(userId)
+    const query = this.queryFindAccessibleToUser(userId, leagueFilters)
       .andWhere(`league.id NOT IN (${where.getQuery()})`)
       .take(limit)
       .skip(page * limit)
@@ -288,6 +595,27 @@ export class LeaguesService {
     if (!result) {
       throw new NotFoundException(`League with ID ${id} not found`)
     }
+
+    if (result.access === LeagueAccess.CompeteToEarn) {
+      const leagueObject: LeagueWithDailyBfit = { ...result }
+      let totalCompeteToEarnLeaguesUsers = await this.leaguesRepository
+        .createQueryBuilder('league')
+        .leftJoin('league.users', 'user')
+        .where('league.access = :access', {
+          access: LeagueAccess.CompeteToEarn
+        })
+        .select('COUNT(user.id)', 'totalUsers')
+        .getRawOne()
+
+      totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
+
+      const leagueUsers = result.participants_total
+      const dailyBfit = Math.round(
+        (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
+      )
+      leagueObject.daily_bfit = dailyBfit
+      return leagueObject
+    }
     return result
   }
 
@@ -330,9 +658,10 @@ export class LeaguesService {
   async searchManyAccessibleToUser(
     keyword: string,
     userId: string,
-    { limit = 10, page = 0 }: PaginationOptionsInterface
+    { limit = 10, page = 0 }: PaginationOptionsInterface,
+    leagueFilters: LeagueFilter = {}
   ) {
-    const query = this.queryFindAccessibleToUser(userId)
+    const query = this.queryFindAccessibleToUser(userId, leagueFilters)
       .andWhere(
         '(league.name ILIKE :keyword OR league.description ILIKE :keyword)',
         { keyword: `%${keyword}%` }
@@ -350,8 +679,8 @@ export class LeaguesService {
     })
   }
 
-  getLeaguePublic(league: League, userId: string) {
-    const leaguePublic = (league as unknown) as LeaguePublic
+  getLeaguePublic(league: League | LeaguePublic, userId: string) {
+    const leaguePublic = league as unknown as LeaguePublic
     leaguePublic.participating = Boolean(league.users.length > 0)
     leaguePublic.is_owner = Boolean(league.owner && league.owner.id === userId)
     leaguePublic.rank = Number(leaguePublic.rank) || null
@@ -365,7 +694,7 @@ export class LeaguesService {
 
     // Ensure personal user data of owner is sanitized.
     if (leaguePublic.owner) {
-      ;((leaguePublic.owner as unknown) as UserPublic) = plainToClass(
+      ;(leaguePublic.owner as unknown as UserPublic) = plainToClass(
         UserPublic,
         leaguePublic.owner,
         {
@@ -392,7 +721,27 @@ export class LeaguesService {
     const results = this.applyRawResults(entities, raw)
 
     if (results[0]) {
-      return this.getLeaguePublic(results[0], userId)
+      const leagueObject: LeagueWithDailyBfit = { ...results[0] }
+      if (results[0].access === LeagueAccess.CompeteToEarn) {
+        let totalCompeteToEarnLeaguesUsers = await this.leaguesRepository
+          .createQueryBuilder('league')
+          .leftJoin('league.users', 'user')
+          .where('league.access = :access', {
+            access: LeagueAccess.CompeteToEarn
+          })
+          .select('COUNT(user.id)', 'totalUsers')
+          .getRawOne()
+
+        totalCompeteToEarnLeaguesUsers =
+          totalCompeteToEarnLeaguesUsers.totalUsers
+
+        const leagueUsers = results[0].participants_total
+        const dailyBfit = Math.round(
+          (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
+        )
+        leagueObject.daily_bfit = dailyBfit
+      }
+      return this.getLeaguePublic(leagueObject, userId)
     } else {
       return results[0]
     }
@@ -412,7 +761,16 @@ export class LeaguesService {
    * @param userId
    * @returns
    */
-  queryFindAccessibleToUser(userId: string) {
+  queryFindAccessibleToUser(
+    userId: string,
+    {
+      isCte = true,
+      isOrganization = true,
+      isPrivate = true,
+      isPublic = true,
+      isTeam = true
+    }: LeagueFilter = {}
+  ) {
     const rankQb = this.leaderboardEntryRepository
       .createQueryBuilder('entry')
       .select(
@@ -456,11 +814,22 @@ export class LeaguesService {
 
         .where(
           new Brackets((qb) => {
-            // The league is public
-            return (
-              qb
-                .where('league.access = :accessPublic')
+            let filteredQb = qb
 
+            // The league is public
+            if (isPublic) {
+              filteredQb = filteredQb.where('league.access = :accessPublic')
+            }
+
+            // the league is a compete to earn league
+            if (isCte) {
+              filteredQb = filteredQb.orWhere(
+                'league.access = :accessCompeteToEarn'
+              )
+            }
+            // The league is private
+            if (isPrivate) {
+              filteredQb = filteredQb
                 // The league is private & owned by the user
                 .orWhere(
                   '(league.access = :accessPrivate AND owner.id = :userId)'
@@ -470,17 +839,23 @@ export class LeaguesService {
                 .orWhere(
                   `(league.access = :accessPrivate AND leagueUser.id = :userId)`
                 )
+            }
 
-                // The user belongs to the team that the league belongs to
-                .orWhere(`(teamUser.id = :userId)`)
+            // The user belongs to the team that the league belongs to
+            if (isTeam) {
+              filteredQb = filteredQb.orWhere(`(teamUser.id = :userId)`)
+            }
 
-                // The user belongs to the organisation that the league belongs to
-                .orWhere(`(organisationUser.id = :userId)`)
-            )
+            // The user belongs to the organisation that the league belongs to
+            if (isOrganization) {
+              filteredQb = filteredQb.orWhere(`(organisationUser.id = :userId)`)
+            }
+            return filteredQb
           }),
           {
             accessPrivate: LeagueAccess.Private,
             accessPublic: LeagueAccess.Public,
+            accessCompeteToEarn: LeagueAccess.CompeteToEarn,
             userId
           }
         )
@@ -523,15 +898,65 @@ export class LeaguesService {
     league.id = leagueId
 
     if (await this.isParticipant(leagueId, userId)) {
-      return 'already joined'
+      throw new BadRequestException('You have already joined this league')
+    }
+
+    let isCompeteToEarn = await this.leaguesRepository.findOne(
+      {
+        id: leagueId,
+        access: LeagueAccess.CompeteToEarn
+      },
+      {
+        relations: ['sport']
+      }
+    )
+    // check if the user has already joined more than 3 leagues
+    if (isCompeteToEarn) {
+      // check if the user has joined the maximum number of c2e leagues with the same sport id,
+      // it should be a maximum of 3
+      const sameSportCount = await this.leaguesRepository
+        .createQueryBuilder('league')
+        .innerJoin('league.users', 'user')
+        .innerJoin('league.sport', 'sport')
+        .where(
+          'user.id = :userId AND sport.id = :sportId AND access = :leagueAccess',
+          {
+            userId,
+            leagueId,
+            sportId: isCompeteToEarn.sport.id,
+            leagueAccess: LeagueAccess.CompeteToEarn
+          }
+        )
+        .getCount()
+      if (sameSportCount >= 1) {
+        throw new BadRequestException(
+          'You can only join one sport type of a compete to earn league i.e. 1 x swim, 1 x cycle and 1 run'
+        )
+      }
+
+      let query = this.queryFindAccessibleToUser(userId, {
+        isCte: true,
+        isOrganization: false,
+        isPrivate: false,
+        isPublic: false,
+        isTeam: false
+      })
+
+      query = query.andWhere('leagueUser.id = :userId', { userId })
+      const { entities, raw } = await query.getRawAndEntities()
+      const results = this.applyRawResults(entities, raw)
+      if (results.length >= 3) {
+        throw new BadRequestException(
+          'You can only join a maximum of 3 compete to earn leagues'
+        )
+      }
     }
 
     const leaderboardEntry = await this.leaguesRepository.manager.transaction(
       async (manager) => {
         const repository = manager.getRepository(League)
-        const leaderboardEntryRepository = manager.getRepository(
-          LeaderboardEntry
-        )
+        const leaderboardEntryRepository =
+          manager.getRepository(LeaderboardEntry)
         const invitationRepository = manager.getRepository(LeaguesInvitation)
         const userRepository = manager.getRepository(User)
         await repository
@@ -731,11 +1156,39 @@ export class LeaguesService {
       .skip(options.page * options.limit)
 
     const [results, total] = await query.getManyAndCount()
-
     return new Pagination<LeaderboardEntry & { user: UserPublic }>({
       results: results.map(this.getLeaderboardEntryPublic),
       total
     })
+  }
+
+  /**
+   * Find Leaderboard entry by user id
+   *
+   * @param leaderboardId
+   * @param userId
+   */
+  async getLeaderboardMemberByUserId(
+    leagueId: string,
+    userId: string
+  ): Promise<LeaderboardEntry & { user: UserPublic }> {
+    const query = this.leaderboardEntryRepository
+      .createQueryBuilder('entry')
+      .innerJoin('entry.leaderboard', 'entryLeaderboard')
+      .innerJoin('entryLeaderboard.league', 'league')
+      .innerJoin('league.active_leaderboard', 'leaderboard')
+      .innerJoinAndSelect('entry.user', 'user')
+      .leftJoinAndSelect('user.avatar', 'avatar')
+      .where(
+        'league.id = :leagueId AND leaderboard.id = entryLeaderboard.id AND entry.user.id = :userId',
+        {
+          leagueId,
+          userId
+        }
+      )
+    const result = await query.getOne()
+
+    return result ? this.getLeaderboardEntryPublic(result) : null
   }
 
   async getLeagueIfInvited(leagueId: string, userId: string) {
@@ -876,10 +1329,11 @@ export class LeaguesService {
       return false
     }
 
-    const rank = await this.leaderboardEntriesService.findRankAndFlanksInLeaderboard(
-      userId,
-      league.active_leaderboard.id
-    )
+    const rank =
+      await this.leaderboardEntriesService.findRankAndFlanksInLeaderboard(
+        userId,
+        league.active_leaderboard.id
+      )
 
     const entries: LeaderboardEntry[] = []
 
@@ -1191,5 +1645,69 @@ export class LeaguesService {
       total: leagues.length,
       messages
     }
+  }
+
+  async getTeamLeaguesForPublicPage(
+    teamId: string
+  ): Promise<PublicPageLeague[]> {
+    const leagues = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .where('league.team.id = :teamId', {
+        teamId
+      })
+      .leftJoinAndSelect('league.image', 'image')
+      .leftJoinAndSelect('league.sport', 'sport')
+      .limit(50)
+      .getMany()
+
+    return leagues.map((e) => ({
+      photo_url: e.image.url,
+      description: e.description,
+      title: e.name,
+      sport: e.sport,
+      repeat: e.repeat,
+      participants_total: e.participants_total,
+      duration: e.duration
+    }))
+  }
+
+  async sendBfitClaimTransaction(
+    league_id: string,
+    user_id: string,
+    amount: number
+  ) {
+    const RPC_ENDPOINT = 'https://rpc.harpoon.kujira.setten.io:443'
+    const { BFIT_EARNINGS_SC_ADDRESS } = process.env
+    const { MNEMONIC } = process.env
+
+    const signer = await DirectSecp256k1HdWallet.fromMnemonic(MNEMONIC, {
+      prefix: 'kujira'
+    })
+    const [account] = await signer.getAccounts()
+    const client = await SigningStargateClient.connectWithSigner(
+      RPC_ENDPOINT,
+      signer,
+      {
+        registry,
+        gasPrice: GasPrice.fromString('0.00125ukuji')
+      }
+    )
+
+    const mesg = msg.wasm.msgExecuteContract({
+      sender: account.address,
+      contract: BFIT_EARNINGS_SC_ADDRESS,
+      msg: Buffer.from(
+        JSON.stringify({
+          save_user_bfit_earnings: {
+            league_id,
+            participant: user_id,
+            amount: amount.toString()
+          }
+        })
+      ),
+      funds: []
+    })
+    const sig = await client.signAndBroadcast(account.address, [mesg], 'auto')
+    return sig.transactionHash
   }
 }

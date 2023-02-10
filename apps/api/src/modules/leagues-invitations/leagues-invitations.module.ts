@@ -16,6 +16,9 @@ import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-en
 import { CommonModule } from '../common/common.module'
 import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 import { NotificationsModule } from '../notifications/notifications.module'
+import { LeagueBfitClaim } from '../leagues/entities/bfit-claim.entity'
+import { LeagueBfitEarnings } from '../leagues/entities/bfit-earnings.entity'
+import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
 
 @Module({
   imports: [
@@ -29,7 +32,10 @@ import { NotificationsModule } from '../notifications/notifications.module'
       Team,
       Organisation,
       User,
-      HealthActivity
+      HealthActivity,
+      LeagueBfitClaim,
+      LeagueBfitEarnings,
+      WalletTransaction
     ]),
     NotificationsModule,
     JwtModule.registerAsync({

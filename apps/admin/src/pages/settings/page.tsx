@@ -86,17 +86,10 @@ export default function ManagePage() {
     }
   )
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    trigger,
-    watch,
-    setValue,
-    reset
-  } = useForm({
-    defaultValues: loadPage.data
-  })
+  const { control, register, handleSubmit, trigger, watch, setValue, reset } =
+    useForm({
+      defaultValues: loadPage.data
+    })
 
   const { fields, append, remove } = useFieldArray({
     name: 'content',
@@ -313,7 +306,7 @@ export default function ManagePage() {
                     />
                     <div className="flex ai-c">
                       <small>
-                        https://{domain || 'yourdomainhere'}.on.fitlinkapp.com
+                        https://{domain || 'yourdomainhere'}.on.fitlinkteams.com
                       </small>
                       {domain && !checkDomain.error && !errors.domain && (
                         <CheckmarkIcon className="ml-1" title="Available" />

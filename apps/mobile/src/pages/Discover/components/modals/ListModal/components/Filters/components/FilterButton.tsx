@@ -6,9 +6,8 @@ import styled, {useTheme} from 'styled-components/native';
 const Wrapper = styled.View(({theme: {colors}}) => ({
   paddingVertical: 5,
   marginHorizontal: 5,
-  backgroundColor: `${colors.accent}1A`,
   alignItems: 'center',
-  borderRadius: 999,
+  borderRadius: 10,
 }));
 
 interface FilterButtonProps extends TouchHandlerProps {
@@ -27,10 +26,10 @@ export const FilterButton = (props: FilterButtonProps & TouchHandlerProps) => {
         style={{
           ...(style as {}),
           justifyContent: 'center',
-          backgroundColor: selected ? `${colors.accent}1A` : colors.background,
+          backgroundColor: selected ? colors.accent : colors.text,
         }}>
         <Label
-          appearance={selected ? 'accent' : 'accentSecondary'}
+          appearance={'black'}
           style={{textAlign: 'center', fontSize: 13}}>
           {text}
         </Label>

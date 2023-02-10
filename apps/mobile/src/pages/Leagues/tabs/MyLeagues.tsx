@@ -1,15 +1,21 @@
-import React from 'react';
+import React, {
+  forwardRef,
+  ForwardRefRenderFunction,
+  useImperativeHandle,
+} from 'react';
 import styled, {useTheme} from 'styled-components/native';
-import {Icon, Label, TouchHandler} from '@components';
+import {Label} from '@components';
 import {useMyLeagues} from '@hooks';
 import {ActivityIndicator} from 'react-native';
 import {getResultsFromPages} from 'utils/api';
 import {LeagueList} from './components';
-import {useNavigation} from '@react-navigation/native';
+import {widthLize} from '@utils';
+import {IRefreshableTabHandle} from './types';
 
 const Wrapper = styled.View({
   flex: 1,
   justifyContent: 'center',
+  marginHorizontal: widthLize(20),
 });
 
 const EmptyContainer = styled.View({
@@ -18,14 +24,14 @@ const EmptyContainer = styled.View({
   alignItems: 'center',
 });
 
-const ButtonContentContainer = styled.View({
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-});
+interface IMyLeaguesProps {
+  jumpTo: (tab: string) => void;
+}
 
-export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
-  const navigation = useNavigation();
+const MyLeaguesInner: ForwardRefRenderFunction<
+  IRefreshableTabHandle,
+  IMyLeaguesProps
+> = ({jumpTo}, forwardedRef) => {
   const {colors} = useTheme();
 
   const {
@@ -38,11 +44,11 @@ export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
     error,
   } = useMyLeagues();
 
-  const results = getResultsFromPages(data);
+  useImperativeHandle(forwardedRef, () => ({
+    refresh: refetch,
+  }));
 
-  const onCreateLeaguePressed = () => {
-    navigation.navigate('LeagueForm');
-  };
+  const results = getResultsFromPages(data);
 
   const ListEmptyComponent = isFetchingNextPage ? null : (
     <EmptyContainer
@@ -75,22 +81,6 @@ export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
     </EmptyContainer>
   );
 
-  const ListHeaderComponent = (
-    <TouchHandler style={{paddingBottom: 20}} onPress={onCreateLeaguePressed}>
-      <ButtonContentContainer>
-        <Icon
-          name={'plus'}
-          size={16}
-          color={colors.accentSecondary}
-          style={{marginRight: 5}}
-        />
-        <Label type={'body'} appearance={'secondary'} bold>
-          Create a new league
-        </Label>
-      </ButtonContentContainer>
-    </TouchHandler>
-  );
-
   return (
     <Wrapper>
       <LeagueList
@@ -99,7 +89,6 @@ export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
           isFetchingNextPage,
           isFetchedAfterMount,
           ListEmptyComponent,
-          ListHeaderComponent,
         }}
         data={results}
         onEndReached={() => fetchNextPage()}
@@ -108,3 +97,5 @@ export const MyLeagues = ({jumpTo}: {jumpTo: (tab: string) => void}) => {
     </Wrapper>
   );
 };
+
+export const MyLeagues = forwardRef(MyLeaguesInner);

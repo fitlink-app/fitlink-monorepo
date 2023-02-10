@@ -1,7 +1,14 @@
 import {TouchHandler} from '@components';
 import {useNavigation} from '@react-navigation/core';
 import React from 'react';
-import {Animated, StyleProp, ViewStyle, StyleSheet} from 'react-native';
+import {
+  Animated,
+  StyleProp,
+  TextStyle,
+  ViewStyle,
+  StyleSheet,
+  LayoutChangeEvent,
+} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {Icon} from './Icon';
@@ -73,8 +80,14 @@ interface NavbarProps {
   /** Set navbar title (if centerComponent is provided, title will be overridden) */
   title?: string;
 
+  /** Set Style of Title */
+  titleStyle?: StyleProp<TextStyle>;
+
   /** Set this as an overlay navbar so content can appear below it */
   overlay?: boolean;
+
+  containerStyle?: StyleProp<ViewStyle>;
+  onLayout?: (event: LayoutChangeEvent) => void;
 }
 
 export const Navbar = ({
@@ -84,10 +97,13 @@ export const Navbar = ({
   backButtonIcon = 'arrow-left',
   backButtonLabel,
   title,
+  titleStyle,
   iconColor,
   overlay,
   titleProps,
   scrollAnimatedValue,
+  containerStyle,
+  onLayout,
 }: NavbarProps) => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
@@ -126,6 +142,7 @@ export const Navbar = ({
       <TouchHandler onPress={handleOnBackPressed}>
         <BackButtonRow>
           <Icon
+            style={{padding: 5}}
             name={backButtonIcon}
             size={22}
             color={iconColor || colors.accent}
@@ -147,6 +164,7 @@ export const Navbar = ({
         bold
         numberOfLines={1}
         style={{
+          ...(titleStyle as {}),
           textAlign: 'center',
           opacity: animatedTitleOpacity,
         }}
@@ -158,11 +176,14 @@ export const Navbar = ({
 
   return (
     <Wrapper
-      style={{
-        paddingTop: insets.top,
-      }}>
+      onLayout={onLayout}
+      style={[
+        {
+          paddingTop: insets.top,
+        },
+        containerStyle,
+      ]}>
       <Background style={{...overlayStyle, opacity: fixedHeaderOpacity}} />
-
       <ContentContainer>
         <LeftContent>
           {leftComponent ? leftComponent : renderBackButton()}

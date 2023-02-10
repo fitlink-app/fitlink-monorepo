@@ -19,6 +19,10 @@ import { LeagueJoinedListener } from './listeners/LeagueJoinedListener'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { LeagueWonListener } from './listeners/LeagueWonListener'
 import { NotificationsModule } from '../notifications/notifications.module'
+import { LeagueBfitClaim } from './entities/bfit-claim.entity'
+import { LeagueBfitEarnings } from './entities/bfit-earnings.entity'
+import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
+import { WalletTransactionsModule } from '../wallet-transactions/wallet-transactions.module'
 
 @Module({
   imports: [
@@ -29,7 +33,10 @@ import { NotificationsModule } from '../notifications/notifications.module'
       Team,
       Organisation,
       HealthActivity,
-      User
+      LeagueBfitClaim,
+      User,
+      LeagueBfitEarnings,
+      WalletTransaction
     ]),
     CommonModule,
     AuthModule,

@@ -22,6 +22,21 @@ import { FeedItem } from '../../feed-items/entities/feed-item.entity'
 import { LeagueAccess, LeagueInvitePermission } from '../leagues.constants'
 import { LeaguesInvitation } from '../../leagues-invitations/entities/leagues-invitation.entity'
 
+// when saving numbers as bigint postgress will return them as strings, we use this to convert them to integers
+export class ColumnNumberTransformer {
+  public to(data: number): number {
+    return data
+  }
+
+  public from(data: string): number {
+    // output value, you can use Number, parseFloat variations
+    // also you can add nullable condition:
+    // if (!Boolean(data)) return 0;
+
+    return parseInt(data)
+  }
+}
+
 @Entity()
 export class League extends CreatableEntity {
   @ApiProperty()
@@ -78,6 +93,14 @@ export class League extends CreatableEntity {
   @ManyToOne(() => FeedItem, (item) => item.league)
   feed_items: FeedItem
 
+  // bfit accumulated in this league if it's a compete to earn league
+  @Column({
+    type: 'bigint',
+    default: 0,
+    transformer: new ColumnNumberTransformer()
+  })
+  bfit?: number
+
   @OneToMany(() => LeaguesInvitation, (invitation) => invitation.league)
   invitations: LeaguesInvitation[]
 
@@ -126,6 +149,12 @@ export class League extends CreatableEntity {
   rank: number
 }
 
+export class LeagueWithDailyBfit extends League {
+  @ApiProperty()
+  @Expose()
+  daily_bfit?: number
+}
+
 export class LeaguePublic extends League {
   @ApiProperty()
   @Expose()
@@ -138,6 +167,10 @@ export class LeaguePublic extends League {
   @ApiProperty()
   @Expose()
   rank: number
+
+  @ApiProperty()
+  @Expose()
+  daily_bfit?: number
 }
 
 export class LeaguePublicPagination {

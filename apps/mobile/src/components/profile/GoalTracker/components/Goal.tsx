@@ -1,8 +1,8 @@
-import {Icon, Label, ProgressCircle} from '../../../common';
+import {Icon, ProgressCircle} from '../../../common';
 import React from 'react';
 import {ViewProps} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
-import {LayoutUtils, NumberFormatterUtils} from '@utils';
+import {LayoutUtils} from '@utils';
 
 export type Goal = {
   value: number;
@@ -17,19 +17,7 @@ interface GoalProps {
 
 const Wrapper = styled.View({alignItems: 'center'});
 
-const Value = styled(Label).attrs(() => ({
-  type: 'caption',
-  bold: true,
-}))({
-  marginTop: 5,
-});
-
-export const Goal = ({
-  disabled,
-  goal,
-  icon,
-  ...rest
-}: GoalProps & ViewProps) => {
+export const Goal = ({goal, icon, ...rest}: GoalProps & ViewProps & any) => {
   const {colors} = useTheme();
 
   const progress = goal.value / goal.target;
@@ -38,21 +26,17 @@ export const Goal = ({
     <Wrapper {...rest}>
       <ProgressCircle
         {...{progress}}
-        strokeWidth={4}
-        backgroundStrokeWidth={2}
+        strokeWidth={2}
+        backgroundStrokeWidth={1}
         bloomIntensity={0.5}
         bloomRadius={8}
         size={LayoutUtils.getPercentageSize(16)}>
         <Icon
           name={icon}
           size={LayoutUtils.getPercentageSize(8)}
-          color={disabled ? colors.accentSecondary : colors.accent}
+          color={colors.text}
         />
       </ProgressCircle>
-
-      <Value appearance={progress >= 1 ? 'accent' : 'secondary'}>
-        {NumberFormatterUtils.toCommaSeparated(goal.value.toString(), 1)}
-      </Value>
     </Wrapper>
   );
 };

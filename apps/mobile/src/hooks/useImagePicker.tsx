@@ -3,10 +3,15 @@ import {Dialog} from 'components/modal/Dialog';
 import React from 'react';
 import {
   CameraOptions,
-  ImagePickerResponse,
   launchCamera,
   launchImageLibrary,
 } from 'react-native-image-picker';
+// import {
+//   CameraOptions,
+//   ImagePickerResponse,
+//   launchCamera,
+//   launchImageLibrary,
+// } from 'react-native-image-picker';
 
 export interface ImagePickerDialogResponse {
   uri: string;
@@ -28,9 +33,11 @@ export function useImagePicker() {
           {
             text: 'Take Picture',
             onPress: () => openCamera(callback),
+            // onPress: () => {},
           },
           {
             text: 'Select From Gallery',
+            // onPress: () => {},
             onPress: () => openGallery(callback),
           },
         ]}
@@ -45,7 +52,6 @@ export function useImagePicker() {
       maxHeight: 1200,
       quality: 1,
     } as CameraOptions;
-
     launchCamera(pickerOptions, response => {
       const handledResponse = handlePickerResponse(response);
       if (handledResponse) callback(handledResponse);
@@ -66,7 +72,7 @@ export function useImagePicker() {
     });
   }
 
-  function handlePickerResponse(response: ImagePickerResponse) {
+  function handlePickerResponse(response: any) {
     const {didCancel, errorCode, assets} = response;
     const file = (assets || [])[0];
 

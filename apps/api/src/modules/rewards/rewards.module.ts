@@ -9,10 +9,16 @@ import { User } from '../users/entities/user.entity'
 import { RewardClaimedListener } from './listeners/RewardClaimedListener'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { FeedItemsModule } from '../feed-items/feed-items.module'
+import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Reward, RewardsRedemption, User]),
+    TypeOrmModule.forFeature([
+      Reward,
+      RewardsRedemption,
+      User,
+      WalletTransaction
+    ]),
     // circualr dependency with user module for some reason this fixes it.
     forwardRef(() => AuthModule),
     EventEmitter2,

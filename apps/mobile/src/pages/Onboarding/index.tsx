@@ -3,7 +3,7 @@ import styled, {useTheme} from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 import {ActivityIndicator, Image} from 'react-native';
 import {BasicInfo, Goals} from './subscreens';
-import {Button, Dots} from '@components';
+import {Button, Dots, Logo} from '@components';
 import {useJoinTeamByCode, useMe} from '@hooks';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -15,10 +15,9 @@ import {
 } from 'redux/settings/settingsSlice';
 import {AppDispatch} from 'redux/store';
 import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
-import {Trackers} from './subscreens/Trackers';
-import {Privacy} from './subscreens/Privacy';
+import {Trackers, Privacy} from './subscreens';
 import {Navigation} from './components';
-import {logout} from 'redux/auth/authSlice';
+import {logout} from 'redux/auth';
 import {
   resetTeamInvitation,
   selectTeamInvitation,
@@ -32,8 +31,10 @@ const BackgroundImageContainer = styled.View({
   position: 'absolute',
   alignItems: 'flex-end',
   justifyContent: 'center',
-  width: '100%',
-  height: '100%',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
   zIndex: -1,
 });
 
@@ -41,7 +42,7 @@ const StyledPager = styled(PagerView)({flex: 1});
 
 const ButtonContainer = styled.View({
   alignItems: 'center',
-  marginBottom: 25,
+  marginBottom: 10,
   paddingHorizontal: 20,
 });
 
@@ -237,7 +238,8 @@ export const Onboarding = () => {
         </>
       ) : (
         <LoadingContainer>
-          <ActivityIndicator color={colors.accent} />
+          <Logo size={'large'} />
+          <ActivityIndicator style={{ marginTop: 10 }} color={colors.accent} />
         </LoadingContainer>
       )}
 

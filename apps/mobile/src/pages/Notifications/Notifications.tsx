@@ -1,11 +1,10 @@
-import {Label, Navbar, NAVBAR_HEIGHT, TouchHandler} from '@components';
+import {Icon, Label, Navbar, NAVBAR_HEIGHT} from '@components';
 import {useMe, useNotifications} from '@hooks';
 import React, {useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   Dimensions,
   FlatList,
-  Platform,
   RefreshControl,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -50,7 +49,7 @@ export const Notifications = () => {
     setAllNotificationsSeenQuery: {mutateAsync: setNotificationsSeenAll},
   } = useNotifications();
 
-  const {data: user, refetch: refetchUser} = useMe({enabled: false});
+  const {refetch: refetchUser} = useMe({enabled: false});
 
   const data = getResultsFromPages<NotificationClass>(pages);
 
@@ -106,16 +105,21 @@ export const Notifications = () => {
   return (
     <Wrapper>
       <Navbar
-        overlay
-        title={'Notifications'}
+        iconColor={'white'}
+        title="NOTIFICATIONS"
+        titleStyle={{
+          fontSize: 16,
+          letterSpacing: 1,
+          color: colors.accent,
+        }}
         rightComponent={
-          user?.unread_notifications ? (
-            <TouchHandler onPress={() => setNotificationsSeenAll()}>
-              <Label type={'caption'} bold appearance={'accent'}>
-                Mark all as seen
-              </Label>
-            </TouchHandler>
-          ) : undefined
+          <Icon
+            size={22}
+            style={{padding: 5, alignItems: 'center', justifyContent: 'center'}}
+            fill="white"
+            name="double-check"
+            onPress={() => setNotificationsSeenAll()}
+          />
         }
       />
 
@@ -125,11 +129,9 @@ export const Notifications = () => {
         contentContainerStyle={{
           minHeight:
             Dimensions.get('window').height - NAVBAR_HEIGHT - insets.top - 20,
-          paddingTop: Platform.OS === 'ios' ? 0 : NAVBAR_HEIGHT + insets.top,
           paddingBottom: insets.bottom + 20,
+          marginTop: insets.top + NAVBAR_HEIGHT,
         }}
-        contentInset={{top: NAVBAR_HEIGHT + insets.top}}
-        contentOffset={{x: 0, y: -(NAVBAR_HEIGHT + insets.top)}}
         onEndReached={() => fetchNextPage()}
         onEndReachedThreshold={0.25}
         refreshControl={

@@ -13,6 +13,7 @@ import {ResponseError} from '@fitlink/api-sdk/types';
 import {PrivacySetting} from '@fitlink/api/src/modules/users-settings/users-settings.constants';
 import {UpdateUsersSettingDto} from '@fitlink/api/src/modules/users-settings/dto/update-users-setting.dto';
 import {Platform} from 'react-native';
+import {SUPPORTED_CURRENCIES} from '@constants';
 
 export const PRIVACY_ITEMS = [
   {
@@ -28,6 +29,13 @@ export const PRIVACY_ITEMS = [
     value: PrivacySetting.Public,
   },
 ];
+
+export const CURRENCY_ITEMS = Object.entries(SUPPORTED_CURRENCIES).map(
+  ([key, value]) => ({
+    label: value.displayValue,
+    value: key,
+  }),
+);
 
 export type UserGoalPreferences = {
   goal_mindfulness_minutes: number;
@@ -46,6 +54,7 @@ type Settings = {
   avatar?: Image;
   tempAvatar?: ImagePickerDialogResponse;
   userSettings?: Partial<UpdateUsersSettingDto>;
+  displayCurrency: keyof typeof SUPPORTED_CURRENCIES;
 };
 
 export type SettingsState = {
@@ -93,7 +102,7 @@ export const submit = createAsyncThunk(
         });
 
         // Upload image
-        const uploadResult = await api.uploadFile<Image>(`/images`, {payload});
+        const uploadResult = await api.uploadFile<Image>('/images', {payload});
 
         // Update user avatar with the ID of the uploaded image
         await api.put<any>('/me/avatar', {payload: {imageId: uploadResult.id}});
@@ -137,6 +146,7 @@ export const initialState: SettingsState = {
     },
     unitSystem: UnitSystem.Imperial,
     timezone: 'Etc/UTC',
+    displayCurrency: SUPPORTED_CURRENCIES.usd.value,
   },
   isSaving: false,
 };
@@ -147,6 +157,12 @@ const settingsSlice = createSlice({
   reducers: {
     clearChanges: state => {
       state = {...initialState};
+    },
+    setDisplayCurrency: (
+      state,
+      {payload}: PayloadAction<keyof typeof SUPPORTED_CURRENCIES>,
+    ) => {
+      state.currentState.displayCurrency = payload;
     },
     setState: (state, {payload}: PayloadAction<Partial<Settings>>) => {
       state.lastSetState = {...state.currentState, ...payload};
@@ -192,15 +208,15 @@ const settingsSlice = createSlice({
   extraReducers: builder => {
     builder
       // Submit reducers
-      .addCase(submit.pending, (state, {payload}) => {
+      .addCase(submit.pending, (state, {}) => {
         state.isSaving = true;
       })
 
-      .addCase(submit.fulfilled, (state, {payload}) => {
+      .addCase(submit.fulfilled, (state, {}) => {
         state.isSaving = false;
       })
 
-      .addCase(submit.rejected, (state, {payload}) => {
+      .addCase(submit.rejected, (state, {}) => {
         state.isSaving = false;
       });
   },
@@ -225,6 +241,7 @@ export const {
   setNewsletterSubscription,
   setActivitiesPrivacy,
   setDailyStatisticsPrivacy,
+  setDisplayCurrency,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

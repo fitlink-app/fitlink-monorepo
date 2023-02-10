@@ -14,7 +14,26 @@ import { Image } from '../../images/entities/image.entity'
 import { RewardsRedemption } from '../../rewards-redemptions/entities/rewards-redemption.entity'
 import { ApiProperty } from '@nestjs/swagger'
 import { FeedItem } from '../../feed-items/entities/feed-item.entity'
-import { RewardAccess, RewardPlatform } from '../rewards.constants'
+import {
+  RewardAccess,
+  RewardPlatform,
+  RewardRedeemType
+} from '../rewards.constants'
+
+// when saving numbers as bigint postgress will return them as strings, we use this to convert them to integers
+export class ColumnNumberTransformer {
+  public to(data: number): number {
+    return data
+  }
+
+  public from(data: string): number {
+    // output value, you can use Number, parseFloat variations
+    // also you can add nullable condition:
+    // if (!Boolean(data)) return 0;
+
+    return parseInt(data)
+  }
+}
 
 @Entity()
 export class Reward extends CreatableEntity {
@@ -61,8 +80,24 @@ export class Reward extends CreatableEntity {
   brand: string
 
   @ApiProperty()
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: RewardRedeemType,
+    default: RewardRedeemType.Points
+  })
+  redeem_type: RewardRedeemType
+
+  @ApiProperty()
+  @Column({ nullable: true })
   points_required: number
+
+  @ApiProperty()
+  @Column({
+    type: 'bigint',
+    nullable: true,
+    transformer: new ColumnNumberTransformer()
+  })
+  bfit_required: number
 
   @ApiProperty()
   @Column({

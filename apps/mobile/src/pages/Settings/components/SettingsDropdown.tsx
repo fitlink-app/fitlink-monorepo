@@ -19,17 +19,24 @@ const StyledLabel = styled(SettingsItemLabel)({
 interface SettingsDropdownProps extends DropdownProps {
   /** Display label of this button */
   label: string;
+  valueTextWidth?: any;
 }
 
 export const SettingsDropdown = (props: SettingsDropdownProps) => {
-  const {label, ...rest} = props;
+  const {label, valueTextWidth, ...rest} = props;
 
   return (
     <>
-      <SettingsItemWrapper style={{height: 50}}>
+      <SettingsItemWrapper
+        style={{height: 50, borderTopWidth: 1, borderColor: '#2e2e2e'}}>
         <ContainerRow>
           <StyledLabel children={label} />
-          <View style={Platform.OS === 'android' ? {width: 140} : {flex: 1}}>
+          <View
+            style={
+              Platform.OS === 'android'
+                ? {width: valueTextWidth ? valueTextWidth : 140}
+                : {flex: 1}
+            }>
             <Dropdown
               {...{label, ...rest}}
               labelStyle={{

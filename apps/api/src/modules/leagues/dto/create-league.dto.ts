@@ -5,7 +5,9 @@ import {
   IsOptional,
   IsNumber,
   IsBoolean,
-  IsUUID
+  IsUUID,
+  IsInt,
+  IsEmail
 } from 'class-validator'
 import { LeagueAccess, LeagueInvitePermission } from '../leagues.constants'
 
@@ -52,4 +54,11 @@ export class CreateLeagueDto {
   })
   invite_permission?: LeagueInvitePermission =
     LeagueInvitePermission.Participant
+}
+
+export class RewardBfitDto {
+  @IsEmail()
+  email: string
+  @IsInt()
+  amount: number
 }

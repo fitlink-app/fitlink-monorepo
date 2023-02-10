@@ -6,9 +6,11 @@ export enum QueryKeys {
   MyLeagues = 'me/leagues',
   LeagueInvitations = 'me/league-invitations',
   Leagues = 'leagues',
+  CteLeagues = 'leagues/compete-to-earn',
   League = 'league',
   LeagueRank = 'leagueRank',
   LeagueMembers = 'leagues/members',
+  LeagueMembersMe = 'leagues/members/me',
   LeagueInvitableUsers = 'leagues/invitable-users',
   SearchLeagues = 'leagues/search',
   SearchUsers = 'users/search',
@@ -28,4 +30,6 @@ export enum QueryKeys {
   HealthActivity = 'health-activity',
   Notifications = 'me/notifications',
   UserFeed = 'users/feed',
+  BfitClaims = '/leagues/bfit/claims',
+  WalletTransactions = 'wallet-transactions',
 }
