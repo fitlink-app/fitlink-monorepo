@@ -125,7 +125,14 @@ export class RewardsService {
       query = query
         .andWhere('redemptions.id IS NULL')
         .andWhere(
-          'reward.redeem_type = :pointRedeemType AND reward.points_required > user.points_total OR reward.redeem_type = :bfitRedeemType AND reward.bfit_required > user.bfit_balance',
+          'reward.redeem_type = :pointRedeemType AND reward.points_required > user.points_total OR reward.redeem_type = :bfitRedeemType AND reward.bfit_required > user.bfit_balance AND reward.team IS NOT NULL AND teamUser.id = :userId',
+          {
+            pointRedeemType: RewardRedeemType.Points,
+            bfitRedeemType: RewardRedeemType.BFIT
+          }
+        )
+        .orWhere(
+          'reward.redeem_type = :pointRedeemType AND reward.points_required > user.points_total OR reward.redeem_type = :bfitRedeemType AND reward.bfit_required > user.bfit_balance AND reward.team IS NULL',
           {
             pointRedeemType: RewardRedeemType.Points,
             bfitRedeemType: RewardRedeemType.BFIT
