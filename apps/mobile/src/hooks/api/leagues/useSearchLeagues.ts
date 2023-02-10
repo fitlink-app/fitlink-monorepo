@@ -1,10 +1,12 @@
 import {useInfiniteQuery} from 'react-query';
 import {QueryKeys} from '@query';
+
 import api from '@api';
 import {ListResponse} from '@fitlink/api-sdk/types';
-import {getNextPageParam} from 'utils/api';
-import {League} from '@fitlink/api/src/modules/leagues/entities/league.entity';
+import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {useMe} from '@hooks';
+
+import {getNextPageParam} from 'utils/api';
 
 const limit = 25;
 
@@ -18,7 +20,7 @@ const fetchLeagues = ({
   isPrivateOnly: boolean;
 }) =>
   // TODO: Implement in API SDK
-  api.list<League>('/leagues/search', {
+  api.list<LeaguePublic>('/leagues/search', {
     page: pageParam,
     q: query,
     limit,
@@ -32,7 +34,7 @@ export function useSearchLeagues(query: string) {
     refetchOnMount: false,
   });
   const isPrivateOnly = Boolean(user?.teams.length);
-  return useInfiniteQuery<ListResponse<League>, Error>(
+  return useInfiniteQuery<ListResponse<LeaguePublic>, Error>(
     [QueryKeys.SearchLeagues, query, isPrivateOnly],
     ({pageParam}) => fetchLeagues({pageParam, query, isPrivateOnly}),
     {

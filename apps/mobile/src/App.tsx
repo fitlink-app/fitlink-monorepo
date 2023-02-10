@@ -12,7 +12,7 @@ import {Platform, UIManager} from 'react-native';
 import {persistor, store} from 'redux/store';
 import RNBootSplash from 'react-native-bootsplash';
 import codePush from 'react-native-code-push';
-import {useCodePush} from '@hooks';
+import {useCodePush, useIntercomNotifications} from '@hooks';
 import {UpdateInfo} from 'components/UpdateInfo';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import Config from 'react-native-config';
@@ -26,6 +26,8 @@ if (Platform.OS === 'android') {
 const App = () => {
   const {syncImmediate, isUpToDate, isError, syncMessage, progressFraction} =
     useCodePush();
+
+  useIntercomNotifications();
 
   useEffect(() => {
     GoogleSignin.configure({

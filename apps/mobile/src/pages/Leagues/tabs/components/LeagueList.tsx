@@ -1,15 +1,16 @@
 import React, {useRef} from 'react';
+import {useNavigation} from '@react-navigation/core';
+import {useScrollToTop} from '@react-navigation/native';
 import {
   FlatListProps,
   FlatList,
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import {LeagueWithDailyBfit} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import styled, {useTheme} from 'styled-components/native';
+
+import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {LeagueCard} from '@components';
-import {useNavigation} from '@react-navigation/core';
-import {useScrollToTop} from '@react-navigation/native';
 
 const EmptyContainer = styled.View({
   flex: 1,
@@ -18,7 +19,7 @@ const EmptyContainer = styled.View({
 });
 
 interface LeagueListProps
-  extends Omit<FlatListProps<LeagueWithDailyBfit>, 'renderItem'> {
+  extends Omit<FlatListProps<LeaguePublic>, 'renderItem'> {
   isFetching: boolean;
   isFetchingNextPage: boolean;
   isFetchedAfterMount: boolean;
@@ -41,9 +42,9 @@ export const LeagueList = ({
   const scrollRef = useRef(null);
   useScrollToTop(scrollRef);
 
-  const keyExtractor = (item: LeagueWithDailyBfit) => item.id as string;
+  const keyExtractor = (item: LeaguePublic) => item.id as string;
 
-  const renderItem = ({item}: {item: LeagueWithDailyBfit}) => {
+  const renderItem = ({item}: {item: LeaguePublic}) => {
     return (
       <LeagueCard
         isVertical
@@ -51,7 +52,7 @@ export const LeagueList = ({
         name={item.name}
         imageSource={{uri: item.image?.url}}
         memberCount={item.participants_total}
-        position={item.rank}
+        position={item.participating ? item.rank : undefined}
         onPress={() => {
           navigation.navigate('League', {id: item.id, league: item});
         }}
