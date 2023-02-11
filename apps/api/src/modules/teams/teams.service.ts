@@ -590,9 +590,9 @@ export class TeamsService {
       return TeamServiceError.TeamNotExist
     }
 
-    // move users created after 7:30 pm 11th feb 2023 only, these users
+    // move users created after 7:30 pm 10th feb 2023 only, these users
     // are considered bfit users
-    const date = new Date('2023-02-11T12:30:00Z')
+    const date = new Date('2023-02-10T12:30:00Z')
 
     const users = await this.userRepository.find({
       where: {
