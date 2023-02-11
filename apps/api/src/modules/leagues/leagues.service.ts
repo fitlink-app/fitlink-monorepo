@@ -433,6 +433,7 @@ export class LeaguesService {
         .take(limit)
         .skip(page * limit)
 
+      console.log('here')
       const { entities, raw } = await query.getRawAndEntities()
       results = this.applyRawResults(entities, raw)
       total = await query.limit(0).getCount()

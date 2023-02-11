@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
@@ -175,6 +176,15 @@ export class TeamsController {
     } else {
       throw new BadRequestException('You must specify a join code or token')
     }
+  }
+
+  @Iam(Roles.SuperAdmin)
+  @Post('/teams/:teamId/bulkmove')
+  async moveUsersToTeam(
+    @Param('teamId') teamId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    return await this.teamsService.moveUsersToTeam(teamId)
   }
 
   @Iam(Roles.SuperAdmin)
