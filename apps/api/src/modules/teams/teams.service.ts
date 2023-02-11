@@ -591,13 +591,15 @@ export class TeamsService {
     }
     const users = await this.userRepository.find({})
     const addedUsers = []
-    for (const user of users) {
-      const isInTeam = await this.isUserInTeam(user.id, teamId)
-      if (!isInTeam) {
-        await this.joinTeam(team.id, user.id)
-        addedUsers.push(user)
-      }
-    }
+    await Promise.all(
+      users.map(async (user) => {
+        const isInTeam = await this.isUserInTeam(user.id, teamId)
+        if (!isInTeam) {
+          await this.joinTeam(team.id, user.id)
+          addedUsers.push(user)
+        }
+      })
+    )
     return addedUsers
   }
 
