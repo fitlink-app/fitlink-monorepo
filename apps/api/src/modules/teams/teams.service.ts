@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectRepository } from '@nestjs/typeorm'
-import { EntityManager, In, Repository } from 'typeorm'
+import { EntityManager, In, MoreThan, Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { AuthenticatedUser } from '../../models'
 import { Activity } from '../activities/entities/activity.entity'
@@ -589,15 +589,26 @@ export class TeamsService {
     if (!team) {
       return TeamServiceError.TeamNotExist
     }
-    const users = await this.userRepository.find({})
-    const addedUsers = []
-    for (const user of users) {
-      const isInTeam = await this.isUserInTeam(user.id, teamId)
-      if (!isInTeam) {
-        await this.joinTeam(team.id, user.id)
-        addedUsers.push(user)
+
+    // move users created after 7:30 pm 11th feb 2023 only, these users
+    // are considered bfit users
+    const date = new Date('2023-02-11T12:30:00Z')
+
+    const users = await this.userRepository.find({
+      where: {
+        created_at: MoreThan(date)
       }
-    }
+    })
+    const addedUsers = []
+    await Promise.all(
+      users.map(async (user) => {
+        const isInTeam = await this.isUserInTeam(user.id, teamId)
+        if (!isInTeam) {
+          await this.joinTeam(team.id, user.id)
+          addedUsers.push(user)
+        }
+      })
+    )
     return addedUsers
   }
 
