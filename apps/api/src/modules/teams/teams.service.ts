@@ -389,8 +389,9 @@ export class TeamsService {
       relations: ['teams']
     })
 
-    const alreadyMember = user.teams.filter((e) => e.id === invitation.team.id)
-      .length
+    const alreadyMember = user.teams.filter(
+      (e) => e.id === invitation.team.id
+    ).length
 
     // Delete the invitation if the user is already a member
     if (alreadyMember) {
@@ -577,6 +578,38 @@ export class TeamsService {
       return TeamServiceError.TeamNotExist
     }
     return this.joinTeam(team.id, userId)
+  }
+
+  async moveUsersToTeam(teamId: string) {
+    const team = await this.teamRepository.findOne({
+      where: {
+        id: teamId
+      }
+    })
+    if (!team) {
+      return TeamServiceError.TeamNotExist
+    }
+    const users = await this.userRepository.find({})
+    const addedUsers = []
+    for (const user of users) {
+      const isInTeam = await this.isUserInTeam(user.id, teamId)
+      if (!isInTeam) {
+        await this.joinTeam(team.id, user.id)
+        addedUsers.push(user)
+      }
+    }
+    return addedUsers
+  }
+
+  async isUserInTeam(userId: string, teamId: string): Promise<boolean> {
+    const result = await this.teamRepository
+      .createQueryBuilder('team')
+      .innerJoin('team.users', 'user')
+      .where('team.id = :teamId', { teamId })
+      .andWhere('user.id = :userId', { userId })
+      .getOne()
+
+    return !!result
   }
 
   /**
