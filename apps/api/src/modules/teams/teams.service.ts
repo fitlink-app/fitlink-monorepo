@@ -209,6 +209,25 @@ export class TeamsService {
     await this.updateTeamUsersSubscription(teamId, userId)
   }
 
+  async removeAllParticipantsFromTeam(teamId: string) {
+    const team = await this.teamRepository.findOne({
+      where: { id: teamId },
+      relations: ['users']
+    })
+    if (!team) {
+      return TeamServiceError.TeamNotExist
+    }
+
+    const addedUsers = []
+    await Promise.all(
+      team.users.map(async (user) => {
+        await this.removeFromTeam(team.id, user.id)
+        addedUsers.push(user)
+      })
+    )
+    return addedUsers
+  }
+
   async removeFromTeam(teamId: string, userId: string) {
     await this.userRepository
       .createQueryBuilder('users')
@@ -291,7 +310,9 @@ export class TeamsService {
     // Remove user from subscription if they no longer belong to any teams
     // within the subscription's organisation
     const exists = user.teams.filter(
-      (e) => e.organisation.id === user.subscription.organisation.id
+      (e) =>
+        e.organisation &&
+        e.organisation.id === user.subscription.organisation.id
     )
     if (exists.length === 0) {
       const subscription = user.subscription

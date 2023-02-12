@@ -188,6 +188,15 @@ export class TeamsController {
   }
 
   @Iam(Roles.SuperAdmin)
+  @Delete('/teams/:teamId/bulkremove')
+  async removeUsersFromTeam(
+    @Param('teamId') teamId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    return await this.teamsService.removeAllParticipantsFromTeam(teamId)
+  }
+
+  @Iam(Roles.SuperAdmin)
   @Get('/teams')
   findAll(@Pagination() pagination: PaginationQuery) {
     return this.teamsService.findAll(pagination)
