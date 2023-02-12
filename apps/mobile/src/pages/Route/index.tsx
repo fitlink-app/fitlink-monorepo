@@ -2,9 +2,8 @@ import {StackScreenProps} from '@react-navigation/stack';
 import Polyline from '@mapbox/polyline';
 import {getBounds} from '../../utils/geo';
 import React, {useRef} from 'react';
-import MapboxGL from '@react-native-mapbox-gl/maps';
+import MapboxGL from '@rnmapbox/maps';
 import {useNavigation} from '@react-navigation/core';
-import {useTheme} from 'styled-components/native';
 import {RootStackParamList} from 'routes/types';
 import {Navbar} from '@components';
 

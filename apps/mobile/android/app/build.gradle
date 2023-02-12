@@ -138,6 +138,11 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    // https://stackoverflow.com/a/58602329/13205310
+    packagingOptions {
+      pickFirst '**/*.so'
+    }
+
     // TODO: Consider this https://stackoverflow.com/a/23265711/13205310
     def versionPropsFile = file('version.properties')
 

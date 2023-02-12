@@ -6,7 +6,7 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import MapboxGL from '@react-native-mapbox-gl/maps';
+import MapboxGL from '@rnmapbox/maps';
 import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {ActivityDetailsModal, ListModal} from './components';
 import {useEffect} from 'react';
@@ -61,12 +61,7 @@ const {
   Images,
   FillLayer,
   CircleLayer,
-  setAccessToken,
 } = MapboxGL;
-
-setAccessToken(
-  'pk.eyJ1IjoibHVrZS1maXRsaW5rYXBwIiwiYSI6ImNrbzBhOHVpeDA5Y2gyd253MncxOGxoZjgifQ.Vyr2eDUhaZgR1VFoLaatbA',
-);
 
 const MAPBOX_BLUE = 'rgba(51, 181, 229, 100)';
 
