@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectRepository } from '@nestjs/typeorm'
-import { EntityManager, In, Repository } from 'typeorm'
+import { EntityManager, In, MoreThan, Repository } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { AuthenticatedUser } from '../../models'
 import { Activity } from '../activities/entities/activity.entity'
@@ -209,6 +209,25 @@ export class TeamsService {
     await this.updateTeamUsersSubscription(teamId, userId)
   }
 
+  async removeAllParticipantsFromTeam(teamId: string) {
+    const team = await this.teamRepository.findOne({
+      where: { id: teamId },
+      relations: ['users']
+    })
+    if (!team) {
+      return TeamServiceError.TeamNotExist
+    }
+
+    const addedUsers = []
+    await Promise.all(
+      team.users.map(async (user) => {
+        await this.removeFromTeam(team.id, user.id)
+        addedUsers.push(user)
+      })
+    )
+    return addedUsers
+  }
+
   async removeFromTeam(teamId: string, userId: string) {
     await this.userRepository
       .createQueryBuilder('users')
@@ -291,7 +310,9 @@ export class TeamsService {
     // Remove user from subscription if they no longer belong to any teams
     // within the subscription's organisation
     const exists = user.teams.filter(
-      (e) => e.organisation.id === user.subscription.organisation.id
+      (e) =>
+        e.organisation &&
+        e.organisation.id === user.subscription.organisation.id
     )
     if (exists.length === 0) {
       const subscription = user.subscription
@@ -389,8 +410,9 @@ export class TeamsService {
       relations: ['teams']
     })
 
-    const alreadyMember = user.teams.filter((e) => e.id === invitation.team.id)
-      .length
+    const alreadyMember = user.teams.filter(
+      (e) => e.id === invitation.team.id
+    ).length
 
     // Delete the invitation if the user is already a member
     if (alreadyMember) {
@@ -577,6 +599,49 @@ export class TeamsService {
       return TeamServiceError.TeamNotExist
     }
     return this.joinTeam(team.id, userId)
+  }
+
+  async moveUsersToTeam(teamId: string) {
+    const team = await this.teamRepository.findOne({
+      where: {
+        id: teamId
+      }
+    })
+    if (!team) {
+      return TeamServiceError.TeamNotExist
+    }
+
+    // move users created after 7:30 pm 10th feb 2023 only, these users
+    // are considered bfit users
+    const date = new Date('2023-02-10T12:30:00Z')
+
+    const users = await this.userRepository.find({
+      where: {
+        created_at: MoreThan(date)
+      }
+    })
+    const addedUsers = []
+    await Promise.all(
+      users.map(async (user) => {
+        const isInTeam = await this.isUserInTeam(user.id, teamId)
+        if (!isInTeam) {
+          await this.joinTeam(team.id, user.id)
+          addedUsers.push(user)
+        }
+      })
+    )
+    return addedUsers
+  }
+
+  async isUserInTeam(userId: string, teamId: string): Promise<boolean> {
+    const result = await this.teamRepository
+      .createQueryBuilder('team')
+      .innerJoin('team.users', 'user')
+      .where('team.id = :teamId', { teamId })
+      .andWhere('user.id = :userId', { userId })
+      .getOne()
+
+    return !!result
   }
 
   /**
