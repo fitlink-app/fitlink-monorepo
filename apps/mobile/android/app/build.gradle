@@ -193,9 +193,9 @@ android {
             keyPassword 'android'
         }
         release {
-            storeFile file('fitlinkappdebug.keystore')
+            storeFile file('fitlinkapprelease.keystore')
             storePassword 'android'
-            keyAlias 'fitlinkappdebug'
+            keyAlias 'fitlinkapprelease'
             keyPassword 'android'
         }
     }
