@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {ActivityIndicator, FlatList, RefreshControl, View} from 'react-native';
 import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -6,7 +6,7 @@ import {useSelector} from 'react-redux';
 import styled, {useTheme} from 'styled-components/native';
 
 import {queryClient, QueryKeys} from '@query';
-import {useMe, useFeed, useModal} from '@hooks';
+import {useMe, useFeed, useModal, useManualQueryRefresh} from '@hooks';
 import {FeedItem, TouchHandler, Modal} from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
@@ -61,14 +61,12 @@ export const ActivityFeed = () => {
     refetch: refetchFeed,
     fetchNextPage: fetchFeedNextPage,
     isFetchingNextPage: isFeedFetchingNextPage,
-    isFetchedAfterMount: isFeedFetchedAfterMount,
   } = useFeed({
     my_goals: feedPreferences.showGoals,
     friends_activities: feedPreferences.showFriends,
     my_updates: feedPreferences.showUpdates,
   });
 
-  const [isPulledDown, setIsPulledDown] = useState(false);
   const {openModal, closeModal} = useModal();
 
   const feedResults = getResultsFromPages<FeedItemType>(feed);
@@ -85,6 +83,8 @@ export const ActivityFeed = () => {
     queryClient.removeQueries(QueryKeys.Feed);
     refetchFeed();
   }, [feedPreferences, refetchFeed]);
+
+  const {refresh, isRefreshing} = useManualQueryRefresh(refetchFeed);
 
   const keyExtractor = (item: FeedItemType) => item.id as string;
 
@@ -151,23 +151,8 @@ export const ActivityFeed = () => {
         refreshControl={
           <RefreshControl
             tintColor={colors.accent}
-            refreshing={isPulledDown && isFeedFetchedAfterMount}
-            onRefresh={() => {
-              setIsPulledDown(true);
-
-              queryClient.setQueryData(QueryKeys.Feed, (data: any) => {
-                return {
-                  pages: data.pages.length ? [data.pages[0]] : data.pages,
-                  pageParams: data.pageParams.length
-                    ? [data.pageParams[0]]
-                    : data.pageParams,
-                };
-              });
-
-              refetchFeed().finally(() => {
-                setIsPulledDown(false);
-              });
-            }}
+            refreshing={isRefreshing}
+            onRefresh={refresh}
           />
         }
         ListFooterComponent={

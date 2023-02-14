@@ -61,7 +61,12 @@ const {
   Images,
   FillLayer,
   CircleLayer,
+  setAccessToken,
 } = MapboxGL;
+
+setAccessToken(
+  'pk.eyJ1IjoiZml0bGlua2FwcCIsImEiOiJjamZud3NxbmgwY2w1MzNycTVoamtkbXRyIn0.l-zQ5Q756IGsRSQL_94Ntw',
+);
 
 const MAPBOX_BLUE = 'rgba(51, 181, 229, 100)';
 
@@ -307,7 +312,9 @@ export const Discover = () => {
   }, []);
 
   useEffect(() => {
-    if (!userStartingLocation) return;
+    if (!userStartingLocation) {
+      return;
+    }
 
     dispatch(
       setSearchLocation({
@@ -329,7 +336,9 @@ export const Discover = () => {
 
   // Location Picker Animation
   const userPickerLiftAnim = () => {
-    if (isDragging.current) return;
+    if (isDragging.current) {
+      return;
+    }
     Animated.spring(mapMarkerPickerAnimation, {
       toValue: 1,
       useNativeDriver: true,
@@ -358,11 +367,13 @@ export const Discover = () => {
   });
 
   const handleFetchLocationMarkers = () => {
-    if (!searchLocation) return;
+    if (!searchLocation) {
+      return;
+    }
 
     let locationDelta;
 
-    if (!!lastSearchLocation.current) {
+    if (lastSearchLocation.current) {
       locationDelta = getDistanceFromLatLonInKm(
         searchLocation.lat,
         searchLocation.lng,
@@ -457,7 +468,9 @@ export const Discover = () => {
     dispatch(setCurrentLocation({lat: latitude, lng: longitude}));
 
     // TODO: Set User location (different value), make sure distance is calculated from this value
-    if (!userStartingLocation) setUserStartingLocation([longitude, latitude]);
+    if (!userStartingLocation) {
+      setUserStartingLocation([longitude, latitude]);
+    }
 
     const locationPoint = positionToPoint([longitude, latitude]);
     locationMarkerValueAnimated.current.setValue(locationPoint);
@@ -467,7 +480,7 @@ export const Discover = () => {
     const feature = event.features[0];
     deselectMarker();
 
-    if (!!feature.properties?.cluster_id) {
+    if (feature.properties?.cluster_id) {
       // If Cluster
       const leaves = await clusterSourceRef.current?.getClusterLeaves(
         feature.properties?.cluster_id,
@@ -488,7 +501,9 @@ export const Discover = () => {
     } else {
       // If single activity marker
       const id = feature.properties?.id;
-      if (!id) return;
+      if (!id) {
+        return;
+      }
       handleOnActivityPressed(id, true);
     }
   };
@@ -516,7 +531,9 @@ export const Discover = () => {
 
   const selectMarker = (id?: string) => {
     setSelectedMarker(id);
-    if (id) zoomToFeatureById(id);
+    if (id) {
+      zoomToFeatureById(id);
+    }
   };
 
   const deselectMarker = () => {
@@ -592,7 +609,9 @@ export const Discover = () => {
   };
 
   const centerCamera = () => {
-    if (!actualUserLocation) return;
+    if (!actualUserLocation) {
+      return;
+    }
 
     moveToCoords({
       longitude: actualUserLocation.lng,
@@ -688,7 +707,9 @@ export const Discover = () => {
    * @returns
    */
   const renderClusterRadiusMarker = () => {
-    if (!selectedClusterIds?.length) return null;
+    if (!selectedClusterIds?.length) {
+      return null;
+    }
 
     let radius = 0;
 
@@ -720,7 +741,9 @@ export const Discover = () => {
         )
       : null;
 
-    if (!selectedClusterCoordinate) return null;
+    if (!selectedClusterCoordinate) {
+      return null;
+    }
 
     for (const clusterActivityCoordinate of selectedClusterCoordinatesArray) {
       const dist = getDistanceFromLatLonInKm(
