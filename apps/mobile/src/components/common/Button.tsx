@@ -1,15 +1,7 @@
 import React from 'react';
-import {
-  ViewStyle,
-  ActivityIndicator,
-  StyleProp,
-  TextStyle,
-  View,
-  Image,
-} from 'react-native';
+import {ViewStyle, StyleProp, TextStyle, Image} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {Label} from './Label';
-import {Icon} from './Icon';
 import {TouchHandler, TouchHandlerProps} from './TouchHandler';
 
 const ButtonImage = styled(Image)({
@@ -32,13 +24,6 @@ const ButtonContentContainer = styled.View({
   height: 44,
   paddingHorizontal: 12,
   borderRadius: 8,
-});
-
-const IconContainer = styled.View({
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: 20,
-  height: 20,
 });
 
 type ButtonType = 'default' | 'danger' | 'accent';
@@ -67,7 +52,6 @@ export const Button = ({
   textOnly,
   textStyle,
   containerStyle,
-  icon,
   loading,
   style,
   logo,
@@ -157,7 +141,9 @@ export const Button = ({
   function createTextStyle() {
     let style: StyleProp<TextStyle> = wrapContent ? {} : {flex: 1};
 
-    if (textOnly) style = typography.textButton;
+    if (textOnly) {
+      style = typography.textButton;
+    }
 
     return style;
   }
@@ -175,16 +161,6 @@ export const Button = ({
       style={[style, buttonBaseStyleModifier]}>
       <ButtonContentContainer style={createContainerStyle()}>
         <Row>
-          {/* {!!icon && !loading && (
-            <IconContainer>
-              <Icon name={icon} size={18} color={textColor} />
-            </IconContainer>
-          )}
-          {loading && !loadingText && (
-            <IconContainer>
-              <ActivityIndicator color={textColor} />
-            </IconContainer>
-          )} */}
           {!!logo && <ButtonImage source={logo} resizeMode={'contain'} />}
           {(!loading || loadingText) && (
             <Label

@@ -42,6 +42,7 @@ export const Logo = ({size = 'medium'}: LogoProps) => {
         width,
         height,
         marginRight: -20,
+        marginBottom: 60,
       }}
     />
   );

@@ -18,3 +18,17 @@ Table of patches applied for different libraries
 |-----------------------------------|---------|--------|
 | @react-native-community+blur+4.3.0.patch | 4.3.0   | https://github.com/Kureev/react-native-blur/issues/489       |
 | @rnmapbox+maps+10.0.0-beta.68.patch | 10.0.0-beta.68   | https://github.com/rnmapbox/maps/issues/2264       |
+
+
+## Contribution
+### Code style
+1. Imports order
+- Libs related imports
+- @ imports
+- Relative imports (prefer relative import when importing components from neighbor folders)
+
+2. Order of variables declaration
+- Navigation
+- Redux
+- Refs
+- State
