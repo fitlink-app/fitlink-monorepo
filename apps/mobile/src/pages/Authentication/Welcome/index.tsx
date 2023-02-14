@@ -183,7 +183,12 @@ export const Welcome = () => {
                 Join a global health and fitness club by connecting the activity
                 trackers you are already using
               </WelcomeHeader>
-              <Line style={{height: headerLayout.height}} />
+              <Line
+                style={{
+                  height: headerLayout.height - 8, // 27 (line height) - 19 (font size)
+                  bottom: 4, // 8 / 2
+                }}
+              />
             </HeaderContainer>
           )}
 
