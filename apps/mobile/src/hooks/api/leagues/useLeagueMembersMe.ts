@@ -3,7 +3,10 @@ import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/ent
 import {QueryKeys} from '@query';
 import {useQuery} from 'react-query';
 
-export function useLeagueMembersMe(leagueId: string, isMember: boolean) {
+export function useLeagueMembersMe(
+  leagueId: string | undefined,
+  isMember: boolean | undefined,
+) {
   return useQuery<LeaderboardEntry, Error>(
     [QueryKeys.LeagueMembersMe, leagueId],
     () => api.get<LeaderboardEntry>(`/leagues/${leagueId}/members/me`),
