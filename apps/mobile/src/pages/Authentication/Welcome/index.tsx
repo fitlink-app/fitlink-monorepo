@@ -123,6 +123,7 @@ export const Welcome = () => {
         await dispatch(signInWithGoogle(idToken));
       }
     } catch (e) {
+      console.error('handleOnGooglePressed', e);
       setGoogleLoading(false);
     }
   };
