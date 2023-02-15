@@ -1,4 +1,4 @@
-import {PermissionsAndroid} from 'react-native';
+import {Alert, PermissionsAndroid} from 'react-native';
 import GoogleFit, {BucketUnit, Scopes} from 'react-native-google-fit';
 import {mapping} from './constants';
 import {getTodayTimeframe} from '../utils';
@@ -155,32 +155,28 @@ async function checkIsAvailable() {
 }
 
 async function authenticate() {
-  try {
-    const authResult = await GoogleFit.authorize({
-      scopes: [
-        Scopes.FITNESS_ACTIVITY_READ,
-        Scopes.FITNESS_NUTRITION_READ,
-        Scopes.FITNESS_SLEEP_READ,
-        Scopes.FITNESS_LOCATION_READ,
-      ],
-    });
+  const authResult = await GoogleFit.authorize({
+    scopes: [
+      Scopes.FITNESS_ACTIVITY_READ,
+      Scopes.FITNESS_NUTRITION_READ,
+      Scopes.FITNESS_SLEEP_READ,
+      Scopes.FITNESS_LOCATION_READ,
+    ],
+  });
 
-    const hasActivityRecognitionPermission = await PermissionsAndroid.check(
-      ACTIVITY_RECOGNITION_PERMISSION,
-    );
+  const hasActivityRecognitionPermission = await PermissionsAndroid.check(
+    ACTIVITY_RECOGNITION_PERMISSION,
+  );
 
-    if (!hasActivityRecognitionPermission) {
-      await PermissionsAndroid.request(ACTIVITY_RECOGNITION_PERMISSION);
-    }
-
-    if (!authResult.success) {
-      throw Error(authResult.message);
-    }
-
-    return true;
-  } catch (e) {
-    console.log('Unable to retrieve sleep data: ' + e);
+  if (!hasActivityRecognitionPermission) {
+    await PermissionsAndroid.request(ACTIVITY_RECOGNITION_PERMISSION);
   }
+
+  if (!authResult.success) {
+    throw Error(authResult.message);
+  }
+
+  return true;
 }
 
 function disconnect() {
@@ -221,7 +217,7 @@ async function getTodaysSleepHours() {
 
     sleepTotal = sleepHours.reduce((acc, val) => acc + val, 0);
   } catch (e) {
-    console.log('Unable to retrieve sleep data: ' + e);
+    console.warn('Unable to retrieve sleep data: ' + e);
   }
 
   return sleepTotal;
