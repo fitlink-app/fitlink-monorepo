@@ -828,8 +828,8 @@ export class LeaguesService {
           { userId }
         )
         .leftJoin('leagueTeam.users', 'teamUser')
-        .leftJoin('leagueOrganisation.teams', 'organisationTeam')
-        .leftJoin('organisationTeam.users', 'organisationUser')
+        // .leftJoin('leagueOrganisation.teams', 'organisationTeam')
+        // .leftJoin('organisationTeam.users', 'organisationUser')
         .leftJoin(
           `(${rankQb.getQuery()})`,
           'ranked',
@@ -873,9 +873,9 @@ export class LeaguesService {
             }
 
             // The user belongs to the organisation that the league belongs to
-            if (isOrganization) {
-              filteredQb = filteredQb.orWhere(`(organisationUser.id = :userId)`)
-            }
+            // if (isOrganization) {
+            //   filteredQb = filteredQb.orWhere(`(organisationUser.id = :userId)`)
+            // }
             return filteredQb
           }),
           {

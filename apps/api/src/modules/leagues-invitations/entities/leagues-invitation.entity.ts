@@ -29,7 +29,10 @@ export class LeaguesInvitation extends CreatableEntity {
   from_user: User | UserPublic
 
   @ApiProperty()
-  @ManyToOne(() => League, (league) => league.invitations)
+  @ManyToOne(() => League, (league) => league.invitations, {
+    cascade: ['remove'],
+    onDelete: 'CASCADE'
+  })
   @JoinColumn()
   league: League
 
