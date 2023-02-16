@@ -101,10 +101,7 @@ export class League extends CreatableEntity {
   })
   bfit?: number
 
-  @OneToMany(() => LeaguesInvitation, (invitation) => invitation.league, {
-    cascade: ['remove'],
-    onDelete: 'CASCADE'
-  })
+  @OneToMany(() => LeaguesInvitation, (invitation) => invitation.league)
   invitations: LeaguesInvitation[]
 
   @ApiProperty()
