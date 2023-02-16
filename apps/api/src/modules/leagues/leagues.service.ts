@@ -1151,6 +1151,11 @@ export class LeaguesService {
         league: { id: league.id }
       })
 
+      // Delete league invitations for league
+      await entityManager.getRepository(LeaguesInvitation).delete({
+        league: { id: league.id }
+      })
+
       return entityManager.delete(League, league.id)
     })
     return result
