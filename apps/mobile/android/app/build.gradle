@@ -138,6 +138,11 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    // https://stackoverflow.com/a/58602329/13205310
+    packagingOptions {
+      pickFirst '**/*.so'
+    }
+
     // TODO: Consider this https://stackoverflow.com/a/23265711/13205310
     def versionPropsFile = file('version.properties')
 
@@ -188,16 +193,16 @@ android {
             keyPassword 'android'
         }
         release {
-            storeFile file('fitlinkappdebug.keystore')
+           storeFile file('fitlinkappdebug.keystore')
             storePassword 'android'
             keyAlias 'fitlinkappdebug'
             keyPassword 'android'
         }
     }
     buildTypes {
-        // debug {
-        //     signingConfig signingConfigs.debug
-        // }
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
           // Caution! In production, you need to generate your own keystore file.
           // see https://reactnative.dev/docs/signed-apk-android.

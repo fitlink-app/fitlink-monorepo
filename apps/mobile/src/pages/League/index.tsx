@@ -1,5 +1,4 @@
-import {StackScreenProps} from '@react-navigation/stack';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -8,8 +7,7 @@ import {
 } from 'react-native';
 import {RootStackParamList} from 'routes/types';
 import styled, {useTheme} from 'styled-components/native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
 import {getPositiveValueOrZero, getViewBfitValue} from '@utils';
@@ -20,13 +18,11 @@ import {
   useLeagueMembersMe,
   useMe,
   useModal,
-  useRank,
 } from '@hooks';
-import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
-import {LeagueAccess} from '@fitlink/api/src/modules/leagues/leagues.constants';
 
 import {Leaderboard, TryTomorrowBanner} from './components';
 import {useClaimLeagueBfit} from 'hooks/api/leagues/useClaimLeagueBfit';
+import {getResultsFromPages} from '../../utils/api';
 
 const HEADER_HEIGHT = 300;
 
@@ -38,20 +34,18 @@ const LoadingContainer = styled.View({
   alignItems: 'center',
 });
 
-export const League = (
-  props: StackScreenProps<RootStackParamList, 'League'>,
-) => {
+export const League = () => {
   const {colors} = useTheme();
   const navigation = useNavigation();
-  const insets = useSafeAreaInsets();
+  const {id} = useRoute<RouteProp<RootStackParamList, 'League'>>().params;
+
+  const scrollValue = useRef(new Animated.Value(0)).current;
+
+  const [areInteractionsDone, setInteractionsDone] = useState(false);
 
   const {data: user} = useMe({
     refetchOnMount: false,
   });
-
-  const {league, id} = props.route.params;
-
-  const [areInteractionsDone, setInteractionsDone] = useState(false);
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -60,7 +54,7 @@ export const League = (
   }, []);
 
   const {
-    data: fetchedLeague,
+    data: activeLeague,
     isFetching: isFetchingLeague,
     refetch: refetchLeague,
     isFetchedAfterMount: isLeagueFetchedAfterMount,
@@ -71,34 +65,19 @@ export const League = (
     refetch: refetchMembers,
     fetchNextPage: fetchMoreMembers,
     isFetchingNextPage: isFetchingMembersNextPage,
-    hasNextPage: membersHasNextPage,
     isFetchedAfterMount: areMembersFetchedAfterMount,
-    data,
+    data: membersPages,
   } = useLeagueMembers(id);
 
-  const members = useMemo(() => {
-    return data?.pages[0].results || [];
-  }, [data]);
-
-  const {data: flanksData, refetch: refetchFlanks} = useRank(id);
-
-  const activeLeague = {
-    ...league,
-    ...fetchedLeague,
-  } as LeaguePublic;
-
-  const isBfit = activeLeague?.access === LeagueAccess.CompeteToEarn;
+  const members = getResultsFromPages(membersPages);
 
   const {data: memberMe, refetch: refetchMemberMe} = useLeagueMembersMe(
-    activeLeague.id,
-    activeLeague.participating,
+    activeLeague?.id,
+    activeLeague?.participating,
   );
 
   const {mutateAsync: claimBfit} = useClaimLeagueBfit();
-
   const {openModal} = useModal();
-
-  const scrollValue = useRef(new Animated.Value(0)).current;
 
   if (Platform.OS === 'android') {
     scrollValue.setOffset(-HEADER_HEIGHT);
@@ -110,25 +89,13 @@ export const League = (
     }
   }, [scrollValue]);
 
-  const handleScroll = (e: any) => {
-    const {layoutMeasurement, contentOffset, contentSize} = e;
-    const paddingToBottom = 0;
-    if (
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - paddingToBottom
-    ) {
-      fetchMoreMembers();
-    }
-  };
-
   const refreshLeaderboard = () => {
     refetchLeague();
     refetchMembers();
-    refetchFlanks();
     refetchMemberMe();
   };
 
-  if (!Object.keys(activeLeague).length) {
+  if (!activeLeague) {
     return (
       <Wrapper>
         <Navbar scrollAnimatedValue={scrollValue} iconColor={'white'} overlay />
@@ -146,76 +113,50 @@ export const League = (
   const bFitToClaim = getPositiveValueOrZero(getViewBfitValue(bFitToClaimRaw));
 
   const claimBfitCallback = () => {
-    if (memberMe && bFitToClaimRaw > 0 && league) {
-      claimBfit({id: league.id, dto: {amount: bFitToClaimRaw}});
+    if (memberMe && bFitToClaimRaw > 0 && activeLeague) {
+      claimBfit({id: activeLeague.id, dto: {amount: bFitToClaimRaw}});
     } else if (bFitToClaimRaw === 0) {
       openModal(() => <TryTomorrowBanner />);
     }
   };
 
+  const onEditPress = () => {
+    navigation.navigate('LeagueForm', {
+      data: {
+        id,
+        dto: {
+          name: activeLeague.name,
+          description: activeLeague.description,
+          duration: activeLeague.duration,
+          repeat: activeLeague.repeat,
+          sportId: activeLeague.sport.id,
+        },
+        imageUrl: activeLeague.image.url_640x360,
+      },
+    });
+  };
+
+  const isRefreshing =
+    (isFetchingLeague && isLeagueFetchedAfterMount) ||
+    (isFetchingMembers &&
+      areMembersFetchedAfterMount &&
+      !isFetchingMembersNextPage);
+
   return (
     <BottomSheetModalProvider>
       <Wrapper>
         <Leaderboard
-          leagueId={id}
-          isBfit={isBfit}
+          activeLeague={activeLeague}
           bFitToClaim={bFitToClaim}
-          bfit={activeLeague.daily_bfit}
           onClaimPressed={claimBfitCallback}
-          isPublic={activeLeague.access === LeagueAccess.Public}
-          imageUri={activeLeague?.image.url_640x360}
-          fetchingNextPage={isFetchingMembersNextPage}
-          isRepeat={activeLeague.repeat}
-          title={activeLeague.name}
-          memberCount={activeLeague.participants_total}
-          endDate={activeLeague.ends_at}
-          hasNextPage={!!membersHasNextPage}
-          fetchNextPage={() => membersHasNextPage && fetchMoreMembers()}
-          isLoaded={areMembersFetchedAfterMount || !!members?.length}
-          description={activeLeague.description}
-          // @ts-ignore
           data={members}
-          flanksData={[...(flanksData?.results || [])].reverse()}
           userId={user!.id}
-          refreshing={
-            (isFetchingLeague && isLeagueFetchedAfterMount) ||
-            (isFetchingMembers &&
-              areMembersFetchedAfterMount &&
-              !isFetchingMembersNextPage)
-          }
+          refreshing={isRefreshing}
           onRefresh={refreshLeaderboard}
-          membership={
-            activeLeague.participating
-              ? activeLeague.is_owner
-                ? 'owner'
-                : 'member'
-              : 'none'
-          }
-          style={{flex: 1}}
-          contentContainerStyle={{
-            paddingBottom: insets.bottom,
-            paddingTop: Platform.OS === 'ios' ? 20 : HEADER_HEIGHT + 20,
-          }}
-          contentInset={{top: HEADER_HEIGHT}}
-          contentOffset={{x: 0, y: -HEADER_HEIGHT}}
-          automaticallyAdjustContentInsets={false}
-          initialNumToRender={25}
-          onScroll={({nativeEvent}: any) => handleScroll(nativeEvent)}
-          scrollEventThrottle={16}
-          onEditPressed={() => {
-            navigation.navigate('LeagueForm', {
-              data: {
-                id,
-                dto: {
-                  name: activeLeague.name,
-                  description: activeLeague.description,
-                  duration: activeLeague.duration,
-                  repeat: activeLeague.repeat,
-                  sportId: activeLeague.sport.id,
-                },
-                imageUrl: activeLeague.image.url_640x360,
-              },
-            });
+          onEditPressed={onEditPress}
+          onEndReached={() => {
+            console.log('onEndReached');
+            fetchMoreMembers();
           }}
         />
       </Wrapper>

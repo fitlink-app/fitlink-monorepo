@@ -7,67 +7,46 @@ import {
   View,
 } from 'react-native';
 import {useTheme} from 'styled-components/native';
-import {LeaderboardItem} from './LeaderboardItem';
-import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/entities/leaderboard-entry.entity';
+import {useScrollToTop} from '@react-navigation/native';
 import {useNavigation} from '@react-navigation/core';
 import Animated, {
   useAnimatedScrollHandler,
   useSharedValue,
 } from 'react-native-reanimated';
-import AnimatedLeaderboardHeaderCard from './AnimatedLeaderboardHeaderCard';
+
 import {getViewBfitValue} from '@utils';
-import {useScrollToTop} from '@react-navigation/native';
+import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
+import {LeagueAccess} from '@fitlink/api/src/modules/leagues/leagues.constants';
+import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/entities/leaderboard-entry.entity';
+
+import AnimatedLeaderboardHeaderCard from './AnimatedLeaderboardHeaderCard';
+import {LeaderboardItem} from './LeaderboardItem';
 
 const AnimatedFlatList =
   Animated.createAnimatedComponent<FlatListProps<LeaderboardEntry>>(FlatList);
 
 export interface LeaderboardProps
   extends Omit<FlatListProps<LeaderboardEntry>, 'renderItem'> {
-  fetchNextPage: () => void;
-  fetchingNextPage: boolean;
-  hasNextPage: boolean;
   refreshing: boolean;
-  flanksData: any[];
   userId: string;
-  isLoaded: boolean;
-  description: string;
-  isRepeat: boolean;
-  title: string;
-  memberCount: number;
   bFitToClaim?: number;
-  bfit?: number;
   onClaimPressed?: () => void;
-  endDate: Date;
-  membership: 'none' | 'member' | 'owner';
   onRefresh: () => void;
-  renderHeader?: any;
-  imageUri: string;
-  isBfit?: boolean;
-  leagueId: string;
-  isPublic: boolean;
   onEditPressed: () => void;
+
+  activeLeague: LeaguePublic;
 }
 
-// TODO: support pagination, page = 10 users
 export const Leaderboard = ({
   data = [],
   userId,
   refreshing,
-  isRepeat,
   bFitToClaim,
-  bfit,
-  title,
-  memberCount,
-  endDate,
   onRefresh,
-  description,
-  imageUri,
-  membership,
-  leagueId,
   onEditPressed,
-  isPublic,
-  isBfit = false,
   onClaimPressed,
+  activeLeague,
+  ...listProps
 }: LeaderboardProps) => {
   const {colors} = useTheme();
   const navigation = useNavigation();
@@ -78,6 +57,13 @@ export const Leaderboard = ({
   const [headerHeight, setHeaderHeight] = useState(0);
 
   const sharedContentOffset = useSharedValue(0);
+
+  const isBfit = activeLeague?.access === LeagueAccess.CompeteToEarn;
+  const membership = activeLeague.participating
+    ? activeLeague.is_owner
+      ? 'owner'
+      : 'member'
+    : 'none';
 
   const renderItem: ListRenderItem<LeaderboardEntry> = ({item, index}) => (
     <LeaderboardItem
@@ -102,26 +88,28 @@ export const Leaderboard = ({
   return (
     <>
       <AnimatedLeaderboardHeaderCard
-        leagueId={leagueId}
+        leagueId={activeLeague.id}
         membership={membership}
-        memberCount={memberCount}
-        resetDate={endDate}
-        repeat={isRepeat}
-        title={title}
-        description={description}
-        imageSource={{uri: imageUri}}
+        memberCount={activeLeague.participants_total}
+        resetDate={activeLeague.ends_at}
+        repeat={activeLeague.repeat}
+        title={activeLeague.name}
+        description={activeLeague.description}
+        imageSource={{uri: activeLeague?.image.url_640x360}}
         sharedContentOffset={sharedContentOffset}
         bFitToClaim={bFitToClaim}
-        bfit={bfit}
+        bfit={activeLeague.daily_bfit}
         onClaimPressed={onClaimPressed}
         onHeightMeasure={setHeaderHeight}
         handleOnEditPressed={onEditPressed}
         isCteLeague={isBfit}
-        isPublic={isPublic}
+        isPublic={activeLeague.access === LeagueAccess.Public}
       />
       {headerHeight !== 0 && (
         <AnimatedFlatList
+          {...listProps}
           ref={scrollRef}
+          scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={() => <View style={{height: headerHeight}} />}
           data={data}

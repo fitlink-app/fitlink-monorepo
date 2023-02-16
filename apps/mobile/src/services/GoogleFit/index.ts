@@ -1,4 +1,4 @@
-import {PermissionsAndroid} from 'react-native';
+import {Alert, PermissionsAndroid} from 'react-native';
 import GoogleFit, {BucketUnit, Scopes} from 'react-native-google-fit';
 import {mapping} from './constants';
 import {getTodayTimeframe} from '../utils';
@@ -146,7 +146,9 @@ async function checkIsAuthorized() {
 async function checkIsAvailable() {
   return await new Promise((resolve, reject) => {
     GoogleFit.isAvailable((isError, result) => {
-      if (isError) reject(result);
+      if (isError) {
+        reject(result);
+      }
       resolve(result);
     });
   });
@@ -170,7 +172,9 @@ async function authenticate() {
     await PermissionsAndroid.request(ACTIVITY_RECOGNITION_PERMISSION);
   }
 
-  if (!authResult.success) throw Error(authResult.message);
+  if (!authResult.success) {
+    throw Error(authResult.message);
+  }
 
   return true;
 }
@@ -213,7 +217,7 @@ async function getTodaysSleepHours() {
 
     sleepTotal = sleepHours.reduce((acc, val) => acc + val, 0);
   } catch (e) {
-    console.log('Unable to retrieve sleep data: ' + e);
+    console.warn('Unable to retrieve sleep data: ' + e);
   }
 
   return sleepTotal;

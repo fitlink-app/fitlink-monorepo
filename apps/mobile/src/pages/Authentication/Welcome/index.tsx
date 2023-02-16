@@ -1,18 +1,20 @@
-import React from 'react';
-import {Button, Logo, TeamInvitation, Label} from '@components';
+import React, {useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import styled, {useTheme} from 'styled-components/native';
-import {Background, GradientUnderlay, WelcomeHeader} from './components';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ActivityIndicator, Platform} from 'react-native';
-import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {signInWithApple, signInWithGoogle} from 'redux/auth';
-import {AppDispatch} from 'redux/store';
+
+import {Button, Logo, TeamInvitation, Label} from '@components';
 import appleAuth from '@invertase/react-native-apple-authentication';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+
+import {AppDispatch} from 'redux/store';
+import {signInWithApple, signInWithGoogle} from 'redux/auth';
+import {Background, GradientUnderlay, WelcomeHeader} from './components';
 import {selectTeamInvitation} from 'redux/teamInvitation/teamInvitationSlice';
-import {heightLize} from '@utils';
+import theme from '../../../theme/themes/fitlink';
+import useMeasureInitialLayout from '../../../hooks/useMeasureInitialLayout';
 
 const mail_icon = require('../../../../assets/images/icon/mail.png');
 const google_icon = require('../../../../assets/images/icon/google.png');
@@ -36,20 +38,18 @@ const InvitationLogoContainer = styled.View({
 
 const HeaderContainer = styled.View({
   flex: 1,
-  justifyContent: 'center',
   alignItems: 'flex-end',
-  width: '70%',
+  justifyContent: 'flex-end',
+  width: '75%',
+  marginBottom: 60,
 });
 
 const Line = styled.View({
-  position: 'relative',
-  marginTop: heightLize(2),
-  width: 68,
-  height: 0,
-  top: 18,
-  right: -70,
-  border: '2px solid #00E9D7',
-  transform: 'rotate(90deg)',
+  width: 5,
+  position: 'absolute',
+  backgroundColor: theme.colors.accent,
+  right: -20,
+  bottom: 0,
 });
 
 const ButtonContainer = styled.View({
@@ -96,6 +96,15 @@ export const Welcome = () => {
   const [isAppleLoading, setAppleLoading] = useState(false);
   const [isMetaMaskLoading, setIsMetaMaskLoading] = useState(false);
 
+  const {
+    initialLayout: headerLayout,
+    measureInitialLayout: measureHeaderLayout,
+  } = useMeasureInitialLayout();
+  const {
+    initialLayout: buttonLayout,
+    measureInitialLayout: measureButtonLayout,
+  } = useMeasureInitialLayout();
+
   const handleOnSignUpPressed = () => {
     navigation.navigate('SignUp');
   };
@@ -114,6 +123,7 @@ export const Welcome = () => {
         await dispatch(signInWithGoogle(idToken));
       }
     } catch (e) {
+      console.error('handleOnGooglePressed', e);
       setGoogleLoading(false);
     }
   };
@@ -170,11 +180,16 @@ export const Welcome = () => {
           ) : (
             <HeaderContainer>
               <Logo size={'large'} />
-              <WelcomeHeader>
+              <WelcomeHeader onLayout={measureHeaderLayout}>
                 Join a global health and fitness club by connecting the activity
                 trackers you are already using
               </WelcomeHeader>
-              <Line />
+              <Line
+                style={{
+                  height: headerLayout.height - 8, // 27 (line height) - 19 (font size)
+                  bottom: 4, // 8 / 2
+                }}
+              />
             </HeaderContainer>
           )}
 
@@ -205,19 +220,12 @@ export const Welcome = () => {
                 />
               </>
             )}
-            {/*<SpacedButton*/}
-            {/*  disabled={isMetaMaskLoading}*/}
-            {/*  loading={isMetaMaskLoading}*/}
-            {/*  text={'Continue with MetaMask'}*/}
-            {/*  textStyle={{marginLeft: 10}}*/}
-            {/*  logo={metamask_icon}*/}
-            {/*  onPress={handleOnMetaMaskPressed}*/}
-            {/*/>*/}
             <SpacedButton
+              onLayout={measureButtonLayout}
               disabled={true}
               loading={isMetaMaskLoading}
               text={'Continue with Kujira (coming soon)'}
-              textStyle={{marginLeft: 10}}
+              textStyle={{marginLeft: 10, width: buttonLayout.width - 50}}
               logo={kujira_icon}
               onPress={handleOnMetaMaskPressed}
             />
