@@ -200,16 +200,16 @@ export const Welcome = () => {
               logo={mail_icon}
               onPress={handleOnSignUpPressed}
             />
+            <SpacedButton
+              disabled={isGoogleLoading}
+              loading={isGoogleLoading}
+              text={'Continue with Google'}
+              textStyle={{marginLeft: 10}}
+              logo={google_icon}
+              onPress={handleOnGooglePressed}
+            />
             {Platform.OS === 'ios' && (
               <>
-                <SpacedButton
-                  disabled={isGoogleLoading}
-                  loading={isGoogleLoading}
-                  text={'Continue with Google'}
-                  textStyle={{marginLeft: 10}}
-                  logo={google_icon}
-                  onPress={handleOnGooglePressed}
-                />
                 <SpacedButton
                   disabled={isAppleLoading}
                   loading={isAppleLoading}
