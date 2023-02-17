@@ -24,7 +24,7 @@ import {
   getViewBfitValue,
   persistData,
 } from '@utils';
-import {saveCurrentToken} from '@api';
+import {FCMTokenService} from '@api';
 import {SCREEN_CONTAINER_SPACE} from '@constants';
 
 import {
@@ -144,7 +144,7 @@ export const Feed = () => {
   }, [promptNewsletterModal]);
 
   useEffect(() => {
-    saveCurrentToken();
+    FCMTokenService.saveCurrentToken();
   }, []);
 
   const totalBfitAmount = useMemo(() => bfitViewValue, [bfitViewValue]);

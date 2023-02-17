@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">BFIT</string>
-    <string name="server_client_id">369193601741-o9ao2iqikmcm0fte2t4on85hrni4dsjc.apps.googleusercontent.com</string>
+    <string name="server_client_id">523231434158-55gnc1got39orb28ntg4fkbs8c4d6j72.apps.googleusercontent.com</string>
     <string name="appCenterCrashes_whenToSendCrashes" moduleConfig="true" translatable="false">DO_NOT_ASK_JAVASCRIPT</string>
     <string name="appCenterAnalytics_whenToEnableAnalytics" moduleConfig="true" translatable="false">ALWAYS_SEND</string>
     <string name="mapbox_access_token">pk.eyJ1IjoiZml0bGlua2FwcCIsImEiOiJjamZud3NxbmgwY2w1MzNycTVoamtkbXRyIn0.l-zQ5Q756IGsRSQL_94Ntw</string>
