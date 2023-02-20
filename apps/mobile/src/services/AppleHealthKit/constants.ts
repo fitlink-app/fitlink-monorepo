@@ -11,5 +11,6 @@ export const mapping: {[appleValue: string]: string} = {
   Snowboarding: 'snowboarding',
   Rowing: 'rowing',
   SurfingSports: 'surfing',
+  WeightTraining: 'weightLifting',
   Yoga: 'yoga',
 };

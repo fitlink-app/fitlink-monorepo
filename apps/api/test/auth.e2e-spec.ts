@@ -295,7 +295,8 @@ describe('Auth', () => {
       url: `/auth/connect`,
       payload: {
         token: 'google_token',
-        provider: 'facebook.com'
+        provider: 'facebook.com',
+        client_name: 'Fitlink'
       }
     })
 
@@ -322,7 +323,8 @@ describe('Auth', () => {
       url: `/auth/connect`,
       payload: {
         token: 'google_token',
-        provider: 'google.com'
+        provider: 'google.com',
+        client_name: 'Fitlink'
       }
     })
 
@@ -351,7 +353,8 @@ describe('Auth', () => {
       url: `/auth/connect`,
       payload: {
         token: 'google_token',
-        provider: 'google.com'
+        provider: 'google.com',
+        client_name: 'Fitlink'
       }
     })
 
@@ -382,7 +385,8 @@ describe('Auth', () => {
       url: `/auth/connect`,
       payload: {
         token: 'google_token',
-        provider: 'google.com'
+        provider: 'google.com',
+        client_name: 'Fitlink'
       }
     })
 
