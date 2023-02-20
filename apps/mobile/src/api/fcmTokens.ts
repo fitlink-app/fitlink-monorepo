@@ -1,4 +1,5 @@
-import {PermissionsAndroid, Platform} from 'react-native';
+import {Platform} from 'react-native';
+import ReactNativePermissions, {PERMISSIONS} from 'react-native-permissions';
 import messaging from '@react-native-firebase/messaging';
 
 import api from '@api';
@@ -16,8 +17,8 @@ async function requestUserPermission() {
       authStatus === messaging.AuthorizationStatus.PROVISIONAL
     );
   } else if (shouldAskForAndroidPermission()) {
-    const result = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    const result = await ReactNativePermissions.request(
+      PERMISSIONS.ANDROID.POST_NOTIFICATIONS,
     );
     return result === 'granted';
   }

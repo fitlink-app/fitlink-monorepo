@@ -126,6 +126,15 @@ PODS:
     - React-Core
   - JWT (3.0.0-beta.14):
     - Base64 (~> 1.1.2)
+  - MapboxCommon (23.3.1)
+  - MapboxCoreMaps (10.11.1):
+    - MapboxCommon (~> 23.3)
+  - MapboxMaps (10.11.0):
+    - MapboxCommon (= 23.3.1)
+    - MapboxCoreMaps (= 10.11.1)
+    - MapboxMobileEvents (= 1.0.10)
+    - Turf (~> 2.0)
+  - MapboxMobileEvents (1.0.10)
   - nanopb (2.30909.0):
     - nanopb/decode (= 2.30909.0)
     - nanopb/encode (= 2.30909.0)
@@ -459,11 +468,17 @@ PODS:
   - RNLocalize (2.1.7):
     - React-Core
   - rnmapbox-maps (10.0.0-beta.69):
+    - MapboxMaps (~> 10.11.0)
     - React
     - React-Core
     - rnmapbox-maps/DynamicLibrary (= 10.0.0-beta.69)
+    - Turf
   - rnmapbox-maps/DynamicLibrary (10.0.0-beta.69):
+    - MapboxMaps (~> 10.11.0)
     - React
+    - React-Core
+    - Turf
+  - RNPermissions (3.6.1):
     - React-Core
   - RNReanimated (2.2.0):
     - DoubleConversion
@@ -502,6 +517,7 @@ PODS:
   - RNSVG (13.7.0):
     - React-Core
   - SSZipArchive (2.2.3)
+  - Turf (2.6.1)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -568,6 +584,7 @@ DEPENDENCIES:
   - RNLaunchNavigator (from `../../../node_modules/react-native-launch-navigator`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - "rnmapbox-maps (from `../node_modules/@rnmapbox/maps`)"
+  - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../../../node_modules/react-native-share`)
@@ -598,9 +615,14 @@ SPEC REPOS:
     - GTMSessionFetcher
     - Intercom
     - JWT
+    - MapboxCommon
+    - MapboxCoreMaps
+    - MapboxMaps
+    - MapboxMobileEvents
     - nanopb
     - PromisesObjC
     - SSZipArchive
+    - Turf
 
 EXTERNAL SOURCES:
   appcenter-analytics:
@@ -725,6 +747,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-localize"
   rnmapbox-maps:
     :path: "../node_modules/@rnmapbox/maps"
+  RNPermissions:
+    :path: "../node_modules/react-native-permissions"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
@@ -769,6 +793,10 @@ SPEC CHECKSUMS:
   Intercom: fcaf66873547414a41fce8c62b7c4eb9250897b5
   intercom-react-native: a03d38f8f391f043a6294c50d6bd5605d2b9bfe8
   JWT: ef71dfb03e1f842081e64dc42eef0e164f35d251
+  MapboxCommon: 762407ce0c8353d9b9a0d0b72f9dc1c30d1dc904
+  MapboxCoreMaps: 03e7214fabb54d496ff56314ff8159dd264b6093
+  MapboxMaps: 7981622c06558adbabbe1c7543ba4d18d26ecb23
+  MapboxMobileEvents: de50b3a4de180dd129c326e09cd12c8adaaa46d6
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
@@ -821,14 +849,16 @@ SPEC CHECKSUMS:
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
   RNLaunchNavigator: 058ccdb86a80a9424d5e37f6ec54379e3018c52b
   RNLocalize: f567ea0e35116a641cdffe6683b0d212d568f32a
-  rnmapbox-maps: 04d27d17297a933defb6bfa4d2d099b5ff1435d0
+  rnmapbox-maps: 612db6546168af974f7e4ee4ce2a73919fe1eb81
+  RNPermissions: dcdb7b99796bbeda6975a6e79ad519c41b251b1c
   RNReanimated: 9c13c86454bfd54dab7505c1a054470bfecd2563
   RNScreens: 0591543e343c7444ea1756b6265d81a4295922c9
   RNShare: 0fec82bd2e67d09f895937ccb4f5a097e714dec2
   RNSVG: d787d64ca06b9158e763ad2638a8c4edce00782a
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
+  Turf: 469ce2c3d22e5e8e4818d5a3b254699a5c89efa4
   Yoga: d1fc3575b8b68891ff5ef3c276daa855e841eb32
 
-PODFILE CHECKSUM: 1a34270c2ae31ed7cfd991943e87e63bcc6c6fbb
+PODFILE CHECKSUM: bf11a9c13098ad88a51088a4eb807ff95a8a0957
 
 COCOAPODS: 1.11.3
