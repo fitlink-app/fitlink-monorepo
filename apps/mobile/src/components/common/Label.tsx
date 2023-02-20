@@ -19,7 +19,8 @@ export interface LabelProps extends TextProps {
   numberOfNumbers?: number;
 }
 
-export const Label: React.FC<LabelProps> = React.forwardRef(
+export const
+  Label: React.FC<LabelProps> = React.forwardRef(
   ({type = 'body', appearance, bold, style, ...rest}, ref: any) => {
     const {fonts, typography, colors} = useTheme();
 

@@ -1,19 +1,21 @@
-import {Label, TouchHandler} from '@components';
 import React from 'react';
 import {
   FlatList,
   FlatListProps,
-  ActivityIndicator,
   StyleProp,
   ViewStyle,
   View,
+  StyleSheet,
 } from 'react-native';
-import styled, {useTheme} from 'styled-components/native';
+import styled from 'styled-components/native';
+
+import {Label, TouchHandler} from '@components';
 import {RewardPublic} from '@fitlink/api/src/modules/rewards/entities/reward.entity';
 import {RewardCard} from '.';
 import {useNavigation} from '@react-navigation/native';
 import {getViewBfitValue, heightLize, widthLize} from '@utils';
 import {FEED_CAROUSEL_CARD_WIDTH} from '../../Feed/constants';
+import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
@@ -38,15 +40,6 @@ const SeeAllText = styled(Label).attrs(() => ({
   letterSpacing: 1,
   textTransform: 'capitalize',
   color: '#ACACAC',
-});
-
-const LoadingContainer = styled.View({height: 170, justifyContent: 'center'});
-
-const NewItemLoadingContainer = styled.View({
-  width: 80,
-  justifyContent: 'center',
-  alignItems: 'center',
-  height: 170,
 });
 
 interface RewardSliderProps
@@ -81,7 +74,6 @@ export const RewardSlider = ({
   showSeeAll = false,
   ...rest
 }: RewardSliderProps) => {
-  const {colors} = useTheme();
   const navigation = useNavigation();
 
   const renderItem = ({item}: {item: RewardPublic}) => {
@@ -129,9 +121,7 @@ export const RewardSlider = ({
   };
 
   const ListFooterComponent = isLoadingNextPage ? (
-    <NewItemLoadingContainer>
-      <ActivityIndicator color={colors.accent} />
-    </NewItemLoadingContainer>
+    <BfitSpinner wrapperStyle={styles.newItemLoadingContainer} />
   ) : null;
 
   if (!rest.data?.length) {
@@ -152,9 +142,7 @@ export const RewardSlider = ({
         )}
       </HeaderContainer>
       {isLoading && !isLoadingNextPage ? (
-        <LoadingContainer>
-          <ActivityIndicator color={colors.accent} />
-        </LoadingContainer>
+        <BfitSpinner wrapperStyle={styles.loadingContainer} />
       ) : (
         <FlatList
           {...{...rest, renderItem, ListFooterComponent}}
@@ -168,3 +156,16 @@ export const RewardSlider = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  newItemLoadingContainer: {
+    width: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 170,
+  },
+  loadingContainer: {
+    height: 170,
+    justifyContent: 'center',
+  },
+});

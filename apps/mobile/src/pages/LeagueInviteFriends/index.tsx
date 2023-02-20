@@ -1,28 +1,20 @@
 import React, {useState} from 'react';
-import styled, {useTheme} from 'styled-components/native';
-import {RootStackParamList} from 'routes/types';
-import {StackScreenProps} from '@react-navigation/stack';
-import {
-  ActivityIndicator,
-  FlatList,
-  Platform,
-  RefreshControl,
-} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import styled, {useTheme} from 'styled-components/native';
+import {StackScreenProps} from '@react-navigation/stack';
+import {FlatList, Platform, RefreshControl, StyleSheet} from 'react-native';
+
+import {getErrors} from '@api';
 import {Label, Navbar, NAVBAR_HEIGHT} from '@components';
-import {InviteRow} from './components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useInviteToLeague, useLeagueInvitables, useMe} from '@hooks';
+
+import {InviteRow} from './components';
 import {getResultsFromPages} from 'utils/api';
-import {getErrors} from '@api';
+import {RootStackParamList} from 'routes/types';
+import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({flex: 1});
-
-const EmptyContainer = styled.View({
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-});
 
 export const LeagueInviteFriends = (
   props: StackScreenProps<RootStackParamList, 'LeagueInviteFriends'>,
@@ -97,9 +89,7 @@ export const LeagueInviteFriends = (
     item.id + index.toString();
 
   const ListFooterComponent = isFetchingNextPage ? (
-    <EmptyContainer style={{height: 72}}>
-      <ActivityIndicator color={colors.accent} />
-    </EmptyContainer>
+    <BfitSpinner wrapperStyle={{height: 72}} />
   ) : null;
 
   const ListEmptyComponent = (
@@ -148,10 +138,16 @@ export const LeagueInviteFriends = (
           }
         />
       ) : (
-        <EmptyContainer>
-          <ActivityIndicator color={colors.accent} />
-        </EmptyContainer>
+        <BfitSpinner wrapperStyle={styles.loadingWrapper} />
       )}
     </Wrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

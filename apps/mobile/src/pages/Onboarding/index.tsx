@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
-import {ActivityIndicator, Image} from 'react-native';
+import {Image} from 'react-native';
 import {BasicInfo, Goals} from './subscreens';
 import {Button, Dots, Logo} from '@components';
 import {useJoinTeamByCode, useMe} from '@hooks';
@@ -22,6 +22,7 @@ import {
   resetTeamInvitation,
   selectTeamInvitation,
 } from 'redux/teamInvitation/teamInvitationSlice';
+import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const BACKGROUND_IMAGE = require('../../../../assets/images/BackgroundOnboarding.png');
 
@@ -65,7 +66,6 @@ enum OnboardingPages {
 
 export const Onboarding = () => {
   const dispatch = useDispatch() as AppDispatch;
-  const {colors} = useTheme();
 
   // queries
   const {data: user} = useMe();
@@ -239,7 +239,7 @@ export const Onboarding = () => {
       ) : (
         <LoadingContainer>
           <Logo size={'large'} />
-          <ActivityIndicator style={{ marginTop: 10 }} color={colors.accent} />
+          <BfitSpinner style={{marginTop: 10}} />
         </LoadingContainer>
       )}
 

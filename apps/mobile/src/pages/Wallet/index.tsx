@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   ListRenderItem,
   RefreshControl,
@@ -29,6 +28,7 @@ import {
 } from './components';
 import {getResultsFromPages} from '../../utils/api';
 import {WalletTransaction} from '@fitlink/api/src/modules/wallet-transactions/entities/wallet-transaction.entity';
+import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const NavbarTitle = () => (
   <View style={{flexDirection: 'row'}}>
@@ -89,11 +89,7 @@ export const Wallet = () => {
   const renderSeparator = () => <View style={{height: 26}} />;
 
   const renderEmptyComponent = () => (
-    <>
-      {isLoadingTransactions && (
-        <ActivityIndicator color={theme.colors.accent} />
-      )}
-    </>
+    <>{isLoadingTransactions && <BfitSpinner />}</>
   );
 
   return (

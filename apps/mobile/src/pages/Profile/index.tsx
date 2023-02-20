@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {
-  ActivityIndicator,
   RefreshControl,
   FlatList,
   View,
   InteractionManager,
   Platform,
   ListRenderItem,
+  StyleSheet,
 } from 'react-native';
 import {StackScreenProps} from '@react-navigation/stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -36,6 +36,7 @@ import {PrivacySetting} from '@fitlink/api/src/modules/users-settings/users-sett
 
 import {getResultsFromPages} from 'utils/api';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
+import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -203,7 +204,7 @@ export const Profile = (
           marginTop: -100,
         }}>
         {isFeedLoading || !isFeedFetchedAfterMount ? (
-          <ActivityIndicator color={colors.accent} />
+          <BfitSpinner />
         ) : (
           <Label
             type="body"
@@ -219,9 +220,7 @@ export const Profile = (
   };
 
   const ListFooterComponent = isFetchingFeedNextPage ? (
-    <View style={{height: 72, alignItems: 'center', justifyContent: 'center'}}>
-      <ActivityIndicator color={colors.accent} />
-    </View>
+    <BfitSpinner wrapperStyle={styles.listFooterComponent} />
   ) : null;
 
   const visibleFeedData = shouldRenderFeed() ? feedItems : [];
@@ -229,7 +228,7 @@ export const Profile = (
   if (!isUserFetched) {
     return (
       <LoadingContainer>
-        <ActivityIndicator color={colors.accent} />
+        <BfitSpinner />
       </LoadingContainer>
     );
   }
@@ -267,3 +266,11 @@ export const Profile = (
     </Wrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  listFooterComponent: {
+    height: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

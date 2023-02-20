@@ -4,11 +4,12 @@ import styled, {
   ThemeProps,
   useTheme,
 } from 'styled-components/native';
-import {ActivityIndicator, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
 import {Icon, TouchHandler, TouchHandlerProps} from '@components';
 import {SettingsItemWrapper} from './SettingsItemWrapper';
 import {SettingsItemLabel} from './SettingsItemLabel';
+import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 const StyledTouchHandler = styled(TouchHandler).attrs(() => ({
   animationType: 'opacity',
@@ -90,14 +91,8 @@ export const SettingsButton = (props: SettingsButtonProps) => {
 
           {loading ? (
             <View>
-              <ActivityIndicator
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  bottom: 0,
-                  left: -20,
-                  right: 0,
-                }}
+              <BfitSpinner
+                wrapperStyle={styles.settingsItemWrapper}
                 size={'small'}
                 color={accent ? colors.accent : colors.accentSecondary}
               />
@@ -110,3 +105,13 @@ export const SettingsButton = (props: SettingsButtonProps) => {
     </SettingsItemWrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  settingsItemWrapper: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: -20,
+    right: 0,
+  },
+});

@@ -1,28 +1,19 @@
-import {Icon, Label, Navbar, NAVBAR_HEIGHT} from '@components';
-import {useMe, useNotifications} from '@hooks';
 import React, {useEffect, useState} from 'react';
-import {
-  ActivityIndicator,
-  Dimensions,
-  FlatList,
-  RefreshControl,
-} from 'react-native';
+import {Dimensions, FlatList, RefreshControl, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
-import {getResultsFromPages} from 'utils/api';
-import {Notification} from './components';
-import {Notification as NotificationClass} from '@fitlink/api/src/modules/notifications/entities/notification.entity';
-import {queryClient, QueryKeys} from '@query';
 import {useNavigation} from '@react-navigation/core';
 
-const Wrapper = styled.View({flex: 1});
+import {Icon, Label, Navbar, NAVBAR_HEIGHT} from '@components';
+import {useMe, useNotifications} from '@hooks';
+import {queryClient, QueryKeys} from '@query';
+import {Notification as NotificationClass} from '@fitlink/api/src/modules/notifications/entities/notification.entity';
 
-const LoadingContainer = styled.View({
-  justifyContent: 'center',
-  alignItems: 'center',
-  height: 70,
-  width: '100%',
-});
+import {getResultsFromPages} from 'utils/api';
+import {Notification} from './components';
+import {BfitSpinner} from '../../components/common/BfitSpinner';
+
+const Wrapper = styled.View({flex: 1});
 
 const Flex = styled.View({
   flex: 1,
@@ -80,16 +71,14 @@ export const Notifications = () => {
   };
 
   const ListFooterComponent = isFetchingNextPage ? (
-    <LoadingContainer>
-      <ActivityIndicator color={colors.accent} />
-    </LoadingContainer>
+    <BfitSpinner wrapperStyle={styles.loadingContainer} />
   ) : null;
 
   const ListEmptyComponent = () => {
     return (
       <Flex>
         {isFetching && !isManuallyRefetching ? (
-          <ActivityIndicator color={colors.accent} />
+          <BfitSpinner />
         ) : (
           <Label
             type="body"
@@ -160,3 +149,12 @@ export const Notifications = () => {
     </Wrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 70,
+    width: '100%',
+  },
+});
