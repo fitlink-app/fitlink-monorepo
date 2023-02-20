@@ -1,6 +1,6 @@
 import {Label} from '@components';
 import React from 'react';
-import {View} from 'react-native';
+import {Dimensions, View} from 'react-native';
 import {
   NavigationState,
   SceneRendererProps,
@@ -16,6 +16,7 @@ const LabelRow = styled.View({
   flexDirection: 'row',
   alignItems: 'center',
   backgroundColor: '',
+  justifyContent: 'center',
 });
 
 const BadgeWrapper = styled.View(({theme: {colors}}) => ({
@@ -53,7 +54,8 @@ const TabButton = ({
               ? 'primary'
               : 'secondary'
           }
-          style={{fontSize: 18}}>
+          style={{fontSize: 16}}
+          numberOfLines={1}>
           {title}
         </Label>
         {badgeCount ? (
@@ -99,7 +101,7 @@ export const TabBar = (
         borderBottomWidth: 1,
         borderColor: 'transparent',
         elevation: 0,
-        paddingHorizontal: 20,
+        marginHorizontal: 20,
       }}
       renderLabel={(params): Element => {
         const {focused} = params;
