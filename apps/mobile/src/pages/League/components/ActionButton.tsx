@@ -1,5 +1,6 @@
-import {FitButton} from '@components';
 import React from 'react';
+
+import {BfitButton} from '@components';
 
 type ActionButtonProps = {
   isMember: boolean;
@@ -21,7 +22,7 @@ export const ActionButton = ({
   }
   if (!isMember) {
     return (
-      <FitButton
+      <BfitButton
         onPress={handleOnJoinPressed}
         text={'JOIN LEAGUE'}
         variant="primary-outlined"
@@ -29,7 +30,7 @@ export const ActionButton = ({
     );
   }
   return (
-    <FitButton
+    <BfitButton
       onPress={handleClaimBfitPressed}
       text={`CLAIM ${bfitValue} BFIT`}
       variant="primary-outlined"

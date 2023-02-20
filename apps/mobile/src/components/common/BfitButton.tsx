@@ -1,23 +1,29 @@
-import React from 'react';
+import React, {FC} from 'react';
 import {
   StyleProp,
   StyleSheet,
   Text,
   TextStyle,
   TouchableOpacity,
+  View,
   ViewStyle,
 } from 'react-native';
-import theme from '../../theme/themes/fitlink';
+import {IconProps} from 'react-icomoon';
 
-type FitButtonVariant =
+import theme from '../../theme/themes/fitlink';
+import {BfitSpinner} from './BfitSpinner';
+
+type BFitButtonVariant =
   | 'primary'
   | 'primary-outlined'
   | 'secondary'
   | 'secondary-outlined';
-type FitButtonProps = React.ComponentProps<typeof TouchableOpacity> & {
-  variant: FitButtonVariant;
+type BFitButtonProps = React.ComponentProps<typeof TouchableOpacity> & {
+  variant: BFitButtonVariant;
   text: string;
   textStyle?: StyleProp<TextStyle>;
+  isLoading?: boolean;
+  LeadingIcon?: FC<IconProps>;
 };
 
 type VariantStyles = {
@@ -25,7 +31,7 @@ type VariantStyles = {
   text: StyleProp<TextStyle>;
 };
 
-const getVariantStyles = (variant: FitButtonVariant): VariantStyles => {
+const getVariantStyles = (variant: BFitButtonVariant): VariantStyles => {
   switch (variant) {
     case 'primary':
       return {
@@ -70,19 +76,26 @@ const getVariantStyles = (variant: FitButtonVariant): VariantStyles => {
   }
 };
 
-export const FitButton = ({
+export const BfitButton = ({
   style,
   variant,
   text,
   textStyle,
+  LeadingIcon,
+  isLoading,
   ...rest
-}: FitButtonProps): JSX.Element => {
+}: BFitButtonProps): JSX.Element => {
   const variantStyle = getVariantStyles(variant);
-
+  const Icon = isLoading ? BfitSpinner : LeadingIcon;
   return (
     <TouchableOpacity
       {...rest}
       style={[buttonStyles.baseTouchable, variantStyle.touchable, style]}>
+      {Icon && (
+        <View>
+          <BfitSpinner wrapperStyle={{marginRight: 8}} />
+        </View>
+      )}
       <Text style={[buttonStyles.baseText, variantStyle.text, textStyle]}>
         {text}
       </Text>
@@ -98,6 +111,7 @@ const buttonStyles = StyleSheet.create({
     paddingRight: 12,
     borderRadius: 20,
     alignSelf: 'flex-start',
+    flexDirection: 'row',
   },
   baseText: {
     fontFamily: 'Roboto',
@@ -105,5 +119,6 @@ const buttonStyles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 16,
     flexShrink: 1,
+    alignSelf: 'center',
   },
 });

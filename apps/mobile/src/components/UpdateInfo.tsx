@@ -1,12 +1,11 @@
 import React from 'react';
-import {View, Image, ActivityIndicator, Dimensions} from 'react-native';
+import {View, Dimensions, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTheme} from 'styled-components/native';
 import {Label, Logo} from './common';
+import {BfitSpinner} from './common/BfitSpinner';
 
 const {width: screenWidth} = Dimensions.get('screen');
-
-const splashImage = require('../../assets/images/logo_new.png');
 
 interface UpdateInfoProps {
   message: string;
@@ -45,13 +44,15 @@ export const UpdateInfo = ({message, progress}: UpdateInfoProps) => {
       <ProgressBar {...{progress}} />
       <Logo size={'large'} />
       <View style={{position: 'absolute', bottom: 100}}>
-        <ActivityIndicator
-          style={{paddingVertical: 20}}
-          color={colors.accent}
-        />
-
+        <BfitSpinner wrapperStyle={styles.loadingWrapper} />
         <Label>{message}</Label>
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingWrapper: {
+    paddingVertical: 20,
+  },
+});

@@ -3,14 +3,14 @@ import React, {
   ForwardRefRenderFunction,
   useImperativeHandle,
 } from 'react';
-import styled, {useTheme} from 'styled-components/native';
+import styled from 'styled-components/native';
 import {Label} from '@components';
 import {useMyLeagues} from '@hooks';
-import {ActivityIndicator} from 'react-native';
 import {getResultsFromPages} from 'utils/api';
 import {LeagueList} from './components';
 import {widthLize} from '@utils';
 import {IRefreshableTabHandle} from './types';
+import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -32,8 +32,6 @@ const MyLeaguesInner: ForwardRefRenderFunction<
   IRefreshableTabHandle,
   IMyLeaguesProps
 > = ({jumpTo}, forwardedRef) => {
-  const {colors} = useTheme();
-
   const {
     data,
     isFetching,
@@ -58,7 +56,7 @@ const MyLeaguesInner: ForwardRefRenderFunction<
         paddingHorizontal: 20,
       }}>
       {isFetching && !isFetchedAfterMount ? (
-        <ActivityIndicator color={colors.accent} />
+        <BfitSpinner />
       ) : error ? (
         <Label
           type="body"
