@@ -747,9 +747,9 @@ export class AuthService {
     let bfitBundleId = this.configService.get('BFIT_IOS_BUNDLE_ID')
     let clientId: string
 
-    if (fitlinkBundleId && client_name && client_name === 'Fitlink') {
+    if (fitlinkBundleId && client_name === 'Fitlink') {
       clientId = fitlinkBundleId
-    } else if (bfitBundleId && client_name && client_name === 'BFIT') {
+    } else if (bfitBundleId && client_name === 'BFIT') {
       clientId = bfitBundleId
     }
 
