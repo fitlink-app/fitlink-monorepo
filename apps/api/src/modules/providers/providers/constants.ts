@@ -60,5 +60,6 @@ export const FITBIT_ACTIVITY_TYPE_MAP: {
   'Surfing, body or board': 'surfing',
   Swim: 'swimming',
   Walk: 'walking',
-  Yoga: 'yoga'
+  Yoga: 'yoga',
+  WeightTraining: 'weightLifting'
 }

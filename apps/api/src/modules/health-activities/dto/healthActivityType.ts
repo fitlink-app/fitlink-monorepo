@@ -10,5 +10,6 @@ export enum healthActivityType {
   SNOWBOARDING = 'snowboarding',
   ROWING = 'rowing',
   SURFING = 'surfing',
+  WeightTraining = 'weightLifting',
   YOGA = 'yoga'
 }

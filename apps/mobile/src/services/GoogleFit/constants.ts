@@ -13,5 +13,6 @@ export const mapping: {[googleFitValue: string]: string} = {
   snowboarding: 'snowboarding',
   rowing: 'rowing',
   surfing: 'surfing',
+  WeightTraining: 'weightLifting',
   yoga: 'yoga',
 };
