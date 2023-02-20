@@ -146,7 +146,7 @@ export class League extends CreatableEntity {
   })
   participants_total: number
 
-  rank: number
+  rank: string
 }
 
 export class LeagueWithDailyBfit extends League {
@@ -166,7 +166,7 @@ export class LeaguePublic extends League {
 
   @ApiProperty()
   @Expose()
-  rank: number
+  rank: string
 
   @ApiProperty()
   @Expose()
