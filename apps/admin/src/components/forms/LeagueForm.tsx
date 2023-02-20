@@ -16,6 +16,7 @@ import noop from 'lodash/noop'
 import Feedback from '../elements/Feedback'
 import { LeagueAccess } from '@fitlink/api/src/modules/leagues/leagues.constants'
 import { UserRole } from '@fitlink/api/src/modules/user-roles/entities/user-role.entity'
+import { UserRank } from '@fitlink/api/src/modules/users/users.constants'
 
 export type LeagueFormProps = {
   current?: Partial<LeagueEntity>
@@ -54,7 +55,7 @@ const getFields = (league: Partial<LeagueEntity>) => {
     starts_at: league.starts_at,
     sport: league.sport ? league.sport.name : undefined,
     sportId: league.sport ? league.sport.id : undefined,
-    rank: league.rank ? league.rank : undefined,
+    user_rank: league.user_rank ? league.user_rank : undefined,
     repeat: league.repeat,
     access: league.access,
     image_upload: undefined
@@ -73,10 +74,10 @@ export default function LeagueForm({
   const isUpdate = !!current.id
   const { sportsOptionsList } = useSports()
   const rankOptionsList = [
-    { label: 'Newbie', value: 'newbie' },
-    { label: 'Sportstar', value: 'sportstar' },
-    { label: 'Semi-pro', value: 'semi-pro' },
-    { label: 'Pro', value: 'pro' }
+    { label: 'Newbie', value: 'Fitlink Newbie' },
+    { label: 'Sportstar', value: 'Fitlink Sportstar' },
+    { label: 'Semi-pro', value: 'Fitlink Semi-pro' },
+    { label: 'Pro', value: 'Fitlink Pro' }
   ]
 
   const { register, handleSubmit, watch, setValue } = useForm({
@@ -150,7 +151,7 @@ export default function LeagueForm({
   const access = watch('access')
   const sport = watch('sport') || 'Choose sport'
   const sportId = watch('sportId')
-  const rank = watch('rank')
+  const rank = watch('user_rank')
 
   async function onSubmit(
     data: CreateLeagueDto & {
@@ -275,8 +276,8 @@ export default function LeagueForm({
 
       {(modeRole === 'app' || isSuperAdmin) && !!rankOptionsList.length && (
         <Select
-          id="rank"
-          name="rank"
+          id="user_rank"
+          name="user_rank"
           defaultValue={
             rankOptionsList[rankOptionsList.findIndex((x) => x.value === rank)]
           }
@@ -284,7 +285,7 @@ export default function LeagueForm({
           options={rankOptionsList}
           label="Rank"
           onChange={(item) => {
-            setValue('rank', item.value)
+            setValue('user_rank', item.value as UserRank)
           }}
           error={errors.rank}
         />

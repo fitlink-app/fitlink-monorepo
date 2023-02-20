@@ -97,6 +97,7 @@ import { removedEntitiesFromWalletTransactions1674820950489 } from '../database/
 import { addedRewardNameColumnToWalletTransactions1675189321618 } from '../database/migrations/1675189321618-addedRewardNameColumnToWalletTransactions'
 import { Update1675854302597 } from '../database/migrations/1675854302597-Update'
 import { addedTransactionIdToWalletTransactions1675859315063 } from '../database/migrations/1675859315063-addedTransactionIdToWalletTransactions'
+import { addedUserRankToLeagueEntity1676890518509 } from '../database/migrations/1676890518509-addedUserRankToLeagueEntity'
 
 export default [
   InitializeSchema1614887523112,
@@ -192,5 +193,6 @@ export default [
   removedEntitiesFromWalletTransactions1674820950489,
   addedRewardNameColumnToWalletTransactions1675189321618,
   Update1675854302597,
-  addedTransactionIdToWalletTransactions1675859315063
+  addedTransactionIdToWalletTransactions1675859315063,
+  addedUserRankToLeagueEntity1676890518509
 ]

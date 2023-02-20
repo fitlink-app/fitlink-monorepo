@@ -9,6 +9,7 @@ import {
   IsInt,
   IsEmail
 } from 'class-validator'
+import { UserRank } from '../../users/users.constants'
 import { LeagueAccess, LeagueInvitePermission } from '../leagues.constants'
 
 export class CreateLeagueDto {
@@ -46,6 +47,13 @@ export class CreateLeagueDto {
     message: 'Must be a valid access type'
   })
   access?: LeagueAccess = LeagueAccess.Private
+
+  @ApiProperty()
+  @IsOptional()
+  @IsEnum(UserRank, {
+    message: 'Must be a valid user rank'
+  })
+  user_rank?: UserRank = UserRank.Tier1
 
   @ApiProperty()
   @IsOptional()

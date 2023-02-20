@@ -21,6 +21,7 @@ import { Expose } from 'class-transformer'
 import { FeedItem } from '../../feed-items/entities/feed-item.entity'
 import { LeagueAccess, LeagueInvitePermission } from '../leagues.constants'
 import { LeaguesInvitation } from '../../leagues-invitations/entities/leagues-invitation.entity'
+import { UserRank } from '../../users/users.constants'
 
 // when saving numbers as bigint postgress will return them as strings, we use this to convert them to integers
 export class ColumnNumberTransformer {
@@ -135,6 +136,14 @@ export class League extends CreatableEntity {
   @ApiProperty()
   @Column({
     type: 'enum',
+    enum: UserRank,
+    default: UserRank.Tier1
+  })
+  user_rank?: UserRank
+
+  @ApiProperty()
+  @Column({
+    type: 'enum',
     enum: LeagueInvitePermission,
     default: LeagueInvitePermission.Participant
   })
@@ -146,7 +155,7 @@ export class League extends CreatableEntity {
   })
   participants_total: number
 
-  rank: string
+  rank: number
 }
 
 export class LeagueWithDailyBfit extends League {
@@ -166,7 +175,7 @@ export class LeaguePublic extends League {
 
   @ApiProperty()
   @Expose()
-  rank: string
+  rank: number
 
   @ApiProperty()
   @Expose()
