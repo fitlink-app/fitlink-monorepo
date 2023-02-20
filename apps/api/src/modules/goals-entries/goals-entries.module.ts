@@ -11,10 +11,21 @@ import { User } from '../users/entities/user.entity'
 import { DailyGoalReachedListener } from './listeners/DailyGoalsReachedListener'
 import { CommonModule } from '../common/common.module'
 import { NotificationsModule } from '../notifications/notifications.module'
+import { League } from '../leagues/entities/league.entity'
+import { LeagueBfitEarnings } from '../leagues/entities/bfit-earnings.entity'
+import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
+import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([GoalsEntry, User]),
+    TypeOrmModule.forFeature([
+      GoalsEntry,
+      User,
+      League,
+      LeagueBfitEarnings,
+      WalletTransaction,
+      LeaderboardEntry
+    ]),
     forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
     forwardRef(() => FeedItemsModule),
