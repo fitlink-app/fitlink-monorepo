@@ -4,7 +4,8 @@ import {
   IsNotEmpty,
   MinLength,
   IsEnum,
-  IsOptional
+  IsOptional,
+  IsIn
 } from 'class-validator'
 import { AuthProviderType } from '../../auth/auth.constants'
 
@@ -47,6 +48,6 @@ export class AuthConnectDto {
   desktop?: boolean
 
   @ApiProperty()
-  @IsOptional()
+  @IsIn(['Fitlink', 'BFIT'])
   client_name?: 'Fitlink' | 'BFIT'
 }
