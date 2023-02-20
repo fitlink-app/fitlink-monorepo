@@ -2,7 +2,7 @@ import React, {FC} from 'react';
 import {ImageBackground} from 'react-native';
 import styled from 'styled-components/native';
 
-import {FitButton} from '@components';
+import {BfitButton} from '@components';
 
 import theme from '../../theme/themes/fitlink';
 
@@ -24,7 +24,7 @@ export const ErrorContent: FC<IErrorContentProps> = ({
         Looks like something went wrong so hit the refresh button below to fix
         it.
       </SText>
-      <FitButton
+      <BfitButton
         style={{alignSelf: 'center'}}
         disabled={isRefreshing}
         onPress={onRefresh}

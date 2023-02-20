@@ -1,15 +1,11 @@
 import React from 'react';
-import {ActivityIndicator, StyleProp, ViewStyle} from 'react-native';
-import styled from 'styled-components/native';
+import {StyleProp, ViewStyle} from 'react-native';
+import {Svg, Path} from 'react-native-svg';
+import IcoMoon, {IconProps} from 'react-icomoon';
+
 import icoMoonConfig from '../../../assets/fitlink_icon_selection.json';
 import {TouchHandler, TouchHandlerProps} from './TouchHandler';
-import IcoMoon, {IconProps} from 'react-icomoon';
-import {Svg, Path} from 'react-native-svg';
-
-const LoadingContainer = styled.View({
-  justifyContent: 'center',
-  alignItems: 'center',
-});
+import {BfitSpinner} from './BfitSpinner';
 
 interface Props
   extends Omit<IconProps, 'onPress' | 'style' | 'icon'>,
@@ -43,9 +39,15 @@ export const Icon = ({
       disabled={!onPress || disabled}
       hitSlop={hitSlopInsets}>
       {isLoading ? (
-        <LoadingContainer style={{height: rest.size, width: rest.size}}>
-          <ActivityIndicator color={rest.color} />
-        </LoadingContainer>
+        <BfitSpinner
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: rest.size,
+            width: rest.size,
+          }}
+          color={rest.color}
+        />
       ) : (
         <IcoMoon
           icon={name}

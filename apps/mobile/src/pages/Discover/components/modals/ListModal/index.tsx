@@ -1,3 +1,17 @@
+import React, {useCallback, useMemo, useState, useEffect} from 'react';
+import {Dimensions, StyleSheet} from 'react-native';
+import {useAnimatedStyle, useSharedValue} from 'react-native-reanimated';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch} from 'redux/store';
+import {
+  selectQuery,
+  selectSearchLocation,
+  selectTypes,
+  toggleType,
+} from 'redux/discover/discoverSlice';
+import styled from 'styled-components/native';
+
 import {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
@@ -6,26 +20,13 @@ import {
   BottomSheetModalProps,
 } from '@gorhom/bottom-sheet';
 import {useFindActivities} from '@hooks';
-import React, {useCallback, useMemo, useState} from 'react';
-import {ActivityIndicator, View} from 'react-native';
-import {useAnimatedStyle, useSharedValue} from 'react-native-reanimated';
-import styled, {useTheme} from 'styled-components/native';
-import {getResultsFromPages} from 'utils/api';
 import {Activity} from '@fitlink/api/src/modules/activities/entities/activity.entity';
+import {getDistanceFromLatLonInKm, heightLize} from '@utils';
+
+import {getResultsFromPages} from 'utils/api';
 import {ActivityItem} from '../components';
 import {Search, Filters, ResultsLabel} from './components';
-import {getDistanceFromLatLonInKm, heightLize} from '@utils';
-import {useDispatch, useSelector} from 'react-redux';
-import {
-  selectQuery,
-  selectSearchLocation,
-  selectTypes,
-  toggleType,
-} from 'redux/discover/discoverSlice';
-import {AppDispatch} from 'redux/store';
-import {useEffect} from 'react';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Dimensions} from 'react-native';
+import {BfitSpinner} from '../../../../../components/common/BfitSpinner';
 
 const HANDLE_HEIGHT = 90;
 
@@ -83,7 +84,6 @@ interface ListModalProps
 
 export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
   ({onActivityPressed, onExpand, isFetchingMarkers, ...rest}, ref) => {
-    const {colors} = useTheme();
     const {bottom} = useSafeAreaInsets();
     const dispatch = useDispatch() as AppDispatch;
     const snapPoints = useMemo(
@@ -241,25 +241,13 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
     const renderListEmptyComponent = () => {
       if (!isFetching) return null;
 
-      return (
-        <View
-          style={{
-            marginTop: 15,
-          }}>
-          <ActivityIndicator color={colors.accent} />
-        </View>
-      );
+      return <BfitSpinner wrapperStyle={styles.listEmptyComponent} />;
     };
 
     const renderListFooterComponent = () => {
       if (!isFetchingNextPage) return null;
 
-      return (
-        <View
-          style={{height: 80, justifyContent: 'center', alignItems: 'center'}}>
-          <ActivityIndicator color={colors.accent} />
-        </View>
-      );
+      return <BfitSpinner wrapperStyle={styles.listFooterComponent} />;
     };
 
     return (
@@ -301,3 +289,14 @@ export const ListModal = React.forwardRef<BottomSheetModal, ListModalProps>(
     );
   },
 );
+
+const styles = StyleSheet.create({
+  listEmptyComponent: {
+    marginTop: 15,
+  },
+  listFooterComponent: {
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
