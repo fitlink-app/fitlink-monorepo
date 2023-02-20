@@ -39,7 +39,7 @@ export const STRAVA_ACTIVITY_TYPE_MAP: {
   // VirtualRide: "fitlink_value",
   // VirtualRun: "fitlink_value",
   Walk: 'walking',
-  // WeightTraining: "fitlink_value",
+  WeightTraining: 'weightLifting',
   // Wheelchair: "fitlink_value",
   // Windsurf: "fitlink_value",
   // Workout: "fitlink_value",
