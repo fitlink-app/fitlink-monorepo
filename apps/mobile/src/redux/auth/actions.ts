@@ -54,15 +54,19 @@ export const signIn = createAsyncThunk(
 export const signInWithGoogle = createAsyncThunk(
   SIGN_IN_GOOGLE,
   async (idToken: string, {rejectWithValue}) => {
-    await GoogleSignin.signOut();
-    const auth = await connect({
-      token: idToken,
-      provider: AuthProviderType.Google,
-    });
-    if (!checkAuthResult(auth)) {
-      return rejectWithValue(new Error('Incorrect authorization response'));
+    try {
+      await GoogleSignin.signOut();
+      const auth = await connect({
+        token: idToken,
+        provider: AuthProviderType.Google,
+      });
+      if (!checkAuthResult(auth)) {
+        return rejectWithValue(new Error('Incorrect authorization response'));
+      }
+      return auth;
+    } catch (e) {
+      return rejectWithValue(new Error(getErrorMessage(e as ResponseError)));
     }
-    return auth;
   },
 );
 
