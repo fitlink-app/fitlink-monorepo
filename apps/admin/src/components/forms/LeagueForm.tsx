@@ -278,13 +278,15 @@ export default function LeagueForm({
           id="rank"
           name="rank"
           defaultValue={
-            rankOptionsList[rankOptionsList.findIndex((x) => x.value === rank)]
+            rankOptionsList[
+              rankOptionsList.findIndex((x) => Number(x.value) === rank)
+            ]
           }
           isSearchable={false}
           options={rankOptionsList}
           label="Rank"
           onChange={(item) => {
-            setValue('rank', item.value)
+            setValue('rank', Number(item.value))
           }}
           error={errors.rank}
         />
