@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {ActivityIndicator, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {StackScreenProps} from '@react-navigation/stack';
 import styled, {useTheme} from 'styled-components/native';
@@ -7,7 +7,7 @@ import {RootStackParamList} from 'routes/types';
 import {useSharedValue} from 'react-native-reanimated';
 import {format} from 'date-fns';
 
-import {FitButton, NAVBAR_HEIGHT} from '@components';
+import {BfitButton, NAVBAR_HEIGHT} from '@components';
 import {
   useClaimReward,
   useManualQueryRefresh,
@@ -28,6 +28,7 @@ import DetailedProgressBar from './components/DetailedProgressBar';
 import AnimatedHeaderCard from '../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
 import {RedeemSuccessBanner} from './components';
 import ErrorContent from '../../components/common/ErrorContent';
+import {BfitSpinner} from "../../components/common/BfitSpinner";
 
 const Wrapper = styled.View({
   flex: 1,
@@ -73,7 +74,7 @@ export const Reward = (
   if (isLoadingUser || isLoadingReward) {
     return (
       <EmptyContainer style={{marginTop: -(NAVBAR_HEIGHT + insets.top)}}>
-        <ActivityIndicator color={colors.accent} />
+        <BfitSpinner />
       </EmptyContainer>
     );
   }
@@ -151,7 +152,7 @@ export const Reward = (
         }}
         sharedContentOffset={sharedContentOffset}>
         {isReadyToBuy ? (
-          <FitButton
+          <BfitButton
             disabled={isUnableToBuy}
             style={styles.buy}
             onPress={onClaimReward}

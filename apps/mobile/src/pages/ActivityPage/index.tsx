@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {ActivityIndicator, ScrollView, View} from 'react-native';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import styled from 'styled-components/native';
 
@@ -18,6 +18,7 @@ import {ActivityMap} from './components/ActivityMap';
 import {useActivityCamera} from './hooks/useActivityCamera';
 import {useActivityInfoData} from './hooks/useActivityInfoData';
 import theme from '../../theme/themes/fitlink';
+import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const SDetails = styled.View({
   position: 'absolute',
@@ -126,7 +127,7 @@ export const ActivityPage = () => {
   }
 
   if (!isContentLoaded || isLoading) {
-    return <ActivityIndicator style={{flex: 1}} color={theme.colors.accent} />;
+    return <BfitSpinner wrapperStyle={{flex: 1}} color={theme.colors.accent} />;
   }
 
   return (
@@ -181,15 +182,7 @@ export const ActivityPage = () => {
         {isOwnedActivity && (
           <TouchHandler onPress={handleOnSharePressed}>
             {isShareActivityLoading ? (
-              <View
-                style={{
-                  height: 24,
-                  width: 24,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <ActivityIndicator color="white" />
-              </View>
+              <BfitSpinner wrapperStyle={styles.touchHandler} color="white" />
             ) : (
               <ShareIcon
                 source={require('../../../assets/images/icon/share-2.png')}
@@ -202,3 +195,12 @@ export const ActivityPage = () => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  touchHandler: {
+    height: 24,
+    width: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

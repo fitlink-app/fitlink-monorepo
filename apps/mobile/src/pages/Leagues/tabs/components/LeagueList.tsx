@@ -4,13 +4,14 @@ import {useScrollToTop} from '@react-navigation/native';
 import {
   FlatListProps,
   FlatList,
-  ActivityIndicator,
   RefreshControl,
+  StyleSheet,
 } from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 
 import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {LeagueCard} from '@components';
+import {BfitSpinner} from '../../../../components/common/BfitSpinner';
 
 const EmptyContainer = styled.View({
   flex: 1,
@@ -61,9 +62,7 @@ export const LeagueList = ({
   };
 
   const ListFooterComponent = isFetchingNextPage ? (
-    <EmptyContainer style={{height: 72}}>
-      <ActivityIndicator color={colors.accent} />
-    </EmptyContainer>
+    <BfitSpinner wrapperStyle={styles.listFooterComponent} />
   ) : null;
 
   return (
@@ -89,3 +88,9 @@ export const LeagueList = ({
     />
   );
 };
+
+const styles = StyleSheet.create({
+  listFooterComponent: {
+    height: 72,
+  },
+});

@@ -1,3 +1,10 @@
+import React, {useState, useEffect} from 'react';
+import {Alert, Platform, ScrollView} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import styled from 'styled-components/native';
+import {StackActions, useNavigation} from '@react-navigation/native';
+import {StackScreenProps} from '@react-navigation/stack';
+
 import {
   Button,
   Checkbox,
@@ -20,24 +27,13 @@ import {
   useSports,
   useUploadImage,
 } from '@hooks';
-import React, {useState} from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Platform,
-  ScrollView,
-  View,
-} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import styled, {useTheme} from 'styled-components/native';
 import {ImageType} from '@fitlink/api/src/modules/images/images.constants';
+import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {CreateLeagueDto} from '@fitlink/api/src/modules/leagues/dto/create-league.dto';
 import {getErrors} from '@api';
-import {StackActions, useNavigation} from '@react-navigation/native';
-import {useEffect} from 'react';
+
 import {RootStackParamList} from 'routes/types';
-import {StackScreenProps} from '@react-navigation/stack';
-import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
+import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 type LeagueFormMode = 'edit' | 'create';
 
@@ -59,8 +55,6 @@ const leagueDurations = [
     value: 28,
   },
 ];
-
-const Wrapper = styled.View({flex: 1});
 
 const FormContentWrapper = styled.View({flex: 1, marginBottom: 40});
 
@@ -100,7 +94,6 @@ export const LeagueForm = (
 
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const {colors} = useTheme();
 
   const [image, setImage] = useState<ImagePickerDialogResponse>();
 
@@ -111,7 +104,6 @@ export const LeagueForm = (
     fieldErrors,
     isSubmitting,
     errorMessage,
-    isSubmitted,
   } = useForm(initialValues);
 
   const {openModal, closeModal} = useModal();
@@ -324,7 +316,7 @@ export const LeagueForm = (
           </ScrollView>
         ) : (
           <Center>
-            <ActivityIndicator color={colors.accent} />
+            <BfitSpinner />
           </Center>
         )}
       </KeyboardAvoidingView>

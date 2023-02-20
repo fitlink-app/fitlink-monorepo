@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import styled, {useTheme} from 'styled-components/native';
+import styled from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ActivityIndicator, Platform} from 'react-native';
+import {Platform, StyleSheet} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {Button, Logo, TeamInvitation, Label} from '@components';
@@ -15,6 +15,7 @@ import {Background, GradientUnderlay, WelcomeHeader} from './components';
 import {selectTeamInvitation} from 'redux/teamInvitation/teamInvitationSlice';
 import theme from '../../../theme/themes/fitlink';
 import useMeasureInitialLayout from '../../../hooks/useMeasureInitialLayout';
+import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 const mail_icon = require('../../../../assets/images/icon/mail.png');
 const google_icon = require('../../../../assets/images/icon/google.png');
@@ -61,12 +62,6 @@ const SpacedButton = styled(Button)({
   marginBottom: 10,
 });
 
-const Center = styled.View({
-  flex: 1,
-  alignItems: 'center',
-  justifyContent: 'center',
-});
-
 const LoginButtonLabel = styled(Label)({
   textAlign: 'center',
   fontStyle: 'italic',
@@ -86,7 +81,6 @@ const LoginButton = styled.View({
 export const Welcome = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const {colors} = useTheme();
   const dispatch = useDispatch() as AppDispatch;
 
   const {invitation, isLoading: isLoadingTeamInvitation} =
@@ -159,9 +153,7 @@ export const Welcome = () => {
       <GradientUnderlay />
 
       {isLoadingTeamInvitation ? (
-        <Center>
-          <ActivityIndicator color={colors.accent} />
-        </Center>
+        <BfitSpinner wrapperStyle={styles.loadingWrapper} />
       ) : (
         <>
           {invitation ? (
@@ -249,3 +241,11 @@ export const Welcome = () => {
     </Wrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingWrapper: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

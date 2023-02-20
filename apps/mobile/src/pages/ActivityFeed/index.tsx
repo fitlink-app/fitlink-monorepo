@@ -1,5 +1,5 @@
 import React, {useEffect, useRef} from 'react';
-import {ActivityIndicator, FlatList, RefreshControl, View} from 'react-native';
+import {FlatList, RefreshControl, View} from 'react-native';
 import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useSelector} from 'react-redux';
@@ -15,6 +15,7 @@ import {getResultsFromPages} from 'utils/api';
 import theme from '../../theme/themes/fitlink';
 import {Filter} from 'components/feed/FeedFilter/components';
 import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
+import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -157,9 +158,7 @@ export const ActivityFeed = () => {
         }
         ListFooterComponent={
           <ListFooterContainer>
-            {isFeedFetchingNextPage && (
-              <ActivityIndicator color={colors.accent} />
-            )}
+            {isFeedFetchingNextPage && <BfitSpinner />}
             <View style={{height: 20}} />
           </ListFooterContainer>
         }

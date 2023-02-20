@@ -1,3 +1,19 @@
+import React, {useCallback, useMemo, useRef, useState, useEffect} from 'react';
+import {useAnimatedStyle, useSharedValue} from 'react-native-reanimated';
+import LaunchNavigator from 'react-native-launch-navigator';
+import {NativeViewGestureHandler} from 'react-native-gesture-handler';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import styled, {useTheme} from 'styled-components/native';
+import {
+  Dimensions,
+  FlatList,
+  Linking,
+  Platform,
+  StyleSheet,
+  View,
+} from 'react-native';
+import {useSelector} from 'react-redux';
+
 import {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
@@ -7,9 +23,6 @@ import {
   BottomSheetView,
   useBottomSheetModal,
 } from '@gorhom/bottom-sheet';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {useAnimatedStyle, useSharedValue} from 'react-native-reanimated';
-import styled, {useTheme} from 'styled-components/native';
 import {Handle, ModalBackground, ActivityItem} from '../components';
 import {BottomSheetScrollViewMethods} from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetScrollable/types';
 import {
@@ -21,23 +34,13 @@ import {
   LightboxHandles,
   TouchHandler,
 } from '@components';
-import {
-  ActivityIndicator,
-  Dimensions,
-  FlatList,
-  Linking,
-  Platform,
-  View,
-} from 'react-native';
-import LaunchNavigator from 'react-native-launch-navigator';
-import {NativeViewGestureHandler} from 'react-native-gesture-handler';
 import {useActivity, useModal} from '@hooks';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useEffect} from 'react';
-import {Dialog, DialogButton} from 'components/modal';
 import {getDistanceFromLatLonInKm} from '@utils';
-import {useSelector} from "react-redux";
-import {selectCurrentLocation} from "../../../../../redux/discover/discoverSlice";
+
+import {selectCurrentLocation} from '../../../../../redux/discover/discoverSlice';
+import {BfitSpinner} from '../../../../../components/common/BfitSpinner';
+import {Dialog, DialogButton} from 'components/modal';
+
 
 const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
@@ -446,9 +449,7 @@ export const ActivityDetailsModal = React.forwardRef<
 
   const renderEmpty = () => {
     return (
-      <EmptyContainer>
-        <ActivityIndicator color={colors.accent} />
-      </EmptyContainer>
+      <BfitSpinner wrapperStyle={styles.emptyContainer} />
     );
   };
 
@@ -485,4 +486,12 @@ export const ActivityDetailsModal = React.forwardRef<
       <Lightbox ref={lightboxRef} />
     </>
   );
+});
+
+const styles = StyleSheet.create({
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
 });
