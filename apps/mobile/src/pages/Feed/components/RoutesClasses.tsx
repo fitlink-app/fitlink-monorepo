@@ -5,7 +5,7 @@ import {BlurView} from '@react-native-community/blur';
 import {useNavigation} from '@react-navigation/core';
 import {getDistanceFromLatLonInKm, widthLize} from '@utils';
 import {useFindActivitiesMap} from '@hooks';
-import MapboxGL from '@react-native-mapbox-gl/maps';
+import MapboxGL from '@rnmapbox/maps';
 import {ActivityDetailsModal} from '../../Discover/components';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {setCurrentLocation} from '../../../redux/discover/discoverSlice';

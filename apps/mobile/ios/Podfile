@@ -2,7 +2,13 @@ use_frameworks! :linkage => :static
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '12.4'
+$RNMapboxMapsImpl = 'mapbox'
+
+if $RNMapboxMapsImpl == 'mapbox'
+  platform :ios, '13.0'
+else
+  platform :ios, '12.4'
+end
 
 project 'Fitlink',
 'Development' => :debug,
@@ -28,6 +34,7 @@ target 'Fitlink' do
 #   pod 'appcenter-crashes', :path => '../node_modules/appcenter-crashes'
 
   pre_install do |installer|
+    $RNMapboxMaps.pre_install(installer)
     $RNMBGL.pre_install(installer)
   end
 
@@ -50,7 +57,10 @@ target 'Fitlink' do
 #     react_native_post_install(installer)
 #   end
   post_install do |installer|
+    $RNMapboxMaps.post_install(installer)
+
     react_native_post_install(installer)
+
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
         config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'

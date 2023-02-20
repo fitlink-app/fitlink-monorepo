@@ -10,6 +10,7 @@ buildscript {
         googlePlayServicesAuthVersion = "17.0.0"
         androidXAnnotation = "1.2.0"
         androidXBrowser = "1.3.0"
+        RNMapboxMapsImpl = "mapbox" // required for v10
     }
     repositories {
         google()
@@ -45,6 +46,20 @@ allprojects {
         maven {
           // react-native-background-fetch
           url("${project(':react-native-background-fetch').projectDir}/libs")
+        }
+
+        maven {
+          url 'https://api.mapbox.com/downloads/v2/releases/maven'
+          authentication {
+            basic(BasicAuthentication)
+          }
+          credentials {
+            // Do not change the username below.
+            // This should always be `mapbox` (not your username).
+            username = 'mapbox'
+            // Use the secret token you stored in gradle.properties as the password
+            password = project.properties['MAPBOX_DOWNLOADS_TOKEN'] ?: ""
+          }
         }
 
         google()
