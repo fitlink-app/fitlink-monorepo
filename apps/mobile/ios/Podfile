@@ -1,14 +1,12 @@
 use_frameworks! :linkage => :static
+$RNFirebaseAsStaticFramework = true
+
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-$RNMapboxMapsImpl = 'mapbox'
+$RNMapboxMapsImpl = 'mapbox' # requires ios 13
 
-if $RNMapboxMapsImpl == 'mapbox'
-  platform :ios, '13.0'
-else
-  platform :ios, '12.4'
-end
+platform :ios, '13.0'
 
 project 'Fitlink',
 'Development' => :debug,
@@ -25,17 +23,11 @@ target 'Fitlink' do
     :hermes_enabled => false
   )
 
-#   pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
-
-#   pod 'appcenter-core', :path => '../node_modules/appcenter'
-
-#   pod 'appcenter-analytics', :path => '../node_modules/appcenter-analytics'
-
-#   pod 'appcenter-crashes', :path => '../node_modules/appcenter-crashes'
+#  pod 'FirebaseAnalytics'
+#  pod 'FirebaseCrashlytics'
 
   pre_install do |installer|
     $RNMapboxMaps.pre_install(installer)
-    $RNMBGL.pre_install(installer)
   end
 
   target 'FitlinkTests' do
@@ -52,10 +44,6 @@ target 'Fitlink' do
 #     use_flipper!()
 #   end
 
-#   post_install do |installer|
-#     $RNMBGL.post_install(installer)
-#     react_native_post_install(installer)
-#   end
   post_install do |installer|
     $RNMapboxMaps.post_install(installer)
 

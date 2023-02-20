@@ -1,4 +1,6 @@
 apply plugin: "com.android.application"
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
@@ -187,16 +189,16 @@ android {
     }
     signingConfigs {
         debug {
-            storeFile file('fitlinkappdebug.keystore')
-            storePassword 'android'
-            keyAlias 'fitlinkappdebug'
-            keyPassword 'android'
+            storeFile file(DEBUG_STORE_FILE)
+            storePassword DEBUG_STORE_PASSWORD
+            keyAlias DEBUG_KEY_ALIAS
+            keyPassword DEBUG_KEY_PASSWORD
         }
         release {
-           storeFile file('release.keystore')
-            storePassword 'android'
-            keyAlias 'release'
-            keyPassword 'android'
+            storeFile file(RELEASE_STORE_FILE)
+            storePassword RELEASE_STORE_PASSWORD
+            keyAlias RELEASE_KEY_ALIAS
+            keyPassword RELEASE_KEY_PASSWORD
         }
     }
     buildTypes {
@@ -204,33 +206,42 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-          // Caution! In production, you need to generate your own keystore file.
-          // see https://reactnative.dev/docs/signed-apk-android.
+            /* Add the firebaseCrashlytics extension (by default,
+              * it's disabled to improve build speeds) and set
+              * nativeSymbolUploadEnabled to true along with a pointer to native libs. */
+
+            firebaseCrashlytics {
+              nativeSymbolUploadEnabled true
+              unstrippedNativeLibsDir 'build/intermediates/merged_native_libs/release/out/lib'
+            }
+
+            // Caution! In production, you need to generate your own keystore file.
+            // see https://reactnative.dev/docs/signed-apk-android.
             // minifyEnabled enableProguardInReleaseBuilds
             // proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             signingConfig signingConfigs.release
       }
     }
 
-  flavorDimensions "default"
-  productFlavors {
-    dev {
-      minSdkVersion rootProject.ext.minSdkVersion
-      dimension "default"
-      applicationIdSuffix ".dev"
-      resValue "string", "CodePushDeploymentKey", '""'
+    flavorDimensions "default"
+    productFlavors {
+        dev {
+            minSdkVersion rootProject.ext.minSdkVersion
+            dimension "default"
+            applicationIdSuffix ".dev"
+            resValue "string", "CodePushDeploymentKey", '""'
+        }
+        codepush {
+            minSdkVersion rootProject.ext.minSdkVersion
+            dimension "default"
+            resValue "string", "CodePushDeploymentKey", '"g61xENppeC9NpJQJ7HDm_CA8SczZPzzYBGTU4"'
+        }
+        prd {
+            minSdkVersion rootProject.ext.minSdkVersion
+            dimension "default"
+            resValue "string", "CodePushDeploymentKey", '"MYgbPTJTPLiJdtz_mDKS4GohmXJihhwzsBadA"'
+        }
     }
-    codepush {
-      minSdkVersion rootProject.ext.minSdkVersion
-      dimension "default"
-      resValue "string", "CodePushDeploymentKey", '"g61xENppeC9NpJQJ7HDm_CA8SczZPzzYBGTU4"'
-    }
-    prd {
-      minSdkVersion rootProject.ext.minSdkVersion
-      dimension "default"
-      resValue "string", "CodePushDeploymentKey", '"MYgbPTJTPLiJdtz_mDKS4GohmXJihhwzsBadA"'
-    }
-  }
 
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
@@ -255,6 +266,8 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
   implementation project(':react-native-config')
+
+  implementation platform('com.google.firebase:firebase-bom:31.2.1')
 
   implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
@@ -298,7 +311,5 @@ task copyDownloadableDepsToLibs(type: Copy) {
 task wrapper(type: Wrapper) {
    gradleVersion = '6.7.1'
 }
-
-apply plugin: 'com.google.gms.google-services'
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
