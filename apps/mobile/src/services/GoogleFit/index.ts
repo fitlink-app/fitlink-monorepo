@@ -1,4 +1,4 @@
-import {Alert, PermissionsAndroid} from 'react-native';
+import {PermissionsAndroid} from 'react-native';
 import GoogleFit, {BucketUnit, Scopes} from 'react-native-google-fit';
 import {mapping} from './constants';
 import {getTodayTimeframe} from '../utils';
@@ -11,7 +11,6 @@ import {
   syncDeviceActivities,
   syncDeviceLifestyleData,
 } from 'services/common';
-import {queryClient, QueryKeys} from '@query';
 import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
 
 const ACTIVITY_RECOGNITION_PERMISSION =
@@ -389,7 +388,7 @@ async function syncAllWithBackend() {
       }
     }
   } catch (e) {
-    console.warn('Unable to sync Google Fit data with backend: ' + e);
+    console.error('Unable to sync Google Fit data with backend: ' + e);
   }
 }
 

@@ -223,25 +223,25 @@ android {
       }
     }
 
-  flavorDimensions "default"
-  productFlavors {
-    dev {
-      minSdkVersion rootProject.ext.minSdkVersion
-      dimension "default"
-      applicationIdSuffix ".dev"
-      resValue "string", "CodePushDeploymentKey", '""'
+    flavorDimensions "default"
+    productFlavors {
+        dev {
+            minSdkVersion rootProject.ext.minSdkVersion
+            dimension "default"
+            applicationIdSuffix ".dev"
+            resValue "string", "CodePushDeploymentKey", '""'
+        }
+        codepush {
+            minSdkVersion rootProject.ext.minSdkVersion
+            dimension "default"
+            resValue "string", "CodePushDeploymentKey", '"g61xENppeC9NpJQJ7HDm_CA8SczZPzzYBGTU4"'
+        }
+        prd {
+            minSdkVersion rootProject.ext.minSdkVersion
+            dimension "default"
+            resValue "string", "CodePushDeploymentKey", '"MYgbPTJTPLiJdtz_mDKS4GohmXJihhwzsBadA"'
+        }
     }
-    codepush {
-      minSdkVersion rootProject.ext.minSdkVersion
-      dimension "default"
-      resValue "string", "CodePushDeploymentKey", '"g61xENppeC9NpJQJ7HDm_CA8SczZPzzYBGTU4"'
-    }
-    prd {
-      minSdkVersion rootProject.ext.minSdkVersion
-      dimension "default"
-      resValue "string", "CodePushDeploymentKey", '"MYgbPTJTPLiJdtz_mDKS4GohmXJihhwzsBadA"'
-    }
-  }
 
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->

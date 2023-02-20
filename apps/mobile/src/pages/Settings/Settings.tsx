@@ -415,11 +415,15 @@ export const Settings = () => {
           {Platform.OS === 'android' && (
             <SettingsHealthActivityButton
               label={'Google Fit'}
-              onLink={() => {
-                linkGoogleFit(() => {
-                  GoogleFitWrapper.disconnect();
-                  return GoogleFitWrapper.authenticate();
-                });
+              onLink={async () => {
+                try {
+                  await linkGoogleFit(() => {
+                    GoogleFitWrapper.disconnect();
+                    return GoogleFitWrapper.authenticate();
+                  });
+                } catch (e) {
+                  console.error('onLinkPress', e);
+                }
               }}
               onUnlink={() => {
                 GoogleFitWrapper.disconnect();
