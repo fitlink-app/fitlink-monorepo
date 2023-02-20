@@ -641,15 +641,16 @@ export class AuthService {
     provider,
     token,
     signup,
-    desktop
+    desktop,
+    client_name
   }: AuthConnectDto) {
     let result: Partial<AuthProvider>
     switch (provider) {
       case AuthProviderType.Google:
-        result = await this.verifyProviderGoogle(token)
+        result = await this.verifyProviderGoogle(token, client_name)
         break
       case AuthProviderType.Apple:
-        result = await this.verifyProviderApple(token, desktop)
+        result = await this.verifyProviderApple(token, desktop, client_name)
         break
       default:
         return { error: AuthServiceError.Provider }
@@ -701,8 +702,21 @@ export class AuthService {
     }
   }
 
-  async verifyProviderGoogle(idToken: string): Promise<Partial<AuthProvider>> {
-    const clientId = this.configService.get('GOOGLE_CLIENT_ID')
+  async verifyProviderGoogle(
+    idToken: string,
+    client_name: 'Fitlink' | 'BFIT'
+  ): Promise<Partial<AuthProvider>> {
+    let fitlinkBundleId = this.configService.get('FITLINK_ANDROID_BUNDLE_ID')
+    let bfitBundleId = this.configService.get('BFIT_ANDROID_BUNDLE_ID')
+    let clientId: string
+
+    if (fitlinkBundleId && client_name && client_name === 'Fitlink') {
+      clientId = fitlinkBundleId
+    } else if (bfitBundleId && client_name && client_name === 'BFIT') {
+      clientId = bfitBundleId
+    } else {
+      clientId = this.configService.get('GOOGLE_CLIENT_ID')
+    }
 
     if (!clientId) {
       throw new InternalServerErrorException('Google not configured')
@@ -728,9 +742,21 @@ export class AuthService {
 
   async verifyProviderApple(
     token: string,
-    desktop = false
+    desktop = false,
+    client_name: 'Fitlink' | 'BFIT'
   ): Promise<Partial<AuthProvider>> {
-    let clientId = this.configService.get('IOS_BUNDLE_ID')
+    let fitlinkBundleId = this.configService.get('FITLINK_IOS_BUNDLE_ID')
+    let bfitBundleId = this.configService.get('BFIT_IOS_BUNDLE_ID')
+    let clientId: string
+
+    if (fitlinkBundleId && client_name && client_name === 'Fitlink') {
+      clientId = fitlinkBundleId
+    } else if (bfitBundleId && client_name && client_name === 'BFIT') {
+      clientId = bfitBundleId
+    } else {
+      clientId = this.configService.get('IOS_BUNDLE_ID')
+    }
+
     if (desktop) {
       clientId = this.configService.get('APPLE_CLIENT_ID')
     }

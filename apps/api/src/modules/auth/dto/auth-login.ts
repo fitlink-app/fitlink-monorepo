@@ -45,4 +45,8 @@ export class AuthConnectDto {
   @ApiProperty()
   @IsOptional()
   desktop?: boolean
+
+  @ApiProperty()
+  @IsOptional()
+  client_name?: 'Fitlink' | 'BFIT'
 }
