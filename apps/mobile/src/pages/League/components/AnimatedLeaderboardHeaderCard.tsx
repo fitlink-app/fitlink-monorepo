@@ -1,5 +1,5 @@
 import React, {FC} from 'react';
-import {ImageSourcePropType, StyleSheet, View} from 'react-native';
+import {Dimensions, ImageSourcePropType, StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/core';
 import Animated from 'react-native-reanimated';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   subheaderLabel: {
-    fontSize: 19,
+    fontSize: (Dimensions.get('window').width - 36) / 14,
   },
 });
 
