@@ -15,8 +15,6 @@ import {getResultsFromPages} from 'utils/api';
 import theme from '../../theme/themes/fitlink';
 import {Filter} from 'components/feed/FeedFilter/components';
 import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
-
 const Wrapper = styled.View({flex: 1});
 
 const ListFooterContainer = styled.View({

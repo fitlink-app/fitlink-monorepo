@@ -18,8 +18,6 @@ import {
 import {Leaderboard, TryTomorrowBanner} from './components';
 import {useClaimLeagueBfit} from 'hooks/api/leagues/useClaimLeagueBfit';
 import {getResultsFromPages} from '../../utils/api';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
-
 const HEADER_HEIGHT = 300;
 
 const Wrapper = styled.View({flex: 1});
