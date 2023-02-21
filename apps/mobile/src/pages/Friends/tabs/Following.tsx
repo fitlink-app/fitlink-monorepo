@@ -3,12 +3,11 @@ import {FlatList, RefreshControl} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {useScrollToTop} from '@react-navigation/native';
 
-import {Label, ProfileRow} from '@components';
+import {Label, ProfileRow, BfitSpinner} from '@components';
 import {useFollowing} from '@hooks';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 
 import {getResultsFromPages} from 'utils/api';
-import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({
   flex: 1,

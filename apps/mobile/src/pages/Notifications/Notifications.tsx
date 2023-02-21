@@ -4,14 +4,13 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {useNavigation} from '@react-navigation/core';
 
-import {Icon, Label, Navbar, NAVBAR_HEIGHT} from '@components';
+import {Icon, Label, Navbar, NAVBAR_HEIGHT, BfitSpinner} from '@components';
 import {useMe, useNotifications} from '@hooks';
 import {queryClient, QueryKeys} from '@query';
 import {Notification as NotificationClass} from '@fitlink/api/src/modules/notifications/entities/notification.entity';
 
 import {getResultsFromPages} from 'utils/api';
 import {Notification} from './components';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({flex: 1});
 

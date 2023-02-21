@@ -4,10 +4,9 @@ import {StackScreenProps} from '@react-navigation/stack';
 import {WebView} from 'react-native-webview';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-import {Navbar} from '@components';
+import {Navbar, BfitSpinner} from '@components';
 
 import {RootStackParamList} from 'routes/types';
-import {BfitSpinner} from '../components/common/BfitSpinner';
 import theme from '../theme/themes/fitlink';
 
 const disableClasses =

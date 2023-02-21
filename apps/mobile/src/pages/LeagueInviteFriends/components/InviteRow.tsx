@@ -1,9 +1,7 @@
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 
-import {Avatar, Label, Icon} from '@components';
-
-import {BfitSpinner} from '../../../components/common/BfitSpinner';
+import {Avatar, Label, Icon, BfitSpinner} from '@components';
 
 /** Styled Components */
 const Wrapper = styled.View({

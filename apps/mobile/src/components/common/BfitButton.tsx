@@ -9,8 +9,9 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import {BfitSpinner} from '@components';
+
 import theme from '../../theme/themes/fitlink';
-import {BfitSpinner} from './BfitSpinner';
 
 type BFitButtonVariant =
   | 'primary'

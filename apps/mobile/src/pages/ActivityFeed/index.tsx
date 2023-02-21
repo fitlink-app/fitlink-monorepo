@@ -7,7 +7,7 @@ import styled, {useTheme} from 'styled-components/native';
 
 import {queryClient, QueryKeys} from '@query';
 import {useMe, useFeed, useModal, useManualQueryRefresh} from '@hooks';
-import {FeedItem, TouchHandler, Modal} from '@components';
+import {FeedItem, TouchHandler, Modal, BfitSpinner} from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
 
@@ -15,7 +15,6 @@ import {getResultsFromPages} from 'utils/api';
 import theme from '../../theme/themes/fitlink';
 import {Filter} from 'components/feed/FeedFilter/components';
 import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({flex: 1});
 

@@ -1,11 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react';
-import styled, {useTheme} from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 import {Image} from 'react-native';
-import {BasicInfo, Goals} from './subscreens';
-import {Button, Dots, Logo} from '@components';
-import {useJoinTeamByCode, useMe} from '@hooks';
+import styled from 'styled-components/native';
 import {useDispatch, useSelector} from 'react-redux';
+
+
+import {Button, Dots, Logo, BfitSpinner} from '@components';
+import {useJoinTeamByCode, useMe} from '@hooks';
 import {
   clearChanges,
   selectIsSavingSettings,
@@ -18,11 +19,11 @@ import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
 import {Trackers, Privacy} from './subscreens';
 import {Navigation} from './components';
 import {logout} from 'redux/auth';
+import {BasicInfo, Goals} from './subscreens';
 import {
   resetTeamInvitation,
   selectTeamInvitation,
 } from 'redux/teamInvitation/teamInvitationSlice';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const BACKGROUND_IMAGE = require('../../../../assets/images/BackgroundOnboarding.png');
 

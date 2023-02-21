@@ -22,11 +22,11 @@ import {
 import {useFindActivities} from '@hooks';
 import {Activity} from '@fitlink/api/src/modules/activities/entities/activity.entity';
 import {getDistanceFromLatLonInKm, heightLize} from '@utils';
+import {BfitSpinner} from '@components';
 
 import {getResultsFromPages} from 'utils/api';
 import {ActivityItem} from '../components';
 import {Search, Filters, ResultsLabel} from './components';
-import {BfitSpinner} from '../../../../../components/common/BfitSpinner';
 
 const HANDLE_HEIGHT = 90;
 

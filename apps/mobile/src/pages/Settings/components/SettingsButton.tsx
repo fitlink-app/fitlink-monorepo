@@ -6,10 +6,10 @@ import styled, {
 } from 'styled-components/native';
 import {StyleSheet, View} from 'react-native';
 
-import {Icon, TouchHandler, TouchHandlerProps} from '@components';
+import {Icon, TouchHandler, TouchHandlerProps, BfitSpinner} from '@components';
+
 import {SettingsItemWrapper} from './SettingsItemWrapper';
 import {SettingsItemLabel} from './SettingsItemLabel';
-import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 const StyledTouchHandler = styled(TouchHandler).attrs(() => ({
   animationType: 'opacity',

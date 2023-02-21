@@ -4,7 +4,7 @@ import styled, {useTheme} from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useScrollToTop} from '@react-navigation/native';
 
-import {Label, PlotCard} from '@components';
+import {Label, PlotCard, BfitSpinner} from '@components';
 import {useMe, useRewards} from '@hooks';
 import {SCREEN_CONTAINER_SPACE} from '@constants';
 import {convertBfitToUsd, getViewBfitValue, widthLize} from '@utils';
@@ -12,7 +12,6 @@ import {convertBfitToUsd, getViewBfitValue, widthLize} from '@utils';
 import {RewardSlider} from './components';
 import {getResultsFromPages} from 'utils/api';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({flex: 1});
 

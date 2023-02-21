@@ -3,9 +3,10 @@ import {StyleProp, StyleSheet, ViewStyle} from 'react-native';
 import {Svg, Path} from 'react-native-svg';
 import IcoMoon, {IconProps} from 'react-icomoon';
 
+import {BfitSpinner} from '@components';
+
 import icoMoonConfig from '../../../assets/fitlink_icon_selection.json';
 import {TouchHandler, TouchHandlerProps} from './TouchHandler';
-import {BfitSpinner} from './BfitSpinner';
 
 interface Props
   extends Omit<IconProps, 'onPress' | 'style' | 'icon'>,

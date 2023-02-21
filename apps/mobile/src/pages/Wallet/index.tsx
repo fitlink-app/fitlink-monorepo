@@ -9,7 +9,7 @@ import {
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import styled, {useTheme} from 'styled-components/native';
 
-import {Icon, Label, Navbar} from '@components';
+import {Icon, Label, Navbar, BfitSpinner} from '@components';
 import {
   useManualQueryRefresh,
   useMe,
@@ -17,6 +17,7 @@ import {
   useModal,
 } from '@hooks';
 import {convertBfitToUsd, getViewBfitValue} from '@utils';
+import {WalletTransaction} from '@fitlink/api/src/modules/wallet-transactions/entities/wallet-transaction.entity';
 
 import theme from '../../theme/themes/fitlink';
 import {useWalletTransactions} from './hooks/';
@@ -27,8 +28,6 @@ import {
   WalletNotConnectedContent,
 } from './components';
 import {getResultsFromPages} from '../../utils/api';
-import {WalletTransaction} from '@fitlink/api/src/modules/wallet-transactions/entities/wallet-transaction.entity';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const NavbarTitle = () => (
   <View style={{flexDirection: 'row'}}>

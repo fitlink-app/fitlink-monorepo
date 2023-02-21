@@ -9,13 +9,12 @@ import {
 } from 'react-native';
 import styled from 'styled-components/native';
 
-import {Label, TouchHandler} from '@components';
+import {Label, TouchHandler, BfitSpinner} from '@components';
 import {RewardPublic} from '@fitlink/api/src/modules/rewards/entities/reward.entity';
 import {RewardCard} from '.';
 import {useNavigation} from '@react-navigation/native';
 import {getViewBfitValue, heightLize, widthLize} from '@utils';
 import {FEED_CAROUSEL_CARD_WIDTH} from '../../Feed/constants';
-import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',

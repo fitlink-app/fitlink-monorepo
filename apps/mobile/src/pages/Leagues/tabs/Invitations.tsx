@@ -7,14 +7,13 @@ import {FlatList, RefreshControl, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import styled, {useTheme} from 'styled-components/native';
 
-import {Label, LeagueCard} from '@components';
+import {Label, LeagueCard, BfitSpinner} from '@components';
 import {useLeagueInvitations} from '@hooks';
 
 import {getResultsFromPages} from 'utils/api';
 import {LeaguesInvitation} from '../../../../../api/src/modules/leagues-invitations/entities/leagues-invitation.entity';
 import {LeagueAccess} from '../../../../../api/src/modules/leagues/leagues.constants';
 import {IRefreshableTabHandle} from './types';
-import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({
   flex: 1,

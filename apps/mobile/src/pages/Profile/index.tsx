@@ -20,6 +20,7 @@ import {
   Navbar,
   NAVBAR_HEIGHT,
   ProfileHeader,
+  BfitSpinner,
 } from '@components';
 import {
   useFollowUser,
@@ -36,7 +37,6 @@ import {PrivacySetting} from '@fitlink/api/src/modules/users-settings/users-sett
 
 import {getResultsFromPages} from 'utils/api';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({
   flex: 1,

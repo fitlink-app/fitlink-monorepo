@@ -2,8 +2,10 @@ import React from 'react';
 import {View, Dimensions, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTheme} from 'styled-components/native';
+
+import {BfitSpinner} from '@components';
+
 import {Label, Logo} from './common';
-import {BfitSpinner} from './common/BfitSpinner';
 
 const {width: screenWidth} = Dimensions.get('screen');
 
@@ -44,7 +46,7 @@ export const UpdateInfo = ({message, progress}: UpdateInfoProps) => {
       <ProgressBar {...{progress}} />
       <Logo size={'large'} />
       <View style={{position: 'absolute', bottom: 100}}>
-        <BfitSpinner wrapperStyle={styles.loadingWrapper} />
+        <BfitSpinner style={styles.loadingWrapper} />
         <Label>{message}</Label>
       </View>
     </View>

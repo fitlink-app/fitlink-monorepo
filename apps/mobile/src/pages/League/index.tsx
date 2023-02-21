@@ -6,7 +6,7 @@ import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {getPositiveValueOrZero, getViewBfitValue} from '@utils';
-import {Navbar} from '@components';
+import {Navbar, BfitSpinner} from '@components';
 import {
   useLeague,
   useLeagueMembers,
@@ -18,7 +18,6 @@ import {
 import {Leaderboard, TryTomorrowBanner} from './components';
 import {useClaimLeagueBfit} from 'hooks/api/leagues/useClaimLeagueBfit';
 import {getResultsFromPages} from '../../utils/api';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const HEADER_HEIGHT = 300;
 

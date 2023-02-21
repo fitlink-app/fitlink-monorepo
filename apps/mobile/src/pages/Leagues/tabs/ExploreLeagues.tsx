@@ -6,14 +6,13 @@ import React, {
 } from 'react';
 import styled, {useTheme} from 'styled-components/native';
 
-import {Icon, Label, SearchBox, TouchHandler} from '@components';
+import {Icon, Label, SearchBox, TouchHandler, BfitSpinner} from '@components';
 import {useLeagues, useSearchLeagues} from '@hooks';
 import {widthLize} from '@utils';
 
 import {LeagueList} from './components';
 import {getResultsFromPages} from 'utils/api';
 import {IRefreshableTabHandle} from './types';
-import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({
   flex: 1,

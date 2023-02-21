@@ -5,7 +5,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Platform, StyleSheet} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {Button, Logo, TeamInvitation, Label} from '@components';
+import {Button, Logo, TeamInvitation, Label, BfitSpinner} from '@components';
 import appleAuth from '@invertase/react-native-apple-authentication';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
@@ -15,7 +15,6 @@ import {Background, GradientUnderlay, WelcomeHeader} from './components';
 import {selectTeamInvitation} from 'redux/teamInvitation/teamInvitationSlice';
 import theme from '../../../theme/themes/fitlink';
 import useMeasureInitialLayout from '../../../hooks/useMeasureInitialLayout';
-import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 const mail_icon = require('../../../../assets/images/icon/mail.png');
 const google_icon = require('../../../../assets/images/icon/google.png');

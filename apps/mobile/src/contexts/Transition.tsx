@@ -1,8 +1,8 @@
-import {Label} from '@components';
 import React, {useState, createContext} from 'react';
 import {StyleSheet} from 'react-native';
 import styled from 'styled-components/native';
-import {BfitSpinner} from '../components/common/BfitSpinner';
+
+import {Label, BfitSpinner} from '@components';
 
 const Wrapper = styled.View({
   ...StyleSheet.absoluteFillObject,

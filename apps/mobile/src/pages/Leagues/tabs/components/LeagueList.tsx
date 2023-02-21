@@ -10,8 +10,7 @@ import {
 import styled, {useTheme} from 'styled-components/native';
 
 import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
-import {LeagueCard} from '@components';
-import {BfitSpinner} from '../../../../components/common/BfitSpinner';
+import {LeagueCard, BfitSpinner} from '@components';
 
 const EmptyContainer = styled.View({
   flex: 1,

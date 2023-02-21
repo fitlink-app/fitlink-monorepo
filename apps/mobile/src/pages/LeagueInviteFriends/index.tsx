@@ -5,14 +5,13 @@ import {StackScreenProps} from '@react-navigation/stack';
 import {FlatList, Platform, RefreshControl, StyleSheet} from 'react-native';
 
 import {getErrors} from '@api';
-import {Label, Navbar, NAVBAR_HEIGHT} from '@components';
+import {Label, Navbar, NAVBAR_HEIGHT, BfitSpinner} from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useInviteToLeague, useLeagueInvitables, useMe} from '@hooks';
 
 import {InviteRow} from './components';
 import {getResultsFromPages} from 'utils/api';
 import {RootStackParamList} from 'routes/types';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({flex: 1});
 

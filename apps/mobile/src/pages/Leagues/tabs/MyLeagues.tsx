@@ -4,13 +4,14 @@ import React, {
   useImperativeHandle,
 } from 'react';
 import styled from 'styled-components/native';
-import {Label} from '@components';
+
+import {Label, BfitSpinner} from '@components';
 import {useMyLeagues} from '@hooks';
+import {widthLize} from '@utils';
+
 import {getResultsFromPages} from 'utils/api';
 import {LeagueList} from './components';
-import {widthLize} from '@utils';
 import {IRefreshableTabHandle} from './types';
-import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({
   flex: 1,

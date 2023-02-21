@@ -10,6 +10,7 @@ import {
   TouchHandler,
   ErrorContent,
   Navbar,
+  BfitSpinner,
 } from '@components';
 
 import {RootStackParamList} from 'routes/types';
@@ -18,7 +19,6 @@ import {ActivityMap} from './components/ActivityMap';
 import {useActivityCamera} from './hooks/useActivityCamera';
 import {useActivityInfoData} from './hooks/useActivityInfoData';
 import theme from '../../theme/themes/fitlink';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const SDetails = styled.View({
   position: 'absolute',

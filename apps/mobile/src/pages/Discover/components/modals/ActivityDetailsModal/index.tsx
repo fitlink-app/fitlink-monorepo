@@ -33,12 +33,12 @@ import {
   Lightbox,
   LightboxHandles,
   TouchHandler,
+  BfitSpinner,
 } from '@components';
 import {useActivity, useModal} from '@hooks';
 import {getDistanceFromLatLonInKm} from '@utils';
 
 import {selectCurrentLocation} from '../../../../../redux/discover/discoverSlice';
-import {BfitSpinner} from '../../../../../components/common/BfitSpinner';
 import {Dialog, DialogButton} from 'components/modal';
 
 

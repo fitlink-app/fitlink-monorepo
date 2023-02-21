@@ -26,6 +26,7 @@ import {
   NAVBAR_HEIGHT,
   Swipeable,
   SwipeableButton,
+  BfitSpinner,
 } from '@components';
 import {Activity} from '@fitlink/api/src/modules/activities/entities/activity.entity';
 
@@ -33,7 +34,6 @@ import {RootStackParamList} from 'routes/types';
 import {useDeleteActivity, useModal, useFindActivities} from '@hooks';
 import {getResultsFromPages} from 'utils/api';
 import {ActivityItem} from './components';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const LOADING_NEXT_PAGE_BOTTOM_INDICATOR_HEIGHT = 60;
 

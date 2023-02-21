@@ -1,8 +1,8 @@
-import {ButtonProps, Icon, Label, TouchHandler} from '@components';
 import React from 'react';
 import {StyleProp, StyleSheet, ViewStyle} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
-import {BfitSpinner} from '../../../../../components/common/BfitSpinner';
+
+import {ButtonProps, Icon, Label, TouchHandler, BfitSpinner} from '@components';
 
 const ButtonWrapper = styled.View({padding: 5, minWidth: 180});
 

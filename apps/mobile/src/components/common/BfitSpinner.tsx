@@ -20,7 +20,7 @@ export const BfitSpinner: FC<BfitSpinnerProps> = ({
 }) => {
   return (
     <View style={wrapperStyle}>
-      <ActivityIndicator color={color} {...props} />
+      <ActivityIndicator {...props} color={color} />
     </View>
   );
 };
