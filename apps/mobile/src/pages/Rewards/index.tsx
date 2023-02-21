@@ -1,15 +1,17 @@
 import React, {useRef} from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Label, PlotCard} from '@components';
-import {useMe, useRewards} from '@hooks';
-import {RewardSlider} from './components';
-import {getResultsFromPages} from 'utils/api';
 import {ActivityIndicator, RefreshControl, ScrollView} from 'react-native';
 import {useScrollToTop} from '@react-navigation/native';
-import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
+
+import {Label, PlotCard} from '@components';
+import {useMe, useRewards} from '@hooks';
 import {SCREEN_CONTAINER_SPACE} from '@constants';
-import {convertBfitToUsd, getViewBfitValue, widthLize} from '@utils';
+import {getViewBfitValue, widthLize} from '@utils';
+
+import {RewardSlider} from './components';
+import {getResultsFromPages} from 'utils/api';
+import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -76,7 +78,6 @@ export const Rewards = () => {
   const isRefreshing =
     isUserRefreshing || isUnlockedRefreshing || isLockedRefreshing;
 
-  const bfitViewValue = getViewBfitValue(user?.bfit_balance);
   const totalRewardsCount =
     unlockedRewardsEntries.length + lockedRewardsEntries.length;
 
@@ -128,8 +129,6 @@ export const Rewards = () => {
         }>
         <PageTitle>REWARDS</PageTitle>
         <PlotCard.BFIT
-          totalAmount={bfitViewValue}
-          totalAmountAlt={convertBfitToUsd(bfitViewValue)}
           isLoading={isLoadingUser}
           wrapperStyle={{
             marginHorizontal: widthLize(20),

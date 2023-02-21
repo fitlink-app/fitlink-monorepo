@@ -1,8 +1,9 @@
 import React, {FC} from 'react';
 import styled from 'styled-components/native';
 
-import {Icon, Label, WeeklyEarningsGraph} from '@components';
+import {convertBfitToUsd} from '@utils';
 import {useWeeklyEarnings} from '@hooks';
+import {Icon, Label} from '@components';
 
 import theme from 'theme/themes/fitlink';
 import WalletActions from './WalletActions';
@@ -39,8 +40,6 @@ const SBfitAmount = styled.Text({
 });
 
 interface WalletHeaderProps {
-  bfitAmount: number;
-  usdAmount: number;
   onInfoPress: () => unknown;
   onBuy: () => void;
   onSell: () => void;
@@ -48,29 +47,20 @@ interface WalletHeaderProps {
 }
 
 export const WalletHeader = ({
-  bfitAmount,
-  usdAmount,
   onInfoPress,
   onBuy,
   onSell,
   onStake,
 }: WalletHeaderProps) => {
-  const {weeklyEarnings} = useWeeklyEarnings();
+  const {currentWeekEarningsSum} = useWeeklyEarnings();
 
   return (
     <>
       <SCentered>
         <Balance
-          bfitAmount={bfitAmount}
+          bfitAmount={currentWeekEarningsSum}
           onInfoPress={onInfoPress}
-          usdAmount={usdAmount}
-        />
-        <WeeklyEarningsGraph
-          height={70}
-          barWidth={8}
-          gapWidth={34}
-          weeklyEarnings={weeklyEarnings}
-          containerStyle={{marginVertical: 20}}
+          usdAmount={convertBfitToUsd(currentWeekEarningsSum)}
         />
       </SCentered>
       <WalletActions onBuy={onBuy} onSell={onSell} onStake={onStake} />

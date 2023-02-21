@@ -11,13 +11,8 @@ import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import styled, {useTheme} from 'styled-components/native';
 
 import {Icon, Label, Navbar} from '@components';
-import {
-  useManualQueryRefresh,
-  useMe,
-  useMeasureInitialLayout,
-  useModal,
-} from '@hooks';
-import {convertBfitToUsd, getViewBfitValue} from '@utils';
+import {useManualQueryRefresh, useMeasureInitialLayout, useModal} from '@hooks';
+import {WalletTransaction} from '@fitlink/api/src/modules/wallet-transactions/entities/wallet-transaction.entity';
 
 import theme from '../../theme/themes/fitlink';
 import {useWalletTransactions} from './hooks/';
@@ -28,7 +23,6 @@ import {
   WalletNotConnectedContent,
 } from './components';
 import {getResultsFromPages} from '../../utils/api';
-import {WalletTransaction} from '@fitlink/api/src/modules/wallet-transactions/entities/wallet-transaction.entity';
 
 const NavbarTitle = () => (
   <View style={{flexDirection: 'row'}}>
@@ -50,7 +44,6 @@ export const Wallet = () => {
   const {openModal} = useModal();
   const {measureInitialLayout, initialLayout: initialNavbarLayout} =
     useMeasureInitialLayout();
-  const {data: me} = useMe();
   const {
     refetch,
     data: transactionsPages,
@@ -62,9 +55,6 @@ export const Wallet = () => {
     useManualQueryRefresh(refetch);
 
   const transactions = getResultsFromPages(transactionsPages);
-
-  const bfitAmount = getViewBfitValue(me?.bfit_balance);
-  const usdAmount = convertBfitToUsd(bfitAmount);
 
   const openInfoModel = () => {
     openModal(() => <WalletModal.Info />);
@@ -119,8 +109,6 @@ export const Wallet = () => {
             renderItem={renderItem}
             ListHeaderComponent={
               <WalletHeader
-                bfitAmount={bfitAmount}
-                usdAmount={usdAmount}
                 onInfoPress={openInfoModel}
                 onBuy={openComingSoonModal}
                 onSell={openComingSoonModal}

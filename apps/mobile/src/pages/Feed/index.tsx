@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import {RefreshControl, ScrollView} from 'react-native';
@@ -18,12 +18,7 @@ import {
   useUpdateIntercomUser,
   useRewards,
 } from '@hooks';
-import {
-  convertBfitToUsd,
-  getPersistedData,
-  getViewBfitValue,
-  persistData,
-} from '@utils';
+import {getPersistedData, getViewBfitValue, persistData} from '@utils';
 import {FCMTokenService} from '@api';
 import {SCREEN_CONTAINER_SPACE} from '@constants';
 
@@ -147,8 +142,6 @@ export const Feed = () => {
     FCMTokenService.saveCurrentToken();
   }, []);
 
-  const totalBfitAmount = useMemo(() => bfitViewValue, [bfitViewValue]);
-
   const navigateToWallet = useCallback(
     () => navigation.navigate('Wallet'),
     [navigation],
@@ -181,11 +174,7 @@ export const Feed = () => {
             <ProfileHeader user={user} />
           </HeaderContainer>
           <StatContainer>
-            <PlotCard.BFIT
-              totalAmount={totalBfitAmount}
-              totalAmountAlt={convertBfitToUsd(totalBfitAmount)}
-              onPress={navigateToWallet}
-            />
+            <PlotCard.BFIT onPress={navigateToWallet} />
           </StatContainer>
           <CompeteLeagues
             containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
