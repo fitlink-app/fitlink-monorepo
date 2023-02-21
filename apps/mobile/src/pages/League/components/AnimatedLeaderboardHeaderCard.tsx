@@ -38,6 +38,8 @@ interface IAnimatedLeaderboardHeaderCardProps {
   sharedContentOffset: Animated.SharedValue<number>;
 }
 
+const LEADERBOARD_LABEL_TEXT = 'LEADERBOARD';
+
 export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardProps> =
   ({
     leagueId,
@@ -144,7 +146,9 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
           onHeightLayout={onHeightLayout}
           sharedContentOffset={sharedContentOffset}>
           <View style={styles.subheader}>
-            <Label style={styles.subheaderLabel}>LEADERBOARD</Label>
+            <Label style={styles.subheaderLabel}>
+              {LEADERBOARD_LABEL_TEXT}
+            </Label>
             <ActionButton
               isMember={isMember}
               isCteLeague={isCteLeague}
@@ -171,12 +175,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   subheaderLabel: {
-    fontSize: calculateFontSize(18, 11),
+    fontSize: calculateFontSize(18),
   },
 });
 
-export function calculateFontSize(paddingSize: number, textSize: number) {
-  return (Dimensions.get('window').width - paddingSize * 2) / textSize + 3;
+export function calculateFontSize(paddingSize: number) {
+  return (
+    (Dimensions.get('window').width - paddingSize * 2) / LEADERBOARD_LABEL_TEXT.length + 3
+  );
 }
 
 export default AnimatedLeaderboardHeaderCard;
