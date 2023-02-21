@@ -1,45 +1,59 @@
-import api from '@api';
+import {Platform} from 'react-native';
+import ReactNativePermissions, {PERMISSIONS} from 'react-native-permissions';
 import messaging from '@react-native-firebase/messaging';
 
-/**
- * Request permission to receive push notifications on iOS
- * (On Android, this is not required and always resolves true)
- */
-async function requestUserPermission() {
-  const authStatus = await messaging().requestPermission();
+import api from '@api';
 
-  return (
-    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-    authStatus === messaging.AuthorizationStatus.PROVISIONAL
-  );
+function shouldAskForAndroidPermission() {
+  return Platform.OS === 'android' && Platform.Version >= 33;
 }
 
-/**
- * Sends the device's current FCM token to the backend to be associated with the user
- */
-export const saveCurrentToken = async () => {
+async function requestUserPermission() {
+  if (Platform.OS === 'ios') {
+    const authStatus = await messaging().requestPermission();
+
+    return (
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL
+    );
+  } else if (shouldAskForAndroidPermission()) {
+    const result = await ReactNativePermissions.request(
+      PERMISSIONS.ANDROID.POST_NOTIFICATIONS,
+    );
+    return result === 'granted';
+  }
+  return true;
+}
+
+const saveCurrentToken = async () => {
   try {
     const hasPermission = await requestUserPermission();
 
-    if (!hasPermission) return;
+    if (!hasPermission) {
+      console.warn('saveCurrentToken: Permission denied');
+      return;
+    }
 
     const token = await messaging().getToken();
+    console.log('FCM token', token);
 
-    await api.post(`/me/fcm-token`, {payload: {token}} as any);
-  } catch (e: any) {
-    console.log('Failed to save FCM token: ' + e.message);
+    await api.post('/me/fcm-token', {payload: {token}} as any);
+  } catch (e) {
+    console.error('saveCurrentToken', e);
   }
 };
 
-/**
- * Sends the device's current FCM token to the backend to be deleted
- */
-export const deleteCurrentToken = async () => {
+const deleteCurrentToken = async () => {
   try {
     const token = await messaging().getToken();
 
-    await api.post(`/me/remove-fcm-token`, {payload: {token}} as any);
-  } catch (e: any) {
-    console.log('Failed to delete FCM token: ' + e.message);
+    await api.post('/me/remove-fcm-token', {payload: {token}} as any);
+  } catch (e) {
+    console.error('deleteCurrentToken', e);
   }
+};
+
+export const FCMTokenService = {
+  saveCurrentToken,
+  deleteCurrentToken,
 };

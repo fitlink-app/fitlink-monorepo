@@ -114,6 +114,7 @@ export type RegenerateJoinCode = '/teams/:teamId/regenerate-join-code'
 export type CreatePage = '/teams/:teamId/page'
 export type SendMessage = '/teams/:teamId/users/:userId/notifications'
 export type CreateFcmToken = '/me/fcm-token'
+export type RemoveFcmToken = '/me/remove-fcm-token'
 
 export type CreatableResource =
   | AuthLogin
@@ -138,6 +139,7 @@ export type CreatableResource =
   | CreatePage
   | SendMessage
   | CreateFcmToken
+  | RemoveFcmToken
 
 export type ListResource =
   | '/organisations'

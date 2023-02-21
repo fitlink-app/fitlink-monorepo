@@ -7,7 +7,6 @@ import {PrivacyPolicyLabel, TermsOfServiceLabel} from './components';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from 'redux/store';
 import {signUp} from 'redux/auth';
-import {RequestError} from '@api';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -51,10 +50,14 @@ export const SignUpForm = () => {
   const onSubmit = async () => {
     const credentials = {email: values.email, password: values.password};
 
-    const result = await dispatch(signUp(credentials));
-    return result.type === signUp.rejected.toString()
-      ? (result.payload as RequestError)
-      : undefined;
+    try {
+      // TODO: rework handle submit logic!!! it must not accept result as error
+      //  instead handle error in handle submit
+      await dispatch(signUp(credentials)).unwrap();
+    } catch (e) {
+      return e;
+    }
+    return undefined;
   };
 
   return (

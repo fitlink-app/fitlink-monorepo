@@ -120,7 +120,7 @@ export const Welcome = () => {
       await GoogleSignin.signOut();
       const {idToken} = await GoogleSignin.signIn();
       if (idToken) {
-        await dispatch(signInWithGoogle(idToken));
+        await dispatch(signInWithGoogle(idToken)).unwrap();
       }
     } catch (e) {
       console.error('handleOnGooglePressed', e);

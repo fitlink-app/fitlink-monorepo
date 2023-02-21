@@ -2,5 +2,6 @@ export enum lifestyleActivityType {
   STEPS = 'steps',
   HYDRATION = 'hydration',
   SLEEP = 'sleep',
-  MINDFULNESS = 'mindfulness'
+  MINDFULNESS = 'mindfulness',
+  WeightTraining = 'weightLifting'
 }

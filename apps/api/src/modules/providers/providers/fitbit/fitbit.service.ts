@@ -322,14 +322,8 @@ export class FitbitService {
     const now = new Date(Date.now())
     console.log(`Is FITBIT Token Expired: ${provider.token_expires_at < now}`)
     if (provider.token_expires_at < now) {
-      const {
-        refresh_token,
-        access_token,
-        expires_in
-      }: FitbitAuthResponse = await this.refreshToken(
-        provider.token,
-        provider.refresh_token
-      )
+      const { refresh_token, access_token, expires_in }: FitbitAuthResponse =
+        await this.refreshToken(provider.token, provider.refresh_token)
 
       // Refresh failed
       if (access_token === '0') {

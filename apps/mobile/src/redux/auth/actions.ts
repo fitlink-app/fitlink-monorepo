@@ -1,4 +1,4 @@
-import api, {deleteCurrentToken, getErrors} from '@api';
+import api, {FCMTokenService, getErrors} from '@api';
 import {createAsyncThunk} from '@reduxjs/toolkit';
 import {
   DELETE_ACCOUNT,
@@ -17,42 +17,56 @@ import {flushPersistedQueries} from '../../query/QueryPersistor';
 import {clearAuthResult} from './slice';
 import {Credentials} from './types';
 import {checkAuthResult, connect} from './utils';
+import {getErrorMessage} from '@fitlink/api-sdk';
+import {ResponseError} from '@fitlink/api-sdk/types';
 
 export const signUp = createAsyncThunk(
   SIGN_UP,
   async (credentials: Credentials, {rejectWithValue}) => {
-    const {me, auth} = await api.signUp(credentials);
-    queryClient.setQueryData<User>(QueryKeys.Me, me);
-    if (!checkAuthResult(auth)) {
-      return rejectWithValue(new Error('Incorrect authorization response'));
+    try {
+      const {me, auth} = await api.signUp(credentials);
+      queryClient.setQueryData<User>(QueryKeys.Me, me);
+      if (!checkAuthResult(auth)) {
+        return rejectWithValue(new Error('Incorrect authorization response'));
+      }
+      return auth;
+    } catch (e) {
+      return rejectWithValue(new Error(getErrorMessage(e as ResponseError)));
     }
-    return auth;
   },
 );
 
 export const signIn = createAsyncThunk(
   SIGN_IN,
   async (credentials: Credentials, {rejectWithValue}) => {
-    const auth = await api.login(credentials);
-    if (!checkAuthResult(auth)) {
-      return rejectWithValue(new Error('Incorrect authorization response'));
+    try {
+      const auth = await api.login(credentials);
+      if (!checkAuthResult(auth)) {
+        return rejectWithValue(new Error('Incorrect authorization response'));
+      }
+      return auth;
+    } catch (e) {
+      return rejectWithValue(new Error(getErrorMessage(e as ResponseError)));
     }
-    return auth;
   },
 );
 
 export const signInWithGoogle = createAsyncThunk(
   SIGN_IN_GOOGLE,
   async (idToken: string, {rejectWithValue}) => {
-    await GoogleSignin.signOut();
-    const auth = await connect({
-      token: idToken,
-      provider: AuthProviderType.Google,
-    });
-    if (!checkAuthResult(auth)) {
-      return rejectWithValue(new Error('Incorrect authorization response'));
+    try {
+      await GoogleSignin.signOut();
+      const auth = await connect({
+        token: idToken,
+        provider: AuthProviderType.Google,
+      });
+      if (!checkAuthResult(auth)) {
+        return rejectWithValue(new Error('Incorrect authorization response'));
+      }
+      return auth;
+    } catch (e) {
+      return rejectWithValue(new Error(getErrorMessage(e as ResponseError)));
     }
-    return auth;
   },
 );
 
@@ -87,7 +101,7 @@ export const logout = createAsyncThunk(LOGOUT, async (_, {dispatch}) => {
 
   await Promise.all([
     queryClient.removeQueries(),
-    deleteCurrentToken(),
+    FCMTokenService.deleteCurrentToken(),
     api.logout(),
   ]);
 });
