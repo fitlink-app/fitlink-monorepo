@@ -38,8 +38,6 @@ interface IAnimatedLeaderboardHeaderCardProps {
   sharedContentOffset: Animated.SharedValue<number>;
 }
 
-const LEADERBOARD_LABEL_TEXT = 'LEADERBOARD';
-
 export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardProps> =
   ({
     leagueId,
@@ -60,6 +58,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
   }) => {
     const navigation = useNavigation();
 
+    const leaderboardLabelText = 'LEADERBOARD';
     const {mutateAsync: joinLeague} = useJoinLeague();
     const {mutateAsync: leaveLeague} = useLeaveLeague();
     const {
@@ -146,8 +145,11 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
           onHeightLayout={onHeightLayout}
           sharedContentOffset={sharedContentOffset}>
           <View style={styles.subheader}>
-            <Label style={styles.subheaderLabel}>
-              {LEADERBOARD_LABEL_TEXT}
+            <Label
+              style={{
+                fontSize: calculateFontSize(18, leaderboardLabelText.length),
+              }}>
+              {leaderboardLabelText}
             </Label>
             <ActionButton
               isMember={isMember}
@@ -174,15 +176,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
   },
-  subheaderLabel: {
-    fontSize: calculateFontSize(18),
-  },
 });
 
-export function calculateFontSize(paddingSize: number) {
-  return (
-    (Dimensions.get('window').width - paddingSize * 2) / LEADERBOARD_LABEL_TEXT.length + 3
-  );
+// 3 - experimental number to get half-screen label size, may be changed with change of text in it
+export function calculateFontSize(paddingSize: number, textSize: number) {
+  return (Dimensions.get('window').width - paddingSize * 2) / textSize + 3;
 }
 
 export default AnimatedLeaderboardHeaderCard;
