@@ -100,7 +100,10 @@ export const Leaderboard = ({
         onHeightMeasure={setHeaderHeight}
         handleOnEditPressed={onEditPressed}
         isCteLeague={isBfit}
-        isPublic={activeLeague.access === LeagueAccess.Public}
+        isPublic={
+          activeLeague.access === LeagueAccess.Public ||
+          activeLeague.access === LeagueAccess.CompeteToEarn
+        }
       />
       {headerHeight !== 0 && (
         <AnimatedFlatList
