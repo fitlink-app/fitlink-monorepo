@@ -5,20 +5,11 @@ import styled from 'styled-components/native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-import {getPositiveValueOrZero, getViewBfitValue} from '@utils';
-import {Navbar} from '@components';
-import {
-  useLeague,
-  useLeagueMembers,
-  useLeagueMembersMe,
-  useMe,
-  useModal,
-} from '@hooks';
+import {Navbar, BfitSpinner} from '@components';
+import {useLeague, useLeagueMembers, useLeagueMembersMe, useMe} from '@hooks';
 
-import {Leaderboard, TryTomorrowBanner} from './components';
-import {useClaimLeagueBfit} from 'hooks/api/leagues/useClaimLeagueBfit';
+import {Leaderboard} from './components';
 import {getResultsFromPages} from '../../utils/api';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const HEADER_HEIGHT = 300;
 
@@ -65,9 +56,6 @@ export const League = () => {
     activeLeague?.participating,
   );
 
-  const {mutateAsync: claimBfit} = useClaimLeagueBfit();
-  const {openModal} = useModal();
-
   if (Platform.OS === 'android') {
     scrollValue.setOffset(-HEADER_HEIGHT);
   }
@@ -97,16 +85,6 @@ export const League = () => {
     ? memberMe.bfit_earned - memberMe.bfit_claimed
     : 0;
 
-  const bFitToClaim = getPositiveValueOrZero(getViewBfitValue(bFitToClaimRaw));
-
-  const claimBfitCallback = () => {
-    if (memberMe && bFitToClaimRaw > 0 && activeLeague) {
-      claimBfit({id: activeLeague.id, dto: {amount: bFitToClaimRaw}});
-    } else if (bFitToClaimRaw === 0) {
-      openModal(() => <TryTomorrowBanner />);
-    }
-  };
-
   const onEditPress = () => {
     navigation.navigate('LeagueForm', {
       data: {
@@ -134,8 +112,7 @@ export const League = () => {
       <Wrapper>
         <Leaderboard
           activeLeague={activeLeague}
-          bFitToClaim={bFitToClaim}
-          onClaimPressed={claimBfitCallback}
+          bFitToClaimRaw={bFitToClaimRaw}
           data={members}
           userId={user!.id}
           refreshing={isRefreshing}

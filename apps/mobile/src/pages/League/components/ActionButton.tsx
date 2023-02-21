@@ -1,13 +1,16 @@
 import React from 'react';
 
-import {BfitButton} from '@components';
+import {BfitButton, Icon} from '@components';
+import theme from '../../../theme/themes/fitlink';
 
 type ActionButtonProps = {
   isMember: boolean;
   isCteLeague: boolean;
   handleOnJoinPressed: () => void;
-  handleClaimBfitPressed?: () => void;
+  handleClaimBfitPressed?: () => Promise<void>;
   bfitValue?: number;
+  isClaiming?: boolean;
+  isClaimed?: boolean;
 };
 
 export const ActionButton = ({
@@ -16,6 +19,8 @@ export const ActionButton = ({
   handleOnJoinPressed,
   handleClaimBfitPressed,
   bfitValue,
+  isClaimed,
+  isClaiming,
 }: ActionButtonProps): JSX.Element | null => {
   if (isMember && !isCteLeague) {
     return null;
@@ -29,11 +34,20 @@ export const ActionButton = ({
       />
     );
   }
+
+  const stableClaimText = isClaimed ? 'CLAIMED' : `CLAIM ${bfitValue} BFIT`;
+
+  const ClaimedIcon = () => (
+    <Icon name={'check'} size={14} color={theme.colors.background} />
+  );
+
   return (
     <BfitButton
       onPress={handleClaimBfitPressed}
-      text={`CLAIM ${bfitValue} BFIT`}
-      variant="primary-outlined"
+      isLoading={isClaiming}
+      text={isClaiming ? 'CLAIMING' : stableClaimText}
+      variant={isClaimed ? 'primary' : 'primary-outlined'}
+      LeadingIcon={isClaimed ? ClaimedIcon : undefined}
     />
   );
 };

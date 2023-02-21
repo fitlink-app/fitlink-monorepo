@@ -36,6 +36,7 @@ const getVariantStyles = (variant: BFitButtonVariant): VariantStyles => {
       return {
         touchable: {
           backgroundColor: theme.colors.accent,
+          paddingVertical: 12,
         },
         text: {
           color: theme.colors.background,
@@ -44,7 +45,8 @@ const getVariantStyles = (variant: BFitButtonVariant): VariantStyles => {
     case 'primary-outlined':
       return {
         touchable: {
-          borderWidth: 1,
+          borderWidth: 2,
+          paddingVertical: 10,
           borderColor: theme.colors.accent,
           backgroundColor: 'transparent',
         },
@@ -55,6 +57,7 @@ const getVariantStyles = (variant: BFitButtonVariant): VariantStyles => {
     case 'secondary':
       return {
         touchable: {
+          paddingVertical: 12,
           backgroundColor: theme.colors.text,
         },
         text: {
@@ -64,7 +67,8 @@ const getVariantStyles = (variant: BFitButtonVariant): VariantStyles => {
     case 'secondary-outlined':
       return {
         touchable: {
-          borderWidth: 1,
+          borderWidth: 2,
+          paddingVertical: 10,
           borderColor: theme.colors.text,
           backgroundColor: 'transparent',
         },
@@ -85,15 +89,23 @@ export const BfitButton = ({
   ...rest
 }: BFitButtonProps): JSX.Element => {
   const variantStyle = getVariantStyles(variant);
-  const Icon = isLoading ? BfitSpinner : LeadingIcon;
+  const IconRenderController = () => {
+    if (isLoading) {
+      return <BfitSpinner />;
+    }
+    if (LeadingIcon) {
+      return <LeadingIcon />;
+    }
+    return null;
+  };
 
   return (
     <TouchableOpacity
       {...rest}
       style={[buttonStyles.baseTouchable, variantStyle.touchable, style]}>
-      {Icon && (
+      {(LeadingIcon || isLoading) && (
         <View style={{marginRight: 8}}>
-          <Icon />
+          <IconRenderController />
         </View>
       )}
       <Text style={[buttonStyles.baseText, variantStyle.text, textStyle]}>
@@ -105,11 +117,8 @@ export const BfitButton = ({
 
 const buttonStyles = StyleSheet.create({
   baseTouchable: {
-    paddingTop: 8,
-    paddingBottom: 8,
-    paddingLeft: 12,
-    paddingRight: 12,
-    borderRadius: 20,
+    paddingHorizontal: 30,
+    borderRadius: 30,
     alignSelf: 'flex-start',
     flexDirection: 'row',
   },

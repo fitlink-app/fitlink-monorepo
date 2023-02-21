@@ -29,8 +29,7 @@ export interface LeaderboardProps
   extends Omit<FlatListProps<LeaderboardEntry>, 'renderItem'> {
   refreshing: boolean;
   userId: string;
-  bFitToClaim?: number;
-  onClaimPressed?: () => void;
+  bFitToClaimRaw?: number;
   onRefresh: () => void;
   onEditPressed: () => void;
 
@@ -41,10 +40,9 @@ export const Leaderboard = ({
   data = [],
   userId,
   refreshing,
-  bFitToClaim,
+  bFitToClaimRaw,
   onRefresh,
   onEditPressed,
-  onClaimPressed,
   activeLeague,
   ...listProps
 }: LeaderboardProps) => {
@@ -97,9 +95,8 @@ export const Leaderboard = ({
         description={activeLeague.description}
         imageSource={{uri: activeLeague?.image.url_640x360}}
         sharedContentOffset={sharedContentOffset}
-        bFitToClaim={bFitToClaim}
+        bFitToClaimRaw={bFitToClaimRaw}
         bfit={activeLeague.daily_bfit}
-        onClaimPressed={onClaimPressed}
         onHeightMeasure={setHeaderHeight}
         handleOnEditPressed={onEditPressed}
         isCteLeague={isBfit}
