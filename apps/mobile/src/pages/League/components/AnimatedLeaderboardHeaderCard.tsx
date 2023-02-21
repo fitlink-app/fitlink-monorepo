@@ -171,8 +171,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   subheaderLabel: {
-    fontSize: (Dimensions.get('window').width - 36) / 14,
+    fontSize: calculateFontSize(18, 11),
   },
 });
+
+export function calculateFontSize(paddingSize: number, textSize: number) {
+  return (Dimensions.get('window').width - paddingSize * 2) / textSize + 3;
+}
 
 export default AnimatedLeaderboardHeaderCard;
