@@ -1,13 +1,16 @@
 import React, {useRef, useState} from 'react';
+import {FlatList, Dimensions, StyleSheet} from 'react-native';
+import {useScrollToTop} from '@react-navigation/native';
 import styled, {useTheme} from 'styled-components/native';
+
 import {Label, ProfileRow, SearchBox} from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useSearchUsers} from '@hooks';
-import {ActivityIndicator, FlatList, Dimensions} from 'react-native';
-import {getResultsFromPages} from 'utils/api';
-import {useScrollToTop} from '@react-navigation/native';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+import {getResultsFromPages} from 'utils/api';
+import {BfitSpinner} from '../../../../components/common/BfitSpinner';
+
+const {height: SCREEN_HEIGHT} = Dimensions.get('window');
 
 const backgroundImage = require('../../../../../assets/images/user-search-bg.png');
 
@@ -40,8 +43,6 @@ const UserSearchBackgroundImage = styled.Image({
 });
 
 export const Search = () => {
-  const {colors} = useTheme();
-
   // Refs
   const scrollRef = useRef(null);
   useScrollToTop(scrollRef);
@@ -77,9 +78,7 @@ export const Search = () => {
   const results = getResultsFromPages(data);
 
   const ListFooterComponent = isFetchingNextPage ? (
-    <EmptyContainer style={{height: 72}}>
-      <ActivityIndicator color={colors.accent} />
-    </EmptyContainer>
+    <BfitSpinner wrapperStyle={styles.listFooterComponent} />
   ) : null;
 
   const ListEmptyComponent = isFetchingNextPage ? null : (
@@ -87,10 +86,10 @@ export const Search = () => {
       style={{
         justifyContent: isFetching ? 'center' : 'flex-start',
         paddingTop: 60,
-        height: SCREEN_HEIGHT-170,
+        height: SCREEN_HEIGHT - 170,
       }}>
       {isFetching ? (
-        <ActivityIndicator color={colors.accent} />
+        <BfitSpinner />
       ) : (
         <Label
           type="body"
@@ -109,13 +108,13 @@ export const Search = () => {
 
   return (
     <Wrapper>
-    <SearchBoxContainer>
-      <SearchBox
-        {...{query, handleOnChangeText, handleOnSubmit}}
-        placeholder={'Search for a user'}
-        onClearPressed={() => handleOnChangeText('')}
-      />
-    </SearchBoxContainer>
+      <SearchBoxContainer>
+        <SearchBox
+          {...{query, handleOnChangeText, handleOnSubmit}}
+          placeholder={'Search for a user'}
+          onClearPressed={() => handleOnChangeText('')}
+        />
+      </SearchBoxContainer>
       <FlatList
         {...{
           ListFooterComponent,
@@ -131,3 +130,9 @@ export const Search = () => {
     </Wrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  listFooterComponent: {
+    height: 72,
+  },
+});

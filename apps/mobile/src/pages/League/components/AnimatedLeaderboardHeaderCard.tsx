@@ -16,6 +16,9 @@ import {useLeaderboardCountback} from '../hooks/useLeaderboardCountback';
 import AnimatedHeaderCard from '../../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
 import {MaxedOutBanner} from './MaxedOutBanner';
 import {OnlyOneTypeBanner} from './OnlyOneTypeBanner';
+import {TryTomorrowBanner} from './TryTomorrowBanner';
+import {useClaimLeagueBfit} from '../../../hooks/api/leagues/useClaimLeagueBfit';
+import {getPositiveValueOrZero, getViewBfitValue} from '@utils';
 
 interface IAnimatedLeaderboardHeaderCardProps {
   imageSource: ImageSourcePropType;
@@ -28,11 +31,10 @@ interface IAnimatedLeaderboardHeaderCardProps {
   membership: 'none' | 'member' | 'owner';
   leagueId: string;
   isPublic: boolean;
-  bFitToClaim?: number;
+  bFitToClaimRaw?: number;
   bfit?: number;
   isCteLeague?: boolean;
   handleOnEditPressed: () => void;
-  onClaimPressed?: () => void;
   sharedContentOffset: Animated.SharedValue<number>;
 }
 
@@ -42,11 +44,10 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     membership,
     isPublic,
     handleOnEditPressed,
-    onClaimPressed,
     isCteLeague = false,
     imageSource,
     memberCount,
-    bFitToClaim,
+    bFitToClaimRaw,
     bfit,
     title,
     resetDate,
@@ -59,9 +60,19 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
 
     const {mutateAsync: joinLeague} = useJoinLeague();
     const {mutateAsync: leaveLeague} = useLeaveLeague();
+    const {
+      mutateAsync: claimBfit,
+      isLoading: isClaiming,
+      isSuccess: isClaimed,
+    } = useClaimLeagueBfit();
+
     const {openModal} = useModal();
 
     const isMember = membership !== 'none';
+
+    const bFitToClaim = getPositiveValueOrZero(
+      getViewBfitValue(bFitToClaimRaw),
+    );
 
     const handleOnInvitePressed = () => {
       navigation.navigate('LeagueInviteFriends', {leagueId});
@@ -104,6 +115,14 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
       repeat,
     });
 
+    const handleClaimBfitPressed = async () => {
+      if (bFitToClaimRaw !== undefined && leagueId) {
+        await claimBfit({id: leagueId, dto: {amount: bFitToClaimRaw}});
+      } else if (bFitToClaimRaw === 0) {
+        openModal(() => <TryTomorrowBanner />);
+      }
+    };
+
     return (
       <BottomSheetModalProvider>
         <AnimatedHeaderCard
@@ -130,8 +149,10 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
               isMember={isMember}
               isCteLeague={isCteLeague}
               handleOnJoinPressed={handleOnJoinPressed}
-              handleClaimBfitPressed={onClaimPressed}
+              handleClaimBfitPressed={handleClaimBfitPressed}
               bfitValue={bFitToClaim}
+              isClaiming={isClaiming}
+              isClaimed={isClaimed}
             />
           </View>
         </AnimatedHeaderCard>

@@ -1,7 +1,9 @@
 import React from 'react';
-import {ActivityIndicator} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
+
 import {Avatar, Label, Icon} from '@components';
+
+import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 /** Styled Components */
 const Wrapper = styled.View({
@@ -82,7 +84,7 @@ export const InviteRow = (props: InviteRowProps) => {
   const {colors} = useTheme();
 
   const renderIcon = () => {
-    if (isLoading) return <ActivityIndicator color={colors.accent} />;
+    if (isLoading) return <BfitSpinner />;
 
     return (
       <Icon

@@ -1,17 +1,23 @@
 import React from 'react';
-
-import {useNavigation} from '@react-navigation/core';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {
-  ActivityIndicator,
   FlatList,
   Platform,
   RefreshControl,
+  StyleSheet,
   View,
 } from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {
+  selectQuery,
+  selectSearchLocation,
+  selectTypes,
+} from 'redux/discover/discoverSlice';
+import {useSelector} from 'react-redux';
 
+import {useNavigation} from '@react-navigation/core';
 import {StackScreenProps} from '@react-navigation/stack';
+
 import {
   Button,
   Label,
@@ -22,22 +28,12 @@ import {
   SwipeableButton,
 } from '@components';
 import {Activity} from '@fitlink/api/src/modules/activities/entities/activity.entity';
+
 import {RootStackParamList} from 'routes/types';
-import {
-  useDeleteActivity,
-  useModal,
-  useMyActivities,
-  useFindActivities,
-} from '@hooks';
+import {useDeleteActivity, useModal, useFindActivities} from '@hooks';
 import {getResultsFromPages} from 'utils/api';
 import {ActivityItem} from './components';
-import {
-  selectQuery,
-  selectSearchLocation,
-  selectTypes,
-  toggleType,
-} from 'redux/discover/discoverSlice';
-import {useDispatch, useSelector} from 'react-redux';
+import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const LOADING_NEXT_PAGE_BOTTOM_INDICATOR_HEIGHT = 60;
 
@@ -71,7 +67,6 @@ export const MyActivities = (
   const searchQuery = useSelector(selectQuery);
   const searchTypes = useSelector(selectTypes);
   const searchLocation = useSelector(selectSearchLocation);
-  const types = useSelector(selectTypes);
 
   // const {
   //   data,
@@ -95,8 +90,7 @@ export const MyActivities = (
     geo_radial: `${searchLocation?.lat},${searchLocation?.lng},15`,
   });
 
-  const {mutateAsync: deleteActivity, isLoading: isDeleting} =
-    useDeleteActivity();
+  const {mutateAsync: deleteActivity} = useDeleteActivity();
 
   const activities = getResultsFromPages(data);
 
@@ -220,11 +214,7 @@ export const MyActivities = (
       );
 
     if (isFetchingNextPage)
-      return (
-        <EmptyContainer>
-          <ActivityIndicator color={colors.accent} />
-        </EmptyContainer>
-      );
+      return <BfitSpinner wrapperStyle={styles.loadingWrapper} />;
 
     return null;
   };
@@ -245,9 +235,7 @@ export const MyActivities = (
   return (
     <Wrapper>
       {!activities.length && !isFetchedAfterMount ? (
-        <EmptyContainer>
-          <ActivityIndicator color={colors.accent} />
-        </EmptyContainer>
+        <BfitSpinner wrapperStyle={styles.loadingWrapper} />
       ) : (
         <FlatList
           {...{refreshControl, keyExtractor}}
@@ -315,3 +303,11 @@ export const MyActivities = (
     </Wrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: LOADING_NEXT_PAGE_BOTTOM_INDICATOR_HEIGHT,
+  },
+});

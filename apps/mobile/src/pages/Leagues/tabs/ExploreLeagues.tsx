@@ -5,13 +5,15 @@ import React, {
   useState,
 } from 'react';
 import styled, {useTheme} from 'styled-components/native';
+
 import {Icon, Label, SearchBox, TouchHandler} from '@components';
 import {useLeagues, useSearchLeagues} from '@hooks';
+import {widthLize} from '@utils';
+
 import {LeagueList} from './components';
 import {getResultsFromPages} from 'utils/api';
-import {ActivityIndicator} from 'react-native';
-import {widthLize} from '@utils';
 import {IRefreshableTabHandle} from './types';
+import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -175,7 +177,7 @@ const ExploreLeaguesInner: ForwardRefRenderFunction<IRefreshableTabHandle> = (
         paddingHorizontal: 20,
       }}>
       {isFetching && !isFetchedAfterMount ? (
-        <ActivityIndicator color={colors.accent} />
+        <BfitSpinner />
       ) : error ? (
         <Label
           type="body"

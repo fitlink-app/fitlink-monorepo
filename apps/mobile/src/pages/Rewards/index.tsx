@@ -1,7 +1,7 @@
 import React, {useRef} from 'react';
+import {RefreshControl, ScrollView, StyleSheet} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ActivityIndicator, RefreshControl, ScrollView} from 'react-native';
 import {useScrollToTop} from '@react-navigation/native';
 
 import {Label, PlotCard} from '@components';
@@ -12,6 +12,7 @@ import {getViewBfitValue, widthLize} from '@utils';
 import {RewardSlider} from './components';
 import {getResultsFromPages} from 'utils/api';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
+import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -27,12 +28,6 @@ const PageTitle = styled(Label).attrs(() => ({
   textAlign: 'center',
   marginTop: 12,
   marginBottom: 27,
-});
-
-const ActivityIndicatorContainer = styled.View({
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
 });
 
 export const Rewards = () => {
@@ -93,9 +88,7 @@ export const Rewards = () => {
   };
 
   const LoadingRewardsContent = () => (
-    <ActivityIndicatorContainer>
-      <ActivityIndicator color={colors.accent} />
-    </ActivityIndicatorContainer>
+    <BfitSpinner wrapperStyle={styles.loadingRewardsContent} />
   );
 
   const EmptyRewardsContent = () => {
@@ -167,3 +160,11 @@ export const Rewards = () => {
     </Wrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingRewardsContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
