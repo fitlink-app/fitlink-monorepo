@@ -63,7 +63,7 @@ export const UpdatePasswordForm = () => {
       ).unwrap();
     } catch (e) {
       const requestErrors = getErrors(e as ResponseError);
-      console.log(requestErrors);
+      console.error(requestErrors);
       return requestErrors;
     }
 

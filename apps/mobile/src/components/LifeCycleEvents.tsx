@@ -50,12 +50,11 @@ export const LifeCycleEvents = () => {
 
   const pingBackend = () => {
     if (!isAuthenticated) return;
-    api.put('/me/ping').catch(e => console.log('Failed to ping backend: ', e));
+    api.put('/me/ping').catch(e => console.error('Failed to ping backend: ', e));
   };
 
   const updateTimezone = () => {
     const timezone = RNLocalize.getTimeZone();
-    console.log(timezone);
 
     const userSettingPayload: UpdateUserDto = {
       timezone,
@@ -63,7 +62,7 @@ export const LifeCycleEvents = () => {
 
     api
       .put<User>('/me', {payload: userSettingPayload})
-      .catch(e => console.log('Failed to update user timezone', e));
+      .catch(e => console.error('Failed to update user timezone', e));
   };
 
   const storeDeviceInfo = () => {
@@ -73,7 +72,7 @@ export const LifeCycleEvents = () => {
 
     api
       .put<User>('/me', {payload: updatedSettings})
-      .catch(e => console.log('Failed to save mobile_os for the user: ', e));
+      .catch(e => console.error('Failed to save mobile_os for the user: ', e));
   };
 
   const runBackgroundSyncTasks = () => {
@@ -88,7 +87,6 @@ export const LifeCycleEvents = () => {
         enableHeadless: true,
       },
       async taskId => {
-        console.log('[js] Received background-fetch event: ', taskId);
 
         if (isAuthenticated) {
           await syncAllPlatformActivities();
@@ -97,7 +95,7 @@ export const LifeCycleEvents = () => {
         BackgroundFetch.finish(taskId);
       },
       e => {
-        console.log('[js] RNBackgroundFetch failed to start');
+        console.error('[js] RNBackgroundFetch failed to start', e);
       },
     );
   };

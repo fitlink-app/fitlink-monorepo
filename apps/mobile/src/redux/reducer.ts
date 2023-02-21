@@ -22,7 +22,7 @@ const rootReducer = (
 ) => {
   if (action.type === clearAuthResult.type) {
     Intercom.logout().catch(e =>
-      console.log('Failed to logout from Intercom: ', e),
+      console.error('Failed to logout from Intercom: ', e),
     );
 
     // Flush redux in case of an auth state wipe (e.g. logout side effect)

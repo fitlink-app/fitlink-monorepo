@@ -526,7 +526,7 @@ export const Discover = () => {
           zoomLevel: 12,
         });
       })
-      .catch(error => console.log(error.message)); // error is a Javascript Error object
+      .catch(error => console.error(error.message)); // error is a Javascript Error object
   };
 
   const selectMarker = (id?: string) => {

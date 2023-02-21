@@ -64,7 +64,7 @@ async function getTodaysSteps(): Promise<number> {
 
     stepsTotal = results.reduce((acc, val) => acc + val.steps, 0);
   } catch (e) {
-    console.log('Unable to retrieve steps data: ' + e);
+    console.error('Unable to retrieve steps data: ' + e);
   }
 
   return stepsTotal;
@@ -92,7 +92,7 @@ async function getTodayHydration() {
 
     totalLitres = results.reduce((acc, val) => acc + val.amount, 0);
   } catch (e) {
-    console.log('Unable to retrieve hydration data: ' + e);
+    console.error('Unable to retrieve hydration data: ' + e);
   }
 
   return totalLitres;
@@ -254,7 +254,7 @@ async function getTodayMindfulnessMinutes() {
       0,
     );
   } catch (e) {
-    console.log('Unable to retrieve mindfulness data: ' + e);
+    console.error('Unable to retrieve mindfulness data: ' + e);
   }
 
   return mindfulnessMinutesTotal;
@@ -293,7 +293,7 @@ async function getTodayActiveMinutes() {
       }
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 
   return activeMinutesTotal;
@@ -330,8 +330,8 @@ async function syncActivities() {
     const activities = await getActivitiesSinceDate(date.toISOString(), 5);
 
     if (activities.length === 0) {
-      console.log(
-        "No new activities since last submitted activity's end date.",
+      console.warn(
+        "No new activities since last submitted activity's end date."
       );
       return;
     }
@@ -397,4 +397,5 @@ export const GoogleFitWrapper = {
   disconnect,
   authenticate,
   checkIsAvailable,
+  checkIsAuthorized,
 };

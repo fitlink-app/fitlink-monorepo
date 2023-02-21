@@ -60,7 +60,7 @@ export const LeagueInviteFriends = (
     try {
       await inviteToLeague({leagueId, userId});
     } catch (e) {
-      console.log(getErrors(e));
+      console.error(getErrors(e));
     } finally {
       // Remove user from loading array
       setLoadingUsers(value => {

@@ -153,7 +153,6 @@ export const ActivityDetailsModal = React.forwardRef<
     const coords = activity?.meeting_point.coordinates;
     // @ts-ignore
     LaunchNavigator.navigate([coords[0], coords[1]])
-      .then(() => console.log('Launched navigator'))
       .catch((err: any) => console.error('Error launching navigator: ' + err));
   };
 
@@ -304,7 +303,7 @@ export const ActivityDetailsModal = React.forwardRef<
                       try {
                         await Linking.openURL(url);
                       } catch (e) {
-                        console.log(e);
+                        console.error(e);
                       }
                     }
                   }}>

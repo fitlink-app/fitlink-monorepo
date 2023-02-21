@@ -155,7 +155,6 @@ export const League = () => {
           onRefresh={refreshLeaderboard}
           onEditPressed={onEditPress}
           onEndReached={() => {
-            console.log('onEndReached');
             fetchMoreMembers();
           }}
         />

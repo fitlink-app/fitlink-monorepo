@@ -82,7 +82,7 @@ export const DeeplinkHandler = () => {
     try {
       await dispatch(getInvitationData(code));
     } catch (e) {
-      console.log('Failed to get team invitation data');
+      console.error('Failed to get team invitation data', e);
     }
   };
 
@@ -133,7 +133,7 @@ export const DeeplinkHandler = () => {
       !userQuery.data ||
       userQuery.data.teams?.find(team => team.id === invitation?.id)
     ) {
-      console.log('User already member of team.');
+      console.warn('User already member of team.');
       return;
     }
 

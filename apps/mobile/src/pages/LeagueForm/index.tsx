@@ -152,7 +152,7 @@ export const LeagueForm = (
 
       handleSubmit(async () => submitForm(imgResult?.id));
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   };
 

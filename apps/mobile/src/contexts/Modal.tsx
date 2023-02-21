@@ -111,7 +111,7 @@ export const ModalProvider: React.FC = ({children}) => {
     key?: string,
   ) {
     if (components.find(component => component.key === key)) {
-      console.log('Component with key already exists.');
+      console.warn('Component with key already exists.');
       return;
     }
 

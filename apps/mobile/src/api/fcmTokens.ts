@@ -35,7 +35,6 @@ const saveCurrentToken = async () => {
     }
 
     const token = await messaging().getToken();
-    console.log('FCM token', token);
 
     await api.post('/me/fcm-token', {payload: {token}} as any);
   } catch (e) {
