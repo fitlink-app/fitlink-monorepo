@@ -24,3 +24,4 @@ export * from './NumberInputField';
 export * from './BfitButton';
 export * from './plot';
 export * from './ErrorContent';
+export * from './BfitSpinner';

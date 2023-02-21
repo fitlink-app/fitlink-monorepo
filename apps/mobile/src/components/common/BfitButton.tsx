@@ -8,7 +8,6 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import {IconProps} from 'react-icomoon';
 
 import theme from '../../theme/themes/fitlink';
 import {BfitSpinner} from './BfitSpinner';
@@ -23,7 +22,7 @@ type BFitButtonProps = React.ComponentProps<typeof TouchableOpacity> & {
   text: string;
   textStyle?: StyleProp<TextStyle>;
   isLoading?: boolean;
-  LeadingIcon?: FC<IconProps>;
+  LeadingIcon?: FC;
 };
 
 type VariantStyles = {
@@ -87,13 +86,14 @@ export const BfitButton = ({
 }: BFitButtonProps): JSX.Element => {
   const variantStyle = getVariantStyles(variant);
   const Icon = isLoading ? BfitSpinner : LeadingIcon;
+
   return (
     <TouchableOpacity
       {...rest}
       style={[buttonStyles.baseTouchable, variantStyle.touchable, style]}>
       {Icon && (
-        <View>
-          <BfitSpinner wrapperStyle={{marginRight: 8}} />
+        <View style={{marginRight: 8}}>
+          <Icon />
         </View>
       )}
       <Text style={[buttonStyles.baseText, variantStyle.text, textStyle]}>

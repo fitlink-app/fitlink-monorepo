@@ -31,9 +31,9 @@ import {ImageType} from '@fitlink/api/src/modules/images/images.constants';
 import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {CreateLeagueDto} from '@fitlink/api/src/modules/leagues/dto/create-league.dto';
 import {getErrors} from '@api';
+import {BfitSpinner} from '@components';
 
 import {RootStackParamList} from 'routes/types';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 type LeagueFormMode = 'edit' | 'create';
 

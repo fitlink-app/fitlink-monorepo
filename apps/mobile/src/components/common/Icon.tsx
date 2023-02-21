@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleProp, ViewStyle} from 'react-native';
+import {StyleProp, StyleSheet, ViewStyle} from 'react-native';
 import {Svg, Path} from 'react-native-svg';
 import IcoMoon, {IconProps} from 'react-icomoon';
 
@@ -40,12 +40,13 @@ export const Icon = ({
       hitSlop={hitSlopInsets}>
       {isLoading ? (
         <BfitSpinner
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: rest.size,
-            width: rest.size,
-          }}
+          style={[
+            styles.loadingWrapper,
+            {
+              height: rest.size,
+              width: rest.size,
+            },
+          ]}
           color={rest.color}
         />
       ) : (
@@ -61,3 +62,10 @@ export const Icon = ({
     </TouchHandler>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
