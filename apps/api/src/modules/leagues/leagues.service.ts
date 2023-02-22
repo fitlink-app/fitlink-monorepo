@@ -229,49 +229,59 @@ export class LeaguesService {
         } BFIT`
       )
     }
-    const leagueBfitClaim = new LeagueBfitClaim()
-    leagueBfitClaim.league_id = leagueId
-    leagueBfitClaim.user_id = userId
-    leagueBfitClaim.bfit_amount = claimLeagueBfitDto.amount
-    let createdClaim = await this.leagueBfitClaimRepository.save(
-      leagueBfitClaim
-    )
-    // update claimed bfit in this user's leaderboard entry
-    await this.leaderboardEntryRepository.increment(
-      {
-        leaderboard: { id: league.active_leaderboard.id },
-        user: { id: userId }
-      },
+    let createdClaim: LeagueBfitClaim
+    await this.leagueBfitClaimRepository.manager.transaction(
+      async (manager) => {
+        const leagueBfitClaimRepo = manager.getRepository(LeagueBfitClaim)
+        const leaderboardEntryRepo = manager.getRepository(LeaderboardEntry)
+        const userRepo = manager.getRepository(User)
+        const walletTransactionRepo = manager.getRepository(WalletTransaction)
 
-      'bfit_claimed',
-      claimLeagueBfitDto.amount
-    )
-    // update user bfit balance
-    await this.userRepository.increment(
-      {
-        id: userId
-      },
+        const leagueBfitClaim = new LeagueBfitClaim()
+        leagueBfitClaim.league_id = leagueId
+        leagueBfitClaim.user_id = userId
+        leagueBfitClaim.bfit_amount = claimLeagueBfitDto.amount
+        createdClaim = await leagueBfitClaimRepo.save(leagueBfitClaim)
 
-      'bfit_balance',
-      claimLeagueBfitDto.amount
-    )
+        // update claimed bfit in this user's leaderboard entry
+        await leaderboardEntryRepo.increment(
+          {
+            leaderboard: { id: league.active_leaderboard.id },
+            user: { id: userId }
+          },
 
-    const transactionHash = await this.sendBfitClaimTransaction(
-      leagueId,
-      userId,
-      claimLeagueBfitDto.amount
-    )
+          'bfit_claimed',
+          claimLeagueBfitDto.amount
+        )
 
-    let walletTransaction = new WalletTransaction()
-    walletTransaction.source = WalletTransactionSource.LeagueBfitClaim
-    walletTransaction.claim_id = createdClaim.id
-    walletTransaction.league_id = league.id
-    walletTransaction.league_name = league.name
-    walletTransaction.user_id = userId
-    walletTransaction.bfit_amount = claimLeagueBfitDto.amount
-    walletTransaction.bfit_amount = claimLeagueBfitDto.amount
-    walletTransaction.transaction_id = transactionHash
-    await this.walletTransactionRepository.save(walletTransaction)
+        // update user bfit balance
+        await userRepo.increment(
+          {
+            id: userId
+          },
+
+          'bfit_balance',
+          claimLeagueBfitDto.amount
+        )
+
+        const transactionHash = await this.sendBfitClaimTransaction(
+          leagueId,
+          userId,
+          claimLeagueBfitDto.amount
+        )
+
+        let walletTransaction = new WalletTransaction()
+        walletTransaction.source = WalletTransactionSource.LeagueBfitClaim
+        walletTransaction.claim_id = createdClaim.id
+        walletTransaction.league_id = league.id
+        walletTransaction.league_name = league.name
+        walletTransaction.user_id = userId
+        walletTransaction.bfit_amount = claimLeagueBfitDto.amount
+        walletTransaction.bfit_amount = claimLeagueBfitDto.amount
+        walletTransaction.transaction_id = transactionHash
+        await walletTransactionRepo.save(walletTransaction)
+      }
+    )
     return createdClaim
   }
 
@@ -828,8 +838,8 @@ export class LeaguesService {
           { userId }
         )
         .leftJoin('leagueTeam.users', 'teamUser')
-        .leftJoin('leagueOrganisation.teams', 'organisationTeam')
-        .leftJoin('organisationTeam.users', 'organisationUser')
+        // .leftJoin('leagueOrganisation.teams', 'organisationTeam')
+        // .leftJoin('organisationTeam.users', 'organisationUser')
         .leftJoin(
           `(${rankQb.getQuery()})`,
           'ranked',
@@ -873,9 +883,9 @@ export class LeaguesService {
             }
 
             // The user belongs to the organisation that the league belongs to
-            if (isOrganization) {
-              filteredQb = filteredQb.orWhere(`(organisationUser.id = :userId)`)
-            }
+            // if (isOrganization) {
+            //   filteredQb = filteredQb.orWhere(`(organisationUser.id = :userId)`)
+            // }
             return filteredQb
           }),
           {
