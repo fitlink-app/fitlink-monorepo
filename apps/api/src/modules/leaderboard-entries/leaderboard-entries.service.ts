@@ -1,16 +1,21 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { Repository, SelectQueryBuilder } from 'typeorm'
 import { CreateLeaderboardEntryDto } from './dto/create-leaderboard-entry.dto'
 import { LeaderboardEntry } from './entities/leaderboard-entry.entity'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { User } from '../users/entities/user.entity'
+import { League } from '../leagues/entities/league.entity'
+import { LeagueAccess } from '../leagues/leagues.constants'
 
 @Injectable()
 export class LeaderboardEntriesService {
   constructor(
     @InjectRepository(LeaderboardEntry)
-    private leaderboardEntryRepository: Repository<LeaderboardEntry>
+    private leaderboardEntryRepository: Repository<LeaderboardEntry>,
+
+    @InjectRepository(League)
+    private leaguesRepository: Repository<League>
   ) {}
 
   /**
@@ -179,15 +184,39 @@ export class LeaderboardEntriesService {
     leaderboardId: string,
     options: PaginationOptionsInterface
   ): Promise<Pagination<LeaderboardEntry>> {
-    const query = this.leaderboardEntryRepository
-      .createQueryBuilder()
-      .where('leaderboard_id = :leaderboardId', {
-        leaderboardId
-      })
-      .orderBy('points', 'DESC')
-      .addOrderBy('updated_at', 'DESC')
-      .take(options.limit)
-      .skip(options.page * options.limit)
+    const league = await this.leaguesRepository.findOne({
+      active_leaderboard: {
+        id: leaderboardId
+      }
+    })
+    if (!league) {
+      throw new NotFoundException(
+        'League with the provided leaderboard id not found'
+      )
+    }
+
+    let query: SelectQueryBuilder<LeaderboardEntry>
+    if (league.access === LeagueAccess.CompeteToEarn) {
+      query = this.leaderboardEntryRepository
+        .createQueryBuilder()
+        .where('leaderboard_id = :leaderboardId', {
+          leaderboardId
+        })
+        .orderBy('bfit_earned', 'DESC')
+        .addOrderBy('updated_at', 'DESC')
+        .take(options.limit)
+        .skip(options.page * options.limit)
+    } else {
+      query = this.leaderboardEntryRepository
+        .createQueryBuilder()
+        .where('leaderboard_id = :leaderboardId', {
+          leaderboardId
+        })
+        .orderBy('points', 'DESC')
+        .addOrderBy('updated_at', 'DESC')
+        .take(options.limit)
+        .skip(options.page * options.limit)
+    }
 
     // console.log(query.getSql())
 
