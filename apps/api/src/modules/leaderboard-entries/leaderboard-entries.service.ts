@@ -184,16 +184,17 @@ export class LeaderboardEntriesService {
     leaderboardId: string,
     options: PaginationOptionsInterface
   ): Promise<Pagination<LeaderboardEntry>> {
-    const league = await this.leaguesRepository.findOne({
-      active_leaderboard: {
-        id: leaderboardId
-      }
+    const leaderboardEntry = await this.leaderboardEntryRepository.findOne({
+      leaderboard_id: leaderboardId
     })
-    if (!league) {
+    if (!leaderboardEntry) {
       throw new NotFoundException(
-        'League with the provided leaderboard id not found'
+        'Leaderboard entry with the provided leaderboard id not found'
       )
     }
+    const league = await this.leaguesRepository.findOne({
+      id: leaderboardEntry.league_id
+    })
 
     let query: SelectQueryBuilder<LeaderboardEntry>
     if (league.access === LeagueAccess.CompeteToEarn) {
