@@ -1,15 +1,18 @@
 import React, {useRef} from 'react';
+import {RefreshControl, ScrollView, StyleSheet} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useScrollToTop} from '@react-navigation/native';
+
 import {Label, PlotCard} from '@components';
 import {useMe, useRewards} from '@hooks';
+import {SCREEN_CONTAINER_SPACE} from '@constants';
+import {getViewBfitValue, widthLize} from '@utils';
+
 import {RewardSlider} from './components';
 import {getResultsFromPages} from 'utils/api';
-import {ActivityIndicator, RefreshControl, ScrollView} from 'react-native';
-import {useScrollToTop} from '@react-navigation/native';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
-import {SCREEN_CONTAINER_SPACE} from '@constants';
-import {convertBfitToUsd, getViewBfitValue, widthLize} from '@utils';
+import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -25,12 +28,6 @@ const PageTitle = styled(Label).attrs(() => ({
   textAlign: 'center',
   marginTop: 12,
   marginBottom: 27,
-});
-
-const ActivityIndicatorContainer = styled.View({
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
 });
 
 export const Rewards = () => {
@@ -76,7 +73,6 @@ export const Rewards = () => {
   const isRefreshing =
     isUserRefreshing || isUnlockedRefreshing || isLockedRefreshing;
 
-  const bfitViewValue = getViewBfitValue(user?.bfit_balance);
   const totalRewardsCount =
     unlockedRewardsEntries.length + lockedRewardsEntries.length;
 
@@ -92,9 +88,7 @@ export const Rewards = () => {
   };
 
   const LoadingRewardsContent = () => (
-    <ActivityIndicatorContainer>
-      <ActivityIndicator color={colors.accent} />
-    </ActivityIndicatorContainer>
+    <BfitSpinner wrapperStyle={styles.loadingRewardsContent} />
   );
 
   const EmptyRewardsContent = () => {
@@ -128,8 +122,6 @@ export const Rewards = () => {
         }>
         <PageTitle>REWARDS</PageTitle>
         <PlotCard.BFIT
-          totalAmount={bfitViewValue}
-          totalAmountAlt={convertBfitToUsd(bfitViewValue)}
           isLoading={isLoadingUser}
           wrapperStyle={{
             marginHorizontal: widthLize(20),
@@ -168,3 +160,11 @@ export const Rewards = () => {
     </Wrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingRewardsContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

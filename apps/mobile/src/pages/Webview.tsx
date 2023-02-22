@@ -1,31 +1,22 @@
 import React, {useRef, useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
-import styled, {useTheme} from 'styled-components/native';
-import {ActivityIndicator, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {StackScreenProps} from '@react-navigation/stack';
 import {WebView} from 'react-native-webview';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {RootStackParamList} from 'routes/types';
+
 import {Navbar} from '@components';
+
+import {RootStackParamList} from 'routes/types';
+import {BfitSpinner} from '../components/common/BfitSpinner';
+import theme from '../theme/themes/fitlink';
 
 const disableClasses =
   '.hamburger, header, footer, .hs-cookie-notification-position-bottom, .footer';
 
-const LoadingWrapper = styled.View(({theme: {colors}}) => ({
-  position: 'absolute',
-  height: '100%',
-  width: '100%',
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundColor: colors.background,
-}));
-
 export const Webview = (
   props: StackScreenProps<RootStackParamList, 'Webview'>,
 ) => {
-  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const {colors} = useTheme();
 
   const {url, title} = props.route.params;
 
@@ -54,11 +45,7 @@ export const Webview = (
   };
 
   const renderLoading = () => {
-    return (
-      <LoadingWrapper>
-        <ActivityIndicator color={colors.accent} />
-      </LoadingWrapper>
-    );
+    return <BfitSpinner wrapperStyle={styles.loadingWrapper} />;
   };
 
   return (
@@ -77,3 +64,14 @@ export const Webview = (
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingWrapper: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.background,
+  },
+});

@@ -74,7 +74,7 @@ async function getTodaysSteps() {
       0,
     );
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 
   return stepsTotal;
@@ -148,7 +148,7 @@ async function getTodaysSleepHours() {
 
     return calculateSleepDuration(filteredSamples);
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
   return 0;
 }
@@ -171,7 +171,7 @@ async function getTodayHydration() {
 
     litresTotal = waterToday?.value || 0;
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
   return litresTotal;
 }
@@ -208,7 +208,7 @@ async function getTodayMindfulnessMinutes() {
       0,
     );
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
   return mindfulnessMinutesTotal;
 }
@@ -236,7 +236,7 @@ async function getTodayActiveMinutes() {
 
     activeMinutes = exerciseTimes.reduce((acc, val) => acc + val, 0);
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 
   return activeMinutes;
@@ -262,7 +262,7 @@ async function getTodayFloorsClimbed() {
 
     flightsClimbedCount = flightsClimbed.value;
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
   return flightsClimbedCount;
 }
@@ -345,7 +345,7 @@ async function syncLifestyle() {
       current_active_minutes: data.active_minutes,
     });
   } catch (e) {
-    console.log('Unable to sync Apple lifestyle data.');
+    console.error('Unable to sync Apple lifestyle data.', e);
   }
 }
 
@@ -363,14 +363,14 @@ async function syncActivities() {
     const activities = await getActivitiesSinceDate(startDate);
 
     if (activities.length === 0) {
-      console.log('No health activities found in the past 30 days.');
+      console.warn('No health activities found in the past 30 days.');
       return;
     }
     const normalizedActivities = normalizeActivities(activities);
 
     await syncDeviceActivities(normalizedActivities);
   } catch (e) {
-    console.log('Unable to sync Apple health activity data.');
+    console.error('Unable to sync Apple health activity data.', e);
   }
 }
 

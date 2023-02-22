@@ -1,23 +1,28 @@
-import React from 'react';
+import React, {FC} from 'react';
 import {
   StyleProp,
   StyleSheet,
   Text,
   TextStyle,
   TouchableOpacity,
+  View,
   ViewStyle,
 } from 'react-native';
-import theme from '../../theme/themes/fitlink';
 
-type FitButtonVariant =
+import theme from '../../theme/themes/fitlink';
+import {BfitSpinner} from './BfitSpinner';
+
+type BFitButtonVariant =
   | 'primary'
   | 'primary-outlined'
   | 'secondary'
   | 'secondary-outlined';
-type FitButtonProps = React.ComponentProps<typeof TouchableOpacity> & {
-  variant: FitButtonVariant;
+type BFitButtonProps = React.ComponentProps<typeof TouchableOpacity> & {
+  variant: BFitButtonVariant;
   text: string;
   textStyle?: StyleProp<TextStyle>;
+  isLoading?: boolean;
+  LeadingIcon?: FC;
 };
 
 type VariantStyles = {
@@ -25,12 +30,13 @@ type VariantStyles = {
   text: StyleProp<TextStyle>;
 };
 
-const getVariantStyles = (variant: FitButtonVariant): VariantStyles => {
+const getVariantStyles = (variant: BFitButtonVariant): VariantStyles => {
   switch (variant) {
     case 'primary':
       return {
         touchable: {
           backgroundColor: theme.colors.accent,
+          paddingVertical: 12,
         },
         text: {
           color: theme.colors.background,
@@ -39,7 +45,8 @@ const getVariantStyles = (variant: FitButtonVariant): VariantStyles => {
     case 'primary-outlined':
       return {
         touchable: {
-          borderWidth: 1,
+          borderWidth: 2,
+          paddingVertical: 10,
           borderColor: theme.colors.accent,
           backgroundColor: 'transparent',
         },
@@ -50,6 +57,7 @@ const getVariantStyles = (variant: FitButtonVariant): VariantStyles => {
     case 'secondary':
       return {
         touchable: {
+          paddingVertical: 12,
           backgroundColor: theme.colors.text,
         },
         text: {
@@ -59,7 +67,8 @@ const getVariantStyles = (variant: FitButtonVariant): VariantStyles => {
     case 'secondary-outlined':
       return {
         touchable: {
-          borderWidth: 1,
+          borderWidth: 2,
+          paddingVertical: 10,
           borderColor: theme.colors.text,
           backgroundColor: 'transparent',
         },
@@ -70,19 +79,35 @@ const getVariantStyles = (variant: FitButtonVariant): VariantStyles => {
   }
 };
 
-export const FitButton = ({
+export const BfitButton = ({
   style,
   variant,
   text,
   textStyle,
+  LeadingIcon,
+  isLoading,
   ...rest
-}: FitButtonProps): JSX.Element => {
+}: BFitButtonProps): JSX.Element => {
   const variantStyle = getVariantStyles(variant);
+  const IconRenderController = () => {
+    if (isLoading) {
+      return <BfitSpinner />;
+    }
+    if (LeadingIcon) {
+      return <LeadingIcon />;
+    }
+    return null;
+  };
 
   return (
     <TouchableOpacity
       {...rest}
       style={[buttonStyles.baseTouchable, variantStyle.touchable, style]}>
+      {(LeadingIcon || isLoading) && (
+        <View style={{marginRight: 8}}>
+          <IconRenderController />
+        </View>
+      )}
       <Text style={[buttonStyles.baseText, variantStyle.text, textStyle]}>
         {text}
       </Text>
@@ -92,12 +117,10 @@ export const FitButton = ({
 
 const buttonStyles = StyleSheet.create({
   baseTouchable: {
-    paddingTop: 8,
-    paddingBottom: 8,
-    paddingLeft: 12,
-    paddingRight: 12,
-    borderRadius: 20,
+    paddingHorizontal: 30,
+    borderRadius: 30,
     alignSelf: 'flex-start',
+    flexDirection: 'row',
   },
   baseText: {
     fontFamily: 'Roboto',
@@ -105,5 +128,6 @@ const buttonStyles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 16,
     flexShrink: 1,
+    alignSelf: 'center',
   },
 });

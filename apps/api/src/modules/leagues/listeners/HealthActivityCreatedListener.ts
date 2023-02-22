@@ -142,64 +142,71 @@ export class HealthActivityCreatedListener {
       const dailyBfit = Math.round(
         (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
       )
-      const { points } = await this.leaderboardEntriesRepository.findOne({
-        user_id: userId,
-        league_id: league.id
-      })
-      let total_user_league_points = await this.leaderboardEntriesRepository
-        .createQueryBuilder('leaderboard_entry')
-        .select('SUM(leaderboard_entry.points)', 'totalPoints')
-        .where('leaderboard_entry.league_id = :leagueId', {
-          leagueId: league.id
+
+      const existingLeaderboardEntry =
+        await this.leaderboardEntriesRepository.findOne({
+          user_id: userId,
+          league_id: league.id
         })
-        .getRawOne()
-      total_user_league_points = parseInt(
-        total_user_league_points.totalPoints,
-        10
-      )
-      // we multiply by 1000_000 because $BFIT has 6 decimals
-      let bfit = dailyBfit * ((points / total_user_league_points) * 1000_000)
-      // increment user bfit
-      incrementEntryPromises.push(
-        this.leaderboardEntriesRepository.increment(
-          {
-            leaderboard: { id: league.active_leaderboard.id },
-            user: { id: userId }
-          },
-
-          'bfit_earned',
-          bfit
+      if (existingLeaderboardEntry) {
+        const points = existingLeaderboardEntry.points
+        let total_user_league_points = await this.leaderboardEntriesRepository
+          .createQueryBuilder('leaderboard_entry')
+          .select('SUM(leaderboard_entry.points)', 'totalPoints')
+          .where('leaderboard_entry.league_id = :leagueId', {
+            leagueId: league.id
+          })
+          .getRawOne()
+        total_user_league_points = parseInt(
+          total_user_league_points.totalPoints,
+          10
         )
-      )
-      // increment total league bfit
-      incrementEntryPromises.push(
-        this.leaguesRepository.increment(
-          {
-            id: league.id
-          },
-
-          'bfit',
-          bfit
+        // we multiply by 1000_000 because $BFIT has 6 decimals
+        let bfit = Math.round(
+          dailyBfit * ((points / total_user_league_points) * 1000_000)
         )
-      )
+        // increment user bfit
+        incrementEntryPromises.push(
+          this.leaderboardEntriesRepository.increment(
+            {
+              leaderboard: { id: league.active_leaderboard.id },
+              user: { id: userId }
+            },
 
-      let bfitEarnings = new LeagueBfitEarnings()
-      bfitEarnings.user_id = userId
-      bfitEarnings.league_id = league.id
-      bfitEarnings.bfit_amount = bfit
-      let savedEarnings = await this.leagueBfitEarningsRepository.save(
-        bfitEarnings
-      )
-      let walletTransaction = new WalletTransaction()
-      walletTransaction.source = WalletTransactionSource.LeagueBfitEarnings
-      walletTransaction.earnings_id = savedEarnings.id
-      walletTransaction.league_id = league.id
-      walletTransaction.league_name = league.name
-      walletTransaction.user_id = userId
-      walletTransaction.bfit_amount = bfit
-      incrementEntryPromises.push(
-        this.walletTransactionRepository.save(walletTransaction)
-      )
+            'bfit_earned',
+            bfit
+          )
+        )
+        // increment total league bfit
+        incrementEntryPromises.push(
+          this.leaguesRepository.increment(
+            {
+              id: league.id
+            },
+
+            'bfit',
+            bfit
+          )
+        )
+
+        let bfitEarnings = new LeagueBfitEarnings()
+        bfitEarnings.user_id = userId
+        bfitEarnings.league_id = league.id
+        bfitEarnings.bfit_amount = bfit
+        let savedEarnings = await this.leagueBfitEarningsRepository.save(
+          bfitEarnings
+        )
+        let walletTransaction = new WalletTransaction()
+        walletTransaction.source = WalletTransactionSource.LeagueBfitEarnings
+        walletTransaction.earnings_id = savedEarnings.id
+        walletTransaction.league_id = league.id
+        walletTransaction.league_name = league.name
+        walletTransaction.user_id = userId
+        walletTransaction.bfit_amount = bfit
+        incrementEntryPromises.push(
+          this.walletTransactionRepository.save(walletTransaction)
+        )
+      }
     }
 
     await Promise.all(incrementEntryPromises)

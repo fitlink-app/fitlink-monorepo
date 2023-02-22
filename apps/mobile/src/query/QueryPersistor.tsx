@@ -42,7 +42,7 @@ export const QueryPersistor: React.FC = ({children}) => {
         })) as StorableQuery[];
 
         persistData(AsyncStorageKeys.QUERY_CACHE, storableQueries).catch(e =>
-          console.log('Failed to persist query cache: ' + e),
+          console.error('Failed to persist query cache: ', e),
         );
       }
     });
@@ -56,7 +56,6 @@ export const QueryPersistor: React.FC = ({children}) => {
       const {queryKey, data} = query;
       if (queryWhitelist.includes(queryKey as string)) {
         queryClient.setQueryData(queryKey, data);
-        console.log(`QUERY PERSISTOR: Restored cache for "${queryKey}" query`);
       }
     });
   };

@@ -1,9 +1,9 @@
 import {useEffect, useState} from 'react';
+import {useQuery} from 'react-query';
 
 import api from '@api';
-
+import {getViewBfitValue} from '@utils';
 import {LeagueBfitEarnings} from '@fitlink/api/src/modules/leagues/entities/bfit-earnings.entity';
-import {useQuery} from 'react-query';
 
 const DAYS_IN_WEEK = 7;
 
@@ -26,6 +26,7 @@ export const useWeeklyEarnings = () => {
     new Array(DAYS_IN_WEEK).fill(0),
   );
   const [percentsGrowth, setPercentsGrowth] = useState(0);
+  const [currentWeekEarningsSum, setCurrentWeekEarningsSum] = useState(0);
 
   const currentWeekLimit = new Date().getDay() + 1;
   const limit = currentWeekLimit + DAYS_IN_WEEK;
@@ -46,6 +47,7 @@ export const useWeeklyEarnings = () => {
       const prevWeekSum = getWeekSumEarnings(prevWeekEarnings);
       const curWeekSum = getWeekSumEarnings(curWeekEarnings);
 
+      setCurrentWeekEarningsSum(getViewBfitValue(curWeekSum));
       setPercentsGrowth(Math.trunc((curWeekSum / prevWeekSum) * 100));
 
       setWeeklyEarnings(prev => [
@@ -59,5 +61,6 @@ export const useWeeklyEarnings = () => {
     isLoading,
     weeklyEarnings,
     percentsGrowth,
+    currentWeekEarningsSum,
   };
 };

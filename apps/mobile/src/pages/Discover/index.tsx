@@ -4,7 +4,6 @@ import {
   StyleSheet,
   View,
   Image,
-  ActivityIndicator,
 } from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
 import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
@@ -32,6 +31,7 @@ import {
   setSearchLocation,
 } from 'redux/discover/discoverSlice';
 import {AppDispatch} from 'redux/store';
+import {BfitSpinner} from "../../components/common/BfitSpinner";
 
 const MAP_MARKER_ICON = require('../../../../assets/images/map/map_marker.png');
 const MAP_MARKER_USER_ACTIVITY = require('../../../../assets/images/map/map-marker-user-activity.png');
@@ -526,7 +526,7 @@ export const Discover = () => {
           zoomLevel: 12,
         });
       })
-      .catch(error => console.log(error.message)); // error is a Javascript Error object
+      .catch(error => console.error(error.message)); // error is a Javascript Error object
   };
 
   const selectMarker = (id?: string) => {
@@ -988,9 +988,7 @@ export const Discover = () => {
                 style={{marginRight: 5}}>
                 Loading activities...
               </Label>
-              <View>
-                <ActivityIndicator color={colors.accent} />
-              </View>
+              <BfitSpinner />
             </View>
           </View>
         )}

@@ -1,7 +1,8 @@
-import {Button, ButtonProps, Icon, Label, TouchHandler} from '@components';
+import {ButtonProps, Icon, Label, TouchHandler} from '@components';
 import React from 'react';
-import {ActivityIndicator, StyleProp, ViewStyle} from 'react-native';
+import {StyleProp, StyleSheet, ViewStyle} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
+import {BfitSpinner} from '../../../../../components/common/BfitSpinner';
 
 const ButtonWrapper = styled.View({padding: 5, minWidth: 180});
 
@@ -53,8 +54,8 @@ export const TrackerButton = ({
         </Label>
 
         {isLoading ? (
-          <ActivityIndicator
-            style={{position: 'absolute', right: 10}}
+          <BfitSpinner
+            wrapperStyle={styles.loadingWrapper}
             size={'small'}
             color={isLinked ? colors.accent : colors.accentSecondary}
           />
@@ -65,3 +66,10 @@ export const TrackerButton = ({
     </ButtonWrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingWrapper: {
+    position: 'absolute',
+    right: 10,
+  },
+});

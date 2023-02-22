@@ -12,6 +12,7 @@ import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 import {WeeklyEarningsGraph} from '@components';
 import {useWeeklyEarnings} from '@hooks';
+import {convertBfitToUsd} from '@utils';
 
 interface PlotCardProps {
   title: string;
@@ -94,16 +95,20 @@ const styles = StyleSheet.create({
   },
 });
 
-interface PlotCardWrapperProps
+interface BFITCardWrapperProps
   extends Omit<
     PlotCardProps,
-    'totalNumberOfDigits' | 'Plot' | 'title' | 'subtitle' | 'percentsGrowth'
-  > {
-  totalAmountAlt: number;
-}
+    | 'totalNumberOfDigits'
+    | 'Plot'
+    | 'title'
+    | 'subtitle'
+    | 'percentsGrowth'
+    | 'totalAmount'
+  > {}
 
-const BFITInner = ({totalAmountAlt, ...rest}: PlotCardWrapperProps) => {
-  const {weeklyEarnings, percentsGrowth} = useWeeklyEarnings();
+const BFITInner = (props: BFITCardWrapperProps) => {
+  const {weeklyEarnings, percentsGrowth, currentWeekEarningsSum} =
+    useWeeklyEarnings();
 
   const Plot = () => (
     <WeeklyEarningsGraph
@@ -116,17 +121,26 @@ const BFITInner = ({totalAmountAlt, ...rest}: PlotCardWrapperProps) => {
 
   return (
     <PlotCard
-      {...rest}
+      {...props}
       percentsGrowth={percentsGrowth}
       title="TOTAL BFIT"
-      subtitle={`$${totalAmountAlt}`}
+      totalAmount={currentWeekEarningsSum}
+      subtitle={`$${convertBfitToUsd(currentWeekEarningsSum)}`}
       totalNumberOfDigits={5}
       Plot={<Plot />}
     />
   );
 };
 
-const Calories = ({totalAmountAlt, ...rest}: PlotCardWrapperProps) => {
+interface CaloriesCardWrapperProps
+  extends Omit<
+    PlotCardProps,
+    'totalNumberOfDigits' | 'Plot' | 'title' | 'subtitle' | 'percentsGrowth'
+  > {
+  totalAmountAlt: number;
+}
+
+const Calories = ({totalAmountAlt, ...rest}: CaloriesCardWrapperProps) => {
   const Plot = () => (
     <Image source={require('../../../assets/images/total_rank_chart2.png')} />
   );

@@ -1,7 +1,8 @@
 import {Label} from '@components';
 import React, {useState, createContext} from 'react';
-import {StyleSheet, ActivityIndicator} from 'react-native';
-import styled, {useTheme} from 'styled-components/native';
+import {StyleSheet} from 'react-native';
+import styled from 'styled-components/native';
+import {BfitSpinner} from '../components/common/BfitSpinner';
 
 const Wrapper = styled.View({
   ...StyleSheet.absoluteFillObject,
@@ -18,7 +19,6 @@ interface TransitionContextProps {
 export const TransitionContext = createContext({} as TransitionContextProps);
 
 export const Transition: React.FC = ({children}) => {
-  const {colors} = useTheme();
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [text, setText] = useState<string>();
 
@@ -37,7 +37,7 @@ export const Transition: React.FC = ({children}) => {
       {children}
       {isVisible && (
         <Wrapper>
-          <ActivityIndicator color={colors.accent} style={{marginBottom: 10}} />
+          <BfitSpinner wrapperStyle={{marginBottom: 10}} />
           <Label appearance={'primary'}>{text}</Label>
         </Wrapper>
       )}

@@ -57,7 +57,7 @@ export function useShareHealthActivity() {
 
       await Share.open(shareOptions);
     } catch (e: any) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }

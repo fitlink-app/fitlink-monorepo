@@ -418,7 +418,6 @@ export const Settings = () => {
               onLink={async () => {
                 try {
                   await linkGoogleFit(() => {
-                    GoogleFitWrapper.disconnect();
                     return GoogleFitWrapper.authenticate();
                   });
                 } catch (e) {

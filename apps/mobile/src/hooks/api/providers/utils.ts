@@ -44,7 +44,7 @@ export const linkOauth = async (
       }
     } else Linking.openURL(API_URL + endpoint);
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 };
 

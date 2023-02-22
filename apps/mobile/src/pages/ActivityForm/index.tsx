@@ -139,7 +139,7 @@ export const ActivityForm = (
 
       handleSubmit(() => submitForm({activityImageIds, organizerImageId}));
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   };
 
@@ -181,7 +181,7 @@ export const ActivityForm = (
       }
     } catch (e: any) {
       const requestErrors = getErrors(e);
-      console.log(requestErrors);
+      console.error(requestErrors);
       return requestErrors;
     }
   };

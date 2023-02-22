@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 import Clipboard from '@react-native-community/clipboard';
 
 import {openUrl} from '@utils';
-import {FitButton} from '@components';
+import {BfitButton} from '@components';
 
 import {Banner} from '../../../components/modal';
 
@@ -30,12 +30,12 @@ export const RedeemSuccessBanner: FC<IRedeemSuccessBannerProps> = ({
     <Banner title="Reward redeemed" paragraphs={[instructions]}>
       <SText>CODE: {code}</SText>
       <SRow>
-        <FitButton
+        <BfitButton
           onPress={copyCodeToClipboard}
           variant="primary"
           text="COPY CODE"
         />
-        <FitButton
+        <BfitButton
           onPress={openRewardUrl}
           variant="secondary"
           text="VISIT WEBSITE"

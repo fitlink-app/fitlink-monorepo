@@ -23,7 +23,7 @@ export const syncDeviceActivities = async (data: WebhookEventData) => {
       payload: data,
     });
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 };
 
@@ -33,7 +33,7 @@ export const syncDeviceLifestyleData = async (data: RecreateGoalsEntryDto) => {
       payload: data,
     });
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 };
 
