@@ -5,12 +5,13 @@ import { LeaderboardEntriesController } from './leaderboard-entries.controller'
 import { LeaderboardEntry } from './entities/leaderboard-entry.entity'
 import { AuthModule } from '../auth/auth.module'
 import { ConfigModule } from '@nestjs/config'
+import { League } from '../leagues/entities/league.entity'
 
 @Module({
   imports: [
     ConfigModule,
     AuthModule,
-    TypeOrmModule.forFeature([LeaderboardEntry])
+    TypeOrmModule.forFeature([LeaderboardEntry, League])
   ],
   controllers: [LeaderboardEntriesController],
   providers: [LeaderboardEntriesService],
