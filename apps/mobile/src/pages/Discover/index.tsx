@@ -1,18 +1,13 @@
-import React, {useRef, useState} from 'react';
-import {
-  Animated,
-  StyleSheet,
-  View,
-  Image,
-} from 'react-native';
-import MapboxGL from '@rnmapbox/maps';
-import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-import {ActivityDetailsModal, ListModal} from './components';
-import {useEffect} from 'react';
-import styled, {useTheme} from 'styled-components/native';
+import React, {useRef, useState, useEffect} from 'react';
+import {Animated, StyleSheet, View, Image} from 'react-native';
 import RNGooglePlaces from 'react-native-google-places';
-import {Icon, Label, TouchHandler} from '@components';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useDispatch, useSelector} from 'react-redux';
+import MapboxGL from '@rnmapbox/maps';
+import {useNavigation} from '@react-navigation/native';
+
+import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import {Icon, Label, TouchHandler, BfitSpinner} from '@components';
 import {useFindActivitiesMap} from '@hooks';
 import {ActivityForMap} from '@fitlink/api/src/modules/activities/entities/activity.entity';
 import {
@@ -22,16 +17,16 @@ import {
   LatLng,
 } from '@utils';
 import createCircle from '@turf/circle';
-import {useNavigation} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
+
+import {ActivityDetailsModal, ListModal} from './components';
+import styled, {useTheme} from 'styled-components/native';
+import {AppDispatch} from 'redux/store';
 import {
   selectCurrentLocation,
   selectSearchLocation,
   setCurrentLocation,
   setSearchLocation,
 } from 'redux/discover/discoverSlice';
-import {AppDispatch} from 'redux/store';
-import {BfitSpinner} from "../../components/common/BfitSpinner";
 
 const MAP_MARKER_ICON = require('../../../../assets/images/map/map_marker.png');
 const MAP_MARKER_USER_ACTIVITY = require('../../../../assets/images/map/map-marker-user-activity.png');
