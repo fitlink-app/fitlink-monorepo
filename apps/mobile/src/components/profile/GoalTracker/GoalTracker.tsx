@@ -1,14 +1,16 @@
 import React from 'react';
-import {Label, Modal, TouchHandler} from '../../common';
-import styled from 'styled-components/native';
-import {Goal} from './components/Goal';
+import {ScrollView, StyleProp, ViewStyle} from 'react-native';
+import {useNavigation} from '@react-navigation/core';
+
 import {useGoals, useModal, useProviders} from '@hooks';
 import {
   ProviderType,
   ProviderTypeDisplay,
 } from '@fitlink/api/src/modules/providers/providers.constants';
-import {useNavigation} from '@react-navigation/core';
-import {ScrollView, StyleProp, ViewStyle} from 'react-native';
+
+import {Label, Modal} from '../../common';
+import styled from 'styled-components/native';
+import {Goal} from './components/Goal';
 
 const StyledGoal = styled(Goal)({
   marginRight: 15,
@@ -62,6 +64,7 @@ export const GoalTracker = ({
       goal: {
         value: goals?.current_steps || 0,
         target: goals?.target_steps || 0,
+        measure: '',
       },
       icon: 'steps',
     },
@@ -71,6 +74,7 @@ export const GoalTracker = ({
       goal: {
         value: goals?.current_mindfulness_minutes || 0,
         target: goals?.target_mindfulness_minutes || 0,
+        measure: 'M',
       },
       icon: 'yoga',
     },
@@ -80,6 +84,7 @@ export const GoalTracker = ({
       goal: {
         value: goals?.current_water_litres || 0,
         target: goals?.target_water_litres || 0,
+        measure: 'L',
       },
       icon: 'water',
     },
@@ -89,6 +94,7 @@ export const GoalTracker = ({
       goal: {
         value: goals?.current_sleep_hours || 0,
         target: goals?.target_sleep_hours || 0,
+        measure: 'H',
       },
       icon: 'sleep',
     },
@@ -98,6 +104,7 @@ export const GoalTracker = ({
       goal: {
         value: goals?.current_active_minutes || 0,
         target: goals?.target_active_minutes || 0,
+        measure: 'M',
       },
       icon: 'stopwatch',
     },
@@ -111,6 +118,7 @@ export const GoalTracker = ({
       goal: {
         value: goals?.current_floors_climbed || 0,
         target: goals?.target_floors_climbed || 0,
+        measure: '',
       },
       icon: 'stairs',
     },
@@ -211,12 +219,11 @@ export const GoalTracker = ({
 
         {disabledTrackers.map(
           ({goal, icon, identifier, supportedProviders}) => (
-            <TouchHandler
-              onPress={() => {
-                showDisabledModal(identifier, supportedProviders!);
-              }}>
-              <StyledGoal key={identifier} {...{goal, icon}} disabled />
-            </TouchHandler>
+            <StyledGoal
+              key={identifier}
+              {...{goal, icon}}
+              onPress={() => showDisabledModal(identifier, supportedProviders!)}
+            />
           ),
         )}
       </>

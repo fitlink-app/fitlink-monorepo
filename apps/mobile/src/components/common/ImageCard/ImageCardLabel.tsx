@@ -1,11 +1,20 @@
-import React, {ComponentProps} from 'react';
+import React, {FC} from 'react';
+import { StyleProp, TextStyle, View, ViewStyle } from 'react-native'
 import styled from 'styled-components/native';
+
 import theme from '../../../theme/themes/fitlink';
 
-const Row = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-});
+export const ImageCardLabel: FC<ImageCardLabelProps> = ({
+  text,
+  labelStyle,
+  textStyle,
+}) => (
+  <View>
+    <LabelContainer style={labelStyle}>
+      <SText style={textStyle}>{text}</SText>
+    </LabelContainer>
+  </View>
+);
 
 const LabelContainer = styled.View({
   paddingLeft: 12,
@@ -29,14 +38,8 @@ const SText = styled.Text({
   color: theme.colors.text,
 });
 
-type ImageCardLabelProps = ComponentProps<typeof Row> & {
+type ImageCardLabelProps = {
   text: string;
+  labelStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 };
-
-export const ImageCardLabel = ({text, ...props}: ImageCardLabelProps) => (
-  <Row {...props}>
-    <LabelContainer>
-      <SText>{text}</SText>
-    </LabelContainer>
-  </Row>
-);

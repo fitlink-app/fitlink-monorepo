@@ -9,8 +9,9 @@ const CarouselContainer = styled.View({
   width: '100%',
 });
 
+// TODO: Figma has 473 height size, fix: change "absolute" to "relative" layout
 const CarouselItem = styled.View({
-  height: 473,
+  height: 410,
 });
 
 const SBottomView = styled.View({

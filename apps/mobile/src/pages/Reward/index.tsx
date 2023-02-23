@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {StackScreenProps} from '@react-navigation/stack';
@@ -28,7 +28,7 @@ import DetailedProgressBar from './components/DetailedProgressBar';
 import AnimatedHeaderCard from '../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
 import {RedeemSuccessBanner} from './components';
 import ErrorContent from '../../components/common/ErrorContent';
-import {BfitSpinner} from "../../components/common/BfitSpinner";
+import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -70,6 +70,21 @@ export const Reward = (
   };
 
   const {refresh, isRefreshing} = useManualQueryRefresh(refetch);
+
+  const isUnavailable =
+    reward?.limit_units && reward?.redeemed_count >= reward?.units_available;
+
+  const isRedeemed = reward?.redeemed;
+
+  const buyButtonText = useMemo(() => {
+    if (isRedeemed) {
+      return 'REDEEMED';
+    }
+    if (isUnavailable) {
+      return 'UNAVAILABLE';
+    }
+    return 'BUY REWARD';
+  }, [isRedeemed, isUnavailable]);
 
   if (isLoadingUser || isLoadingReward) {
     return (
@@ -127,11 +142,6 @@ export const Reward = (
     }
   };
 
-  const isUnableToBuy =
-    reward.limit_units && (reward.redeemed || reward.units_available === 0);
-  const disabledBuyButtonText = reward.redeemed ? 'REDEEMED' : 'UNAVAILABLE';
-  const buyButtonText = isUnableToBuy ? disabledBuyButtonText : 'BUY REWARD';
-
   return (
     <Wrapper>
       <AnimatedHeaderCard
@@ -153,7 +163,7 @@ export const Reward = (
         sharedContentOffset={sharedContentOffset}>
         {isReadyToBuy ? (
           <BfitButton
-            disabled={isUnableToBuy}
+            disabled={isUnavailable || isRedeemed}
             style={styles.buy}
             onPress={onClaimReward}
             text={buyButtonText}

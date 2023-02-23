@@ -1,5 +1,5 @@
 import React, {FC} from 'react';
-import {ImageSourcePropType, StyleSheet, View} from 'react-native';
+import {Dimensions, ImageSourcePropType, StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/core';
 import Animated from 'react-native-reanimated';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
@@ -58,6 +58,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
   }) => {
     const navigation = useNavigation();
 
+    const leaderboardLabelText = 'LEADERBOARD';
     const {mutateAsync: joinLeague} = useJoinLeague();
     const {mutateAsync: leaveLeague} = useLeaveLeague();
     const {
@@ -144,7 +145,12 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
           onHeightLayout={onHeightLayout}
           sharedContentOffset={sharedContentOffset}>
           <View style={styles.subheader}>
-            <Label style={styles.subheaderLabel}>LEADERBOARD</Label>
+            <Label
+              style={{
+                fontSize: calculateFontSize(18, leaderboardLabelText.length),
+              }}>
+              {leaderboardLabelText}
+            </Label>
             <ActionButton
               isMember={isMember}
               isCteLeague={isCteLeague}
@@ -170,9 +176,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
   },
-  subheaderLabel: {
-    fontSize: 19,
-  },
 });
+
+// 3 - experimental number to get half-screen label size, may be changed with change of text in it
+export function calculateFontSize(paddingSize: number, textSize: number) {
+  return (Dimensions.get('window').width - paddingSize * 2) / (textSize + 3);
+}
 
 export default AnimatedLeaderboardHeaderCard;

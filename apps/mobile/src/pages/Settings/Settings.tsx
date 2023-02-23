@@ -422,6 +422,7 @@ export const Settings = () => {
                   });
                 } catch (e) {
                   console.error('onLinkPress', e);
+                  throw e;
                 }
               }}
               onUnlink={() => {
@@ -437,10 +438,9 @@ export const Settings = () => {
           {Platform.OS === 'ios' && (
             <SettingsHealthActivityButton
               label={'Apple Health'}
-              onLink={() => {
+              onLink={async () => {
                 linkAppleHealth(() => AppleHealthKitWrapper.authenticate());
               }}
-              // @ts-ignore
               onUnlink={unlinkAppleHealth}
               isLoading={isAppleHealthLinking || isAppleHealthUnlinking}
               disabled={isAppleHealthLinking || isAppleHealthUnlinking}
@@ -451,7 +451,6 @@ export const Settings = () => {
           <SettingsHealthActivityButton
             label={'Strava'}
             onLink={linkStrava}
-            // @ts-ignore
             onUnlink={unlinkStrava}
             isLoading={isStravaLinking || isStravaUnlinking}
             disabled={isStravaLinking || isStravaUnlinking}
@@ -461,7 +460,6 @@ export const Settings = () => {
           <SettingsHealthActivityButton
             label={'Fitbit'}
             onLink={linkFitbit}
-            // @ts-ignore
             onUnlink={unlinkFitbit}
             isLoading={isFitbitLinking || isFitbitUnlinking}
             disabled={isFitbitLinking || isFitbitUnlinking}

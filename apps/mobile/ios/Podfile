@@ -4,8 +4,6 @@ $RNFirebaseAsStaticFramework = true
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-$RNMapboxMapsImpl = 'mapbox' # requires ios 13
-
 platform :ios, '13.0'
 
 project 'Fitlink',
@@ -27,7 +25,7 @@ target 'Fitlink' do
 #  pod 'FirebaseCrashlytics'
 
   pre_install do |installer|
-    $RNMapboxMaps.pre_install(installer)
+    $RNMBGL.pre_install(installer)
   end
 
   target 'FitlinkTests' do
@@ -45,7 +43,7 @@ target 'Fitlink' do
 #   end
 
   post_install do |installer|
-    $RNMapboxMaps.post_install(installer)
+    $RNMBGL.post_install(installer)
 
     react_native_post_install(installer)
 
