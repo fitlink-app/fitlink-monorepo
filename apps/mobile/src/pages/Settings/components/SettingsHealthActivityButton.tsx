@@ -1,13 +1,14 @@
+import React from 'react';
+
 import {Modal} from '@components';
 import {useModal} from '@hooks';
-import {Dialog} from 'components/modal';
-import React, {useContext} from 'react';
+
 import {SettingsButtonProps, SettingsButton} from './SettingsButton';
 
 interface SettingsHealthActivityButtonProps {
   isLinked: boolean;
   isLoading: boolean;
-  onLink: () => void;
+  onLink: () => Promise<void>;
   onUnlink: () => void;
 }
 
@@ -44,8 +45,31 @@ export const SettingsHealthActivityButton = ({
     ));
   };
 
+  const handleLinkProvider = async () => {
+    try {
+      await onLink();
+      openModal(id => (
+        <Modal
+          title={`${rest.label} Linked Successfully`}
+          buttons={[
+            {
+              text: 'OK',
+              onPress: () => closeModal(id),
+            },
+          ]}
+        />
+      ));
+    } catch {
+      // ignore, because already handled on lower level
+    }
+  };
+
   const handleOnPress = () => {
-    isLinked ? handleUnlinkProvider() : onLink();
+    if (isLinked) {
+      handleUnlinkProvider();
+    } else {
+      handleLinkProvider();
+    }
   };
 
   return (

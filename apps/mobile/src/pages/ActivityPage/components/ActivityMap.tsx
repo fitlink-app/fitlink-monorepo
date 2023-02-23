@@ -1,7 +1,7 @@
 import React from 'react';
 import {TouchHandler} from '@components';
 import {getBounds} from '@utils';
-import MapboxGL from '@rnmapbox/maps';
+import MapboxGL from '@react-native-mapbox-gl/maps';
 import Polyline from '@mapbox/polyline';
 import {useNavigation} from '@react-navigation/core';
 

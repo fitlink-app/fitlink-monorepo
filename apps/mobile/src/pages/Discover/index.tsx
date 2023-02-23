@@ -1,11 +1,6 @@
 import React, {useRef, useState} from 'react';
-import {
-  Animated,
-  StyleSheet,
-  View,
-  Image,
-} from 'react-native';
-import MapboxGL from '@rnmapbox/maps';
+import {Animated, StyleSheet, View, Image} from 'react-native';
+import MapboxGL from '@react-native-mapbox-gl/maps';
 import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {ActivityDetailsModal, ListModal} from './components';
 import {useEffect} from 'react';
@@ -31,7 +26,7 @@ import {
   setSearchLocation,
 } from 'redux/discover/discoverSlice';
 import {AppDispatch} from 'redux/store';
-import {BfitSpinner} from "../../components/common/BfitSpinner";
+import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const MAP_MARKER_ICON = require('../../../../assets/images/map/map_marker.png');
 const MAP_MARKER_USER_ACTIVITY = require('../../../../assets/images/map/map-marker-user-activity.png');
