@@ -17,6 +17,65 @@ import {
 } from 'components/common/ImageCard';
 import {LeagueCardMembers} from './components';
 
+export interface LeagueCardInterface {
+  name: string;
+  imageSource: ImageSourcePropType;
+  memberCount: number;
+  sportName: string;
+  position?: number;
+  bfitValue?: number;
+  onPress?: () => void;
+  style?: StyleProp<ViewStyle>;
+  isVertical?: boolean;
+}
+
+export const LeagueCard = ({
+  name,
+  imageSource,
+  position,
+  memberCount,
+  sportName,
+  bfitValue,
+  onPress,
+  style,
+  isVertical = false,
+}: LeagueCardInterface) => {
+  const Label = () => {
+    let text: string | undefined;
+
+    if (bfitValue !== undefined) {
+      text = `${bfitValue} BFIT`;
+    } else if (position !== undefined) {
+      text = `${NumberFormatterUtils.getNumberWithOrdinal(position)} place`;
+    }
+
+    if (text === undefined) {
+      return null;
+    }
+
+    return (
+      <ImageCardLabel
+        labelStyle={[styles.bfitLabel, isVertical ? {top: 234} : {top: 179}]}
+        textStyle={styles.bfitText}
+        text={text}
+      />
+    );
+  };
+
+  const ImageContainer = isVertical ? C2EContainer : Container;
+
+  return (
+    <ImageContainer onPress={onPress} imageSource={imageSource} style={style}>
+      <ImageCardLabel labelStyle={styles.sportNameLabel} text={sportName} />
+      <CardFooter>
+        <LeagueCardMembers membersCount={memberCount} />
+        <Title>{name}</Title>
+      </CardFooter>
+      <Label />
+    </ImageContainer>
+  );
+};
+
 const C2EContainer = styled(ImageCard)({
   width: 327,
   height: 350,
@@ -43,69 +102,6 @@ const Title = styled(Text)({
   marginTop: 6,
 });
 
-export interface LeagueCardInterface {
-  name: string;
-  imageSource: ImageSourcePropType;
-  memberCount: number;
-  sportName: string;
-  position?: number;
-  bfitValue?: number;
-  onPress?: () => void;
-  style?: StyleProp<ViewStyle>;
-  isVertical?: boolean;
-}
-
-export const LeagueCard = ({
-  name,
-  imageSource,
-  position,
-  memberCount,
-  sportName,
-  bfitValue,
-  onPress,
-  style,
-  isVertical = false,
-}: LeagueCardInterface) => {
-  const check = bfitValue === undefined || isVertical;
-  const Label = () => {
-    if (bfitValue !== undefined) {
-      return (
-        <ImageCardLabel
-          labelStyle={[
-            styles.bfitLabel,
-            check ? {marginTop: 148} : {marginTop: 203},
-          ]}
-          textStyle={styles.bfitText}
-          text={`${bfitValue} BFIT`}
-        />
-      );
-    }
-    if (position !== undefined) {
-      return (
-        <ImageCardLabel
-          labelStyle={styles.bfitLabel}
-          textStyle={styles.bfitText}
-          text={`${NumberFormatterUtils.getNumberWithOrdinal(position)} place`}
-        />
-      );
-    }
-    return null;
-  };
-
-  const ImageContainer = check ? Container : C2EContainer;
-
-  return (
-    <ImageContainer onPress={onPress} imageSource={imageSource} style={style}>
-      <ImageCardLabel labelStyle={styles.sportNameLabel} text={sportName} />
-      <CardFooter>
-        <LeagueCardMembers membersCount={memberCount} />
-        <Title>{name}</Title>
-      </CardFooter>
-      <Label />
-    </ImageContainer>
-  );
-};
-
 const styles = StyleSheet.create({
   sportNameLabel: {
     position: 'absolute',
@@ -117,8 +113,8 @@ const styles = StyleSheet.create({
   },
   bfitLabel: {
     top: 28,
-    position: 'absolute',
     right: 28,
+    position: 'absolute',
     alignSelf: 'flex-end',
     backgroundColor: '#FFFFFF',
   },

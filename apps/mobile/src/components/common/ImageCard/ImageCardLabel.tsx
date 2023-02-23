@@ -1,7 +1,20 @@
-import React, {ComponentProps} from 'react';
+import React, {FC} from 'react';
+import { StyleProp, TextStyle, View, ViewStyle } from 'react-native'
 import styled from 'styled-components/native';
+
 import theme from '../../../theme/themes/fitlink';
-import {StyleProp, View, ViewStyle} from 'react-native';
+
+export const ImageCardLabel: FC<ImageCardLabelProps> = ({
+  text,
+  labelStyle,
+  textStyle,
+}) => (
+  <View>
+    <LabelContainer style={labelStyle}>
+      <SText style={textStyle}>{text}</SText>
+    </LabelContainer>
+  </View>
+);
 
 const LabelContainer = styled.View({
   paddingLeft: 12,
@@ -25,20 +38,8 @@ const SText = styled.Text({
   color: theme.colors.text,
 });
 
-type ImageCardLabelProps = ComponentProps<any> & {
+type ImageCardLabelProps = {
   text: string;
   labelStyle?: StyleProp<ViewStyle>;
-  textStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 };
-
-export const ImageCardLabel = ({
-  text,
-  labelStyle,
-  textStyle,
-}: ImageCardLabelProps) => (
-  <View>
-    <LabelContainer style={labelStyle}>
-      <SText style={textStyle}>{text}</SText>
-    </LabelContainer>
-  </View>
-);

@@ -62,6 +62,7 @@ export const CteLeagueSlider = ({
         data={leagues}
         renderItem={({item}) => (
           <StyledCteLeagueCard
+            isVertical
             key={item.id}
             memberCount={item.participants_total}
             name={item.name}

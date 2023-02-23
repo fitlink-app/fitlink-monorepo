@@ -48,7 +48,6 @@ export const LeagueList = ({
   const renderItem = ({item}: {item: LeaguePublic}) => {
     return (
       <LeagueCard
-        isVertical
         bfitValue={item.daily_bfit}
         name={item.name}
         imageSource={{uri: item.image?.url}}

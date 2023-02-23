@@ -102,7 +102,6 @@ const InvitationsInner: ForwardRefRenderFunction<IRefreshableTabHandle> = (
         memberCount={league.participants_total}
         sportName={league.sport.name}
         position={league.rank}
-        privateLeague={league.access === ('Private' as LeagueAccess)}
         onPress={() => {
           navigation.navigate('League', {id: league.id, league});
         }}
