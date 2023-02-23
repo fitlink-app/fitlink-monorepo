@@ -252,6 +252,8 @@ export class LeaguesController {
     @User() authUser: AuthenticatedUser,
     @Param('leagueId') leagueId: string
   ) {
+    console.log('/leagues/:leagueId/claim')
+    return 'claim'
     return this.leaguesService.claimLeagueBfit(
       leagueId,
       authUser.id,
