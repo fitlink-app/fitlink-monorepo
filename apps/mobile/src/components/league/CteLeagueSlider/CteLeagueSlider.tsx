@@ -65,6 +65,7 @@ export const CteLeagueSlider = ({
             key={item.id}
             memberCount={item.participants_total}
             name={item.name}
+            sportName={item.sport.name}
             imageSource={{uri: item.image.url_640x360}}
             onPress={() => {
               onCardPress(item.id, item);

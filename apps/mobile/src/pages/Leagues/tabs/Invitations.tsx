@@ -98,9 +98,9 @@ const InvitationsInner: ForwardRefRenderFunction<IRefreshableTabHandle> = (
       <LeagueCard
         {...{organisation, invitedBy}}
         name={league.name}
-        sport={league.sport.name}
         imageSource={{uri: league.image.url}}
         memberCount={league.participants_total}
+        sportName={league.sport.name}
         position={league.rank}
         privateLeague={league.access === ('Private' as LeagueAccess)}
         onPress={() => {
