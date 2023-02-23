@@ -53,6 +53,7 @@ export const LeagueList = ({
         name={item.name}
         imageSource={{uri: item.image?.url}}
         memberCount={item.participants_total}
+        sportName={item.sport.name}
         position={item.participating ? item.rank : undefined}
         onPress={() => {
           navigation.navigate('League', {id: item.id, league: item});
