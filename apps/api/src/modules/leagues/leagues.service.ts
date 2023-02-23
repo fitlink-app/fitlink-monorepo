@@ -1717,7 +1717,7 @@ export class LeaguesService {
     user_id: string,
     amount: number
   ) {
-    const RPC_ENDPOINT = 'https://rpc.harpoon.kujira.setten.io:443'
+    const RPC_ENDPOINT = 'https://test-rpc-kujira.mintthemoon.xyz/'
     const { BFIT_EARNINGS_SC_ADDRESS } = process.env
     const { MNEMONIC } = process.env
 
