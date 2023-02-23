@@ -2,6 +2,7 @@ import React, {useRef, useEffect} from 'react';
 import {Animated, StyleSheet, View} from 'react-native';
 import {Svg, Circle, G} from 'react-native-svg';
 import styled, {useTheme} from 'styled-components/native';
+
 import {animateProgress, createBloomEffect} from './progressMethods';
 
 export interface ProgressCircleProps {
@@ -26,7 +27,7 @@ export interface ProgressCircleProps {
   children?: React.ReactNode;
 }
 
-const _ProgressCircle = (props: ProgressCircleProps) => {
+export const ProgressCircle = (props: ProgressCircleProps) => {
   const {
     size = 90,
     strokeWidth = 6,
@@ -119,8 +120,3 @@ const _ProgressCircle = (props: ProgressCircleProps) => {
     </View>
   );
 };
-
-export const ProgressCircle = React.memo(
-  _ProgressCircle,
-  (a, b) => a.progress === b.progress,
-);
