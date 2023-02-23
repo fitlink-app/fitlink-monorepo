@@ -200,93 +200,89 @@ export class LeaguesService {
     userId: string,
     claimLeagueBfitDto: ClaimLeagueBfitDto
   ) {
-    try {
-      const league = await this.leaguesRepository.findOne(leagueId, {
-        relations: ['active_leaderboard']
-      })
-      if (!league) {
-        throw new NotFoundException(`League with ID ${leagueId} not found`)
-      }
-
-      const leaderboardEntry = await this.leaderboardEntryRepository.findOne({
-        leaderboard: { id: league.active_leaderboard.id },
-        user: { id: userId }
-      })
-      if (!leaderboardEntry) {
-        throw new NotFoundException('Leaderboard entry not found')
-      }
-
-      if (league.access !== LeagueAccess.CompeteToEarn) {
-        throw new BadRequestException(
-          'The provided league is not a compete to ear league'
-        )
-      }
-      const claimableBfit =
-        leaderboardEntry.bfit_earned - leaderboardEntry.bfit_claimed
-      if (claimableBfit < claimLeagueBfitDto.amount) {
-        throw new BadRequestException(
-          `You have not earned enough bfit in this league to claim ${
-            claimLeagueBfitDto.amount / 1000_000
-          } BFIT`
-        )
-      }
-      let createdClaim: LeagueBfitClaim
-      await this.leagueBfitClaimRepository.manager.transaction(
-        async (manager) => {
-          const leagueBfitClaimRepo = manager.getRepository(LeagueBfitClaim)
-          const leaderboardEntryRepo = manager.getRepository(LeaderboardEntry)
-          const userRepo = manager.getRepository(User)
-          const walletTransactionRepo = manager.getRepository(WalletTransaction)
-
-          const leagueBfitClaim = new LeagueBfitClaim()
-          leagueBfitClaim.league_id = leagueId
-          leagueBfitClaim.user_id = userId
-          leagueBfitClaim.bfit_amount = claimLeagueBfitDto.amount
-          createdClaim = await leagueBfitClaimRepo.save(leagueBfitClaim)
-
-          // update claimed bfit in this user's leaderboard entry
-          await leaderboardEntryRepo.increment(
-            {
-              leaderboard: { id: league.active_leaderboard.id },
-              user: { id: userId }
-            },
-
-            'bfit_claimed',
-            claimLeagueBfitDto.amount
-          )
-
-          // update user bfit balance
-          await userRepo.increment(
-            {
-              id: userId
-            },
-
-            'bfit_balance',
-            claimLeagueBfitDto.amount
-          )
-
-          const transactionHash = await this.sendBfitClaimTransaction(
-            leagueId,
-            userId,
-            claimLeagueBfitDto.amount
-          )
-
-          let walletTransaction = new WalletTransaction()
-          walletTransaction.source = WalletTransactionSource.LeagueBfitClaim
-          walletTransaction.claim_id = createdClaim.id
-          walletTransaction.league_id = league.id
-          walletTransaction.league_name = league.name
-          walletTransaction.user_id = userId
-          walletTransaction.bfit_amount = claimLeagueBfitDto.amount
-          walletTransaction.bfit_amount = claimLeagueBfitDto.amount
-          walletTransaction.transaction_id = transactionHash
-          await walletTransactionRepo.save(walletTransaction)
-        }
-      )
-      return createdClaim
-    } catch (error) {
-      console.log('CLAIM LEAGUE BFIT ERROR:', error)
+    const league = await this.leaguesRepository.findOne(leagueId, {
+      relations: ['active_leaderboard']
+    })
+    if (!league) {
+      throw new NotFoundException(`League with ID ${leagueId} not found`)
     }
+
+    const leaderboardEntry = await this.leaderboardEntryRepository.findOne({
+      leaderboard: { id: league.active_leaderboard.id },
+      user: { id: userId }
+    })
+    if (!leaderboardEntry) {
+      throw new NotFoundException('Leaderboard entry not found')
+    }
+
+    if (league.access !== LeagueAccess.CompeteToEarn) {
+      throw new BadRequestException(
+        'The provided league is not a compete to ear league'
+      )
+    }
+    const claimableBfit =
+      leaderboardEntry.bfit_earned - leaderboardEntry.bfit_claimed
+    if (claimableBfit < claimLeagueBfitDto.amount) {
+      throw new BadRequestException(
+        `You have not earned enough bfit in this league to claim ${
+          claimLeagueBfitDto.amount / 1000_000
+        } BFIT`
+      )
+    }
+    let createdClaim: LeagueBfitClaim
+    await this.leagueBfitClaimRepository.manager.transaction(
+      async (manager) => {
+        const leagueBfitClaimRepo = manager.getRepository(LeagueBfitClaim)
+        const leaderboardEntryRepo = manager.getRepository(LeaderboardEntry)
+        const userRepo = manager.getRepository(User)
+        const walletTransactionRepo = manager.getRepository(WalletTransaction)
+
+        const leagueBfitClaim = new LeagueBfitClaim()
+        leagueBfitClaim.league_id = leagueId
+        leagueBfitClaim.user_id = userId
+        leagueBfitClaim.bfit_amount = claimLeagueBfitDto.amount
+        createdClaim = await leagueBfitClaimRepo.save(leagueBfitClaim)
+
+        // update claimed bfit in this user's leaderboard entry
+        await leaderboardEntryRepo.increment(
+          {
+            leaderboard: { id: league.active_leaderboard.id },
+            user: { id: userId }
+          },
+
+          'bfit_claimed',
+          claimLeagueBfitDto.amount
+        )
+
+        // update user bfit balance
+        await userRepo.increment(
+          {
+            id: userId
+          },
+
+          'bfit_balance',
+          claimLeagueBfitDto.amount
+        )
+
+        const transactionHash = await this.sendBfitClaimTransaction(
+          leagueId,
+          userId,
+          claimLeagueBfitDto.amount
+        )
+
+        let walletTransaction = new WalletTransaction()
+        walletTransaction.source = WalletTransactionSource.LeagueBfitClaim
+        walletTransaction.claim_id = createdClaim.id
+        walletTransaction.league_id = league.id
+        walletTransaction.league_name = league.name
+        walletTransaction.user_id = userId
+        walletTransaction.bfit_amount = claimLeagueBfitDto.amount
+        walletTransaction.bfit_amount = claimLeagueBfitDto.amount
+        walletTransaction.transaction_id = transactionHash
+        await walletTransactionRepo.save(walletTransaction)
+      }
+    )
+    return createdClaim
   }
 
   async incrementUserBfit(email: string, amount: number) {
