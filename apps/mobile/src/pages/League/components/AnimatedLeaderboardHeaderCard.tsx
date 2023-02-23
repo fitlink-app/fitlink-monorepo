@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
 
 // 3 - experimental number to get half-screen label size, may be changed with change of text in it
 export function calculateFontSize(paddingSize: number, textSize: number) {
-  return (Dimensions.get('window').width - paddingSize * 2) / textSize + 3;
+  return (Dimensions.get('window').width - paddingSize * 2) / (textSize + 3);
 }
 
 export default AnimatedLeaderboardHeaderCard;
