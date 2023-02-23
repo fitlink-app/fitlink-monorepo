@@ -3,10 +3,12 @@ import {Animated, StyleSheet, View, Image} from 'react-native';
 import RNGooglePlaces from 'react-native-google-places';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useDispatch, useSelector} from 'react-redux';
-import MapboxGL from '@rnmapbox/maps';
+import MapboxGL from '@react-native-mapbox-gl/maps';
 import {useNavigation} from '@react-navigation/native';
-
 import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import styled, {useTheme} from 'styled-components/native';
+import {AppDispatch} from 'redux/store';
+
 import {Icon, Label, TouchHandler, BfitSpinner} from '@components';
 import {useFindActivitiesMap} from '@hooks';
 import {ActivityForMap} from '@fitlink/api/src/modules/activities/entities/activity.entity';
@@ -19,8 +21,6 @@ import {
 import createCircle from '@turf/circle';
 
 import {ActivityDetailsModal, ListModal} from './components';
-import styled, {useTheme} from 'styled-components/native';
-import {AppDispatch} from 'redux/store';
 import {
   selectCurrentLocation,
   selectSearchLocation,
