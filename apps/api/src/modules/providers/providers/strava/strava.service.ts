@@ -43,6 +43,11 @@ export class StravaService {
           const provider = await this.providersService.getUserByOwnerId(
             stravaEventData.owner_id.toString()
           )
+          if (!provider) {
+            throw new NotFoundException(
+              'User with the provided owner_id not found'
+            )
+          }
           const [result, resultErr] = await tryAndCatch(
             this.getStravaActivity(
               stravaEventData.object_id.toString(),
