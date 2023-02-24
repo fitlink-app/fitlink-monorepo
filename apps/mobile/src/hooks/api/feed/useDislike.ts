@@ -16,13 +16,13 @@ export function useDislike() {
         await queryClient.cancelQueries(QueryKeys.Feed);
         // Remove self from likes of FeedItem
         // Mutate Followers
-        queryClient.setQueryData<InfiniteData<ListResponse<FeedItem>>>(
-          QueryKeys.Feed,
+        queryClient.setQueriesData<InfiniteData<ListResponse<FeedItem>>>(
+          [QueryKeys.Feed],
           oldFeedItems => deleteFeedItemLike(oldFeedItems, params.feedItemId),
         );
 
-        queryClient.setQueryData<InfiniteData<ListResponse<FeedItem>>>(
-          [QueryKeys.UserFeed, params.userId],
+        queryClient.setQueriesData<InfiniteData<ListResponse<FeedItem>>>(
+          [QueryKeys.UserFeed],
           oldFeedItems => deleteFeedItemLike(oldFeedItems, params.feedItemId),
         );
       },
