@@ -213,7 +213,7 @@ export class GoalsEntriesService {
             })
           )
           // update bfit in compete to earn step leagues after points have been added
-          await this.updateStepsLeagueBfit(user.id)
+          this.updateStepsLeagueBfit(user.id)
         }
       }
 
