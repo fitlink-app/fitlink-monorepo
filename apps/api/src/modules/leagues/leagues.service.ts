@@ -200,6 +200,9 @@ export class LeaguesService {
     userId: string,
     claimLeagueBfitDto: ClaimLeagueBfitDto
   ) {
+    if (claimLeagueBfitDto.amount <= 0) {
+      throw new BadRequestException('Amount must be greater than zero')
+    }
     const league = await this.leaguesRepository.findOne(leagueId, {
       relations: ['active_leaderboard']
     })
