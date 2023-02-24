@@ -5,15 +5,20 @@
   "scripts": {
     "start": "react-native start",
     "start:reset": "react-native start --reset-cache",
+
     "test": "jest",
     "link": "react-native link",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "postinstall": "patch-package",
+
     "android:dev": "react-native run-android --variant=devDebug --appIdSuffix=dev",
     "android:devRelease": "react-native run-android --variant=devRelease --appIdSuffix=dev",
-    "android:codepush": "react-native run-android --variant=codepushDebug --appIdSuffix=codepush",
-    "android": "react-native run-android --variant=prdDebug",
+    "android:prdDebug": "react-native run-android --variant=prdDebug",
     "android:prdRelease": "react-native run-android --variant=prdRelease",
+    "android:codepushDebug": "react-native run-android --variant=codepushDebug --appIdSuffix=codepush",
+    "android:stagingDebug": "react-native run-android --variant=stagingDebug --appIdSuffix=staging",
+    "android:stagingRelease": "react-native run-android --variant=stagingRelease --appIdSuffix=staging",
+
     "ios:dev": "react-native run-ios --configuration Development --scheme Fitlink.dev",
     "ios:codepush": "react-native run-ios --configuration Production --scheme Fitlink.codepush",
     "ios": "react-native run-ios --configuration Production --scheme Fitlink"

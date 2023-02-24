@@ -10,7 +10,9 @@ project.ext.envConfigFiles = [
   prdDebug: ".env.production",
   prdRelease: ".env.production",
   codepushDebug: ".env.production",
-  codepushRelease: ".env.production"
+  codepushRelease: ".env.production",
+  stagingDebug: ".env.staging",
+  stagingRelease: ".env.staging"
 ]
 
 import com.android.build.OutputFile
@@ -240,6 +242,11 @@ android {
             minSdkVersion rootProject.ext.minSdkVersion
             dimension "default"
             resValue "string", "CodePushDeploymentKey", '"MYgbPTJTPLiJdtz_mDKS4GohmXJihhwzsBadA"'
+        }
+        staging {
+            minSdkVersion rootProject.ext.minSdkVersion
+            dimension "default"
+            resValue "string", "CodePushDeploymentKey", '""'
         }
     }
 

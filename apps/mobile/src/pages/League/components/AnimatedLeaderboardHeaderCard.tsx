@@ -117,7 +117,9 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     });
 
     const handleClaimBfitPressed = async () => {
-      if (bFitToClaimRaw !== undefined && leagueId) {
+      const canClaim = bFitToClaimRaw !== undefined && bFitToClaim !== 0;
+
+      if (canClaim && leagueId) {
         await claimBfit({id: leagueId, dto: {amount: bFitToClaimRaw}});
       } else if (bFitToClaimRaw === 0) {
         openModal(() => <TryTomorrowBanner />);
