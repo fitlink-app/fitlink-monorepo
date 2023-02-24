@@ -88,6 +88,10 @@ export class FitbitService {
   }
 
   async processPayload(payload: FitbitEventData[]) {
+    const result = Array.isArray(payload)
+    if (!result) {
+      throw new BadRequestException('Invalid payload type')
+    }
     const updatesByUser: FitbitUserUpdates = {}
     // Categorize updates by user
     for (const update of payload) {
