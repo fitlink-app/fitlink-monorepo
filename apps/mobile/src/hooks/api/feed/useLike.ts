@@ -15,13 +15,13 @@ export function useLike() {
     {
       onMutate: async params => {
         await queryClient.cancelQueries(QueryKeys.Feed);
-        queryClient.setQueryData<InfiniteData<ListResponse<FeedItem>>>(
-          QueryKeys.Feed,
+        queryClient.setQueriesData<InfiniteData<ListResponse<FeedItem>>>(
+          [QueryKeys.Feed],
           oldFeedItems => addFeedItemLike(oldFeedItems, params.feedItemId),
         );
 
-        queryClient.setQueryData<InfiniteData<ListResponse<FeedItem>>>(
-          [QueryKeys.UserFeed, params.userId],
+        queryClient.setQueriesData<InfiniteData<ListResponse<FeedItem>>>(
+          [QueryKeys.UserFeed],
           oldFeedItems => addFeedItemLike(oldFeedItems, params.feedItemId),
         );
       },
