@@ -5,12 +5,10 @@
   "scripts": {
     "start": "react-native start",
     "start:reset": "react-native start --reset-cache",
-
     "test": "jest",
     "link": "react-native link",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "postinstall": "patch-package",
-
     "android:dev": "react-native run-android --variant=devDebug --appIdSuffix=dev",
     "android:devRelease": "react-native run-android --variant=devRelease --appIdSuffix=dev",
     "android:prdDebug": "react-native run-android --variant=prdDebug",
@@ -18,7 +16,6 @@
     "android:codepushDebug": "react-native run-android --variant=codepushDebug --appIdSuffix=codepush",
     "android:stagingDebug": "react-native run-android --variant=stagingDebug --appIdSuffix=staging",
     "android:stagingRelease": "react-native run-android --variant=stagingRelease --appIdSuffix=staging",
-
     "ios:dev": "react-native run-ios --configuration Development --scheme Fitlink.dev",
     "ios:codepush": "react-native run-ios --configuration Production --scheme Fitlink.codepush",
     "ios": "react-native run-ios --configuration Production --scheme Fitlink"
@@ -93,7 +90,7 @@
     "react-native-gesture-handler": "^1.10.3",
     "react-native-google-fit": "^0.19.0",
     "react-native-google-places": "github:krakz999/react-native-google-places",
-    "react-native-health": "^1.10.0",
+    "react-native-health": "^1.13.6",
     "react-native-image-picker": "^4.10.2",
     "react-native-inappbrowser-reborn": "^3.7.0",
     "react-native-launch-navigator": "^1.0.8",
