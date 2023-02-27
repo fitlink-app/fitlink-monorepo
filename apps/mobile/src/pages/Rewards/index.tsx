@@ -3,8 +3,9 @@ import {RefreshControl, ScrollView, StyleSheet} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useScrollToTop} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/core';
 
-import {Label, PlotCard} from '@components';
+import {Label, PlotCard, BfitSpinner} from '@components';
 import {useMe, useRewards} from '@hooks';
 import {SCREEN_CONTAINER_SPACE} from '@constants';
 import {getViewBfitValue, widthLize} from '@utils';
@@ -12,7 +13,6 @@ import {getViewBfitValue, widthLize} from '@utils';
 import {RewardSlider} from './components';
 import {getResultsFromPages} from 'utils/api';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -31,11 +31,13 @@ const PageTitle = styled(Label).attrs(() => ({
 });
 
 export const Rewards = () => {
-  const insets = useSafeAreaInsets();
   const {colors} = useTheme();
+  const navigation = useNavigation();
 
   const scrollRef = useRef(null);
   useScrollToTop(scrollRef);
+
+  const insets = useSafeAreaInsets();
 
   const {
     data: user,
@@ -122,6 +124,7 @@ export const Rewards = () => {
         }>
         <PageTitle>REWARDS</PageTitle>
         <PlotCard.BFIT
+          onPress={() => navigation.navigate('Wallet')}
           isLoading={isLoadingUser}
           wrapperStyle={{
             marginHorizontal: widthLize(20),

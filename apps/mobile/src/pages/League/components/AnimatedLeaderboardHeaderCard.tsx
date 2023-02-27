@@ -1,4 +1,4 @@
-import React, {FC} from 'react';
+import React, {FC, useState} from 'react';
 import {Dimensions, ImageSourcePropType, StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/core';
 import Animated from 'react-native-reanimated';
@@ -18,7 +18,11 @@ import {MaxedOutBanner} from './MaxedOutBanner';
 import {OnlyOneTypeBanner} from './OnlyOneTypeBanner';
 import {TryTomorrowBanner} from './TryTomorrowBanner';
 import {useClaimLeagueBfit} from '../../../hooks/api/leagues/useClaimLeagueBfit';
-import {getPositiveValueOrZero, getViewBfitValue} from '@utils';
+import {
+  convertBfitToUsd,
+  getPositiveValueOrZero,
+  getViewBfitValue,
+} from '@utils';
 
 interface IAnimatedLeaderboardHeaderCardProps {
   imageSource: ImageSourcePropType;
@@ -58,7 +62,18 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
   }) => {
     const navigation = useNavigation();
 
+    const [showAltCurrency, setShowAltCurrency] = useState(false);
+
     const leaderboardLabelText = 'LEADERBOARD';
+    const isMember = membership !== 'none';
+    const bFitToClaim = getPositiveValueOrZero(
+      getViewBfitValue(bFitToClaimRaw),
+    );
+    const displayBfit = getPositiveValueOrZero(bfit);
+    const dailyBfit = showAltCurrency
+      ? `$${convertBfitToUsd(displayBfit)}`
+      : `${displayBfit} BFIT`;
+
     const {mutateAsync: joinLeague} = useJoinLeague();
     const {mutateAsync: leaveLeague} = useLeaveLeague();
     const {
@@ -68,12 +83,6 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     } = useClaimLeagueBfit();
 
     const {openModal} = useModal();
-
-    const isMember = membership !== 'none';
-
-    const bFitToClaim = getPositiveValueOrZero(
-      getViewBfitValue(bFitToClaimRaw),
-    );
 
     const handleOnInvitePressed = () => {
       navigation.navigate('LeagueInviteFriends', {leagueId});
@@ -126,6 +135,10 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
       }
     };
 
+    const swapRewardCurrency = () => {
+      setShowAltCurrency(prev => !prev);
+    };
+
     return (
       <BottomSheetModalProvider>
         <AnimatedHeaderCard
@@ -139,7 +152,8 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
             p1: `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`,
             p2: title,
             p3: countback,
-            animatedValue: isCteLeague ? `${bfit} BFIT` : undefined,
+            animatedValue: isCteLeague ? dailyBfit : undefined,
+            onAnimatedValuePress: isCteLeague ? swapRewardCurrency : undefined,
           }}
           descriptionProps={{
             description,

@@ -1,5 +1,5 @@
 import React, {useCallback, useRef, useState} from 'react';
-import {RefreshControl, ScrollView, StyleSheet} from 'react-native';
+import {RefreshControl, ScrollView} from 'react-native';
 import {
   CommonActions,
   RouteProp,
@@ -15,7 +15,7 @@ import styled, {useTheme} from 'styled-components/native';
 import {SCREEN_CONTAINER_SPACE} from '@constants';
 import {Label, PlotCard, TabView} from '@components';
 import {useCteLeagues, useMe} from '@hooks';
-import {convertPointsToCalories, widthLize} from '@utils';
+import {widthLize} from '@utils';
 
 import {CteLeagueSlider} from 'components/league/CteLeagueSlider';
 import {getResultsFromPages} from 'utils/api';
@@ -69,8 +69,6 @@ export const Leagues = () => {
   const userPreferences = useAppSelector(state =>
     selectUserPreferencesByEmail(state, me?.email),
   );
-
-  const totalCalories = convertPointsToCalories(me?.points_total);
 
   useFocusEffect(
     useCallback(() => {
@@ -149,10 +147,12 @@ export const Leagues = () => {
           />
         }>
         <PageTitle>Leagues</PageTitle>
-        <PlotCard.Calories
-          wrapperStyle={styles.rewardCard}
-          totalAmount={totalCalories}
-          totalAmountAlt={me?.points_total ?? 0}
+        <PlotCard.BFIT
+          onPress={() => navigation.navigate('Wallet')}
+          wrapperStyle={{
+            marginHorizontal: widthLize(20),
+            marginBottom: SCREEN_CONTAINER_SPACE,
+          }}
         />
         <LeaguesTipBannerCard
           onClose={closeTip}
@@ -185,10 +185,3 @@ export const Leagues = () => {
     </Wrapper>
   );
 };
-
-const styles = StyleSheet.create({
-  rewardCard: {
-    marginHorizontal: widthLize(20),
-    marginBottom: SCREEN_CONTAINER_SPACE,
-  },
-});

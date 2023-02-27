@@ -2,7 +2,6 @@ import React, {useCallback, useMemo, useRef, useState, useEffect} from 'react';
 import {useAnimatedStyle, useSharedValue} from 'react-native-reanimated';
 import LaunchNavigator from 'react-native-launch-navigator';
 import {NativeViewGestureHandler} from 'react-native-gesture-handler';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {
   Dimensions,
@@ -13,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import {useSelector} from 'react-redux';
+import {BottomSheetScrollViewMethods} from '@gorhom/bottom-sheet';
 
 import {
   BottomSheetBackdrop,
@@ -24,7 +24,6 @@ import {
   useBottomSheetModal,
 } from '@gorhom/bottom-sheet';
 import {Handle, ModalBackground, ActivityItem} from '../components';
-import {BottomSheetScrollViewMethods} from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheetScrollable/types';
 import {
   Avatar,
   Button,
@@ -33,14 +32,13 @@ import {
   Lightbox,
   LightboxHandles,
   TouchHandler,
+  BfitSpinner,
 } from '@components';
 import {useActivity, useModal} from '@hooks';
 import {getDistanceFromLatLonInKm} from '@utils';
 
 import {selectCurrentLocation} from '../../../../../redux/discover/discoverSlice';
-import {BfitSpinner} from '../../../../../components/common/BfitSpinner';
 import {Dialog, DialogButton} from 'components/modal';
-
 
 const {width: SCREEN_WIDTH} = Dimensions.get('screen');
 
@@ -79,12 +77,6 @@ const CarouselImage = styled.Image({
   width: imageWidth,
 });
 
-const EmptyContainer = styled.View({
-  alignItems: 'center',
-  justifyContent: 'center',
-  flex: 1,
-});
-
 interface ActivityDetailsModalProps
   extends Omit<
     BottomSheetModalProps,
@@ -105,7 +97,6 @@ export const ActivityDetailsModal = React.forwardRef<
   ActivityDetailsModalProps
 >(({activityId, onBack, ...rest}, ref) => {
   const {colors} = useTheme();
-  const insets = useSafeAreaInsets();
   const {dismiss} = useBottomSheetModal();
   const {openModal, closeModal} = useModal();
 
@@ -155,8 +146,9 @@ export const ActivityDetailsModal = React.forwardRef<
 
     const coords = activity?.meeting_point.coordinates;
     // @ts-ignore
-    LaunchNavigator.navigate([coords[0], coords[1]])
-      .catch((err: any) => console.error('Error launching navigator: ' + err));
+    LaunchNavigator.navigate([coords[0], coords[1]]).catch((err: any) =>
+      console.error('Error launching navigator: ' + err),
+    );
   };
 
   const handleOnContactPressed = () => {
@@ -326,15 +318,18 @@ export const ActivityDetailsModal = React.forwardRef<
     if (!activity) return null;
 
     // TODO: Use actual user location
-    const userLocation = {lat: actualUserLocation?.lat, lng: actualUserLocation?.lng};
+    const userLocation = {
+      lat: actualUserLocation?.lat,
+      lng: actualUserLocation?.lng,
+    };
 
     const dist = getDistanceFromLatLonInKm(
       //@ts-ignore
       activity.meeting_point.coordinates[0],
       //@ts-ignore
       activity.meeting_point.coordinates[1],
-      userLocation?.lat,
-      userLocation?.lng,
+      userLocation?.lat ?? 0,
+      userLocation?.lng ?? 0,
     );
 
     let distanceString = '';
@@ -448,9 +443,7 @@ export const ActivityDetailsModal = React.forwardRef<
   };
 
   const renderEmpty = () => {
-    return (
-      <BfitSpinner wrapperStyle={styles.emptyContainer} />
-    );
+    return <BfitSpinner wrapperStyle={styles.emptyContainer} />;
   };
 
   return (
