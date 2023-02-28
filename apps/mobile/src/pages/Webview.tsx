@@ -50,7 +50,7 @@ export const Webview = (
 
   return (
     <>
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, paddingTop: insets.top + 40}}>
         <WebView
           {...{onLoad}}
           source={{uri: url}}
