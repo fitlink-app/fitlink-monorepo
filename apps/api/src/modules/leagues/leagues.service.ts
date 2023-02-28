@@ -309,9 +309,9 @@ export class LeaguesService {
     userId: string,
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
-    let query = { user_id: userId }
+    let where = { user_id: userId }
     const [results, total] = await this.leagueBfitClaimRepository.findAndCount({
-      ...query,
+      where,
       take: limit,
       skip: page * limit
     })
@@ -326,10 +326,10 @@ export class LeaguesService {
     { limit = 10, page = 0 }: PaginationOptionsInterface
   ) {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    let query = { user_id: userId, created_at: MoreThan(sevenDaysAgo) }
+    let where = { user_id: userId, created_at: MoreThan(sevenDaysAgo) }
     const [results, total] =
       await this.LeagueBfitEarningsRepository.findAndCount({
-        ...query,
+        where,
         take: limit,
         skip: page * limit
       })
