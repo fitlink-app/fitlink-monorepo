@@ -115,4 +115,8 @@ export class ActivityForMap {
   @ApiProperty()
   @Expose()
   meeting_point: Geometry
+
+  @ApiProperty()
+  @Expose()
+  images?: Image[]
 }
