@@ -1,3 +1,10 @@
+import React, {useContext, useEffect, useState} from 'react';
+import {Keyboard, Linking, Platform, ScrollView, View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import DeviceInfo from 'react-native-device-info';
+import styled from 'styled-components/native';
+import {useNavigation} from '@react-navigation/native';
+
 import {
   Avatar,
   Button,
@@ -18,25 +25,20 @@ import {
   useProviders,
   useStrava,
 } from '@hooks';
-import {useNavigation} from '@react-navigation/native';
-import React, {useContext, useEffect, useState} from 'react';
-import {Keyboard, Linking, Platform, ScrollView, View} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import styled from 'styled-components/native';
+import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
+import Intercom from '@intercom/intercom-react-native';
+import {widthLize} from '@utils';
+
 import {UnitSystem} from '@fitlink/api/src/modules/users/users.constants';
-import {
-  CategoryLabel,
-  DeleteAccountModal,
-  SettingsButton,
-  SettingsDropdown,
-  SettingsHealthActivityButton,
-  SettingsInput,
-} from './components';
 import {SettingsItemWrapper} from './components/SettingsItemWrapper';
 import {SettingsItemLabel} from './components/SettingsItemLabel';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch} from 'redux/store';
 import {logout} from 'redux/auth';
+import {TransitionContext} from 'contexts';
+import {useCustomProvider} from 'hooks/api/providers/custom';
+import {GoogleFitWrapper} from 'services/GoogleFit';
+import {AppleHealthKitWrapper} from 'services';
 import {
   clearChanges,
   CURRENCY_ITEMS,
@@ -55,14 +57,15 @@ import {
   submit,
   UserGoalPreferences,
 } from 'redux/settings/settingsSlice';
-import {TransitionContext} from 'contexts';
-import Intercom from '@intercom/intercom-react-native';
-import {useCustomProvider} from 'hooks/api/providers/custom';
-import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
-import {GoogleFitWrapper} from 'services/GoogleFit';
-import {AppleHealthKitWrapper} from 'services';
-import {widthLize} from '@utils';
-import DeviceInfo from 'react-native-device-info';
+import {
+  CategoryLabel,
+  DeleteAccountModal,
+  GoogleFitVerificationBanner,
+  SettingsButton,
+  SettingsDropdown,
+  SettingsHealthActivityButton,
+  SettingsInput,
+} from './components';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -260,6 +263,28 @@ export const Settings = () => {
     }
   };
 
+  const openGoogleFitVerificationModal = async () => {
+    let promise;
+    openModal(() => (
+      <GoogleFitVerificationBanner
+        onPress={async () => {
+          promise = new Promise((resolve, reject) => {
+            try {
+              linkGoogleFit(() => {
+                return GoogleFitWrapper.authenticate();
+              });
+              resolve('done');
+            } catch (e) {
+              console.error('onLinkPress', e);
+              reject(e);
+            }
+          });
+        }}
+      />
+    ));
+    await promise;
+  };
+
   return (
     <Wrapper>
       <Navbar
@@ -411,20 +436,10 @@ export const Settings = () => {
         {/* Linked Trackers */}
         <CategoryCard>
           <CategoryLabel>Trackers</CategoryLabel>
-
           {Platform.OS === 'android' && (
             <SettingsHealthActivityButton
               label={'Google Fit'}
-              onLink={async () => {
-                try {
-                  await linkGoogleFit(() => {
-                    return GoogleFitWrapper.authenticate();
-                  });
-                } catch (e) {
-                  console.error('onLinkPress', e);
-                  throw e;
-                }
-              }}
+              onLink={openGoogleFitVerificationModal}
               onUnlink={() => {
                 GoogleFitWrapper.disconnect();
                 unlinkGoogleFit();
