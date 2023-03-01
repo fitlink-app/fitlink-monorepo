@@ -335,7 +335,7 @@ export class LeaguesService {
     //   })
     const query = this.LeagueBfitEarningsRepository.createQueryBuilder()
       .select("DATE_TRUNC('day', created_at) as day")
-      .addSelect('SUM(bfit_amount)', 'bfit_amount')
+      .addSelect('CAST(SUM(bfit_amount) AS FLOAT)', 'bfit_amount')
       .addSelect('user_id')
       .addSelect('array_agg(DISTINCT league_id)', 'league_ids')
       .where(where)
