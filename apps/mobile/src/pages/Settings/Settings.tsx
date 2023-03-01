@@ -143,6 +143,25 @@ export const Settings = () => {
 
   const [isInitialized, setInitialized] = useState(false);
 
+  const withSuccessModal = async (linkCallback: () => Promise<unknown>) => {
+    try {
+      await linkCallback();
+    } catch (e) {
+      console.error('FUCK', e);
+    }
+    openModal(id => (
+      <Modal
+        title="Linked Successfully"
+        buttons={[
+          {
+            text: 'OK',
+            onPress: () => closeModal(id),
+          },
+        ]}
+      />
+    ));
+  };
+
   useEffect(() => {
     if (user && providerList && !isInitialized) {
       dispatch(clearChanges());
@@ -264,25 +283,23 @@ export const Settings = () => {
   };
 
   const openGoogleFitVerificationModal = async () => {
-    let promise;
-    openModal(() => (
+    openModal(modalId => (
       <GoogleFitVerificationBanner
-        onPress={async () => {
-          promise = new Promise((resolve, reject) => {
+        onPress={() =>
+          withSuccessModal(async () => {
             try {
-              linkGoogleFit(() => {
+              await linkGoogleFit(() => {
                 return GoogleFitWrapper.authenticate();
               });
-              resolve('done');
             } catch (e) {
-              console.error('onLinkPress', e);
-              reject(e);
+              throw e;
+            } finally {
+              closeModal(modalId);
             }
-          });
-        }}
+          })
+        }
       />
     ));
-    await promise;
   };
 
   return (
@@ -453,9 +470,13 @@ export const Settings = () => {
           {Platform.OS === 'ios' && (
             <SettingsHealthActivityButton
               label={'Apple Health'}
-              onLink={async () => {
-                linkAppleHealth(() => AppleHealthKitWrapper.authenticate());
-              }}
+              onLink={() =>
+                withSuccessModal(async () => {
+                  await linkAppleHealth(() =>
+                    AppleHealthKitWrapper.authenticate(),
+                  );
+                })
+              }
               onUnlink={unlinkAppleHealth}
               isLoading={isAppleHealthLinking || isAppleHealthUnlinking}
               disabled={isAppleHealthLinking || isAppleHealthUnlinking}
@@ -465,7 +486,7 @@ export const Settings = () => {
 
           <SettingsHealthActivityButton
             label={'Strava'}
-            onLink={linkStrava}
+            onLink={() => withSuccessModal(linkStrava)}
             onUnlink={unlinkStrava}
             isLoading={isStravaLinking || isStravaUnlinking}
             disabled={isStravaLinking || isStravaUnlinking}
@@ -474,7 +495,7 @@ export const Settings = () => {
 
           <SettingsHealthActivityButton
             label={'Fitbit'}
-            onLink={linkFitbit}
+            onLink={() => withSuccessModal(linkFitbit)}
             onUnlink={unlinkFitbit}
             isLoading={isFitbitLinking || isFitbitUnlinking}
             disabled={isFitbitLinking || isFitbitUnlinking}

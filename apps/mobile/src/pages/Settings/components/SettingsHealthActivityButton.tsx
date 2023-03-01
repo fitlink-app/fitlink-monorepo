@@ -45,30 +45,11 @@ export const SettingsHealthActivityButton = ({
     ));
   };
 
-  const handleLinkProvider = async () => {
-    try {
-      await onLink();
-      openModal(id => (
-        <Modal
-          title={`${rest.label} Linked Successfully`}
-          buttons={[
-            {
-              text: 'OK',
-              onPress: () => closeModal(id),
-            },
-          ]}
-        />
-      ));
-    } catch {
-      // ignore, because already handled on lower level
-    }
-  };
-
   const handleOnPress = () => {
     if (isLinked) {
       handleUnlinkProvider();
     } else {
-      handleLinkProvider();
+      onLink();
     }
   };
 
