@@ -1,8 +1,8 @@
 import React, {FC} from 'react';
 import styled from 'styled-components/native';
 
-import {convertBfitToUsd} from '@utils';
-import {useWeeklyEarnings} from '@hooks';
+import {convertBfitToUsd, getViewBfitValue} from '@utils';
+import {useMe} from '@hooks';
 import {Icon, Label} from '@components';
 
 import theme from 'theme/themes/fitlink';
@@ -52,15 +52,16 @@ export const WalletHeader = ({
   onSell,
   onStake,
 }: WalletHeaderProps) => {
-  const {currentWeekEarningsSum} = useWeeklyEarnings();
+  const {data: me} = useMe();
+  const bfitAmount = getViewBfitValue(me?.bfit_balance);
 
   return (
     <>
       <SCentered>
         <Balance
-          bfitAmount={currentWeekEarningsSum}
+          bfitAmount={bfitAmount}
           onInfoPress={onInfoPress}
-          usdAmount={convertBfitToUsd(currentWeekEarningsSum)}
+          usdAmount={convertBfitToUsd(bfitAmount)}
         />
       </SCentered>
       <WalletActions onBuy={onBuy} onSell={onSell} onStake={onStake} />

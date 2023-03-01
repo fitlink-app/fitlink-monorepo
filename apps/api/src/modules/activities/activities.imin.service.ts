@@ -275,13 +275,13 @@ export class ActivitiesIminService {
    */
   static getOrganizerImageUrl(item: IminItem) {
     if (item.organizer && (item.organizer.image || item.organizer.logo)) {
-      return ({
+      return {
         id: '0',
         url: item.organizer.logo
           ? item.organizer.logo.url
           : item.organizer.image.url,
         alt: item.organizer.name
-      } as IminConvertedImage) as Image
+      } as IminConvertedImage as Image
     } else {
       return null
     }
@@ -295,11 +295,11 @@ export class ActivitiesIminService {
    */
   static getImages(item: IminItem): Image[] {
     return (item.image || []).map((each, index: number) => {
-      return ({
+      return {
         id: index + '',
         url: each.url,
         alt: item.name
-      } as IminConvertedImage) as Image
+      } as IminConvertedImage as Image
     }, '')
   }
 

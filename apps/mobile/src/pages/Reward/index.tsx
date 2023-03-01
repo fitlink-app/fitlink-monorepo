@@ -2,12 +2,12 @@ import React, {useMemo, useState} from 'react';
 import {StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {StackScreenProps} from '@react-navigation/stack';
-import styled, {useTheme} from 'styled-components/native';
+import styled from 'styled-components/native';
 import {RootStackParamList} from 'routes/types';
 import {useSharedValue} from 'react-native-reanimated';
 import {format} from 'date-fns';
 
-import {BfitButton, NAVBAR_HEIGHT} from '@components';
+import {BfitButton, NAVBAR_HEIGHT, BfitSpinner} from '@components';
 import {
   useClaimReward,
   useManualQueryRefresh,
@@ -28,7 +28,6 @@ import DetailedProgressBar from './components/DetailedProgressBar';
 import AnimatedHeaderCard from '../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
 import {RedeemSuccessBanner} from './components';
 import ErrorContent from '../../components/common/ErrorContent';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -44,7 +43,6 @@ export const Reward = (
   props: StackScreenProps<RootStackParamList, 'Reward'>,
 ) => {
   const {id, image} = props.route.params;
-  const {colors} = useTheme();
 
   const [showAltCurrency, setShowAltCurrency] = useState(false);
   const insets = useSafeAreaInsets();
