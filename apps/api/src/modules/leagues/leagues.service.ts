@@ -327,12 +327,23 @@ export class LeaguesService {
   ) {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
     let where = { user_id: userId, created_at: MoreThan(sevenDaysAgo) }
-    const [results, total] =
-      await this.LeagueBfitEarningsRepository.findAndCount({
-        where,
-        take: limit,
-        skip: page * limit
-      })
+    // const [results, total] =
+    //   await this.LeagueBfitEarningsRepository.findAndCount({
+    //     where,
+    //     take: limit,
+    //     skip: page * limit
+    //   })
+    const query = this.LeagueBfitEarningsRepository.createQueryBuilder()
+      .select("DATE_TRUNC('day', created_at) as day")
+      .addSelect('SUM(bfit_amount)', 'totalBfitAmount')
+      .where(where)
+      .groupBy('day')
+      .orderBy('day', 'ASC')
+    // .take(limit)
+    // .skip(page * limit)
+
+    const results = await query.getRawMany()
+    const total = results.length
     return new Pagination<LeagueBfitEarnings>({
       results,
       total
