@@ -43,6 +43,7 @@ export const ActionButton = ({
 
   return (
     <BfitButton
+      disabled={isClaiming}
       onPress={handleClaimBfitPressed}
       isLoading={isClaiming}
       text={isClaiming ? 'CLAIMING' : stableClaimText}
