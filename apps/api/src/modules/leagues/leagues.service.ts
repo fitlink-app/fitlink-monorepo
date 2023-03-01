@@ -335,13 +335,16 @@ export class LeaguesService {
     //   })
     const query = this.LeagueBfitEarningsRepository.createQueryBuilder()
       .select("DATE_TRUNC('day', created_at) as day")
-      .addSelect('SUM(bfit_amount)', 'totalBfitAmount')
+      .addSelect('user_id')
+      .addSelect('league_id')
+      .addSelect('SUM(bfit_amount)', 'bfit_amount')
       .where(where)
       .groupBy('day')
+      .addGroupBy('user_id')
+      .addGroupBy('league_id')
       .orderBy('day', 'ASC')
     // .take(limit)
     // .skip(page * limit)
-
     const results = await query.getRawMany()
     const total = results.length
     return new Pagination<LeagueBfitEarnings>({
