@@ -60,7 +60,7 @@ import {
 import {
   CategoryLabel,
   DeleteAccountModal,
-  GoogleFitVerificationBanner,
+  ConnectGoogleFitBanner,
   SettingsButton,
   SettingsDropdown,
   SettingsHealthActivityButton,
@@ -282,10 +282,10 @@ export const Settings = () => {
     }
   };
 
-  const openGoogleFitVerificationModal = async () => {
+  const openGoogleFitConnectionModal = async () => {
     openModal(modalId => (
-      <GoogleFitVerificationBanner
-        onPress={() =>
+      <ConnectGoogleFitBanner
+        connect={() =>
           withSuccessModal(async () => {
             try {
               await linkGoogleFit(() => {
@@ -456,7 +456,7 @@ export const Settings = () => {
           {Platform.OS === 'android' && (
             <SettingsHealthActivityButton
               label={'Google Fit'}
-              onLink={openGoogleFitVerificationModal}
+              onLink={openGoogleFitConnectionModal}
               onUnlink={() => {
                 GoogleFitWrapper.disconnect();
                 unlinkGoogleFit();
