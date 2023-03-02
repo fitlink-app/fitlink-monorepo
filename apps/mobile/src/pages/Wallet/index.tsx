@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import styled, {useTheme} from 'styled-components/native';
+import {useNavigation} from '@react-navigation/core';
 
 import {Icon, Label, Navbar} from '@components';
 import {useManualQueryRefresh, useMeasureInitialLayout, useModal} from '@hooks';
@@ -37,6 +38,8 @@ const NavbarTitle = () => (
 );
 
 export const Wallet = () => {
+  const navigation = useNavigation();
+
   const {colors} = useTheme();
 
   const [isConnected] = useState<Boolean>(true);
@@ -62,6 +65,12 @@ export const Wallet = () => {
 
   const openComingSoonModal = () => {
     openModal(() => <WalletModal.ComingSoon />);
+  };
+
+  const handlePrivacyPolicyPressed = () => {
+    navigation.navigate('Webview', {
+      url: 'https://bfitcoin.com/sale',
+    });
   };
 
   const renderItem: ListRenderItem<WalletTransaction> = ({item}) => (
@@ -106,7 +115,7 @@ export const Wallet = () => {
             ListHeaderComponent={
               <WalletHeader
                 onInfoPress={openInfoModel}
-                onBuy={openComingSoonModal}
+                onBuy={handlePrivacyPolicyPressed}
                 onSell={openComingSoonModal}
                 onStake={openComingSoonModal}
               />
