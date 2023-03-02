@@ -9,6 +9,7 @@ import {
 import styled from 'styled-components/native';
 
 import {NumberFormatterUtils} from '@utils';
+import {useMeasureLayout} from '@hooks';
 
 import {
   ImageCard,
@@ -16,6 +17,8 @@ import {
   ImageCardLabel,
 } from 'components/common/ImageCard';
 import {LeagueCardMembers} from './components';
+
+const CARD_FOOTER_PADDING_TOP = 26;
 
 export interface LeagueCardInterface {
   name: string;
@@ -49,13 +52,19 @@ export const LeagueCard = ({
       text = `${NumberFormatterUtils.getNumberWithOrdinal(position)} place`;
     }
 
+    const {measureLayout, layout} = useMeasureLayout();
+
     if (text === undefined) {
       return null;
     }
 
     return (
       <ImageCardLabel
-        labelStyle={[styles.bfitLabel, isVertical ? {top: 234} : {top: 179}]}
+        onLayout={measureLayout}
+        labelStyle={[
+          styles.bfitLabel,
+          {top: -(CARD_FOOTER_PADDING_TOP + layout.height / 2 + 1)}, // 1 - half of borderline height
+        ]}
         textStyle={styles.bfitText}
         text={text}
       />
@@ -68,10 +77,10 @@ export const LeagueCard = ({
     <ImageContainer onPress={onPress} imageSource={imageSource} style={style}>
       <ImageCardLabel labelStyle={styles.sportNameLabel} text={sportName} />
       <CardFooter>
+        <Label />
         <LeagueCardMembers membersCount={memberCount} />
         <Title>{name}</Title>
       </CardFooter>
-      <Label />
     </ImageContainer>
   );
 };
@@ -89,7 +98,7 @@ const Container = styled(ImageCard)({
 const CardFooter = styled(ImageCardBlurSection).attrs({
   type: 'footer',
 })({
-  paddingTop: 26,
+  paddingTop: CARD_FOOTER_PADDING_TOP,
   paddingLeft: 28,
   paddingBottom: 29,
 });
@@ -112,10 +121,8 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   bfitLabel: {
-    top: 28,
     right: 28,
     position: 'absolute',
-    alignSelf: 'flex-end',
     backgroundColor: '#FFFFFF',
   },
   bfitText: {

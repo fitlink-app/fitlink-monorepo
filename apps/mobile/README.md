@@ -14,9 +14,10 @@ keytool -genkey -v -keystore fitlinkappdebug.keystore -storepass android -alias 
 ### Patches
 Table of patches applied for different libraries
 
-| Name                              | version | reason |
-|-----------------------------------|---------|--------|
+| Name                                     | version | reason |
+|------------------------------------------|---------|--------|
 | @react-native-community+blur+4.3.0.patch | 4.3.0   | https://github.com/Kureev/react-native-blur/issues/489       |
+| react-native-health+1.10.0.patch         | 1.10.0  | https://github.com/agencyenterprise/react-native-health/issues/294       |
 
 
 ## Contribution
