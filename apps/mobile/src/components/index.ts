@@ -8,3 +8,5 @@ export * from './feed';
 export * from './LifeCycleEvents';
 export * from './TeamInvitation';
 export * from './DeepLinkHandler';
+export * from './icons';
+export * from './modal';

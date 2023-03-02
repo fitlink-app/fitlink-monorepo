@@ -16,7 +16,9 @@ type BFitButtonVariant =
   | 'primary'
   | 'primary-outlined'
   | 'secondary'
-  | 'secondary-outlined';
+  | 'secondary-outlined'
+  | 'google';
+
 type BFitButtonProps = React.ComponentProps<typeof TouchableOpacity> & {
   variant: BFitButtonVariant;
   text: string;
@@ -74,6 +76,18 @@ const getVariantStyles = (variant: BFitButtonVariant): VariantStyles => {
         },
         text: {
           color: theme.colors.text,
+        },
+      };
+    case 'google':
+      return {
+        touchable: {
+          borderRadius: 2,
+          paddingVertical: 10,
+          borderColor: '#fff',
+          backgroundColor: '#fff',
+        },
+        text: {
+          color: '#757575',
         },
       };
   }
