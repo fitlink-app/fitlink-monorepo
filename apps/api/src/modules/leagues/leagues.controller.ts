@@ -285,6 +285,17 @@ export class LeaguesController {
     )
   }
 
+  // user league bfit earnings for current day
+  @Get('/leagues/bfit/earnings/:leagueId')
+  @ApiTags('leagues')
+  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
+  @PaginationBody()
+  findUserBfitEarningsForCurrentDayInLeague(
+    @Param('leagueId') leagueId: string
+  ) {
+    return this.leaguesService.getUserTotalLeagueDailyBfitEarnings(leagueId)
+  }
+
   @Iam(Roles.OrganisationAdmin, Roles.TeamAdmin)
   @ApiTags('leagues')
   @ApiResponse({ type: LeaguePublicPagination, status: 200 })
