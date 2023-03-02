@@ -33,10 +33,24 @@ export const Goal = ({goal, icon, onPress, ...rest}: GoalProps) => {
     setIsTapped(prev => !prev);
   };
 
+  const getTextForLabel = (goal: Goal) => {
+    if (icon === 'sleep') {
+      return (
+        Math.trunc(goal.value).toString() +
+        goal.measure +
+        ' ' +
+        Math.round((goal.value % 1).toFixed(2) * 60).toString() +
+        'M'
+      );
+    } else {
+      return goal.value.toString() + goal.measure;
+    }
+  };
+
   const OnRenderCircle = () => {
     return isTapped ? (
-      <Label numberOfLines={1} style={{fontSize: 12, letterSpacing: 2}}>
-        {goal.value.toString() + goal.measure}
+      <Label numberOfLines={1} style={{fontSize: 12}}>
+        {getTextForLabel(goal)}
       </Label>
     ) : (
       <Icon

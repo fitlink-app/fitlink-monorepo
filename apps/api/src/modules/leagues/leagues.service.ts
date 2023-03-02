@@ -352,6 +352,24 @@ export class LeaguesService {
     })
   }
 
+  async getUserTotalLeagueDailyBfitEarnings(leagueId: string) {
+    const today = new Date()
+    const startDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    )
+
+    const query = this.LeagueBfitEarningsRepository.createQueryBuilder('lbe')
+      .select('SUM(lbe.bfit_amount)', 'total')
+      .where('lbe.league_id = :leagueId', { leagueId })
+      .andWhere('lbe.created_at >= :startDate', { startDate })
+
+    const result = await query.getRawOne()
+    let total = result.total ? Number(result.total) : 0
+    return { total }
+  }
+
   async isOwnedBy(leagueId: string, userId: string) {
     const result = await this.leaguesRepository.findOne({
       where: { id: leagueId, owner: { id: userId } }
@@ -475,7 +493,7 @@ export class LeaguesService {
 
     totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
 
-    const leaguesWithDailyBfit = results.map((league) => {
+    const promises = results.map(async (league) => {
       const leagueObject: LeagueWithDailyBfit = { ...league }
 
       const leagueUsers = league.participants_total
@@ -484,8 +502,14 @@ export class LeaguesService {
         (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
       )
       leagueObject.daily_bfit = dailyBfit
+      const todaysBfitDistribution =
+        await this.getUserTotalLeagueDailyBfitEarnings(league.id)
+      leagueObject.bfit_distributed_today = Math.round(
+        todaysBfitDistribution.total / 1000000
+      )
       return leagueObject
     })
+    const leaguesWithDailyBfit = await Promise.all(promises)
     return new Pagination<LeagueWithDailyBfit>({
       results: leaguesWithDailyBfit,
       total
@@ -517,6 +541,12 @@ export class LeaguesService {
       (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
     )
     leagueObject.daily_bfit = dailyBfit
+
+    const todaysBfitDistribution =
+      await this.getUserTotalLeagueDailyBfitEarnings(league.id)
+    leagueObject.bfit_distributed_today = Math.round(
+      todaysBfitDistribution.total / 1000000
+    )
     return leagueObject
   }
 
@@ -542,7 +572,7 @@ export class LeaguesService {
       .getRawOne()
 
     totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
-    const leaguesWithDailyBfit = results.map((league) => {
+    const promises = results.map(async (league) => {
       if (league.access === LeagueAccess.CompeteToEarn) {
         const leagueObject: LeagueWithDailyBfit = { ...league }
         const leagueUsers = league.participants_total
@@ -550,10 +580,17 @@ export class LeaguesService {
           (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
         )
         leagueObject.daily_bfit = dailyBfit
+
+        const todaysBfitDistribution =
+          await this.getUserTotalLeagueDailyBfitEarnings(league.id)
+        leagueObject.bfit_distributed_today = Math.round(
+          todaysBfitDistribution.total / 1000000
+        )
         return leagueObject
       }
       return league
     })
+    const leaguesWithDailyBfit = await Promise.all(promises)
     const total = await query.limit(0).getCount()
 
     return new Pagination<LeaguePublic>({
@@ -666,6 +703,12 @@ export class LeaguesService {
         (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
       )
       leagueObject.daily_bfit = dailyBfit
+
+      const todaysBfitDistribution =
+        await this.getUserTotalLeagueDailyBfitEarnings(result.id)
+      leagueObject.bfit_distributed_today = Math.round(
+        todaysBfitDistribution.total / 1000000
+      )
       return leagueObject
     }
     return result
@@ -792,6 +835,12 @@ export class LeaguesService {
           (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
         )
         leagueObject.daily_bfit = dailyBfit
+
+        const todaysBfitDistribution =
+          await this.getUserTotalLeagueDailyBfitEarnings(results[0].id)
+        leagueObject.bfit_distributed_today = Math.round(
+          todaysBfitDistribution.total / 1000000
+        )
       }
       return this.getLeaguePublic(leagueObject, userId)
     } else {
