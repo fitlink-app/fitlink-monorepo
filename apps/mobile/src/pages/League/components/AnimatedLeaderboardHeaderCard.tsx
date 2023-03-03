@@ -80,9 +80,10 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     const dailyCurrencyDisplayValue = showAltCurrency
       ? convertBfitToUsd(dailyBfit ?? 0)
       : dailyBfit ?? 0;
-    const distributedTodayCurrency = showAltCurrency
-      ? convertBfitToUsd(distributedTodayBfit ?? 0)
-      : distributedTodayBfit ?? 0;
+    const availableTodayBfit = dailyBfit ?? 0 - (distributedTodayBfit ?? 0);
+    const availableTodayCurrency = showAltCurrency
+      ? convertBfitToUsd(availableTodayBfit)
+      : availableTodayBfit;
 
     const {mutateAsync: joinLeague} = useJoinLeague();
     const {mutateAsync: leaveLeague} = useLeaveLeague();
@@ -170,7 +171,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
             animatedValue: isCteLeague
               ? {
                   p1: dailyCurrencyDisplayValue,
-                  p2: distributedTodayCurrency,
+                  p2: availableTodayCurrency,
                 }
               : undefined,
             onValuePress: isCteLeague ? swapRewardCurrency : undefined,

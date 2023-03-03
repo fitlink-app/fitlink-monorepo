@@ -17,7 +17,7 @@ export const HeaderCardProgressBar: FC<HeaderCardProgressBarProps> = ({
     <Animated.View
       style={[
         {
-          backgroundColor: theme.colors.text,
+          backgroundColor: theme.colors.navbar,
           height: 4,
           alignItems: 'flex-end',
         },

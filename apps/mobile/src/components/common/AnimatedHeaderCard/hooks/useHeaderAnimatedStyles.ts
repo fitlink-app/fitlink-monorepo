@@ -6,8 +6,8 @@ import Animated, {
 
 // Note: blur collapses when image expands
 const COLLAPSED_BLUR_HEIGHT = 132;
-const COLLAPSED_IMAGE_HEIGHT = 204;
-const EXPANDED_IMAGE_HEIGHT = 348;
+const COLLAPSED_IMAGE_HEIGHT = 210; // + 6 border
+const EXPANDED_IMAGE_HEIGHT = 354; // 348 + 6 border
 
 export const useHeaderAnimatedStyles = (
   scrollAnimatedValue: Animated.SharedValue<number>,

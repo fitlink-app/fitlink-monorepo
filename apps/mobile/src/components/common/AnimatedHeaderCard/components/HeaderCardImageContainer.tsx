@@ -1,4 +1,4 @@
-import React, {FC} from 'react';
+import React, {FC, useState} from 'react';
 import {
   ImageSourcePropType,
   StyleProp,
@@ -47,6 +47,8 @@ export const HeaderCardImageContainer: FC<IHeaderCardImageContainerProps> = ({
   progress,
   isExpanded,
 }) => {
+  const [showAltCurrency, setShowAltCurrency] = useState(false);
+
   const {measureLayout, layout} = useMeasureLayout();
 
   const titleWidth =
@@ -91,7 +93,10 @@ export const HeaderCardImageContainer: FC<IHeaderCardImageContainerProps> = ({
       {showValue && (
         <AnimatedTouchableOpacity
           activeOpacity={1}
-          onPress={onValuePress}
+          onPress={() => {
+            onValuePress?.();
+            setShowAltCurrency(prev => !prev);
+          }}
           style={[
             animatedValue === undefined ? styles.valueContainer : styles.v,
             animatedContainerStyle,
@@ -100,8 +105,9 @@ export const HeaderCardImageContainer: FC<IHeaderCardImageContainerProps> = ({
           {Boolean(value) && <Label style={styles.value}>{value}</Label>}
           {animatedValue !== undefined && (
             <AvailableBfitProgressCircle
-              distributedDaily={animatedValue.p1}
-              distributedToday={animatedValue.p2}
+              showAltCurrency={showAltCurrency}
+              distributedDaily={Math.round(animatedValue.p1)}
+              distributedToday={Math.round(animatedValue.p2)}
               size={PROGRESS_CIRCLE_SIZE}
               availableCurrencyPercentage={progress ?? 0}
             />

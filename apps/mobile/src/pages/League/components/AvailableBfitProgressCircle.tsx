@@ -10,10 +10,24 @@ interface AvailableBfitProgressCircleProps {
   distributedDaily: number;
   distributedToday: number;
   size: number;
+  showAltCurrency: boolean;
 }
 
 export const AvailableBfitProgressCircle: FC<AvailableBfitProgressCircleProps> =
-  ({availableCurrencyPercentage, distributedDaily, distributedToday, size}) => {
+  ({
+    showAltCurrency,
+    availableCurrencyPercentage,
+    distributedDaily,
+    distributedToday,
+    size,
+  }) => {
+    const todayViewValue = showAltCurrency
+      ? `$${distributedToday}`
+      : distributedToday;
+    const dailyViewValue = showAltCurrency
+      ? `$${distributedDaily}`
+      : distributedDaily;
+
     return (
       <ProgressCircle
         size={size}
@@ -21,12 +35,11 @@ export const AvailableBfitProgressCircle: FC<AvailableBfitProgressCircleProps> =
         bloomRadius={8}
         bloomIntensity={0.5}
         backgroundStrokeWidth={1}
-        backgroundStrokeColor="#fff"
         progress={availableCurrencyPercentage}
       >
         <STitle>BFIT</STitle>
-        <SBigText>{distributedToday}</SBigText>
-        <SSmallText>{distributedDaily}</SSmallText>
+        <SBigText>{todayViewValue}</SBigText>
+        <SSmallText>{dailyViewValue}</SSmallText>
       </ProgressCircle>
     );
   };

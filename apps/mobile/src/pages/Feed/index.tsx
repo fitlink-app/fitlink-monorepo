@@ -165,7 +165,8 @@ export const Feed = () => {
           }
           contentContainerStyle={{
             paddingBottom: insets.bottom + BOTTOM_TAB_BAR_HEIGHT,
-          }}>
+          }}
+        >
           <HeaderContainer style={{paddingTop: 20}}>
             <TopButtonRow>
               <NotificationsButton count={user.unread_notifications} />
