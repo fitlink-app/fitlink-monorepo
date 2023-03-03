@@ -327,12 +327,6 @@ export class LeaguesService {
   ) {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
     let where = { user_id: userId, created_at: MoreThan(sevenDaysAgo) }
-    // const [results, total] =
-    //   await this.LeagueBfitEarningsRepository.findAndCount({
-    //     where,
-    //     take: limit,
-    //     skip: page * limit
-    //   })
     const query = this.LeagueBfitEarningsRepository.createQueryBuilder()
       .select("DATE_TRUNC('day', created_at) as day")
       .addSelect('CAST(SUM(bfit_amount) AS FLOAT)', 'bfit_amount')
@@ -344,10 +338,30 @@ export class LeaguesService {
       .orderBy('day', 'ASC')
     // .take(limit)
     // .skip(page * limit)
-    const results = await query.getRawMany()
-    const total = results.length
+    let results = await query.getRawMany()
+
+    const dateStrings = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(sevenDaysAgo.getTime() + i * 24 * 60 * 60 * 1000)
+      return date.toISOString().substring(0, 10)
+    })
+    const newResults = dateStrings.map((datestring) => {
+      const match = results.find((r) => {
+        return r.day.toISOString().includes(datestring)
+      })
+      if (match) {
+        return match
+      }
+      const newRecord = {
+        day: new Date(datestring).toISOString(),
+        bfit_amount: 0,
+        user_id: userId,
+        league_ids: []
+      }
+      return newRecord
+    })
+    const total = newResults.length
     return new Pagination<LeagueBfitEarnings>({
-      results,
+      results: newResults,
       total
     })
   }
