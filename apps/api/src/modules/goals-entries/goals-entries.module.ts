@@ -15,6 +15,13 @@ import { League } from '../leagues/entities/league.entity'
 import { LeagueBfitEarnings } from '../leagues/entities/bfit-earnings.entity'
 import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
+import { LeaguesService } from '../leagues/leagues.service'
+import { LeaguesModule } from '../leagues/leagues.module'
+import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
+import { LeagueBfitClaim } from '../leagues/entities/bfit-claim.entity'
+import { Organisation } from '../organisations/entities/organisation.entity'
+import { LeaguesInvitation } from '../leagues-invitations/entities/leagues-invitation.entity'
+import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
 
 @Module({
   imports: [
@@ -24,7 +31,11 @@ import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-en
       League,
       LeagueBfitEarnings,
       WalletTransaction,
-      LeaderboardEntry
+      LeaderboardEntry,
+      Leaderboard,
+      LeagueBfitClaim,
+      Organisation,
+      LeaguesInvitation
     ]),
     forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
@@ -35,7 +46,12 @@ import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-en
     NotificationsModule
   ],
   controllers: [GoalsEntriesController],
-  providers: [GoalsEntriesService, DailyGoalReachedListener],
+  providers: [
+    GoalsEntriesService,
+    LeaguesService,
+    LeaderboardEntriesService,
+    DailyGoalReachedListener
+  ],
   exports: [TypeOrmModule.forFeature([GoalsEntry]), GoalsEntriesService]
 })
 export class GoalsEntriesModule {}

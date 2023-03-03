@@ -690,7 +690,7 @@ export class RewardsService {
           let walletTransaction = new WalletTransaction()
           walletTransaction.source = WalletTransactionSource.RewardRedemption
           walletTransaction.reward_redemption_id = result.id
-          walletTransaction.reward_name = reward.name
+          walletTransaction.reward_name = `${reward.brand} ${reward.name}`
           walletTransaction.user_id = userId
           walletTransaction.bfit_amount = reward.bfit_required
           await this.walletTransactionRepository.save(walletTransaction)

@@ -1,16 +1,23 @@
 import React, {FC} from 'react';
-import { StyleProp, TextStyle, View, ViewStyle } from 'react-native'
+import {StyleProp, TextStyle, View, ViewProps, ViewStyle} from 'react-native';
 import styled from 'styled-components/native';
 
 import theme from '../../../theme/themes/fitlink';
+
+interface ImageCardLabelProps extends Pick<ViewProps, 'onLayout'> {
+  text: string;
+  labelStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+}
 
 export const ImageCardLabel: FC<ImageCardLabelProps> = ({
   text,
   labelStyle,
   textStyle,
+  onLayout,
 }) => (
   <View>
-    <LabelContainer style={labelStyle}>
+    <LabelContainer style={labelStyle} onLayout={onLayout}>
       <SText style={textStyle}>{text}</SText>
     </LabelContainer>
   </View>
@@ -37,9 +44,3 @@ const SText = styled.Text({
   textTransform: 'uppercase',
   color: theme.colors.text,
 });
-
-type ImageCardLabelProps = {
-  text: string;
-  labelStyle?: StyleProp<ViewStyle>;
-  textStyle?: StyleProp<TextStyle>;
-};

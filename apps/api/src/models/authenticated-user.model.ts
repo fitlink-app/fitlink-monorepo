@@ -8,7 +8,7 @@ export type AuthenticatedUserRoles = {
 }
 
 export class AuthenticatedUser {
-  id: string
+  id?: string
   roles: AuthenticatedUserRoles
 
   constructor(user: any) {

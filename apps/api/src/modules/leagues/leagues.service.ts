@@ -327,16 +327,61 @@ export class LeaguesService {
   ) {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
     let where = { user_id: userId, created_at: MoreThan(sevenDaysAgo) }
-    const [results, total] =
-      await this.LeagueBfitEarningsRepository.findAndCount({
-        where,
-        take: limit,
-        skip: page * limit
+    const query = this.LeagueBfitEarningsRepository.createQueryBuilder()
+      .select("DATE_TRUNC('day', created_at) as day")
+      .addSelect('CAST(SUM(bfit_amount) AS FLOAT)', 'bfit_amount')
+      .addSelect('user_id')
+      .addSelect('array_agg(DISTINCT league_id)', 'league_ids')
+      .where(where)
+      .groupBy('day')
+      .addGroupBy('user_id')
+      .orderBy('day', 'ASC')
+    // .take(limit)
+    // .skip(page * limit)
+    let results = await query.getRawMany()
+
+    const dateStrings = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(sevenDaysAgo.getTime() + i * 24 * 60 * 60 * 1000)
+      return date.toISOString().substring(0, 10)
+    })
+    const newResults = dateStrings.map((datestring) => {
+      const match = results.find((r) => {
+        return r.day.toISOString().includes(datestring)
       })
+      if (match) {
+        return match
+      }
+      const newRecord = {
+        day: new Date(datestring).toISOString(),
+        bfit_amount: 0,
+        user_id: userId,
+        league_ids: []
+      }
+      return newRecord
+    })
+    const total = newResults.length
     return new Pagination<LeagueBfitEarnings>({
-      results,
+      results: newResults,
       total
     })
+  }
+
+  async getUserTotalLeagueDailyBfitEarnings(leagueId: string) {
+    const today = new Date()
+    const startDate = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    )
+
+    const query = this.LeagueBfitEarningsRepository.createQueryBuilder('lbe')
+      .select('SUM(lbe.bfit_amount)', 'total')
+      .where('lbe.league_id = :leagueId', { leagueId })
+      .andWhere('lbe.created_at >= :startDate', { startDate })
+
+    const result = await query.getRawOne()
+    let total = result.total ? Number(result.total) : 0
+    return { total }
   }
 
   async isOwnedBy(leagueId: string, userId: string) {
@@ -462,7 +507,7 @@ export class LeaguesService {
 
     totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
 
-    const leaguesWithDailyBfit = results.map((league) => {
+    const promises = results.map(async (league) => {
       const leagueObject: LeagueWithDailyBfit = { ...league }
 
       const leagueUsers = league.participants_total
@@ -471,8 +516,14 @@ export class LeaguesService {
         (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
       )
       leagueObject.daily_bfit = dailyBfit
+      const todaysBfitDistribution =
+        await this.getUserTotalLeagueDailyBfitEarnings(league.id)
+      leagueObject.bfit_distributed_today = Math.round(
+        todaysBfitDistribution.total / 1000000
+      )
       return leagueObject
     })
+    const leaguesWithDailyBfit = await Promise.all(promises)
     return new Pagination<LeagueWithDailyBfit>({
       results: leaguesWithDailyBfit,
       total
@@ -504,6 +555,12 @@ export class LeaguesService {
       (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
     )
     leagueObject.daily_bfit = dailyBfit
+
+    const todaysBfitDistribution =
+      await this.getUserTotalLeagueDailyBfitEarnings(league.id)
+    leagueObject.bfit_distributed_today = Math.round(
+      todaysBfitDistribution.total / 1000000
+    )
     return leagueObject
   }
 
@@ -529,7 +586,7 @@ export class LeaguesService {
       .getRawOne()
 
     totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
-    const leaguesWithDailyBfit = results.map((league) => {
+    const promises = results.map(async (league) => {
       if (league.access === LeagueAccess.CompeteToEarn) {
         const leagueObject: LeagueWithDailyBfit = { ...league }
         const leagueUsers = league.participants_total
@@ -537,10 +594,17 @@ export class LeaguesService {
           (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
         )
         leagueObject.daily_bfit = dailyBfit
+
+        const todaysBfitDistribution =
+          await this.getUserTotalLeagueDailyBfitEarnings(league.id)
+        leagueObject.bfit_distributed_today = Math.round(
+          todaysBfitDistribution.total / 1000000
+        )
         return leagueObject
       }
       return league
     })
+    const leaguesWithDailyBfit = await Promise.all(promises)
     const total = await query.limit(0).getCount()
 
     return new Pagination<LeaguePublic>({
@@ -653,6 +717,12 @@ export class LeaguesService {
         (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
       )
       leagueObject.daily_bfit = dailyBfit
+
+      const todaysBfitDistribution =
+        await this.getUserTotalLeagueDailyBfitEarnings(result.id)
+      leagueObject.bfit_distributed_today = Math.round(
+        todaysBfitDistribution.total / 1000000
+      )
       return leagueObject
     }
     return result
@@ -779,6 +849,12 @@ export class LeaguesService {
           (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850
         )
         leagueObject.daily_bfit = dailyBfit
+
+        const todaysBfitDistribution =
+          await this.getUserTotalLeagueDailyBfitEarnings(results[0].id)
+        leagueObject.bfit_distributed_today = Math.round(
+          todaysBfitDistribution.total / 1000000
+        )
       }
       return this.getLeaguePublic(leagueObject, userId)
     } else {

@@ -19,6 +19,7 @@ function createIntercomUserPayload(
     email: user.email,
     userId: user.id,
     name: user.name,
+    // TODO: not a good solution
     signedUpAt: new Date(user.created_at).valueOf() / 1000,
     customAttributes: {
       rank: user.rank,
