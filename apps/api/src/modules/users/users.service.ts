@@ -428,6 +428,10 @@ export class UsersService {
    */
   async mergeFcmTokens(userId: string, token: string) {
     const user = await this.userRepository.findOne(userId)
+    if (!user) {
+      console.error('User not found', userId);
+      return false;
+    }
     const tokens = user.fcm_tokens || []
     const fcm_tokens = [...new Set(tokens.concat([token]))]
     return this.userRepository.update(userId, {
