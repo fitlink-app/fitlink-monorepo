@@ -80,7 +80,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     const dailyCurrencyDisplayValue = showAltCurrency
       ? convertBfitToUsd(dailyBfit ?? 0)
       : dailyBfit ?? 0;
-    const availableTodayBfit = dailyBfit ?? 0 - (distributedTodayBfit ?? 0);
+    const availableTodayBfit = (dailyBfit ?? 0) - (distributedTodayBfit ?? 0);
     const availableTodayCurrency = showAltCurrency
       ? convertBfitToUsd(availableTodayBfit)
       : availableTodayBfit;
