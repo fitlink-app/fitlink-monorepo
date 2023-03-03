@@ -801,6 +801,14 @@ export class LeaguesService {
       leaguePublic.rank = null
     }
 
+    if (leaguePublic.daily_bfit) {
+      leaguePublic.daily_bfit = leaguePublic.daily_bfit
+    }
+
+    if (leaguePublic.bfit_distributed_today) {
+      leaguePublic.bfit_distributed_today = leaguePublic.bfit_distributed_today
+    }
+
     // Ensure personal user data of owner is sanitized.
     if (leaguePublic.owner) {
       ;(leaguePublic.owner as unknown as UserPublic) = plainToClass(
