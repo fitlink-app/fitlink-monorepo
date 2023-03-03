@@ -5,7 +5,12 @@ import Animated from 'react-native-reanimated';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
 import {Label} from '@components';
-import {useJoinLeague, useLeaveLeague, useModal} from '@hooks';
+import {
+  useJoinLeague,
+  useLeagueMembersMe,
+  useLeaveLeague,
+  useModal,
+} from '@hooks';
 import {ResponseError} from '@fitlink/api-sdk/types';
 import {getErrors} from '@api';
 import {c2eLeagueTypeErrorMsg, c2eLimitReachedErrorMsg} from '@constants';
@@ -86,6 +91,11 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
       isLoading: isClaiming,
       isSuccess: isClaimed,
     } = useClaimLeagueBfit();
+
+    const {isLoading: isLoadingMembersMe} = useLeagueMembersMe(
+      leagueId,
+      isMember,
+    );
 
     const {openModal} = useModal();
 
@@ -185,7 +195,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
               handleOnJoinPressed={handleOnJoinPressed}
               handleClaimBfitPressed={handleClaimBfitPressed}
               bfitValue={bFitToClaim}
-              isClaiming={isClaiming}
+              isClaiming={isClaiming || isLoadingMembersMe}
               isClaimed={isClaimed}
             />
           </View>
