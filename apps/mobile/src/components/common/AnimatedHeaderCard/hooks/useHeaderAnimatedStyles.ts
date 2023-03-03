@@ -1,7 +1,7 @@
 import Animated, {
   interpolate,
-  interpolateColor,
   useAnimatedStyle,
+  useDerivedValue,
 } from 'react-native-reanimated';
 
 // Note: blur collapses when image expands
@@ -12,6 +12,7 @@ const EXPANDED_IMAGE_HEIGHT = 348;
 export const useHeaderAnimatedStyles = (
   scrollAnimatedValue: Animated.SharedValue<number>,
   initialDescriptionHeight: number,
+  progress: number,
   firstScrollAnchor: number = 146,
   secondScrollAnchor: number = 221,
 ) => {
@@ -43,33 +44,37 @@ export const useHeaderAnimatedStyles = (
     return {height};
   });
 
-  const bfitValueContainerStyle = useAnimatedStyle(() => {
-    const bottom = interpolate(
-      scrollAnimatedValue.value,
-      [0, firstScrollAnchor, secondScrollAnchor, Number.MAX_SAFE_INTEGER],
-      [-20, -20, 10, 10],
-    );
+  const expandedCardProgressOpacity = useAnimatedStyle(() => {
     const opacity = interpolate(
       scrollAnimatedValue.value,
       [0, firstScrollAnchor, secondScrollAnchor, Number.MAX_SAFE_INTEGER],
       [1, 1, 0, 0],
     );
     return {
-      bottom,
-      backgroundColor: `rgba(255,255,255,${opacity})`,
+      opacity,
     };
   });
 
-  const bfitValueTextStyle = useAnimatedStyle(() => {
-    const textColor = interpolateColor(
+  const shrunkCardProgressOpacity = useAnimatedStyle(() => {
+    const opacity = interpolate(
       scrollAnimatedValue.value,
-      [firstScrollAnchor, secondScrollAnchor],
-      ['#060606', '#FFFFFF'],
+      [0, firstScrollAnchor, secondScrollAnchor, Number.MAX_SAFE_INTEGER],
+      [0, 0, 1, 1],
     );
     return {
-      color: textColor as string,
+      opacity,
     };
   });
+
+  const isExpanded = useDerivedValue(() =>
+    Boolean(
+      interpolate(
+        scrollAnimatedValue.value,
+        [0, firstScrollAnchor, secondScrollAnchor, Number.MAX_SAFE_INTEGER],
+        [1, 1, 0, 0],
+      ),
+    ),
+  );
 
   const descriptionStyle = useAnimatedStyle(() => {
     const marginTop = interpolate(
@@ -108,8 +113,9 @@ export const useHeaderAnimatedStyles = (
     containerStyle,
     blurSectionStyle,
     imageBackgroundStyle,
-    bfitValueContainerStyle,
-    bfitValueTextStyle,
+    expandedCardProgressOpacity,
+    shrunkCardProgressOpacity,
     descriptionStyle,
+    isExpanded,
   };
 };

@@ -6,24 +6,13 @@ import styled, {useTheme} from 'styled-components/native';
 import {animateProgress, createBloomEffect} from './progressMethods';
 
 export interface ProgressCircleProps {
-  /** Progress mapped between 0-1 */
   progress: number;
-
-  /** Width of the inner circle (defaults to 6)*/
   strokeWidth?: number;
-
-  /** Width of the inner circle (equal to strokeWidth if unset)*/
   backgroundStrokeWidth?: number;
-
-  /** Size of the circle */
+  backgroundStrokeColor?: string;
   size?: number;
-
-  /** Sets the radius of the bloom effect (defaults to 8) (iOS only) */
   bloomRadius?: number;
-
-  /** Sets the intensity of the bloom effect 0-1 (iOS only) */
   bloomIntensity?: number;
-
   children?: React.ReactNode;
 }
 
@@ -31,9 +20,9 @@ export const ProgressCircle = (props: ProgressCircleProps) => {
   const {
     size = 90,
     strokeWidth = 6,
-    backgroundStrokeWidth = strokeWidth,
     bloomRadius = 8,
     bloomIntensity = 0,
+    backgroundStrokeColor,
     children,
   } = props;
 
@@ -90,12 +79,13 @@ export const ProgressCircle = (props: ProgressCircleProps) => {
   return (
     <View>
       <Animated.View
-        style={createBloomEffect(bloomIntensity, bloomRadius, bloomAnim)}>
+        style={createBloomEffect(bloomIntensity, bloomRadius, bloomAnim)}
+      >
         <Svg height={size + strokeWidth} width={size + strokeWidth}>
           <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
             <AnimatedCircle
               strokeLinecap={'round'}
-              stroke={theme.colors.chartUnfilled}
+              stroke={backgroundStrokeColor ?? theme.colors.chartUnfilled}
               fill="none"
               cy={size / 2}
               cx={size / 2}

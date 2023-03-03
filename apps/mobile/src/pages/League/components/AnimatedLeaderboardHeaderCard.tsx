@@ -10,19 +10,20 @@ import {ResponseError} from '@fitlink/api-sdk/types';
 import {getErrors} from '@api';
 import {c2eLeagueTypeErrorMsg, c2eLimitReachedErrorMsg} from '@constants';
 
-import {ActionButton} from './ActionButton';
-import {useLeagueMenuModal} from '../hooks/useLeagueMenuModal';
-import {useLeaderboardCountback} from '../hooks/useLeaderboardCountback';
-import AnimatedHeaderCard from '../../../components/common/AnimatedHeaderCard/AnimatedHeaderCard';
-import {MaxedOutBanner} from './MaxedOutBanner';
-import {OnlyOneTypeBanner} from './OnlyOneTypeBanner';
-import {TryTomorrowBanner} from './TryTomorrowBanner';
-import {useClaimLeagueBfit} from '../../../hooks/api/leagues/useClaimLeagueBfit';
 import {
   convertBfitToUsd,
   getPositiveValueOrZero,
   getViewBfitValue,
 } from '@utils';
+import {useClaimLeagueBfit} from '@hooks';
+import {AnimatedHeaderCard} from '@components';
+
+import {ActionButton} from './ActionButton';
+import {useLeagueMenuModal} from '../hooks/useLeagueMenuModal';
+import {useLeaderboardCountback} from '../hooks/useLeaderboardCountback';
+import {MaxedOutBanner} from './MaxedOutBanner';
+import {OnlyOneTypeBanner} from './OnlyOneTypeBanner';
+import {TryTomorrowBanner} from './TryTomorrowBanner';
 
 interface IAnimatedLeaderboardHeaderCardProps {
   imageSource: ImageSourcePropType;
@@ -36,7 +37,8 @@ interface IAnimatedLeaderboardHeaderCardProps {
   leagueId: string;
   isPublic: boolean;
   bFitToClaimRaw?: number;
-  bfit?: number;
+  dailyBfit?: number;
+  distributedTodayBfit?: number;
   isCteLeague?: boolean;
   handleOnEditPressed: () => void;
   sharedContentOffset: Animated.SharedValue<number>;
@@ -52,7 +54,8 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     imageSource,
     memberCount,
     bFitToClaimRaw,
-    bfit,
+    dailyBfit,
+    distributedTodayBfit,
     title,
     resetDate,
     repeat,
@@ -69,10 +72,12 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     const bFitToClaim = getPositiveValueOrZero(
       getViewBfitValue(bFitToClaimRaw),
     );
-    const displayBfit = getPositiveValueOrZero(bfit);
-    const dailyBfit = showAltCurrency
-      ? `$${convertBfitToUsd(displayBfit)}`
-      : `${displayBfit} BFIT`;
+    const dailyCurrencyDisplayValue = showAltCurrency
+      ? convertBfitToUsd(dailyBfit ?? 0)
+      : dailyBfit ?? 0;
+    const distributedTodayCurrency = showAltCurrency
+      ? convertBfitToUsd(distributedTodayBfit ?? 0)
+      : distributedTodayBfit ?? 0;
 
     const {mutateAsync: joinLeague} = useJoinLeague();
     const {mutateAsync: leaveLeague} = useLeaveLeague();
@@ -152,19 +157,26 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
             p1: `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`,
             p2: title,
             p3: countback,
-            animatedValue: isCteLeague ? dailyBfit : undefined,
-            onAnimatedValuePress: isCteLeague ? swapRewardCurrency : undefined,
+            animatedValue: isCteLeague
+              ? {
+                  p1: dailyCurrencyDisplayValue,
+                  p2: distributedTodayCurrency,
+                }
+              : undefined,
+            onValuePress: isCteLeague ? swapRewardCurrency : undefined,
           }}
           descriptionProps={{
             description,
           }}
           onHeightLayout={onHeightLayout}
-          sharedContentOffset={sharedContentOffset}>
+          sharedContentOffset={sharedContentOffset}
+        >
           <View style={styles.subheader}>
             <Label
               style={{
                 fontSize: calculateFontSize(18, leaderboardLabelText.length),
-              }}>
+              }}
+            >
               {leaderboardLabelText}
             </Label>
             <ActionButton

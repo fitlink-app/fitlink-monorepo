@@ -68,15 +68,6 @@ export const MyActivities = (
   const searchTypes = useSelector(selectTypes);
   const searchLocation = useSelector(selectSearchLocation);
 
-  // const {
-  //   data,
-  //   isFetching,
-  //   isFetchedAfterMount,
-  //   isFetchingNextPage,
-  //   refetch,
-  //   fetchNextPage,
-  // } = useMyActivities();
-
   const {
     data,
     isFetching,
@@ -193,7 +184,8 @@ export const MyActivities = (
             </View>
           );
         }}
-        height={74}>
+        height={74}
+      >
         <ActivityItem
           {...{item}}
           onPress={() => {
