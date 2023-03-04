@@ -279,6 +279,7 @@ export class LeaguesController {
     @User() authUser: AuthenticatedUser,
     @Pagination() pagination: PaginationQuery
   ) {
+    console.log({ pagination })
     return this.leaguesService.getUserBfitEarningsHistory(
       authUser.id,
       pagination
