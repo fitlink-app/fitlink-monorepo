@@ -323,10 +323,11 @@ export class LeaguesService {
 
   async getUserBfitEarningsHistory(
     userId: string,
-    { limit = 10, page = 0 }: PaginationOptionsInterface
+    { limit = 7, page = 0 }: PaginationOptionsInterface
   ) {
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    let where = { user_id: userId, created_at: MoreThan(sevenDaysAgo) }
+    // if limit is greater than or equal to 13 include previous week results
+    let startDate = new Date(Date.now() - limit * 24 * 60 * 60 * 1000)
+    let where = { user_id: userId, created_at: MoreThan(startDate) }
     const query = this.LeagueBfitEarningsRepository.createQueryBuilder()
       .select("DATE_TRUNC('day', created_at) as day")
       .addSelect('CAST(SUM(bfit_amount) AS FLOAT)', 'bfit_amount')
@@ -340,8 +341,8 @@ export class LeaguesService {
     // .skip(page * limit)
     let results = await query.getRawMany()
 
-    const dateStrings = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date(sevenDaysAgo.getTime() + i * 24 * 60 * 60 * 1000)
+    const dateStrings = Array.from({ length: limit }, (_, i) => {
+      const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000)
       return date.toISOString().substring(0, 10)
     })
     const newResults = dateStrings.map((datestring) => {
