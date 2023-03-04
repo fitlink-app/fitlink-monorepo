@@ -16,7 +16,7 @@ export interface IHeaderCardDescriptionProps {
   measureInitialLayout: (event: LayoutChangeEvent) => void;
 }
 
-const HeaderCardDescription: FC<IHeaderCardDescriptionProps> = ({
+export const HeaderCardDescription: FC<IHeaderCardDescriptionProps> = ({
   measureInitialLayout,
   descriptionStyle,
   description,
@@ -24,11 +24,13 @@ const HeaderCardDescription: FC<IHeaderCardDescriptionProps> = ({
 }) => (
   <Animated.View
     style={[styles.container, descriptionStyle]}
-    onLayout={measureInitialLayout}>
+    onLayout={measureInitialLayout}
+  >
     <AnimatedLabel
       style={[styles.text, textStyle]}
       type="body"
-      appearance="secondary">
+      appearance="secondary"
+    >
       {description}
     </AnimatedLabel>
   </Animated.View>

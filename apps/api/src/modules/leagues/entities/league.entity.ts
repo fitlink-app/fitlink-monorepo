@@ -184,6 +184,10 @@ export class LeaguePublic extends League {
   @ApiProperty()
   @Expose()
   daily_bfit?: number
+
+  @ApiProperty()
+  @Expose()
+  bfit_distributed_today?: number
 }
 
 export class LeaguePublicPagination {

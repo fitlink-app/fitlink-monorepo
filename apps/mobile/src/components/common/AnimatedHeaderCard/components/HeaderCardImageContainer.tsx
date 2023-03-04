@@ -1,9 +1,8 @@
-import React, {FC} from 'react';
+import React, {FC, useState} from 'react';
 import {
   ImageSourcePropType,
   StyleProp,
   StyleSheet,
-  TextStyle,
   TouchableOpacity,
   ViewStyle,
 } from 'react-native';
@@ -13,21 +12,28 @@ import {Label} from '@components';
 
 import theme from '../../../../theme/themes/fitlink';
 import {ImageCardBlurSection} from '../../ImageCard';
+import AvailableBfitProgressCircle from '../../../../pages/League/components/AvailableBfitProgressCircle';
+import {useMeasureLayout} from '@hooks';
 
 export interface IHeaderCardImageContainerProps {
   imageBackgroundStyle: StyleProp<ViewStyle>;
   imageSource: ImageSourcePropType;
   blurSectionStyle?: StyleProp<ViewStyle>;
   animatedContainerStyle?: StyleProp<ViewStyle>;
-  animatedValueStyle?: StyleProp<TextStyle>;
   p1: string;
   p2: string;
   p3?: string | null;
-  animatedValue?: string | null;
-  onAnimatedValuePress?: () => unknown;
+  value?: string;
+  animatedValue?: {p1: number; p2: number};
+  onValuePress?: () => unknown;
+  progress?: number;
+  isExpanded: Animated.DerivedValue<boolean>;
 }
 
-const HeaderCardImageContainer: FC<IHeaderCardImageContainerProps> = ({
+const HEADER_HORIZONTAL_PADDING = 20;
+const PROGRESS_CIRCLE_SIZE = 86;
+
+export const HeaderCardImageContainer: FC<IHeaderCardImageContainerProps> = ({
   imageBackgroundStyle,
   imageSource,
   blurSectionStyle,
@@ -35,12 +41,26 @@ const HeaderCardImageContainer: FC<IHeaderCardImageContainerProps> = ({
   p2,
   p3,
   animatedValue,
-  onAnimatedValuePress,
-  animatedValueStyle,
+  onValuePress,
   animatedContainerStyle,
+  value,
+  progress,
+  isExpanded,
 }) => {
+  const [showAltCurrency, setShowAltCurrency] = useState(false);
+
+  const {measureLayout, layout} = useMeasureLayout();
+
+  const titleWidth =
+    layout.width - (HEADER_HORIZONTAL_PADDING * 3 + PROGRESS_CIRCLE_SIZE);
+  const showValue = animatedValue !== undefined || value !== undefined;
+  const shouldTruncTitle = isExpanded.value && progress !== undefined;
+
   return (
-    <Animated.View style={[styles.container, imageBackgroundStyle]}>
+    <Animated.View
+      onLayout={measureLayout}
+      style={[styles.container, imageBackgroundStyle]}
+    >
       <Animated.Image style={styles.image} source={imageSource} />
       <Animated.View style={[blurSectionStyle, styles.blurContainer]}>
         <ImageCardBlurSection style={styles.imageBlur} type="footer">
@@ -48,15 +68,21 @@ const HeaderCardImageContainer: FC<IHeaderCardImageContainerProps> = ({
             numberOfLines={1}
             style={styles.p1}
             appearance="accent"
-            bold={true}>
+            bold={true}
+          >
             {p1}
           </Label>
-          <Label
+          <AnimatedLabel
             numberOfLines={1}
-            style={[styles.p2, !p3 && styles.p3absent]}
-            type="title">
+            style={[
+              styles.p2,
+              !p3 && styles.p3absent,
+              shouldTruncTitle ? {width: titleWidth} : {width: '100%'},
+            ]}
+            type="title"
+          >
             {p2}
-          </Label>
+          </AnimatedLabel>
           {!!p3 && (
             <Label style={styles.p3} type="caption">
               {p3}
@@ -64,14 +90,28 @@ const HeaderCardImageContainer: FC<IHeaderCardImageContainerProps> = ({
           )}
         </ImageCardBlurSection>
       </Animated.View>
-      {animatedValue !== undefined && (
+      {showValue && (
         <AnimatedTouchableOpacity
           activeOpacity={1}
-          onPress={onAnimatedValuePress}
-          style={[styles.valueContainer, animatedContainerStyle]}>
-          <AnimatedLabel style={[styles.value, animatedValueStyle]}>
-            {animatedValue}
-          </AnimatedLabel>
+          onPress={() => {
+            onValuePress?.();
+            setShowAltCurrency(prev => !prev);
+          }}
+          style={[
+            animatedValue === undefined ? styles.valueContainer : styles.v,
+            animatedContainerStyle,
+          ]}
+        >
+          {Boolean(value) && <Label style={styles.value}>{value}</Label>}
+          {animatedValue !== undefined && (
+            <AvailableBfitProgressCircle
+              showAltCurrency={showAltCurrency}
+              distributedDaily={Math.round(animatedValue.p1)}
+              distributedToday={Math.round(animatedValue.p2)}
+              size={PROGRESS_CIRCLE_SIZE}
+              availableCurrencyPercentage={progress ?? 0}
+            />
+          )}
         </AnimatedTouchableOpacity>
       )}
     </Animated.View>
@@ -100,8 +140,7 @@ const styles = StyleSheet.create({
     top: 0,
     paddingTop: 17,
     paddingBottom: 23,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingHorizontal: HEADER_HORIZONTAL_PADDING,
     justifyContent: 'flex-end',
   },
   p1: {
@@ -113,6 +152,7 @@ const styles = StyleSheet.create({
   p2: {
     marginBottom: 7,
     fontSize: 32,
+    width: 250,
   },
   p3absent: {
     marginBottom: 26,
@@ -125,7 +165,14 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.regular,
     color: theme.colors.text,
   },
+  v: {
+    right: HEADER_HORIZONTAL_PADDING,
+    bottom: 23,
+    position: 'absolute',
+  },
   valueContainer: {
+    bottom: -20,
+    backgroundColor: theme.colors.text,
     paddingRight: 30,
     paddingLeft: 30,
     paddingTop: 12,
@@ -139,6 +186,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 16,
     textTransform: 'uppercase',
+    color: theme.colors.buttonText,
   },
 });
 

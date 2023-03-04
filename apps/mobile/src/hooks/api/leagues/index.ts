@@ -14,3 +14,4 @@ export * from './useDeleteLeague';
 export * from './useInviteToLeague';
 export * from './useCteLeagues';
 export * from './useLeagueMembersMe';
+export * from './useClaimLeagueBfit';

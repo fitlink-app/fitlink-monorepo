@@ -25,3 +25,4 @@ export * from './BfitButton';
 export * from './plot';
 export * from './ErrorContent';
 export * from './BfitSpinner';
+export * from './AnimatedHeaderCard';
