@@ -41,7 +41,7 @@ function createIntercomUserPayload(
   }
 
   if (providerTypes) {
-    result.customAttributes!.trackers = JSON.stringify(providerTypes);
+    result.customAttributes!.trackers = providerTypes.toString();
   }
 
   if (user.bfit_balance) {
