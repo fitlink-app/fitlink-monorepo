@@ -34,7 +34,7 @@ import {
 import { User } from '../../decorators/authenticated-user.decorator'
 import { AuthenticatedUser } from '../../models'
 import { ClientId } from '../client-id/client-id.decorator'
-import { ClientIdType } from '../client-id/client-id.constant'
+import { ClientId, ClientIdType } from '../client-id/client-id.constant'
 
 @Controller()
 @ApiBaseResponses()
@@ -148,7 +148,7 @@ export class AuthController {
   @Public()
   @ValidationResponse()
   @ApiResponse({ type: AuthSignupDto, status: 200 })
-  async connect(@Body() authConnectDto: AuthConnectDto, @ClientId() client_id: ClientId) {
+  async connect(@Body() authConnectDto: AuthConnectDto, @ClientId() client_id: ClientIdType) {
     const { error, result } = await this.authService.connectWithAuthProvider(
       authConnectDto,
       client_id

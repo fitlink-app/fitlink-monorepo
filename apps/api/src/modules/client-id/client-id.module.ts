@@ -14,13 +14,7 @@ export class ClientIdContextModule {
 					provide: CLIENT_ID,
 					scope: Scope.REQUEST,
 					useFactory: (req: Request) => {
-						const clientId = req.headers['X-CLIENT-ID'];
-
-						if (!clientId) {
-							throw new BadRequestException('client id not supplied');
-						}
-
-						return clientId;
+						return req.headers['X-CLIENT-ID'] || 'Fitlink';
 					},
 					inject: [REQUEST],
 				}
