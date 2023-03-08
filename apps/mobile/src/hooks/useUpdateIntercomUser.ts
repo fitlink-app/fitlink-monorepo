@@ -74,6 +74,8 @@ export const useUpdateIntercomUser = () => {
       Intercom.registerIdentifiedUser({
         email: user.email,
         userId: user.id,
+      }).then(() => {
+        isRegisteredRef.current = true;
       });
     }
   }, [user]);
