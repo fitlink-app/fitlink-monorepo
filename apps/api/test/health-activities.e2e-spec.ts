@@ -43,6 +43,7 @@ import { UsersModule } from '../src/modules/users/users.module'
 import { BfitDistributionProducerModule } from '../src/modules/bfit/bfit-producer.module'
 import { BfitDistributionModule } from '../src/modules/bfit/bfit.module'
 import { BfitDistributionSenderService } from '../src/modules/bfit/bfit-producer.service'
+import { ClientIdContextModule } from '../src/modules/client-id/client-id.module'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -67,6 +68,7 @@ describe('Health Activities', () => {
         LeaguesModule,
         UsersModule,
         BfitDistributionProducerModule,
+        ClientIdContextModule.forRoot(),
       ],
       providers: []
     })
