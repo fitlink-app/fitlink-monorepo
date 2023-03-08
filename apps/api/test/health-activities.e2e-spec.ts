@@ -47,8 +47,8 @@ import { ClientIdContextModule } from '../src/modules/client-id/client-id.module
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
-  let stravaService: MockType<StravaService>
-  let fitbitService: MockType<FitbitService>
+  let stravaService: StravaService
+  let fitbitService: FitbitService
   let providerService: MockType<ProvidersService>
   let bfitDistributionSenderService: MockType<BfitDistributionSenderService>
   let connection: Connection
@@ -85,8 +85,8 @@ describe('Health Activities', () => {
     userForFitbit = await ProvidersSetup('FitbitHealthActivityTest')
     userForEventEmitterTesting = await ProvidersSetup('EventEmitterTest')
 
-    stravaService = app.get(StravaService)
-    fitbitService = app.get(FitbitService)
+    stravaService = await app.resolve(StravaService)
+    fitbitService = await app.resolve(FitbitService)
     providerService = app.get(ProvidersService)
 
     await SeedProviderToUser(userForFitbit.id, 'fitbit')

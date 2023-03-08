@@ -30,8 +30,8 @@ const {
 
 describe('Providers', () => {
   let app: NestFastifyApplication
-  let stravaService: MockType<StravaService>
-  let fitbitService: MockType<FitbitService>
+  let stravaService: StravaService
+  let fitbitService: FitbitService
   let seededUser: User
   let authHeaders
   let connection: Connection
@@ -47,8 +47,8 @@ describe('Providers', () => {
 
     seededUser = await ProvidersSetup('ProvidersTest')
 
-    stravaService = app.get(StravaService)
-    fitbitService = app.get(FitbitService)
+    stravaService = await app.resolve(StravaService)
+    fitbitService = await app.resolve(FitbitService)
     authHeaders = getAuthHeaders(null, seededUser.id)
   })
 
@@ -85,8 +85,8 @@ describe('Providers', () => {
       expires_at: 1622455071943,
       refresh_token: 'refresh_token'
     }
-    stravaService.exchangeTokens = jest.fn()
-    stravaService.exchangeTokens.mockReturnValue(
+    stravaService.exchangeTokens = jest.fn();
+    (stravaService.exchangeTokens as jest.Mock<any, any>).mockReturnValue(
       stravaApiMockData as StravaCallbackResponse
     )
     const data = await app.inject({
@@ -119,8 +119,8 @@ describe('Providers', () => {
     const provider = await SeedProviderToUser(seededUser.id, 'strava')
     stravaService.getFreshStravaAccessToken = jest.fn()
     stravaService.revokeToken = jest.fn()
-    stravaService.getFreshStravaAccessToken.mockReturnValue(provider.token)
-    stravaService.revokeToken.mockReturnValue({ access_token: provider.token })
+    (stravaService.getFreshStravaAccessToken as jest.Mock).mockReturnValue(provider.token)
+    (stravaService.revokeToken as jest.Mock).mockReturnValue({ access_token: provider.token })
     const data = await app.inject({
       method: 'DELETE',
       url: `/providers/strava`,
