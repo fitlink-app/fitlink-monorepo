@@ -22,9 +22,9 @@ export class AppController {
       ),
       INVITE_URL: this.configService.get('INVITE_URL'),
       EMAIL_VERIFICATION_URL: this.configService.get('EMAIL_VERIFICATION_URL'),
-      STRAVA_CLIENT_ID: this.configService.get('STRAVA_CLIENT_ID'),
-      STRAVA_CLIENT_SECRET: mask(
-        this.configService.get('STRAVA_CLIENT_SECRET')
+      FITLINK_STRAVA_CLIENT_ID: this.configService.get('FITLINK_STRAVA_CLIENT_ID'),
+      FITLINK_STRAVA_CLIENT_SECRET: mask(
+        this.configService.get('FITLINK_STRAVA_CLIENT_SECRET')
       ),
       BFIT_STRAVA_CLIENT_ID: this.configService.get('BFIT_STRAVA_CLIENT_ID'),
       BFIT_STRAVA_CLIENT_SECRET: mask(
@@ -36,9 +36,9 @@ export class AppController {
       STRAVA_REDIRECT_URI: this.configService.get('STRAVA_REDIRECT_URI'),
       STRAVA_SCOPES: this.configService.get('STRAVA_SCOPES'),
       STRAVA_VERIFY_STRING: this.configService.get('STRAVA_VERIFY_STRING'),
-      FITBIT_CLIENT_ID: this.configService.get('FITBIT_CLIENT_ID'),
-      FITBIT_CLIENT_SECRET: mask(
-        this.configService.get('FITBIT_CLIENT_SECRET')
+      FITLINK_FITBIT_CLIENT_ID: this.configService.get('FITLINK_FITBIT_CLIENT_ID'),
+      FITLINK_FITBIT_CLIENT_SECRET: mask(
+        this.configService.get('FITLINK_FITBIT_CLIENT_SECRET')
       ),
       BFIT_FITBIT_CLIENT_ID: this.configService.get('BFIT_FITBIT_CLIENT_ID'),
       BFIT_FITBIT_CLIENT_SECRET: mask(

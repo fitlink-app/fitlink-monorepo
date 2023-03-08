@@ -40,8 +40,7 @@ const handleRefreshTokenRefused = async () => {
 
 export default makeApi(axios, {
   onRefreshTokenFail: handleRefreshTokenRefused,
-  // TODO: This should be dynamic based on the client
-  clientId: 'Fitlink',
+  clientId: 'BFIT',
 });
 
 export * from './fcmTokens';

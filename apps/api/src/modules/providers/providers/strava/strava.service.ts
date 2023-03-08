@@ -105,7 +105,7 @@ export class StravaService {
       | 'webhook_callback_url',
     client_id: ClientIdType
   ) {
-    const envPrefix = client_id === 'Fitlink' ? '' : 'BFIT_'
+    const envPrefix = client_id === 'Fitlink' ? 'FITLINK_' : 'BFIT_'
     const config = {
       id: this.configService.get(`${envPrefix}STRAVA_client_id`),
       secret: this.configService.get(`${envPrefix}STRAVA_CLIENT_SECRET`),

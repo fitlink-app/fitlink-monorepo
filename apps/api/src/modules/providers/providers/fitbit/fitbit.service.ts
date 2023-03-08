@@ -53,7 +53,7 @@ export class FitbitService {
     private usersRepository: Repository<User>,
     @ClientId() private clientId: ClientIdType
   ) {
-    const envPrefix = this.clientId === 'BFIT' ? 'BFIT_' : '';
+    const envPrefix = this.clientId === 'BFIT' ? 'BFIT_' : 'FITLINK_';
     this.Fitbit = new FitbitApiClient({
       clientId: this.configService.get(`${envPrefix}FITBIT_CLIENT_ID`),
       clientSecret: this.configService.get(`${envPrefix}FITBIT_CLIENT_SECRET`),
@@ -365,7 +365,7 @@ export class FitbitService {
   }
 
   verifyWebhook(verifyToken: string, type: string, client_name: ClientIdType) {
-    const envPrefix = client_name === 'BFIT' ? 'BFIT_' : ''
+    const envPrefix = client_name === 'BFIT' ? 'BFIT_' : 'FITLINK_'
     switch (type) {
       case 'default':
         return (
