@@ -26,6 +26,10 @@ export class AppController {
       STRAVA_CLIENT_SECRET: mask(
         this.configService.get('STRAVA_CLIENT_SECRET')
       ),
+      BFIT_STRAVA_CLIENT_ID: this.configService.get('BFIT_STRAVA_CLIENT_ID'),
+      BFIT_STRAVA_CLIENT_SECRET: mask(
+        this.configService.get('BFIT_STRAVA_CLIENT_SECRET')
+      ),
       STRAVA_WEBHOOK_CALLBACK_URL: this.configService.get(
         'STRAVA_WEBHOOK_CALLBACK_URL'
       ),
@@ -35,6 +39,10 @@ export class AppController {
       FITBIT_CLIENT_ID: this.configService.get('FITBIT_CLIENT_ID'),
       FITBIT_CLIENT_SECRET: mask(
         this.configService.get('FITBIT_CLIENT_SECRET')
+      ),
+      BFIT_FITBIT_CLIENT_ID: this.configService.get('BFIT_FITBIT_CLIENT_ID'),
+      BFIT_FITBIT_CLIENT_SECRET: mask(
+        this.configService.get('BFIT_FITBIT_CLIENT_SECRET')
       ),
       FITBIT_API_VERSION: this.configService.get('FITBIT_API_VERSION'),
       FITBIT_SCOPES: this.configService.get('FITBIT_SCOPES'),
@@ -73,10 +81,10 @@ function mask(str: string, max?: number) {
   }
 
   if (max) {
-    str = str.substr(str.length - max)
+    str = str.substring(str.length - max)
   }
   return (
     Array.from({ length: str.length - 4 }).join('*') +
-    str.substr(str.length - 4, max)
+    str.substring(str.length - 4, max)
   )
 }

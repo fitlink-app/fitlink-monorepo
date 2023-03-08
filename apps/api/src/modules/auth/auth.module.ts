@@ -18,6 +18,7 @@ import { OrganisationsModule } from '../organisations/organisations.module'
 import { NotificationsModule } from '../notifications/notifications.module'
 import { UsersSettingsModule } from '../users-settings/users-settings.module'
 import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
+import { ClientIdContextModule } from '../client-id/client-id.module'
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
           signOptions: { expiresIn: '1h' }
         }
       }
-    })
+    }),
+    ClientIdContextModule.forFeature(),
   ],
   controllers: [AuthController],
   providers: [AuthService, UsersService, LocalStrategy, JwtStrategy],

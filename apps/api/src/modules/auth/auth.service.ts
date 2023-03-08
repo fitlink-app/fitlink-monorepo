@@ -36,6 +36,7 @@ import { OrganisationMode } from '../organisations/organisations.constants'
 import { UserSettingsService } from '../users-settings/users-settings.service'
 import { CommonService } from '../common/services/common.service'
 import { DeepLinkType } from '../../constants/deep-links'
+import { ClientIdType } from '../client-id/client-id.constant'
 
 type PasswordResetToken = {
   sub: string
@@ -642,8 +643,7 @@ export class AuthService {
     token,
     signup,
     desktop,
-    client_name = 'Fitlink'
-  }: AuthConnectDto) {
+  }: AuthConnectDto, client_name: ClientIdType) {
     let result: Partial<AuthProvider>
     switch (provider) {
       case AuthProviderType.Google:

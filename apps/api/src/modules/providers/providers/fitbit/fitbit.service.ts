@@ -2,8 +2,10 @@ import {
   BadRequestException,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
-  NotFoundException
+  NotFoundException,
+  Scope
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { tryAndCatch } from '../../../../helpers/tryAndCatch'
@@ -34,25 +36,30 @@ import { addSeconds } from 'date-fns'
 import { OnEvent } from '@nestjs/event-emitter'
 import type { AuthenticatedUser } from '../../../../models/authenticated-user.model'
 import { Events } from '../../../../events'
+import { ClientIdType } from '../../../client-id/client-id.constant'
+import { ClientId } from '../../../client-id/client-id.decorator'
 
 const FitbitApiClient: any = fitbitClient
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST})
 export class FitbitService {
+  Fitbit;
   constructor(
     private providersService: ProvidersService,
     private configService: ConfigService,
     private healthActivityService: HealthActivitiesService,
     private goalsEntriesService: GoalsEntriesService,
     @InjectRepository(User)
-    private usersRepository: Repository<User>
-  ) {}
-
-  Fitbit = new FitbitApiClient({
-    clientId: this.configService.get('FITBIT_CLIENT_ID'),
-    clientSecret: this.configService.get('FITBIT_CLIENT_SECRET'),
-    apiVersion: this.configService.get('FITBIT_API_VERSION')
-  })
+    private usersRepository: Repository<User>,
+    @ClientId() private clientId: ClientIdType
+  ) {
+    const envPrefix = this.clientId === 'BFIT' ? 'BFIT_' : '';
+    this.Fitbit = new FitbitApiClient({
+      clientId: this.configService.get(`${envPrefix}FITBIT_CLIENT_ID`),
+      clientSecret: this.configService.get(`${envPrefix}FITBIT_CLIENT_SECRET`),
+      apiVersion: this.configService.get('FITBIT_API_VERSION')
+    })
+  }
 
   getOAuthUrl(userId: string) {
     return {
@@ -357,21 +364,22 @@ export class FitbitService {
     }
   }
 
-  verifyWebhook(verifyToken: string, type: string) {
+  verifyWebhook(verifyToken: string, type: string, client_name: ClientIdType) {
+    const envPrefix = client_name === 'BFIT' ? 'BFIT_' : ''
     switch (type) {
       case 'default':
         return (
           verifyToken ===
-          this.configService.get('FITBIT_VERIFY_WEBHOOK_DEFAULT')
+          this.configService.get(`${envPrefix}FITBIT_VERIFY_WEBHOOK_DEFAULT`)
         )
       case 'activities':
         return (
           verifyToken ===
-          this.configService.get('FITBIT_VERIFY_WEBHOOK_ACTIVITIES')
+          this.configService.get(`${envPrefix}FITBIT_VERIFY_WEBHOOK_ACTIVITIES`)
         )
       case 'sleep':
         return (
-          verifyToken === this.configService.get('FITBIT_VERIFY_WEBHOOK_SLEEP')
+          verifyToken === this.configService.get(`${envPrefix}FITBIT_VERIFY_WEBHOOK_SLEEP`)
         )
       default:
         return false

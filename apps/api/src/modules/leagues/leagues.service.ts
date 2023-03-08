@@ -1280,7 +1280,7 @@ export class LeaguesService {
         leagueId
       })
       .orderBy('entry.bfit_earned', 'DESC')
-      .orderBy('entry.points', 'DESC')
+      .addOrderBy('entry.points', 'DESC')
       .addOrderBy('user.name', 'ASC')
       .take(options.limit)
       .skip(options.page * options.limit)

@@ -26,6 +26,7 @@ import { lifestyleActivityType } from '../../../health-activities/dto/lifestyleA
 import { HealthActivityDto } from '../../../health-activities/dto/create-health-activity.dto'
 import { HealthActivitiesService } from '../../../health-activities/health-activities.service'
 import { tryAndCatch } from '../../../../helpers/tryAndCatch'
+import { ClientIdType } from '../../../client-id/client-id.constant'
 
 @Injectable()
 export class StravaService {
@@ -36,7 +37,7 @@ export class StravaService {
     private healthActivityService: HealthActivitiesService
   ) {}
 
-  async processStravaData(stravaEventData: StravaEventData) {
+  async processStravaData(stravaEventData: StravaEventData, client_id: ClientIdType) {
     if (stravaEventData.object_type === 'activity') {
       switch (stravaEventData.aspect_type) {
         case 'create': {
@@ -51,7 +52,8 @@ export class StravaService {
           const [result, resultErr] = await tryAndCatch(
             this.getStravaActivity(
               stravaEventData.object_id.toString(),
-              provider.user.id
+              provider.user.id,
+              client_id
             )
           )
           resultErr && console.error(resultErr)
@@ -72,9 +74,9 @@ export class StravaService {
     }
   }
 
-  async getStravaActivity(activityId: string, userId: string) {
+  async getStravaActivity(activityId: string, userId: string, client_id: ClientIdType) {
     const [accessToken, accessTokenErr] = await tryAndCatch(
-      this.getFreshStravaAccessToken(userId)
+      this.getFreshStravaAccessToken(userId, client_id)
     )
     accessTokenErr && console.error(accessTokenErr.message)
     const [activity, activityErr] = await tryAndCatch(
@@ -100,11 +102,13 @@ export class StravaService {
       | 'uri'
       | 'scopes'
       | 'verify_token'
-      | 'webhook_callback_url'
+      | 'webhook_callback_url',
+    client_id: ClientIdType
   ) {
+    const envPrefix = client_id === 'Fitlink' ? '' : 'BFIT_'
     const config = {
-      id: this.configService.get('STRAVA_CLIENT_ID'),
-      secret: this.configService.get('STRAVA_CLIENT_SECRET'),
+      id: this.configService.get(`${envPrefix}STRAVA_client_id`),
+      secret: this.configService.get(`${envPrefix}STRAVA_CLIENT_SECRET`),
       uri: this.configService.get('STRAVA_REDIRECT_URI'),
       scopes: this.configService.get('STRAVA_SCOPES'),
       verify_token: this.configService.get('STRAVA_VERIFY_STRING'),
@@ -115,22 +119,27 @@ export class StravaService {
     return config[param]
   }
 
-  getTokenUrl(code: string) {
+  getTokenUrl(code: string, client_id: ClientIdType) {
     return `${STRAVA_TOKEN_EXCHANGE_URL}?client_id=${this.stravaConfig(
-      'id'
+      'id',
+      client_id
     )}&client_secret=${this.stravaConfig(
-      'secret'
+      'secret',
+      client_id
     )}&grant_type=authorization_code&code=${code}`
   }
 
-  async registerWebhook() {
+  async registerWebhook(client_id: ClientIdType) {
     const url = `https://www.strava.com/api/v3/push_subscriptions?client_id=${this.stravaConfig(
-      'id'
+      'id',
+      client_id
     )}&client_secret=${this.stravaConfig(
-      'secret'
+      'secret',
+      client_id
     )}&verify_token=${this.stravaConfig(
-      'verify_token'
-    )}&callback_url=${this.stravaConfig('webhook_callback_url')}`
+      'verify_token',
+      client_id
+    )}&callback_url=${this.stravaConfig('webhook_callback_url', client_id)}`
 
     try {
       const result = await this.httpService
@@ -156,10 +165,11 @@ export class StravaService {
     }
   }
 
-  async deregisterWebhook(subscriptionId: string) {
+  async deregisterWebhook(subscriptionId: string, client_id: ClientIdType) {
     const url = `https://www.strava.com/api/v3/push_subscriptions/${subscriptionId}?client_id=${this.stravaConfig(
-      'id'
-    )}&client_secret=${this.stravaConfig('secret')}`
+      'id',
+      client_id
+    )}&client_secret=${this.stravaConfig('secret', client_id)}`
 
     try {
       const result = await this.httpService
@@ -185,10 +195,11 @@ export class StravaService {
     }
   }
 
-  async viewWebhook() {
+  async viewWebhook(client_id: ClientIdType) {
     const url = `https://www.strava.com/api/v3/push_subscriptions?client_id=${this.stravaConfig(
-      'id'
-    )}&client_secret=${this.stravaConfig('secret')}`
+      'id',
+      client_id
+    )}&client_secret=${this.stravaConfig('secret', client_id)}`
 
     try {
       const result = await this.httpService
@@ -210,31 +221,33 @@ export class StravaService {
     }
   }
 
-  getRefreshTokenUrl(refresh_token: string) {
+  getRefreshTokenUrl(refresh_token: string, client_id: ClientIdType) {
     return `${STRAVA_TOKEN_EXCHANGE_URL}?client_id=${this.stravaConfig(
-      'id'
+      'id',
+      client_id
     )}&client_secret=${this.stravaConfig(
-      'secret'
+      'secret',
+      client_id
     )}&grant_type=refresh_token&refresh_token=${refresh_token}`
   }
 
-  getOAuthUrl(userId: string) {
+  getOAuthUrl(userId: string, client_id: ClientIdType) {
     return {
       oauth_url: [
         STRAVA_AUTHORIZE_URL,
-        `?client_id=${this.stravaConfig('id')}`,
-        `&client_secret=${this.stravaConfig('secret')}`,
-        `&redirect_uri=${this.stravaConfig('uri')}`,
-        `&scope=${this.stravaConfig('scopes')}`,
+        `?client_id=${this.stravaConfig('id', client_id)}`,
+        `&client_secret=${this.stravaConfig('secret', client_id)}`,
+        `&redirect_uri=${this.stravaConfig('uri', client_id)}`,
+        `&scope=${this.stravaConfig('scopes', client_id)}`,
         `&response_type=code`,
         `&state=${userId}`
       ].join('')
     }
   }
 
-  exchangeTokens(code: string): Promise<StravaCallbackResponse> {
+  exchangeTokens(code: string, client_id: ClientIdType): Promise<StravaCallbackResponse> {
     return this.httpService
-      .post(this.getTokenUrl(code), {
+      .post(this.getTokenUrl(code, client_id), {
         headers: {
           accept: 'application/json'
         },
@@ -244,10 +257,10 @@ export class StravaService {
       .toPromise()
   }
 
-  async saveStravaProvider(code: string, userId: string, scope: any) {
+  async saveStravaProvider(code: string, userId: string, scope: any, client_id: ClientIdType) {
     const scopes = scope ? scope.split(',') : []
     const { athlete, refresh_token, access_token, expires_at } =
-      await this.exchangeTokens(code)
+      await this.exchangeTokens(code, client_id)
 
     const token_expires_at = new Date(Math.floor(expires_at * 1000))
     const result = await this.providersService.create(
@@ -263,9 +276,9 @@ export class StravaService {
     )
     return result
   }
-  async deAuthorize(userId: string) {
+  async deAuthorize(userId: string, client_id: ClientIdType) {
     try {
-      const accessToken = await this.getFreshStravaAccessToken(userId)
+      const accessToken = await this.getFreshStravaAccessToken(userId, client_id)
       await this.revokeToken(accessToken)
     } catch (e) {
       console.error(e)
@@ -274,8 +287,8 @@ export class StravaService {
     return true
   }
 
-  verifyWebhook(token: string, challenge: string) {
-    if (token !== this.stravaConfig('verify_token')) {
+  verifyWebhook(token: string, challenge: string, client_id: ClientIdType) {
+    if (token !== this.stravaConfig('verify_token', client_id)) {
       throw new BadRequestException(`Unauthorized request for verfication`)
     } else {
       return { 'hub.challenge': challenge }
@@ -303,11 +316,12 @@ export class StravaService {
   }
 
   async refreshToken(
-    refresh_token: string
+    refresh_token: string,
+    client_id: ClientIdType
   ): Promise<StravaRefreshTokenResponse> {
     try {
       return await this.httpService
-        .post(this.getRefreshTokenUrl(refresh_token), {
+        .post(this.getRefreshTokenUrl(refresh_token, client_id), {
           headers: {
             accept: 'application/json'
           },
@@ -325,7 +339,7 @@ export class StravaService {
    * @param userId
    * @returns an access token that isn't expired
    */
-  async getFreshStravaAccessToken(userId: string) {
+  async getFreshStravaAccessToken(userId: string, client_id: ClientIdType) {
     // Get Strava Provider with the user Id
     const provider = await this.providersService.findOne(
       userId,
@@ -344,7 +358,7 @@ export class StravaService {
       // Token Expired Get New Token
       try {
         const { access_token, refresh_token, expires_at } =
-          await this.refreshToken(provider.refresh_token)
+          await this.refreshToken(provider.refresh_token, client_id)
         // Set the new credentials
 
         const newCredentials = {

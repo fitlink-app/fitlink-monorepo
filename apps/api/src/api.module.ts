@@ -76,6 +76,7 @@ import { SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
 import AWS from 'aws-sdk'
 import { BfitDistributionModule } from './modules/bfit/bfit.module'
 import { BfitDistributionProducerModule } from './modules/bfit/bfit-producer.module'
+import { ClientIdContextModule } from './modules/client-id/client-id.module'
 
 @Module({
   imports: [
@@ -169,6 +170,7 @@ import { BfitDistributionProducerModule } from './modules/bfit/bfit-producer.mod
     WalletTransactionsModule,
     BfitDistributionProducerModule,
     BfitDistributionModule,
+    ClientIdContextModule.forRoot(),
   ],
   providers: [
     {
