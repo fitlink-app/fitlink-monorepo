@@ -170,7 +170,7 @@ import { ClientIdContextModule } from './modules/client-id/client-id.module'
     WalletTransactionsModule,
     BfitDistributionProducerModule,
     BfitDistributionModule,
-    ClientIdContextModule.forRoot(),
+    ClientIdContextModule,
   ],
   providers: [
     {

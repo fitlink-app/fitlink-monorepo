@@ -68,7 +68,7 @@ describe('Health Activities', () => {
         LeaguesModule,
         UsersModule,
         BfitDistributionProducerModule,
-        ClientIdContextModule.forRoot(),
+        ClientIdContextModule,
       ],
       providers: []
     })

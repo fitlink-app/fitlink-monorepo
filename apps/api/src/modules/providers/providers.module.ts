@@ -26,7 +26,7 @@ import { ClientIdContextModule } from '../client-id/client-id.module'
     AuthModule,
     GoalsEntriesModule,
     EventEmitter2,
-    ClientIdContextModule.forFeature(),
+    ClientIdContextModule,
   ],
   controllers: [
     ProvidersController,

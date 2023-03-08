@@ -43,7 +43,7 @@ import { ClientIdContextModule } from '../client-id/client-id.module'
         }
       }
     }),
-    ClientIdContextModule.forFeature(),
+    ClientIdContextModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, UsersService, LocalStrategy, JwtStrategy],
