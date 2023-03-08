@@ -1,4 +1,4 @@
-import { Module, DynamicModule, BadRequestException, Scope } from '@nestjs/common';
+import { Module, Scope } from '@nestjs/common';
 import { CLIENT_ID } from './client-id';
 import { REQUEST } from '@nestjs/core';
 
@@ -8,7 +8,8 @@ import { REQUEST } from '@nestjs/core';
 			provide: CLIENT_ID,
 			scope: Scope.REQUEST,
 			useFactory: (req: Request) => {
-				return req.headers['X-CLIENT-ID'] || 'Fitlink';
+				// Null check due to unit testing and e2e
+				return req?.headers['X-CLIENT-ID'] || 'Fitlink';
 			},
 			inject: [REQUEST],
 		},
