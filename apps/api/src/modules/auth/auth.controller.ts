@@ -34,7 +34,7 @@ import {
 import { User } from '../../decorators/authenticated-user.decorator'
 import { AuthenticatedUser } from '../../models'
 import { ClientId } from '../client-id/client-id.decorator'
-import { ClientId, ClientIdType } from '../client-id/client-id.constant'
+import { ClientIdType } from '../client-id/client-id.constant'
 
 @Controller()
 @ApiBaseResponses()
