@@ -138,9 +138,8 @@ describe('Providers', () => {
       user_id: '10298id'
     }
 
-    fitbitService.exchangeToken = jest.fn()
+    fitbitService.exchangeToken = jest.fn().mockReturnValue(fitbitApiMockData)
     fitbitService.createPushSubscription = jest.fn()
-    fitbitService.exchangeToken.mockReturnValue(fitbitApiMockData)
     const data = await app.inject({
       method: 'GET',
       url: `/providers/fitbit/callback?code=1012098123&state=${seededUser.id}`
@@ -170,10 +169,9 @@ describe('Providers', () => {
 
   it('DELETE /provider/fitbit', async () => {
     const provider = await SeedProviderToUser(seededUser.id, 'fitbit')
-    fitbitService.getFreshFitbitToken = jest.fn()
+    fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(provider.token)
     fitbitService.revokeToken = jest.fn()
 
-    fitbitService.getFreshFitbitToken.mockReturnValue(provider.token)
     const data = await app.inject({
       method: 'DELETE',
       url: `/providers/fitbit`,
