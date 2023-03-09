@@ -9,7 +9,7 @@ import {RootState} from 'redux/reducer';
 import {logout} from 'redux/auth';
 
 const axios = Axios.create({
-  baseURL: Config.API_URL,
+  baseURL: 'https://api-prod.fitlinkapp.com/api/v1/', // Config.API_URL,
 });
 
 export type RequestError = {

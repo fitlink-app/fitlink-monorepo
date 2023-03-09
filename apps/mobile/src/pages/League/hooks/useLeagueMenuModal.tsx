@@ -5,9 +5,11 @@ import React, {useCallback} from 'react';
 type UseLeagueMenuModalProps = {
   isPublic: boolean;
   membership: 'none' | 'member' | 'owner';
+  isCteLeague: boolean;
   handleOnInvitePressed: () => void;
   handleOnLeavePressed: () => void;
   handleOnEditPressed: () => void;
+  handleOnReportCheatingPress: () => void;
 };
 
 export const useLeagueMenuModal = ({
@@ -16,6 +18,8 @@ export const useLeagueMenuModal = ({
   handleOnInvitePressed,
   handleOnLeavePressed,
   handleOnEditPressed,
+  isCteLeague,
+  handleOnReportCheatingPress,
 }: UseLeagueMenuModalProps) => {
   const {openModal, closeModal} = useModal();
 
@@ -44,6 +48,13 @@ export const useLeagueMenuModal = ({
           onPress: withClose(handleOnInvitePressed, id),
         });
       }
+      if (isCteLeague && membership === 'member') {
+        result.push({
+          text: 'Report Cheating',
+          type: 'danger',
+          onPress: withClose(handleOnReportCheatingPress, id),
+        });
+      }
       if (membership === 'member') {
         result.push({
           text: 'Leave League',
@@ -54,6 +65,8 @@ export const useLeagueMenuModal = ({
       return result;
     },
     [
+      isCteLeague,
+      handleOnReportCheatingPress,
       handleOnEditPressed,
       handleOnInvitePressed,
       handleOnLeavePressed,
