@@ -3,6 +3,7 @@ import { APP_GUARD } from '@nestjs/core'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { EventEmitterModule } from '@nestjs/event-emitter'
+import { SqsModule } from '@ssut/nestjs-sqs';
 
 // Entities
 import { Activity } from './modules/activities/entities/activity.entity'
@@ -71,6 +72,8 @@ import { LeagueBfitClaim } from './modules/leagues/entities/bfit-claim.entity'
 import { LeagueBfitEarnings } from './modules/leagues/entities/bfit-earnings.entity'
 import { WalletTransaction } from './modules/wallet-transactions/entities/wallet-transaction.entity'
 import { WalletTransactionsModule } from './modules/wallet-transactions/wallet-transactions.module'
+import { SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
+import AWS from 'aws-sdk'
 
 @Module({
   imports: [

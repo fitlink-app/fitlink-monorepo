@@ -21,6 +21,8 @@ import { LeagueBfitEarnings } from '../entities/bfit-earnings.entity'
 import { WalletTransaction } from '../../wallet-transactions/entities/wallet-transaction.entity'
 import { WalletTransactionSource } from '../../wallet-transactions/wallet-transactions.constants'
 import { LeaguesService } from '../leagues.service'
+import { SqsMessageHandler, SqsService } from '@ssut/nestjs-sqs'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class HealthActivityCreatedListener {
@@ -44,7 +46,9 @@ export class HealthActivityCreatedListener {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private feedItemService: FeedItemsService,
-    private leaguesService: LeaguesService
+    private leaguesService: LeaguesService,
+    private readonly sqsService: SqsService,
+    private readonly configService: ConfigService,
   ) {}
 
   // Updated method to do manual saving instead of using the increment method.
@@ -112,7 +116,10 @@ export class HealthActivityCreatedListener {
     await Promise.all(incrementEntryPromises)
   }
 
-  async updateLeagueBfit(sport: Sport, userId: string) {
+  @SqsMessageHandler(process.env.SQS_NAME, false)
+  async updateLeagueBfit(message: AWS.SQS.Message) {
+    const { userId, sport } = JSON.parse(message.Body) as { sport: Sport; userId: string; };
+
     // $BFIT = daily_bfit * user_league_points / total_user_league_points
     // daily_bfit = (league_participants/total_compete_to_earn_league_participants* 6850)
     // 6850 is the amount of bfit minted daily
@@ -152,7 +159,6 @@ export class HealthActivityCreatedListener {
       if (amountAvailableToDistribute <= 0) {
         amountAvailableToDistribute = 0
       }
-
       const existingLeaderboardEntry =
         await this.leaderboardEntriesRepository.findOne({
           user_id: userId,
@@ -268,7 +274,14 @@ export class HealthActivityCreatedListener {
       this.addFeedItem(user, healthActivity)
     ]
     await Promise.all(promises)
-    // update league bfit after user points and league points have been updated
-    await this.updateLeagueBfit(sport, user.id)
+
+    // we go to SQS service to update user bfit due to it needing to be first in first out
+    this.sqsService.send(this.configService.get('SQS_NAME'), {
+      id: healthActivity.id,
+      body: {
+        sport,
+        userId: user.id
+      },
+    })
   }
 }

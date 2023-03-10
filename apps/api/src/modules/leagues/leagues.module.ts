@@ -1,4 +1,5 @@
 import { HttpModule, HttpService, Module } from '@nestjs/common'
+import { SqsModule } from '@ssut/nestjs-sqs'
 import { LeaguesService } from './leagues.service'
 import { LeaguesController } from './leagues.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -23,9 +24,36 @@ import { LeagueBfitClaim } from './entities/bfit-claim.entity'
 import { LeagueBfitEarnings } from './entities/bfit-earnings.entity'
 import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
 import { WalletTransactionsModule } from '../wallet-transactions/wallet-transactions.module'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
+import * as AWS from 'aws-sdk';
 
 @Module({
   imports: [
+    SqsModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        debugger;
+        return {
+          consumers: [
+            {
+              queueUrl: configService.get('SQS_QUEUE_URL'),
+              region: configService.get('SQS_REGION'),
+              name: configService.get('SQS_NAME'),
+            }
+          ],
+          producers: [
+            {
+              queueUrl: configService.get('SQS_QUEUE_URL'),
+              region: configService.get('SQS_REGION'),
+              name: configService.get('SQS_NAME'),
+            }
+          ]
+        } as SqsOptions;
+      }
+    }),
+    ConfigModule,
     TypeOrmModule.forFeature([
       League,
       Leaderboard,
