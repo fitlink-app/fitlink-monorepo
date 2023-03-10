@@ -7,9 +7,11 @@ import { ProviderType } from './providers.constants'
 import { User } from '../../decorators/authenticated-user.decorator'
 import { AuthenticatedUser } from '../../models'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { ApiBaseResponses } from '../../decorators/swagger.decorator'
+import { ApiBaseResponses, ValidationResponse } from '../../decorators/swagger.decorator'
 import { Provider } from './entities/provider.entity'
 import { DeleteResult } from 'typeorm'
+import { WebhookRefreshTokenDto, WebhookRefreshTokenResponseDto } from './dto/refresh-token.dto'
+import { RenewWebhookDto } from './dto/renew-webhook.dto'
 
 @Controller()
 @ApiTags('providers')
@@ -36,6 +38,25 @@ export class ProvidersController {
   ) {
     return this.providersService.createManual(createProviderDto, user.id)
   }
+
+  @Post('/me/providers/webhook/refresh')
+  @ValidationResponse()
+  @ApiResponse({ type: WebhookRefreshTokenResponseDto, status: 200 })
+  refresh(@Body() { refresh_token }: WebhookRefreshTokenDto) {
+    return this.providersService.refreshSessionToken(refresh_token);
+  }
+
+
+  @Post('/me/providers/webhook/renew')
+  @ValidationResponse()
+  @ApiResponse({ type: WebhookRefreshTokenResponseDto, status: 200 })
+  renew(@Body() {  deviceId, providerId }: RenewWebhookDto) {
+    return this.providersService.renewWebhook(providerId, deviceId);
+  }
+
+
+
+
 
   /**
    * Get the authenticated user's providers

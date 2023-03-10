@@ -14,7 +14,11 @@ export function useCustomProvider(type: ProviderType) {
       if (!!authMethod) await authMethod();
 
       return api.post<Provider>(`me/providers`, {
-        payload: {type},
+        payload: {
+          type,
+          // TODO(mobile): @KirillRodichev need to update this with the actual device id
+          deviceid: 'mobile',
+        },
       });
     },
     {
