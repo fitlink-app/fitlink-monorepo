@@ -42,12 +42,14 @@ import { GoalsEntry } from '../src/modules/goals-entries/entities/goals-entry.en
 import { UsersModule } from '../src/modules/users/users.module'
 import { BfitDistributionProducerModule } from '../src/modules/bfit/bfit-producer.module'
 import { BfitDistributionModule } from '../src/modules/bfit/bfit.module'
+import { BfitDistributionSenderService } from '../src/modules/bfit/bfit-producer.service'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
   let stravaService: MockType<StravaService>
   let fitbitService: MockType<FitbitService>
   let providerService: MockType<ProvidersService>
+  let bfitDistributionSenderService: MockType<BfitDistributionSenderService>
   let connection: Connection
   let userForStrava: User
   let userForFitbit: User
@@ -65,7 +67,6 @@ describe('Health Activities', () => {
         LeaguesModule,
         UsersModule,
         BfitDistributionProducerModule,
-        BfitDistributionModule,
       ],
       providers: []
     })
@@ -74,6 +75,9 @@ describe('Health Activities', () => {
     await runSeeder(CreateSports)
     users = await UsersSetup('Test Users', 4)
     await LeaguesWithUsersAndEntriesSetup('Test Leagues', 2, users)
+
+    bfitDistributionSenderService = app.get(BfitDistributionSenderService)
+    bfitDistributionSenderService.sendToQueue = jest.fn();
 
     userForStrava = await ProvidersSetup('StravaHealthActivityTest')
     userForFitbit = await ProvidersSetup('FitbitHealthActivityTest')

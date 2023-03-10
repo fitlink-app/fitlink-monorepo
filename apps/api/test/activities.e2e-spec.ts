@@ -15,6 +15,7 @@ import FormData = require('form-data')
 import { ActivitiesSetup, ActivitiesTeardown } from './seeds/activities.seed'
 import { BfitDistributionModule } from '../src/modules/bfit/bfit.module'
 import { BfitDistributionProducerModule } from '../src/modules/bfit/bfit-producer.module'
+import { BfitDistributionSenderService } from '../src/modules/bfit/bfit-producer.service'
 
 const activityColumns = [
   'id',
@@ -38,9 +39,11 @@ const activityMapColumns = ['id', 'name', 'meeting_point', 'date', 'type']
 describe('Activities', () => {
   let app: NestFastifyApplication
   let activitiesIminService: MockType<ActivitiesIminService>
+  let bfitDistributionSenderService: MockType<BfitDistributionSenderService>
   let activitiesService: MockType<ActivitiesService>
   let users: User[]
   let authHeaders: NodeJS.Dict<string>
+
 
   beforeAll(async () => {
     app = await mockApp({
@@ -57,6 +60,8 @@ describe('Activities', () => {
 
     // Override services to return mock data
     activitiesIminService = app.get(ActivitiesIminService)
+    bfitDistributionSenderService = app.get(BfitDistributionSenderService)
+    bfitDistributionSenderService.sendToQueue = jest.fn();
     activitiesIminService.findAll = jest.fn()
     activitiesIminService.findAllMarkers = jest.fn()
     activitiesService = app.get(ActivitiesService)
