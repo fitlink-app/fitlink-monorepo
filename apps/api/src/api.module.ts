@@ -74,6 +74,8 @@ import { WalletTransaction } from './modules/wallet-transactions/entities/wallet
 import { WalletTransactionsModule } from './modules/wallet-transactions/wallet-transactions.module'
 import { SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
 import AWS from 'aws-sdk'
+import { BfitDistributionModule } from './modules/bfit/bfit.module'
+import { BfitDistributionProducerModule } from './modules/bfit/bfit-producer.module'
 
 @Module({
   imports: [
@@ -164,7 +166,9 @@ import AWS from 'aws-sdk'
     SubscriptionsModule,
     UsersInvitationsModule,
     NotificationsModule,
-    WalletTransactionsModule
+    WalletTransactionsModule,
+    BfitDistributionProducerModule,
+    BfitDistributionModule,
   ],
   providers: [
     {

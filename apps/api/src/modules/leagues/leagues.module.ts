@@ -1,4 +1,4 @@
-import { HttpModule, HttpService, Module } from '@nestjs/common'
+import { HttpModule, HttpService, Module, forwardRef } from '@nestjs/common'
 import { SqsModule } from '@ssut/nestjs-sqs'
 import { LeaguesService } from './leagues.service'
 import { LeaguesController } from './leagues.controller'
@@ -27,6 +27,8 @@ import { WalletTransactionsModule } from '../wallet-transactions/wallet-transact
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
 import * as AWS from 'aws-sdk';
+import { BfitDistributionModule } from '../bfit/bfit.module'
+import { BfitDistributionProducerModule } from '../bfit/bfit-producer.module'
 
 @Module({
   imports: [
@@ -34,25 +36,23 @@ import * as AWS from 'aws-sdk';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        debugger;
         return {
-          consumers: [
-            {
-              queueUrl: configService.get('SQS_QUEUE_URL'),
-              region: configService.get('SQS_REGION'),
-              name: configService.get('SQS_NAME'),
-            }
-          ],
           producers: [
             {
               queueUrl: configService.get('SQS_QUEUE_URL'),
               region: configService.get('SQS_REGION'),
               name: configService.get('SQS_NAME'),
+              sqs: new AWS.SQS({
+                accessKeyId: configService.get('SQS_ACCESS_KEY_ID'),
+                secretAccessKey: configService.get('SQS_SECRET_ACCESS_KEY'),
+                region: configService.get('SQS_REGION'),
+              }),
             }
           ]
         } as SqsOptions;
       }
     }),
+    BfitDistributionProducerModule,
     ConfigModule,
     TypeOrmModule.forFeature([
       League,
@@ -82,6 +82,6 @@ import * as AWS from 'aws-sdk';
     LeagueJoinedListener,
     LeagueWonListener
   ],
-  exports: []
+  exports: [LeaguesService]
 })
 export class LeaguesModule {}
