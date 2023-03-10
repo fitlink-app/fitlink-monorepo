@@ -1,15 +1,19 @@
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef} from 'react';
 import Intercom, {UpdateUserParamList} from '@intercom/intercom-react-native';
 
 import {getViewBfitValue} from '@utils';
 import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {ProviderType} from '@fitlink/api/src/modules/providers/providers.constants';
+import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 
-import {useMe, useProviders} from './api';
+import {useMe, useMyLeagues, useProviders} from './api';
+import {getResultsFromPages} from '../utils/api';
+import {useFocusEffect} from '@react-navigation/native';
 
 function createIntercomUserPayload(
   user: User | null,
   providerTypes: ProviderType[] | undefined,
+  userLeagues: LeaguePublic[] | undefined,
 ): UpdateUserParamList | null {
   if (user === null) {
     return null;
@@ -26,13 +30,15 @@ function createIntercomUserPayload(
     },
   };
 
-  if (user.teams) {
-    result.customAttributes!.team = user.teams[0]?.name;
+  if (user.teams?.length) {
+    result.customAttributes!.team = user.teams
+      .map(team => team.name)
+      .toString();
   }
 
-  if (user.leagues) {
+  if (userLeagues?.length) {
     const serializedLeagues = JSON.stringify(
-      user.leagues.map(league => ({
+      userLeagues.map(league => ({
         name: league.name,
         sport: league.sport.name,
       })),
@@ -40,8 +46,8 @@ function createIntercomUserPayload(
     result.customAttributes!.leagues = serializedLeagues;
   }
 
-  if (providerTypes) {
-    result.customAttributes!.trackers = JSON.stringify(providerTypes);
+  if (providerTypes?.length) {
+    result.customAttributes!.trackers = providerTypes.toString();
   }
 
   if (user.bfit_balance) {
@@ -51,41 +57,42 @@ function createIntercomUserPayload(
   return result;
 }
 
-function comparePayloads(a: any, b: any) {
-  return JSON.stringify(a) === JSON.stringify(b);
-}
-
 export const useUpdateIntercomUser = () => {
-  const [previousUser, setPreviousUser] = useState<User | null>(null);
+  // TODO: should be done once user passed registration
+  const isRegisteredRef = useRef(false);
 
-  const {data: user} = useMe({
-    enabled: false,
-  });
+  const {data: user} = useMe();
 
   const {data: providerTypes} = useProviders();
 
+  const {data: userLeaguesData} = useMyLeagues();
+
+  const userLeagues = getResultsFromPages(userLeaguesData);
+
   useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    const prevIntercomPayload = createIntercomUserPayload(
-      previousUser,
-      providerTypes,
-    );
-    const nextIntercomPayload = createIntercomUserPayload(
-      user,
-      providerTypes,
-    ) as UpdateUserParamList;
-
-    if (!comparePayloads(prevIntercomPayload, nextIntercomPayload)) {
+    if (!isRegisteredRef.current && user) {
       Intercom.registerIdentifiedUser({
-        email: nextIntercomPayload.email,
-        userId: nextIntercomPayload.userId,
+        email: user.email,
+        userId: user.id,
+      }).then(() => {
+        isRegisteredRef.current = true;
       });
+    }
+  }, [user]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!user) {
+        return;
+      }
+
+      const nextIntercomPayload = createIntercomUserPayload(
+        user,
+        providerTypes,
+        userLeagues,
+      ) as UpdateUserParamList;
 
       Intercom.updateUser(nextIntercomPayload);
-      setPreviousUser(user);
-    }
-  }, [previousUser, user, providerTypes]);
+    }, [providerTypes, user, userLeagues]),
+  );
 };

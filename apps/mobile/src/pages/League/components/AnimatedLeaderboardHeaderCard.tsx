@@ -3,6 +3,7 @@ import {Dimensions, ImageSourcePropType, StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/core';
 import Animated from 'react-native-reanimated';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import {StackNavigationProp} from '@react-navigation/stack';
 
 import {Label} from '@components';
 import {
@@ -29,6 +30,7 @@ import {useLeaderboardCountback} from '../hooks/useLeaderboardCountback';
 import {MaxedOutBanner} from './MaxedOutBanner';
 import {OnlyOneTypeBanner} from './OnlyOneTypeBanner';
 import {TryTomorrowBanner} from './TryTomorrowBanner';
+import {RootStackParamList} from '../../../routes/types';
 
 interface IAnimatedLeaderboardHeaderCardProps {
   imageSource: ImageSourcePropType;
@@ -68,7 +70,8 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     onHeightMeasure: onHeightLayout,
     sharedContentOffset,
   }) => {
-    const navigation = useNavigation();
+    const navigation =
+      useNavigation<StackNavigationProp<RootStackParamList, 'League'>>();
 
     const [showAltCurrency, setShowAltCurrency] = useState(false);
 
@@ -128,12 +131,18 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
       leaveLeague(leagueId);
     };
 
+    const handleOnReportCheatingPress = () => {
+      navigation.navigate('CheatingReportScreen', {leagueId});
+    };
+
     const handleOnMenuPressed = useLeagueMenuModal({
       membership,
       isPublic,
+      isCteLeague,
       handleOnInvitePressed,
       handleOnLeavePressed,
       handleOnEditPressed,
+      handleOnReportCheatingPress,
     });
 
     const countback = useLeaderboardCountback({
