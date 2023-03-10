@@ -151,14 +151,15 @@ export const Reward = (
           p1,
           p2: reward.name,
           p3: reward.name_short,
-          animatedValue: requiredReward,
-          onAnimatedValuePress: isBfitReward ? swapRewardCurrency : undefined,
+          value: requiredReward,
+          onValuePress: isBfitReward ? swapRewardCurrency : undefined,
         }}
         descriptionProps={{
           description: reward.description,
           textStyle: styles.description,
         }}
-        sharedContentOffset={sharedContentOffset}>
+        sharedContentOffset={sharedContentOffset}
+      >
         {isReadyToBuy ? (
           <BfitButton
             disabled={isUnavailable || isRedeemed}

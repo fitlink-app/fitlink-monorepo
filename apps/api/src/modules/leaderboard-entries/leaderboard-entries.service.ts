@@ -197,17 +197,17 @@ export class LeaderboardEntriesService {
     })
 
     let query: SelectQueryBuilder<LeaderboardEntry>
-    if (league.access === LeagueAccess.CompeteToEarn) {
-      query = this.leaderboardEntryRepository
-        .createQueryBuilder()
-        .where('leaderboard_id = :leaderboardId', {
-          leaderboardId
-        })
-        .orderBy('bfit_earned', 'DESC')
-        .addOrderBy('updated_at', 'DESC')
-        .take(options.limit)
-        .skip(options.page * options.limit)
-    } else {
+    // if (league.access === LeagueAccess.CompeteToEarn) {
+    //   query = this.leaderboardEntryRepository
+    //     .createQueryBuilder()
+    //     .where('leaderboard_id = :leaderboardId', {
+    //       leaderboardId
+    //     })
+    //     .orderBy('bfit_earned', 'DESC')
+    //     .addOrderBy('updated_at', 'DESC')
+    //     .take(options.limit)
+    //     .skip(options.page * options.limit)
+    // } else {
       query = this.leaderboardEntryRepository
         .createQueryBuilder()
         .where('leaderboard_id = :leaderboardId', {
@@ -217,7 +217,7 @@ export class LeaderboardEntriesService {
         .addOrderBy('updated_at', 'DESC')
         .take(options.limit)
         .skip(options.page * options.limit)
-    }
+    // }
 
     // console.log(query.getSql())
 

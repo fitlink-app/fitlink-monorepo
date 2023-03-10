@@ -323,16 +323,11 @@ export class LeaguesService {
 
   async getUserBfitEarningsHistory(
     userId: string,
-    { limit = 10, page = 0 }: PaginationOptionsInterface
+    { limit = 7, page = 0 }: PaginationOptionsInterface
   ) {
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    let where = { user_id: userId, created_at: MoreThan(sevenDaysAgo) }
-    // const [results, total] =
-    //   await this.LeagueBfitEarningsRepository.findAndCount({
-    //     where,
-    //     take: limit,
-    //     skip: page * limit
-    //   })
+    // if limit is greater than or equal to 13 include previous week results
+    let startDate = new Date(Date.now() - limit * 24 * 60 * 60 * 1000)
+    let where = { user_id: userId, created_at: MoreThan(startDate) }
     const query = this.LeagueBfitEarningsRepository.createQueryBuilder()
       .select("DATE_TRUNC('day', created_at) as day")
       .addSelect('CAST(SUM(bfit_amount) AS FLOAT)', 'bfit_amount')
@@ -344,10 +339,30 @@ export class LeaguesService {
       .orderBy('day', 'ASC')
     // .take(limit)
     // .skip(page * limit)
-    const results = await query.getRawMany()
-    const total = results.length
+    let results = await query.getRawMany()
+
+    const dateStrings = Array.from({ length: limit }, (_, i) => {
+      const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000)
+      return date.toISOString().substring(0, 10)
+    })
+    const newResults = dateStrings.map((datestring) => {
+      const match = results.find((r) => {
+        return r.day.toISOString().includes(datestring)
+      })
+      if (match) {
+        return match
+      }
+      const newRecord = {
+        day: new Date(datestring).toISOString(),
+        bfit_amount: 0,
+        user_id: userId,
+        league_ids: []
+      }
+      return newRecord
+    })
+    const total = newResults.length
     return new Pagination<LeagueBfitEarnings>({
-      results,
+      results: newResults,
       total
     })
   }
@@ -785,6 +800,14 @@ export class LeaguesService {
 
     if (!leaguePublic.participating) {
       leaguePublic.rank = null
+    }
+
+    if (leaguePublic.daily_bfit) {
+      leaguePublic.daily_bfit = leaguePublic.daily_bfit
+    }
+
+    if (leaguePublic.bfit_distributed_today) {
+      leaguePublic.bfit_distributed_today = leaguePublic.bfit_distributed_today
     }
 
     // Ensure personal user data of owner is sanitized.

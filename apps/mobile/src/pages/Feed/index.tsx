@@ -34,6 +34,7 @@ import {getResultsFromPages} from 'utils/api';
 import {RewardSlider} from '../Rewards/components';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
 import theme from '../../theme/themes/fitlink';
+import Intercom from '@intercom/intercom-react-native';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -165,7 +166,8 @@ export const Feed = () => {
           }
           contentContainerStyle={{
             paddingBottom: insets.bottom + BOTTOM_TAB_BAR_HEIGHT,
-          }}>
+          }}
+        >
           <HeaderContainer style={{paddingTop: 20}}>
             <TopButtonRow>
               <NotificationsButton count={user.unread_notifications} />

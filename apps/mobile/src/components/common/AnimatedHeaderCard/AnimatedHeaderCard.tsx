@@ -6,18 +6,20 @@ import {
   StyleSheet,
   ViewStyle,
 } from 'react-native';
-import theme from '../../../theme/themes/fitlink';
-import HeaderCardNavbar, {
-  IAnimatedHeaderCardNavbarProps,
-} from './components/HeaderCardNavbar';
-import HeaderCardImageContainer, {
-  IHeaderCardImageContainerProps,
-} from './components/HeaderCardImageContainer';
-import HeaderCardDescription, {
-  IHeaderCardDescriptionProps,
-} from './components/HeaderCardDescription';
+
+import theme from '@theme';
 import {useMeasureInitialLayout} from '@hooks';
-import {useHeaderAnimatedStyles} from '../../../pages/League/hooks/useHeaderAnimatedStyles';
+
+import {useHeaderAnimatedStyles} from './hooks';
+import {
+  HeaderCardDescription,
+  HeaderCardImageContainer,
+  HeaderCardNavbar,
+  HeaderCardProgressBar,
+  IAnimatedHeaderCardNavbarProps,
+  IHeaderCardDescriptionProps,
+  IHeaderCardImageContainerProps,
+} from './components';
 
 interface IAnimatedHeaderCardProps {
   containerStyles?: StyleProp<ViewStyle>;
@@ -30,7 +32,8 @@ interface IAnimatedHeaderCardProps {
     | 'p2'
     | 'p3'
     | 'animatedValue'
-    | 'onAnimatedValuePress'
+    | 'onValuePress'
+    | 'value'
   >;
   descriptionProps: Pick<
     IHeaderCardDescriptionProps,
@@ -54,14 +57,24 @@ export const AnimatedHeaderCard: FC<
 
   const [containerHeight, setContainerHeight] = useState(0);
 
+  const progress = imageContainerProps.animatedValue?.p1
+    ? (imageContainerProps.animatedValue?.p2 ?? 0) /
+      imageContainerProps.animatedValue.p1
+    : 0;
+
   const {
     blurSectionStyle,
     imageBackgroundStyle,
-    bfitValueContainerStyle,
-    bfitValueTextStyle,
     descriptionStyle,
     containerStyle,
-  } = useHeaderAnimatedStyles(sharedContentOffset, initialLayout.height);
+    expandedCardProgressOpacity,
+    shrunkCardProgressOpacity,
+    isExpanded,
+  } = useHeaderAnimatedStyles(
+    sharedContentOffset,
+    initialLayout.height,
+    progress,
+  );
 
   const onAnimatedContainerLayout = (e: LayoutChangeEvent) => {
     if (sharedContentOffset.value === 0 && !containerHeight) {
@@ -72,26 +85,24 @@ export const AnimatedHeaderCard: FC<
 
   return (
     <Animated.View
-      style={[
-        {
-          left: 0,
-          right: 0,
-          zIndex: 5,
-          position: 'absolute',
-          height: containerHeight,
-        },
-        containerStyle,
-      ]}>
+      style={[styles.wrapper, {height: containerHeight}, containerStyle]}
+    >
       <Animated.View
         onLayout={onAnimatedContainerLayout}
-        style={[styles.container, containerStyles]}>
+        style={[styles.container, containerStyles]}
+      >
         <HeaderCardNavbar {...headerProps} />
         <HeaderCardImageContainer
           {...imageContainerProps}
-          imageBackgroundStyle={imageBackgroundStyle}
+          progress={progress}
+          isExpanded={isExpanded}
           blurSectionStyle={blurSectionStyle}
-          animatedContainerStyle={bfitValueContainerStyle}
-          animatedValueStyle={bfitValueTextStyle}
+          imageBackgroundStyle={imageBackgroundStyle}
+          animatedContainerStyle={expandedCardProgressOpacity}
+        />
+        <HeaderCardProgressBar
+          progress={progress}
+          style={shrunkCardProgressOpacity}
         />
         {!!descriptionProps.description && (
           <HeaderCardDescription
@@ -107,6 +118,12 @@ export const AnimatedHeaderCard: FC<
 };
 
 const styles = StyleSheet.create({
+  wrapper: {
+    left: 0,
+    right: 0,
+    zIndex: 5,
+    position: 'absolute',
+  },
   container: {
     position: 'absolute',
     bottom: 0,

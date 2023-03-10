@@ -37,18 +37,24 @@ export const useWeeklyEarnings = () => {
 
   useEffect(() => {
     if (data?.results?.length) {
-      const prevWeekEarnings = data.results
-        .slice(0, DAYS_IN_WEEK)
-        .map(extractBfitAmount);
+      // TODO: will be fixed on back soon
+      // const prevWeekEarnings = data.results
+      //   .slice(0, DAYS_IN_WEEK)
+      //   .map(extractBfitAmount);
+      const prevWeekEarnings = new Array(DAYS_IN_WEEK).fill(0);
       const curWeekEarnings = data.results
-        .slice(DAYS_IN_WEEK)
+        .slice(0, DAYS_IN_WEEK)
         .map(extractBfitAmount);
 
       const prevWeekSum = getWeekSumEarnings(prevWeekEarnings);
       const curWeekSum = getWeekSumEarnings(curWeekEarnings);
 
       setCurrentWeekEarningsSum(getViewBfitValue(curWeekSum));
-      setPercentsGrowth(Math.trunc((curWeekSum / prevWeekSum) * 100));
+      if (prevWeekSum === 0) {
+        setPercentsGrowth(curWeekSum === 0 ? 0 : 100);
+      } else {
+        setPercentsGrowth(Math.trunc((curWeekSum / prevWeekSum) * 100));
+      }
 
       setWeeklyEarnings(prev => [
         ...curWeekEarnings,

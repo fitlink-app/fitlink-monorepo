@@ -46,4 +46,5 @@ export type RootStackParamList = {
   Notifications: undefined;
   ActivityPage: {id: string};
   Wallet: undefined;
+  CheatingReportScreen: {leagueId: string};
 };

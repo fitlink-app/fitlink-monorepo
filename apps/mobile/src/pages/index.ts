@@ -18,3 +18,4 @@ export * from './Notifications';
 export * from './ActivityFeed';
 export * from './ActivityPage';
 export * from './Wallet';
+export * from './CheatingReport';

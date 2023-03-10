@@ -13,6 +13,7 @@ module.exports = {
           '@constants': './src/constants',
           '@utils': './src/utils',
           '@query': './src/query',
+          '@theme': './src/theme',
         },
       },
     ],

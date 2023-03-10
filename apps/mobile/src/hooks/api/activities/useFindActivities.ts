@@ -4,7 +4,6 @@ import api from '@api';
 import {Activity} from '@fitlink/api/src/modules/activities/entities/activity.entity';
 import {FindActivitiesDto} from '@fitlink/api/src/modules/activities/dto/find-activities.dto';
 import {ListResponse} from '@fitlink/api-sdk/types';
-import {getNextPageParam} from 'utils/api';
 
 const limit = 50;
 

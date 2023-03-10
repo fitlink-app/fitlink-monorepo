@@ -107,7 +107,7 @@ interface LeaderboardItemProps {
   name: string;
   avatarUrl?: string;
   wins: number;
-  points: number;
+  points?: number;
   isSelf: boolean;
   onPress?: () => void;
   isBfit?: boolean;
@@ -139,14 +139,16 @@ export const LeaderboardItem: React.FC<LeaderboardItemProps> = ({
           </ShrunkContainer>
         </ShrunkRow>
 
-        <PointsText>
-          {points}
-          {isBfit && (
-            <>
-              &nbsp;<Label>BFIT</Label>
-            </>
-          )}
-        </PointsText>
+        {points !== undefined && (
+          <PointsText>
+            {points}
+            {isBfit && (
+              <>
+                &nbsp;<Label>BFIT</Label>
+              </>
+            )}
+          </PointsText>
+        )}
       </ContainerRow>
     </TouchHandler>
   );

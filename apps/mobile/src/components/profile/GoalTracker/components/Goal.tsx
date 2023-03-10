@@ -3,8 +3,7 @@ import {ViewProps} from 'react-native';
 import styled, {useTheme} from 'styled-components/native';
 
 import {LayoutUtils} from '@utils';
-
-import {Icon, Label, ProgressCircle} from '../../../common';
+import {Icon, Label, ProgressCircle} from '@components';
 
 export type Goal = {
   value: number;
@@ -47,7 +46,7 @@ export const Goal = ({goal, icon, onPress, ...rest}: GoalProps) => {
     }
   };
 
-  const OnRenderCircle = () => {
+  const Content = () => {
     return isTapped ? (
       <Label numberOfLines={1} style={{fontSize: 12}}>
         {getTextForLabel(goal)}
@@ -69,8 +68,9 @@ export const Goal = ({goal, icon, onPress, ...rest}: GoalProps) => {
         backgroundStrokeWidth={1}
         bloomIntensity={0.5}
         bloomRadius={8}
-        size={LayoutUtils.getPercentageSize(16)}>
-        <OnRenderCircle />
+        size={LayoutUtils.getPercentageSize(16)}
+      >
+        <Content />
       </ProgressCircle>
     </Wrapper>
   );
