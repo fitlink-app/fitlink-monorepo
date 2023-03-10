@@ -52,13 +52,14 @@ services:
       - "${PORT_WEB_UI-8080}:${PORT_WEB_UI-8080}"
     environment:
       # https://github.com/localstack/localstack#configurations
-      - SERVICES=sns,sqs
+      - SERVICES=sqs
       - DEBUG=1
       - DEFAULT_REGION=eu-west-2
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
       - "${TMPDIR:-/tmp/mercanis-localstack}:/tmp/mercanis-localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+      - ./localstack_bootstrap:/etc/localstack/init/ready.d/
 networks:
   webnet:
 volumes:
