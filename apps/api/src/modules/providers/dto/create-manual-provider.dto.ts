@@ -23,5 +23,5 @@ export class CreateManualProviderDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  deviceId: string
+  deviceId?: string
 }

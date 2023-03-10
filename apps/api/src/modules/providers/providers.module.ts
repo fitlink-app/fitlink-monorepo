@@ -16,6 +16,7 @@ import { WebhookController } from './providers/webhook/webhook.controller'
 import { WebhookService } from './providers/webhook/webhook.service'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { JwtModule } from '@nestjs/jwt'
+import { DeviceCryptoService } from './providers/device-encryption'
 
 @Module({
   imports: [
@@ -43,7 +44,13 @@ import { JwtModule } from '@nestjs/jwt'
     FitbitController,
     WebhookController
   ],
-  providers: [ProvidersService, StravaService, FitbitService, WebhookService],
+  providers: [
+    ProvidersService,
+    StravaService,
+    FitbitService,
+    WebhookService,
+    DeviceCryptoService
+  ],
   exports: [ProvidersService]
 })
 export class ProvidersModule {}

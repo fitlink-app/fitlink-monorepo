@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { WebhookRefreshTokenResponseDto } from './dto/refresh-token.dto'
 import { RenewWebhookResponseDto } from './dto/renew-webhook.dto'
+import { DeviceCryptoService } from './providers/device-encryption'
 
 @Injectable()
 export class ProvidersService {
@@ -21,7 +22,8 @@ export class ProvidersService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private jwtService: JwtService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly deviceCryptoService: DeviceCryptoService
   ) {}
 
   async create(createProviderDto: CreateProviderDto, userId: string) {
@@ -96,11 +98,15 @@ export class ProvidersService {
       })
     );
 
-    // we need to generate a token based of the device ID
-    // this token will then be used to sync data from the device
-    const { refresh_token, token  } = await this.generateRefreshTokenAndToken(provider, deviceId);
+    if (deviceId) {
+      // we need to generate a token based of the device ID
+      // this token will then be used to sync data from the device
+      const { refresh_token, token } = await this.generateRefreshTokenAndToken(provider, deviceId);
 
-    return { ...provider, refresh_token, token}
+      return { ...provider, refresh_token, token }
+    }
+
+    return provider;
 
   }
 
@@ -191,15 +197,21 @@ export class ProvidersService {
   }
 
   async refreshSessionToken(refreshToken: string) {
-    // TODO(API): verify the token better
 
-    const decoded = this.jwtService.decode(refreshToken) as { sub: string, _rft: boolean };
+    const decoded = this.jwtService.decode(refreshToken) as { sub: string, _rft: boolean, deviceKey: string  };
     if (!decoded._rft || !decoded.sub) {
       throw new HttpException(
         'Not a valid refresh token',
         HttpStatus.UNAUTHORIZED
       )
     }
+
+    // lets verify the token
+    this.jwtService.verify(refreshToken, {
+      secret: this.deviceCryptoService.decrypt(decoded.deviceKey) + this.configService.get('WEBHOOK_PROVIDER_JWT_TOKEN_SECRET')
+    })
+
+
     const providerId = decoded.sub;
     const providers = await this.providerRepository.find({
       where: {
@@ -298,6 +310,7 @@ export class ProvidersService {
       aud: 'fitlink.com',
       iss: 'fitlink.com',
       sub: provider.id,
+      deviceKey: this.deviceCryptoService.encrypt(deviceId),
       _rft: true // Refresh token
     }
 

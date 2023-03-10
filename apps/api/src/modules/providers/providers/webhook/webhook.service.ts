@@ -37,11 +37,11 @@ export class WebhookService {
   async processNewWebhookData(
     webhookEventData: WebhookEventPayload,
   ) {
-    // TODO(API): verify the token better
-
     // going forward we obtain the userId from the Token. Sub is the provider.id
     const decode = this.jwtService.decode(webhookEventData.token) as { sub: string };
-    this.jwtService.verify(webhookEventData.token)
+    this.jwtService.verify(webhookEventData.token, {
+      secret: decode.sub + this.configService.get('WEBHOOK_PROVIDER_JWT_TOKEN_SECRET'),
+    })
     const provider = await this.providersService.findOneByProviderId(decode.sub);
 
     if (!provider) {
