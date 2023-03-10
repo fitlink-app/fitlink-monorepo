@@ -1,6 +1,6 @@
 # Fitlink Monorepo
 
-This is the Fitlink monorepo initialized using Nest's monorepo project structure and combined with yarn workspaces. This repo also contains the React Native app, admin dashboard app, Storybook, and API SDK. 
+This is the Fitlink monorepo initialized using Nest's monorepo project structure and combined with yarn workspaces. This repo also contains the React Native app, admin dashboard app, Storybook, and API SDK.
 
 ## Get started
 
@@ -23,6 +23,9 @@ docker compose up -d
 
 // When importing the test dataset, this step should be skipped
 // yarn migration:run
+
+Open up docker and go into the terminal on localstack and run the following command:
+`awslocal sqs create-queue --queue-name bfit-dev`
 
 yarn db:import
 yarn package:api

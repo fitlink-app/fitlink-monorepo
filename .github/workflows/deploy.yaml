@@ -38,7 +38,7 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
 
       - name: Setup docker
-        run: docker-compose up -d postgres-jest s3rver
+        run: docker-compose up -d postgres-jest s3rver localstack
 
       - name: Allow docker postgres 10 seconds to startups
         uses: jakejarvis/wait-action@v0.1.0
