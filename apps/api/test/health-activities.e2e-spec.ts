@@ -40,6 +40,8 @@ import { WebhookEventData } from '../src/modules/providers/types/webhook'
 import { ProviderType } from '../src/modules/providers/providers.constants'
 import { GoalsEntry } from '../src/modules/goals-entries/entities/goals-entry.entity'
 import { UsersModule } from '../src/modules/users/users.module'
+import { BfitDistributionProducerModule } from '../src/modules/bfit/bfit-producer.module'
+import { BfitDistributionModule } from '../src/modules/bfit/bfit.module'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -61,7 +63,9 @@ describe('Health Activities', () => {
         ProvidersModule,
         HealthActivitiesModule,
         LeaguesModule,
-        UsersModule
+        UsersModule,
+        BfitDistributionProducerModule,
+        BfitDistributionModule,
       ],
       providers: []
     })

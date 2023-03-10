@@ -13,6 +13,8 @@ import { User } from '../src/modules/users/entities/user.entity'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import FormData = require('form-data')
 import { ActivitiesSetup, ActivitiesTeardown } from './seeds/activities.seed'
+import { BfitDistributionModule } from '../src/modules/bfit/bfit.module'
+import { BfitDistributionProducerModule } from '../src/modules/bfit/bfit-producer.module'
 
 const activityColumns = [
   'id',
@@ -42,7 +44,7 @@ describe('Activities', () => {
 
   beforeAll(async () => {
     app = await mockApp({
-      imports: [ActivitiesModule],
+      imports: [ActivitiesModule, BfitDistributionModule, BfitDistributionProducerModule],
       providers: []
     })
 
