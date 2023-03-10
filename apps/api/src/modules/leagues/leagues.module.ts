@@ -32,26 +32,6 @@ import { BfitDistributionProducerModule } from '../bfit/bfit-producer.module'
 
 @Module({
   imports: [
-    SqsModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        return {
-          producers: [
-            {
-              queueUrl: configService.get('SQS_QUEUE_URL'),
-              region: configService.get('SQS_REGION'),
-              name: configService.get('SQS_NAME'),
-              sqs: new AWS.SQS({
-                accessKeyId: configService.get('SQS_ACCESS_KEY_ID'),
-                secretAccessKey: configService.get('SQS_SECRET_ACCESS_KEY'),
-                region: configService.get('SQS_REGION'),
-              }),
-            }
-          ]
-        } as SqsOptions;
-      }
-    }),
     BfitDistributionProducerModule,
     ConfigModule,
     TypeOrmModule.forFeature([
