@@ -1280,12 +1280,13 @@ export class LeaguesService {
         leagueId
       })
       .orderBy('entry.bfit_earned', 'DESC')
-      .orderBy('entry.points', 'DESC')
+      .addOrderBy('entry.points', 'DESC')
       .addOrderBy('user.name', 'ASC')
       .take(options.limit)
       .skip(options.page * options.limit)
 
     const [results, total] = await query.getManyAndCount()
+
     return new Pagination<LeaderboardEntry & { user: UserPublic }>({
       results: results.map(this.getLeaderboardEntryPublic),
       total
