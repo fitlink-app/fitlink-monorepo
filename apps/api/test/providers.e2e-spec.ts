@@ -18,6 +18,7 @@ import {
   ProvidersTeardown,
   SeedProviderToUser
 } from './seeds/providers.seed'
+import { ContextIdFactory } from '@nestjs/core'
 const {
   STRAVA_CLIENT_ID,
   STRAVA_CLIENT_SECRET,
@@ -30,8 +31,6 @@ const {
 
 describe('Providers', () => {
   let app: NestFastifyApplication
-  let stravaService: StravaService
-  let fitbitService: FitbitService
   let seededUser: User
   let authHeaders
   let connection: Connection
@@ -47,8 +46,6 @@ describe('Providers', () => {
 
     seededUser = await ProvidersSetup('ProvidersTest')
 
-    stravaService = await app.resolve(StravaService)
-    fitbitService = await app.resolve(FitbitService)
     authHeaders = getAuthHeaders(null, seededUser.id)
   })
 
@@ -85,10 +82,20 @@ describe('Providers', () => {
       expires_at: 1622455071943,
       refresh_token: 'refresh_token'
     }
-    stravaService.exchangeTokens = jest.fn();
-    (stravaService.exchangeTokens as jest.Mock<any, any>).mockReturnValue(
-      stravaApiMockData as StravaCallbackResponse
-    )
+
+    const contextId = ContextIdFactory.create();
+    jest
+      .spyOn(ContextIdFactory, 'getByRequest')
+      .mockImplementation(() => contextId);
+
+    await app.resolve(StravaService, contextId).then((stravaService) => {
+      stravaService.exchangeTokens = jest.fn();
+      (stravaService.exchangeTokens as jest.Mock<any, any>).mockReturnValue(
+        stravaApiMockData as StravaCallbackResponse
+      )
+      return stravaService;
+    });
+
     const data = await app.inject({
       method: 'GET',
       url: `/providers/strava/callback?code=10291823&state=${seededUser.id}&scope=${STRAVA_SCOPES}`
@@ -117,10 +124,22 @@ describe('Providers', () => {
 
   it('DELET /providers/strava', async () => {
     const provider = await SeedProviderToUser(seededUser.id, 'strava')
-    stravaService.getFreshStravaAccessToken = jest.fn()
-    stravaService.revokeToken = jest.fn()
-    (stravaService.getFreshStravaAccessToken as jest.Mock).mockReturnValue(provider.token)
-    (stravaService.revokeToken as jest.Mock).mockReturnValue({ access_token: provider.token })
+
+
+    const contextId = ContextIdFactory.create();
+    jest
+      .spyOn(ContextIdFactory, 'getByRequest')
+      .mockImplementation(() => contextId);
+
+    await app.resolve(StravaService, contextId).then((stravaService) => {
+      stravaService.getFreshStravaAccessToken = jest.fn()
+      stravaService.revokeToken = jest.fn()
+        (stravaService.getFreshStravaAccessToken as jest.Mock).mockReturnValue(provider.token)
+        (stravaService.revokeToken as jest.Mock).mockReturnValue({ access_token: provider.token })
+      return stravaService;
+    });
+
+
     const data = await app.inject({
       method: 'DELETE',
       url: `/providers/strava`,
@@ -138,8 +157,17 @@ describe('Providers', () => {
       user_id: '10298id'
     }
 
-    fitbitService.exchangeToken = jest.fn().mockReturnValue(fitbitApiMockData)
-    fitbitService.createPushSubscription = jest.fn()
+    const contextId = ContextIdFactory.create();
+    jest
+      .spyOn(ContextIdFactory, 'getByRequest')
+      .mockImplementation(() => contextId);
+
+    await app.resolve(FitbitService, contextId).then((service) => {
+      service.exchangeToken = jest.fn().mockReturnValue(fitbitApiMockData);
+      service.createPushSubscription = jest.fn();
+      return service;
+    });
+
     const data = await app.inject({
       method: 'GET',
       url: `/providers/fitbit/callback?code=1012098123&state=${seededUser.id}`
@@ -169,8 +197,17 @@ describe('Providers', () => {
 
   it('DELETE /provider/fitbit', async () => {
     const provider = await SeedProviderToUser(seededUser.id, 'fitbit')
-    fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(provider.token)
-    fitbitService.revokeToken = jest.fn()
+    const contextId = ContextIdFactory.create();
+    jest
+      .spyOn(ContextIdFactory, 'getByRequest')
+      .mockImplementation(() => contextId);
+
+    await app.resolve(FitbitService, contextId).then((fitbitService) => {
+      fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(provider.token)
+      fitbitService.revokeToken = jest.fn()
+      return fitbitService;
+    });
+
 
     const data = await app.inject({
       method: 'DELETE',

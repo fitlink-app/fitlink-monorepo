@@ -44,11 +44,10 @@ import { BfitDistributionProducerModule } from '../src/modules/bfit/bfit-produce
 import { BfitDistributionModule } from '../src/modules/bfit/bfit.module'
 import { BfitDistributionSenderService } from '../src/modules/bfit/bfit-producer.service'
 import { ClientIdContextModule } from '../src/modules/client-id/client-id.module'
+import { ContextId, ContextIdFactory } from '@nestjs/core'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
-  let stravaService: StravaService
-  let fitbitService: FitbitService
   let providerService: MockType<ProvidersService>
   let bfitDistributionSenderService: MockType<BfitDistributionSenderService>
   let connection: Connection
@@ -57,6 +56,7 @@ describe('Health Activities', () => {
   let userForEventEmitterTesting: User
   let spyConsole
   let users: User[]
+  let contextId: ContextId
 
   beforeAll(async () => {
     spyConsole = jest.spyOn(console, 'error').mockImplementation(() => {})
@@ -83,10 +83,13 @@ describe('Health Activities', () => {
 
     userForStrava = await ProvidersSetup('StravaHealthActivityTest')
     userForFitbit = await ProvidersSetup('FitbitHealthActivityTest')
-    userForEventEmitterTesting = await ProvidersSetup('EventEmitterTest')
+    userForEventEmitterTesting = await ProvidersSetup('EventEmitterTest');
 
-    stravaService = await app.resolve(StravaService)
-    fitbitService = await app.resolve(FitbitService)
+    contextId = ContextIdFactory.create();
+    jest
+      .spyOn(ContextIdFactory, 'getByRequest')
+      .mockImplementation(() => contextId);
+
     providerService = app.get(ProvidersService)
 
     await SeedProviderToUser(userForFitbit.id, 'fitbit')
@@ -129,16 +132,21 @@ describe('Health Activities', () => {
       user: { id: userForFitbit.id }
     } as Partial<Provider>)
 
-    fitbitService.getFreshFitbitToken = jest.fn()
-    (fitbitService.getFreshFitbitToken as jest.Mock).mockReturnValue(
-      `SomethingThat Won't error out`
-    )
-    fitbitService.fetchActivitySummaryByDay = jest.fn()
-    (fitbitService.fetchActivitySummaryByDay as jest.Mock).mockReturnValue(
-      fitbitActivitiesPayload
-    )
-    fitbitService.fetchProfile = jest.fn();
+    await app.resolve(FitbitService, contextId).then((fitbitService) => {
+      fitbitService.getFreshFitbitToken = jest.fn()
+        (fitbitService.getFreshFitbitToken as jest.Mock).mockReturnValue(
+          `SomethingThat Won't error out`
+        )
+      fitbitService.fetchActivitySummaryByDay = jest.fn()
+        (fitbitService.fetchActivitySummaryByDay as jest.Mock).mockReturnValue(
+          fitbitActivitiesPayload
+        )
+      fitbitService.fetchProfile = jest.fn();
       (fitbitService.fetchProfile as jest.Mock).mockReturnValue(fitbitProfilePayload)
+
+      return fitbitService;
+    });
+
 
     const data = await app.inject({
       method: 'POST',
@@ -179,16 +187,22 @@ describe('Health Activities', () => {
     providerService.findOne.mockReturnValue({
       user: { id: userForFitbit.id }
     } as Partial<Provider>)
-    fitbitService.getFreshFitbitToken = jest.fn()
-    (fitbitService.getFreshFitbitToken as jest.Mock).mockReturnValue(
-      `SomethingThat Won't error out`
-    )
-    fitbitService.fetchActivitySummaryByDay = jest.fn()
-      (fitbitService.fetchActivitySummaryByDay as jest.Mock).mockReturnValue(
-      fitbitActivitiesPayload
-    )
-    fitbitService.fetchProfile = jest.fn()
-    (fitbitService.fetchProfile as jest.Mock).mockReturnValue(fitbitProfilePayload)
+
+    await app.resolve(FitbitService, contextId).then((fitbitService) => {
+      fitbitService.getFreshFitbitToken = jest.fn()
+        (fitbitService.getFreshFitbitToken as jest.Mock).mockReturnValue(
+          `SomethingThat Won't error out`
+        )
+      fitbitService.fetchActivitySummaryByDay = jest.fn()
+        (fitbitService.fetchActivitySummaryByDay as jest.Mock).mockReturnValue(
+          fitbitActivitiesPayload
+        )
+      fitbitService.fetchProfile = jest.fn()
+        (fitbitService.fetchProfile as jest.Mock).mockReturnValue(fitbitProfilePayload)
+
+      return fitbitService;
+    });
+
     const data = await app.inject({
       method: 'POST',
       payload: mockPayload,
@@ -214,11 +228,14 @@ describe('Health Activities', () => {
       user: { id: userForFitbit.id }
     } as Partial<Provider>)
 
-    fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(
-      `SomethingThat Won't error out`
-    )
+    await app.resolve(FitbitService, contextId).then((fitbitService) => {
+      fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(
+        `SomethingThat Won't error out`
+      )
+      fitbitService.fetchSleepLogByDay = jest.fn().mockReturnValue(fitbitSleepPayload)
+      return fitbitService;
+    });
 
-    fitbitService.fetchSleepLogByDay = jest.fn().mockReturnValue(fitbitSleepPayload)
 
     const data = await app.inject({
       method: 'POST',
@@ -245,12 +262,15 @@ describe('Health Activities', () => {
       user: { id: userForFitbit.id }
     } as Partial<Provider>)
 
-    fitbitService.datesAreOnSameDay = jest.fn().mockReturnValue(true)
-    fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(
-      `SomethingThat Won't error out`
-    )
+    await app.resolve(FitbitService, contextId).then((fitbitService) => {
+      fitbitService.datesAreOnSameDay = jest.fn().mockReturnValue(true)
+      fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(
+        `SomethingThat Won't error out`
+      )
+      fitbitService.fetchSleepLogByDay = jest.fn().mockReturnValue(fitbitSleepPayload)
+      return fitbitService;
+    });
 
-    fitbitService.fetchSleepLogByDay = jest.fn().mockReturnValue(fitbitSleepPayload)
 
     const data = await app.inject({
       method: 'POST',
@@ -279,9 +299,14 @@ describe('Health Activities', () => {
     providerService.getUserByOwnerId.mockReturnValue({
       user: { id: userForStrava.id }
     })
-    stravaService.getStravaActivity = jest.fn().mockReturnValue({
-      ...stravaPayload
-    })
+
+    await app.resolve(StravaService, contextId).then((stravaService) => {
+      stravaService.getStravaActivity = jest.fn().mockReturnValue({
+        ...stravaPayload
+      })
+      return stravaService;
+    });
+
 
     const data = await app.inject({
       method: 'POST',
@@ -314,9 +339,14 @@ describe('Health Activities', () => {
     providerService.getUserByOwnerId.mockReturnValue({
       user: { id: userForStrava.id }
     })
-    stravaService.getStravaActivity = jest.fn().mockReturnValue({
-      ...stravaPayload
-    })
+
+    await app.resolve(StravaService, contextId).then((stravaService) => {
+      stravaService.getStravaActivity = jest.fn().mockReturnValue({
+        ...stravaPayload
+      })
+      return stravaService;
+    });
+
 
     const data = await app.inject({
       method: 'POST',
@@ -355,13 +385,18 @@ describe('Health Activities', () => {
     providerService.findOne.mockReturnValue({
       user: { id: userForEventEmitterTesting.id }
     } as Partial<Provider>)
-    fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(
-      `SomethingThat Won't error out`
-    )
-    fitbitService.fetchActivitySummaryByDay = jest.fn().mockReturnValue(
-      fitbitActivitiesPayload
-    )
-    fitbitService.fetchProfile = jest.fn().mockReturnValue(fitbitProfilePayload)
+
+    await app.resolve(FitbitService, contextId).then((fitbitService) => {
+      fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(
+        `SomethingThat Won't error out`
+      )
+      fitbitService.fetchActivitySummaryByDay = jest.fn().mockReturnValue(
+        fitbitActivitiesPayload
+      )
+      fitbitService.fetchProfile = jest.fn().mockReturnValue(fitbitProfilePayload)
+      return fitbitService;
+    });
+
     await app.inject({
       method: 'POST',
       payload: mockPayload,
@@ -404,12 +439,16 @@ describe('Health Activities', () => {
       user: { id: users[2].id }
     } as Partial<Provider>)
 
-    fitbitService.datesAreOnSameDay = jest.fn().mockReturnValue(true)
-    fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(
-      `SomethingThat Won't error out`
-    )
+    await app.resolve(FitbitService, contextId).then((fitbitService) => {
+      fitbitService.datesAreOnSameDay = jest.fn().mockReturnValue(true)
+      fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(
+        `SomethingThat Won't error out`
+      )
 
-    fitbitService.fetchSleepLogByDay = jest.fn().mockReturnValue(fitbitSleepPayload)
+      fitbitService.fetchSleepLogByDay = jest.fn().mockReturnValue(fitbitSleepPayload)
+      return fitbitService;
+    });
+
 
     await app.inject({
       method: 'POST',
@@ -451,9 +490,14 @@ describe('Health Activities', () => {
     providerService.getUserByOwnerId.mockReturnValue({
       user: { id: user.id }
     })
-    stravaService.getStravaActivity = jest.fn().mockReturnValue({
-      ...stravaPayload
-    })
+
+    await app.resolve(StravaService, contextId).then((stravaService) => {
+      stravaService.getStravaActivity = jest.fn().mockReturnValue({
+        ...stravaPayload
+      })
+      return stravaService;
+    });
+
 
     await app.inject({
       method: 'POST',
@@ -492,9 +536,14 @@ describe('Health Activities', () => {
     providerService.getUserByOwnerId.mockReturnValue({
       user: { id: users[3].id }
     })
-    stravaService.getStravaActivity = jest.fn().mockReturnValue({
-      ...stravaPayload
-    })
+
+
+    await app.resolve(StravaService, contextId).then((stravaService) => {
+      stravaService.getStravaActivity = jest.fn().mockReturnValue({
+        ...stravaPayload
+      })
+      return stravaService;
+    });
 
     await app.inject({
       method: 'POST',
@@ -575,12 +624,17 @@ describe('Health Activities', () => {
   })
 
   it('POST /me/ping Updates Fitbit steps for qualifying users on ping from device', async () => {
-    fitbitService.fetchActivitySummaryByDay = jest.fn().mockReturnValueOnce({
-      summary: {
-        steps: 1999
-      }
-    })
-    fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue('token')
+
+    await app.resolve(FitbitService, contextId).then((fitbitService) => {
+      fitbitService.fetchActivitySummaryByDay = jest.fn().mockReturnValueOnce({
+        summary: {
+          steps: 1999
+        }
+      })
+      fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue('token')
+      return fitbitService;
+    });
+
 
     await app.inject({
       method: 'PUT',
