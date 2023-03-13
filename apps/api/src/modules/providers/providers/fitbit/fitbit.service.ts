@@ -44,6 +44,10 @@ const FitbitApiClient: any = fitbitClient
 @Injectable({ scope: Scope.REQUEST})
 export class FitbitService {
   Fitbit;
+
+  get envPrefix() {
+    return this.clientId === 'BFIT' ? 'BFIT_' : 'FITLINK_';
+  }
   constructor(
     private providersService: ProvidersService,
     private configService: ConfigService,
@@ -53,19 +57,19 @@ export class FitbitService {
     private usersRepository: Repository<User>,
     @ClientId() private clientId: ClientIdType
   ) {
-    const envPrefix = this.clientId === 'BFIT' ? 'BFIT_' : 'FITLINK_';
     this.Fitbit = new FitbitApiClient({
-      clientId: this.configService.get(`${envPrefix}FITBIT_CLIENT_ID`),
-      clientSecret: this.configService.get(`${envPrefix}FITBIT_CLIENT_SECRET`),
-      apiVersion: this.configService.get('FITBIT_API_VERSION')
+      clientId: this.configService.get(`${this.envPrefix}FITBIT_CLIENT_ID`),
+      clientSecret: this.configService.get(`${this.envPrefix}FITBIT_CLIENT_SECRET`),
+      apiVersion: this.configService.get(`${this.envPrefix}FITBIT_API_VERSION`)
     })
   }
+
 
   getOAuthUrl(userId: string) {
     return {
       oauth_url: this.Fitbit.getAuthorizeUrl(
-        this.configService.get('FITBIT_SCOPES'),
-        this.configService.get('FITBIT_CALLBACK_URL'),
+        this.configService.get(`${this.envPrefix}FITBIT_SCOPES`),
+        this.configService.get(`${this.envPrefix}FITBIT_CALLBACK_URL`),
         undefined,
         userId
       )

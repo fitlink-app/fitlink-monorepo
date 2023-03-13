@@ -136,16 +136,18 @@ describe('Health Activities', () => {
     } as Partial<Provider>)
 
     await app.resolve(FitbitService, contextId).then((fitbitService) => {
-      fitbitService.getFreshFitbitToken = jest.fn()
-        (fitbitService.getFreshFitbitToken as jest.Mock).mockReturnValue(
+      if (fitbitService) {
+        fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(
           `SomethingThat Won't error out`
         )
-      fitbitService.fetchActivitySummaryByDay = jest.fn()
-        (fitbitService.fetchActivitySummaryByDay as jest.Mock).mockReturnValue(
+        fitbitService.fetchActivitySummaryByDay = jest.fn().mockReturnValue(
           fitbitActivitiesPayload
         )
-      fitbitService.fetchProfile = jest.fn();
-      (fitbitService.fetchProfile as jest.Mock).mockReturnValue(fitbitProfilePayload)
+        fitbitService.fetchProfile = jest.fn().mockReturnValue(fitbitProfilePayload)
+      } else {
+        throw new Error('FitbitService is undefined')
+      }
+
 
       return fitbitService;
     });

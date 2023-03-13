@@ -2,6 +2,8 @@ import { Controller, Get } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Iam } from './decorators/iam.decorator'
 import { Roles } from './modules/user-roles/user-roles.constants'
+import { ClientIdParam } from './modules/client-id/client-id.decorator'
+import { ClientIdType } from './modules/client-id/client-id.constant'
 
 @Controller()
 export class AppController {
@@ -9,7 +11,8 @@ export class AppController {
 
   @Iam(Roles.SuperAdmin)
   @Get('/app/config')
-  async getConfig() {
+  async getConfig(@ClientIdParam() clientId: ClientIdType) {
+    const envPrefix = clientId === 'BFIT' ? 'BFIT_' : 'FITLINK_';
     return {
       S3_BUCKET_PUBLIC_ENDPOINT: this.configService.get(
         'S3_BUCKET_PUBLIC_ENDPOINT'
@@ -22,13 +25,9 @@ export class AppController {
       ),
       INVITE_URL: this.configService.get('INVITE_URL'),
       EMAIL_VERIFICATION_URL: this.configService.get('EMAIL_VERIFICATION_URL'),
-      FITLINK_STRAVA_CLIENT_ID: this.configService.get('FITLINK_STRAVA_CLIENT_ID'),
-      FITLINK_STRAVA_CLIENT_SECRET: mask(
-        this.configService.get('FITLINK_STRAVA_CLIENT_SECRET')
-      ),
-      BFIT_STRAVA_CLIENT_ID: this.configService.get('BFIT_STRAVA_CLIENT_ID'),
-      BFIT_STRAVA_CLIENT_SECRET: mask(
-        this.configService.get('BFIT_STRAVA_CLIENT_SECRET')
+      STRAVA_CLIENT_ID: this.configService.get(`${envPrefix}STRAVA_CLIENT_ID`),
+      STRAVA_CLIENT_SECRET: mask(
+        this.configService.get(`${envPrefix}STRAVA_CLIENT_SECRET`)
       ),
       STRAVA_WEBHOOK_CALLBACK_URL: this.configService.get(
         'STRAVA_WEBHOOK_CALLBACK_URL'
@@ -36,17 +35,13 @@ export class AppController {
       STRAVA_REDIRECT_URI: this.configService.get('STRAVA_REDIRECT_URI'),
       STRAVA_SCOPES: this.configService.get('STRAVA_SCOPES'),
       STRAVA_VERIFY_STRING: this.configService.get('STRAVA_VERIFY_STRING'),
-      FITLINK_FITBIT_CLIENT_ID: this.configService.get('FITLINK_FITBIT_CLIENT_ID'),
-      FITLINK_FITBIT_CLIENT_SECRET: mask(
-        this.configService.get('FITLINK_FITBIT_CLIENT_SECRET')
+      FITBIT_CLIENT_ID: this.configService.get(`${envPrefix}FITBIT_CLIENT_ID`),
+      FITBIT_CLIENT_SECRET: mask(
+        this.configService.get(`${envPrefix}FITBIT_CLIENT_SECRET`)
       ),
-      BFIT_FITBIT_CLIENT_ID: this.configService.get('BFIT_FITBIT_CLIENT_ID'),
-      BFIT_FITBIT_CLIENT_SECRET: mask(
-        this.configService.get('BFIT_FITBIT_CLIENT_SECRET')
-      ),
-      FITBIT_API_VERSION: this.configService.get('FITBIT_API_VERSION'),
-      FITBIT_SCOPES: this.configService.get('FITBIT_SCOPES'),
-      FITBIT_CALLBACK_URL: this.configService.get('FITBIT_CALLBACK_URL'),
+      FITBIT_API_VERSION: this.configService.get(`${envPrefix}FITBIT_API_VERSION`),
+      FITBIT_SCOPES: this.configService.get(`${envPrefix}FITBIT_SCOPES`),
+      FITBIT_CALLBACK_URL: this.configService.get(`${envPrefix}FITBIT_CALLBACK_URL`),
       IMIN_API_BASE_URL: this.configService.get('IMIN_API_BASE_URL'),
       IMIN_API_KEY: mask(this.configService.get('IMIN_API_KEY')),
       RESET_PASSWORD_URL: this.configService.get('RESET_PASSWORD_URL'),
