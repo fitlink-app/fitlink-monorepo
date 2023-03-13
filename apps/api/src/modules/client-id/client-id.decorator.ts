@@ -8,6 +8,6 @@ export const ClientId = () => {
 export const ClientIdParam = createParamDecorator(
 	(data: unknown, ctx: ExecutionContext) => {
 		const request = ctx?.switchToHttp()?.getRequest();
-		return request['client'] || 'Fitlink';
+		return request['client'];
 	},
 );
