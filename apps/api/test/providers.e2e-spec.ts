@@ -18,7 +18,7 @@ import {
   ProvidersTeardown,
   SeedProviderToUser
 } from './seeds/providers.seed'
-import { ContextIdFactory } from '@nestjs/core'
+import { ContextIdFactory, REQUEST } from '@nestjs/core'
 const {
   STRAVA_CLIENT_ID,
   STRAVA_CLIENT_SECRET,
