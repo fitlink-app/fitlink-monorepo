@@ -1,15 +1,15 @@
 import { HttpAdapterHost, NestFactory, Reflector } from '@nestjs/core'
 import {
   ClassSerializerInterceptor,
-  HttpService,
   ValidationPipe
 } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
 import {
   FastifyAdapter,
   NestFastifyApplication
 } from '@nestjs/platform-fastify'
-import fastifyMultipart from 'fastify-multipart'
-import fastifyCors from 'fastify-cors'
+import fastifyMultipart from '@fastify/multipart'
+import fastifyCors from '@fastify/cors'
 import { ConfigService } from '@nestjs/config'
 import { ApiModule } from './api.module'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'

@@ -43,7 +43,7 @@ export class ImagesController {
     }
   })
   create(
-    @File() file: Storage.MultipartFile,
+    @File() file: import('@fastify/multipart').MultipartFile,
     @Body() body: UploadImageDto,
     @AuthUser() user: AuthenticatedUser
   ): Promise<Image> {

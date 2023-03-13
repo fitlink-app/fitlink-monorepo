@@ -1,4 +1,5 @@
-import { forwardRef, HttpModule, Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
+import { HttpModule } from '@nestjs/axios'
 import { SubscriptionsService } from './subscriptions.service'
 import { SubscriptionsController } from './subscriptions.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'

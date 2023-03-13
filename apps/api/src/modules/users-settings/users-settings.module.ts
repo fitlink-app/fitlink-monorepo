@@ -1,4 +1,5 @@
-import { forwardRef, HttpModule, Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
+import { HttpModule } from '@nestjs/axios'
 import { UserSettingsService } from './users-settings.service'
 import { UserSettingsController } from './users-settings.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'

@@ -1,10 +1,10 @@
 import { FindOneOptions, Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
-  HttpService,
   Injectable,
   InternalServerErrorException
 } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
 import { Image, uploadVariants } from './entities/image.entity'
 import { ImageType } from './images.constants'
 import {
@@ -45,7 +45,7 @@ export class ImagesService {
   }
 
   async createOne(
-    file: Storage.MultipartFile,
+    file: import('@fastify/multipart').MultipartFile,
     imageType = ImageType.Standard,
     imageProperties?: Partial<Image>
   ) {
@@ -67,7 +67,7 @@ export class ImagesService {
   }
 
   async createMany(
-    files: Storage.MultipartFile[],
+    files: import('@fastify/multipart').MultipartFile[],
     imageType = ImageType.Standard,
     imageProperties?: Partial<Image>
   ) {

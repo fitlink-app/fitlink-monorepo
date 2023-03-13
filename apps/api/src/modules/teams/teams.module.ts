@@ -1,4 +1,5 @@
-import { forwardRef, HttpModule, Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
+import { HttpModule } from '@nestjs/axios'
 import { TeamsService } from './teams.service'
 import { TeamsController } from './teams.controller'
 import { TeamsInvitationsModule } from '../teams-invitations/teams-invitations.module'

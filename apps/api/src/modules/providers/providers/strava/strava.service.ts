@@ -1,9 +1,9 @@
 import {
   BadRequestException,
-  HttpService,
   Injectable,
   NotFoundException
 } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
 import {
   STRAVA_ACTIVITY_TYPE_MAP,
   STRAVA_AUTHORIZE_URL,

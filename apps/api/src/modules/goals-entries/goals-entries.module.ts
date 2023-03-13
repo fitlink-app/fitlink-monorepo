@@ -1,4 +1,5 @@
-import { forwardRef, HttpModule, Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
+import { HttpModule } from '@nestjs/axios'
 import { GoalsEntriesService } from './goals-entries.service'
 import { GoalsEntriesController } from './goals-entries.controller'
 import { AuthModule } from '../auth/auth.module'

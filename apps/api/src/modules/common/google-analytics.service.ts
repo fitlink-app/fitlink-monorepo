@@ -1,6 +1,7 @@
-import { HttpService, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { TemplatesType } from './email.service'
 import { ConfigService } from '@nestjs/config'
+import { HttpService } from '@nestjs/axios'
 import { map } from 'rxjs/operators'
 import { v4 as uuidv4 } from 'uuid'
 import { tryAndCatch } from '../../helpers/tryAndCatch'
