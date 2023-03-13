@@ -152,7 +152,7 @@ export class BfitDistributionService {
 			}
 		}
 
-		await Promise.all(incrementEntryPromises)
+		return await Promise.all(incrementEntryPromises)
 	}
 
 	private async updateStepsLeagueBfit(userId: string) {
@@ -266,6 +266,6 @@ export class BfitDistributionService {
 			}
 		}
 
-		await Promise.all(incrementEntryPromises)
+		return await Promise.all(incrementEntryPromises)
 	}
 }
