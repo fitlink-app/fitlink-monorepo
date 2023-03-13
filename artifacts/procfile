@@ -1,1 +1,1 @@
-web: node app.js
+web: NODE_DEBUG=cluster,net,http,fs,tls,module,timers node app.js
