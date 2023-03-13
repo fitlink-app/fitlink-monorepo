@@ -45,6 +45,7 @@ import { BfitDistributionModule } from '../src/modules/bfit/bfit.module'
 import { BfitDistributionSenderService } from '../src/modules/bfit/bfit-producer.service'
 import { ClientIdContextModule } from '../src/modules/client-id/client-id.module'
 import { ContextId, ContextIdFactory } from '@nestjs/core'
+import { CLIENT_ID } from '../src/modules/client-id/client-id'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -151,7 +152,10 @@ describe('Health Activities', () => {
     const data = await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/fitbit/webhook/activities'
+      url: '/providers/fitbit/webhook/activities',
+      headers: {
+        [CLIENT_ID]: 'Fitlink'
+      }
     })
 
     data.json().forEach((result) => {
@@ -206,7 +210,10 @@ describe('Health Activities', () => {
     const data = await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/fitbit/webhook/activities'
+      url: '/providers/fitbit/webhook/activities',
+      headers: {
+        [CLIENT_ID]: 'Fitlink'
+      }
     })
     expect(data.json()[0].healthActivity).toBe(null)
     expect(data.json()[1].healthActivity).toBe(null)
@@ -240,7 +247,10 @@ describe('Health Activities', () => {
     const data = await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/fitbit/webhook/activities'
+      url: '/providers/fitbit/webhook/activities',
+      headers: {
+        [CLIENT_ID]: 'Fitlink'
+      }
     })
 
     expect(data.json().goalEntry).toBe(null)
@@ -275,7 +285,10 @@ describe('Health Activities', () => {
     const data = await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/fitbit/webhook/activities'
+      url: '/providers/fitbit/webhook/activities',
+      headers: {
+        [CLIENT_ID]: 'Fitlink'
+      }
     })
 
     const result = data.json()
@@ -311,7 +324,10 @@ describe('Health Activities', () => {
     const data = await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/strava/webhook'
+      url: '/providers/strava/webhook',
+      headers: {
+        [CLIENT_ID]: 'Fitlink'
+      }
     })
 
     const result = data.json()
@@ -351,7 +367,10 @@ describe('Health Activities', () => {
     const data = await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/strava/webhook'
+      url: '/providers/strava/webhook',
+      headers: {
+        [CLIENT_ID]: 'Fitlink'
+      }
     })
 
     expect(data.json().healthActivity).toBe(null)
@@ -400,7 +419,10 @@ describe('Health Activities', () => {
     await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/fitbit/webhook/activities'
+      url: '/providers/fitbit/webhook/activities',
+      headers: {
+        [CLIENT_ID]: 'Fitlink'
+      }
     })
 
     const entry = await connection
@@ -453,7 +475,10 @@ describe('Health Activities', () => {
     await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/fitbit/webhook/activities'
+      url: '/providers/fitbit/webhook/activities',
+      headers: {
+        [CLIENT_ID]: 'Fitlink'
+      }
     })
 
     // Expect a feed item to be created.
@@ -502,7 +527,10 @@ describe('Health Activities', () => {
     await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/strava/webhook'
+      url: '/providers/strava/webhook',
+      headers: {
+        [CLIENT_ID]: 'Fitlink'
+      }
     })
 
     const feedItem = await connection.getRepository(FeedItem).findOne({
@@ -548,7 +576,10 @@ describe('Health Activities', () => {
     await app.inject({
       method: 'POST',
       payload: mockPayload,
-      url: '/providers/strava/webhook'
+      url: '/providers/strava/webhook',
+      headers: {
+        [CLIENT_ID]: 'Fitlink'
+      }
     })
 
     const user = await connection.getRepository(User).findOne(users[3].id)
@@ -612,7 +643,7 @@ describe('Health Activities', () => {
       method: 'POST',
       payload: mockPayload,
       url: '/providers/webhook',
-      headers: getAuthHeaders({}, user.id)
+      headers: getAuthHeaders({}, user.id),
     })
 
     const activities = result.json()

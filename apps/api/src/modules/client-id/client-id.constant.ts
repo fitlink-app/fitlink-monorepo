@@ -1,1 +1,1 @@
-export type ClientIdType = 'Fitlink' | 'BFIT'
+export type ClientIdType = 'Fitlink' | 'BFIT';

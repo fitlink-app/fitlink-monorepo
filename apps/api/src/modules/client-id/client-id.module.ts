@@ -9,7 +9,7 @@ import { REQUEST } from '@nestjs/core';
 			scope: Scope.REQUEST,
 			useFactory: (req: Request) => {
 				// Null check due to unit testing and e2e
-				return req?.headers['X-CLIENT-ID'] || 'Fitlink';
+				return req?.headers[CLIENT_ID] || 'Fitlink';
 			},
 			inject: [REQUEST],
 		},

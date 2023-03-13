@@ -1,5 +1,7 @@
 import { JwtService } from '@nestjs/jwt'
 import { JWTRoles } from '../../src/models'
+import { ClientIdType } from '../../src/modules/client-id/client-id.constant'
+import { CLIENT_ID } from '../../src/modules/client-id/client-id'
 
 const jwtService = new JwtService({
   secret: process.env.AUTH_JWT_SECRET,
@@ -33,7 +35,8 @@ export function createTokenFor(userId: string, roles?: JWTRoles) {
 
 export function getAuthHeaders(
   roles: Partial<JWTRoles> = null,
-  userId = 'no_auth_headers_test_in_test'
+  userId = 'no_auth_headers_test_in_test',
+  clientId: ClientIdType = 'Fitlink'
 ) {
   const token = createTokenFor(userId, {
     ...{
@@ -45,7 +48,8 @@ export function getAuthHeaders(
     ...roles
   })
   return {
-    Authorization: `Bearer ${token}`
+    Authorization: `Bearer ${token}`,
+    [CLIENT_ID]: clientId
   }
 }
 
