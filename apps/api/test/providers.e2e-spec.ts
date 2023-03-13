@@ -8,7 +8,7 @@ import { StravaService } from '../src/modules/providers/providers/strava/strava.
 import { FitbitAuthResponse } from '../src/modules/providers/types/fitbit'
 import { StravaCallbackResponse } from '../src/modules/providers/types/strava'
 import { User } from '../src/modules/users/entities/user.entity'
-import { MockAppType, mockApp } from './helpers/app'
+import { mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
 import { env } from './helpers/mocking'
 import { parseQuery } from './helpers/parseQuery'
@@ -19,6 +19,7 @@ import {
   SeedProviderToUser
 } from './seeds/providers.seed'
 import { ContextIdFactory, REQUEST } from '@nestjs/core'
+import { CLIENT_ID } from '../src/modules/client-id/client-id'
 const {
   STRAVA_CLIENT_ID,
   STRAVA_CLIENT_SECRET,
@@ -30,7 +31,7 @@ const {
 } = env
 
 describe('Providers', () => {
-  let app: MockAppType
+  let app: NestFastifyApplication
   let seededUser: User
   let authHeaders
   let connection: Connection
@@ -38,10 +39,11 @@ describe('Providers', () => {
   beforeAll(async () => {
     app = await mockApp({
       imports: [ProvidersModule],
-      providers: []
+      providers: [],
+      overrideProvider: [
+        { provider: REQUEST, value: { headers: { [CLIENT_ID]: 'Fitlink' } } }
+      ]
     })
-
-    app.overrideProvider(REQUEST).useValue({ headers: { 'X-CLIENT-ID': 'Fitlink' } })
     await useSeeding()
 
     connection = app.get(Connection)
