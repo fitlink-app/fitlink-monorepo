@@ -28,7 +28,9 @@ export const useWeeklyEarnings = () => {
   const [percentsGrowth, setPercentsGrowth] = useState(0);
   const [currentWeekEarningsSum, setCurrentWeekEarningsSum] = useState(0);
 
-  const currentWeekLimit = new Date().getDay() + 1;
+  const currentDay = new Date().getDay();
+  const currentDayShifted = currentDay === 0 ? DAYS_IN_WEEK : currentDay;
+  const currentWeekLimit = currentDayShifted;
   const limit = currentWeekLimit + DAYS_IN_WEEK;
 
   const {data, isLoading} = useQuery('weeklyEarnings', () =>
@@ -37,13 +39,11 @@ export const useWeeklyEarnings = () => {
 
   useEffect(() => {
     if (data?.results?.length) {
-      // TODO: will be fixed on back soon
-      // const prevWeekEarnings = data.results
-      //   .slice(0, DAYS_IN_WEEK)
-      //   .map(extractBfitAmount);
-      const prevWeekEarnings = new Array(DAYS_IN_WEEK).fill(0);
-      const curWeekEarnings = data.results
+      const prevWeekEarnings = data.results
         .slice(0, DAYS_IN_WEEK)
+        .map(extractBfitAmount);
+      const curWeekEarnings = data.results
+        .slice(DAYS_IN_WEEK)
         .map(extractBfitAmount);
 
       const prevWeekSum = getWeekSumEarnings(prevWeekEarnings);
