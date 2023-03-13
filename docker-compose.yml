@@ -41,6 +41,25 @@ services:
       - 9191:9191
     volumes:
       - ./s3:/tmp/s3rver
+
+  localstack:
+    container_name: "${LOCALSTACK_DOCKER_NAME-localstack_main}"
+    image: localstack/localstack
+    network_mode: bridge
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+      - "${PORT_WEB_UI-8080}:${PORT_WEB_UI-8080}"
+    environment:
+      # https://github.com/localstack/localstack#configurations
+      - SERVICES=sqs
+      - DEBUG=1
+      - DEFAULT_REGION=eu-west-2
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${TMPDIR:-/tmp/mercanis-localstack}:/tmp/mercanis-localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - ./localstack_bootstrap:/etc/localstack/init/ready.d/
 networks:
   webnet:
 volumes:

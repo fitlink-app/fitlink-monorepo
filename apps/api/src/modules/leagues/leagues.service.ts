@@ -1047,7 +1047,7 @@ export class LeaguesService {
           {
             userId,
             leagueId,
-            sportId: isCompeteToEarn.sport.id,
+            sportId: isCompeteToEarn?.sport?.id,
             leagueAccess: LeagueAccess.CompeteToEarn
           }
         )
@@ -1279,12 +1279,14 @@ export class LeaguesService {
       .where('league.id = :leagueId AND leaderboard.id = entryLeaderboard.id', {
         leagueId
       })
-      .orderBy('entry.points', 'DESC')
+      .orderBy('entry.bfit_earned', 'DESC')
+      .addOrderBy('entry.points', 'DESC')
       .addOrderBy('user.name', 'ASC')
       .take(options.limit)
       .skip(options.page * options.limit)
 
     const [results, total] = await query.getManyAndCount()
+
     return new Pagination<LeaderboardEntry & { user: UserPublic }>({
       results: results.map(this.getLeaderboardEntryPublic),
       total
@@ -1453,6 +1455,7 @@ export class LeaguesService {
    * @returns array of leaderboard entries
    */
   async getLeaderboardRankAndFlanks(leagueId: string, userId: string) {
+    debugger;
     const league = await this.findOneOwnedByOrParticipatingIn(leagueId, userId)
     if (!league) {
       return false
