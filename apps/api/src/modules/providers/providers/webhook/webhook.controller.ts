@@ -20,4 +20,12 @@ export class WebhookController {
   ) {
     return this.webhookService.processWebhookData(webhookEventData, user.id)
   }
+
+  @UseGuards(FitlinkersGuard)
+  @Post('/providers/webhook/new')
+  newWebhookReceiver(
+    @Body() webhookEventData: WebhookEventPayload,
+  ) {
+    return this.webhookService.processNewWebhookData(webhookEventData)
+  }
 }

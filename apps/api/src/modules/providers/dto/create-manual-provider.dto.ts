@@ -20,28 +20,8 @@ export class CreateManualProviderDto {
   @IsIn([ProviderType.GoogleFit, ProviderType.AppleHealthkit])
   type: ProviderType
 
-  // @ApiProperty()
-  // @IsOptional()
-  // @IsNotEmpty()
-  // token: string
-
-  // @ApiProperty()
-  // @IsOptional()
-  // @IsNotEmpty()
-  // refresh_token: string
-
-  // @ApiProperty()
-  // @IsOptional()
-  // @IsNumber()
-  // token_expires_at: number
-
-  // @ApiProperty()
-  // @IsOptional()
-  // @IsArray()
-  // scopes: string[]
-
-  // @ApiProperty()
-  // @IsOptional()
-  // @IsString()
-  // provider_user_id: string
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  deviceId?: string
 }

@@ -9,12 +9,14 @@ import { User } from '../users/entities/user.entity'
 import { FitbitController } from './providers/fitbit/fitbit.controller'
 import { FitbitService } from './providers/fitbit/fitbit.service'
 import { AuthModule } from '../auth/auth.module'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { HealthActivitiesModule } from '../health-activities/health-activities.module'
 import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
 import { WebhookController } from './providers/webhook/webhook.controller'
 import { WebhookService } from './providers/webhook/webhook.service'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { JwtModule } from '@nestjs/jwt'
+import { DeviceCryptoService } from './providers/device-encryption'
 
 @Module({
   imports: [
@@ -24,7 +26,17 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
     ConfigModule,
     AuthModule,
     GoalsEntriesModule,
-    EventEmitter2
+    EventEmitter2,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return {
+          secret: configService.get('WEBHOOK_PROVIDER_JWT_TOKEN_SECRET'),
+          signOptions: { expiresIn: '365d' }
+        }
+      }
+    }),
   ],
   controllers: [
     ProvidersController,
@@ -32,7 +44,13 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
     FitbitController,
     WebhookController
   ],
-  providers: [ProvidersService, StravaService, FitbitService, WebhookService],
+  providers: [
+    ProvidersService,
+    StravaService,
+    FitbitService,
+    WebhookService,
+    DeviceCryptoService
+  ],
   exports: [ProvidersService]
 })
 export class ProvidersModule {}
