@@ -60,7 +60,8 @@ export const LeaderboardItem: React.FC<LeaderboardItemProps> = ({
           <PointsText>
             {bfit !== undefined ? (
               <>
-                <Gray>{`(${points}) `}</Gray>${bfit}&nbsp;<Label>BFIT</Label>
+                <Gray>{`(${points}) `}</Gray>
+                {bfit}&nbsp;<Label>BFIT</Label>
               </>
             ) : (
               points
