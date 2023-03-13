@@ -155,7 +155,7 @@ describe('Providers', () => {
       access_token: 'Access_token',
       expires_in: 28000,
       refresh_token: 'refresh_token',
-      scope: FITBIT_SCOPES,
+      scope: FITLINK_FITBIT_SCOPES,
       user_id: '10298id'
     }
 
@@ -190,7 +190,7 @@ describe('Providers', () => {
     expect(result.type).toBe('fitbit')
     expect(result.refresh_token).toBe(fitbitApiMockData.refresh_token)
     expect(result.token).toBe(fitbitApiMockData.access_token)
-    expect(result.scopes).toEqual(FITBIT_SCOPES.split(' '))
+    expect(result.scopes).toEqual(FITLINK_FITBIT_SCOPES.split(' '))
     expect(result.provider_user_id).toBe(fitbitApiMockData.user_id)
     expect(result.user.id).toBe(seededUser.id)
     expect(result.id).toBeDefined()
