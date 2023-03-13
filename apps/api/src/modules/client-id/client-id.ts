@@ -1,1 +1,1 @@
-export const CLIENT_ID = 'X-CLIENT-ID';
+export const CLIENT_ID = 'x-client-id';

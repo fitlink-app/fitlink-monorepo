@@ -1,19 +1,23 @@
-import { Module, Scope } from '@nestjs/common';
+import { BadRequestException, Module, Scope, SetMetadata } from '@nestjs/common';
 import { CLIENT_ID } from './client-id';
 import { REQUEST } from '@nestjs/core';
 
+const clientFactory = {
+	provide: CLIENT_ID,
+	scope: Scope.REQUEST,
+	useFactory: (req: Request) => {
+		const clientId = req?.headers[CLIENT_ID] || 'Fitlink';
+
+		req['client'] = clientId;
+		return clientId;
+	},
+	inject: [REQUEST],
+	// durable: true
+}
 @Module({
 	providers: [
-		{
-			provide: CLIENT_ID,
-			scope: Scope.REQUEST,
-			useFactory: (req: Request) => {
-				// Null check due to unit testing and e2e
-				return req?.headers[CLIENT_ID] || 'Fitlink';
-			},
-			inject: [REQUEST],
-		},
+		clientFactory
 	],
 	exports: [CLIENT_ID],
 })
-export class ClientIdContextModule {}
+export class ClientIdContextModule { }
