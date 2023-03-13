@@ -165,6 +165,7 @@ export class BfitDistributionService {
 
 		return await Promise.all(incrementEntryPromises).then(res => {
 			console.info(`Updated user ${userId} league bfit earnings`, JSON.stringify(res));
+      return res;
 		})
 	}
 
