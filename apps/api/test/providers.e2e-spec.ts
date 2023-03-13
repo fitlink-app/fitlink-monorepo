@@ -38,7 +38,12 @@ describe('Providers', () => {
   beforeAll(async () => {
     app = await mockApp({
       imports: [ProvidersModule],
-      providers: []
+      providers: [
+        {
+          provide: REQUEST,
+          useValue: { headers: { 'X-CLIENT-ID': 'Fitlink' } },
+        },
+      ]
     })
     await useSeeding()
 
@@ -132,10 +137,8 @@ describe('Providers', () => {
       .mockImplementation(() => contextId);
 
     await app.resolve(StravaService, contextId).then((stravaService) => {
-      stravaService.getFreshStravaAccessToken = jest.fn()
-      stravaService.revokeToken = jest.fn()
-        (stravaService.getFreshStravaAccessToken as jest.Mock).mockReturnValue(provider.token)
-        (stravaService.revokeToken as jest.Mock).mockReturnValue({ access_token: provider.token })
+      stravaService.getFreshStravaAccessToken = jest.fn().mockReturnValue(provider.token)
+      stravaService.revokeToken = jest.fn().mockReturnValue({ access_token: provider.token })
       return stravaService;
     });
 

@@ -41,10 +41,9 @@ import { ProviderType } from '../src/modules/providers/providers.constants'
 import { GoalsEntry } from '../src/modules/goals-entries/entities/goals-entry.entity'
 import { UsersModule } from '../src/modules/users/users.module'
 import { BfitDistributionProducerModule } from '../src/modules/bfit/bfit-producer.module'
-import { BfitDistributionModule } from '../src/modules/bfit/bfit.module'
 import { BfitDistributionSenderService } from '../src/modules/bfit/bfit-producer.service'
 import { ClientIdContextModule } from '../src/modules/client-id/client-id.module'
-import { ContextId, ContextIdFactory } from '@nestjs/core'
+import { ContextId, ContextIdFactory, REQUEST } from '@nestjs/core'
 import { CLIENT_ID } from '../src/modules/client-id/client-id'
 
 describe('Health Activities', () => {
@@ -71,7 +70,12 @@ describe('Health Activities', () => {
         BfitDistributionProducerModule,
         ClientIdContextModule,
       ],
-      providers: []
+      providers: [
+        {
+          provide: REQUEST,
+          useValue: { headers: { 'X-CLIENT-ID': 'Fitlink' } },
+        },
+      ]
     })
     connection = getConnection()
     await useSeeding()
