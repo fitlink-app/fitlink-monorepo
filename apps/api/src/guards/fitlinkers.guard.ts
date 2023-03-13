@@ -2,9 +2,9 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  HttpService
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { HttpService } from '@nestjs/axios'
 import { AuthenticatedUser } from '../models/authenticated-user.model'
 
 @Injectable()

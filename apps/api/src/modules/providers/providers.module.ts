@@ -1,4 +1,5 @@
-import { forwardRef, HttpModule, Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
+import { HttpModule } from '@nestjs/axios'
 import { ProvidersService } from './providers.service'
 import { ProvidersController } from './providers.controller'
 import { StravaControler } from './providers/strava/strava.controller'
@@ -18,6 +19,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 
 @Module({
   imports: [
+    ClientIdContextModule,
     HttpModule,
     forwardRef(() => HealthActivitiesModule),
     TypeOrmModule.forFeature([Provider, User]),

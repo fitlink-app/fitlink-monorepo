@@ -1,4 +1,5 @@
-import { HttpService, INestApplicationContext } from '@nestjs/common'
+import { INestApplicationContext } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
 import { NestFactory } from '@nestjs/core'
 import { ApiModule } from './api.module'
 import { tryAndCatch } from './helpers/tryAndCatch'

@@ -1,8 +1,8 @@
-import { HttpService } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { AxiosResponse } from 'axios'
 import * as faker from 'faker'
-import { Observable } from 'rxjs'
+import { Observable, of } from 'rxjs'
 import { Connection, getConnection } from 'typeorm'
 import { useSeeding } from 'typeorm-seeding'
 import { FeedItem } from '../src/modules/feed-items/entities/feed-item.entity'
@@ -1194,11 +1194,9 @@ describe('Leagues', () => {
 
   it('POST /leagues/job', async () => {
     const httpService = app.get(HttpService)
+    httpService.post
     httpService.post = jest.fn(
-      () =>
-        ({
-          toPromise: () => Promise.resolve()
-        } as Observable<AxiosResponse>)
+      () => of() as Observable<AxiosResponse>
     )
 
     const notificationsService = app.get(NotificationsService)

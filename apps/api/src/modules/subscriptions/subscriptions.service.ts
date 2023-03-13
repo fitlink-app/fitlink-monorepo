@@ -1,9 +1,9 @@
 import {
   Injectable,
   BadRequestException,
-  HttpService,
   HttpException
 } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Not, Repository } from 'typeorm'
 import { CreateDefaultSubscriptionDto } from './dto/create-default-subscription.dto'

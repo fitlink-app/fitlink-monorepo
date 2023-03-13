@@ -1,4 +1,5 @@
-import { HttpModule, HttpService, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
+import { HttpModule } from '@nestjs/axios'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthModule } from '../auth/auth.module'
 import { User } from '../users/entities/user.entity'

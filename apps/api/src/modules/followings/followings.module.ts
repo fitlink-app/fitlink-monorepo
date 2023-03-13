@@ -5,7 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { Following } from './entities/following.entity'
 import { AuthModule } from '../auth/auth.module'
 import { ConfigModule } from '@nestjs/config'
-import { HttpModule, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
+import { HttpModule } from '@nestjs/axios'
+
 import { User } from '../users/entities/user.entity'
 import { CommonModule } from '../common/common.module'
 

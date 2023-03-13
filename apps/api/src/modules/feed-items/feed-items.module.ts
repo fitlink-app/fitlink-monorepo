@@ -1,4 +1,4 @@
-import { forwardRef, HttpModule, Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { FeedItemsService } from './feed-items.service'
 import { FeedItemsController } from './feed-items.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'

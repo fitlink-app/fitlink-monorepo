@@ -1,4 +1,5 @@
-import { HttpModule, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
+import { HttpModule } from '@nestjs/axios'
 import { LeaguesInvitationsService } from './leagues-invitations.service'
 import { LeaguesInvitationsController } from './leagues-invitations.controller'
 import { ConfigService, ConfigModule } from '@nestjs/config'

@@ -1,9 +1,9 @@
 import {
   BadRequestException,
-  HttpService,
   Injectable,
   NotFoundException
 } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
@@ -1455,7 +1455,6 @@ export class LeaguesService {
    * @returns array of leaderboard entries
    */
   async getLeaderboardRankAndFlanks(leagueId: string, userId: string) {
-    debugger;
     const league = await this.findOneOwnedByOrParticipatingIn(leagueId, userId)
     if (!league) {
       return false

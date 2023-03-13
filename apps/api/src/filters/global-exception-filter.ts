@@ -1,14 +1,12 @@
 import {
   Catch,
   ArgumentsHost,
-  Inject,
-  HttpServer,
   HttpStatus,
   HttpException,
-  HttpService
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { BaseExceptionFilter } from '@nestjs/core'
+import { HttpService } from '@nestjs/axios'
 
 /**
  * Catches 500 errors and sends them to a Slack

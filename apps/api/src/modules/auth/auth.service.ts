@@ -1,11 +1,11 @@
 import {
   BadRequestException,
   HttpException,
-  HttpService,
   HttpStatus,
   Injectable,
   InternalServerErrorException
 } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import { plainToClass } from 'class-transformer'

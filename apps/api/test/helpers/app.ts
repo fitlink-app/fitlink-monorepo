@@ -7,7 +7,7 @@ import {
   NestFastifyApplication
 } from '@nestjs/platform-fastify'
 import { ValidationPipe } from '@nestjs/common'
-import fastifyMultipart from 'fastify-multipart'
+import fastifyMultipart from '@fastify/multipart'
 
 import { Activity } from '../../src/modules/activities/entities/activity.entity'
 import { AuthProvider } from '../../src/modules/auth/entities/auth-provider.entity'

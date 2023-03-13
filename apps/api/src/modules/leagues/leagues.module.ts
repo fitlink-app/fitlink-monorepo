@@ -1,5 +1,5 @@
-import { HttpModule, HttpService, Module, forwardRef } from '@nestjs/common'
-import { SqsModule } from '@ssut/nestjs-sqs'
+import { Module } from '@nestjs/common'
+import { HttpModule } from '@nestjs/axios'
 import { LeaguesService } from './leagues.service'
 import { LeaguesController } from './leagues.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'

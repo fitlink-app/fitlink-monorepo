@@ -51,7 +51,7 @@ export class UploadGuardV2 implements CanActivate {
  * @param file
  */
 async function consumeAndCheckFileSizeAndMimeType(
-  file: Storage.MultipartFile,
+  file: import('@fastify/multipart').MultipartFile,
   options: FileUploadOptions
 ) {
   const buffer = await file.toBuffer()
@@ -82,7 +82,7 @@ async function consumeAndCheckFileSizeAndMimeType(
  * @returns
  */
 function getBodyFromFile(
-  file: Storage.MultipartFile,
+  file: import('@fastify/multipart').MultipartFile,
   body: NodeJS.Dict<string>
 ) {
   // Restore request body of remaining (text) fields

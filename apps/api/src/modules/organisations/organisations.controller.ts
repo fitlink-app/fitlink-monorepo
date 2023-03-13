@@ -61,7 +61,7 @@ export class OrganisationsController {
   @Post('/organisations')
   @ApiResponse({ type: CreateOrganisationDtoResult, status: 201 })
   async create(
-    @Files('avatar') file: Storage.MultipartFile,
+    @Files('avatar') file: import('@fastify/multipart').MultipartFile,
     @Body() createOrganisationDto: CreateOrganisationDto,
     @AuthUser() user: AuthenticatedUser
   ) {
