@@ -8,7 +8,7 @@ import { StravaService } from '../src/modules/providers/providers/strava/strava.
 import { FitbitAuthResponse } from '../src/modules/providers/types/fitbit'
 import { StravaCallbackResponse } from '../src/modules/providers/types/strava'
 import { User } from '../src/modules/users/entities/user.entity'
-import { mockApp } from './helpers/app'
+import { MockAppType, mockApp } from './helpers/app'
 import { getAuthHeaders } from './helpers/auth'
 import { env } from './helpers/mocking'
 import { parseQuery } from './helpers/parseQuery'
@@ -30,7 +30,7 @@ const {
 } = env
 
 describe('Providers', () => {
-  let app: NestFastifyApplication
+  let app: MockAppType
   let seededUser: User
   let authHeaders
   let connection: Connection
@@ -38,13 +38,10 @@ describe('Providers', () => {
   beforeAll(async () => {
     app = await mockApp({
       imports: [ProvidersModule],
-      providers: [
-        {
-          provide: REQUEST,
-          useValue: { headers: { 'X-CLIENT-ID': 'Fitlink' } },
-        },
-      ]
+      providers: []
     })
+
+    app.overrideProvider(REQUEST).useValue({ headers: { 'X-CLIENT-ID': 'Fitlink' } })
     await useSeeding()
 
     connection = app.get(Connection)

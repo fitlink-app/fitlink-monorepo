@@ -1,5 +1,5 @@
 import { Reflector } from '@nestjs/core'
-import { Test } from '@nestjs/testing'
+import { Test, TestingModuleBuilder } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigService } from '@nestjs/config'
 import {
@@ -94,6 +94,10 @@ export const entities = [
   WalletTransaction
 ]
 
+export interface MockAppType extends NestFastifyApplication {
+  overrideProvider: TestingModuleBuilder['overrideProvider']
+}
+
 export async function mockApp({
   imports = [],
   providers = [],
@@ -122,6 +126,8 @@ export async function mockApp({
     controllers
   })
 
+
+
   const overrideRef = moduleRef
     .overrideProvider(ConfigService)
     .useValue(mockConfigService())
@@ -136,7 +142,7 @@ export async function mockApp({
   fastifyAdapter.register(fastifyMultipart)
 
   const app =
-    result.createNestApplication<NestFastifyApplication>(fastifyAdapter)
+    result.createNestApplication<NestFastifyApplication>(fastifyAdapter) as MockAppType
 
   // TODO: Lock to specific origins
   app.enableCors({
@@ -159,6 +165,8 @@ export async function mockApp({
 
   await app.init()
   await app.getHttpAdapter().getInstance().ready()
+
+  app.overrideProvider = moduleRef.overrideProvider
 
   return app
 }

@@ -8,6 +8,9 @@ const clientFactory = {
 	useFactory: (req: Request) => {
 		const clientId = req?.headers[CLIENT_ID] || 'Fitlink';
 
+		// TODO: request is undefined on testing
+		if (req === undefined) return clientId;
+
 		req['client'] = clientId;
 		return clientId;
 	},

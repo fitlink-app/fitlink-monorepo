@@ -9,7 +9,7 @@ import { StravaService } from '../src/modules/providers/providers/strava/strava.
 import { FitbitEventData } from '../src/modules/providers/types/fitbit'
 import { StravaEventData } from '../src/modules/providers/types/strava'
 import { User } from '../src/modules/users/entities/user.entity'
-import { mockApp } from './helpers/app'
+import { MockAppType, mockApp } from './helpers/app'
 import stravaPayload from './helpers/stravaPayload'
 import { MockType } from './helpers/types'
 import {
@@ -47,7 +47,7 @@ import { ContextId, ContextIdFactory, REQUEST } from '@nestjs/core'
 import { CLIENT_ID } from '../src/modules/client-id/client-id'
 
 describe('Health Activities', () => {
-  let app: NestFastifyApplication
+  let app: MockAppType
   let providerService: MockType<ProvidersService>
   let bfitDistributionSenderService: MockType<BfitDistributionSenderService>
   let connection: Connection
@@ -70,13 +70,9 @@ describe('Health Activities', () => {
         BfitDistributionProducerModule,
         ClientIdContextModule,
       ],
-      providers: [
-        {
-          provide: REQUEST,
-          useValue: { headers: { 'X-CLIENT-ID': 'Fitlink' } },
-        },
-      ]
+      providers: []
     })
+    app.overrideProvider(REQUEST).useValue({ headers: { 'X-CLIENT-ID': 'Fitlink' } })
     connection = getConnection()
     await useSeeding()
     await runSeeder(CreateSports)
