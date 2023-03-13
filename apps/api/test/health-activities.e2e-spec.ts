@@ -196,17 +196,14 @@ describe('Health Activities', () => {
       user: { id: userForFitbit.id }
     } as Partial<Provider>)
 
-    await app.resolve(FitbitService, contextId).then((fitbitService) => {
-      fitbitService.getFreshFitbitToken = jest.fn()
-        (fitbitService.getFreshFitbitToken as jest.Mock).mockReturnValue(
+    await app.resolve(FitbitService).then((fitbitService) => {
+      fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(
           `SomethingThat Won't error out`
         )
-      fitbitService.fetchActivitySummaryByDay = jest.fn()
-        (fitbitService.fetchActivitySummaryByDay as jest.Mock).mockReturnValue(
+      fitbitService.fetchActivitySummaryByDay = jest.fn().mockReturnValue(
           fitbitActivitiesPayload
         )
-      fitbitService.fetchProfile = jest.fn()
-        (fitbitService.fetchProfile as jest.Mock).mockReturnValue(fitbitProfilePayload)
+      fitbitService.fetchProfile = jest.fn().mockReturnValue(fitbitProfilePayload)
 
       return fitbitService;
     });
