@@ -21,13 +21,13 @@ import {
 import { ContextIdFactory, REQUEST } from '@nestjs/core'
 import { CLIENT_ID } from '../src/modules/client-id/client-id'
 const {
-  STRAVA_CLIENT_ID,
-  STRAVA_CLIENT_SECRET,
+  FITLINK_STRAVA_CLIENT_ID,
+  FITLINK_STRAVA_CLIENT_SECRET,
   STRAVA_REDIRECT_URI,
   STRAVA_SCOPES,
-  FITBIT_CALLBACK_URL,
-  FITBIT_CLIENT_ID,
-  FITBIT_SCOPES
+  FITLINK_FITBIT_CALLBACK_URL,
+  FITLINK_FITBIT_CLIENT_ID,
+  FITLINK_FITBIT_SCOPES
 } = env
 
 describe('Providers', () => {
@@ -68,8 +68,8 @@ describe('Providers', () => {
     const url = data.json().oauth_url || ''
     const parse = new URLSearchParams(url.substr(url.indexOf('?')))
 
-    expect(parse.get('client_id')).toBe(STRAVA_CLIENT_ID)
-    expect(parse.get('client_secret')).toBe(STRAVA_CLIENT_SECRET)
+    expect(parse.get('client_id')).toBe(FITLINK_STRAVA_CLIENT_ID)
+    expect(parse.get('client_secret')).toBe(FITLINK_STRAVA_CLIENT_SECRET)
     expect(parse.get('redirect_uri')).toBe(STRAVA_REDIRECT_URI)
     expect(parse.get('scope')).toBe(STRAVA_SCOPES)
     expect(parse.get('response_type')).toBe('code')
@@ -237,9 +237,9 @@ describe('Providers', () => {
     const parsedQueryValues = parseQuery(query.queryValues)
     expect(query.apiRoute).toBe('https://www.fitbit.com/oauth2/authorize')
     expect(parsedQueryValues.response_type).toBe('code')
-    expect(parsedQueryValues.client_id).toBe(FITBIT_CLIENT_ID)
-    expect(parsedQueryValues.scope).toBe(FITBIT_SCOPES)
-    expect(parsedQueryValues.redirect_uri).toBe(FITBIT_CALLBACK_URL)
+    expect(parsedQueryValues.client_id).toBe(FITLINK_FITBIT_CLIENT_ID)
+    expect(parsedQueryValues.scope).toBe(FITLINK_FITBIT_SCOPES)
+    expect(parsedQueryValues.redirect_uri).toBe(FITLINK_FITBIT_CALLBACK_URL)
     expect(parsedQueryValues.state).toBe(seededUser.id)
   })
 
