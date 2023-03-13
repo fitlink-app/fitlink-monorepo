@@ -14,7 +14,7 @@ export class BfitDistributionSenderService {
 
 	sendToQueue(id: string, type: BfitActivityTypes, userId: string, additional?: Record<string, any>) {
 		const groupId = this.configService.get('SQS_QUEUE_IS_DEV') == 'true' ? undefined : id;
-		this.sqsService.send(QUEUE_NAME, {
+		const message = {
 			id,
 			body: {
 				type,
@@ -22,7 +22,9 @@ export class BfitDistributionSenderService {
 				...(additional ?? {}),
 			},
 			groupId: groupId,
-		})
+		}
+		console.info(`Sending BFIT message to queue: ${JSON.stringify(message)}`);
+		this.sqsService.send(QUEUE_NAME, message)
 	}
 
 }

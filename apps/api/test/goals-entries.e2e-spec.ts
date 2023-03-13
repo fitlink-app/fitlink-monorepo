@@ -13,6 +13,8 @@ import {
 import { startOfDay } from 'date-fns'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import { User } from '../src/modules/users/entities/user.entity'
+import { BfitDistributionSenderService } from '../src/modules/bfit/bfit-producer.service'
+import { BfitDistributionService } from '../src/modules/bfit/bfit.service'
 
 describe('GoalsEntries', () => {
   let app: NestFastifyApplication
@@ -25,6 +27,13 @@ describe('GoalsEntries', () => {
       imports: [GoalsEntriesModule],
       providers: []
     })
+
+    try {
+      app.get(BfitDistributionSenderService).sendToQueue = jest.fn();
+      app.get(BfitDistributionService).handleMessage = jest.fn();
+    } catch (e) {
+      console.log(e);
+    }
 
     /** Load seeded data */
     await useSeeding()

@@ -34,12 +34,15 @@ export class BfitDistributionService {
 	@SqsMessageHandler(QUEUE_NAME, false)
 	handleMessage(message: AWS.SQS.Message) {
 		const { type, userId, sport } = JSON.parse(message.Body) as { type: BfitActivityTypes, sport?: Sport; userId: string; };
-
+		console.info(`Received BFIT message from queue: ${JSON.stringify(message)}`);
 		if (type === BfitActivityTypes.steps) {
+			console.info(`Message type is steps`);
 			return this.updateStepsLeagueBfit(userId)
 		} else if (type === BfitActivityTypes.sport) {
+			console.info(`Message type is health activity sports`);
 			return this.updateLeagueBfit(userId, sport)
 		}
+		console.error(`Message type is not supported: ${type}`)
 	}
 
 
@@ -82,6 +85,7 @@ export class BfitDistributionService {
 				(dailyBfitInFullDecimals - alreadyDistributedAmount.total) / 1000000
 			if (amountAvailableToDistribute <= 0) {
 				amountAvailableToDistribute = 0
+				console.info(`No BFIT to distribute for league: ${league.id}`)
 			}
 			const existingLeaderboardEntry =
 				await this.leaderboardEntriesRepository.findOne({
@@ -148,11 +152,21 @@ export class BfitDistributionService {
 					incrementEntryPromises.push(
 						this.walletTransactionRepository.save(walletTransaction)
 					)
+				} else {
+					console.info(`No BFIT to distribute for user: ${userId} in league: ${league.id}. Amount available to distribute: ${amountAvailableToDistribute} but BFIT earned is 0.`)
+					console.info(`Total user league points ${total_user_league_points} and user points ${points}`)
 				}
+			} else {
+				const errorMessage = `User ${userId} is not in league Entries ${league.id}`;
+				console.error(`User ${userId} is not in league Entries ${league.id}`)
+				throw new Error(errorMessage);
 			}
 		}
 
-		await Promise.all(incrementEntryPromises)
+		return await Promise.all(incrementEntryPromises).then(res => {
+			console.info(`Updated user ${userId} league bfit earnings`, JSON.stringify(res));
+      return res;
+		})
 	}
 
 	private async updateStepsLeagueBfit(userId: string) {
@@ -266,6 +280,6 @@ export class BfitDistributionService {
 			}
 		}
 
-		await Promise.all(incrementEntryPromises)
+		return await Promise.all(incrementEntryPromises)
 	}
 }
