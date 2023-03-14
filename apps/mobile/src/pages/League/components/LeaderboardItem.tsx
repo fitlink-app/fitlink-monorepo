@@ -5,6 +5,74 @@ import theme from '../../../theme/themes/fitlink';
 
 export const ITEM_HEIGHT = 82;
 
+const SelfIndicator = () => (
+  <>
+    <SelfLine />
+    <SelfTriangle />
+  </>
+);
+
+const Wins = ({wins}: {wins: number}) => (
+  <Row>
+    <WinsNumber>{wins}</WinsNumber>
+    <CrownIcon />
+  </Row>
+);
+
+interface LeaderboardItemProps {
+  rank: string;
+  name: string;
+  avatarUrl?: string;
+  wins: number;
+  points?: number;
+  bfit?: number;
+  isSelf: boolean;
+  onPress?: () => void;
+}
+
+export const LeaderboardItem: React.FC<LeaderboardItemProps> = ({
+  rank,
+  name,
+  avatarUrl,
+  points,
+  bfit,
+  isSelf,
+  onPress,
+  wins,
+}) => {
+  const rowBackgroundColor =
+    parseInt(rank) % 2 === 1 ? theme.colors.background : theme.colors.card;
+
+  return (
+    <TouchHandler onPress={onPress} disabled={isSelf}>
+      <ContainerRow style={{backgroundColor: rowBackgroundColor}}>
+        {isSelf && <SelfIndicator />}
+        <ShrunkRow>
+          <PlaceText>{rank}</PlaceText>
+          <Avatar url={avatarUrl} size={40} />
+          <ShrunkContainer>
+            <NameText numberOfLines={1}>{name}</NameText>
+            {wins !== 0 && <Wins wins={wins} />}
+          </ShrunkContainer>
+        </ShrunkRow>
+
+        {points !== undefined && (
+          <PointsText>
+            {bfit !== undefined ? (
+              <>
+                <Gray>{`(${points}) `}</Gray>
+                {bfit}&nbsp;<Label>BFIT</Label>
+              </>
+            ) : (
+              points
+            )}
+          </PointsText>
+        )}
+      </ContainerRow>
+    </TouchHandler>
+  );
+};
+
 const Row = styled.View({
   flexDirection: 'row',
   alignItems: 'center',
@@ -88,68 +156,6 @@ const ShrunkRow = styled(Row)({
   flexShrink: 1,
 });
 
-const SelfIndicator = () => (
-  <>
-    <SelfLine />
-    <SelfTriangle />
-  </>
-);
-
-const Wins = ({wins}: {wins: number}) => (
-  <Row>
-    <WinsNumber>{wins}</WinsNumber>
-    <CrownIcon />
-  </Row>
-);
-
-interface LeaderboardItemProps {
-  rank: string;
-  name: string;
-  avatarUrl?: string;
-  wins: number;
-  points?: number;
-  isSelf: boolean;
-  onPress?: () => void;
-  isBfit?: boolean;
-}
-
-export const LeaderboardItem: React.FC<LeaderboardItemProps> = ({
-  rank,
-  name,
-  avatarUrl,
-  points,
-  isSelf,
-  onPress,
-  isBfit = false,
-  wins,
-}) => {
-  const rowBackgroundColor =
-    parseInt(rank) % 2 === 1 ? theme.colors.background : theme.colors.card;
-
-  return (
-    <TouchHandler onPress={onPress} disabled={isSelf}>
-      <ContainerRow style={{backgroundColor: rowBackgroundColor}}>
-        {isSelf && <SelfIndicator />}
-        <ShrunkRow>
-          <PlaceText>{rank}</PlaceText>
-          <Avatar url={avatarUrl} size={40} />
-          <ShrunkContainer>
-            <NameText numberOfLines={1}>{name}</NameText>
-            {wins !== 0 && <Wins wins={wins} />}
-          </ShrunkContainer>
-        </ShrunkRow>
-
-        {points !== undefined && (
-          <PointsText>
-            {points}
-            {isBfit && (
-              <>
-                &nbsp;<Label>BFIT</Label>
-              </>
-            )}
-          </PointsText>
-        )}
-      </ContainerRow>
-    </TouchHandler>
-  );
-};
+const Gray = styled(Label)({
+  color: theme.colors.accentSecondary,
+});

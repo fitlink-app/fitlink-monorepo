@@ -20,6 +20,7 @@ import { validationExceptionFactory } from './exceptions/validation.exception.fa
 import { bgMagenta, bold } from 'chalk'
 import { UploadGuardV2 } from './guards/upload-v2.guard'
 import { GlobalExceptionsFilter } from './filters/global-exception-filter'
+import { StripPasswordInterceptor } from './interceptors/strip-password.interceptor'
 
 declare const module: any
 
@@ -55,7 +56,9 @@ async function bootstrap() {
       }
     }
   })
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(new StripPasswordInterceptor());
+
   app.useGlobalFilters(
     new GlobalExceptionsFilter(
       app.get(HttpAdapterHost).httpAdapter,

@@ -66,9 +66,9 @@ export const Leaderboard = ({
   const renderItem: ListRenderItem<LeaderboardEntry> = ({item, index}) => (
     <LeaderboardItem
       key={item.id}
-      isBfit={isBfit}
       wins={item.wins}
-      points={isBfit ? getViewBfitValue(item.bfit_earned) : item.points}
+      points={item.points}
+      bfit={isBfit ? getViewBfitValue(item.bfit_earned) : undefined}
       name={item.user.name}
       isSelf={item.user.id === userId}
       avatarUrl={item.user.avatar?.url_128x128}
