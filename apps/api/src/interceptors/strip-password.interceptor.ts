@@ -2,6 +2,7 @@ import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger} fro
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { sanitize, Sanitized } from "../helpers/sanitize";
+import axios from "axios";
 
 @Injectable()
 export class StripPasswordInterceptor implements NestInterceptor {
@@ -16,8 +17,31 @@ export class StripPasswordInterceptor implements NestInterceptor {
 					logger: this.logger,
 					contextText: `Processing ${request.method} request to ${request.url}`
 				});
-				return changed ? updated : data;
+				if (changed) {
+					try {
+						this.notifySlack(request);
+					} catch (e) {
+						console.log('could not send message to slack: ', e)
+					}
+
+					return updated;
+				}
+				return data;
 			})
 		);
 	}
+
+	async notifySlack(request: any) {
+		try {
+			const response = await axios.post(process.env.SLACK_WEBHOOK_JOBS_URL,
+				{
+					text: `SECURITY ALERT (PASSWORD ENDPOINT LEAK): ${request.method} request to ${request.url}}`,
+				}
+			);
+			console.log(response.data);
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
 }
