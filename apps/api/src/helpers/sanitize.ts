@@ -28,10 +28,14 @@ export function sanitize<T extends Record<string, any>>(data: T, options?: { log
 
 			if (typeof value === 'object' && value !== null) {
 				if (Array.isArray(value)) {
-					const [sanitizedArray, arrayChanged] = sanitize(value, options);
-					if (arrayChanged) {
-						changed = true;
-					}
+					const sanitizedArray = (value as any[]).reduce((acc, val) => {
+						let [sanitizedArray, arrayChanged] = sanitize(val, options);
+						if (arrayChanged) {
+							changed = true;
+						}
+						acc.push(sanitizedArray);
+						return acc;
+					}, []);
 					result[key] = sanitizedArray;
 				} else if ('length' in value) {
 					const [sanitizedArray, arrayChanged] = sanitize(Array.from(value), options);
