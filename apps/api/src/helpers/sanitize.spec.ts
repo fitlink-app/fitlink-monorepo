@@ -40,7 +40,7 @@ describe('sanitize', () => {
 			name: 'Bob',
 			email: 'bob@example.com'
 		};
-		const actualOutput = sanitize(input);
+		const [actualOutput] = sanitize(input);
 		expect(actualOutput).toEqual(expectedOutput);
 		expectType<Sanitized<typeof input>>(actualOutput);
 	});
@@ -67,7 +67,7 @@ describe('sanitize', () => {
 				email: 'bob@example.com'
 			}
 		];
-		const actualOutput = sanitize(input);
+		const [actualOutput] = sanitize(input);
 		expect(actualOutput).toEqual(expectedOutput);
 		expectType<Sanitized<typeof input>>(actualOutput);
 	});
@@ -103,7 +103,7 @@ describe('sanitize', () => {
 				}
 			]
 		};
-		const actualOutput = sanitize(input);
+		const [actualOutput] = sanitize(input);
 		expect(actualOutput).toEqual(expectedOutput);
 		expectType<Sanitized<typeof input>>(actualOutput);
 	});
