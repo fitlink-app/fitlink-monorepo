@@ -129,6 +129,9 @@ PODS:
   - Mapbox-iOS-SDK (5.9.0):
     - MapboxMobileEvents (= 0.10.2)
   - MapboxMobileEvents (0.10.2)
+  - MMKV (1.2.15):
+    - MMKVCore (~> 1.2.15)
+  - MMKVCore (1.2.15)
   - nanopb (2.30909.0):
     - nanopb/decode (= 2.30909.0)
     - nanopb/encode (= 2.30909.0)
@@ -356,6 +359,9 @@ PODS:
     - Mapbox-iOS-SDK (~> 5.9.0)
     - React
     - React-Core
+  - react-native-mmkv (2.5.1):
+    - MMKV (>= 1.2.13)
+    - React-Core
   - react-native-pager-view (5.4.4):
     - React-Core
   - react-native-safe-area-context (3.3.2):
@@ -464,12 +470,16 @@ PODS:
     - FirebaseCoreExtension (= 10.5.0)
     - React-Core
     - RNFBApp
+  - RNFS (2.20.0):
+    - React-Core
   - RNGestureHandler (1.10.3):
     - React-Core
   - RNGoogleSignin (9.0.2):
     - GoogleSignIn (~> 6.2)
     - React-Core
   - RNInAppBrowser (3.7.0):
+    - React-Core
+  - RNKeychain (8.1.1):
     - React-Core
   - RNLaunchNavigator (1.0.8):
     - React
@@ -546,6 +556,7 @@ DEPENDENCIES:
   - react-native-google-places (from `../node_modules/react-native-google-places`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-mapbox-gl (from `../node_modules/@react-native-mapbox-gl/maps`)"
+  - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-webview (from `../../../node_modules/react-native-webview`)
@@ -575,9 +586,11 @@ DEPENDENCIES:
   - "RNFBCrashlytics (from `../node_modules/@react-native-firebase/crashlytics`)"
   - "RNFBDynamicLinks (from `../node_modules/@react-native-firebase/dynamic-links`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
+  - RNFS (from `../../../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - RNInAppBrowser (from `../../../node_modules/react-native-inappbrowser-reborn`)
+  - RNKeychain (from `../../../node_modules/react-native-keychain`)
   - RNLaunchNavigator (from `../../../node_modules/react-native-launch-navigator`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
@@ -613,6 +626,8 @@ SPEC REPOS:
     - JWT
     - Mapbox-iOS-SDK
     - MapboxMobileEvents
+    - MMKV
+    - MMKVCore
     - nanopb
     - PromisesObjC
     - SSZipArchive
@@ -672,6 +687,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-mapbox-gl:
     :path: "../node_modules/@react-native-mapbox-gl/maps"
+  react-native-mmkv:
+    :path: "../node_modules/react-native-mmkv"
   react-native-pager-view:
     :path: "../node_modules/react-native-pager-view"
   react-native-safe-area-context:
@@ -730,12 +747,16 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/dynamic-links"
   RNFBMessaging:
     :path: "../node_modules/@react-native-firebase/messaging"
+  RNFS:
+    :path: "../../../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNGoogleSignin:
     :path: "../node_modules/@react-native-google-signin/google-signin"
   RNInAppBrowser:
     :path: "../../../node_modules/react-native-inappbrowser-reborn"
+  RNKeychain:
+    :path: "../../../node_modules/react-native-keychain"
   RNLaunchNavigator:
     :path: "../../../node_modules/react-native-launch-navigator"
   RNLocalize:
@@ -788,6 +809,8 @@ SPEC CHECKSUMS:
   JWT: ef71dfb03e1f842081e64dc42eef0e164f35d251
   Mapbox-iOS-SDK: a5915700ec84bc1a7f8b3e746d474789e35b7956
   MapboxMobileEvents: 2bc0ca2eedb627b73cf403258dce2b2fa98074a6
+  MMKV: 7f34558bbb5a33b0eaefae2de4b6a20a2ffdad6f
+  MMKVCore: ddf41b9d9262f058419f9ba7598719af56c02cd3
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
@@ -807,6 +830,7 @@ SPEC CHECKSUMS:
   react-native-google-places: 3ff479cef9e85419e38e68080f030b2c1e020b57
   react-native-image-picker: 60f4246eb5bb7187fc15638a8c1f13abd3820695
   react-native-mapbox-gl: b92795f61ff130323e6d25693bd68b081e105455
+  react-native-mmkv: 69b9c003f10afdd01addf7c6ee784ce42ee2eff3
   react-native-pager-view: 5ab4d0b4b44d89f77310cb3eb8129745f274ce55
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   react-native-webview: 133a6a5149f963259646e710b4545c67ef35d7c9
@@ -836,9 +860,11 @@ SPEC CHECKSUMS:
   RNFBCrashlytics: 3a52f3c3e4f7ed29545255a41edc4e7433b0f442
   RNFBDynamicLinks: 11c1aceb8c823a6bf41cc6b8bbc4c72eb64669ff
   RNFBMessaging: a0f8a5a5b6646e382bc322225eebcdfb7be2da4f
+  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNGoogleSignin: 22e468a9474dbcb8618d8847205ad4f0b2575d13
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
+  RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
   RNLaunchNavigator: 058ccdb86a80a9424d5e37f6ec54379e3018c52b
   RNLocalize: f567ea0e35116a641cdffe6683b0d212d568f32a
   RNPermissions: dcdb7b99796bbeda6975a6e79ad519c41b251b1c

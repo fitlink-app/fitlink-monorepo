@@ -1,21 +1,24 @@
-import React, {useEffect} from 'react';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {AppBackground, DeeplinkHandler, LifeCycleEvents} from '@components';
-import {withQueryClient} from '@query';
-import {ModalProvider, Transition} from './contexts';
 import {Provider} from 'react-redux';
+import React, {useEffect} from 'react';
+import Config from 'react-native-config';
+import {persistor, store} from 'redux/store';
+import codePush from 'react-native-code-push';
+import {Platform, UIManager} from 'react-native';
+import RNBootSplash from 'react-native-bootsplash';
 import {PersistGate} from 'redux-persist/integration/react';
-import Router from './routes/router';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {NavigationContainer} from '@react-navigation/native';
+
+import {withQueryClient} from '@query';
+import {AppBackground, DeeplinkHandler, LifeCycleEvents} from '@components';
+import {useCodePush, useIntercomNotifications} from '@hooks';
+import Router, {navigationRef, navigationTheme} from '@routes';
+
+import {UpdateInfo} from 'components/UpdateInfo';
 import ThemeProvider from './theme/ThemeProvider';
 import {QueryPersistor} from 'query/QueryPersistor';
-import {Platform, UIManager} from 'react-native';
-import {persistor, store} from 'redux/store';
-import RNBootSplash from 'react-native-bootsplash';
-import codePush from 'react-native-code-push';
-import {useCodePush, useIntercomNotifications} from '@hooks';
-import {UpdateInfo} from 'components/UpdateInfo';
-import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import Config from 'react-native-config';
+import {ModalProvider, Transition} from './contexts';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -48,15 +51,20 @@ const App = () => {
           <AppBackground>
             <Provider store={store}>
               <PersistGate persistor={persistor}>
-                <LifeCycleEvents />
-                <Transition>
-                  <ModalProvider>
-                    <QueryPersistor>
-                      <DeeplinkHandler />
-                      <Router />
-                    </QueryPersistor>
-                  </ModalProvider>
-                </Transition>
+                <NavigationContainer
+                  ref={navigationRef}
+                  theme={navigationTheme}
+                >
+                  <LifeCycleEvents />
+                  <Transition>
+                    <ModalProvider>
+                      <QueryPersistor>
+                        <DeeplinkHandler />
+                        <Router />
+                      </QueryPersistor>
+                    </ModalProvider>
+                  </Transition>
+                </NavigationContainer>
               </PersistGate>
             </Provider>
           </AppBackground>

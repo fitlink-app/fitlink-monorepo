@@ -1,12 +1,16 @@
 import React, {useRef} from 'react';
-import {Button, FormError, FormTitle, InputField} from '@components';
-import {useForm} from '@hooks';
-import styled from 'styled-components/native';
 import {TextInput} from 'react-native';
-import {useDispatch} from 'react-redux';
-import {AppDispatch} from 'redux/store';
-import {signIn} from 'redux/auth';
+import styled from 'styled-components/native';
+import {useNavigation} from '@react-navigation/core';
+import {useAppDispatch, useAppSelector} from 'redux/store';
+
+import {useForm} from '@hooks';
 import {RequestError} from '@api';
+import {Button, FormError, FormTitle, InputField} from '@components';
+import {
+  selectLastClientSideAccessGranted,
+  signIn,
+} from '../../../../redux/auth';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -30,7 +34,12 @@ interface SignInFormProps {
 }
 
 export const SignInForm = ({onEmailChanged}: SignInFormProps) => {
-  const dispatch = useDispatch() as AppDispatch;
+  const navigation = useNavigation();
+
+  const dispatch = useAppDispatch();
+  const lastClientSideAccessGranted = useAppSelector(
+    selectLastClientSideAccessGranted,
+  );
 
   const passwordFieldRef = useRef<TextInput>(null);
 
@@ -49,6 +58,9 @@ export const SignInForm = ({onEmailChanged}: SignInFormProps) => {
     const credentials = {email: values.email, password: values.password};
     try {
       await dispatch(signIn(credentials)).unwrap();
+      if (!lastClientSideAccessGranted) {
+        navigation.navigate('CreatePinCodeScreen');
+      }
     } catch (e) {
       return e as RequestError;
     }

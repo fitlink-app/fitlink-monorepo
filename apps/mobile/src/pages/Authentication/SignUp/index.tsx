@@ -1,17 +1,11 @@
 import React from 'react';
-import {
-  Button,
-  Logo,
-  Navbar,
-  KeyboardAvoidingView,
-  NAVBAR_HEIGHT,
-} from '@components';
+import {Button, Navbar, KeyboardAvoidingView, NAVBAR_HEIGHT} from '@components';
 import {useNavigation} from '@react-navigation/native';
 import styled from 'styled-components/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {SignUpForm} from './components';
 import {Platform, Text} from 'react-native';
-import {Background} from '../Welcome/components/Background';
+import {Background} from '../Welcome/components';
 import {GradientUnderlay} from '../Welcome/components';
 import {widthLize} from '@utils';
 
@@ -52,7 +46,8 @@ export const SignUp = () => {
               color: '#00E9D7',
               fontSize: 15,
               fontWeight: '500',
-            }}>
+            }}
+          >
             SIGN UP
           </Text>
         }
@@ -60,7 +55,8 @@ export const SignUp = () => {
       <ContentContainer>
         <KeyboardAvoidingView
           keyboardVerticalOffset={NAVBAR_HEIGHT}
-          enabled={Platform.OS === 'ios'}>
+          enabled={Platform.OS === 'ios'}
+        >
           <FormContainer>
             <SignUpForm />
           </FormContainer>

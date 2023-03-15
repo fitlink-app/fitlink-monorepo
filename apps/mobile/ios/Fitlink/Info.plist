@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSFaceIDUsageDescription</key>
+	<string>To authenticate with Touch ID or Face ID, $(PRODUCT_NAME) needs your allowance.</string>
 	<key>MBXAccessToken</key>
 	<string>pk.eyJ1IjoiZml0bGlua2FwcCIsImEiOiJjamZud3NxbmgwY2w1MzNycTVoamtkbXRyIn0.l-zQ5Q756IGsRSQL_94Ntw</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>

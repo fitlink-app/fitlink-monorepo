@@ -7,7 +7,18 @@ import {AuthResultDto} from '@fitlink/api-sdk/types';
 import {AuthState} from './types';
 import {signIn, signInWithApple, signInWithGoogle, signUp} from './actions';
 
-export const initialState: AuthState = {authResult: null, error: null};
+// TODO: reset on log out?
+export const initialState: AuthState = {
+  authResult: null,
+  error: null,
+  clientSideAccess: {
+    // TODO: at
+    lastAccessGranted: undefined,
+    isAccessGranted: false,
+    pinErrorsCount: 0,
+    lastPinErrorCountExceeded: undefined,
+  },
+};
 
 const isAnyOfSignInFulfilled = isAnyOf(
   signUp.fulfilled,
@@ -40,6 +51,26 @@ const slice = createSlice({
     clearAuthResult: state => {
       state.authResult = null;
     },
+    grantClientSideAccess: state => {
+      state.clientSideAccess.lastAccessGranted = Date.now();
+      state.clientSideAccess.isAccessGranted = true;
+    },
+    revokeClientSideAccess: state => {
+      state.clientSideAccess.isAccessGranted = false;
+    },
+    incrementPinErrorCount: state => {
+      state.clientSideAccess.pinErrorsCount =
+        state.clientSideAccess.pinErrorsCount + 1;
+    },
+    resetPinErrorCount: state => {
+      state.clientSideAccess.pinErrorsCount = 0;
+    },
+    resetLastPinErrorCountExceeded: state => {
+      state.clientSideAccess.lastPinErrorCountExceeded = Date.now();
+    },
+    clearLastPinErrorCountExceeded: state => {
+      state.clientSideAccess.lastPinErrorCountExceeded = undefined;
+    },
   },
   extraReducers: builder => {
     builder
@@ -49,6 +80,8 @@ const slice = createSlice({
         }
       })
       .addMatcher(isAnyOfSignInFulfilled, (state, {payload}) => {
+        // TODO: it's not safe
+        // move all tokens logic to API SDK, and just get authorized: boolean
         state.authResult = payload;
         api.setTokens(payload);
       })
@@ -61,6 +94,15 @@ const slice = createSlice({
   },
 });
 
-export const {setAuthResult, clearAuthResult} = slice.actions;
+export const {
+  setAuthResult,
+  clearAuthResult,
+  grantClientSideAccess,
+  revokeClientSideAccess,
+  incrementPinErrorCount,
+  resetPinErrorCount,
+  resetLastPinErrorCountExceeded,
+  clearLastPinErrorCountExceeded,
+} = slice.actions;
 
 export default slice.reducer;

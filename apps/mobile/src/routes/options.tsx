@@ -13,6 +13,8 @@ import {RootStackParamList} from './types';
 
 const routeToTitleMap: Partial<Record<keyof RootStackParamList, string>> = {
   CheatingReportScreen: 'Report',
+  CreatePinCodeScreen: 'Login',
+  EnterPinCodeScreen: 'Login',
 };
 
 type ScreenOptionsCallbackProps = {

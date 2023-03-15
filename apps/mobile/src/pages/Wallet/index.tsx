@@ -147,3 +147,5 @@ const WalletLabel = styled(Label).attrs(() => ({
 }))({
   marginLeft: 11,
 });
+
+export default Wallet;
