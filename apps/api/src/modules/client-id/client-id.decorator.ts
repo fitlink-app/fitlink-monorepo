@@ -11,6 +11,6 @@ export const ClientIdParam = createParamDecorator(
 		if (!request) {
 			return 'Fitlink'; // this happens in unit tests
 		}
-		return request['client'];
+		return request?.headers[CLIENT_ID] || 'Fitlink';
 	},
 );
