@@ -20,6 +20,7 @@ import {
 } from './seeds/providers.seed'
 import { ContextIdFactory, REQUEST } from '@nestjs/core'
 import { CLIENT_ID } from '../src/modules/client-id/client-id'
+import { Scope } from '@nestjs/common'
 const {
   FITLINK_STRAVA_CLIENT_ID,
   FITLINK_STRAVA_CLIENT_SECRET,
@@ -41,7 +42,19 @@ describe('Providers', () => {
       imports: [ProvidersModule],
       providers: [],
       overrideProvider: [
-        // { provider: REQUEST, value: { headers: { [CLIENT_ID]: 'Fitlink' } } }
+        {
+          provide: CLIENT_ID,
+          scope: Scope.REQUEST,
+          useFactory: (req: Request) => {
+            const clientId = req?.headers[CLIENT_ID] || 'Fitlink';
+            if (!req) {
+              req = { headers: {} } as Request;
+            }
+            req['client'] = clientId;
+            return clientId;
+          },
+          inject: [REQUEST],
+        }
       ]
     })
     await useSeeding()

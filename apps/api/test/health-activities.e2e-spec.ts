@@ -45,6 +45,7 @@ import { ClientIdContextModule } from '../src/modules/client-id/client-id.module
 import { ContextId, ContextIdFactory, REQUEST } from '@nestjs/core'
 import { CLIENT_ID } from '../src/modules/client-id/client-id'
 import { mockApp } from './helpers/app'
+import { Scope } from '@nestjs/common'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -72,7 +73,19 @@ describe('Health Activities', () => {
       ],
       providers: [],
       overrideProvider: [
-        // { provider: REQUEST, value: { headers: { [CLIENT_ID]: 'Fitlink' } } }
+        {
+          provide: CLIENT_ID,
+          scope: Scope.REQUEST,
+          useFactory: (req: Request) => {
+            const clientId = req?.headers[CLIENT_ID] || 'Fitlink';
+            if (!req) {
+              req = { headers: {} } as Request;
+            }
+            req['client'] = clientId;
+            return clientId;
+          },
+          inject: [REQUEST],
+        }
       ]
     })
     connection = getConnection()

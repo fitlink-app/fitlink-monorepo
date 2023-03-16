@@ -7,6 +7,10 @@ const clientFactory = {
 	scope: Scope.REQUEST,
 	useFactory: (req: Request) => {
 		const clientId = req?.headers[CLIENT_ID] || 'Fitlink';
+		if (!req) {
+			// this happens in unit tests
+			req = {} as Request;
+		}
 		req['client'] = clientId;
 		return clientId;
 	},

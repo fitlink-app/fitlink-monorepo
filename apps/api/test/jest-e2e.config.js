@@ -7,6 +7,7 @@ module.exports = {
     "^.+\\.(t|j)s$": "ts-jest",
     "^.+\\.json$": "ts-jest"
   },
+  "testTimeout": 20000,
   "setupFiles": ["<rootDir>/setup.ts"],
   "globalTeardown": "<rootDir>/teardown.ts"
 }

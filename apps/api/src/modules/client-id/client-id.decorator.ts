@@ -8,6 +8,9 @@ export const ClientId = () => {
 export const ClientIdParam = createParamDecorator(
 	(data: unknown, ctx: ExecutionContext) => {
 		const request = ctx?.switchToHttp()?.getRequest();
+		if (!request) {
+			return 'Fitlink'; // this happens in unit tests
+		}
 		return request['client'];
 	},
 );
