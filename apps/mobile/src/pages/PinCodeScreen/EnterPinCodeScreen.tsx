@@ -1,5 +1,5 @@
 import React, {FC} from 'react';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import styled from 'styled-components/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 
@@ -23,7 +23,6 @@ export const EnterPinCodeScreen: FC = () => {
   const completeClientAuth = () => {
     dispatch(grantClientSideAccess());
     dispatch(resetPinErrorCount());
-    // TODO: consider replacement
     navigation.reset({
       index: 0,
       routes: [{name: 'HomeNavigator'}],
@@ -31,15 +30,20 @@ export const EnterPinCodeScreen: FC = () => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SWrapper>
       <PinCodeWrapper
         useBiometry
         title="Enter pin code"
         onSuccess={completeClientAuth}
         forceBiometry={forceBiometry}
       />
-    </SafeAreaView>
+    </SWrapper>
   );
 };
+
+const SWrapper = styled.SafeAreaView({
+  flex: 1,
+  paddingHorizontal: 18,
+});
 
 export default EnterPinCodeScreen;

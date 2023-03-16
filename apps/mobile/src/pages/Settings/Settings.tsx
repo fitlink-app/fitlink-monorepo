@@ -324,14 +324,16 @@ export const Settings = () => {
           marginTop: NAVBAR_HEIGHT + insets.top,
           paddingBottom: NAVBAR_HEIGHT + insets.top + insets.bottom + 20,
           paddingHorizontal: 20,
-        }}>
+        }}
+      >
         {/* Account Settings */}
         <CategoryCard>
           <Row
             style={{
               alignItems: 'center',
               marginTop: 20,
-            }}>
+            }}
+          >
             <View>
               <CategoryTitle>Account</CategoryTitle>
             </View>
@@ -436,6 +438,10 @@ export const Settings = () => {
           <SettingsButton
             label={'Update Password'}
             onPress={() => navigation.navigate('UpdatePassword')}
+          />
+          <SettingsButton
+            label="Change Pin Code"
+            onPress={() => navigation.navigate('ChangePinCodeScreen')}
           />
           <SettingsInput
             label={'Team'}
@@ -615,7 +621,8 @@ export const Settings = () => {
         <CategoryCard>
           <CategoryLabel>Newsletter</CategoryLabel>
           <SettingsItemWrapper
-            style={{borderTopWidth: 1, borderColor: '#2e2e2e'}}>
+            style={{borderTopWidth: 1, borderColor: '#2e2e2e'}}
+          >
             <Row>
               <SettingsItemLabel children={'Subscribe to newsletter'} />
               <Checkbox
@@ -666,7 +673,8 @@ export const Settings = () => {
                     title={'Delete Account?'}
                     description={
                       'Are you sure you want to delete your account? This action is irreversible.'
-                    }>
+                    }
+                  >
                     <DeleteAccountModal
                       onCloseCallback={isDeleted => {
                         closeModal(id);

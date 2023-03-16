@@ -11,3 +11,4 @@ export * from './DeepLinkHandler';
 export * from './icons';
 export * from './modal';
 export * from './pin';
+export * from './UpdateInfo';

@@ -8,7 +8,6 @@ import * as RNLocalize from 'react-native-localize';
 import api from '@api';
 import {UpdateUserDto} from '@fitlink/api/src/modules/users/dto/update-user.dto';
 import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
-import {useRevokeIdleAccess} from '@hooks';
 
 import {syncAllPlatformActivities} from 'services/common';
 
@@ -105,8 +104,6 @@ export const LifeCycleEvents = () => {
       },
     );
   };
-
-  useRevokeIdleAccess();
 
   return null;
 };

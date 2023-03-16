@@ -5,6 +5,7 @@ const STORAGE_PATH = `${DocumentDirectoryPath}/BFIT`;
 
 export enum SyncStorageInstanceIds {
   KeychainSupport = 'KeychainSupport',
+  PinStorage = 'PinStorage',
 }
 
 export class SyncStorage {

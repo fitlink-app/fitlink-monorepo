@@ -8,7 +8,7 @@ import {Button, FormError, InputField, Label} from '@components';
 
 import {PrivacyPolicyLabel, TermsOfServiceLabel} from './components';
 import {
-  selectLastClientSideAccessGranted,
+  selectClientSideAccessGrantedAt,
   signUp,
 } from '../../../../../redux/auth';
 import {useAppDispatch, useAppSelector} from '../../../../../redux/store';
@@ -39,8 +39,8 @@ export const SignUpForm = () => {
   const navigation = useNavigation();
 
   const dispatch = useAppDispatch();
-  const lastClientSideAccessGranted = useAppSelector(
-    selectLastClientSideAccessGranted,
+  const clientSideAccessGrantedAt = useAppSelector(
+    selectClientSideAccessGrantedAt,
   );
 
   const passwordFieldRef = useRef<TextInput>(null);
@@ -63,7 +63,7 @@ export const SignUpForm = () => {
       // TODO: rework handle submit logic!!! it must not accept result as error
       //  instead handle error in handle submit
       await dispatch(signUp(credentials)).unwrap();
-      if (!lastClientSideAccessGranted) {
+      if (!clientSideAccessGrantedAt) {
         navigation.navigate('CreatePinCodeScreen');
       }
     } catch (e) {

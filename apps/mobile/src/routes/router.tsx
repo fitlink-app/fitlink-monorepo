@@ -4,9 +4,7 @@ import {
   CardStyleInterpolators,
   createStackNavigator,
 } from '@react-navigation/stack';
-import {useSelector} from 'react-redux';
 
-import {useMe} from '@hooks';
 import {
   League,
   LeagueForm,
@@ -24,10 +22,11 @@ import {
   CheatingReportScreen,
   Onboarding,
   EnterPinCodeScreen,
+  RootLoadingScreen,
 } from '@pages';
 import {
   memoSelectIsAuthenticated,
-  selectLastClientSideAccessGranted,
+  selectClientSideAccessGrantedAt,
 } from '../redux/auth';
 
 import {SettingsNavigator} from './Settings';
@@ -44,14 +43,12 @@ const Stack = createStackNavigator<RootStackParamList>();
 export const navigationRef = React.createRef<NavigationContainerRef>();
 
 export default function Router() {
-  const lastClientSideAccessGranted = useAppSelector(
-    selectLastClientSideAccessGranted,
+  const clientSideAccessGrantedAt = useAppSelector(
+    selectClientSideAccessGrantedAt,
   );
-  const isAuthenticated = useSelector(memoSelectIsAuthenticated);
+  const isAuthenticated = useAppSelector(memoSelectIsAuthenticated);
 
-  const {data: me} = useMe();
-  const isOnboarded = me?.onboarded;
-  const isMainFlowAvailable = isAuthenticated && lastClientSideAccessGranted;
+  const isMainFlowAvailable = !!(isAuthenticated && clientSideAccessGrantedAt);
 
   const navigatorOptions = {
     cardShadowEnabled: true,
@@ -73,67 +70,63 @@ export default function Router() {
       )}
       {isMainFlowAvailable && (
         <>
-          {!isOnboarded && (
-            <Stack.Screen name={'Onboarding'} component={Onboarding} />
-          )}
-          {isOnboarded && (
-            <>
-              <Stack.Screen name={'HomeNavigator'} component={HomeNavigator} />
-              <Stack.Screen
-                name={'Settings'}
-                component={SettingsNavigator}
-                options={{
-                  cardStyleInterpolator:
-                    CustomInterpolators.forVerticalWithOverlay,
-                }}
-              />
-              <Stack.Screen name={'League'} component={League} />
-              <Stack.Screen
-                name={'LeagueInviteFriends'}
-                component={LeagueInviteFriends}
-              />
-              <Stack.Screen
-                name={'LeagueForm'}
-                component={LeagueForm}
-                options={{
-                  cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-                }}
-              />
-              <Stack.Screen name={'Profile'} component={Profile} />
-              <Stack.Screen name={'Route'} component={Route} />
-              <Stack.Screen name={'Reward'} component={Reward} />
-              <Stack.Screen name={'Webview'} component={Webview} />
-              <Stack.Screen
-                name={'Notifications'}
-                component={Notifications}
-                options={{
-                  cardStyleInterpolator:
-                    CustomInterpolators.forVerticalWithOverlay,
-                }}
-              />
-              <Stack.Screen
-                name={'MyActivities'}
-                component={MyActivities}
-                options={{
-                  cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-                }}
-              />
-              <Stack.Screen name={'ActivityForm'} component={ActivityForm} />
-              <Stack.Screen name={'ActivityPage'} component={ActivityPage} />
-              <Stack.Screen name={'Friends'} component={Friends} />
-              <Stack.Screen name={'Wallet'} component={Wallet} />
-              <Stack.Screen
-                name="CheatingReportScreen"
-                component={CheatingReportScreen}
-                options={getDefaultStackScreenOptions}
-              />
-              <Stack.Screen
-                name="EnterPinCodeScreen"
-                component={EnterPinCodeScreen}
-                options={getDefaultStackScreenOptions}
-              />
-            </>
-          )}
+          <Stack.Screen
+            name="RootLoadingScreen"
+            component={RootLoadingScreen}
+          />
+          <Stack.Screen name={'Onboarding'} component={Onboarding} />
+
+          <Stack.Screen name={'HomeNavigator'} component={HomeNavigator} />
+          <Stack.Screen
+            name={'Settings'}
+            component={SettingsNavigator}
+            options={{
+              cardStyleInterpolator: CustomInterpolators.forVerticalWithOverlay,
+            }}
+          />
+          <Stack.Screen name={'League'} component={League} />
+          <Stack.Screen
+            name={'LeagueInviteFriends'}
+            component={LeagueInviteFriends}
+          />
+          <Stack.Screen
+            name={'LeagueForm'}
+            component={LeagueForm}
+            options={{
+              cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+            }}
+          />
+          <Stack.Screen name={'Profile'} component={Profile} />
+          <Stack.Screen name={'Route'} component={Route} />
+          <Stack.Screen name={'Reward'} component={Reward} />
+          <Stack.Screen name={'Webview'} component={Webview} />
+          <Stack.Screen
+            name={'Notifications'}
+            component={Notifications}
+            options={{
+              cardStyleInterpolator: CustomInterpolators.forVerticalWithOverlay,
+            }}
+          />
+          <Stack.Screen
+            name={'MyActivities'}
+            component={MyActivities}
+            options={{
+              cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+            }}
+          />
+          <Stack.Screen name={'ActivityForm'} component={ActivityForm} />
+          <Stack.Screen name={'ActivityPage'} component={ActivityPage} />
+          <Stack.Screen name={'Friends'} component={Friends} />
+          <Stack.Screen name={'Wallet'} component={Wallet} />
+          <Stack.Screen
+            name="CheatingReportScreen"
+            component={CheatingReportScreen}
+            options={getDefaultStackScreenOptions}
+          />
+          <Stack.Screen
+            name="EnterPinCodeScreen"
+            component={EnterPinCodeScreen}
+          />
         </>
       )}
     </Stack.Navigator>

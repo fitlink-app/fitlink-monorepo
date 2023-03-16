@@ -1,4 +1,4 @@
-import React, {FC, ReactNode} from 'react';
+import React, {FC} from 'react';
 import Animated from 'react-native-reanimated';
 import styled from 'styled-components/native';
 import {BIOMETRY_TYPE} from 'react-native-keychain';
@@ -16,7 +16,6 @@ export interface IPinCodeViewProps {
   title?: string;
   subtitle?: string;
   error?: string | boolean;
-  children?: ReactNode;
   shouldAnimateOnError?: boolean;
 
   onBiometry?(): void;
@@ -66,8 +65,8 @@ export const PinCodeView: FC<IPinCodeViewProps> = ({
             length={PIN_LENGTH}
           />
           <SChildrenWrapper>
-            {children}
             <SError>{typeof error === 'string' ? error : ' '}</SError>
+            {children}
           </SChildrenWrapper>
         </SContent>
       </SAnimatedContainer>
@@ -119,6 +118,7 @@ const SSubtitle = styled.Text({
 
 const SError = styled.Text({
   fontSize: 12,
+  marginBottom: 12,
   fontWeight: 500,
   fontFamily: 'Roboto',
   color: theme.colors.danger,

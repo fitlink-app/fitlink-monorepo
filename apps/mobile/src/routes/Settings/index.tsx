@@ -3,9 +3,16 @@ import {
   CardStyleInterpolators,
   createStackNavigator,
 } from '@react-navigation/stack';
-import {RootStackParamList} from '../types';
-import {Settings, UpdateEmail, UpdatePassword} from 'pages';
-import {CustomInterpolators} from 'routes/interpolators';
+
+import {RootStackParamList} from '@routes';
+import {
+  ChangePinCodeScreen,
+  Settings,
+  UpdateEmail,
+  UpdatePassword,
+} from '@pages';
+
+import {getDefaultStackScreenOptions} from '../options';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -26,13 +33,17 @@ export const SettingsNavigator = () => {
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
         }}
       />
-
       <Stack.Screen
         name={'UpdatePassword'}
         component={UpdatePassword}
         options={{
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
         }}
+      />
+      <Stack.Screen
+        name="ChangePinCodeScreen"
+        component={ChangePinCodeScreen}
+        options={getDefaultStackScreenOptions}
       />
     </Stack.Navigator>
   );

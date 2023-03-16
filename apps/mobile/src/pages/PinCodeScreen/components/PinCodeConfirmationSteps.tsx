@@ -1,12 +1,22 @@
-import React, {useState} from 'react';
+import React, {FC, useState} from 'react';
 import {SafeAreaView, StyleSheet} from 'react-native';
 
 import theme from '@theme';
 import {PinCodeView, BfitSpinner} from '@components';
 
-import {useConfirmationStep, useInitializationStep} from './hooks';
+import {useConfirmationStep, useInitializationStep} from '../hooks';
 
-export const CreatePinCodeScreen = () => {
+interface PinCodeConfirmationStepsProps {
+  initStepHeader: string;
+  confirmStepHeader: string;
+  onFinishSuccess?: () => void;
+}
+
+export const PinCodeConfirmationSteps: FC<PinCodeConfirmationStepsProps> = ({
+  initStepHeader,
+  confirmStepHeader,
+  onFinishSuccess,
+}) => {
   const [pin, setPin] = useState('');
   const [confirmingPin, setConfirmingPin] = useState('');
   const [isConfirmationStep, setIsConfirmationStep] = useState(false);
@@ -24,6 +34,7 @@ export const CreatePinCodeScreen = () => {
   } = useConfirmationStep({
     setPin,
     confirmingPin,
+    onFinishSuccess,
     resetToCreation: () => setIsConfirmationStep(false),
   });
 
@@ -35,7 +46,7 @@ export const CreatePinCodeScreen = () => {
     }
   };
 
-  const heading = isConfirmationStep ? 'Confirm Pin Code' : 'Create Pin Code';
+  const heading = isConfirmationStep ? confirmStepHeader : initStepHeader;
 
   if (isLoading) {
     return <BfitSpinner wrapperStyle={styles.spinnerWrapper} />;
@@ -57,7 +68,6 @@ export const CreatePinCodeScreen = () => {
 const styles = StyleSheet.create({
   safeView: {
     flex: 1,
-    marginBottom: 34,
     paddingHorizontal: 18,
   },
   spinnerWrapper: {
@@ -68,4 +78,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreatePinCodeScreen;
+export default PinCodeConfirmationSteps;

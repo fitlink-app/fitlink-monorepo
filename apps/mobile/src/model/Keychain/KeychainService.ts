@@ -1,9 +1,12 @@
 import {Platform} from 'react-native';
+import {v4 as uuid} from 'uuid';
 import Keychain, {BIOMETRY_TYPE, Options} from 'react-native-keychain';
 
 import {KeychainSupportStorageManager} from '@model';
 
 export const KEYCHAIN_USER = 'user';
+export const KEYCHAIN_KEY_USER = 'encryptionKeyUser';
+export const KEYCHAIN_KEY_SERVICE = 'encryptionKeyService';
 
 interface IKeychainSetData {
   passcode: string;
@@ -63,6 +66,7 @@ export class KeychainService {
 
   async resetKeychain() {
     await Keychain.resetGenericPassword();
+    await Keychain.resetGenericPassword({service: KEYCHAIN_KEY_SERVICE});
     this.supportStorage.clear();
   }
 
@@ -76,6 +80,22 @@ export class KeychainService {
       return null;
     }
     return biometryType as BIOMETRY_TYPE;
+  }
+
+  async getSecureKey() {
+    const credentials = await Keychain.getGenericPassword({
+      service: KEYCHAIN_KEY_SERVICE,
+    });
+    if (credentials) {
+      return credentials.password;
+    }
+
+    const randomBytesString = uuid();
+
+    await Keychain.setGenericPassword(KEYCHAIN_KEY_USER, randomBytesString, {
+      service: KEYCHAIN_KEY_SERVICE,
+    });
+    return randomBytesString;
   }
 
   private getKeychainOptions() {

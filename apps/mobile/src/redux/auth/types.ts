@@ -19,9 +19,9 @@ export interface AuthState {
 
   clientSideAccess: {
     isAccessGranted: boolean;
-    lastAccessGranted: number | undefined;
+    accessGrantedAt: number | undefined;
 
     pinErrorsCount: number;
-    lastPinErrorCountExceeded: number | undefined;
+    pinErrorCountExceededAt: number | undefined;
   };
 }

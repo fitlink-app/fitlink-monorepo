@@ -19,6 +19,6 @@ export * from './ActivityFeed';
 export * from './ActivityPage';
 export * from './Wallet';
 export * from './CheatingReport';
-export * from './CreatePinCodeScreen';
+export * from './PinCodeScreen';
 export * from './Onboarding';
-export * from './EnterPinCodeScreen';
+export * from './RootLoadingScreen';

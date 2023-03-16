@@ -7,16 +7,14 @@ import {AuthResultDto} from '@fitlink/api-sdk/types';
 import {AuthState} from './types';
 import {signIn, signInWithApple, signInWithGoogle, signUp} from './actions';
 
-// TODO: reset on log out?
 export const initialState: AuthState = {
   authResult: null,
   error: null,
   clientSideAccess: {
-    // TODO: at
-    lastAccessGranted: undefined,
+    accessGrantedAt: undefined,
     isAccessGranted: false,
     pinErrorsCount: 0,
-    lastPinErrorCountExceeded: undefined,
+    pinErrorCountExceededAt: undefined,
   },
 };
 
@@ -48,11 +46,9 @@ const slice = createSlice({
     setAuthResult: (state, {payload}: PayloadAction<AuthResultDto>) => {
       state.authResult = payload;
     },
-    clearAuthResult: state => {
-      state.authResult = null;
-    },
+    resetAuthState: () => initialState,
     grantClientSideAccess: state => {
-      state.clientSideAccess.lastAccessGranted = Date.now();
+      state.clientSideAccess.accessGrantedAt = Date.now();
       state.clientSideAccess.isAccessGranted = true;
     },
     revokeClientSideAccess: state => {
@@ -66,10 +62,10 @@ const slice = createSlice({
       state.clientSideAccess.pinErrorsCount = 0;
     },
     resetLastPinErrorCountExceeded: state => {
-      state.clientSideAccess.lastPinErrorCountExceeded = Date.now();
+      state.clientSideAccess.pinErrorCountExceededAt = Date.now();
     },
     clearLastPinErrorCountExceeded: state => {
-      state.clientSideAccess.lastPinErrorCountExceeded = undefined;
+      state.clientSideAccess.pinErrorCountExceededAt = undefined;
     },
   },
   extraReducers: builder => {
@@ -96,7 +92,7 @@ const slice = createSlice({
 
 export const {
   setAuthResult,
-  clearAuthResult,
+  resetAuthState,
   grantClientSideAccess,
   revokeClientSideAccess,
   incrementPinErrorCount,

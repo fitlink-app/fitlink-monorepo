@@ -8,12 +8,11 @@ import RNBootSplash from 'react-native-bootsplash';
 import {PersistGate} from 'redux-persist/integration/react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import {NavigationContainer} from '@react-navigation/native';
 
 import {withQueryClient} from '@query';
 import {AppBackground, DeeplinkHandler, LifeCycleEvents} from '@components';
 import {useCodePush, useIntercomNotifications} from '@hooks';
-import Router, {navigationRef, navigationTheme} from '@routes';
+import Router, {NavigationProvider} from '@routes';
 
 import {UpdateInfo} from 'components/UpdateInfo';
 import ThemeProvider from './theme/ThemeProvider';
@@ -51,10 +50,7 @@ const App = () => {
           <AppBackground>
             <Provider store={store}>
               <PersistGate persistor={persistor}>
-                <NavigationContainer
-                  ref={navigationRef}
-                  theme={navigationTheme}
-                >
+                <NavigationProvider>
                   <LifeCycleEvents />
                   <Transition>
                     <ModalProvider>
@@ -64,7 +60,7 @@ const App = () => {
                       </QueryPersistor>
                     </ModalProvider>
                   </Transition>
-                </NavigationContainer>
+                </NavigationProvider>
               </PersistGate>
             </Provider>
           </AppBackground>

@@ -13,11 +13,11 @@ export const memoSelectIsAuthenticated = createSelector(
 export const selectIsClientSideAccessGranted = (state: RootState) =>
   selectAuthState(state).clientSideAccess.isAccessGranted;
 
-export const selectLastClientSideAccessGranted = (state: RootState) =>
-  selectAuthState(state).clientSideAccess.lastAccessGranted;
+export const selectClientSideAccessGrantedAt = (state: RootState) =>
+  selectAuthState(state).clientSideAccess.accessGrantedAt;
 
 export const selectPinErrorsCount = (state: RootState) =>
   selectAuthState(state).clientSideAccess.pinErrorsCount;
 
-export const selectLastPinErrorCountExceeded = (state: RootState) =>
-  selectAuthState(state).clientSideAccess.lastPinErrorCountExceeded;
+export const selectPinErrorCountExceededAt = (state: RootState) =>
+  selectAuthState(state).clientSideAccess.pinErrorCountExceededAt;

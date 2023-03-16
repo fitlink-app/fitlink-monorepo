@@ -7,10 +7,7 @@ import {useAppDispatch, useAppSelector} from 'redux/store';
 import {useForm} from '@hooks';
 import {RequestError} from '@api';
 import {Button, FormError, FormTitle, InputField} from '@components';
-import {
-  selectLastClientSideAccessGranted,
-  signIn,
-} from '../../../../redux/auth';
+import {selectClientSideAccessGrantedAt, signIn} from '../../../../redux/auth';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -37,8 +34,8 @@ export const SignInForm = ({onEmailChanged}: SignInFormProps) => {
   const navigation = useNavigation();
 
   const dispatch = useAppDispatch();
-  const lastClientSideAccessGranted = useAppSelector(
-    selectLastClientSideAccessGranted,
+  const clientSideAccessGrantedAt = useAppSelector(
+    selectClientSideAccessGrantedAt,
   );
 
   const passwordFieldRef = useRef<TextInput>(null);
@@ -58,7 +55,7 @@ export const SignInForm = ({onEmailChanged}: SignInFormProps) => {
     const credentials = {email: values.email, password: values.password};
     try {
       await dispatch(signIn(credentials)).unwrap();
-      if (!lastClientSideAccessGranted) {
+      if (!clientSideAccessGrantedAt) {
         navigation.navigate('CreatePinCodeScreen');
       }
     } catch (e) {

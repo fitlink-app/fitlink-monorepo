@@ -10,4 +10,6 @@ export * from './useMeasureInitialLayout';
 export * from './useWeeklyEarnings';
 export * from './useManualQueryRefresh';
 export * from './useMeasureLayout';
-export * from './useRevokeIdleAccess';
+export * from './useRevokeAccess';
+export * from './useRevokeAccessOnIdle';
+export * from './useInterval';

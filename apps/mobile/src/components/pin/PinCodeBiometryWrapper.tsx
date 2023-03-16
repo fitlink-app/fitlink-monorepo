@@ -2,7 +2,7 @@ import React, {FC, useEffect, useState, useRef, PropsWithChildren} from 'react';
 import {AppState, AppStateStatus} from 'react-native';
 import {BIOMETRY_TYPE} from 'react-native-keychain';
 
-import {KeychainService} from '@model';
+import {KeychainService, PinStorageManager} from '@model';
 import {PIN_LENGTH} from '@constants';
 import {IPinCodeViewProps, PinCodeView} from '@components';
 
@@ -18,24 +18,27 @@ export interface IAuthViewProps
   biometryAuthDescription?: string;
   forceBiometry?: boolean;
   useBiometry?: boolean;
+  errorMessage?: string;
 
   onSuccess(props: IOnSuccessProps): void;
   onErrorChange(hasError: boolean): void;
 }
 
-export const AuthInput: FC<PropsWithChildren<IAuthViewProps>> = ({
+export const PinCodeBiometryWrapper: FC<PropsWithChildren<IAuthViewProps>> = ({
   title,
   subtitle,
   biometryAuthTitle,
   forceBiometry = false,
   useBiometry = false,
   children,
-
+  errorMessage,
   onSuccess,
   onErrorChange,
 }) => {
   const isBiometricAuthInProgressRef = useRef(false);
   const prevAppStateRef = useRef<AppStateStatus>('active');
+  const isFinishingRef = useRef(false);
+
   const [enteredPin, setEnteredPin] = useState<string>('');
   const [biometryType, setBiometryType] = useState<BIOMETRY_TYPE | null>(null);
   const [isError, setIsError] = useState(false);
@@ -103,13 +106,36 @@ export const AuthInput: FC<PropsWithChildren<IAuthViewProps>> = ({
   };
 
   const onFinish = async (pin: string) => {
+    isFinishingRef.current = true;
+    const PinStorage = await PinStorageManager();
+
+    const storedPin = await PinStorage.getPin();
+
+    if (!storedPin || storedPin !== pin) {
+      onErrorChange(true);
+      setIsError(true);
+      isFinishingRef.current = false;
+
+      // TODO: handle case when user starts input before delayed reset
+      setTimeout(() => {
+        onErrorChange(false);
+        setIsError(false);
+        setEnteredPin('');
+      }, 1500);
+      return;
+    }
+
     onSuccess({pin});
+    isFinishingRef.current = false;
   };
 
   const onPinChange = (pin: string) => {
     if (pin.length < PIN_LENGTH) {
       setIsError(false);
       onErrorChange(false);
+    }
+    if (isFinishingRef.current) {
+      return;
     }
     setEnteredPin(pin);
     if (pin.length === PIN_LENGTH) {
@@ -119,16 +145,18 @@ export const AuthInput: FC<PropsWithChildren<IAuthViewProps>> = ({
 
   return (
     <PinCodeView
-      error={isError}
+      shouldAnimateOnError
+      error={isError && errorMessage}
       title={title}
       subtitle={subtitle}
       pin={enteredPin}
       biometryType={biometryType}
-      children={children}
       onPinChange={onPinChange}
       onBiometry={onBiometryAuth}
-    />
+    >
+      {children}
+    </PinCodeView>
   );
 };
 
-export default AuthInput;
+export default PinCodeBiometryWrapper;

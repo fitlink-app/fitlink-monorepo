@@ -1,6 +1,6 @@
 import Intercom from '@intercom/intercom-react-native';
 import {AnyAction, combineReducers} from '@reduxjs/toolkit';
-import authSlice, {clearAuthResult} from './auth/slice';
+import authSlice, {resetAuthState} from './auth/slice';
 import discoverSlice from './discover/discoverSlice';
 import feedPreferencesSlice from './feedPreferences/feedPreferencesSlice';
 import settingsSlice from './settings/settingsSlice';
@@ -20,7 +20,7 @@ const rootReducer = (
   state: ReturnType<typeof appReducer>,
   action: AnyAction,
 ) => {
-  if (action.type === clearAuthResult.type) {
+  if (action.type === resetAuthState.type) {
     Intercom.logout().catch(e =>
       console.error('Failed to logout from Intercom: ', e),
     );

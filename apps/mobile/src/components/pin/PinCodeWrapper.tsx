@@ -1,12 +1,10 @@
 import React, {FC, useEffect} from 'react';
-import {View, Text} from 'react-native';
 import {useSelector} from 'react-redux';
-import {useNavigation} from '@react-navigation/core';
-import {StackNavigationProp} from '@react-navigation/stack';
+import styled from 'styled-components/native';
 
-import {BfitButton, IAuthViewProps, IOnSuccessProps} from '@components';
+import {IAuthViewProps, IOnSuccessProps} from '@components';
 import {AUTH_COOLDOWN_TIMEOUT} from '@constants';
-import {RootStackParamList} from '@routes';
+import theme from '@theme';
 
 import PinCodeBiometryWrapper from './PinCodeBiometryWrapper';
 import {
@@ -14,20 +12,20 @@ import {
   incrementPinErrorCount,
   resetLastPinErrorCountExceeded,
   resetPinErrorCount,
-  selectLastPinErrorCountExceeded,
+  selectPinErrorCountExceededAt,
   selectPinErrorsCount,
 } from '../../redux/auth';
 import {useAppDispatch} from '../../redux/store';
+import {Countdown} from './Countdown';
+
+const NUMBER_OF_ATTEMPTS = 5;
 
 export const PinCodeWrapper: FC<
   Omit<IAuthViewProps, 'onErrorChange' | 'error'>
 > = props => {
   const dispatch = useAppDispatch();
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
-  const lastCountExceededTimestamp = useSelector(
-    selectLastPinErrorCountExceeded,
-  );
+  const lastCountExceededTimestamp = useSelector(selectPinErrorCountExceededAt);
   const errorsCount = useSelector(selectPinErrorsCount);
 
   useEffect(() => {
@@ -61,8 +59,7 @@ export const PinCodeWrapper: FC<
     if (!hasError) {
       return;
     }
-    // TODO: Snackbar - show pin error
-    if (errorsCount >= 9) {
+    if (errorsCount >= NUMBER_OF_ATTEMPTS - 1) {
       dispatch(resetLastPinErrorCountExceeded());
     }
     dispatch(incrementPinErrorCount());
@@ -73,11 +70,9 @@ export const PinCodeWrapper: FC<
     lastCountExceededTimestamp + AUTH_COOLDOWN_TIMEOUT > Date.now()
   ) {
     return (
-      <View>
-        <Text>
-          Cooldown in {lastCountExceededTimestamp + AUTH_COOLDOWN_TIMEOUT}
-        </Text>
-      </View>
+      <Countdown
+        expiresAt={lastCountExceededTimestamp + AUTH_COOLDOWN_TIMEOUT}
+      />
     );
   }
 
@@ -91,18 +86,23 @@ export const PinCodeWrapper: FC<
       {...props}
       onSuccess={onSuccess}
       onErrorChange={onErrorChange}
+      errorMessage="Wrong pin code entered!"
     >
       {errorsCount >= 3 && (
-        <BfitButton
-          variant="primary"
-          text="Reset pin-code"
-          onPress={() => {
-            // TODO: navigate to Reset pin code
-          }}
-        />
+        <SDescription>{`Attempts left: ${
+          NUMBER_OF_ATTEMPTS - errorsCount
+        }`}</SDescription>
       )}
     </PinCodeBiometryWrapper>
   );
 };
+
+const SDescription = styled.Text({
+  fontSize: 16,
+  marginTop: 12,
+  fontWeight: 500,
+  fontFamily: 'Roboto',
+  color: theme.colors.text,
+});
 
 export default PinCodeWrapper;
