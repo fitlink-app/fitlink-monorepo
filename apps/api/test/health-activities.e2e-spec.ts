@@ -671,9 +671,11 @@ describe('Health Activities', () => {
   it('POST /me/ping Updates Fitbit steps for qualifying users on ping from device', async () => {
 
     await app.resolve(FitbitService, contextId).then((fitbitService) => {
-      fitbitService.fetchActivitySummaryByDay = jest.fn().mockReturnValueOnce({
-        summary: {
-          steps: 1999
+      fitbitService.fetchActivitySummaryByDay = jest.fn().mockReturnValueOnce(() => {
+        return {
+          summary: {
+            steps: 1999
+          }
         }
       })
       fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue('token')

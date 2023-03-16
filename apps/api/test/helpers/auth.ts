@@ -30,7 +30,7 @@ export function createTokenFor(userId: string, roles?: JWTRoles) {
     roles
   }
 
-  return jwtService.sign(payload)
+  return jwtService.sign(payload, {secret: process.env.AUTH_JWT_SECRET})
 }
 
 export function getAuthHeaders(
