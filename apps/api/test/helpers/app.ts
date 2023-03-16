@@ -1,5 +1,5 @@
 import { Reflector } from '@nestjs/core'
-import { Test } from '@nestjs/testing'
+import { Test, TestingModuleBuilder } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigService } from '@nestjs/config'
 import {
@@ -94,10 +94,12 @@ export const entities = [
   WalletTransaction
 ]
 
+
 export async function mockApp({
   imports = [],
   providers = [],
-  controllers = []
+  controllers = [],
+  overrideProvider = [],
 }) {
   const moduleRef = Test.createTestingModule({
     imports: [
@@ -122,6 +124,8 @@ export async function mockApp({
     controllers
   })
 
+
+
   const overrideRef = moduleRef
     .overrideProvider(ConfigService)
     .useValue(mockConfigService())
@@ -130,13 +134,17 @@ export async function mockApp({
     .overrideProvider(FirebaseAdminService)
     .useValue(mockFirebaseAdminService())
 
+  overrideProvider.forEach((provider) => {
+    overrideRef.overrideProvider(provider.provider).useValue(provider.value)
+  })
+
   const result = await overrideRef.compile()
 
   const fastifyAdapter = new FastifyAdapter()
   fastifyAdapter.register(fastifyMultipart)
 
   const app =
-    result.createNestApplication<NestFastifyApplication>(fastifyAdapter)
+    result.createNestApplication<NestFastifyApplication>(fastifyAdapter) as NestFastifyApplication
 
   // TODO: Lock to specific origins
   app.enableCors({

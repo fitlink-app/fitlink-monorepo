@@ -19,7 +19,7 @@ import FormDataMocker = require('form-data')
 // Mocks formdata and preserves TypeScript compatibility with browser version of FormData
 const mockFormData = () => (new FormDataMocker() as unknown) as FormData
 
-const api = makeApi(axios)
+const api = makeApi(axios, {clientId: 'Fitlink'})
 
 describe('list', () => {
   beforeEach(() => {

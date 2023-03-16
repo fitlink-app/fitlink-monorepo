@@ -1455,7 +1455,6 @@ export class LeaguesService {
    * @returns array of leaderboard entries
    */
   async getLeaderboardRankAndFlanks(leagueId: string, userId: string) {
-    debugger;
     const league = await this.findOneOwnedByOrParticipatingIn(leagueId, userId)
     if (!league) {
       return false
