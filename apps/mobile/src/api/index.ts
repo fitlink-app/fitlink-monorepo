@@ -38,6 +38,9 @@ const handleRefreshTokenRefused = async () => {
   }
 };
 
-export default makeApi(axios, {onRefreshTokenFail: handleRefreshTokenRefused});
+export default makeApi(axios, {
+  onRefreshTokenFail: handleRefreshTokenRefused,
+  clientId: 'BFIT',
+});
 
 export * from './fcmTokens';

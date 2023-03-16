@@ -38,7 +38,9 @@ export const api = makeApi(axios, {
   onRefreshTokenFail: () => {
     console.log('Refresh token failed')
     window.location.href = '/login'
-  }
+  },
+  // TODO: Likely need to change this to a dynamic value
+  clientId: 'Fitlink'
 })
 
 // URLs where localStorage state can be completely

@@ -42,7 +42,8 @@ type MethodConfig = {
 }
 
 export type ApiOptions = {
-  onRefreshTokenFail: () => void
+  onRefreshTokenFail?: () => void,
+  clientId: string
 }
 
 export class Api {
@@ -58,6 +59,7 @@ export class Api {
     this.options = options
     this.useToken()
     this.useRefreshInterceptor()
+    this.useClientId();
   }
 
   /**
@@ -76,6 +78,16 @@ export class Api {
       if (this.tokens && this.tokens.access_token) {
         config.headers.Authorization = `Bearer ${this.tokens.access_token}`
       }
+      return config
+    })
+  }
+
+  /**
+   * Creates an interceptor that sets the X-CLIENT-Id header
+   */
+  useClientId() {
+    this.axios.interceptors.request.use(async (config) => {
+      config.headers['X-CLIENT-ID'] = this.options.clientId;
       return config
     })
   }
@@ -579,10 +591,11 @@ export class Api {
 
 export function makeApi(
   axios: AxiosInstance,
-  options: ApiOptions = {
-    onRefreshTokenFail: noop
-  }
+  options: ApiOptions
 ) {
+  if (!options.onRefreshTokenFail) {
+    options.onRefreshTokenFail = noop;
+  }
   return new Api(axios, options)
 }
 

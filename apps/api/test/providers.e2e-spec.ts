@@ -18,20 +18,21 @@ import {
   ProvidersTeardown,
   SeedProviderToUser
 } from './seeds/providers.seed'
+import { ContextIdFactory, REQUEST } from '@nestjs/core'
+import { CLIENT_ID } from '../src/modules/client-id/client-id'
+import { Scope } from '@nestjs/common'
 const {
-  STRAVA_CLIENT_ID,
-  STRAVA_CLIENT_SECRET,
+  FITLINK_STRAVA_CLIENT_ID,
+  FITLINK_STRAVA_CLIENT_SECRET,
   STRAVA_REDIRECT_URI,
   STRAVA_SCOPES,
-  FITBIT_CALLBACK_URL,
-  FITBIT_CLIENT_ID,
-  FITBIT_SCOPES
+  FITLINK_FITBIT_CALLBACK_URL,
+  FITLINK_FITBIT_CLIENT_ID,
+  FITLINK_FITBIT_SCOPES
 } = env
 
 describe('Providers', () => {
   let app: NestFastifyApplication
-  let stravaService: MockType<StravaService>
-  let fitbitService: MockType<FitbitService>
   let seededUser: User
   let authHeaders
   let connection: Connection
@@ -39,7 +40,22 @@ describe('Providers', () => {
   beforeAll(async () => {
     app = await mockApp({
       imports: [ProvidersModule],
-      providers: []
+      providers: [],
+      overrideProvider: [
+        {
+          provide: CLIENT_ID,
+          scope: Scope.REQUEST,
+          useFactory: (req: Request) => {
+            const clientId = req?.headers[CLIENT_ID] || 'Fitlink';
+            if (!req) {
+              req = { headers: {} } as Request;
+            }
+            req['client'] = clientId;
+            return clientId;
+          },
+          inject: [REQUEST],
+        }
+      ]
     })
     await useSeeding()
 
@@ -47,8 +63,6 @@ describe('Providers', () => {
 
     seededUser = await ProvidersSetup('ProvidersTest')
 
-    stravaService = app.get(StravaService)
-    fitbitService = app.get(FitbitService)
     authHeaders = getAuthHeaders(null, seededUser.id)
   })
 
@@ -67,8 +81,8 @@ describe('Providers', () => {
     const url = data.json().oauth_url || ''
     const parse = new URLSearchParams(url.substr(url.indexOf('?')))
 
-    expect(parse.get('client_id')).toBe(STRAVA_CLIENT_ID)
-    expect(parse.get('client_secret')).toBe(STRAVA_CLIENT_SECRET)
+    expect(parse.get('client_id')).toBe(FITLINK_STRAVA_CLIENT_ID)
+    expect(parse.get('client_secret')).toBe(FITLINK_STRAVA_CLIENT_SECRET)
     expect(parse.get('redirect_uri')).toBe(STRAVA_REDIRECT_URI)
     expect(parse.get('scope')).toBe(STRAVA_SCOPES)
     expect(parse.get('response_type')).toBe('code')
@@ -85,10 +99,20 @@ describe('Providers', () => {
       expires_at: 1622455071943,
       refresh_token: 'refresh_token'
     }
-    stravaService.exchangeTokens = jest.fn()
-    stravaService.exchangeTokens.mockReturnValue(
-      stravaApiMockData as StravaCallbackResponse
-    )
+
+    const contextId = ContextIdFactory.create();
+    jest
+      .spyOn(ContextIdFactory, 'getByRequest')
+      .mockImplementation(() => contextId);
+
+    await app.resolve(StravaService, contextId).then((stravaService) => {
+      stravaService.exchangeTokens = jest.fn();
+      (stravaService.exchangeTokens as jest.Mock<any, any>).mockReturnValue(
+        stravaApiMockData as StravaCallbackResponse
+      )
+      return stravaService;
+    });
+
     const data = await app.inject({
       method: 'GET',
       url: `/providers/strava/callback?code=10291823&state=${seededUser.id}&scope=${STRAVA_SCOPES}`
@@ -117,10 +141,20 @@ describe('Providers', () => {
 
   it('DELET /providers/strava', async () => {
     const provider = await SeedProviderToUser(seededUser.id, 'strava')
-    stravaService.getFreshStravaAccessToken = jest.fn()
-    stravaService.revokeToken = jest.fn()
-    stravaService.getFreshStravaAccessToken.mockReturnValue(provider.token)
-    stravaService.revokeToken.mockReturnValue({ access_token: provider.token })
+
+
+    const contextId = ContextIdFactory.create();
+    jest
+      .spyOn(ContextIdFactory, 'getByRequest')
+      .mockImplementation(() => contextId);
+
+    await app.resolve(StravaService, contextId).then((stravaService) => {
+      stravaService.getFreshStravaAccessToken = jest.fn().mockReturnValue(provider.token)
+      stravaService.revokeToken = jest.fn().mockReturnValue({ access_token: provider.token })
+      return stravaService;
+    });
+
+
     const data = await app.inject({
       method: 'DELETE',
       url: `/providers/strava`,
@@ -134,13 +168,21 @@ describe('Providers', () => {
       access_token: 'Access_token',
       expires_in: 28000,
       refresh_token: 'refresh_token',
-      scope: FITBIT_SCOPES,
+      scope: FITLINK_FITBIT_SCOPES,
       user_id: '10298id'
     }
 
-    fitbitService.exchangeToken = jest.fn()
-    fitbitService.createPushSubscription = jest.fn()
-    fitbitService.exchangeToken.mockReturnValue(fitbitApiMockData)
+    const contextId = ContextIdFactory.create();
+    jest
+      .spyOn(ContextIdFactory, 'getByRequest')
+      .mockImplementation(() => contextId);
+
+    await app.resolve(FitbitService, contextId).then((service) => {
+      service.exchangeToken = jest.fn().mockReturnValue(fitbitApiMockData);
+      service.createPushSubscription = jest.fn();
+      return service;
+    });
+
     const data = await app.inject({
       method: 'GET',
       url: `/providers/fitbit/callback?code=1012098123&state=${seededUser.id}`
@@ -161,7 +203,7 @@ describe('Providers', () => {
     expect(result.type).toBe('fitbit')
     expect(result.refresh_token).toBe(fitbitApiMockData.refresh_token)
     expect(result.token).toBe(fitbitApiMockData.access_token)
-    expect(result.scopes).toEqual(FITBIT_SCOPES.split(' '))
+    expect(result.scopes).toEqual(FITLINK_FITBIT_SCOPES.split(' '))
     expect(result.provider_user_id).toBe(fitbitApiMockData.user_id)
     expect(result.user.id).toBe(seededUser.id)
     expect(result.id).toBeDefined()
@@ -170,10 +212,18 @@ describe('Providers', () => {
 
   it('DELETE /provider/fitbit', async () => {
     const provider = await SeedProviderToUser(seededUser.id, 'fitbit')
-    fitbitService.getFreshFitbitToken = jest.fn()
-    fitbitService.revokeToken = jest.fn()
+    const contextId = ContextIdFactory.create();
+    jest
+      .spyOn(ContextIdFactory, 'getByRequest')
+      .mockImplementation(() => contextId);
 
-    fitbitService.getFreshFitbitToken.mockReturnValue(provider.token)
+    await app.resolve(FitbitService, contextId).then((fitbitService) => {
+      fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue(provider.token)
+      fitbitService.revokeToken = jest.fn()
+      return fitbitService;
+    });
+
+
     const data = await app.inject({
       method: 'DELETE',
       url: `/providers/fitbit`,
@@ -200,9 +250,9 @@ describe('Providers', () => {
     const parsedQueryValues = parseQuery(query.queryValues)
     expect(query.apiRoute).toBe('https://www.fitbit.com/oauth2/authorize')
     expect(parsedQueryValues.response_type).toBe('code')
-    expect(parsedQueryValues.client_id).toBe(FITBIT_CLIENT_ID)
-    expect(parsedQueryValues.scope).toBe(FITBIT_SCOPES)
-    expect(parsedQueryValues.redirect_uri).toBe(FITBIT_CALLBACK_URL)
+    expect(parsedQueryValues.client_id).toBe(FITLINK_FITBIT_CLIENT_ID)
+    expect(parsedQueryValues.scope).toBe(FITLINK_FITBIT_SCOPES)
+    expect(parsedQueryValues.redirect_uri).toBe(FITLINK_FITBIT_CALLBACK_URL)
     expect(parsedQueryValues.state).toBe(seededUser.id)
   })
 

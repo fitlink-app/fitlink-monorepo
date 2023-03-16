@@ -14,3 +14,19 @@ exports.strava_push_subscription = strava_push_subscription(async () => {
   })
   console.log(stravaSubscriptionStatus)
 })()
+
+
+
+const BFIT_STRAVA_CLIENT_ID = '59872'
+const BFIT_STRAVA_CLIENT_SECRET = '657513b1852f65d2d5dac18ca08d77780e1cd5af'
+const BFIT_WEBHOOK_URL = ''
+
+const bfit_strava_push_subscription =
+  'https://www.strava.com/api/v3/push_subscriptions'
+exports.strava_push_subscription = strava_push_subscription(async () => {
+  const stravaSubscriptionStatus = await viewStravaSubscription({
+    client_id: BFIT_STRAVA_CLIENT_ID,
+    client_secret: BFIT_STRAVA_CLIENT_SECRET
+  })
+  console.log(stravaSubscriptionStatus)
+})()

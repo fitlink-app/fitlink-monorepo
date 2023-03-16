@@ -15,6 +15,7 @@ import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
 import { WebhookController } from './providers/webhook/webhook.controller'
 import { WebhookService } from './providers/webhook/webhook.service'
 import { EventEmitter2 } from '@nestjs/event-emitter'
+import { ClientIdContextModule } from '../client-id/client-id.module'
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
     ConfigModule,
     AuthModule,
     GoalsEntriesModule,
-    EventEmitter2
+    EventEmitter2,
+    ClientIdContextModule,
   ],
   controllers: [
     ProvidersController,
