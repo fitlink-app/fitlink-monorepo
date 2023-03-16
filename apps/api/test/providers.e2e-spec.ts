@@ -41,7 +41,7 @@ describe('Providers', () => {
       imports: [ProvidersModule],
       providers: [],
       overrideProvider: [
-        { provider: REQUEST, value: { headers: { [CLIENT_ID]: 'Fitlink' } } }
+        // { provider: REQUEST, value: { headers: { [CLIENT_ID]: 'Fitlink' } } }
       ]
     })
     await useSeeding()

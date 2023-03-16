@@ -72,7 +72,7 @@ describe('Health Activities', () => {
       ],
       providers: [],
       overrideProvider: [
-        { provider: REQUEST, value: { headers: { [CLIENT_ID]: 'Fitlink' } } }
+        // { provider: REQUEST, value: { headers: { [CLIENT_ID]: 'Fitlink' } } }
       ]
     })
     connection = getConnection()
