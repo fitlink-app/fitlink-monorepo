@@ -17,7 +17,7 @@ import { AuthenticatedUser } from '../../../../models/authenticated-user.model'
 import { StravaEventData } from '../../types/strava'
 import { OauthUrl } from './strava.dto'
 import { StravaService } from './strava.service'
-import { ClientId } from '../../../client-id/client-id.decorator'
+import { ClientIdParam } from '../../../client-id/client-id.decorator'
 import { ClientIdType } from '../../../client-id/client-id.constant'
 
 @Controller('/providers/strava')
@@ -31,35 +31,35 @@ export class StravaControler {
   verifyWebhook(
     @Query('hub.challenge') challenge: string,
     @Query('hub.verify_token') token: string,
-    @ClientId() clientId: ClientIdType
+    @ClientIdParam() clientId: ClientIdType
   ) {
     return this.stravaService.verifyWebhook(token, challenge, clientId)
   }
 
   @Get('/webhook/view')
-  readWebhook(@ClientId() clientId: ClientIdType) {
+  readWebhook(@ClientIdParam() clientId: ClientIdType) {
     return this.stravaService.viewWebhook(clientId)
   }
 
   @Post('/webhook/register')
-  registerWebhook(@ClientId() clientId: ClientIdType) {
+  registerWebhook(@ClientIdParam() clientId: ClientIdType) {
     return this.stravaService.registerWebhook(clientId)
   }
 
   @Delete('/webhook/register/:id')
-  deregisterWebhook(@Param('id') id: string, @ClientId() clientId: ClientIdType) {
+  deregisterWebhook(@Param('id') id: string, @ClientIdParam() clientId: ClientIdType) {
     return this.stravaService.deregisterWebhook(id, clientId)
   }
 
   @Public()
   @Post('/webhook')
-  webhookReceiver(@Body() stravaEventData: StravaEventData, @ClientId() clientId: ClientIdType) {
+  webhookReceiver(@Body() stravaEventData: StravaEventData, @ClientIdParam() clientId: ClientIdType) {
     return this.stravaService.processStravaData(stravaEventData, clientId)
   }
 
   @ApiResponse({ type: OauthUrl, status: 200 })
   @Get('/auth')
-  getOAuthUrl(@User() user: AuthenticatedUser, @ClientId() clientId: ClientIdType) {
+  getOAuthUrl(@User() user: AuthenticatedUser, @ClientIdParam() clientId: ClientIdType) {
     return this.stravaService.getOAuthUrl(user.id, clientId)
   }
 
@@ -70,7 +70,7 @@ export class StravaControler {
     @Query('state') state: string,
     @Query('scope') scope: string,
     @Res() res,
-    @ClientId() clientId: ClientIdType
+    @ClientIdParam() clientId: ClientIdType
   ) {
     try {
       await this.stravaService.saveStravaProvider(code, state, scope, clientId)
@@ -81,7 +81,7 @@ export class StravaControler {
   }
 
   @Delete()
-  deAuthorize(@User() user: AuthenticatedUser, @ClientId() clientId: ClientIdType) {
+  deAuthorize(@User() user: AuthenticatedUser, @ClientIdParam() clientId: ClientIdType) {
     return this.stravaService.deAuthorize(user.id, clientId)
   }
 }

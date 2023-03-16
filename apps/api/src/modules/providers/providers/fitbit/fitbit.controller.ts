@@ -19,7 +19,7 @@ import { User } from '../../../../decorators/authenticated-user.decorator'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ApiBaseResponses } from '../../../../decorators/swagger.decorator'
 import { OauthUrl } from '../fitbit/fitbit.dto'
-import { ClientId } from '../../../client-id/client-id.decorator'
+import { ClientIdParam } from '../../../client-id/client-id.decorator'
 import { ClientIdType } from '../../../client-id/client-id.constant'
 
 @Controller('/providers/fitbit')
@@ -38,7 +38,7 @@ export class FitbitController {
   @Public()
   @HttpCode(204)
   @Get('/webhook/:type')
-  verifyWebhook(@Query('verify') verify: string, @Param('type') type: string, @ClientId() clientId: ClientIdType) {
+  verifyWebhook(@Query('verify') verify: string, @Param('type') type: string, @ClientIdParam() clientId: ClientIdType) {
     if (!this.fitbitService.verifyWebhook(verify, type, clientId)) {
       throw new NotFoundException()
     }

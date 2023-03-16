@@ -107,7 +107,7 @@ export class StravaService {
   ) {
     const envPrefix = client_id === 'Fitlink' ? 'FITLINK_' : 'BFIT_'
     const config = {
-      id: this.configService.get(`${envPrefix}STRAVA_client_id`),
+      id: this.configService.get(`${envPrefix}STRAVA_CLIENT_ID`),
       secret: this.configService.get(`${envPrefix}STRAVA_CLIENT_SECRET`),
       uri: this.configService.get('STRAVA_REDIRECT_URI'),
       scopes: this.configService.get('STRAVA_SCOPES'),
