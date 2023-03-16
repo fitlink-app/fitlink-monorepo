@@ -46,6 +46,7 @@ import { ContextId, ContextIdFactory, REQUEST } from '@nestjs/core'
 import { CLIENT_ID } from '../src/modules/client-id/client-id'
 import { mockApp } from './helpers/app'
 import { Scope } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 
 describe('Health Activities', () => {
   let app: NestFastifyApplication
@@ -670,18 +671,21 @@ describe('Health Activities', () => {
 
   it('POST /me/ping Updates Fitbit steps for qualifying users on ping from device', async () => {
 
-    await app.resolve(FitbitService, contextId).then((fitbitService) => {
-      fitbitService.fetchActivitySummaryByDay = jest.fn().mockReturnValueOnce(() => {
-        return {
-          summary: {
-            steps: 1999
-          }
-        }
-      })
-      fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue('token')
-      return fitbitService;
-    });
+    const emitter = app.get(EventEmitter2)
 
+    emitter.emitAsync = jest.fn().mockImplementation(async (event, data) => {
+      const fitbitService = await app.resolve(FitbitService).then((fitbitService) => {
+        fitbitService.fetchActivitySummaryByDay = jest.fn().mockReturnValueOnce({
+            summary: {
+              steps: 1999
+            }
+        })
+        fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue('token')
+        return fitbitService;
+      });
+
+      fitbitService.onUserPingEvent(data);
+    });
 
     await app.inject({
       method: 'PUT',
