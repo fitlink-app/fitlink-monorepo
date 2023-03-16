@@ -675,16 +675,16 @@ describe('Health Activities', () => {
 
     emitter.emitAsync = jest.fn().mockImplementation(async (event, data) => {
       const fitbitService = await app.resolve(FitbitService).then((fitbitService) => {
-        fitbitService.fetchActivitySummaryByDay = jest.fn().mockReturnValueOnce({
+        fitbitService.fetchActivitySummaryByDay = jest.fn().mockReturnValueOnce(({
             summary: {
               steps: 1999
             }
-        })
+        }))
         fitbitService.getFreshFitbitToken = jest.fn().mockReturnValue('token')
         return fitbitService;
       });
 
-      fitbitService.onUserPingEvent(data);
+      return fitbitService.onUserPingEvent(data);
     });
 
     await app.inject({

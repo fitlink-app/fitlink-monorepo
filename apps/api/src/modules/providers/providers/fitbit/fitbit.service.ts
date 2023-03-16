@@ -501,6 +501,6 @@ export class FitbitService {
       water_litres: 0,
       mindfulness: 0
     }
-    await this.prcoessDailyGoalsHistory(payload.id, lifestyleStats)
+    return await this.prcoessDailyGoalsHistory(payload.id, lifestyleStats)
   }
 }
