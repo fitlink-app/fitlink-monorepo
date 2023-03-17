@@ -18,12 +18,14 @@ import {getViewBfitValue} from '@utils';
 import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {LeagueAccess} from '@fitlink/api/src/modules/leagues/leagues.constants';
 import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/entities/leaderboard-entry.entity';
+import {
+  LeaderboardItemSkeleton,
+  LeaderboardHeaderCardSkeleton,
+  getComponentsList,
+} from '@components';
 
 import AnimatedLeaderboardHeaderCard from './AnimatedLeaderboardHeaderCard';
 import {LeaderboardItem} from './LeaderboardItem';
-import {LeaderboardItemSkeleton} from '../../../components/skeleton/leaderboard/LeaderboardItemSkeleton';
-import {LeaderboardHeaderCardSkeleton} from '../../../components/skeleton/leaderboard/LeaderboardHeaderCardSkeleton';
-import {getComponentsList} from '@components';
 
 const AnimatedFlatList =
   Animated.createAnimatedComponent<FlatListProps<LeaderboardEntry>>(FlatList);

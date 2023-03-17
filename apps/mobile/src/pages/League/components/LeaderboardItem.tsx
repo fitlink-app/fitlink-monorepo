@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import {Avatar, Icon, Label, LabelProps, TouchHandler} from '@components';
-import theme from '../../../theme/themes/fitlink';
 
-export const ITEM_HEIGHT = 82;
+import {Avatar, Icon, Label, LabelProps, TouchHandler} from '@components';
+import theme from '@theme';
+import {ITEM_HEIGHT} from '@pages';
 
 const SelfIndicator = () => (
   <>
@@ -31,15 +31,15 @@ interface LeaderboardItemProps {
 }
 
 export const LeaderboardItem: React.FC<LeaderboardItemProps> = ({
-                                                                  rank,
-                                                                  name,
-                                                                  avatarUrl,
-                                                                  points,
-                                                                  bfit,
-                                                                  isSelf,
-                                                                  onPress,
-                                                                  wins,
-                                                                }) => {
+  rank,
+  name,
+  avatarUrl,
+  points,
+  bfit,
+  isSelf,
+  onPress,
+  wins,
+}) => {
   const rowBackgroundColor =
     parseInt(rank) % 2 === 1 ? theme.colors.background : theme.colors.card;
 

@@ -6,14 +6,14 @@ import {Skeleton} from '@components';
 export const LeaderboardHeaderCardSkeleton: React.FC = () => {
   return (
     <Skeleton>
-      <View>
+      <>
         <View style={styles.image} />
         <View style={styles.line} />
         <View style={styles.row}>
           <View style={styles.skeletonLeaderboard} />
           <View style={styles.skeletonClaimButton} />
         </View>
-      </View>
+      </>
     </Skeleton>
   );
 };

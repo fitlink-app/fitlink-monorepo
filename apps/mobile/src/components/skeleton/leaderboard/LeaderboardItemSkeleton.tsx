@@ -3,8 +3,7 @@ import React from 'react';
 
 import {Skeleton} from '@components';
 import theme from '@theme';
-
-import {ITEM_HEIGHT} from '../../../pages/League/components/LeaderboardItem';
+import {ITEM_HEIGHT} from '@pages';
 
 interface LeaderboardItemSkeletonProps {
   index?: number;

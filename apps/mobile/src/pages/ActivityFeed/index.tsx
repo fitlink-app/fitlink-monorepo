@@ -146,7 +146,7 @@ export const ActivityFeed = () => {
         </TouchHandler>
       </SHeader>
 
-      {isLoading && <View>{getComponentsList(7, FeedItemSkeleton)}</View>}
+      {isLoading && getComponentsList(7, FeedItemSkeleton)}
 
       <FlatList
         renderItem={renderItem}

@@ -1,9 +1,7 @@
 import React from 'react';
-import {Dimensions, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
 import {Skeleton} from '@components';
-
-const {width} = Dimensions.get('screen');
 
 export const CteLeagueSkeleton = () => {
   return (
@@ -32,7 +30,6 @@ const styles = StyleSheet.create({
   },
   leagueSkeleton: {
     borderRadius: 20,
-    width: width - 40,
     height: 350,
     marginHorizontal: 20,
     marginTop: 23,

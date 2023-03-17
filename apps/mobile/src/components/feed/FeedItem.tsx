@@ -566,8 +566,8 @@ const IconContainer = styled.View(({theme: {colors}}) => ({
   alignItems: 'center',
   justifyContent: 'center',
   borderRadius: 18,
-  height: widthLize(76),
-  width: widthLize(76),
+  height: 76,
+  width: 76,
   backgroundColor: colors.surface,
 }));
 

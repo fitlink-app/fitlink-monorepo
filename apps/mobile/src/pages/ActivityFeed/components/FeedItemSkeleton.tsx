@@ -1,7 +1,6 @@
 import {StyleSheet, View} from 'react-native';
 import React from 'react';
 
-import {} from '@utils';
 import {Skeleton} from '@components';
 
 export const FeedItemSkeleton = () => {

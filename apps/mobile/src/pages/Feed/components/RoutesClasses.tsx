@@ -6,7 +6,7 @@ import {BlurView} from '@react-native-community/blur';
 import {useNavigation} from '@react-navigation/core';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 
-import {Card, Label, TouchHandler} from '@components';
+import {Card, Label, TouchHandler, HorizontalSliderSkeleton} from '@components';
 import {getDistanceFromLatLonInKm, widthLize} from '@utils';
 import {useFindActivitiesMap} from '@hooks';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
@@ -14,7 +14,6 @@ import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {setCurrentLocation} from '../../../redux/discover/discoverSlice';
 import {FEED_CARD_HEIGHT, FEED_CAROUSEL_CARD_WIDTH} from '../constants';
 import {ActivityDetailsModal} from '../../Discover/components';
-import {HorizontalSliderSkeleton} from '../../../components/skeleton/HorizontalSliderSkeleton';
 
 interface RoutesClassesProps {
   containerStyle?: StyleProp<ViewStyle>;
