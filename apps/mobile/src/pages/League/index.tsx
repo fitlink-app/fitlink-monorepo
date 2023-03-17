@@ -38,6 +38,7 @@ export const League = () => {
     isFetching: isFetchingLeague,
     refetch: refetchLeague,
     isFetchedAfterMount: isLeagueFetchedAfterMount,
+    isLoading: isLeagueLoading,
   } = useLeague(id, areInteractionsDone);
 
   const {
@@ -46,6 +47,7 @@ export const League = () => {
     fetchNextPage: fetchMoreMembers,
     isFetchingNextPage: isFetchingMembersNextPage,
     isFetchedAfterMount: areMembersFetchedAfterMount,
+    isLoading: isMembersLoading,
     data: membersPages,
   } = useLeagueMembers(id);
 
@@ -76,7 +78,6 @@ export const League = () => {
     return (
       <Wrapper>
         <Navbar scrollAnimatedValue={scrollValue} iconColor={'white'} overlay />
-        <BfitSpinner wrapperStyle={styles.loadingWrapper} />
       </Wrapper>
     );
   }
@@ -114,6 +115,8 @@ export const League = () => {
           activeLeague={activeLeague}
           bFitToClaimRaw={bFitToClaimRaw}
           data={members}
+          isMembersLoading={isMembersLoading}
+          isLeagueLoading={isLeagueLoading}
           userId={user!.id}
           refreshing={isRefreshing}
           onRefresh={refreshLeaderboard}

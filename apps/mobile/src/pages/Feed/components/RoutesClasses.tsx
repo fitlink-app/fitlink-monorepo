@@ -1,17 +1,164 @@
 import React, {FC, useEffect, useRef, useState} from 'react';
-import {Card, Label, TouchHandler} from '../../../components/common';
 import styled from 'styled-components/native';
-import {BlurView} from '@react-native-community/blur';
-import {useNavigation} from '@react-navigation/core';
-import {getDistanceFromLatLonInKm, widthLize} from '@utils';
-import {useFindActivitiesMap} from '@hooks';
-import MapboxGL from '@react-native-mapbox-gl/maps';
-import {ActivityDetailsModal} from '../../Discover/components';
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {setCurrentLocation} from '../../../redux/discover/discoverSlice';
 import {useDispatch} from 'react-redux';
 import {StyleProp, View, ViewStyle} from 'react-native';
+import {BlurView} from '@react-native-community/blur';
+import {useNavigation} from '@react-navigation/core';
+import MapboxGL from '@react-native-mapbox-gl/maps';
+
+import {Card, Label, TouchHandler} from '@components';
+import {getDistanceFromLatLonInKm, widthLize} from '@utils';
+import {useFindActivitiesMap} from '@hooks';
+import {BottomSheetModal} from '@gorhom/bottom-sheet';
+
+import {setCurrentLocation} from '../../../redux/discover/discoverSlice';
 import {FEED_CARD_HEIGHT, FEED_CAROUSEL_CARD_WIDTH} from '../constants';
+import {ActivityDetailsModal} from '../../Discover/components';
+import {HorizontalSliderSkeleton} from '../../../components/skeleton/HorizontalSliderSkeleton';
+
+interface RoutesClassesProps {
+  containerStyle?: StyleProp<ViewStyle>;
+}
+
+export const RoutesClasses: FC<RoutesClassesProps> = ({containerStyle}) => {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const [userLocation, setUserLocation] = useState({
+    lat: 0,
+    lng: 0,
+  });
+  const [modalActivityId, setModalActivityId] = useState<string>();
+
+  const detailsModalRef = useRef<BottomSheetModal>(null);
+
+  useEffect(() => {
+    MapboxGL.requestAndroidLocationPermissions();
+  }, []);
+
+  const handleOnDetailsBackPressed = () => {
+    detailsModalRef.current?.close();
+  };
+
+  const onUserLocationUpdate = (location: any) => {
+    const {latitude, longitude} = location.coords;
+    setUserLocation({lat: latitude, lng: longitude});
+    dispatch(setCurrentLocation({lat: latitude, lng: longitude}));
+  };
+
+  const {data: activityMarkersData, isLoading: isLoading} =
+    useFindActivitiesMap({
+      geo_radial: `${userLocation?.lat},${userLocation?.lng},15`,
+    });
+
+  const renderActivities = () => {
+    const d = activityMarkersData?.results.sort((a, b) => {
+      const aDist = getDistanceFromLatLonInKm(
+        //@ts-ignore
+        a.meeting_point.coordinates[0],
+        //@ts-ignore
+        a.meeting_point.coordinates[1],
+        userLocation?.lat,
+        userLocation?.lng,
+      );
+      const bDist = getDistanceFromLatLonInKm(
+        //@ts-ignore
+        b.meeting_point.coordinates[0],
+        //@ts-ignore
+        b.meeting_point.coordinates[1],
+        userLocation?.lat,
+        userLocation?.lng,
+      );
+      return aDist - bDist;
+    });
+
+    return d?.map((item, index) => {
+      const dist = getDistanceFromLatLonInKm(
+        //@ts-ignore
+        item.meeting_point.coordinates[0],
+        //@ts-ignore
+        item.meeting_point.coordinates[1],
+        userLocation?.lat,
+        userLocation?.lng,
+      );
+
+      let distanceString = '';
+
+      if (dist >= 1) {
+        // km
+        const value = dist >= 1000 ? dist.toFixed(0) : dist.toFixed(1);
+        distanceString = `${value} km away`;
+      } else {
+        // meter
+        const value = (dist * 1000).toFixed(0);
+        distanceString = `${value} meters away`;
+      }
+      return (
+        <TouchHandler
+          key={index}
+          onPress={() => {
+            setModalActivityId(item.id);
+            detailsModalRef.current?.present();
+          }}
+        >
+          <CardContainer>
+            <CardImage
+              source={require('../../../../assets/images/classes-2.png')}
+            />
+            <BlurView
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: 53,
+                backgroundColor: 'rgba(0,0,0,0.2)',
+              }}
+              blurRadius={1}
+              overlayColor={'transparent'}
+            />
+            <CardHeader>
+              <DateText>{item.type.toUpperCase()}</DateText>
+            </CardHeader>
+            <CardBody style={{backgroundColor: 'rgba(0, 0, 0, 0.4)'}}>
+              <GoalText>{item.name}</GoalText>
+              <RecordValue>{distanceString}</RecordValue>
+            </CardBody>
+          </CardContainer>
+        </TouchHandler>
+      );
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <View style={containerStyle}>
+        <HorizontalSliderSkeleton />
+      </View>
+    );
+  }
+
+  return (
+    <View style={containerStyle}>
+      <HeaderContainer>
+        <Title>Routes And Classes</Title>
+        <TouchHandler
+          onPress={() => {
+            navigation.navigate('Discover');
+          }}
+        >
+          <SeeAllText>see all</SeeAllText>
+        </TouchHandler>
+      </HeaderContainer>
+
+      <SliderContainer>{renderActivities()}</SliderContainer>
+      <MapboxGL.UserLocation visible={true} onUpdate={onUserLocationUpdate} />
+      <ActivityDetailsModal
+        ref={detailsModalRef}
+        onBack={handleOnDetailsBackPressed}
+        stackBehavior={'push'}
+        activityId={modalActivityId}
+      />
+    </View>
+  );
+};
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
@@ -110,136 +257,3 @@ const GoalText = styled(Label).attrs(() => ({
   fontSize: 18,
   lineHeight: 21,
 });
-
-interface RoutesClassesProps {
-  containerStyle?: StyleProp<ViewStyle>;
-}
-
-export const RoutesClasses: FC<RoutesClassesProps> = ({containerStyle}) => {
-  const navigation = useNavigation();
-  const dispatch = useDispatch();
-  const [userLocation, setUserLocation] = useState({
-    lat: 0,
-    lng: 0,
-  });
-  const [modalActivityId, setModalActivityId] = useState<string>();
-
-  const detailsModalRef = useRef<BottomSheetModal>(null);
-
-  useEffect(() => {
-    MapboxGL.requestAndroidLocationPermissions();
-  }, []);
-
-  const handleOnDetailsBackPressed = () => {
-    detailsModalRef.current?.close();
-  };
-
-  const onUserLocationUpdate = (location: any) => {
-    const {latitude, longitude} = location.coords;
-    setUserLocation({lat: latitude, lng: longitude});
-    dispatch(setCurrentLocation({lat: latitude, lng: longitude}));
-  };
-
-  const {data: activityMarkersData} = useFindActivitiesMap({
-    geo_radial: `${userLocation?.lat},${userLocation?.lng},15`,
-  });
-
-  const renderActivities = () => {
-    const d = activityMarkersData?.results.sort((a, b) => {
-      const aDist = getDistanceFromLatLonInKm(
-        //@ts-ignore
-        a.meeting_point.coordinates[0],
-        //@ts-ignore
-        a.meeting_point.coordinates[1],
-        userLocation?.lat,
-        userLocation?.lng,
-      );
-      const bDist = getDistanceFromLatLonInKm(
-        //@ts-ignore
-        b.meeting_point.coordinates[0],
-        //@ts-ignore
-        b.meeting_point.coordinates[1],
-        userLocation?.lat,
-        userLocation?.lng,
-      );
-      return aDist - bDist;
-    });
-
-    return d?.map((item, index) => {
-      const dist = getDistanceFromLatLonInKm(
-        //@ts-ignore
-        item.meeting_point.coordinates[0],
-        //@ts-ignore
-        item.meeting_point.coordinates[1],
-        userLocation?.lat,
-        userLocation?.lng,
-      );
-
-      let distanceString = '';
-
-      if (dist >= 1) {
-        // km
-        const value = dist >= 1000 ? dist.toFixed(0) : dist.toFixed(1);
-        distanceString = `${value} km away`;
-      } else {
-        // meter
-        const value = (dist * 1000).toFixed(0);
-        distanceString = `${value} meters away`;
-      }
-      return (
-        <TouchHandler
-          key={index}
-          onPress={() => {
-            setModalActivityId(item.id);
-            detailsModalRef.current?.present();
-          }}>
-          <CardContainer>
-            <CardImage
-              source={require('../../../../assets/images/classes-2.png')}
-            />
-            <BlurView
-              style={{
-                position: 'absolute',
-                width: '100%',
-                height: 53,
-                backgroundColor: 'rgba(0,0,0,0.2)',
-              }}
-              blurRadius={1}
-              overlayColor={'transparent'}
-            />
-            <CardHeader>
-              <DateText>{item.type.toUpperCase()}</DateText>
-            </CardHeader>
-            <CardBody style={{backgroundColor: 'rgba(0, 0, 0, 0.4)'}}>
-              <GoalText>{item.name}</GoalText>
-              <RecordValue>{distanceString}</RecordValue>
-            </CardBody>
-          </CardContainer>
-        </TouchHandler>
-      );
-    });
-  };
-
-  return (
-    <View style={containerStyle}>
-      <HeaderContainer>
-        <Title>Routes And Classes</Title>
-        <TouchHandler
-          onPress={() => {
-            navigation.navigate('Discover');
-          }}>
-          <SeeAllText>see all</SeeAllText>
-        </TouchHandler>
-      </HeaderContainer>
-
-      <SliderContainer>{renderActivities()}</SliderContainer>
-      <MapboxGL.UserLocation visible={true} onUpdate={onUserLocationUpdate} />
-      <ActivityDetailsModal
-        ref={detailsModalRef}
-        onBack={handleOnDetailsBackPressed}
-        stackBehavior={'push'}
-        activityId={modalActivityId}
-      />
-    </View>
-  );
-};

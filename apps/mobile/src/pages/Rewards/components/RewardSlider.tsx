@@ -7,40 +7,16 @@ import {
   View,
   StyleSheet,
 } from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import styled from 'styled-components/native';
 
-import {Label, TouchHandler} from '@components';
+import {Label, TouchHandler, BfitSpinner} from '@components';
 import {RewardPublic} from '@fitlink/api/src/modules/rewards/entities/reward.entity';
-import {RewardCard} from '.';
-import {useNavigation} from '@react-navigation/native';
 import {getViewBfitValue, heightLize, widthLize} from '@utils';
+
+import {RewardCard} from '.';
 import {FEED_CAROUSEL_CARD_WIDTH} from '../../Feed/constants';
-import {BfitSpinner} from '../../../components/common/BfitSpinner';
-
-const HeaderContainer = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginHorizontal: widthLize(20),
-});
-
-const Title = styled(Label).attrs({
-  type: 'subheading',
-})({
-  fontSize: 14,
-  marginBottom: 15,
-  textTransform: 'uppercase',
-  letterSpacing: 2,
-});
-
-const SeeAllText = styled(Label).attrs(() => ({
-  type: 'subheading',
-}))({
-  fontSize: 13,
-  lineHeight: 15,
-  letterSpacing: 1,
-  textTransform: 'capitalize',
-  color: '#ACACAC',
-});
+import {HorizontalSliderSkeleton} from '../../../components/skeleton/HorizontalSliderSkeleton';
 
 interface RewardSliderProps
   extends Omit<
@@ -124,8 +100,12 @@ export const RewardSlider = ({
     <BfitSpinner wrapperStyle={styles.newItemLoadingContainer} />
   ) : null;
 
-  if (!rest.data?.length) {
-    return null;
+  if (isLoading && !isLoadingNextPage) {
+    return (
+      <View style={containerStyle}>
+        <HorizontalSliderSkeleton />
+      </View>
+    );
   }
 
   return (
@@ -136,26 +116,48 @@ export const RewardSlider = ({
           <TouchHandler
             onPress={() => {
               navigation.navigate('Rewards');
-            }}>
+            }}
+          >
             <SeeAllText>see all</SeeAllText>
           </TouchHandler>
         )}
       </HeaderContainer>
-      {isLoading && !isLoadingNextPage ? (
-        <BfitSpinner wrapperStyle={styles.loadingContainer} />
-      ) : (
-        <FlatList
-          {...{...rest, renderItem, ListFooterComponent}}
-          showsHorizontalScrollIndicator={false}
-          onEndReachedThreshold={0.2}
-          onEndReached={fetchNextPage}
-          horizontal={!LockedShow}
-          contentContainerStyle={{paddingRight: 20}}
-        />
-      )}
+      <FlatList
+        {...{...rest, renderItem, ListFooterComponent}}
+        showsHorizontalScrollIndicator={false}
+        onEndReachedThreshold={0.2}
+        onEndReached={fetchNextPage}
+        horizontal={!LockedShow}
+        contentContainerStyle={{paddingRight: 20}}
+      />
     </View>
   );
 };
+
+const HeaderContainer = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginHorizontal: widthLize(20),
+});
+
+const Title = styled(Label).attrs({
+  type: 'subheading',
+})({
+  fontSize: 14,
+  marginBottom: 15,
+  textTransform: 'uppercase',
+  letterSpacing: 2,
+});
+
+const SeeAllText = styled(Label).attrs(() => ({
+  type: 'subheading',
+}))({
+  fontSize: 13,
+  lineHeight: 15,
+  letterSpacing: 1,
+  textTransform: 'capitalize',
+  color: '#ACACAC',
+});
 
 const styles = StyleSheet.create({
   newItemLoadingContainer: {

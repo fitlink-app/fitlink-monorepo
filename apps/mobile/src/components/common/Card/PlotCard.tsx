@@ -8,9 +8,8 @@ import {
   Text,
   Image,
 } from 'react-native';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
-import {WeeklyEarningsGraph} from '@components';
+import {Skeleton, WeeklyEarningsGraph} from '@components';
 import {useWeeklyEarnings} from '@hooks';
 import {convertBfitToUsd} from '@utils';
 
@@ -40,9 +39,9 @@ const PlotCard = ({
   return (
     <TouchableOpacity onPress={onPress} style={wrapperStyle}>
       {isLoading ? (
-        <SkeletonPlaceholder highlightColor="#565656" backgroundColor="#161616">
+        <Skeleton>
           <View style={styles.wrapper} />
-        </SkeletonPlaceholder>
+        </Skeleton>
       ) : (
         <View style={styles.wrapper}>
           <View>

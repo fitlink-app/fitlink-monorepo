@@ -31,15 +31,15 @@ interface LeaderboardItemProps {
 }
 
 export const LeaderboardItem: React.FC<LeaderboardItemProps> = ({
-  rank,
-  name,
-  avatarUrl,
-  points,
-  bfit,
-  isSelf,
-  onPress,
-  wins,
-}) => {
+                                                                  rank,
+                                                                  name,
+                                                                  avatarUrl,
+                                                                  points,
+                                                                  bfit,
+                                                                  isSelf,
+                                                                  onPress,
+                                                                  wins,
+                                                                }) => {
   const rowBackgroundColor =
     parseInt(rank) % 2 === 1 ? theme.colors.background : theme.colors.card;
 
