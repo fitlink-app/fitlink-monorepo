@@ -8,7 +8,6 @@ export async function connect({token, provider}: ConnectProvider) {
   const {me, auth} = await api.connect({
     token,
     provider,
-    client_name: 'BFIT',
   });
 
   queryClient.setQueryData<User>(QueryKeys.Me, me);

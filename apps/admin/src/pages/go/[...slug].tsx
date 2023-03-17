@@ -20,7 +20,8 @@ const ax = axios.create({
     ? process.env.API_BASE_URL + '/api/v1'
     : 'http://localhost:3000/api/v1'
 })
-const api = makeApi(ax)
+// ClientID may need to be dynamic
+const api = makeApi(ax, {clientId: 'Fitlink'})
 
 //https://go.fitlinkteams.com/?link=https://my.fitlinkteams.com${req.url}&apn=app.fitlink&amv=2.1&afl=https://fitlinkteams.com&d=1
 export const getServerSideProps = async function getServerSideProps({
