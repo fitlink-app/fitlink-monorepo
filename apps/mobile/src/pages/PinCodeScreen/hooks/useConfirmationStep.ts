@@ -50,13 +50,13 @@ export const useConfirmationStep = ({
     const PinStorage = await PinStorageManager();
 
     try {
-      await Keychain.setPassword({
-        passcode: value,
+      await Keychain.setAuthData({
+        pin: value,
         biometryType: Keychain.supportedBiometryType,
       });
       await Keychain.getCredentialsWithBiometry();
     } catch {
-      await Keychain.setPassword({passcode: value});
+      await Keychain.setAuthData({pin: value});
     } finally {
       await PinStorage.setPin(value);
       dispatch(grantClientSideAccess());

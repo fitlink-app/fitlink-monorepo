@@ -51,4 +51,5 @@ export type RootStackParamList = {
   EnterPinCodeScreen: {forceBiometry: boolean} | undefined;
   RootLoadingScreen: undefined;
   ChangePinCodeScreen: undefined;
+  EnableBiometryPinCodeScreen: undefined;
 };

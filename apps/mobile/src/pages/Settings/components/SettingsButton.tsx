@@ -1,15 +1,15 @@
-import React from 'react';
+import React, {FC} from 'react';
 import styled, {
   DefaultTheme,
   ThemeProps,
   useTheme,
 } from 'styled-components/native';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet} from 'react-native';
 
-import {Icon, TouchHandler, TouchHandlerProps} from '@components';
+import {Icon, TouchHandler, TouchHandlerProps, BfitSpinner} from '@components';
+
 import {SettingsItemWrapper} from './SettingsItemWrapper';
 import {SettingsItemLabel} from './SettingsItemLabel';
-import {BfitSpinner} from '../../../components/common/BfitSpinner';
 
 const StyledTouchHandler = styled(TouchHandler).attrs(() => ({
   animationType: 'opacity',
@@ -38,43 +38,45 @@ const StyledIcon = styled(Icon).attrs(
 )<StyledIconParams>({});
 
 export interface SettingsButtonProps extends TouchHandlerProps {
-  /** Display label of this button */
   label: string;
-
-  /** Icon's name if any, will use 'angle-right' if unset */
   icon?: string | 'none';
-
-  /** Called on button press */
   onPress?: () => void;
-
-  /** Should the button use the accent color */
   accent?: boolean;
-
-  /** Optional component rendered before the button label */
   preLabelComponent?: React.ReactNode;
-
-  /** Whether the component should display an activity indicator */
   loading?: boolean;
-
-  /** Account Profile Row */
   profileRow?: boolean;
+  renderEndAdornment?: () => JSX.Element;
 }
 
-export const SettingsButton = (props: SettingsButtonProps) => {
-  const {
-    label,
-    icon,
-    onPress,
-    accent,
-    preLabelComponent,
-    loading,
-    profileRow,
-    disabled,
-  } = props;
+export const SettingsButton: FC<SettingsButtonProps> = ({
+  label,
+  icon,
+  onPress,
+  accent,
+  preLabelComponent,
+  loading,
+  profileRow,
+  disabled,
+  renderEndAdornment,
+}) => {
   const {colors} = useTheme();
 
-  const renderIcon = () => {
-    return icon !== 'none' && <StyledIcon {...{icon, accent}} />;
+  const EndAdornment = () => {
+    if (loading) {
+      return (
+        <BfitSpinner
+          size="small"
+          wrapperStyle={styles.settingsItemWrapper}
+          color={accent ? colors.accent : colors.accentSecondary}
+        />
+      );
+    }
+
+    if (renderEndAdornment) {
+      return renderEndAdornment();
+    }
+
+    return icon !== 'none' ? <StyledIcon {...{icon, accent}} /> : null;
   };
 
   return (
@@ -82,24 +84,14 @@ export const SettingsButton = (props: SettingsButtonProps) => {
       <StyledTouchHandler
         {...{onPress}}
         style={{borderTopWidth: profileRow ? 0 : 1}}
-        disabled={loading || disabled}>
+        disabled={loading || disabled}
+      >
         <Row>
           <Row>
             {preLabelComponent}
             <SettingsItemLabel {...{accent}} children={label} />
           </Row>
-
-          {loading ? (
-            <View>
-              <BfitSpinner
-                wrapperStyle={styles.settingsItemWrapper}
-                size={'small'}
-                color={accent ? colors.accent : colors.accentSecondary}
-              />
-            </View>
-          ) : (
-            renderIcon()
-          )}
+          <EndAdornment />
         </Row>
       </StyledTouchHandler>
     </SettingsItemWrapper>

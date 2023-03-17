@@ -10,6 +10,7 @@ import {
   Settings,
   UpdateEmail,
   UpdatePassword,
+  EnableBiometryPinCodeScreen,
 } from '@pages';
 
 import {getDefaultStackScreenOptions} from '../options';
@@ -43,6 +44,11 @@ export const SettingsNavigator = () => {
       <Stack.Screen
         name="ChangePinCodeScreen"
         component={ChangePinCodeScreen}
+        options={getDefaultStackScreenOptions}
+      />
+      <Stack.Screen
+        name="EnableBiometryPinCodeScreen"
+        component={EnableBiometryPinCodeScreen}
         options={getDefaultStackScreenOptions}
       />
     </Stack.Navigator>

@@ -9,7 +9,7 @@ export const KEYCHAIN_KEY_USER = 'encryptionKeyUser';
 export const KEYCHAIN_KEY_SERVICE = 'encryptionKeyService';
 
 interface IKeychainSetData {
-  passcode: string;
+  pin: string;
   biometryType?: BIOMETRY_TYPE | null;
 }
 
@@ -22,7 +22,7 @@ export class KeychainService {
     this.supportStorage = new KeychainSupportStorageManager();
   }
 
-  async setPassword({passcode, biometryType = null}: IKeychainSetData) {
+  async setAuthData({pin, biometryType = null}: IKeychainSetData) {
     await Keychain.resetGenericPassword();
 
     let keychainOptions: Options = {};
@@ -45,7 +45,7 @@ export class KeychainService {
       this.supportStorage.deleteUsedBiometryType();
     }
 
-    return this.setCredentials(passcode, keychainOptions);
+    return this.setCredentials(pin, keychainOptions);
   }
 
   async getCredentialsWithBiometry(
@@ -102,9 +102,9 @@ export class KeychainService {
     return this.supportStorage.getKeychainOptions();
   }
 
-  private async setCredentials(passcode: string, keychainOptions: Options) {
+  private async setCredentials(pin: string, keychainOptions: Options) {
     await Keychain.resetGenericPassword();
-    await Keychain.setGenericPassword(KEYCHAIN_USER, passcode, keychainOptions);
+    await Keychain.setGenericPassword(KEYCHAIN_USER, pin, keychainOptions);
     this.supportStorage.setKeychainOptions(keychainOptions);
   }
 }

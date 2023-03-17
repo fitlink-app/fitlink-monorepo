@@ -16,6 +16,7 @@ const routeToTitleMap: Partial<Record<keyof RootStackParamList, string>> = {
   CreatePinCodeScreen: 'Login',
   EnterPinCodeScreen: 'Login',
   ChangePinCodeScreen: 'Change Pin',
+  EnableBiometryPinCodeScreen: 'Enable Biometry',
 };
 
 type ScreenOptionsCallbackProps = {

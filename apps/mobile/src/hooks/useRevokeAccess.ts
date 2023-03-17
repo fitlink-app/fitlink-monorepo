@@ -29,7 +29,7 @@ export const useRevokeAccess = () => {
       dispatch(revokeClientSideAccess());
       navigation.reset({
         index: 0,
-        routes: [{name: 'EnterPinCodeScreen'}],
+        routes: [{name: 'EnterPinCodeScreen', params: {forceBiometry: true}}],
       });
       return true;
     }

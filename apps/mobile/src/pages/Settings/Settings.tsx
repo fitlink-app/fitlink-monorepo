@@ -65,6 +65,7 @@ import {
   SettingsDropdown,
   SettingsHealthActivityButton,
   SettingsInput,
+  BiometrySettingsButton,
 } from './components';
 
 const Wrapper = styled.View({flex: 1});
@@ -443,6 +444,7 @@ export const Settings = () => {
             label="Change Pin Code"
             onPress={() => navigation.navigate('ChangePinCodeScreen')}
           />
+          <BiometrySettingsButton />
           <SettingsInput
             label={'Team'}
             value={teamName()}
