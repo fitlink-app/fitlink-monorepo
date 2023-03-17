@@ -19,7 +19,7 @@ import {widthLize} from '@utils';
 
 import {CteLeagueSlider} from 'components/league/CteLeagueSlider';
 import {getResultsFromPages} from 'utils/api';
-import {RootStackParamList} from '../../routes/types';
+import {RootStackParamList} from '@routes';
 import {ExploreLeagues, Invitations, MyLeagues} from './tabs';
 import {IRefreshableTabHandle} from './tabs/types';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
@@ -27,8 +27,8 @@ import {
   selectUserPreferencesByEmail,
   setUserPreferences,
 } from '../../redux/userPreferences';
-import {useAppDispatch, useAppSelector} from '../../redux/store';
 import {LeaguesTipBannerCard} from './components';
+import {useAppDispatch, useAppSelector} from '../../redux/store';
 
 const Wrapper = styled.View({
   flex: 1,
@@ -145,7 +145,8 @@ export const Leagues = () => {
             tintColor={colors.accent}
             colors={[colors.accent]}
           />
-        }>
+        }
+      >
         <PageTitle>Leagues</PageTitle>
         <PlotCard.BFIT
           onPress={() => navigation.navigate('Wallet')}

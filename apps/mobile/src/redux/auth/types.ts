@@ -1,6 +1,7 @@
+import {SerializedError} from '@reduxjs/toolkit';
+
 import {AuthProviderType} from '@fitlink/api/src/modules/auth/auth.constants';
 import {AuthResultDto} from '@fitlink/api/src/modules/auth/dto/auth-result';
-import { SerializedError } from '@reduxjs/toolkit'
 
 export type Credentials = {
   email: string;
@@ -15,4 +16,12 @@ export type ConnectProvider = {
 export interface AuthState {
   authResult: AuthResultDto | null;
   error: SerializedError | null;
+
+  clientSideAccess: {
+    isAccessGranted: boolean;
+    accessGrantedAt: number | undefined;
+
+    pinErrorsCount: number;
+    pinErrorCountExceededAt: number | undefined;
+  };
 }

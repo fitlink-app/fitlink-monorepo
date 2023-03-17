@@ -13,11 +13,17 @@ export const getNextPageParam =
 export const getResultsFromPages = <T>(
   data: InfiniteData<ListResponse<T>> | undefined,
 ) => {
-  const results =
-    data?.pages.reduce<T[]>((acc, current) => {
-      return [...acc, ...current.results];
-    }, []) || [];
-  return results;
+  try {
+    // TODO
+    const results =
+      data?.pages.reduce<T[]>((acc, current) => {
+        return [...acc, ...current.results];
+      }, []) || [];
+    return results;
+  } catch (e) {
+    console.error('getResultsFromPages', e);
+    return [];
+  }
 };
 
 export const getUrlParams = (url: string) => {

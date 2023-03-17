@@ -1,9 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
-import styled, {useTheme} from 'styled-components/native';
+import styled from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 import {Image} from 'react-native';
 import {BasicInfo, Goals} from './subscreens';
-import {Button, Dots, Logo} from '@components';
+import {Button, Dots} from '@components';
 import {useJoinTeamByCode, useMe} from '@hooks';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -22,7 +22,6 @@ import {
   resetTeamInvitation,
   selectTeamInvitation,
 } from 'redux/teamInvitation/teamInvitationSlice';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const BACKGROUND_IMAGE = require('../../../../assets/images/BackgroundOnboarding.png');
 
@@ -47,12 +46,6 @@ const ButtonContainer = styled.View({
   paddingHorizontal: 20,
 });
 
-const LoadingContainer = styled.View({
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-});
-
 const BackButtonWrapper = styled.View({
   height: 44,
 });
@@ -67,20 +60,16 @@ enum OnboardingPages {
 export const Onboarding = () => {
   const dispatch = useDispatch() as AppDispatch;
 
-  // queries
+  // assumption: user is navigated to onboarding only after useMe finished loading
   const {data: user} = useMe();
   const {mutateAsync: joinTeam} = useJoinTeamByCode();
 
-  // redux
   const settings = useSelector(selectSettings);
   const isSaving = useSelector(selectIsSavingSettings);
   const {code} = useSelector(selectTeamInvitation);
 
-  // local state
-  const [isInitialized, setInitialized] = useState(false);
   const [currentPage, setCurrentPage] = useState<OnboardingPages>(0);
 
-  // refs
   const viewPagerRef = useRef<PagerView>(null);
   const navEnabled = useRef(true);
 
@@ -92,32 +81,34 @@ export const Onboarding = () => {
   ];
 
   useEffect(() => {
-    if (user && !isInitialized) {
-      dispatch(clearChanges());
-
-      dispatch(
-        setState({
-          name: user?.name || '',
-          unitSystem: user?.unit_system || UnitSystem.Imperial,
-          timezone: user.timezone,
-          avatar: user.avatar,
-          goals: {
-            goal_mindfulness_minutes: user?.goal_mindfulness_minutes || 2,
-            goal_steps: user?.goal_steps || 500,
-            goal_floors_climbed: user?.goal_floors_climbed || 15,
-            goal_water_litres: user?.goal_water_litres || 2.5,
-            goal_sleep_hours: user?.goal_sleep_hours || 8,
-            goal_active_minutes: user?.goal_active_minutes || 45,
-          },
-        }),
-      );
-
-      setInitialized(true);
+    if (!user) {
+      return;
     }
-  }, [user]);
+
+    dispatch(clearChanges());
+
+    dispatch(
+      setState({
+        name: user?.name || '',
+        unitSystem: user?.unit_system || UnitSystem.Imperial,
+        timezone: user.timezone,
+        avatar: user.avatar,
+        goals: {
+          goal_mindfulness_minutes: user?.goal_mindfulness_minutes || 2,
+          goal_steps: user?.goal_steps || 500,
+          goal_floors_climbed: user?.goal_floors_climbed || 15,
+          goal_water_litres: user?.goal_water_litres || 2.5,
+          goal_sleep_hours: user?.goal_sleep_hours || 8,
+          goal_active_minutes: user?.goal_active_minutes || 45,
+        },
+      }),
+    );
+  }, [dispatch, user]);
 
   const setPage = (page: number) => {
-    if (!viewPagerRef?.current || !navEnabled.current) return;
+    if (!viewPagerRef?.current || !navEnabled.current) {
+      return;
+    }
 
     if (page >= 0 && page < slides.length) {
       setCurrentPage(page);
@@ -126,13 +117,11 @@ export const Onboarding = () => {
     }
   };
 
-  // invoked when the pager finishes animating to a screen
   const handlePageSelected = () => {
     navEnabled.current = true;
   };
 
   const handleNextPressed = async () => {
-    // switch
     setPage(currentPage + 1);
 
     switch (currentPage) {
@@ -156,7 +145,9 @@ export const Onboarding = () => {
   };
 
   const isContinueEnabled = () => {
-    if (isSaving) return false;
+    if (isSaving) {
+      return false;
+    }
 
     switch (currentPage) {
       case OnboardingPages.BasicInfo:
@@ -177,7 +168,9 @@ export const Onboarding = () => {
   };
 
   const isBackEnabled = () => {
-    if (isSaving) return false;
+    if (isSaving) {
+      return false;
+    }
 
     switch (currentPage) {
       case OnboardingPages.BasicInfo:
@@ -190,58 +183,48 @@ export const Onboarding = () => {
 
   return (
     <Wrapper>
-      {isInitialized ? (
-        <>
-          <Navigation
-            backEnabled={isBackEnabled()}
-            onBack={isSaving ? undefined : () => setPage(currentPage - 1)}
-            onLogout={
-              isSaving
-                ? undefined
-                : () => {
-                    dispatch(logout());
-                  }
-            }
-          />
-          <StyledPager
-            onPageSelected={handlePageSelected}
-            scrollEnabled={false}
-            ref={viewPagerRef}>
-            {slides}
-          </StyledPager>
-          <Dots
-            style={{marginBottom: 20, marginTop: 5}}
-            amount={slides.length}
-            current={currentPage}
-          />
-          <ButtonContainer>
-            <Button
-              text={
-                currentPage === OnboardingPages.Privacy ? 'Finish' : 'Continue'
+      <Navigation
+        backEnabled={isBackEnabled()}
+        onBack={isSaving ? undefined : () => setPage(currentPage - 1)}
+        onLogout={
+          isSaving
+            ? undefined
+            : () => {
+                dispatch(logout());
               }
-              onPress={handleNextPressed}
-              loading={isSaving}
-              disabled={!isContinueEnabled()}
-            />
+        }
+      />
+      <StyledPager
+        onPageSelected={handlePageSelected}
+        scrollEnabled={false}
+        ref={viewPagerRef}
+      >
+        {slides}
+      </StyledPager>
+      <Dots
+        style={{marginBottom: 20, marginTop: 5}}
+        amount={slides.length}
+        current={currentPage}
+      />
+      <ButtonContainer>
+        <Button
+          text={currentPage === OnboardingPages.Privacy ? 'Finish' : 'Continue'}
+          onPress={handleNextPressed}
+          loading={isSaving}
+          disabled={!isContinueEnabled()}
+        />
 
-            <BackButtonWrapper>
-              {isBackEnabled() && (
-                <Button
-                  style={{marginTop: 5}}
-                  textOnly
-                  text={'Go back'}
-                  onPress={handleBackPressed}
-                />
-              )}
-            </BackButtonWrapper>
-          </ButtonContainer>
-        </>
-      ) : (
-        <LoadingContainer>
-          <Logo size={'large'} />
-          <BfitSpinner style={{marginTop: 10}} />
-        </LoadingContainer>
-      )}
+        <BackButtonWrapper>
+          {isBackEnabled() && (
+            <Button
+              style={{marginTop: 5}}
+              textOnly
+              text={'Go back'}
+              onPress={handleBackPressed}
+            />
+          )}
+        </BackButtonWrapper>
+      </ButtonContainer>
 
       <BackgroundImageContainer>
         <Image

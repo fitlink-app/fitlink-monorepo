@@ -1,12 +1,17 @@
 import React, {useRef} from 'react';
-import {Button, FormError, InputField, Label} from '@components';
-import {useForm} from '@hooks';
-import styled from 'styled-components/native';
 import {TextInput} from 'react-native';
+import styled from 'styled-components/native';
+import {useNavigation} from '@react-navigation/core';
+
+import {useForm} from '@hooks';
+import {Button, FormError, InputField, Label} from '@components';
+
 import {PrivacyPolicyLabel, TermsOfServiceLabel} from './components';
-import {useDispatch} from 'react-redux';
-import {AppDispatch} from 'redux/store';
-import {signUp} from 'redux/auth';
+import {
+  selectClientSideAccessGrantedAt,
+  signUp,
+} from '../../../../../redux/auth';
+import {useAppDispatch, useAppSelector} from '../../../../../redux/store';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -31,8 +36,12 @@ export interface SignUpFormValues {
 }
 
 export const SignUpForm = () => {
-  // const {signUp} = useAuth();
-  const dispatch = useDispatch() as AppDispatch;
+  const navigation = useNavigation();
+
+  const dispatch = useAppDispatch();
+  const clientSideAccessGrantedAt = useAppSelector(
+    selectClientSideAccessGrantedAt,
+  );
 
   const passwordFieldRef = useRef<TextInput>(null);
 
@@ -54,6 +63,9 @@ export const SignUpForm = () => {
       // TODO: rework handle submit logic!!! it must not accept result as error
       //  instead handle error in handle submit
       await dispatch(signUp(credentials)).unwrap();
+      if (!clientSideAccessGrantedAt) {
+        navigation.navigate('CreatePinCodeScreen');
+      }
     } catch (e) {
       return e;
     }
