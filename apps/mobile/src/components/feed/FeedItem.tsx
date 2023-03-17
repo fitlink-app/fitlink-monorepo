@@ -5,7 +5,6 @@ import {
   ImageBackground,
   ListRenderItem,
   View,
-  Image as RNImage,
   StyleSheet,
   Text,
 } from 'react-native';
@@ -37,45 +36,6 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 
 const {width} = Dimensions.get('window');
-
-const IconContainer = styled.View(({theme: {colors}}) => ({
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: 18,
-  height: widthLize(76),
-  width: widthLize(76),
-  backgroundColor: colors.surface,
-}));
-
-const TitleText = styled(Text)({
-  color: '#FFFFFF',
-  fontWeight: 500,
-  fontFamily: 'Roboto',
-  fontSize: 16,
-  lineHeight: 18,
-});
-
-const NameText = styled(Text)({
-  color: '#FFFFFF',
-  fontWeight: 500,
-  fontFamily: 'Roboto',
-  fontSize: 14,
-  lineHeight: 16,
-});
-
-const LikeImage = styled.Image({
-  width: widthLize(22),
-  height: widthLize(22),
-});
-
-const SBackgroundOverlay = styled(LinearGradient).attrs(() => ({
-  start: {x: 1, y: 0},
-  end: {x: 0, y: 0},
-  colors: ['rgba(6, 6, 6, 0.85)', 'rgba(6, 6, 6, 0)'],
-}))({
-  ...StyleSheet.absoluteFillObject,
-  opacity: 0.9,
-});
 
 interface FeedItemProps {
   item: FeedItemClass;
@@ -353,14 +313,16 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
           if (me!.id !== targetUser.id) {
             navigation.navigate('Profile', {id: targetUser.id});
           }
-        }}>
+        }}
+      >
         <ProgressCircle
           progress={targetUser.goal_percentage}
           strokeWidth={2.5}
           backgroundStrokeWidth={2}
           bloomIntensity={0.5}
           bloomRadius={5}
-          size={52}>
+          size={52}
+        >
           <Avatar url={targetUser.avatar?.url_128x128} size={44} />
         </ProgressCircle>
       </TouchHandler>
@@ -377,7 +339,8 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
               id: targetUser.id,
             });
           }
-        }}>
+        }}
+      >
         <Avatar
           url={targetUser.avatar?.url_128x128}
           size={widthLize(76)}
@@ -388,7 +351,8 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
         style={{
           marginLeft: widthLize(18),
           marginRight: widthLize(17),
-        }}>
+        }}
+      >
         <TitleText numberOfLines={1}>{item.health_activity?.title}</TitleText>
         <View style={{height: heightLize(6)}} />
         <NameText numberOfLines={1}>{item.user.name}</NameText>
@@ -419,7 +383,8 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
             borderWidth: 1,
             borderColor: isLiked ? colors.accent : colors.text,
             backgroundColor: isLiked ? colors.accent : colors.background,
-          }}>
+          }}
+        >
           <Icon
             name="thumb"
             size={17}
@@ -437,7 +402,8 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
         alignItems: 'flex-end',
         flex: 1,
         justifyContent: 'space-between',
-      }}>
+      }}
+    >
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <View
           style={{
@@ -447,7 +413,8 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
             borderWidth: 1,
             borderRadius: 20,
             marginRight: widthLize(12),
-          }}>
+          }}
+        >
           <NameText style={{fontSize: 12}}>
             {`${item.health_activity?.points} Points`}
           </NameText>
@@ -488,7 +455,8 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
           <TouchHandler onPress={onContentPress} style={{flex: 1}} key={idx}>
             <ImageBackground
               source={{uri: image.url_640x360}}
-              style={{width: '100%', flex: 1, height: 291}}>
+              style={{width: '100%', flex: 1, height: 291}}
+            >
               <SBackgroundOverlay />
               <View
                 style={{
@@ -496,7 +464,8 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
                   paddingVertical: 18,
                   paddingHorizontal: 20,
                   alignItems: 'flex-start',
-                }}>
+                }}
+              >
                 <View style={{flexDirection: 'row', flex: 1}}>
                   <FeedItemAvatar targetUser={targetUser} />
                   <FeedItemActions />
@@ -536,7 +505,8 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
             paddingVertical: 18,
             marginHorizontal: widthLize(20),
             height: 157,
-          }}>
+          }}
+        >
           <View style={{flexDirection: 'row', flex: 1}}>
             <FeedItemAvatar targetUser={targetUser} />
             <FeedItemActions />
@@ -552,7 +522,8 @@ export const _FeedItem = ({item, unitSystem, isLiked}: FeedItemProps) => {
         style={{
           paddingVertical: 22,
           marginHorizontal: widthLize(20),
-        }}>
+        }}
+      >
         <View style={{flexDirection: 'row', flex: 1}}>
           <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
             {renderAvatar()}
@@ -589,6 +560,40 @@ const styles = StyleSheet.create({
     zIndex: 10,
     alignSelf: 'center',
   },
+});
+
+const IconContainer = styled.View(({theme: {colors}}) => ({
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 18,
+  height: 76,
+  width: 76,
+  backgroundColor: colors.surface,
+}));
+
+const TitleText = styled(Text)({
+  color: '#FFFFFF',
+  fontWeight: 500,
+  fontFamily: 'Roboto',
+  fontSize: 16,
+  lineHeight: 18,
+});
+
+const NameText = styled(Text)({
+  color: '#FFFFFF',
+  fontWeight: 500,
+  fontFamily: 'Roboto',
+  fontSize: 14,
+  lineHeight: 16,
+});
+
+const SBackgroundOverlay = styled(LinearGradient).attrs(() => ({
+  start: {x: 1, y: 0},
+  end: {x: 0, y: 0},
+  colors: ['rgba(6, 6, 6, 0.85)', 'rgba(6, 6, 6, 0)'],
+}))({
+  ...StyleSheet.absoluteFillObject,
+  opacity: 0.9,
 });
 
 export const FeedItem = React.memo(_FeedItem);

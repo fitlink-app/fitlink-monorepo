@@ -1,17 +1,19 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Animated, InteractionManager, Platform, StyleSheet} from 'react-native';
+import {Animated, InteractionManager, Platform} from 'react-native';
 import {RootStackParamList} from 'routes/types';
 import styled from 'styled-components/native';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-import {Navbar, BfitSpinner} from '@components';
+import {Navbar} from '@components';
 import {useLeague, useLeagueMembers, useLeagueMembersMe, useMe} from '@hooks';
 
 import {Leaderboard} from './components';
 import {getResultsFromPages} from '../../utils/api';
 
 const HEADER_HEIGHT = 300;
+
+export const ITEM_HEIGHT = 82;
 
 const Wrapper = styled.View({flex: 1});
 
@@ -38,6 +40,7 @@ export const League = () => {
     isFetching: isFetchingLeague,
     refetch: refetchLeague,
     isFetchedAfterMount: isLeagueFetchedAfterMount,
+    isLoading: isLeagueLoading,
   } = useLeague(id, areInteractionsDone);
 
   const {
@@ -46,6 +49,7 @@ export const League = () => {
     fetchNextPage: fetchMoreMembers,
     isFetchingNextPage: isFetchingMembersNextPage,
     isFetchedAfterMount: areMembersFetchedAfterMount,
+    isLoading: isMembersLoading,
     data: membersPages,
   } = useLeagueMembers(id);
 
@@ -76,7 +80,6 @@ export const League = () => {
     return (
       <Wrapper>
         <Navbar scrollAnimatedValue={scrollValue} iconColor={'white'} overlay />
-        <BfitSpinner wrapperStyle={styles.loadingWrapper} />
       </Wrapper>
     );
   }
@@ -114,6 +117,8 @@ export const League = () => {
           activeLeague={activeLeague}
           bFitToClaimRaw={bFitToClaimRaw}
           data={members}
+          isMembersLoading={isMembersLoading}
+          isLeagueLoading={isLeagueLoading}
           userId={user!.id}
           refreshing={isRefreshing}
           onRefresh={refreshLeaderboard}
@@ -126,11 +131,3 @@ export const League = () => {
     </BottomSheetModalProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  loadingWrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

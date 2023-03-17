@@ -3,6 +3,7 @@ import {StyleProp, View, ViewStyle} from 'react-native';
 import {useNavigation} from '@react-navigation/core';
 
 import {useCteLeagues} from '@hooks';
+import {CteLeagueSkeleton} from '@components';
 
 import {CteLeagueSlider} from 'components/league/CteLeagueSlider';
 import {getResultsFromPages} from 'utils/api';
@@ -14,13 +15,18 @@ interface CompeteLeaguesProps {
 export const CompeteLeagues: FC<CompeteLeaguesProps> = ({containerStyle}) => {
   const navigation = useNavigation();
 
-  const {data, fetchNextPage} = useCteLeagues({isParticipating: true});
+  let {data, fetchNextPage, isLoading} = useCteLeagues({
+    isParticipating: true,
+  });
   const myC2ELeagues = getResultsFromPages(data);
 
-  if (!myC2ELeagues.length) {
-    return null;
+  if (isLoading) {
+    return (
+      <View style={containerStyle}>
+        <CteLeagueSkeleton />
+      </View>
+    );
   }
-
   return (
     <View style={containerStyle}>
       <CteLeagueSlider
