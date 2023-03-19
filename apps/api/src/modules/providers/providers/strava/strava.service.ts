@@ -240,7 +240,7 @@ export class StravaService {
         `&redirect_uri=${this.stravaConfig('uri', client_id)}`,
         `&scope=${this.stravaConfig('scopes', client_id)}`,
         `&response_type=code`,
-        `&state=${userId}`
+        `&state=${JSON.stringify({ userId, client_id })}`
       ].join('')
     }
   }
