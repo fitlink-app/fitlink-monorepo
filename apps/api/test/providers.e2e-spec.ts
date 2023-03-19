@@ -80,13 +80,13 @@ describe('Providers', () => {
     })
     const url = data.json().oauth_url || ''
     const parse = new URLSearchParams(url.substr(url.indexOf('?')))
-
+    const { userId } = JSON.parse(parse.get('state'));
     expect(parse.get('client_id')).toBe(FITLINK_STRAVA_CLIENT_ID)
     expect(parse.get('client_secret')).toBe(FITLINK_STRAVA_CLIENT_SECRET)
     expect(parse.get('redirect_uri')).toBe(STRAVA_REDIRECT_URI)
     expect(parse.get('scope')).toBe(STRAVA_SCOPES)
     expect(parse.get('response_type')).toBe('code')
-    expect(parse.get('state')).toBe(seededUser.id)
+    expect(userId).toBe(seededUser.id)
     expect(url).toContain('https://www.strava.com/oauth/mobile/authorize')
     expect(data.statusCode).toBe(200)
     expect(data.statusMessage).toBe('OK')
@@ -115,7 +115,7 @@ describe('Providers', () => {
 
     const data = await app.inject({
       method: 'GET',
-      url: `/providers/strava/callback?code=10291823&state=${seededUser.id}&scope=${STRAVA_SCOPES}`
+      url: `/providers/strava/callback?code=10291823&state=${JSON.stringify({ userId: seededUser.id, client_id: 'Fitlink' })}&scope=${STRAVA_SCOPES}`
     })
 
     expect(data.statusCode).toBe(302)
