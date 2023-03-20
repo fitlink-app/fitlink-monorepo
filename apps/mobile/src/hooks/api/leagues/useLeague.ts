@@ -7,7 +7,7 @@ import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.ent
 export function useLeague(leagueId?: string, disabled?: boolean) {
   return useQuery<LeaguePublic, Error>(
     [QueryKeys.League, leagueId],
-    () => api.get<LeaguePublic>(`/leagues/${leagueId}`),
+    () => api.get<LeaguePublic>(`/leaguesss/${leagueId}`),
     {
       // Query is disabled until a leagueId is provided (for dependent queries)
       enabled: !!leagueId && !disabled,

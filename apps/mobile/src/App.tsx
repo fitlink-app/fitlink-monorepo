@@ -20,6 +20,8 @@ import {withQueryClient} from '@query';
 import {useCodePush, useIntercomNotifications} from '@hooks';
 import Router, {NavigationProvider} from '@routes';
 
+import {SnackbarProvider} from 'components/snackbar/SnackbarProvider';
+import {DefaultErrorSnackbarHandler} from 'components/snackbar/DefaultErrorSnackbarHandler';
 import ThemeProvider from './theme/ThemeProvider';
 import {QueryPersistor} from 'query/QueryPersistor';
 import {ModalProvider, Transition} from './contexts';
@@ -51,6 +53,7 @@ const App = () => {
   if (isUpToDate || isError) {
     return (
       <SafeAreaProvider>
+        <SnackbarProvider>
         <ThemeProvider>
           <AppBackground>
             <Provider store={store}>
@@ -62,6 +65,7 @@ const App = () => {
                       <ModalProvider>
                         <QueryPersistor>
                           <DeeplinkHandler />
+                          <DefaultErrorSnackbarHandler />
                           <Router />
                         </QueryPersistor>
                       </ModalProvider>
@@ -72,6 +76,7 @@ const App = () => {
             </Provider>
           </AppBackground>
         </ThemeProvider>
+        </SnackbarProvider>
       </SafeAreaProvider>
     );
   }
