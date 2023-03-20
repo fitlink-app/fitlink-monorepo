@@ -7,7 +7,13 @@ import styled, {useTheme} from 'styled-components/native';
 
 import {queryClient, QueryKeys} from '@query';
 import {useMe, useFeed, useModal, useManualQueryRefresh} from '@hooks';
-import {FeedItem, TouchHandler, Modal} from '@components';
+import {
+  FeedItem,
+  TouchHandler,
+  Modal,
+  BfitSpinner,
+  getComponentsList,
+} from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
 
@@ -15,7 +21,7 @@ import {getResultsFromPages} from 'utils/api';
 import theme from '../../theme/themes/fitlink';
 import {Filter} from 'components/feed/FeedFilter/components';
 import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
+import {FeedItemSkeleton} from './components/FeedItemSkeleton';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -62,6 +68,7 @@ export const ActivityFeed = () => {
     refetch: refetchFeed,
     fetchNextPage: fetchFeedNextPage,
     isFetchingNextPage: isFeedFetchingNextPage,
+    isLoading: isLoading,
   } = useFeed({
     my_goals: feedPreferences.showGoals,
     friends_activities: feedPreferences.showFriends,
@@ -133,10 +140,14 @@ export const ActivityFeed = () => {
           style={{position: 'absolute', top: 10, right: 20}}
           onPress={() => {
             handleFilterPressed();
-          }}>
+          }}
+        >
           <SImage source={require('../../../assets/images/filter.png')} />
         </TouchHandler>
       </SHeader>
+
+      {isLoading && getComponentsList(7, FeedItemSkeleton)}
+
       <FlatList
         renderItem={renderItem}
         keyExtractor={keyExtractor}

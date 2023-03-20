@@ -33,33 +33,7 @@ import {
 import {getResultsFromPages} from 'utils/api';
 import {RewardSlider} from '../Rewards/components';
 import {BOTTOM_TAB_BAR_HEIGHT} from '../../routes/Home/components';
-import theme from '../../theme/themes/fitlink';
-import Intercom from '@intercom/intercom-react-native';
-
-const Wrapper = styled.View({
-  flex: 1,
-});
-
-const TopButtonRow = styled.View({
-  top: 10,
-  right: 0,
-  zIndex: 1,
-  marginRight: 20,
-  position: 'absolute',
-  flexDirection: 'row',
-  justifyContent: 'flex-end',
-});
-
-const HeaderContainer = styled.View({
-  paddingTop: 20,
-  paddingHorizontal: 10,
-  marginBottom: 10,
-});
-
-const StatContainer = styled.View({
-  paddingHorizontal: 10,
-  marginBottom: SCREEN_CONTAINER_SPACE,
-});
+import theme from '@theme';
 
 export const Feed = () => {
   const insets = useSafeAreaInsets();
@@ -205,3 +179,28 @@ export const Feed = () => {
     </Wrapper>
   );
 };
+
+const Wrapper = styled.View({
+  flex: 1,
+});
+
+const TopButtonRow = styled.View({
+  top: 10,
+  right: 0,
+  zIndex: 1,
+  marginRight: 20,
+  position: 'absolute',
+  flexDirection: 'row',
+  justifyContent: 'flex-end',
+});
+
+const HeaderContainer = styled.View({
+  paddingTop: 20,
+  paddingHorizontal: 10,
+  marginBottom: 10,
+});
+
+const StatContainer = styled.View({
+  paddingHorizontal: 10,
+  marginBottom: SCREEN_CONTAINER_SPACE,
+});

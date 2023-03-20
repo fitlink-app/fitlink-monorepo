@@ -18,6 +18,11 @@ import {getViewBfitValue} from '@utils';
 import {LeaguePublic} from '@fitlink/api/src/modules/leagues/entities/league.entity';
 import {LeagueAccess} from '@fitlink/api/src/modules/leagues/leagues.constants';
 import {LeaderboardEntry} from '@fitlink/api/src/modules/leaderboard-entries/entities/leaderboard-entry.entity';
+import {
+  LeaderboardItemSkeleton,
+  LeaderboardHeaderCardSkeleton,
+  getComponentsList,
+} from '@components';
 
 import AnimatedLeaderboardHeaderCard from './AnimatedLeaderboardHeaderCard';
 import {LeaderboardItem} from './LeaderboardItem';
@@ -32,8 +37,9 @@ export interface LeaderboardProps
   bFitToClaimRaw?: number;
   onRefresh: () => void;
   onEditPressed: () => void;
-
   activeLeague: LeaguePublic;
+  isMembersLoading: boolean;
+  isLeagueLoading: boolean;
 }
 
 export const Leaderboard = ({
@@ -44,6 +50,8 @@ export const Leaderboard = ({
   onRefresh,
   onEditPressed,
   activeLeague,
+  isMembersLoading,
+  isLeagueLoading,
   ...listProps
 }: LeaderboardProps) => {
   const {colors} = useTheme();
@@ -85,28 +93,38 @@ export const Leaderboard = ({
 
   return (
     <>
-      <AnimatedLeaderboardHeaderCard
-        leagueId={activeLeague.id}
-        membership={membership}
-        memberCount={activeLeague.participants_total}
-        resetDate={activeLeague.ends_at}
-        repeat={activeLeague.repeat}
-        title={activeLeague.name}
-        description={activeLeague.description}
-        imageSource={{uri: activeLeague?.image.url_640x360}}
-        sharedContentOffset={sharedContentOffset}
-        bFitToClaimRaw={bFitToClaimRaw}
-        dailyBfit={activeLeague.daily_bfit}
-        distributedTodayBfit={activeLeague.bfit_distributed_today}
-        onHeightMeasure={setHeaderHeight}
-        handleOnEditPressed={onEditPressed}
-        isCteLeague={isBfit}
-        isPublic={
-          activeLeague.access === LeagueAccess.Public ||
-          activeLeague.access === LeagueAccess.CompeteToEarn
-        }
-      />
-      {headerHeight !== 0 && (
+      {(isLeagueLoading || headerHeight === 0) && (
+        <LeaderboardHeaderCardSkeleton />
+      )}
+      {(!isLeagueLoading || headerHeight !== 0) && (
+        <AnimatedLeaderboardHeaderCard
+          leagueId={activeLeague.id}
+          membership={membership}
+          memberCount={activeLeague.participants_total}
+          resetDate={activeLeague.ends_at}
+          repeat={activeLeague.repeat}
+          title={activeLeague.name}
+          description={activeLeague.description}
+          imageSource={{uri: activeLeague?.image.url_640x360}}
+          sharedContentOffset={sharedContentOffset}
+          bFitToClaimRaw={bFitToClaimRaw}
+          dailyBfit={activeLeague.daily_bfit}
+          distributedTodayBfit={activeLeague.bfit_distributed_today}
+          onHeightMeasure={setHeaderHeight}
+          handleOnEditPressed={onEditPressed}
+          isCteLeague={isBfit}
+          isPublic={
+            activeLeague.access === LeagueAccess.Public ||
+            activeLeague.access === LeagueAccess.CompeteToEarn
+          }
+        />
+      )}
+      {isMembersLoading && (
+        <View style={{marginTop: 20}}>
+          {getComponentsList(5, LeaderboardItemSkeleton)}
+        </View>
+      )}
+      {!isMembersLoading && (
         <AnimatedFlatList
           {...listProps}
           ref={scrollRef}

@@ -1,17 +1,106 @@
 import React, {FC} from 'react';
-import styled from 'styled-components/native';
-import {TouchHandler, Card, Label} from '@components';
+import {StyleProp, View, ViewStyle} from 'react-native';
+import {useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/core';
 import {BlurView} from '@react-native-community/blur';
+import styled from 'styled-components/native';
+
+import {TouchHandler, Card, Label} from '@components';
+import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
 import {widthLize} from '@utils';
-import {useSelector} from 'react-redux';
-import {memoSelectFeedPreferences} from '../../../redux/feedPreferences/feedPreferencesSlice';
 import {useFeed} from '@hooks';
+
+import {memoSelectFeedPreferences} from '../../../redux/feedPreferences/feedPreferencesSlice';
 import moment from 'moment';
-import {StyleProp, View, ViewStyle} from 'react-native';
 import {FEED_CARD_HEIGHT, FEED_CAROUSEL_CARD_WIDTH} from '../constants';
 import {getResultsFromPages} from '../../../utils/api';
-import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
+import {HorizontalSliderSkeleton} from '../../../components/skeleton/HorizontalSliderSkeleton';
+
+interface ActivityHistoryProps {
+  containerStyle?: StyleProp<ViewStyle>;
+}
+
+export const UserActivityHistory: FC<ActivityHistoryProps> = ({
+  containerStyle,
+}) => {
+  const navigation = useNavigation();
+  const feedPreferences = useSelector(memoSelectFeedPreferences);
+
+  const {data: feed, isLoading: isLoading} = useFeed({
+    my_goals: feedPreferences.showGoals,
+    my_updates: feedPreferences.showUpdates,
+    friends_activities: false,
+  });
+
+  const activities = getResultsFromPages<FeedItemType>(feed).filter(
+    ({health_activity}) => !!health_activity?.id,
+  );
+
+  if (isLoading) {
+    return (
+      <View style={containerStyle}>
+        <HorizontalSliderSkeleton />
+      </View>
+    );
+  }
+
+  return (
+    <View style={containerStyle}>
+      <HeaderContainer>
+        <Title>Activity History</Title>
+        <TouchHandler
+          onPress={() => {
+            navigation.navigate('ActivityFeed');
+          }}
+        >
+          <SeeAllText>see all</SeeAllText>
+        </TouchHandler>
+      </HeaderContainer>
+
+      <SliderContainer>
+        <>
+          {activities.map(({health_activity}, index) => {
+            const activityImgUrl =
+              health_activity?.images[0]?.url_640x360 ??
+              health_activity?.sport.image_url;
+            const {id, start_time, title, points} = health_activity ?? {};
+
+            return (
+              <TouchHandler
+                key={index}
+                onPress={() => {
+                  navigation.navigate('ActivityPage', {id: id!});
+                }}
+              >
+                <CardContainer>
+                  <CardImage source={{uri: activityImgUrl}} />
+                  <BlurView
+                    style={{
+                      position: 'absolute',
+                      width: '100%',
+                      height: 53,
+                      backgroundColor: 'rgba(0,0,0,0.2)',
+                    }}
+                    blurRadius={1}
+                    overlayColor={'transparent'}
+                  />
+                  <CardHeader>
+                    <DateText>{moment(start_time).calendar()}</DateText>
+                  </CardHeader>
+                  <Line />
+                  <CardBody>
+                    <PlaceText>{title}</PlaceText>
+                    <RecordValue>{points} points</RecordValue>
+                  </CardBody>
+                </CardContainer>
+              </TouchHandler>
+            );
+          })}
+        </>
+      </SliderContainer>
+    </View>
+  );
+};
 
 const HeaderContainer = styled.View({
   flexDirection: 'row',
@@ -119,79 +208,3 @@ const PlaceText = styled(Label).attrs(() => ({
   fontSize: 18,
   lineHeight: 21,
 });
-
-interface ActivityHistoryProps {
-  containerStyle?: StyleProp<ViewStyle>;
-}
-
-export const UserActivityHistory: FC<ActivityHistoryProps> = ({
-  containerStyle,
-}) => {
-  const navigation = useNavigation();
-  const feedPreferences = useSelector(memoSelectFeedPreferences);
-
-  const {data: feed} = useFeed({
-    my_goals: feedPreferences.showGoals,
-    my_updates: feedPreferences.showUpdates,
-    friends_activities: false,
-  });
-
-  const activities = getResultsFromPages<FeedItemType>(feed).filter(
-    ({health_activity}) => !!health_activity?.id,
-  );
-
-  return (
-    <View style={containerStyle}>
-      <HeaderContainer>
-        <Title>Activity History</Title>
-        <TouchHandler
-          onPress={() => {
-            navigation.navigate('ActivityFeed');
-          }}>
-          <SeeAllText>see all</SeeAllText>
-        </TouchHandler>
-      </HeaderContainer>
-
-      <SliderContainer>
-        <>
-          {activities.map(({health_activity}, index) => {
-            const activityImgUrl =
-              health_activity?.images[0]?.url_640x360 ??
-              health_activity?.sport.image_url;
-            const {id, start_time, title, points} = health_activity ?? {};
-
-            return (
-              <TouchHandler
-                key={index}
-                onPress={() => {
-                  navigation.navigate('ActivityPage', {id: id!});
-                }}>
-                <CardContainer>
-                  <CardImage source={{uri: activityImgUrl}} />
-                  <BlurView
-                    style={{
-                      position: 'absolute',
-                      width: '100%',
-                      height: 53,
-                      backgroundColor: 'rgba(0,0,0,0.2)',
-                    }}
-                    blurRadius={1}
-                    overlayColor={'transparent'}
-                  />
-                  <CardHeader>
-                    <DateText>{moment(start_time).calendar()}</DateText>
-                  </CardHeader>
-                  <Line />
-                  <CardBody>
-                    <PlaceText>{title}</PlaceText>
-                    <RecordValue>{points} points</RecordValue>
-                  </CardBody>
-                </CardContainer>
-              </TouchHandler>
-            );
-          })}
-        </>
-      </SliderContainer>
-    </View>
-  );
-};

@@ -1,13 +1,15 @@
+import {Platform, Text} from 'react-native';
 import React, {useRef} from 'react';
-import {Button, KeyboardAvoidingView, Navbar, NAVBAR_HEIGHT} from '@components';
 import {useNavigation} from '@react-navigation/native';
 import styled from 'styled-components/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {SignInForm} from './components';
-import {Platform, Text} from 'react-native';
-import {Background} from '../Welcome/components/Background';
-import {GradientUnderlay} from '../Welcome/components';
+
 import {widthLize} from '@utils';
+import {Button, KeyboardAvoidingView, Navbar, NAVBAR_HEIGHT} from '@components';
+
+import {SignInForm} from './components';
+import {Background} from '../Welcome/components';
+import {GradientUnderlay} from '../Welcome/components';
 
 const Wrapper = styled.ScrollView.attrs(() => ({
   contentContainerStyle: {
@@ -60,7 +62,8 @@ export const SignIn = () => {
               color: '#00E9D7',
               fontSize: 15,
               fontWeight: '500',
-            }}>
+            }}
+          >
             SIGN IN
           </Text>
         }
@@ -68,7 +71,8 @@ export const SignIn = () => {
       <ContentContainer>
         <KeyboardAvoidingView
           keyboardVerticalOffset={NAVBAR_HEIGHT}
-          enabled={Platform.OS === 'ios'}>
+          enabled={Platform.OS === 'ios'}
+        >
           <FormContainer>
             <SignInForm onEmailChanged={text => (email.current = text)} />
             <ForgotPasswordButton

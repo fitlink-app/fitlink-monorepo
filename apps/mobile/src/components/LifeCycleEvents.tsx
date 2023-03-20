@@ -1,12 +1,14 @@
-import api from '@api';
-import {UpdateUserDto} from '@fitlink/api/src/modules/users/dto/update-user.dto';
-import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {useEffect, useRef} from 'react';
 import {AppState, AppStateStatus, Platform} from 'react-native';
 import BackgroundFetch from 'react-native-background-fetch';
 import {useSelector} from 'react-redux';
 import {memoSelectIsAuthenticated} from 'redux/auth';
 import * as RNLocalize from 'react-native-localize';
+
+import api from '@api';
+import {UpdateUserDto} from '@fitlink/api/src/modules/users/dto/update-user.dto';
+import {User} from '@fitlink/api/src/modules/users/entities/user.entity';
+
 import {syncAllPlatformActivities} from 'services/common';
 
 export const LifeCycleEvents = () => {
@@ -49,8 +51,12 @@ export const LifeCycleEvents = () => {
   };
 
   const pingBackend = () => {
-    if (!isAuthenticated) return;
-    api.put('/me/ping').catch(e => console.error('Failed to ping backend: ', e));
+    if (!isAuthenticated) {
+      return;
+    }
+    api
+      .put('/me/ping')
+      .catch(e => console.error('Failed to ping backend: ', e));
   };
 
   const updateTimezone = () => {
@@ -87,7 +93,6 @@ export const LifeCycleEvents = () => {
         enableHeadless: true,
       },
       async taskId => {
-
         if (isAuthenticated) {
           await syncAllPlatformActivities();
         }

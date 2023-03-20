@@ -11,31 +11,6 @@ import {widthLize} from '@utils';
 
 import {LeagueCard} from '../LeagueCard';
 
-const StyledCteLeagueCard = styled(LeagueCard)({
-  marginTop: 23,
-  marginRight: 14,
-});
-
-const LeaguesTitleContainer = styled.View({
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginLeft: '20',
-});
-
-const Title = styled(Label).attrs(() => ({
-  type: 'caption',
-  bold: true,
-}))({
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
-  fontSize: 14,
-  lineHeight: 16,
-  letterSpacing: 2,
-  textTransform: 'uppercase',
-  color: '#ffffff',
-});
-
 type CteLeagueSliderProps = {
   onCardPress: (id: string, league: League) => void;
   leagues?: LeagueWithDailyBfit[];
@@ -85,3 +60,28 @@ export const CteLeagueSlider = ({
     </View>
   );
 };
+
+const StyledCteLeagueCard = styled(LeagueCard)({
+  marginTop: 23,
+  marginRight: 14,
+});
+
+const LeaguesTitleContainer = styled.View({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginLeft: '20',
+});
+
+const Title = styled(Label).attrs(() => ({
+  type: 'caption',
+  bold: true,
+}))({
+  fontFamily: 'Roboto',
+  fontStyle: 'normal',
+  fontSize: 14,
+  lineHeight: 16,
+  letterSpacing: 2,
+  textTransform: 'uppercase',
+  color: '#ffffff',
+});

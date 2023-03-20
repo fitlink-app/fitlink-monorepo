@@ -6,3 +6,4 @@ export * from './SettingsDropdown';
 export * from './SettingsHealthActivityButton';
 export * from './DeleteAccountModal';
 export * from './ConnectGoogleFitBanner';
+export * from './BiometrySettingsButton';

@@ -7,7 +7,16 @@ import {AuthResultDto} from '@fitlink/api-sdk/types';
 import {AuthState} from './types';
 import {signIn, signInWithApple, signInWithGoogle, signUp} from './actions';
 
-export const initialState: AuthState = {authResult: null, error: null};
+export const initialState: AuthState = {
+  authResult: null,
+  error: null,
+  clientSideAccess: {
+    accessGrantedAt: undefined,
+    isAccessGranted: false,
+    pinErrorsCount: 0,
+    pinErrorCountExceededAt: undefined,
+  },
+};
 
 const isAnyOfSignInFulfilled = isAnyOf(
   signUp.fulfilled,
@@ -37,8 +46,26 @@ const slice = createSlice({
     setAuthResult: (state, {payload}: PayloadAction<AuthResultDto>) => {
       state.authResult = payload;
     },
-    clearAuthResult: state => {
-      state.authResult = null;
+    resetAuthState: () => initialState,
+    grantClientSideAccess: state => {
+      state.clientSideAccess.accessGrantedAt = Date.now();
+      state.clientSideAccess.isAccessGranted = true;
+    },
+    revokeClientSideAccess: state => {
+      state.clientSideAccess.isAccessGranted = false;
+    },
+    incrementPinErrorCount: state => {
+      state.clientSideAccess.pinErrorsCount =
+        state.clientSideAccess.pinErrorsCount + 1;
+    },
+    resetPinErrorCount: state => {
+      state.clientSideAccess.pinErrorsCount = 0;
+    },
+    resetLastPinErrorCountExceeded: state => {
+      state.clientSideAccess.pinErrorCountExceededAt = Date.now();
+    },
+    clearLastPinErrorCountExceeded: state => {
+      state.clientSideAccess.pinErrorCountExceededAt = undefined;
     },
   },
   extraReducers: builder => {
@@ -49,6 +76,8 @@ const slice = createSlice({
         }
       })
       .addMatcher(isAnyOfSignInFulfilled, (state, {payload}) => {
+        // TODO: it's not safe
+        // move all tokens logic to API SDK, and just get authorized: boolean
         state.authResult = payload;
         api.setTokens(payload);
       })
@@ -61,6 +90,15 @@ const slice = createSlice({
   },
 });
 
-export const {setAuthResult, clearAuthResult} = slice.actions;
+export const {
+  setAuthResult,
+  resetAuthState,
+  grantClientSideAccess,
+  revokeClientSideAccess,
+  incrementPinErrorCount,
+  resetPinErrorCount,
+  resetLastPinErrorCountExceeded,
+  clearLastPinErrorCountExceeded,
+} = slice.actions;
 
 export default slice.reducer;
