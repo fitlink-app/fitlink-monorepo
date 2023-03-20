@@ -88,7 +88,11 @@ export class StravaService {
           },
           timeout: 3000
         })
-        .pipe(map((response) => response.data))
+        .pipe(map((response) => {
+          console.info(response.data);
+          console.info(`Strava activity ${activityId}`, JSON.stringify(response.data));
+          return response.data
+        }))
         .toPromise()
     )
     activityErr && console.error(activityErr.message)
