@@ -54,6 +54,7 @@ export class StravaControler {
   @Public()
   @Post('/webhook')
   webhookReceiver(@Body() stravaEventData: StravaEventData, @ClientIdParam() clientId: ClientIdType) {
+    console.info('stravaEventData', stravaEventData);
     return this.stravaService.processStravaData(stravaEventData, clientId)
   }
 
