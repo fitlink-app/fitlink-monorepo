@@ -160,7 +160,8 @@ export const Welcome = () => {
               <InvitationLogoContainer
                 style={{
                   top: insets.top + 40,
-                }}>
+                }}
+              >
                 <Logo />
               </InvitationLogoContainer>
               <TeamInvitation
