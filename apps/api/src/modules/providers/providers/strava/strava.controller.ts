@@ -72,7 +72,8 @@ export class StravaControler {
     @Res() res,
   ) {
     try {
-      const { userId, client_id } = JSON.parse(state);
+      const { userId, client_id } = JSON.parse(decodeURIComponent(state));
+
       await this.stravaService.saveStravaProvider(code, userId, scope, client_id)
       res.status(302).redirect('fitlink-app://provider/strava/auth-success')
     } catch (e) {
