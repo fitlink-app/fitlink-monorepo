@@ -14,15 +14,16 @@ export class bfitallocation1679400650037 implements MigrationInterface {
 
         // Calculate the total number of users in all leagues with access set to 'competetoearn'
         const totalUsersCount = await queryRunner.query(`
-        SELECT SUM(totalUsers) as totalUsersCount
-        FROM (
-            SELECT league.id AS leagueId, COUNT(user.id) AS totalUsers
-            FROM league
-            LEFT JOIN users user ON league.id = user.leagueId
-            WHERE league.access = '${LeagueAccess.CompeteToEarn}'
-            GROUP BY league.id
-        ) AS total_users
-        `);
+  WITH total_users AS (
+    SELECT league.id AS leagueId, COUNT(user.id) AS totalUsers
+    FROM league
+    LEFT JOIN users user ON league.id = user.leagueId
+    WHERE league.access = 'competetoearn'
+    GROUP BY league.id
+  )
+  SELECT SUM(totalUsers) as totalUsersCount
+  FROM total_users
+`);
 
         const globalTotalUsersCount = totalUsersCount[0].totalUsersCount;
 
