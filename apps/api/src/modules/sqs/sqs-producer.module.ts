@@ -4,7 +4,7 @@ import { SqsOptions, SqsProducerOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
 import * as AWS from 'aws-sdk';
 import { SqsModule } from '@ssut/nestjs-sqs'
 import { QUEUE_NAME } from './sqs.constant'
-import { SQSDistributionSenderService } from './bfit-producer.service'
+import { SQSDistributionSenderService } from './sqs-producer.service'
 
 @Module({
 	imports: [

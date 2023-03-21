@@ -15,7 +15,7 @@ import FormData = require('form-data')
 import { ActivitiesSetup, ActivitiesTeardown } from './seeds/activities.seed'
 import { BfitDistributionModule } from '../src/modules/sqs/sqs.module'
 import { SQSProducerModule } from '../src/modules/sqs/sqs-producer.module'
-import { SQSDistributionSenderService } from '../src/modules/sqs/bfit-producer.service'
+import { SQSDistributionSenderService } from '../src/modules/sqs/sqs-producer.service'
 import { BfitDistributionService } from '../src/modules/sqs/sqs.service'
 
 const activityColumns = [
