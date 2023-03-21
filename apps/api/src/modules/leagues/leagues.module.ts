@@ -29,6 +29,7 @@ import { SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
 import * as AWS from 'aws-sdk';
 import { BfitDistributionModule } from '../sqs/sqs.module'
 import { SQSProducerModule } from '../sqs/sqs-producer.module'
+import { HealthActivitiesModule } from '../health-activities/health-activities.module'
 
 @Module({
   imports: [
