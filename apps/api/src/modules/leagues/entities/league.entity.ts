@@ -102,6 +102,14 @@ export class League extends CreatableEntity {
   })
   bfit?: number
 
+  // daily bfit allocation for this league if it's a compete to earn league
+  @Column({
+    type: 'bigint',
+    default: 0,
+    transformer: new ColumnNumberTransformer()
+  })
+  bfitAllocation?: number
+
   @OneToMany(() => LeaguesInvitation, (invitation) => invitation.league)
   invitations: LeaguesInvitation[]
 

@@ -55,6 +55,7 @@ import { FilterCompeteToEarnDto } from './dto/filter-compete-to-earn.dto'
 import { registry, msg } from 'kujira.js'
 import { GasPrice, SigningStargateClient, coins } from '@cosmjs/stargate'
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
+import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 
 type LeagueOptions = {
   teamId?: string
@@ -92,6 +93,9 @@ export class LeaguesService {
 
     @InjectRepository(LeagueBfitEarnings)
     private LeagueBfitEarningsRepository: Repository<LeagueBfitEarnings>,
+
+    @InjectRepository(HealthActivity)
+    private healthActivityRepository: Repository<HealthActivity>,
 
     @InjectRepository(Team)
     private teamRepository: Repository<Team>,
@@ -383,6 +387,20 @@ export class LeaguesService {
     const result = await query.getRawOne()
     let total = result.total ? Number(result.total) : 0
     return { total }
+  }
+
+  getTotalUsersPointsForLeagueToday(leagueId: string): Promise<string> {
+    const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
+    const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
+    return this.healthActivityRepository
+      .createQueryBuilder('activity')
+      .select('SUM(activity.points)', 'totalPoints')
+      .innerJoin('activity.user', 'user')
+      .innerJoin('league', 'league', 'league.userId = user.id')
+      .where('league.id = :league', { leagueId })
+      .andWhere('activity.startDate >= :startOfDay', { startOfDay })
+      .andWhere('activity.startDate <= :endOfDay', { endOfDay })
+      .getRawOne().then((grandTotal) => grandTotal.totalPoints || 0);
   }
 
   async isOwnedBy(leagueId: string, userId: string) {

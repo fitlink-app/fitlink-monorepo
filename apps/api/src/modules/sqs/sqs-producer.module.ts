@@ -3,8 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { SqsOptions, SqsProducerOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
 import * as AWS from 'aws-sdk';
 import { SqsModule } from '@ssut/nestjs-sqs'
-import { QUEUE_NAME } from './bfit.constant'
-import { BfitDistributionSenderService } from './bfit-producer.service'
+import { QUEUE_NAME } from './sqs.constant'
+import { SQSDistributionSenderService } from './bfit-producer.service'
 
 @Module({
 	imports: [
@@ -35,8 +35,8 @@ import { BfitDistributionSenderService } from './bfit-producer.service'
 	],
 	controllers: [],
 	providers: [
-		BfitDistributionSenderService
+		SQSDistributionSenderService
 	],
-	exports: [BfitDistributionSenderService]
+	exports: [SQSDistributionSenderService]
 })
-export class BfitDistributionProducerModule { }
+export class SQSProducerModule { }

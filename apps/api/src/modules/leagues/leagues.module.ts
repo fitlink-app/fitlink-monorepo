@@ -27,12 +27,12 @@ import { WalletTransactionsModule } from '../wallet-transactions/wallet-transact
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
 import * as AWS from 'aws-sdk';
-import { BfitDistributionModule } from '../bfit/bfit.module'
-import { BfitDistributionProducerModule } from '../bfit/bfit-producer.module'
+import { BfitDistributionModule } from '../sqs/sqs.module'
+import { SQSProducerModule } from '../sqs/sqs-producer.module'
 
 @Module({
   imports: [
-    BfitDistributionProducerModule,
+    SQSProducerModule,
     ConfigModule,
     TypeOrmModule.forFeature([
       League,
@@ -44,7 +44,7 @@ import { BfitDistributionProducerModule } from '../bfit/bfit-producer.module'
       LeagueBfitClaim,
       User,
       LeagueBfitEarnings,
-      WalletTransaction
+      WalletTransaction,
     ]),
     CommonModule,
     AuthModule,

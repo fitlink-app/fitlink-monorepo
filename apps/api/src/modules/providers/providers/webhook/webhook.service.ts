@@ -5,13 +5,15 @@ import { healthActivityType } from '../../../health-activities/dto/healthActivit
 import { HealthActivitiesService } from '../../../health-activities/health-activities.service'
 import { ProvidersService } from '../../providers.service'
 import { WebhookEventActivity, WebhookEventPayload } from '../../types/webhook'
+import { SQSDistributionSenderService } from '../../../sqs/sqs-producer.service'
+import { SQSTypes } from '../../../sqs/sqs.types'
+import { v4 } from 'uuid'
 
 @Injectable()
 export class WebhookService {
   constructor(
-    private configService: ConfigService,
-    private providersService: ProvidersService,
-    private healthActivityService: HealthActivitiesService
+    private healthActivityService: HealthActivitiesService,
+    private sqsDistributionSenderService: SQSDistributionSenderService,
   ) {}
 
   async processWebhookData(
@@ -21,15 +23,18 @@ export class WebhookService {
     const normalized = webhookEventData.activities.map((e) => {
       return { normalized: this.createNormalizedHealthActivity(e), raw: e }
     })
-    return Promise.all(
-      normalized.map((activity) => {
-        return this.healthActivityService.create(
-          activity.normalized,
-          userId,
-          activity.raw
-        )
-      })
-    )
+    normalized.forEach((activity) => {
+      this.sqsDistributionSenderService.sendToQueue(
+        'points-' + v4(),
+        SQSTypes.points,
+        userId,
+        {
+          activity: activity.normalized,
+          webhookEventActivity: activity.raw
+        }
+      )
+    })
+    return { success: true }
   }
 
   createNormalizedHealthActivity({

@@ -11,8 +11,9 @@ import { Leaderboard } from '../leaderboards/entities/leaderboard.entity'
 import { SqsConsumerOptions, SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
 import * as AWS from 'aws-sdk';
 import { SqsModule } from '@ssut/nestjs-sqs'
-import { BfitDistributionService } from './bfit.service'
-import { QUEUE_NAME } from './bfit.constant'
+import { BfitDistributionService } from './sqs.service'
+import { QUEUE_NAME } from './sqs.constant'
+import { HealthActivitiesModule } from '../health-activities/health-activities.module'
 
 @Module({
 	imports: [
@@ -26,6 +27,7 @@ import { QUEUE_NAME } from './bfit.constant'
 		]),
 		ConfigModule,
 		forwardRef(() => LeaguesModule),
+		forwardRef(() => HealthActivitiesModule),
 		SqsModule.registerAsync({
 			imports: [ConfigModule],
 			inject: [ConfigService],
