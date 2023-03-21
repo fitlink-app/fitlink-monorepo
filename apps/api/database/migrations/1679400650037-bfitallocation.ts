@@ -14,26 +14,26 @@ export class bfitallocation1679400650037 implements MigrationInterface {
 
         // Calculate the total number of users in all leagues with access set to 'competetoearn'
         const totalUsersCount = await queryRunner.query(`
-  WITH total_users AS (
-    SELECT league.id AS leagueId, COUNT(user.id) AS totalUsers
-    FROM league
-    LEFT JOIN users user ON league.id = user.leagueId
-    WHERE league.access = 'competetoearn'
-    GROUP BY league.id
-  )
-  SELECT SUM(totalUsers) as totalUsersCount
-  FROM total_users
-`);
+            WITH total_users AS (
+                SELECT league_users_user."leagueId",  COUNT(league_users_user."userId") as totalUsers
+                FROM league_users_user
+                INNER JOIN league ON league_users_user."leagueId" = league.id
+                WHERE league.access = 'competetoearn'
+                GROUP BY league_users_user."leagueId"
+            )
+            SELECT SUM(totalUsers) as totalUsersCount
+            FROM total_users
+        `);
 
         const globalTotalUsersCount = totalUsersCount[0].totalUsersCount;
 
         // Calculate the total number of users in each league with access set to 'competetoearn'
         const leagueUsers = await queryRunner.query(`
-            SELECT league.id AS leagueId, COUNT(user.id) AS totalUsers
-            FROM league
-            LEFT JOIN users user ON league.id = user.leagueId
-            WHERE league.access = '${LeagueAccess.CompeteToEarn}'
-            GROUP BY league.id
+            SELECT league_users_user."leagueId" AS leagueId, COUNT(league_users_user."userId") AS totalUsers
+            FROM league_users_user
+            INNER JOIN league ON league_users_user."leagueId" = league.id
+            WHERE league.access = 'competetoearn'
+            GROUP BY league_users_user."leagueId"
         `);
 
         // Calculate the allocation for each league and update the "league" table
