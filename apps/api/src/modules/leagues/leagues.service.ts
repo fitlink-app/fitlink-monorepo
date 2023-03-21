@@ -1685,7 +1685,7 @@ export class LeaguesService {
     const started = new Date()
     const leagues = await this.leaguesRepository
       .createQueryBuilder('league')
-      .innerJoinAndSelect('league.active_leaderboard', 'active_leaderboard')
+      .leftJoinAndSelect('league.active_leaderboard', 'active_leaderboard')
       .leftJoinAndSelect('league.users', 'users')
       .where('league.ends_at <= :date', { date: new Date() })
       .andWhere('active_leaderboard.completed = false')
