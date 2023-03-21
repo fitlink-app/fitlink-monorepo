@@ -19,7 +19,7 @@ export class bfitallocation1679400650037 implements MigrationInterface {
             SELECT league.id AS leagueId, COUNT(user.id) AS totalUsers
             FROM league
             LEFT JOIN users user ON league.id = user.leagueId
-            WHERE league.access = '${LeagueAccess.competetoearn}'
+            WHERE league.access = '${LeagueAccess.CompeteToEarn}'
             GROUP BY league.id
         ) AS total_users
         `);
@@ -31,7 +31,7 @@ export class bfitallocation1679400650037 implements MigrationInterface {
             SELECT league.id AS leagueId, COUNT(user.id) AS totalUsers
             FROM league
             LEFT JOIN users user ON league.id = user.leagueId
-            WHERE league.access = '${LeagueAccess.competetoearn}'
+            WHERE league.access = '${LeagueAccess.CompeteToEarn}'
             GROUP BY league.id
         `);
 
