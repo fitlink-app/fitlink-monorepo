@@ -49,7 +49,7 @@ export class TasksService {
       })
       .select('COUNT(user.id)', 'totalUsers')
       .getRawOne()
-      .then((res) => res.totalUsers)
+      .then((res) => parseInt(res.totalUsers, 10))
 
     for (const league of leagues) {
       const leagueUsers = league.participants_total
