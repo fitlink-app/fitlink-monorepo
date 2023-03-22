@@ -378,18 +378,18 @@ export class LeaguesService {
     return { total }
   }
 
-  getTotalUsersPointsForLeagueToday(leagueId: string): Promise<string> {
+  async getTotalUsersPointsForLeagueToday(leagueId: string): Promise<string> {
     const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
     const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
     return this.leaguesRepository
-      .createQueryBuilder('league')
-      .innerJoin('league.user', 'user')
-      .innerJoin('health_activity', 'activity', 'league.userId = user.id')
-      .select('SUM(activity.points)', 'totalPoints')
-      .where('league.id = :league', { leagueId })
-      .andWhere('activity.startDate >= :startOfDay', { startOfDay })
-      .andWhere('activity.startDate <= :endOfDay', { endOfDay })
-      .getRawOne().then((grandTotal) => grandTotal.totalPoints || 0);
+        .createQueryBuilder('league')
+        .innerJoin('league.users', 'user')
+        .innerJoin('health_activity', 'activity', 'activity.user_id = user.id')
+        .select('SUM(activity.points)', 'totalPoints')
+        .where('league.id = :league', { leagueId })
+        .andWhere('activity.startDate >= :startOfDay', { startOfDay })
+        .andWhere('activity.startDate <= :endOfDay', { endOfDay })
+        .getRawOne().then((grandTotal) => grandTotal.totalPoints || 0);
   }
 
   async isOwnedBy(leagueId: string, userId: string) {
