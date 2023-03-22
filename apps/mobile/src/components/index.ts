@@ -14,3 +14,4 @@ export * from './skeleton';
 export * from './helpers';
 export * from './pin';
 export * from './UpdateInfo';
+export * from './EnterPinCodeProvider';

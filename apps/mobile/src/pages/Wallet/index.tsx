@@ -82,7 +82,7 @@ export const Wallet = () => {
   };
 
   if (!isConnected) {
-    return WalletNotConnectedContent;
+    return <WalletNotConnectedContent />;
   }
 
   const renderSeparator = () => <View style={{height: 26}} />;

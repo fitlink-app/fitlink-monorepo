@@ -2,36 +2,32 @@ import React, {useEffect} from 'react';
 import {useSelector} from 'react-redux';
 
 import {navigationRef} from '@routes';
-import {useMe, useModal, useWasIdle} from '@hooks';
+import {useMe, useModal} from '@hooks';
+import {AuthPromiseProvider} from '@model';
 import {Modal, TeamInvitation} from '@components';
 import {DeepLinkType} from '@fitlink/api/src/constants/deep-links';
 import {Team} from '@fitlink/api/src/modules/teams/entities/team.entity';
 
-import {useAppDispatch, useAppStore} from '../../../redux/store';
+import {useAppDispatch} from '../../../redux/store';
 import {selectIsAuthenticated} from '../../../redux/auth';
 import {
   getInvitationData,
   resetTeamInvitation,
   selectTeamInvitation,
 } from '../../../redux/teamInvitation/teamInvitationSlice';
-import {useAuthResolvers} from '../../../contexts';
 import {getUrlParams} from '../../../utils/api';
 
 export const useDynamicLinksHandler = () => {
   const navigation = navigationRef;
   const {openModal, closeModal} = useModal();
   const dispatch = useAppDispatch();
-  const store = useAppStore();
 
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const {invitation, code} = useSelector(selectTeamInvitation);
 
-  const {data: me, refetch: refetchUser} = useMe({enabled: isAuthenticated});
+  const {refetch: refetchUser} = useMe();
 
-  const {wasIdle} = useWasIdle();
-  const {enqueueAuthResolver} = useAuthResolvers();
-
-  const handleDynamicLink = async (url: string) => {
+  const handleDynamicLink = async (url: string, isOboarded: boolean) => {
     const params = getUrlParams(url);
 
     switch (params.type) {
@@ -45,7 +41,9 @@ export const useDynamicLinksHandler = () => {
         break;
 
       case DeepLinkType.LeagueInvitation:
-        withAbleToHandle(handleLeagueInvitation)();
+        if (isAuthenticated && isOboarded) {
+          handleLeagueInvitation();
+        }
         break;
 
       case DeepLinkType.EmailVerification:
@@ -53,11 +51,10 @@ export const useDynamicLinksHandler = () => {
         break;
 
       case DeepLinkType.League:
-        if (wasIdle()) {
-          enqueueAuthResolver(() => handleLeagueDeepLink(params.id));
-        } else {
-          withAbleToHandle(handleLeagueDeepLink)(params.id);
+        if (isAuthenticated && isOboarded) {
+          await AuthPromiseProvider.getInstance().get();
         }
+        handleLeagueDeepLink(params.id);
         break;
 
       default:
@@ -67,19 +64,9 @@ export const useDynamicLinksHandler = () => {
 
   useEffect(() => {
     if (invitation && code) {
-      withAbleToHandle(showTeamInvitationModal)(invitation, code);
+      showTeamInvitationModal(invitation, code);
     }
   }, [invitation, code]);
-
-  const withAbleToHandle =
-    (handler: (...args: any[]) => void) =>
-    (...args: any[]) => {
-      const isAuth = selectIsAuthenticated(store.getState());
-      if (!isAuth || !me?.onboarded) {
-        return;
-      }
-      handler(...args);
-    };
 
   const handleLeagueDeepLink = (id?: string) => {
     if (id !== undefined) {
@@ -155,11 +142,12 @@ export const useDynamicLinksHandler = () => {
   };
 
   const showTeamInvitationModal = async (invitation: Team, code: string) => {
-    const userQuery = await refetchUser();
+    const {data: me} = await refetchUser();
 
     if (
-      !userQuery.data ||
-      userQuery.data.teams?.find(team => team.id === invitation?.id)
+      !me?.onboarded ||
+      !isAuthenticated ||
+      me?.teams?.find(team => team.id === invitation?.id)
     ) {
       console.warn('User already member of team.');
       return;
