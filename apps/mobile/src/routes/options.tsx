@@ -14,7 +14,6 @@ import {RootStackParamList} from './types';
 const routeToTitleMap: Partial<Record<keyof RootStackParamList, string>> = {
   CheatingReportScreen: 'Report',
   CreatePinCodeScreen: 'Login',
-  EnterPinCodeScreen: 'Login',
   ChangePinCodeScreen: 'Change Pin',
   EnableBiometryPinCodeScreen: 'Enable Biometry',
 };

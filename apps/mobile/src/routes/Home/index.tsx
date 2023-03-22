@@ -3,7 +3,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import styled, {useTheme} from 'styled-components/native';
 import {BottomTabBar} from './components';
 import {ActivityFeed, Discover, Feed, Leagues, Rewards} from 'pages';
-import {useMe, useRevokeAccessOnIdle} from '@hooks';
+import {useMe} from '@hooks';
 
 const HomeIcon = require('../../../assets/images/icon/navigator-icons/home.png');
 const ActivityIcon = require('../../../assets/images/icon/navigator-icons/users.png');
@@ -39,8 +39,6 @@ const renderTabIcon = (focused: boolean, name: string) => {
 export const HomeNavigator = () => {
   const {colors} = useTheme();
   const {data: me} = useMe({enabled: false});
-
-  useRevokeAccessOnIdle();
 
   return (
     <Tab.Navigator
