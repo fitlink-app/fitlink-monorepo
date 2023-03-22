@@ -1,5 +1,4 @@
-import { HttpModule, HttpService, Module, forwardRef } from '@nestjs/common'
-import { SqsModule } from '@ssut/nestjs-sqs'
+import { HttpModule, Module } from '@nestjs/common'
 import { LeaguesService } from './leagues.service'
 import { LeaguesController } from './leagues.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -23,18 +22,18 @@ import { NotificationsModule } from '../notifications/notifications.module'
 import { LeagueBfitClaim } from './entities/bfit-claim.entity'
 import { LeagueBfitEarnings } from './entities/bfit-earnings.entity'
 import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
-import { WalletTransactionsModule } from '../wallet-transactions/wallet-transactions.module'
-import { ConfigModule, ConfigService } from '@nestjs/config'
-import { SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
-import * as AWS from 'aws-sdk';
-import { BfitDistributionModule } from '../sqs/sqs.module'
+import { ConfigModule } from '@nestjs/config'
 import { SQSProducerModule } from '../sqs/sqs-producer.module'
-import { HealthActivitiesModule } from '../health-activities/health-activities.module'
+import { Sport } from '../sports/entities/sport.entity'
+import { HealthActivityDebug } from '../health-activities/entities/health-activity-debug.entity'
+import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
+import { FeedItem } from '../feed-items/entities/feed-item.entity'
+import { Provider } from '../providers/entities/provider.entity'
+import { Image } from '../images/entities/image.entity'
 
 @Module({
   imports: [
-    SQSProducerModule,
-    ConfigModule,
+    GoalsEntriesModule,
     TypeOrmModule.forFeature([
       League,
       Leaderboard,
@@ -46,14 +45,23 @@ import { HealthActivitiesModule } from '../health-activities/health-activities.m
       User,
       LeagueBfitEarnings,
       WalletTransaction,
+      HealthActivityDebug,
+      Sport,
+      FeedItem,
+      Image,
+      Provider,
+      Sport,
+      User,
     ]),
+    SQSProducerModule,
+    ConfigModule,
     CommonModule,
     AuthModule,
     LeaguesInvitationModule,
     FeedItemsModule,
     EventEmitter2,
     NotificationsModule,
-    HttpModule
+    HttpModule,
   ],
   controllers: [LeaguesController],
   providers: [

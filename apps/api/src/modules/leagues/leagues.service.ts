@@ -40,7 +40,6 @@ import { CommonService } from '../common/services/common.service'
 import { LeagueJoinedEvent } from './events/league-joined.event'
 import { LeagueWonEvent } from './events/league-won.event'
 import { Events } from '../../events'
-import { ConfigService } from '@nestjs/config'
 import { differenceInMilliseconds } from 'date-fns'
 import { NotificationsService } from '../notifications/notifications.service'
 import { NotificationAction } from '../notifications/notifications.constants'
@@ -85,17 +84,12 @@ export class LeaguesService {
     @InjectRepository(LeaderboardEntry)
     private leaderboardEntryRepository: Repository<LeaderboardEntry>,
 
-    @InjectRepository(WalletTransaction)
-    private walletTransactionRepository: Repository<WalletTransaction>,
-
     @InjectRepository(LeagueBfitClaim)
     private leagueBfitClaimRepository: Repository<LeagueBfitClaim>,
 
     @InjectRepository(LeagueBfitEarnings)
     private LeagueBfitEarningsRepository: Repository<LeagueBfitEarnings>,
 
-    @InjectRepository(HealthActivity)
-    private healthActivityRepository: Repository<HealthActivity>,
 
     @InjectRepository(Team)
     private teamRepository: Repository<Team>,
@@ -106,15 +100,10 @@ export class LeaguesService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
 
-    @InjectRepository(LeaguesInvitation)
-    private invitationRepository: Repository<LeaguesInvitation>,
-
     private leaderboardEntriesService: LeaderboardEntriesService,
     private commonService: CommonService,
     private eventEmitter: EventEmitter2,
-    private configService: ConfigService,
-    private httpService: HttpService,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(
@@ -392,11 +381,11 @@ export class LeaguesService {
   getTotalUsersPointsForLeagueToday(leagueId: string): Promise<string> {
     const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
     const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
-    return this.healthActivityRepository
-      .createQueryBuilder('activity')
-      .select('SUM(activity.points)', 'totalPoints')
+    return this.leaguesRepository
+      .createQueryBuilder('league')
       .innerJoin('activity.user', 'user')
       .innerJoin('league', 'league', 'league.userId = user.id')
+      .select('SUM(activity.points)', 'totalPoints')
       .where('league.id = :league', { leagueId })
       .andWhere('activity.startDate >= :startOfDay', { startOfDay })
       .andWhere('activity.startDate <= :endOfDay', { endOfDay })
