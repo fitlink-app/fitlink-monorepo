@@ -381,15 +381,16 @@ export class LeaguesService {
   async getTotalUsersPointsForLeagueToday(leagueId: string): Promise<string> {
     const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
     const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
-    return this.leaguesRepository
+    return await this.leaguesRepository
         .createQueryBuilder('league')
         .innerJoin('league.users', 'user')
-        .innerJoin('health_activity', 'activity', 'activity.user_id = user.id')
-        .select('SUM(activity.points)', 'totalPoints')
-        .where('league.id = :league', { leagueId })
-        .andWhere('activity.startDate >= :startOfDay', { startOfDay })
-        .andWhere('activity.startDate <= :endOfDay', { endOfDay })
+        .innerJoin('user.health_activities', 'health_activity')
+        .select('SUM(health_activity.points)', 'totalPoints')
+        .where('league.id = :leagueId', { leagueId })
+        .andWhere('health_activity.start_time >= :startOfDay', { startOfDay })
+        .andWhere('health_activity.start_time <= :endOfDay', { endOfDay })
         .getRawOne().then((grandTotal) => grandTotal.totalPoints || 0);
+
   }
 
   async isOwnedBy(leagueId: string, userId: string) {

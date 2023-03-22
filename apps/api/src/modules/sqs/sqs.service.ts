@@ -122,10 +122,8 @@ export class BfitDistributionService {
 
 
 				// we multiply by 1000_000 because $BFIT has 6 decimals
-				let bfit = Math.round(
-					(amountAvailableToDistribute === 0 ? 1 : amountAvailableToDistribute) *
-					((points / total_user_league_points) * 1000_000)
-				)
+				let bfit = amountAvailableToDistribute *
+					(points / total_user_league_points)
 
 				// this should never happen but just in case
 				if (bfit > amountAvailableToDistribute) {
