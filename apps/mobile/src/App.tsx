@@ -17,7 +17,7 @@ import Router, {NavigationProvider} from '@routes';
 import {UpdateInfo} from 'components/UpdateInfo';
 import ThemeProvider from './theme/ThemeProvider';
 import {QueryPersistor} from 'query/QueryPersistor';
-import {ModalProvider, Transition} from './contexts';
+import {ModalProvider, Transition, AuthResolversProvider} from './contexts';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -50,17 +50,19 @@ const App = () => {
           <AppBackground>
             <Provider store={store}>
               <PersistGate persistor={persistor}>
-                <NavigationProvider>
-                  <LifeCycleEvents />
-                  <Transition>
-                    <ModalProvider>
-                      <QueryPersistor>
-                        <DeeplinkHandler />
-                        <Router />
-                      </QueryPersistor>
-                    </ModalProvider>
-                  </Transition>
-                </NavigationProvider>
+                <AuthResolversProvider>
+                  <NavigationProvider>
+                    <LifeCycleEvents />
+                    <Transition>
+                      <ModalProvider>
+                        <QueryPersistor>
+                          <DeeplinkHandler />
+                          <Router />
+                        </QueryPersistor>
+                      </ModalProvider>
+                    </Transition>
+                  </NavigationProvider>
+                </AuthResolversProvider>
               </PersistGate>
             </Provider>
           </AppBackground>

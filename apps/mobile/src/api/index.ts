@@ -44,3 +44,4 @@ export default makeApi(axios, {
 });
 
 export * from './fcmTokens';
+export * from './me';

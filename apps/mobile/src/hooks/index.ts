@@ -13,3 +13,4 @@ export * from './useMeasureLayout';
 export * from './useRevokeAccess';
 export * from './useRevokeAccessOnIdle';
 export * from './useInterval';
+export * from './useWasIdle';

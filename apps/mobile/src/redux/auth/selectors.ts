@@ -1,14 +1,11 @@
 import {RootState} from '../reducer';
-import {createSelector} from '@reduxjs/toolkit';
 
 export const selectAuthState = (state: RootState) => state.auth;
 
 export const selectAuthResult = ({auth: {authResult}}: RootState) => authResult;
 
-export const memoSelectIsAuthenticated = createSelector(
-  [selectAuthResult],
-  authResult => !!authResult,
-);
+export const selectIsAuthenticated = (state: RootState) =>
+  !!selectAuthResult(state);
 
 export const selectIsClientSideAccessGranted = (state: RootState) =>
   selectAuthState(state).clientSideAccess.isAccessGranted;

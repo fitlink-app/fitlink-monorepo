@@ -25,7 +25,7 @@ import {
   RootLoadingScreen,
 } from '@pages';
 import {
-  memoSelectIsAuthenticated,
+  selectIsAuthenticated,
   selectClientSideAccessGrantedAt,
 } from '../redux/auth';
 
@@ -46,7 +46,7 @@ export default function Router() {
   const clientSideAccessGrantedAt = useAppSelector(
     selectClientSideAccessGrantedAt,
   );
-  const isAuthenticated = useAppSelector(memoSelectIsAuthenticated);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
   const isMainFlowAvailable = !!(isAuthenticated && clientSideAccessGrantedAt);
 

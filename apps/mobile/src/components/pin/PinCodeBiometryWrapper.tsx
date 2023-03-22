@@ -38,6 +38,7 @@ export const PinCodeBiometryWrapper: FC<PropsWithChildren<IAuthViewProps>> = ({
   const isBiometricAuthInProgressRef = useRef(false);
   const prevAppStateRef = useRef<AppStateStatus>('active');
   const isFinishingRef = useRef(false);
+  const errorTimeoutRef = useRef<NodeJS.Timeout>();
 
   const [enteredPin, setEnteredPin] = useState<string>('');
   const [biometryType, setBiometryType] = useState<BIOMETRY_TYPE | null>(null);
@@ -116,8 +117,7 @@ export const PinCodeBiometryWrapper: FC<PropsWithChildren<IAuthViewProps>> = ({
       setIsError(true);
       isFinishingRef.current = false;
 
-      // TODO: handle case when user starts input before delayed reset
-      setTimeout(() => {
+      errorTimeoutRef.current = setTimeout(() => {
         onErrorChange(false);
         setIsError(false);
         setEnteredPin('');
@@ -131,6 +131,7 @@ export const PinCodeBiometryWrapper: FC<PropsWithChildren<IAuthViewProps>> = ({
 
   const onPinChange = (pin: string) => {
     if (pin.length < PIN_LENGTH) {
+      errorTimeoutRef.current && clearTimeout(errorTimeoutRef.current);
       setIsError(false);
       onErrorChange(false);
     }

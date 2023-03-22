@@ -2,7 +2,7 @@ import {useEffect, useRef} from 'react';
 import {AppState, AppStateStatus, Platform} from 'react-native';
 import BackgroundFetch from 'react-native-background-fetch';
 import {useSelector} from 'react-redux';
-import {memoSelectIsAuthenticated} from 'redux/auth';
+import {selectIsAuthenticated} from 'redux/auth';
 import * as RNLocalize from 'react-native-localize';
 
 import api from '@api';
@@ -13,7 +13,7 @@ import {syncAllPlatformActivities} from 'services/common';
 
 export const LifeCycleEvents = () => {
   const appState = useRef(AppState.currentState);
-  const isAuthenticated = useSelector(memoSelectIsAuthenticated);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   useEffect(() => {
     runBackgroundSyncTasks();
