@@ -30,6 +30,7 @@ import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
 import { FeedItem } from '../feed-items/entities/feed-item.entity'
 import { Provider } from '../providers/entities/provider.entity'
 import { Image } from '../images/entities/image.entity'
+import { LeagueWaitlistUser } from './entities/league-waitlist-user.entity'
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { Image } from '../images/entities/image.entity'
       Provider,
       Sport,
       User,
+      LeagueWaitlistUser
     ]),
     SQSProducerModule,
     ConfigModule,
@@ -61,7 +63,7 @@ import { Image } from '../images/entities/image.entity'
     FeedItemsModule,
     EventEmitter2,
     NotificationsModule,
-    HttpModule,
+    HttpModule
   ],
   controllers: [LeaguesController],
   providers: [
