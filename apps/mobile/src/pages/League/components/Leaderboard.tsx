@@ -36,7 +36,6 @@ export interface LeaderboardProps
   userId: string;
   bFitToClaimRaw?: number;
   onRefresh: () => void;
-  onEditPressed: () => void;
   activeLeague: LeaguePublic;
   isMembersLoading: boolean;
   isLeagueLoading: boolean;
@@ -48,7 +47,6 @@ export const Leaderboard = ({
   refreshing,
   bFitToClaimRaw,
   onRefresh,
-  onEditPressed,
   activeLeague,
   isMembersLoading,
   isLeagueLoading,
@@ -111,7 +109,6 @@ export const Leaderboard = ({
           dailyBfit={activeLeague.daily_bfit}
           distributedTodayBfit={activeLeague.bfit_distributed_today}
           onHeightMeasure={setHeaderHeight}
-          handleOnEditPressed={onEditPressed}
           isCteLeague={isBfit}
           isPublic={
             activeLeague.access === LeagueAccess.Public ||

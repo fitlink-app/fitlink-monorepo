@@ -7,6 +7,7 @@ import {RootStackParamList} from '@routes';
 import {PinCodeWrapper} from '@components';
 import {grantClientSideAccess, resetPinErrorCount} from '../../redux/auth';
 import {useAppDispatch} from '../../redux/store';
+import {useAuthResolvers} from '../../contexts';
 
 type RouteType = RouteProp<RootStackParamList, 'EnterPinCodeScreen'>;
 type NavigationType = StackNavigationProp<
@@ -20,9 +21,16 @@ export const EnterPinCodeScreen: FC = () => {
 
   const dispatch = useAppDispatch();
 
+  const {hasAuthResolvers, invokeAuthResolvers} = useAuthResolvers();
+
   const completeClientAuth = () => {
     dispatch(grantClientSideAccess());
     dispatch(resetPinErrorCount());
+
+    if (hasAuthResolvers()) {
+      return invokeAuthResolvers();
+    }
+
     navigation.reset({
       index: 0,
       routes: [{name: 'HomeNavigator'}],
