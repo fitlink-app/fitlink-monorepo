@@ -383,8 +383,8 @@ export class LeaguesService {
     const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
     return this.leaguesRepository
       .createQueryBuilder('league')
-      .innerJoin('activity.user', 'user')
-      .innerJoin('league', 'league', 'league.userId = user.id')
+      .innerJoin('league.user', 'user')
+      .innerJoin('health_activity', 'activity', 'league.userId = user.id')
       .select('SUM(activity.points)', 'totalPoints')
       .where('league.id = :league', { leagueId })
       .andWhere('activity.startDate >= :startOfDay', { startOfDay })
