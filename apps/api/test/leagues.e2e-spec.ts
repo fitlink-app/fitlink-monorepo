@@ -536,7 +536,7 @@ describe('Leagues', () => {
 
     const get = await app.inject({
       method: 'GET',
-      url: '/me/leagues',
+      url: '/me/leagues/waitlists',
       headers: authHeaders,
       query: {
         page: '0',
@@ -547,24 +547,27 @@ describe('Leagues', () => {
     expect(post.statusCode).toEqual(201)
     expect(post.json().success).toEqual(true)
     expect(post.json().league.id).toEqual(league.id)
-    expect(post.json().leaderboardEntry.id).toBeDefined()
-    expect(get.json().results[0].rank).toBe(1)
-    expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
-      1
-    )
-    expect(get.json().results.filter((e) => e.participating).length).toEqual(
-      get.json().results.length
-    )
-
-    // Check participants count
-    const count = await app.inject({
-      method: 'GET',
-      url: `/leagues/${league.id}`,
-      headers: authHeaders
-    })
-
-    expect(count.json().participants_total).toEqual(1)
-    expect(count.json().participating).toEqual(true)
+    expect(
+      get.json().results.filter((e) => e.league_id === league.id).length
+    ).toEqual(1)
+    // expect(post.json().leaderboardEntry.id).toBeDefined()
+    // expect(get.json().results[0].rank).toBe(1)
+    // expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
+    //   1
+    // )
+    // expect(get.json().results.filter((e) => e.participating).length).toEqual(
+    //   get.json().results.length
+    // )
+    //
+    // // Check participants count
+    // const count = await app.inject({
+    //   method: 'GET',
+    //   url: `/leagues/${league.id}`,
+    //   headers: authHeaders
+    // })
+    //
+    // expect(count.json().participants_total).toEqual(1)
+    // expect(count.json().participating).toEqual(true)
   })
 
   it('POST /leagues/:leagueId/leave 200 A user can leave any public league', async () => {

@@ -371,6 +371,20 @@ export class LeaguesController {
   }
 
   /**
+   * Gets all leagues where the user is in the waitlist
+   * @param authUser
+   * @returns
+   */
+  @Get('/me/leagues/waitlists')
+  @ApiTags('me')
+  findMyLeagueWaitlists(
+    @User() authUser: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.leaguesService.findUserLeagueWaitlists(authUser.id, pagination)
+  }
+
+  /**
    * 1. Superadmin can get a single league
    * 2. Ordinary user can read a public league
    * 3. Owner user can read their own league

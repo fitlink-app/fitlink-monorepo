@@ -1024,6 +1024,17 @@ export class LeaguesService {
     const league = new League()
     league.id = leagueId
 
+    const waitlistUser = await this.leagueWaitlistUserRepository.findOne({
+      where: {
+        league_id: leagueId,
+        user_id: userId
+      }
+    })
+    if (waitlistUser) {
+      throw new BadRequestException(
+        "You have already joined this league's waitlist"
+      )
+    }
     if (await this.isParticipant(leagueId, userId)) {
       throw new BadRequestException('You have already joined this league')
     }
@@ -1082,10 +1093,27 @@ export class LeaguesService {
     const leagueWaitlistUser = new LeagueWaitlistUser()
     leagueWaitlistUser.league_id = leagueId
     leagueWaitlistUser.user_id = userId
-    const savedLeagueWaitlistUser =
-      await this.leagueWaitlistUserRepository.save(leagueWaitlistUser)
+    await this.leagueWaitlistUserRepository.save(leagueWaitlistUser)
 
-    return { success: true, league, savedLeagueWaitlistUser }
+    return { success: true, league }
+  }
+
+  // finds league waitlist users with the provided user id
+  async findUserLeagueWaitlists(
+    userId: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ) {
+    let where = { user_id: userId }
+    const [results, total] =
+      await this.leagueWaitlistUserRepository.findAndCount({
+        where,
+        take: limit,
+        skip: page * limit
+      })
+    return new Pagination<LeagueWaitlistUser>({
+      results,
+      total
+    })
   }
 
   // adds waitlist users to a league

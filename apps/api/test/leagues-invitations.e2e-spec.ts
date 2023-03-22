@@ -177,15 +177,27 @@ describe('Leagues Invitations', () => {
 
     const get = await app.inject({
       method: 'GET',
-      url: '/me/leagues',
-      headers: auth2,
-      query: { page: '0', limit: '100' }
+      url: '/me/leagues/waitlists',
+      headers: authHeaders,
+      query: {
+        page: '0',
+        limit: '100'
+      }
     })
-
-    // Expect the user to have this league in their own list
-    expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
-      1
-    )
+    expect(
+      get.json().results.filter((e) => e.league_id === league.id).length
+    ).toEqual(1)
+    // const get = await app.inject({
+    //   method: 'GET',
+    //   url: '/me/leagues',
+    //   headers: auth2,
+    //   query: { page: '0', limit: '100' }
+    // })
+    //
+    // // Expect the user to have this league in their own list
+    // expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
+    //   1
+    // )
   })
 
   it(`POST /leagues/:leagueId/invitations 400 Invited user cannot join a league using invitation with invalid token`, async () => {
