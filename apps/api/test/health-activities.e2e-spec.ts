@@ -39,8 +39,8 @@ import { WebhookEventData } from '../src/modules/providers/types/webhook'
 import { ProviderType } from '../src/modules/providers/providers.constants'
 import { GoalsEntry } from '../src/modules/goals-entries/entities/goals-entry.entity'
 import { UsersModule } from '../src/modules/users/users.module'
-import { BfitDistributionProducerModule } from '../src/modules/bfit/bfit-producer.module'
-import { BfitDistributionSenderService } from '../src/modules/bfit/bfit-producer.service'
+import { SQSProducerModule } from '../src/modules/sqs/sqs-producer.module'
+import { SQSDistributionSenderService } from '../src/modules/sqs/sqs-producer.service'
 import { ClientIdContextModule } from '../src/modules/client-id/client-id.module'
 import { ContextId, ContextIdFactory, REQUEST } from '@nestjs/core'
 import { CLIENT_ID } from '../src/modules/client-id/client-id'
@@ -51,7 +51,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 describe('Health Activities', () => {
   let app: NestFastifyApplication
   let providerService: MockType<ProvidersService>
-  let bfitDistributionSenderService: MockType<BfitDistributionSenderService>
+  let sqsDistributionSenderService: MockType<SQSDistributionSenderService>
   let connection: Connection
   let userForStrava: User
   let userForFitbit: User
@@ -69,7 +69,7 @@ describe('Health Activities', () => {
         HealthActivitiesModule,
         LeaguesModule,
         UsersModule,
-        BfitDistributionProducerModule,
+        SQSProducerModule,
         ClientIdContextModule,
       ],
       providers: [],
@@ -95,8 +95,8 @@ describe('Health Activities', () => {
     users = await UsersSetup('Test Users', 4)
     await LeaguesWithUsersAndEntriesSetup('Test Leagues', 2, users)
 
-    bfitDistributionSenderService = app.get(BfitDistributionSenderService)
-    bfitDistributionSenderService.sendToQueue = jest.fn();
+    sqsDistributionSenderService = app.get(SQSDistributionSenderService)
+    sqsDistributionSenderService.sendToQueue = jest.fn();
 
     userForStrava = await ProvidersSetup('StravaHealthActivityTest')
     userForFitbit = await ProvidersSetup('FitbitHealthActivityTest')

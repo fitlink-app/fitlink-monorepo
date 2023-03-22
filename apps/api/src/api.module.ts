@@ -74,9 +74,10 @@ import { WalletTransaction } from './modules/wallet-transactions/entities/wallet
 import { WalletTransactionsModule } from './modules/wallet-transactions/wallet-transactions.module'
 import { SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
 import AWS from 'aws-sdk'
-import { BfitDistributionModule } from './modules/bfit/bfit.module'
-import { BfitDistributionProducerModule } from './modules/bfit/bfit-producer.module'
+import { BfitDistributionModule } from './modules/sqs/sqs.module'
+import { SQSProducerModule } from './modules/sqs/sqs-producer.module'
 import { ClientIdContextModule } from './modules/client-id/client-id.module'
+import { CronModule } from './modules/cron/cron.module'
 
 @Module({
   imports: [
@@ -168,9 +169,10 @@ import { ClientIdContextModule } from './modules/client-id/client-id.module'
     UsersInvitationsModule,
     NotificationsModule,
     WalletTransactionsModule,
-    BfitDistributionProducerModule,
+    SQSProducerModule,
     BfitDistributionModule,
     ClientIdContextModule,
+    CronModule,
   ],
   providers: [
     {

@@ -24,8 +24,8 @@ import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-en
 import { SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
 import * as AWS from 'aws-sdk';
 import { SqsModule } from '@ssut/nestjs-sqs'
-import { QUEUE_NAME } from '../bfit/bfit.constant'
-import { BfitDistributionProducerModule } from '../bfit/bfit-producer.module'
+import { QUEUE_NAME } from '../sqs/sqs.constant'
+import { SQSProducerModule } from '../sqs/sqs-producer.module'
 
 @Module({
   imports: [
@@ -44,7 +44,7 @@ import { BfitDistributionProducerModule } from '../bfit/bfit-producer.module'
     forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
     forwardRef(() => FeedItemsModule),
-    BfitDistributionProducerModule,
+    SQSProducerModule,
     ConfigModule,
     HttpModule,
     CommonModule,

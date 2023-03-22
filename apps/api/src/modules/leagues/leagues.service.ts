@@ -40,7 +40,6 @@ import { CommonService } from '../common/services/common.service'
 import { LeagueJoinedEvent } from './events/league-joined.event'
 import { LeagueWonEvent } from './events/league-won.event'
 import { Events } from '../../events'
-import { ConfigService } from '@nestjs/config'
 import { differenceInMilliseconds } from 'date-fns'
 import { NotificationsService } from '../notifications/notifications.service'
 import { NotificationAction } from '../notifications/notifications.constants'
@@ -55,6 +54,7 @@ import { FilterCompeteToEarnDto } from './dto/filter-compete-to-earn.dto'
 import { registry, msg } from 'kujira.js'
 import { GasPrice, SigningStargateClient, coins } from '@cosmjs/stargate'
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
+import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 
 type LeagueOptions = {
   teamId?: string
@@ -84,14 +84,12 @@ export class LeaguesService {
     @InjectRepository(LeaderboardEntry)
     private leaderboardEntryRepository: Repository<LeaderboardEntry>,
 
-    @InjectRepository(WalletTransaction)
-    private walletTransactionRepository: Repository<WalletTransaction>,
-
     @InjectRepository(LeagueBfitClaim)
     private leagueBfitClaimRepository: Repository<LeagueBfitClaim>,
 
     @InjectRepository(LeagueBfitEarnings)
     private LeagueBfitEarningsRepository: Repository<LeagueBfitEarnings>,
+
 
     @InjectRepository(Team)
     private teamRepository: Repository<Team>,
@@ -102,15 +100,10 @@ export class LeaguesService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
 
-    @InjectRepository(LeaguesInvitation)
-    private invitationRepository: Repository<LeaguesInvitation>,
-
     private leaderboardEntriesService: LeaderboardEntriesService,
     private commonService: CommonService,
     private eventEmitter: EventEmitter2,
-    private configService: ConfigService,
-    private httpService: HttpService,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(
@@ -383,6 +376,20 @@ export class LeaguesService {
     const result = await query.getRawOne()
     let total = result.total ? Number(result.total) : 0
     return { total }
+  }
+
+  getTotalUsersPointsForLeagueToday(leagueId: string): Promise<string> {
+    const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
+    const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
+    return this.leaguesRepository
+      .createQueryBuilder('league')
+      .innerJoin('league.user', 'user')
+      .innerJoin('health_activity', 'activity', 'league.userId = user.id')
+      .select('SUM(activity.points)', 'totalPoints')
+      .where('league.id = :league', { leagueId })
+      .andWhere('activity.startDate >= :startOfDay', { startOfDay })
+      .andWhere('activity.startDate <= :endOfDay', { endOfDay })
+      .getRawOne().then((grandTotal) => grandTotal.totalPoints || 0);
   }
 
   async isOwnedBy(leagueId: string, userId: string) {

@@ -16,6 +16,7 @@ import { WebhookController } from './providers/webhook/webhook.controller'
 import { WebhookService } from './providers/webhook/webhook.service'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { ClientIdContextModule } from '../client-id/client-id.module'
+import { SQSProducerModule } from '../sqs/sqs-producer.module'
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ClientIdContextModule } from '../client-id/client-id.module'
     GoalsEntriesModule,
     EventEmitter2,
     ClientIdContextModule,
+    SQSProducerModule,
   ],
   controllers: [
     ProvidersController,
