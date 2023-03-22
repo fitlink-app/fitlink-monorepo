@@ -104,7 +104,7 @@ export class League extends CreatableEntity {
 
   // daily bfit allocation for this league if it's a compete to earn league
   @Column({
-    type: 'bigint',
+    type: 'numeric',
     default: 0,
     transformer: new ColumnNumberTransformer()
   })

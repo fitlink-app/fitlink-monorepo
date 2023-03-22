@@ -13,7 +13,7 @@ import {
 import { startOfDay } from 'date-fns'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import { User } from '../src/modules/users/entities/user.entity'
-import { SQSDistributionSenderService } from '../src/modules/sqs/bfit-producer.service'
+import { SQSDistributionSenderService } from '../src/modules/sqs/sqs-producer.service'
 import { BfitDistributionService } from '../src/modules/sqs/sqs.service'
 
 describe('GoalsEntries', () => {

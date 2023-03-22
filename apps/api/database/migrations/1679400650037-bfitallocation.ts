@@ -7,7 +7,7 @@ export class bfitallocation1679400650037 implements MigrationInterface {
             "league",
             new TableColumn({
                 name: "bfitAllocation",
-                type: "bigint",
+                type: "numeric",
                 default: 0,
             })
         );

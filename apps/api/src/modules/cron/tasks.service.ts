@@ -42,7 +42,7 @@ export class TasksService {
 				access: LeagueAccess.CompeteToEarn
 			})
 			.select('COUNT(user.id)', 'totalUsers')
-			.getRawOne().then(res => res.totalUsers);
+			.getRawOne().then(res => parseInt(res.totalUsers, 10));
 
 		for (const league of leagues) {
 			const leagueUsers = league.participants_total;

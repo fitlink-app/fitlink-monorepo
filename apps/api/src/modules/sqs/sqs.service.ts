@@ -16,6 +16,7 @@ import { QUEUE_NAME } from "./sqs.constant";
 import { HealthActivitiesService } from "../health-activities/health-activities.service";
 import { WebhookEventActivity } from "../providers/types/webhook";
 import { HealthActivityDto } from "../health-activities/dto/create-health-activity.dto";
+import { User } from "../users/entities/user.entity";
 
 @Injectable()
 export class BfitDistributionService {
@@ -60,8 +61,9 @@ export class BfitDistributionService {
 				additionalInfo.webhookEventActivity
 			)
 
+		} else {
+			console.error(`Message type is not supported: ${type}`)
 		}
-		console.error(`Message type is not supported: ${type}`)
 	}
 
 
@@ -69,117 +71,124 @@ export class BfitDistributionService {
 		// $BFIT = daily_bfit * points / total_user_league_points
 		// daily_bfit = (league_participants/total_compete_to_earn_league_participants* 6850)
 		// 6850 is the amount of bfit minted daily
-		const [league, leagueErr] = await tryAndCatch(
-			this.leaguesRepository.findOneOrFail({
+
+
+		//TODO: Make this check if user exists in the league so we can use find one
+		const [leagues, leaguesErr] = await tryAndCatch(
+			this.leaguesRepository.find({
 				where: {
 					sport,
 					active_leaderboard: Not(IsNull()),
 					access: LeagueAccess.CompeteToEarn,
-					users: { id: userId }
 				},
-				relations: ['active_leaderboard', 'users']
+				relations: ['active_leaderboard', 'users'],
 			})
 		)
-		if (leagueErr) {
-			console.error(leagueErr);
-			throw leagueErr;
+		if (leaguesErr) {
+			console.error(leaguesErr);
+			throw leaguesErr;
 		}
 
 		const incrementEntryPromises = []
 
+		for (const league of leagues) {
+			const userExists = (league.users as User[]).find(user => user.id === userId);
+			if (!userExists) {
+				continue;
+			}
+			const alreadyDistributedAmount =
+				await this.leaguesService.getUserTotalLeagueDailyBfitEarnings(league.id);
 
-		const alreadyDistributedAmount =
-			await this.leaguesService.getUserTotalLeagueDailyBfitEarnings(league.id);
+			let amountAvailableToDistribute =
+				(league.bfitAllocation - alreadyDistributedAmount.total) / 1000_000;
 
-		let amountAvailableToDistribute =
-			(league.bfitAllocation - alreadyDistributedAmount.total) / 1000000;
-
-		if (amountAvailableToDistribute <= 0) {
-			amountAvailableToDistribute = 0
-			console.info(`No BFIT to distribute for league: ${league.id}`)
-		}
-
-		let existingLeaderboardEntry =
-			await this.leaderboardEntriesRepository.findOne({
-				user_id: userId,
-				league_id: league.id
-			})
-		if (existingLeaderboardEntry) {
-			// at this point the user points should already been added to the leaderboard so we need to remove the new points from the total so we have the total points before the new activity was added
-			const total_user_league_points = parseInt(
-				await this.leaguesService.getTotalUsersPointsForLeagueToday(league.id),
-				10
-			) - points
-
-
-
-			// we multiply by 1000_000 because $BFIT has 6 decimals
-			let bfit = Math.round(
-				amountAvailableToDistribute *
-				((points / total_user_league_points) * 1000_000)
-			)
-
-			// this should never happen but just in case
-			if (bfit > amountAvailableToDistribute) {
-				bfit = amountAvailableToDistribute
+			if (amountAvailableToDistribute <= 0) {
+				amountAvailableToDistribute = 0
+				console.info(`No BFIT to distribute for league: ${league.id}`)
 			}
 
-			if (bfit > 0) {
-				// increment user bfit
-				incrementEntryPromises.push(
-					this.leaderboardEntriesRepository.increment(
-						{
-							leaderboard: { id: league.active_leaderboard.id },
-							user: { id: userId }
-						},
+			let existingLeaderboardEntry =
+				await this.leaderboardEntriesRepository.findOne({
+					user_id: userId,
+					league_id: league.id
+				})
+			if (existingLeaderboardEntry) {
+				// at this point the user points should already been added to the leaderboard so we need to remove the new points from the total so we have the total points before the new activity was added
+				const total_user_league_points = parseInt(
+					await this.leaguesService.getTotalUsersPointsForLeagueToday(league.id),
+					10
+				) - points
 
-						'bfit_earned',
-						bfit
+
+
+				// we multiply by 1000_000 because $BFIT has 6 decimals
+				let bfit = Math.round(
+					(amountAvailableToDistribute === 0 ? 1 : amountAvailableToDistribute) *
+					((points / total_user_league_points) * 1000_000)
+				)
+
+				// this should never happen but just in case
+				if (bfit > amountAvailableToDistribute) {
+					bfit = amountAvailableToDistribute
+				}
+
+				if (bfit > 0) {
+					// increment user bfit
+					incrementEntryPromises.push(
+						this.leaderboardEntriesRepository.increment(
+							{
+								leaderboard: { id: league.active_leaderboard.id },
+								user: { id: userId }
+							},
+
+							'bfit_earned',
+							bfit
+						)
 					)
-				)
-				// increment total league bfit
-				incrementEntryPromises.push(
-					this.leaguesRepository.increment(
-						{
-							id: league.id
-						},
+					// increment total league bfit
+					incrementEntryPromises.push(
+						this.leaguesRepository.increment(
+							{
+								id: league.id
+							},
 
-						'bfit',
-						bfit
+							'bfit',
+							bfit
+						)
 					)
-				)
 
-				let bfitEarnings = new LeagueBfitEarnings()
-				bfitEarnings.user_id = userId
-				bfitEarnings.league_id = league.id
-				bfitEarnings.bfit_amount = bfit
-				let savedEarnings = await this.leagueBfitEarningsRepository.save(
-					bfitEarnings
-				)
-				let walletTransaction = new WalletTransaction()
-				walletTransaction.source = WalletTransactionSource.LeagueBfitEarnings
-				walletTransaction.earnings_id = savedEarnings.id
-				walletTransaction.league_id = league.id
-				walletTransaction.league_name = league.name
-				walletTransaction.user_id = userId
-				walletTransaction.bfit_amount = bfit
-				incrementEntryPromises.push(
-					this.walletTransactionRepository.save(walletTransaction)
-				)
+					let bfitEarnings = new LeagueBfitEarnings()
+					bfitEarnings.user_id = userId
+					bfitEarnings.league_id = league.id
+					bfitEarnings.bfit_amount = bfit
+					let savedEarnings = await this.leagueBfitEarningsRepository.save(
+						bfitEarnings
+					)
+					let walletTransaction = new WalletTransaction()
+					walletTransaction.source = WalletTransactionSource.LeagueBfitEarnings
+					walletTransaction.earnings_id = savedEarnings.id
+					walletTransaction.league_id = league.id
+					walletTransaction.league_name = league.name
+					walletTransaction.user_id = userId
+					walletTransaction.bfit_amount = bfit
+					incrementEntryPromises.push(
+						this.walletTransactionRepository.save(walletTransaction)
+					)
+				} else {
+					console.info(`No BFIT to distribute for user: ${userId} in league: ${league.id}. Amount available to distribute: ${amountAvailableToDistribute} but BFIT earned is 0.`)
+					console.info(`Total user league points ${total_user_league_points} and user points ${points}`)
+				}
 			} else {
-				console.info(`No BFIT to distribute for user: ${userId} in league: ${league.id}. Amount available to distribute: ${amountAvailableToDistribute} but BFIT earned is 0.`)
-				console.info(`Total user league points ${total_user_league_points} and user points ${points}`)
+				const errorMessage = `User ${userId} is not in league Entries ${league.id}`;
+				console.error(`User ${userId} is not in league Entries ${league.id}`)
+				throw new Error(errorMessage);
 			}
-		} else {
-			const errorMessage = `User ${userId} is not in league Entries ${league.id}`;
-			console.error(`User ${userId} is not in league Entries ${league.id}`)
-			throw new Error(errorMessage);
-		}
 
-		return await Promise.all(incrementEntryPromises).then(res => {
-			console.info(`Updated user ${userId} league bfit earnings`, JSON.stringify(res));
-      return res;
-		})
+			return await Promise.all(incrementEntryPromises).then(res => {
+				console.info(`Updated user ${userId} league bfit earnings`, JSON.stringify(res));
+				return res;
+			})
+		}
 	}
 
 	private async updateStepsLeagueBfit(userId: string) {
