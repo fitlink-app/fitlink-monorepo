@@ -1084,7 +1084,8 @@ export class LeaguesService {
     leagueWaitlistUser.user_id = userId
     const savedLeagueWaitlistUser =
       await this.leagueWaitlistUserRepository.save(leagueWaitlistUser)
-    return savedLeagueWaitlistUser
+
+    return { success: true, league, savedLeagueWaitlistUser }
   }
 
   // adds waitlist users to a league
