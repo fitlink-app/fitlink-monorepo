@@ -63,11 +63,12 @@ export class BfitDistributionService {
 				.createQueryBuilder('league')
 				.leftJoin('league.users', 'user')
 				.innerJoinAndSelect('league.sport', 'sport')
-				.where('sport.name_key = :sport', { sport: 'steps' })
+				.where('sport.name_key = :sport', { sport: sport })
 				.andWhere('league.active_leaderboard IS NOT NULL')
 				.andWhere('league.access = :access', { access: LeagueAccess.CompeteToEarn })
 				.andWhere('user.id = :userId', { userId })
 				.leftJoinAndSelect('league.active_leaderboard', 'active_leaderboard')
+				.leftJoinAndSelect('active_leaderboard.entries', 'entries')
 				.getOne()
 		);
 		if (leagueErr) {
@@ -80,14 +81,15 @@ export class BfitDistributionService {
 			throw new Error(`No entries found for league ${league.id}`);
 		}
 
-		const totalLeaguePoints = parseInt(
-			await this.leaderboardEntriesRepository
+		const totalPoints = await this.leaderboardEntriesRepository
 			.createQueryBuilder('leaderboard_entry')
 			.select('SUM(leaderboard_entry.points)', 'totalPoints')
 			.where('leaderboard_entry.league_id = :leagueId', {
 				leagueId: league.id
 			})
-				.getRawOne(),
+			.getRawOne()
+		const totalLeaguePoints = parseInt(
+			totalPoints.totalPoints,
 			10
 		)
 
@@ -100,7 +102,9 @@ export class BfitDistributionService {
 			}
 
 			const bfitEstimate = league.bfitAllocation * (entry.points / totalLeaguePoints);
-
+			if (bfitEstimate === 0) {
+				continue;
+			}
 			bfitEstimatePromises.push(
 				this.leaderboardEntriesRepository.increment(
 					{

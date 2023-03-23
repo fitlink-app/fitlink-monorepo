@@ -5,7 +5,7 @@ export function getDailyBfitTotal() {
 
 export function leagueBfitPots(leagueUsers: number, globalUsers: number): [number, number] {
 	const dailyBfit = getDailyBfitTotal()
-	const bfitTotalAmountForLeague = ((leagueUsers / globalUsers) * dailyBfit * 100000);
+	const bfitTotalAmountForLeague = ((leagueUsers / globalUsers) * dailyBfit);
 	const bfitWinnerPot = bfitTotalAmountForLeague * 0.05;
 	const bfitAllocation = bfitTotalAmountForLeague - bfitWinnerPot;
 	return [bfitAllocation, bfitWinnerPot]

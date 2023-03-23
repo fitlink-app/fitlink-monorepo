@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 import { League } from '../leagues/entities/league.entity';
 import { tryAndCatch } from '../../helpers/tryAndCatch';
-import { getDailyBfitTotal, leagueBfitPots } from '../../helpers/bfit-helpers';
+import { leagueBfitPots } from '../../helpers/bfit-helpers';
 
 @Injectable()
 export class TasksService {
