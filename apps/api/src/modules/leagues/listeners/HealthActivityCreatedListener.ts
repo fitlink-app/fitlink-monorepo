@@ -158,7 +158,6 @@ export class HealthActivityCreatedListener {
       user.id,
       {
         sport,
-        points,
       }
     );
   }
