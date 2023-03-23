@@ -300,7 +300,8 @@ export class HealthActivitiesService {
       content: {
         imageUrl,
         stats: formattedStats,
-        title: healthActivity.title
+        title: healthActivity.title,
+        sport: healthActivity.sport?.name
       }
     })
   }
