@@ -101,6 +101,12 @@ export class LeaguesService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
 
+    @InjectRepository(LeagueBfitEarnings)
+    private leagueBfitEarningsRepository: Repository<LeagueBfitEarnings>,
+
+    @InjectRepository(WalletTransaction)
+    private walletTransactionRepository: Repository<WalletTransaction>,
+
     private leaderboardEntriesService: LeaderboardEntriesService,
     private commonService: CommonService,
     private eventEmitter: EventEmitter2,
@@ -1622,7 +1628,7 @@ export class LeaguesService {
         const leagueRepo = manager.getRepository(League)
         const leaderboardRepo = manager.getRepository(Leaderboard)
         await Promise.all(
-          league.users.map((leagueUser) => {
+          league.users.map(async (leagueUser) => {
             const winner = winners.find((e) => leagueUser.id === e.user.id && e.rank === '1')
             const user = new User()
             user.id = leagueUser.id
@@ -1636,6 +1642,25 @@ export class LeaguesService {
               // we not get they estimate earnings and reward them
               const entry = currentEntries.find((entry) => entry.user_id === leagueUser.id)
 
+              const bfit = bfitBonus ?
+                getBfitWinnerEarning(bfitBonus.rank, league.bfitWinnerPot, entry.bfit_estimate) : entry.bfit_estimate
+
+              let bfitEarnings = new LeagueBfitEarnings()
+              bfitEarnings.user_id = league.id
+              bfitEarnings.league_id = league.id
+              bfitEarnings.bfit_amount = bfit
+              let savedEarnings = await this.leagueBfitEarningsRepository.save(
+                bfitEarnings
+              )
+              let walletTransaction = new WalletTransaction()
+              walletTransaction.source = WalletTransactionSource.LeagueBfitEarnings
+              walletTransaction.earnings_id = savedEarnings.id
+              walletTransaction.league_id = league.id
+              walletTransaction.league_name = league.name
+              walletTransaction.user_id = leagueUser.id
+              walletTransaction.bfit_amount = bfit
+              await this.walletTransactionRepository.save(walletTransaction)
+
               return repo.save(
                 repo.create({
                   user,
@@ -1644,8 +1669,7 @@ export class LeaguesService {
                   league_id: league.id,
                   user_id: leagueUser.id,
                   wins: winner ? winner.wins + 1 : 0,
-                  bfit_earned: bfitBonus ?
-                    getBfitWinnerEarning(bfitBonus.rank, league.bfitWinnerPot, entry.bfit_estimate) : entry.bfit_estimate,
+                  bfit_earned: bfit,
                   bfit_estimate: 0,
                 })
               )
@@ -1693,7 +1717,7 @@ export class LeaguesService {
         if (league.access === LeagueAccess.CompeteToEarn) {
           const currentEntries = league.active_leaderboard.entries;
           await Promise.all(
-            league.users.map((leagueUser) => {
+            league.users.map(async (leagueUser) => {
               const winner = winners.find((e) => leagueUser.id === e.user.id && e.rank === '1')
               const user = new User()
               user.id = leagueUser.id
@@ -1705,12 +1729,30 @@ export class LeaguesService {
                 const bfitBonus = winners.find((winner) => leagueUser.id === winner.user.id)
 
                 // we not get they estimate earnings and reward them
-                const entry = currentEntries.find((entry) => entry.user_id === leagueUser.id)
+                const entry = currentEntries.find((entry) => entry.user_id === leagueUser.id);
+
+                const bfit = bfitBonus ?
+                  getBfitWinnerEarning(bfitBonus.rank, league.bfitWinnerPot, entry.bfit_estimate) : entry.bfit_estimate
+
+                let bfitEarnings = new LeagueBfitEarnings()
+                bfitEarnings.user_id = league.id
+                bfitEarnings.league_id = league.id
+                bfitEarnings.bfit_amount = bfit
+                let savedEarnings = await this.leagueBfitEarningsRepository.save(
+                  bfitEarnings
+                )
+                let walletTransaction = new WalletTransaction()
+                walletTransaction.source = WalletTransactionSource.LeagueBfitEarnings
+                walletTransaction.earnings_id = savedEarnings.id
+                walletTransaction.league_id = league.id
+                walletTransaction.league_name = league.name
+                walletTransaction.user_id = leagueUser.id
+                walletTransaction.bfit_amount = bfit
+                await this.walletTransactionRepository.save(walletTransaction)
 
                 return repo.save({
                   ...entry,
-                  bfit_earned: bfitBonus ?
-                    getBfitWinnerEarning(bfitBonus.rank, league.bfitWinnerPot, entry.bfit_estimate) : entry.bfit_estimate,
+                  bfit_earned: bfit,
                   wins: winner ? winner.wins + 1 : 0,
                   bfit_estimate: 0
                 })
