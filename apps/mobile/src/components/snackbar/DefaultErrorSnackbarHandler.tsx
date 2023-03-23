@@ -1,35 +1,40 @@
 import {AxiosErrorEventHandler} from 'api/AxiosErrorEventHandler';
 import {useContext, useEffect, useRef} from 'react';
 import {SnackbarContext} from './SnackbarContext';
-import {constantSnackbars} from './constantSnackbars';
+import {constantSnackbars} from './constants';
 import {AxiosError} from 'axios';
 import {isErrorHandledByDefault} from './isErrorHandledByDefault';
 import {useNetInfo} from '@react-native-community/netinfo';
+import {SnackbarQueryModel} from './types';
 
 export const DefaultErrorSnackbarHandler = () => {
-  const {showSnackbar} = useContext(SnackbarContext);
+  const {showSnackbar, removeSnackbar} = useContext(SnackbarContext);
   useEffect(() => {
     return AxiosErrorEventHandler.addListener((error: AxiosError) => {
+      console.log('snackbarError', error);
       if (isErrorHandledByDefault(error)) {
         showSnackbar({
-          timeout: 3000,
+          timeout: 6000,
           snackbar: constantSnackbars.DEFAULT_ERROR,
         });
       }
     });
   }, [showSnackbar]);
 
-  const hideSnackbarRef = useRef<() => void>();
+  const networkSnackbarRef = useRef<SnackbarQueryModel>();
 
   const netInfo = useNetInfo();
   useEffect(() => {
-    if (!netInfo.isConnected) {
-      hideSnackbarRef.current = showSnackbar({
+    if (netInfo.isConnected === false) {
+      networkSnackbarRef.current = {
+        snackbar: constantSnackbars.NETWORK_CONNECTION_ERROR,
+      };
+      showSnackbar({
         snackbar: constantSnackbars.NETWORK_CONNECTION_ERROR,
       });
-    } else {
-      hideSnackbarRef.current?.();
+    } else if (networkSnackbarRef.current) {
+      removeSnackbar(networkSnackbarRef.current);
     }
-  }, [showSnackbar, netInfo.isConnected]);
+  }, [showSnackbar, netInfo.isConnected, removeSnackbar]);
   return null;
 };

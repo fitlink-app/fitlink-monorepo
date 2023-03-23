@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import dynamicLinks from '@react-native-firebase/dynamic-links';
 import {DeepLinkType} from '@fitlink/api/src/constants/deep-links';
 import {useDispatch, useSelector} from 'react-redux';
@@ -14,10 +14,12 @@ import {
   selectTeamInvitation,
 } from 'redux/teamInvitation/teamInvitationSlice';
 import {Team} from '@fitlink/api/src/modules/teams/entities/team.entity';
+import {useDefaultOkSnackbar} from './snackbar';
 
 export const DeeplinkHandler = () => {
   const navigation = navigationRef;
   const {openModal, closeModal} = useModal();
+  const showOkSnackbar = useDefaultOkSnackbar();
   const dispatch = useDispatch() as AppDispatch;
 
   const isAuthenticated = useSelector(memoSelectIsAuthenticated);
@@ -41,7 +43,7 @@ export const DeeplinkHandler = () => {
       handleDynamicLink(link.url, 'foreground');
     });
     return () => unsubscribe();
-  }, [isAuthenticated, invitation, code, me, openModal]);
+  }, [isAuthenticated, invitation, code, me, handleDynamicLink]);
 
   const handleDynamicLink = async (
     url: string,
@@ -87,22 +89,13 @@ export const DeeplinkHandler = () => {
   };
 
   const handlePasswordReset = async () => {
-    openModal(id => (
-      <Modal
-        title={'Password Reset'}
-        description={'Your password has been reset successfully!'}
-        buttons={[
-          {
-            text: 'Ok',
-            onPress: () => closeModal(id),
-          },
-        ]}
-      />
-    ));
+    showOkSnackbar('Your password has been reset successfully!');
   };
 
   const handleLeagueInvitation = () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      return;
+    }
 
     navigation.current?.navigate('Leagues', {
       tab: 2,
@@ -110,22 +103,13 @@ export const DeeplinkHandler = () => {
   };
 
   const handleEmailVerified = async () => {
-    openModal(id => (
-      <Modal
-        title={'Email Verified'}
-        description={'Your email address has been verified!'}
-        buttons={[
-          {
-            text: 'Ok',
-            onPress: () => closeModal(id),
-          },
-        ]}
-      />
-    ));
+    showOkSnackbar('Your email address has been verified!');
   };
 
   const showTeamInvitationModal = async (invitation: Team, code: string) => {
-    if (!isAuthenticated || !me?.onboarded || !code) return;
+    if (!isAuthenticated || !me?.onboarded || !code) {
+      return;
+    }
 
     const userQuery = await refetchUser();
 
@@ -152,20 +136,7 @@ export const DeeplinkHandler = () => {
 
                   if (success) {
                     setTimeout(() => {
-                      openModal(id => {
-                        return (
-                          <Modal
-                            title={'Joined Team'}
-                            description={`You have joined ${invitation.name}`}
-                            buttons={[
-                              {
-                                text: 'Ok',
-                                onPress: () => closeModal(id),
-                              },
-                            ]}
-                          />
-                        );
-                      });
+                      showOkSnackbar(`You have joined ${invitation.name}`);
                     }, 250);
                   }
                 }}

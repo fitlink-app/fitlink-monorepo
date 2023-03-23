@@ -1,14 +1,15 @@
-import React, {useRef} from 'react';
-import {Button, FormError, InputField, Modal} from '@components';
-import {useForm, useMe, useModal, useUpdatePassword} from '@hooks';
-import styled from 'styled-components/native';
-import {TextInput} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
 import {getErrors} from '@api';
-import {useDispatch} from 'react-redux';
-import {AppDispatch} from 'redux/store';
-import {signIn} from 'redux/auth';
+import {Button, FormError, InputField} from '@components';
 import {ResponseError} from '@fitlink/api-sdk/types';
+import {useForm, useMe, useUpdatePassword} from '@hooks';
+import {useNavigation} from '@react-navigation/native';
+import {useDefaultOkSnackbar} from 'components/snackbar';
+import React, {useRef} from 'react';
+import {TextInput} from 'react-native';
+import {useDispatch} from 'react-redux';
+import {signIn} from 'redux/auth';
+import {AppDispatch} from 'redux/store';
+import styled from 'styled-components/native';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -30,7 +31,8 @@ export interface UpdatePasswordFormValues {
 export const UpdatePasswordForm = () => {
   const dispatch = useDispatch() as AppDispatch;
   const navigation = useNavigation();
-  const {openModal, closeModal} = useModal();
+
+  const showOkSnackbar = useDefaultOkSnackbar();
 
   const {mutateAsync} = useUpdatePassword();
   const {data: me} = useMe({enabled: false});
@@ -66,27 +68,8 @@ export const UpdatePasswordForm = () => {
       console.error(requestErrors);
       return requestErrors;
     }
-
-    openModal(
-      id => (
-        <Modal
-          title={'Password Changed'}
-          description={'Your password has been changed'}
-          buttons={[
-            {
-              text: 'Ok',
-              onPress: () => {
-                closeModal(id);
-                navigation.goBack();
-              },
-            },
-          ]}
-        />
-      ),
-      () => {
-        navigation.goBack();
-      },
-    );
+    showOkSnackbar('Your password has been changed');
+    navigation.goBack();
 
     return undefined;
   };

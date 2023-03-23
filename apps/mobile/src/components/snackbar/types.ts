@@ -6,7 +6,7 @@ export interface SnackbarQueryModel {
 export interface SnackbarModel {
   type?: SnackbarType;
   text: string;
-  action?: {onPress: () => void; text: string};
+  action?: {onPress?: () => void; text: string};
 }
 
 export enum SnackbarType {

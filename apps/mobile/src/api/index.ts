@@ -20,6 +20,7 @@ axios.interceptors.response.use(
     return response;
   },
   function (error: AxiosError) {
+    console.log('axiosError', error);
     AxiosErrorEventHandler.$emit(error);
     return Promise.reject(error);
   },

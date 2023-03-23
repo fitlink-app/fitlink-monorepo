@@ -7,7 +7,6 @@ import {Platform, UIManager} from 'react-native';
 import RNBootSplash from 'react-native-bootsplash';
 import {PersistGate} from 'redux-persist/integration/react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 import {withQueryClient} from '@query';
 import {AppBackground, DeeplinkHandler, LifeCycleEvents} from '@components';
@@ -16,9 +15,10 @@ import Router, {NavigationProvider} from '@routes';
 
 import {UpdateInfo} from 'components/UpdateInfo';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import Config from 'react-native-config';
-import {SnackbarProvider} from 'components/snackbar/SnackbarProvider';
-import {DefaultErrorSnackbarHandler} from 'components/snackbar/DefaultErrorSnackbarHandler';
+import {
+  SnackbarProvider,
+  DefaultErrorSnackbarHandler,
+} from 'components/snackbar';
 import ThemeProvider from './theme/ThemeProvider';
 import {QueryPersistor} from 'query/QueryPersistor';
 import {ModalProvider, Transition} from './contexts';

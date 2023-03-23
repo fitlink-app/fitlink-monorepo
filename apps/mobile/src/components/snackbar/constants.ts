@@ -10,3 +10,5 @@ export const constantSnackbars = {
     text: 'No network',
   },
 };
+
+export const DEFAULT_SNACKBAR_TIMEOUT = 4000;
