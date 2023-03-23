@@ -5,6 +5,8 @@ import {navigationRef} from '@routes';
 import {useMe, useModal} from '@hooks';
 import {AuthPromiseProvider} from '@model';
 import {Modal, TeamInvitation} from '@components';
+import React, {useContext, useEffect} from 'react';
+import dynamicLinks from '@react-native-firebase/dynamic-links';
 import {DeepLinkType} from '@fitlink/api/src/constants/deep-links';
 import {Team} from '@fitlink/api/src/modules/teams/entities/team.entity';
 
@@ -21,6 +23,8 @@ export const useDynamicLinksHandler = () => {
   const navigation = navigationRef;
   const {openModal, closeModal} = useModal();
   const dispatch = useAppDispatch();
+  const showOkSnackbar = useDefaultOkSnackbar();
+  const dispatch = useDispatch() as AppDispatch;
 
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const {invitation, code} = useSelector(selectTeamInvitation);
@@ -106,18 +110,7 @@ export const useDynamicLinksHandler = () => {
   };
 
   const handlePasswordReset = async () => {
-    openModal(id => (
-      <Modal
-        title={'Password Reset'}
-        description={'Your password has been reset successfully!'}
-        buttons={[
-          {
-            text: 'Ok',
-            onPress: () => closeModal(id),
-          },
-        ]}
-      />
-    ));
+    showOkSnackbar('Your password has been reset successfully!');
   };
 
   const handleLeagueInvitation = () => {
@@ -127,18 +120,7 @@ export const useDynamicLinksHandler = () => {
   };
 
   const handleEmailVerified = async () => {
-    openModal(id => (
-      <Modal
-        title={'Email Verified'}
-        description={'Your email address has been verified!'}
-        buttons={[
-          {
-            text: 'Ok',
-            onPress: () => closeModal(id),
-          },
-        ]}
-      />
-    ));
+    showOkSnackbar('Your email address has been verified!');
   };
 
   const showTeamInvitationModal = async (invitation: Team, code: string) => {
@@ -168,20 +150,7 @@ export const useDynamicLinksHandler = () => {
 
                   if (success) {
                     setTimeout(() => {
-                      openModal(id => {
-                        return (
-                          <Modal
-                            title={'Joined Team'}
-                            description={`You have joined ${invitation.name}`}
-                            buttons={[
-                              {
-                                text: 'Ok',
-                                onPress: () => closeModal(id),
-                              },
-                            ]}
-                          />
-                        );
-                      });
+                      showOkSnackbar(`You have joined ${invitation.name}`);
                     }, 250);
                   }
                 }}

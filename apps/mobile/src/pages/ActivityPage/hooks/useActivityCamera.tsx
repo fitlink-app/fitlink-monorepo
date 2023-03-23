@@ -10,7 +10,7 @@ import {
 } from '@hooks';
 import {Alert} from 'react-native';
 import {Dialog} from 'components/modal';
-import {Modal} from '@components';
+import {useDefaultOkSnackbar} from 'components/snackbar';
 
 export const useActivityCamera = (
   data: HealthActivity | undefined,
@@ -33,6 +33,8 @@ export const useActivityCamera = (
   const {openImagePicker} = useImagePicker();
 
   const {openModal, closeModal} = useModal();
+
+  const showOkSnackbar = useDefaultOkSnackbar();
 
   const handleOnImagePickerPressed = () => {
     openImagePicker('Upload new image', async response => {
@@ -73,20 +75,7 @@ export const useActivityCamera = (
               });
 
               setTimeout(() => {
-                openModal(id => {
-                  return (
-                    <Modal
-                      title={'Photo Deleted'}
-                      description={'Photo deleted successfully!'}
-                      buttons={[
-                        {
-                          text: 'Ok',
-                          onPress: () => closeModal(id),
-                        },
-                      ]}
-                    />
-                  );
-                });
+                showOkSnackbar('Photo deleted successfully!');
               }, 500);
             },
           },

@@ -569,8 +569,8 @@ DEPENDENCIES:
   - react-native-google-places (from `../node_modules/react-native-google-places`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-mapbox-gl (from `../node_modules/@react-native-mapbox-gl/maps`)"
-  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
+  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-webview (from `../../../node_modules/react-native-webview`)
@@ -708,10 +708,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-mapbox-gl:
     :path: "../node_modules/@react-native-mapbox-gl/maps"
-  react-native-netinfo:
-    :path: "../node_modules/@react-native-community/netinfo"
   react-native-mmkv:
     :path: "../node_modules/react-native-mmkv"
+  react-native-netinfo:
+    :path: "../node_modules/@react-native-community/netinfo"
   react-native-pager-view:
     :path: "../node_modules/react-native-pager-view"
   react-native-safe-area-context:
@@ -858,8 +858,8 @@ SPEC CHECKSUMS:
   react-native-google-places: 3ff479cef9e85419e38e68080f030b2c1e020b57
   react-native-image-picker: 60f4246eb5bb7187fc15638a8c1f13abd3820695
   react-native-mapbox-gl: b92795f61ff130323e6d25693bd68b081e105455
-  react-native-netinfo: 2517ad504b3d303e90d7a431b0fcaef76d207983
   react-native-mmkv: 69b9c003f10afdd01addf7c6ee784ce42ee2eff3
+  react-native-netinfo: 2517ad504b3d303e90d7a431b0fcaef76d207983
   react-native-pager-view: 5ab4d0b4b44d89f77310cb3eb8129745f274ce55
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   react-native-webview: 133a6a5149f963259646e710b4545c67ef35d7c9
@@ -907,4 +907,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 1a7e2b6eaf6ce893a9b3be6645950324099fb41a
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.11.3

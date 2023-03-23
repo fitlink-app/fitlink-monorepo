@@ -11,7 +11,6 @@ export class AxiosErrorEventHandler {
   }
 
   static $emit(error: AxiosError) {
-    console.log(error);
     this.listeners.forEach(listener => {
       listener(error);
     });
