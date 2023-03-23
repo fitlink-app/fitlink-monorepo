@@ -76,7 +76,7 @@ export const Leaderboard = ({
       key={item.id}
       wins={item.wins}
       points={item.points}
-      bfit={isBfit ? getViewBfitValue(item.bfit_earned) : undefined}
+      bfit={isBfit ? getViewBfitValue(item.bfit_estimate) : undefined}
       name={item.user.name}
       isSelf={item.user.id === userId}
       avatarUrl={item.user.avatar?.url_128x128}
