@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "engines": {
-    "node": "^16"
+    "node": "^14"
   },
   "scripts": {
     "start": "NODE_DEBUG=cluster,net,http,fs,tls,module,timers node app.js"
