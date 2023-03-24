@@ -10,6 +10,7 @@ import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import { LeaguesModule } from '../src/modules/leagues/leagues.module'
 import { JwtService } from '@nestjs/jwt'
 import { LeaguesInvitationsService } from '../src/modules/leagues-invitations/leagues-invitations.service'
+import { LeaguesService } from '../src/modules/leagues/leagues.service'
 
 describe('Leagues Invitations', () => {
   let app: NestFastifyApplication
@@ -178,7 +179,7 @@ describe('Leagues Invitations', () => {
     const get = await app.inject({
       method: 'GET',
       url: '/me/leagues/waitlists',
-      headers: authHeaders,
+      headers: auth2,
       query: {
         page: '0',
         limit: '100'
