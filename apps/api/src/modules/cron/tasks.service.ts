@@ -9,7 +9,7 @@ import { tryAndCatch } from '../../helpers/tryAndCatch'
 import { LeaguesService } from '../leagues/leagues.service'
 import { leagueBfitPots } from '../../helpers/bfit-helpers'
 
-const leaguesAllocationSeeded = false
+let leaguesAllocationSeeded = false
 @Injectable()
 export class TasksService {
   private readonly logger = new Logger(TasksService.name)
@@ -27,6 +27,7 @@ export class TasksService {
   @Cron('20 * * * *')
   async handleLeagueBfitCalculationsForMigrations() {
     if (!leaguesAllocationSeeded) {
+      leaguesAllocationSeeded = true
       this.logger.debug('Seeding leagues with bfit allocation')
 
       const [leagues, leagueErr] = await tryAndCatch(
@@ -75,7 +76,6 @@ export class TasksService {
           bfitWinnerPot
         )
       }
-      leaguesAllocationSeeded = true
     }
   }
 
