@@ -36,6 +36,7 @@ import { UsersSetting } from './modules/users-settings/entities/users-setting.en
 import { Notification } from './modules/notifications/entities/notification.entity'
 import { LeagueBfitClaim } from './modules/leagues/entities/bfit-claim.entity'
 import { LeagueBfitEarnings } from './modules/leagues/entities/bfit-earnings.entity'
+import { LeagueWaitlistUser } from './modules/leagues/entities/league-waitlist-user.entity'
 
 export async function migrate() {
   const connection = await createConnection({
@@ -81,7 +82,8 @@ export async function migrate() {
       UsersSetting,
       Notification,
       LeagueBfitClaim,
-      LeagueBfitEarnings
+      LeagueBfitEarnings,
+      LeagueWaitlistUser
     ]
   })
 
