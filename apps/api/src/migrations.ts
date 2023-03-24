@@ -98,6 +98,9 @@ import { addedRewardNameColumnToWalletTransactions1675189321618 } from '../datab
 import { Update1675854302597 } from '../database/migrations/1675854302597-Update'
 import { addedTransactionIdToWalletTransactions1675859315063 } from '../database/migrations/1675859315063-addedTransactionIdToWalletTransactions'
 import { addedUserRankToLeagueEntity1676890518509 } from '../database/migrations/1676890518509-addedUserRankToLeagueEntity'
+import { bfitallocation1679400650037 } from '../database/migrations/1679400650037-bfitallocation'
+import { addedLeagueWaitlistUserEntity1679511914515 } from '../database/migrations/1679511914515-addedLeagueWaitlistUserEntity'
+import { bfitEstimate1679611820522 } from '../database/migrations/1679611820522-bfit_estimate'
 
 export default [
   InitializeSchema1614887523112,
@@ -194,5 +197,8 @@ export default [
   addedRewardNameColumnToWalletTransactions1675189321618,
   Update1675854302597,
   addedTransactionIdToWalletTransactions1675859315063,
-  addedUserRankToLeagueEntity1676890518509
+  addedUserRankToLeagueEntity1676890518509,
+  bfitallocation1679400650037,
+  addedLeagueWaitlistUserEntity1679511914515,
+  bfitEstimate1679611820522
 ]
