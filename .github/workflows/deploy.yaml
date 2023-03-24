@@ -215,8 +215,9 @@ jobs:
           cp dist/apps/api/main.js artifacts/app.js;
           cp dist/apps/api/migrate.js artifacts/migrate.js;
           cp .env artifacts/.env;
+          cp package.json artifacts/package.json;
           chmod +x artifacts/.platform/hooks/postdeploy/00_migrate.sh;
-          cd artifacts && zip -r app.zip app.js migrate.js .env .npmrc .platform node_modules;
+          cd artifacts && zip -r app.zip app.js migrate.js .env .npmrc .platform node_modules package.json;
           zipinfo -1 app.zip;
 
       - name: Install Python 3.9
