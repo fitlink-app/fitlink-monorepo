@@ -1,24 +1,26 @@
-import { MigrationInterface, QueryRunner, TableColumn } from "typeorm";
-import { getDailyBfitTotal, leagueBfitPots } from "../../src/helpers/bfit-helpers";
+import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm'
+import {
+  getDailyBfitTotal,
+  leagueBfitPots
+} from '../../src/helpers/bfit-helpers'
 
 export class bfitallocation1679400650037 implements MigrationInterface {
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.addColumns(
-            "league",
-            [
-                new TableColumn({
-                    name: "bfitAllocation",
-                    type: "numeric",
-                    default: 0,
-                }),
-                new TableColumn({
-                    name: "bfitWinnerPot",
-                    type: "numeric",
-                    default: 0,
-                })
-            ]
-        );
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.addColumns('league', [
+      new TableColumn({
+        name: 'bfitAllocation',
+        type: 'numeric',
+        default: 0
+      }),
+      new TableColumn({
+        name: 'bfitWinnerPot',
+        type: 'numeric',
+        default: 0
+      })
+    ])
 
+    // commented out because migration fails in the update step
+    /*
         // Calculate the total number of users in all leagues with access set to 'competetoearn'
         const totalUsersCount = await queryRunner.query(`
             WITH total_users AS (
@@ -58,10 +60,11 @@ export class bfitallocation1679400650037 implements MigrationInterface {
                 [bfitAllocation, bfitWinnerPot, leagueUser.leagueId]
             );
         }
-    }
+    */
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropColumn("league", "bfitAllocation");
-        await queryRunner.dropColumn("league", "bfitWinnerPot");
-    }
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropColumn('league', 'bfitAllocation')
+    await queryRunner.dropColumn('league', 'bfitWinnerPot')
+  }
 }
