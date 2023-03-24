@@ -22,10 +22,11 @@ import { Organisation } from '../organisations/entities/organisation.entity'
 import { LeaguesInvitation } from '../leagues-invitations/entities/leagues-invitation.entity'
 import { LeaderboardEntriesService } from '../leaderboard-entries/leaderboard-entries.service'
 import { SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
-import * as AWS from 'aws-sdk';
+import * as AWS from 'aws-sdk'
 import { SqsModule } from '@ssut/nestjs-sqs'
 import { QUEUE_NAME } from '../sqs/sqs.constant'
 import { SQSProducerModule } from '../sqs/sqs-producer.module'
+import { LeagueWaitlistUser } from '../leagues/entities/league-waitlist-user.entity'
 
 @Module({
   imports: [
@@ -39,7 +40,8 @@ import { SQSProducerModule } from '../sqs/sqs-producer.module'
       Leaderboard,
       LeagueBfitClaim,
       Organisation,
-      LeaguesInvitation
+      LeaguesInvitation,
+      LeagueWaitlistUser
     ]),
     forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
@@ -62,13 +64,13 @@ import { SQSProducerModule } from '../sqs/sqs-producer.module'
               sqs: new AWS.SQS({
                 accessKeyId: configService.get('SQS_ACCESS_KEY_ID'),
                 secretAccessKey: configService.get('SQS_SECRET_ACCESS_KEY'),
-                region: configService.get('SQS_REGION'),
-              }),
+                region: configService.get('SQS_REGION')
+              })
             }
           ]
-        } as SqsOptions;
+        } as SqsOptions
       }
-    }),
+    })
   ],
   controllers: [GoalsEntriesController],
   providers: [

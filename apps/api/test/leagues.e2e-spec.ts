@@ -38,6 +38,7 @@ import { SportSetup, SportsTeardown } from './seeds/sport.seed'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import { subDays } from 'date-fns'
 import { NotificationsService } from '../src/modules/notifications/notifications.service'
+import { LeaguesService } from '../src/modules/leagues/leagues.service'
 
 describe('Leagues', () => {
   let app: NestFastifyApplication
@@ -536,7 +537,7 @@ describe('Leagues', () => {
 
     const get = await app.inject({
       method: 'GET',
-      url: '/me/leagues',
+      url: '/me/leagues/waitlists',
       headers: authHeaders,
       query: {
         page: '0',
@@ -547,24 +548,27 @@ describe('Leagues', () => {
     expect(post.statusCode).toEqual(201)
     expect(post.json().success).toEqual(true)
     expect(post.json().league.id).toEqual(league.id)
-    expect(post.json().leaderboardEntry.id).toBeDefined()
-    expect(get.json().results[0].rank).toBe(1)
-    expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
-      1
-    )
-    expect(get.json().results.filter((e) => e.participating).length).toEqual(
-      get.json().results.length
-    )
-
-    // Check participants count
-    const count = await app.inject({
-      method: 'GET',
-      url: `/leagues/${league.id}`,
-      headers: authHeaders
-    })
-
-    expect(count.json().participants_total).toEqual(1)
-    expect(count.json().participating).toEqual(true)
+    expect(
+      get.json().results.filter((e) => e.league_id === league.id).length
+    ).toEqual(1)
+    // expect(post.json().leaderboardEntry.id).toBeDefined()
+    // expect(get.json().results[0].rank).toBe(1)
+    // expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
+    //   1
+    // )
+    // expect(get.json().results.filter((e) => e.participating).length).toEqual(
+    //   get.json().results.length
+    // )
+    //
+    // // Check participants count
+    // const count = await app.inject({
+    //   method: 'GET',
+    //   url: `/leagues/${league.id}`,
+    //   headers: authHeaders
+    // })
+    //
+    // expect(count.json().participants_total).toEqual(1)
+    // expect(count.json().participating).toEqual(true)
   })
 
   it('POST /leagues/:leagueId/leave 200 A user can leave any public league', async () => {
@@ -575,6 +579,9 @@ describe('Leagues', () => {
       url: `/leagues/${league.id}/join`,
       headers: authHeaders
     })
+
+    const leaguesService = app.get(LeaguesService)
+    await leaguesService.joinLeagueFromWaitlist(league.id, user1)
 
     const get1 = await app.inject({
       method: 'GET',
@@ -825,6 +832,11 @@ describe('Leagues', () => {
     await joinLeague(authHeaders)
     await joinLeague(authHeaders2)
     await joinLeague(authHeaders3)
+
+    const leaguesService = app.get(LeaguesService)
+    await leaguesService.joinLeagueFromWaitlist(league.id, user1)
+    await leaguesService.joinLeagueFromWaitlist(league.id, user2)
+    await leaguesService.joinLeagueFromWaitlist(league.id, user3)
 
     // Apply leaderboard points manually
     const repo = app.get(Connection).getRepository(LeaderboardEntry)
@@ -1136,6 +1148,9 @@ describe('Leagues', () => {
       url: `/leagues/${league.id}/join`,
       headers: authHeaders
     })
+
+    const leaguesService = app.get(LeaguesService)
+    await leaguesService.joinLeagueFromWaitlist(league.id, user1)
 
     const feedItem = await getConnection()
       .getRepository(FeedItem)

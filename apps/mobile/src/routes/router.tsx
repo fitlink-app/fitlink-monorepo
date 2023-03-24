@@ -49,9 +49,16 @@ const Stack = createStackNavigator<RootStackParamList>();
 export const navigationRef = React.createRef<NavigationContainerRef>();
 
 export default function Router() {
+<<<<<<< HEAD
+  const clientSideAccessGrantedAt = useAppSelector(
+    selectClientSideAccessGrantedAt,
+  );
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+=======
   const hasPinCode = useAppSelector(selectClientSideAccessGrantedAt)!!;
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isMainFlowAvailable = isAuthenticated && hasPinCode;
+>>>>>>> 0d9e590a44b09e3314dc903b922dd67e92ec8c05
 
   const {data: me, isLoading} = useMe();
   const isOnboarded = me?.onboarded ?? false;
