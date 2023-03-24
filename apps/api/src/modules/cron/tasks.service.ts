@@ -16,14 +16,14 @@ export class TasksService {
   constructor(
     @InjectRepository(League)
     private leaguesRepository: Repository<League>,
-
     @InjectRepository(LeagueWaitlistUser)
     private leagueWaitlistUserRepository: Repository<LeagueWaitlistUser>,
+
 
     private leaguesService: LeaguesService
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron('20 0 * * *')
   async handleLeagueBfitCalculations() {
     this.logger.debug('Calculating BFIT for leagues')
 
