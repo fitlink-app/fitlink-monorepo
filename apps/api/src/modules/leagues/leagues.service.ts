@@ -54,8 +54,7 @@ import { FilterCompeteToEarnDto } from './dto/filter-compete-to-earn.dto'
 import { registry, msg } from 'kujira.js'
 import { GasPrice, SigningStargateClient, coins } from '@cosmjs/stargate'
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
-import { HealthActivity } from '../health-activities/entities/health-activity.entity'
-import { getBfitWinnerEarning } from '../../helpers/bfit-helpers'
+import { getBfitEarning } from '../../helpers/bfit-helpers'
 
 type LeagueOptions = {
   teamId?: string
@@ -1642,8 +1641,7 @@ export class LeaguesService {
               // we not get they estimate earnings and reward them
               const entry = currentEntries.find((entry) => entry.user_id === leagueUser.id)
 
-              const bfit = bfitBonus ?
-                getBfitWinnerEarning(bfitBonus.rank, league.bfitWinnerPot, entry.bfit_estimate) : entry.bfit_estimate
+              const bfit = getBfitEarning(bfitBonus.rank, league.bfitWinnerPot, entry.bfit_estimate)
 
               let bfitEarnings = new LeagueBfitEarnings()
               bfitEarnings.user_id = league.id
@@ -1731,9 +1729,7 @@ export class LeaguesService {
                 // we not get they estimate earnings and reward them
                 const entry = currentEntries.find((entry) => entry.user_id === leagueUser.id);
 
-                const bfit = bfitBonus ?
-                  getBfitWinnerEarning(bfitBonus.rank, league.bfitWinnerPot, entry.bfit_estimate) : entry.bfit_estimate
-
+                const bfit = getBfitEarning(bfitBonus.rank, league.bfitWinnerPot, entry.bfit_estimate)
                 let bfitEarnings = new LeagueBfitEarnings()
                 bfitEarnings.user_id = league.id
                 bfitEarnings.league_id = league.id
