@@ -5,6 +5,7 @@ import {
   createStackNavigator,
 } from '@react-navigation/stack';
 
+import {useMe} from '@hooks';
 import {
   League,
   LeagueForm,
@@ -21,7 +22,6 @@ import {
   Wallet,
   CheatingReportScreen,
   Onboarding,
-  EnterPinCodeScreen,
   RootLoadingScreen,
 } from '@pages';
 import {
@@ -37,24 +37,31 @@ import {HomeNavigator} from './Home';
 import {RootStackParamList} from './types';
 import {useAppSelector} from '../redux/store';
 
+const navigatorOptions = {
+  cardShadowEnabled: true,
+  cardOverlayEnabled: true,
+  headerShown: false,
+};
+
 const Stack = createStackNavigator<RootStackParamList>();
 
 // Exports a reference to the navigation object for cases when the navigation prop is not available
 export const navigationRef = React.createRef<NavigationContainerRef>();
 
 export default function Router() {
+<<<<<<< HEAD
   const clientSideAccessGrantedAt = useAppSelector(
     selectClientSideAccessGrantedAt,
   );
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+=======
+  const hasPinCode = useAppSelector(selectClientSideAccessGrantedAt)!!;
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const isMainFlowAvailable = isAuthenticated && hasPinCode;
+>>>>>>> 0d9e590a44b09e3314dc903b922dd67e92ec8c05
 
-  const isMainFlowAvailable = !!(isAuthenticated && clientSideAccessGrantedAt);
-
-  const navigatorOptions = {
-    cardShadowEnabled: true,
-    cardOverlayEnabled: true,
-    headerShown: false,
-  };
+  const {data: me, isLoading} = useMe();
+  const isOnboarded = me?.onboarded ?? false;
 
   return (
     <Stack.Navigator screenOptions={navigatorOptions}>
@@ -68,14 +75,14 @@ export default function Router() {
           }}
         />
       )}
-      {isMainFlowAvailable && (
+      {isMainFlowAvailable && isLoading && (
+        <Stack.Screen name="RootLoadingScreen" component={RootLoadingScreen} />
+      )}
+      {isMainFlowAvailable && !isLoading && !isOnboarded && (
+        <Stack.Screen name={'Onboarding'} component={Onboarding} />
+      )}
+      {isMainFlowAvailable && !isLoading && isOnboarded && (
         <>
-          <Stack.Screen
-            name="RootLoadingScreen"
-            component={RootLoadingScreen}
-          />
-          <Stack.Screen name={'Onboarding'} component={Onboarding} />
-
           <Stack.Screen name={'HomeNavigator'} component={HomeNavigator} />
           <Stack.Screen
             name={'Settings'}
@@ -122,10 +129,6 @@ export default function Router() {
             name="CheatingReportScreen"
             component={CheatingReportScreen}
             options={getDefaultStackScreenOptions}
-          />
-          <Stack.Screen
-            name="EnterPinCodeScreen"
-            component={EnterPinCodeScreen}
           />
         </>
       )}

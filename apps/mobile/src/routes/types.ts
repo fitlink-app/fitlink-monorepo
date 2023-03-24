@@ -48,7 +48,6 @@ export type RootStackParamList = {
   Wallet: undefined;
   CheatingReportScreen: {leagueId: string};
   CreatePinCodeScreen: undefined;
-  EnterPinCodeScreen: {forceBiometry: boolean} | undefined;
   RootLoadingScreen: undefined;
   ChangePinCodeScreen: undefined;
   EnableBiometryPinCodeScreen: undefined;

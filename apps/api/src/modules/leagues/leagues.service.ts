@@ -56,7 +56,7 @@ import { GasPrice, SigningStargateClient, coins } from '@cosmjs/stargate'
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
 import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 import { LeagueWaitlistUser } from './entities/league-waitlist-user.entity'
-import { getBfitWinnerEarning } from '../../helpers/bfit-helpers'
+import { getBfitEarning } from '../../helpers/bfit-helpers'
 
 type LeagueOptions = {
   teamId?: string
@@ -1836,6 +1836,7 @@ export class LeaguesService {
                 (entry) => entry.user_id === leagueUser.id
               )
 
+<<<<<<< HEAD
               const bfit = bfitBonus
                 ? getBfitWinnerEarning(
                     bfitBonus.rank,
@@ -1843,6 +1844,9 @@ export class LeaguesService {
                     entry.bfit_estimate
                   )
                 : entry.bfit_estimate
+=======
+              const bfit = getBfitEarning(bfitBonus.rank, league.bfitWinnerPot, entry.bfit_estimate)
+>>>>>>> 0d9e590a44b09e3314dc903b922dd67e92ec8c05
 
               let bfitEarnings = new LeagueBfitEarnings()
               bfitEarnings.user_id = league.id
@@ -1936,6 +1940,7 @@ export class LeaguesService {
                   (entry) => entry.user_id === leagueUser.id
                 )
 
+<<<<<<< HEAD
                 const bfit = bfitBonus
                   ? getBfitWinnerEarning(
                       bfitBonus.rank,
@@ -1944,6 +1949,9 @@ export class LeaguesService {
                     )
                   : entry.bfit_estimate
 
+=======
+                const bfit = getBfitEarning(bfitBonus.rank, league.bfitWinnerPot, entry.bfit_estimate)
+>>>>>>> 0d9e590a44b09e3314dc903b922dd67e92ec8c05
                 let bfitEarnings = new LeagueBfitEarnings()
                 bfitEarnings.user_id = league.id
                 bfitEarnings.league_id = league.id

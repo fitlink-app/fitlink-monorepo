@@ -1,12 +1,12 @@
 import {useCallback} from 'react';
-import {useNavigation} from '@react-navigation/core';
+
+import {AuthPromiseProvider} from '@model';
 
 import {useAppDispatch} from '../redux/store';
 import {revokeClientSideAccess} from '../redux/auth';
 import {useWasIdle} from './useWasIdle';
 
 export const useRevokeAccess = () => {
-  const navigation = useNavigation();
   const dispatch = useAppDispatch();
 
   const {wasIdle} = useWasIdle();
@@ -14,14 +14,11 @@ export const useRevokeAccess = () => {
   const revokeAccess = useCallback(() => {
     if (wasIdle()) {
       dispatch(revokeClientSideAccess());
-      navigation.reset({
-        index: 0,
-        routes: [{name: 'EnterPinCodeScreen', params: {forceBiometry: true}}],
-      });
+      AuthPromiseProvider.getInstance().init();
       return true;
     }
     return false;
-  }, [dispatch, navigation, wasIdle]);
+  }, [dispatch, wasIdle]);
 
-  return {revokeAccess, wasIdle};
+  return {revokeAccess};
 };
