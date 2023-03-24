@@ -17,7 +17,7 @@ jobs:
 
       - uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -88,8 +88,6 @@ jobs:
       FITLINK_FITBIT_VERIFY_WEBHOOK_DEFAULT: ${{ secrets.DEV_FITLINK_FITBIT_VERIFY_WEBHOOK_DEFAULT }}
       FITLINK_FITBIT_VERIFY_WEBHOOK_ACTIVITIES: ${{ secrets.DEV_FITLINK_FITBIT_VERIFY_WEBHOOK_ACTIVITIES }}
       FITLINK_FITBIT_VERIFY_WEBHOOK_SLEEP: ${{ secrets.DEV_FITLINK_FITBIT_VERIFY_WEBHOOK_SLEEP }}
-
-
 
       # BFIT Strava
       BFIT_STRAVA_CLIENT_ID: ${{ secrets.DEV_BFIT_STRAVA_CLIENT_ID }}
