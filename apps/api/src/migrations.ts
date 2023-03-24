@@ -102,7 +102,7 @@ import { bfitallocation1679400650037 } from '../database/migrations/167940065003
 import { addedLeagueWaitlistUserEntity1679511914515 } from '../database/migrations/1679511914515-addedLeagueWaitlistUserEntity'
 import { bfitEstimate1679611820522 } from '../database/migrations/1679611820522-bfit_estimate'
 import { bitAllocationRetry1679693629245 } from '../database/migrations/1679693629245-bit-change-retry'
-import { bitEstimateRetry1679698544661 } from '../database/migrations/1679698544661-bit-estimate-retry.ts'
+import { bitEstimateRetry1679698544661 } from '../database/migrations/1679698544661-bit-estimate-retry'
 
 export default [
   InitializeSchema1614887523112,
