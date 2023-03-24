@@ -57,6 +57,7 @@ import { FirebaseAdminService } from '../../src/modules/notifications/firebase-a
 import * as admin from 'firebase-admin'
 import { LeagueBfitEarnings } from '../../src/modules/leagues/entities/bfit-earnings.entity'
 import { WalletTransaction } from '../../src/modules/wallet-transactions/entities/wallet-transaction.entity'
+import { LeagueWaitlistUser } from '../../src/modules/leagues/entities/league-waitlist-user.entity'
 
 export const entities = [
   Activity,
@@ -91,15 +92,15 @@ export const entities = [
   UsersSetting,
   LeagueBfitClaim,
   LeagueBfitEarnings,
-  WalletTransaction
+  WalletTransaction,
+  LeagueWaitlistUser
 ]
-
 
 export async function mockApp({
   imports = [],
   providers = [],
   controllers = [],
-  overrideProvider = [],
+  overrideProvider = []
 }) {
   const moduleRef = Test.createTestingModule({
     imports: [
@@ -124,8 +125,6 @@ export async function mockApp({
     controllers
   })
 
-
-
   const overrideRef = moduleRef
     .overrideProvider(ConfigService)
     .useValue(mockConfigService())
@@ -143,8 +142,9 @@ export async function mockApp({
   const fastifyAdapter = new FastifyAdapter()
   fastifyAdapter.register(fastifyMultipart)
 
-  const app =
-    result.createNestApplication<NestFastifyApplication>(fastifyAdapter) as NestFastifyApplication
+  const app = result.createNestApplication<NestFastifyApplication>(
+    fastifyAdapter
+  ) as NestFastifyApplication
 
   // TODO: Lock to specific origins
   app.enableCors({
