@@ -11,7 +11,7 @@ global:
   application_name: fitlink-nest-dev
   branch: null
   default_ec2_keyname: fitlink-nest-dev-eb
-  default_platform: Node.js 14 running on 64bit Amazon Linux 2
+  default_platform: Node.js 16 running on 64bit Amazon Linux 2
   default_region: eu-west-2
   include_git_submodules: true
   instance_profile: null
