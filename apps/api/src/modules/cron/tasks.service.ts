@@ -76,8 +76,8 @@ export class TasksService {
     const waitlistUsers = await this.leagueWaitlistUserRepository.find({})
     if (waitlistUsers.length) {
       await Promise.all(
-        waitlistUsers.map(async (waitlistUser: LeagueWaitlistUser) => {
-          await this.leaguesService.joinLeagueFromWaitlist(
+        waitlistUsers.map((waitlistUser: LeagueWaitlistUser) => {
+          this.leaguesService.joinLeagueFromWaitlist(
             waitlistUser.league_id,
             waitlistUser.user_id
           )
