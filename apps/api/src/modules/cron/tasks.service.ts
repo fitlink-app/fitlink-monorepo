@@ -7,6 +7,7 @@ import { League } from '../leagues/entities/league.entity'
 import { LeagueWaitlistUser } from '../leagues/entities/league-waitlist-user.entity'
 import { tryAndCatch } from '../../helpers/tryAndCatch'
 import { LeaguesService } from '../leagues/leagues.service'
+import { leagueBfitPots } from '../../helpers/bfit-helpers'
 
 @Injectable()
 export class TasksService {
@@ -52,15 +53,18 @@ export class TasksService {
       .then((res) => parseInt(res.totalUsers, 10))
 
     for (const league of leagues) {
-      const leagueUsers = league.participants_total
-      const todayBfitAllocation =
-        (leagueUsers / totalCompeteToEarnLeaguesUsers) * 6850 * 1000000
+      const [bfitAllocation, bfitWinnerPot] = leagueBfitPots(
+        league.participants_total,
+        totalCompeteToEarnLeaguesUsers
+      )
+
       await this.leaguesRepository.update(
         {
           id: league.id
         },
         {
-          bfitAllocation: todayBfitAllocation
+          bfitAllocation: bfitAllocation,
+          bfitWinnerPot: bfitWinnerPot
         }
       )
     }
@@ -80,5 +84,6 @@ export class TasksService {
         })
       )
     }
+    await this.leagueWaitlistUserRepository.delete({})
   }
 }
