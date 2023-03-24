@@ -76,6 +76,14 @@ export class LeaderboardEntry extends CreatableEntity {
     default: 0,
     transformer: new ColumnNumberTransformer()
   })
+  bfit_estimate: number
+
+  // bfit accumulated in this league if it's a compete to earn league
+  @Column({
+    type: 'bigint',
+    default: 0,
+    transformer: new ColumnNumberTransformer()
+  })
   bfit_claimed: number
 
   @Column({

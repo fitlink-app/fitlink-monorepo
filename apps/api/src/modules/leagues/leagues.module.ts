@@ -1,5 +1,4 @@
-import { HttpModule, HttpService, Module, forwardRef } from '@nestjs/common'
-import { SqsModule } from '@ssut/nestjs-sqs'
+import { HttpModule, Module } from '@nestjs/common'
 import { LeaguesService } from './leagues.service'
 import { LeaguesController } from './leagues.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -23,17 +22,19 @@ import { NotificationsModule } from '../notifications/notifications.module'
 import { LeagueBfitClaim } from './entities/bfit-claim.entity'
 import { LeagueBfitEarnings } from './entities/bfit-earnings.entity'
 import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
-import { WalletTransactionsModule } from '../wallet-transactions/wallet-transactions.module'
-import { ConfigModule, ConfigService } from '@nestjs/config'
-import { SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
-import * as AWS from 'aws-sdk';
-import { BfitDistributionModule } from '../bfit/bfit.module'
-import { BfitDistributionProducerModule } from '../bfit/bfit-producer.module'
+import { ConfigModule } from '@nestjs/config'
+import { SQSProducerModule } from '../sqs/sqs-producer.module'
+import { Sport } from '../sports/entities/sport.entity'
+import { HealthActivityDebug } from '../health-activities/entities/health-activity-debug.entity'
+import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
+import { FeedItem } from '../feed-items/entities/feed-item.entity'
+import { Provider } from '../providers/entities/provider.entity'
+import { Image } from '../images/entities/image.entity'
+import { LeagueWaitlistUser } from './entities/league-waitlist-user.entity'
 
 @Module({
   imports: [
-    BfitDistributionProducerModule,
-    ConfigModule,
+    GoalsEntriesModule,
     TypeOrmModule.forFeature([
       League,
       Leaderboard,
@@ -44,8 +45,18 @@ import { BfitDistributionProducerModule } from '../bfit/bfit-producer.module'
       LeagueBfitClaim,
       User,
       LeagueBfitEarnings,
-      WalletTransaction
+      WalletTransaction,
+      HealthActivityDebug,
+      Sport,
+      FeedItem,
+      Image,
+      Provider,
+      Sport,
+      User,
+      LeagueWaitlistUser
     ]),
+    SQSProducerModule,
+    ConfigModule,
     CommonModule,
     AuthModule,
     LeaguesInvitationModule,

@@ -16,10 +16,8 @@ import {
 } from '../../feed-items/feed-items.constants'
 import { UserPointsIncrementedEvent } from '../../users/events/user-points-incremented.event'
 import { Events } from '../../../../src/events'
-import { LeaguesService } from '../leagues.service'
-import { SqsMessageHandler, SqsService } from '@ssut/nestjs-sqs'
-import { BfitActivityTypes } from '../../bfit/bfit.types'
-import { BfitDistributionSenderService } from '../../bfit/bfit-producer.service'
+import { SQSTypes } from '../../sqs/sqs.types'
+import { SQSDistributionSenderService } from '../../sqs/sqs-producer.service'
 import { v4 } from 'uuid'
 
 @Injectable()
@@ -40,9 +38,7 @@ export class HealthActivityCreatedListener {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private feedItemService: FeedItemsService,
-    private leaguesService: LeaguesService,
-    private readonly sqsService: SqsService,
-    private readonly bfitDistributionSenderService: BfitDistributionSenderService,
+    private readonly sqsDistributionSenderService: SQSDistributionSenderService,
   ) {}
 
   // Updated method to do manual saving instead of using the increment method.
@@ -156,9 +152,9 @@ export class HealthActivityCreatedListener {
     await Promise.all(promises)
 
     // we go to SQS service to update user bfit due to it needing to be first in first out
-    this.bfitDistributionSenderService.sendToQueue(
+    this.sqsDistributionSenderService.sendToQueue(
       healthActivity.id + '-' + v4(),
-      BfitActivityTypes.sport,
+      SQSTypes.sport,
       user.id,
       {
         sport,

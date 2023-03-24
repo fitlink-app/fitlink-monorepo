@@ -285,16 +285,7 @@ export class LeaguesController {
     )
   }
 
-  // user league bfit earnings for current day
-  @Get('/leagues/bfit/earnings/:leagueId')
-  @ApiTags('leagues')
-  @ApiResponse({ type: LeaguePublicPagination, status: 200 })
-  @PaginationBody()
-  findUserBfitEarningsForCurrentDayInLeague(
-    @Param('leagueId') leagueId: string
-  ) {
-    return this.leaguesService.getUserTotalLeagueDailyBfitEarnings(leagueId)
-  }
+
 
   @Iam(Roles.OrganisationAdmin, Roles.TeamAdmin)
   @ApiTags('leagues')
@@ -368,6 +359,20 @@ export class LeaguesController {
     @Pagination() pagination: PaginationQuery
   ) {
     return this.leaguesService.findAllParticipating(authUser.id, pagination)
+  }
+
+  /**
+   * Gets all leagues where the user is in the waitlist
+   * @param authUser
+   * @returns
+   */
+  @Get('/me/leagues/waitlists')
+  @ApiTags('me')
+  findMyLeagueWaitlists(
+    @User() authUser: AuthenticatedUser,
+    @Pagination() pagination: PaginationQuery
+  ) {
+    return this.leaguesService.findUserLeagueWaitlists(authUser.id, pagination)
   }
 
   /**
@@ -596,7 +601,10 @@ export class LeaguesController {
     @User() authUser: AuthenticatedUser
   ) {
     const invitation = await this.leaguesInvitationsService.verifyToken(token)
-    return this.leaguesService.joinLeague(invitation.league.id, authUser.id)
+    return this.leaguesService.joinLeagueWaitlist(
+      invitation.league.id,
+      authUser.id
+    )
   }
 
   /**
@@ -631,7 +639,10 @@ export class LeaguesController {
       )
     }
 
-    const result = await this.leaguesService.joinLeague(leagueId, authUser.id)
+    const result = await this.leaguesService.joinLeagueWaitlist(
+      leagueId,
+      authUser.id
+    )
 
     return result
   }
@@ -726,7 +737,7 @@ export class LeaguesController {
   async calcWinner(@Param('leagueId') leagueId: string) {
     const { winners } = await this.leaguesService.calculateLeagueWinners(
       leagueId
-    )
+    ).then((winners) => ({ winners: winners.winners.filter((w) => w.rank === '1') }))
     await this.leaguesService.emitWinnerFeedItems(leagueId, winners)
     return { winners }
   }
