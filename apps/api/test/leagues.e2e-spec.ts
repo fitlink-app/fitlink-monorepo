@@ -38,6 +38,7 @@ import { SportSetup, SportsTeardown } from './seeds/sport.seed'
 import { UsersSetup, UsersTeardown } from './seeds/users.seed'
 import { subDays } from 'date-fns'
 import { NotificationsService } from '../src/modules/notifications/notifications.service'
+import { LeaguesService } from '../src/modules/leagues/leagues.service'
 
 describe('Leagues', () => {
   let app: NestFastifyApplication
@@ -579,6 +580,9 @@ describe('Leagues', () => {
       headers: authHeaders
     })
 
+    const leaguesService = app.get(LeaguesService)
+    await leaguesService.joinLeagueFromWaitlist(league.id, user1)
+
     const get1 = await app.inject({
       method: 'GET',
       url: '/me/leagues',
@@ -828,6 +832,11 @@ describe('Leagues', () => {
     await joinLeague(authHeaders)
     await joinLeague(authHeaders2)
     await joinLeague(authHeaders3)
+
+    const leaguesService = app.get(LeaguesService)
+    await leaguesService.joinLeagueFromWaitlist(league.id, user1)
+    await leaguesService.joinLeagueFromWaitlist(league.id, user2)
+    await leaguesService.joinLeagueFromWaitlist(league.id, user3)
 
     // Apply leaderboard points manually
     const repo = app.get(Connection).getRepository(LeaderboardEntry)
@@ -1139,6 +1148,9 @@ describe('Leagues', () => {
       url: `/leagues/${league.id}/join`,
       headers: authHeaders
     })
+
+    const leaguesService = app.get(LeaguesService)
+    await leaguesService.joinLeagueFromWaitlist(league.id, user1)
 
     const feedItem = await getConnection()
       .getRepository(FeedItem)
