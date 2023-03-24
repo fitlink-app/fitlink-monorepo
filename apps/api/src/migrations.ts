@@ -101,6 +101,7 @@ import { addedUserRankToLeagueEntity1676890518509 } from '../database/migrations
 import { bfitallocation1679400650037 } from '../database/migrations/1679400650037-bfitallocation'
 import { addedLeagueWaitlistUserEntity1679511914515 } from '../database/migrations/1679511914515-addedLeagueWaitlistUserEntity'
 import { bfitEstimate1679611820522 } from '../database/migrations/1679611820522-bfit_estimate'
+import { bitAllocationRetry1679693629245 } from '../database/migrations/1679693629245-bit-change-retry'
 
 export default [
   InitializeSchema1614887523112,
@@ -200,5 +201,6 @@ export default [
   addedUserRankToLeagueEntity1676890518509,
   bfitallocation1679400650037,
   addedLeagueWaitlistUserEntity1679511914515,
-  bfitEstimate1679611820522
+  bfitEstimate1679611820522,
+  bitAllocationRetry1679693629245
 ]

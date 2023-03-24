@@ -9,6 +9,7 @@ import { tryAndCatch } from '../../helpers/tryAndCatch'
 import { LeaguesService } from '../leagues/leagues.service'
 import { leagueBfitPots } from '../../helpers/bfit-helpers'
 
+let leaguesAllocationSeeded = false
 @Injectable()
 export class TasksService {
   private readonly logger = new Logger(TasksService.name)
@@ -19,9 +20,64 @@ export class TasksService {
     @InjectRepository(LeagueWaitlistUser)
     private leagueWaitlistUserRepository: Repository<LeagueWaitlistUser>,
 
-
     private leaguesService: LeaguesService
   ) {}
+
+  // this cron job is only here temporarily to seed old leagues with bfit allocation
+  @Cron('20 * * * *')
+  async handleLeagueBfitCalculationsForMigrations() {
+    if (!leaguesAllocationSeeded) {
+      leaguesAllocationSeeded = true
+      this.logger.debug('Seeding leagues with bfit allocation')
+
+      const [leagues, leagueErr] = await tryAndCatch(
+        this.leaguesRepository.find({
+          where: {
+            active_leaderboard: Not(IsNull()),
+            access: LeagueAccess.CompeteToEarn
+          },
+          relations: ['active_leaderboard', 'users']
+        })
+      )
+
+      if (leagueErr) {
+        this.logger.error(leagueErr)
+        return
+      }
+
+      let totalCompeteToEarnLeaguesUsers: number = await this.leaguesRepository
+        .createQueryBuilder('league')
+        .leftJoin('league.users', 'user')
+        .where('league.access = :access', {
+          access: LeagueAccess.CompeteToEarn
+        })
+        .select('COUNT(user.id)', 'totalUsers')
+        .getRawOne()
+        .then((res) => parseInt(res.totalUsers, 10))
+
+      for (const league of leagues) {
+        const [bfitAllocation, bfitWinnerPot] = leagueBfitPots(
+          league.participants_total,
+          totalCompeteToEarnLeaguesUsers
+        )
+
+        await this.leaguesRepository.increment(
+          {
+            id: league.id
+          },
+          'bfitAllocation',
+          bfitAllocation
+        )
+        await this.leaguesRepository.increment(
+          {
+            id: league.id
+          },
+          'bfitWinnerPot',
+          bfitWinnerPot
+        )
+      }
+    }
+  }
 
   @Cron('20 0 * * *')
   async handleLeagueBfitCalculations() {
