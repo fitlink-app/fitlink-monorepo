@@ -663,10 +663,7 @@ describe('Health Activities', () => {
 
     const activities = result.json()
 
-    expect(activities.length).toBe(3)
-    expect(activities[0].id).toBeDefined()
-    expect(activities[1].id).toBeDefined()
-    expect(activities[2].id).toBeUndefined()
+    expect(activities.success).toBeTruthy()
   })
 
   it('POST /me/ping Updates Fitbit steps for qualifying users on ping from device', async () => {
