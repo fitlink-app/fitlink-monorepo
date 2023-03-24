@@ -2,14 +2,19 @@ import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm'
 
 export class bfitallocation1679400650037Retry implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    if (await queryRunner.hasColumn('league', 'bfitAllocation')) {
-      await queryRunner.dropColumn('league', 'bfitAllocation')
+
+    // we change if table exists in case we are running this migration on a fresh database
+    if (await queryRunner.hasTable('league')) {
+
+      if (await queryRunner.hasColumn('league', 'bfitAllocation')) {
+        await queryRunner.dropColumn('league', 'bfitAllocation')
+      }
+      if (await queryRunner.hasColumn('league', 'bfitWinnerPot')) {
+        await queryRunner.dropColumn('league', 'bfitWinnerPot')
+      }
     }
 
-    if (await queryRunner.hasColumn('league', 'bfitWinnerPot')) {
-      await queryRunner.dropColumn('league', 'bfitWinnerPot')
-    }
-    await queryRunner.addColumns('league', [
+    return queryRunner.addColumns('league', [
       new TableColumn({
         name: 'bfitAllocation',
         type: 'numeric',
