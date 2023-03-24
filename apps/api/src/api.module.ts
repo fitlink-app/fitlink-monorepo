@@ -3,7 +3,7 @@ import { APP_GUARD } from '@nestjs/core'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { EventEmitterModule } from '@nestjs/event-emitter'
-import { SqsModule } from '@ssut/nestjs-sqs';
+import { SqsModule } from '@ssut/nestjs-sqs'
 
 // Entities
 import { Activity } from './modules/activities/entities/activity.entity'
@@ -74,9 +74,11 @@ import { WalletTransaction } from './modules/wallet-transactions/entities/wallet
 import { WalletTransactionsModule } from './modules/wallet-transactions/wallet-transactions.module'
 import { SqsOptions } from '@ssut/nestjs-sqs/dist/sqs.types'
 import AWS from 'aws-sdk'
-import { BfitDistributionModule } from './modules/bfit/bfit.module'
-import { BfitDistributionProducerModule } from './modules/bfit/bfit-producer.module'
+import { BfitDistributionModule } from './modules/sqs/sqs.module'
+import { SQSProducerModule } from './modules/sqs/sqs-producer.module'
 import { ClientIdContextModule } from './modules/client-id/client-id.module'
+import { CronModule } from './modules/cron/cron.module'
+import { LeagueWaitlistUser } from './modules/leagues/entities/league-waitlist-user.entity'
 
 @Module({
   imports: [
@@ -131,7 +133,8 @@ import { ClientIdContextModule } from './modules/client-id/client-id.module'
             Notification,
             LeagueBfitClaim,
             LeagueBfitEarnings,
-            WalletTransaction
+            WalletTransaction,
+            LeagueWaitlistUser
           ],
           synchronize: false,
           logging: false,
@@ -168,9 +171,10 @@ import { ClientIdContextModule } from './modules/client-id/client-id.module'
     UsersInvitationsModule,
     NotificationsModule,
     WalletTransactionsModule,
-    BfitDistributionProducerModule,
+    SQSProducerModule,
     BfitDistributionModule,
     ClientIdContextModule,
+    CronModule
   ],
   providers: [
     {

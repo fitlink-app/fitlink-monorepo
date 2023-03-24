@@ -9,6 +9,10 @@ export const useRevokeAccessOnIdle = () => {
   const {revokeAccess} = useRevokeAccess();
 
   useEffect(() => {
+    revokeAccess();
+  }, [revokeAccess]);
+
+  useEffect(() => {
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (
         appStateRef.current.match(/inactive|background/) &&

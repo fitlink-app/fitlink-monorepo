@@ -9,12 +9,17 @@ import {PersistGate} from 'redux-persist/integration/react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
+import {
+  UpdateInfo,
+  AppBackground,
+  DeeplinkHandler,
+  LifeCycleEvents,
+  EnterPinCodeProvider,
+} from '@components';
 import {withQueryClient} from '@query';
-import {AppBackground, DeeplinkHandler, LifeCycleEvents} from '@components';
 import {useCodePush, useIntercomNotifications} from '@hooks';
 import Router, {NavigationProvider} from '@routes';
 
-import {UpdateInfo} from 'components/UpdateInfo';
 import ThemeProvider from './theme/ThemeProvider';
 import {QueryPersistor} from 'query/QueryPersistor';
 import {ModalProvider, Transition} from './contexts';
@@ -50,17 +55,19 @@ const App = () => {
           <AppBackground>
             <Provider store={store}>
               <PersistGate persistor={persistor}>
-                <NavigationProvider>
-                  <LifeCycleEvents />
-                  <Transition>
-                    <ModalProvider>
-                      <QueryPersistor>
-                        <DeeplinkHandler />
-                        <Router />
-                      </QueryPersistor>
-                    </ModalProvider>
-                  </Transition>
-                </NavigationProvider>
+                <EnterPinCodeProvider>
+                  <NavigationProvider>
+                    <LifeCycleEvents />
+                    <Transition>
+                      <ModalProvider>
+                        <QueryPersistor>
+                          <DeeplinkHandler />
+                          <Router />
+                        </QueryPersistor>
+                      </ModalProvider>
+                    </Transition>
+                  </NavigationProvider>
+                </EnterPinCodeProvider>
               </PersistGate>
             </Provider>
           </AppBackground>

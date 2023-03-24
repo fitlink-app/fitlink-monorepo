@@ -21,15 +21,11 @@ import { NotificationAction } from '../notifications/notifications.constants'
 import { differenceInMilliseconds } from 'date-fns'
 import { League } from '../leagues/entities/league.entity'
 import { LeaderboardEntry } from '../leaderboard-entries/entities/leaderboard-entry.entity'
-import { LeagueAccess } from '../leagues/leagues.constants'
 import { LeagueBfitEarnings } from '../leagues/entities/bfit-earnings.entity'
 import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
-import { WalletTransactionSource } from '../wallet-transactions/wallet-transactions.constants'
-import { LeaguesService } from '../leagues/leagues.service'
-import { SqsService } from '@ssut/nestjs-sqs'
 import { v4 } from 'uuid'
-import { BfitActivityTypes } from '../bfit/bfit.types'
-import { BfitDistributionSenderService } from '../bfit/bfit-producer.service'
+import { SQSTypes } from '../sqs/sqs.types'
+import { SQSDistributionSenderService } from '../sqs/sqs-producer.service'
 interface GoalField {
   field:
     | 'current_floors_climbed'
@@ -66,9 +62,7 @@ export class GoalsEntriesService {
     private eventEmitter: EventEmitter2,
     private commonService: CommonService,
     private notificationsService: NotificationsService,
-    private leaguesService: LeaguesService,
-    private readonly sqsService: SqsService,
-    private readonly bfitDistributionSenderService: BfitDistributionSenderService
+    private readonly sqsDistributionSenderService: SQSDistributionSenderService
   ) {}
 
   formatFields(
@@ -223,9 +217,9 @@ export class GoalsEntriesService {
 
           // update bfit in compete to earn step leagues after points have been added
           // we go to SQS service to update user bfit due to it needing to be first in first out
-          this.bfitDistributionSenderService.sendToQueue(
+          this.sqsDistributionSenderService.sendToQueue(
             v4(),
-            BfitActivityTypes.steps,
+            SQSTypes.steps,
             user.id
           )
         }

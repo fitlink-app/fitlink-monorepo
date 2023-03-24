@@ -1,9 +1,7 @@
 import React, {FC, useState} from 'react';
 import {Dimensions, ImageSourcePropType, StyleSheet, View} from 'react-native';
-import {useNavigation} from '@react-navigation/core';
 import Animated from 'react-native-reanimated';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-import {StackNavigationProp} from '@react-navigation/stack';
 
 import {Label} from '@components';
 import {
@@ -30,7 +28,6 @@ import {useLeaderboardCountback} from '../hooks/useLeaderboardCountback';
 import {MaxedOutBanner} from './MaxedOutBanner';
 import {OnlyOneTypeBanner} from './OnlyOneTypeBanner';
 import {TryTomorrowBanner} from './TryTomorrowBanner';
-import {RootStackParamList} from '../../../routes/types';
 
 interface IAnimatedLeaderboardHeaderCardProps {
   imageSource: ImageSourcePropType;
@@ -47,7 +44,6 @@ interface IAnimatedLeaderboardHeaderCardProps {
   dailyBfit?: number;
   distributedTodayBfit?: number;
   isCteLeague?: boolean;
-  handleOnEditPressed: () => void;
   sharedContentOffset: Animated.SharedValue<number>;
 }
 
@@ -56,7 +52,6 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     leagueId,
     membership,
     isPublic,
-    handleOnEditPressed,
     isCteLeague = false,
     imageSource,
     memberCount,
@@ -70,9 +65,6 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     onHeightMeasure: onHeightLayout,
     sharedContentOffset,
   }) => {
-    const navigation =
-      useNavigation<StackNavigationProp<RootStackParamList, 'League'>>();
-
     const [showAltCurrency, setShowAltCurrency] = useState(false);
 
     const leaderboardLabelText = 'LEADERBOARD';
@@ -103,9 +95,18 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
 
     const {openModal} = useModal();
 
-    const handleOnInvitePressed = () => {
-      navigation.navigate('LeagueInviteFriends', {leagueId});
-    };
+    const handleOnMenuPressed = useLeagueMenuModal({
+      membership,
+      isPublic,
+      isCteLeague,
+      leagueId,
+      leaveLeague,
+    });
+
+    const countback = useLeaderboardCountback({
+      date: resetDate,
+      repeat,
+    });
 
     const openMaxedOutModal = () => {
       openModal(() => <MaxedOutBanner />);
@@ -126,29 +127,6 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
         }
       }
     };
-
-    const handleOnLeavePressed = () => {
-      leaveLeague(leagueId);
-    };
-
-    const handleOnReportCheatingPress = () => {
-      navigation.navigate('CheatingReportScreen', {leagueId});
-    };
-
-    const handleOnMenuPressed = useLeagueMenuModal({
-      membership,
-      isPublic,
-      isCteLeague,
-      handleOnInvitePressed,
-      handleOnLeavePressed,
-      handleOnEditPressed,
-      handleOnReportCheatingPress,
-    });
-
-    const countback = useLeaderboardCountback({
-      date: resetDate,
-      repeat,
-    });
 
     const handleClaimBfitPressed = async () => {
       const canClaim = bFitToClaimRaw !== undefined && bFitToClaim !== 0;

@@ -19,6 +19,7 @@ import { NotificationsModule } from '../notifications/notifications.module'
 import { LeagueBfitClaim } from '../leagues/entities/bfit-claim.entity'
 import { LeagueBfitEarnings } from '../leagues/entities/bfit-earnings.entity'
 import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
+import { LeagueWaitlistUser } from '../leagues/entities/league-waitlist-user.entity'
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import { WalletTransaction } from '../wallet-transactions/entities/wallet-transa
       HealthActivity,
       LeagueBfitClaim,
       LeagueBfitEarnings,
-      WalletTransaction
+      WalletTransaction,
+      LeagueWaitlistUser
     ]),
     NotificationsModule,
     JwtModule.registerAsync({

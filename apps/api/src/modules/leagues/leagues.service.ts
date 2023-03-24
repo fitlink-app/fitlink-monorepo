@@ -40,7 +40,6 @@ import { CommonService } from '../common/services/common.service'
 import { LeagueJoinedEvent } from './events/league-joined.event'
 import { LeagueWonEvent } from './events/league-won.event'
 import { Events } from '../../events'
-import { ConfigService } from '@nestjs/config'
 import { differenceInMilliseconds } from 'date-fns'
 import { NotificationsService } from '../notifications/notifications.service'
 import { NotificationAction } from '../notifications/notifications.constants'
@@ -55,6 +54,9 @@ import { FilterCompeteToEarnDto } from './dto/filter-compete-to-earn.dto'
 import { registry, msg } from 'kujira.js'
 import { GasPrice, SigningStargateClient, coins } from '@cosmjs/stargate'
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
+import { HealthActivity } from '../health-activities/entities/health-activity.entity'
+import { LeagueWaitlistUser } from './entities/league-waitlist-user.entity'
+import { getBfitEarning } from '../../helpers/bfit-helpers'
 
 type LeagueOptions = {
   teamId?: string
@@ -84,9 +86,6 @@ export class LeaguesService {
     @InjectRepository(LeaderboardEntry)
     private leaderboardEntryRepository: Repository<LeaderboardEntry>,
 
-    @InjectRepository(WalletTransaction)
-    private walletTransactionRepository: Repository<WalletTransaction>,
-
     @InjectRepository(LeagueBfitClaim)
     private leagueBfitClaimRepository: Repository<LeagueBfitClaim>,
 
@@ -102,14 +101,18 @@ export class LeaguesService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
 
-    @InjectRepository(LeaguesInvitation)
-    private invitationRepository: Repository<LeaguesInvitation>,
+    @InjectRepository(LeagueWaitlistUser)
+    private leagueWaitlistUserRepository: Repository<LeagueWaitlistUser>,
+
+    @InjectRepository(LeagueBfitEarnings)
+    private leagueBfitEarningsRepository: Repository<LeagueBfitEarnings>,
+
+    @InjectRepository(WalletTransaction)
+    private walletTransactionRepository: Repository<WalletTransaction>,
 
     private leaderboardEntriesService: LeaderboardEntriesService,
     private commonService: CommonService,
     private eventEmitter: EventEmitter2,
-    private configService: ConfigService,
-    private httpService: HttpService,
     private notificationsService: NotificationsService
   ) {}
 
@@ -367,6 +370,7 @@ export class LeaguesService {
     })
   }
 
+  // TODO(BFIT): We should remove this function and all calls to it
   async getUserTotalLeagueDailyBfitEarnings(leagueId: string) {
     const today = new Date()
     const startDate = new Date(
@@ -383,6 +387,21 @@ export class LeaguesService {
     const result = await query.getRawOne()
     let total = result.total ? Number(result.total) : 0
     return { total }
+  }
+
+  async getTotalUsersPointsForLeagueToday(leagueId: string): Promise<string> {
+    const startOfDay = new Date(new Date().setHours(0, 0, 0, 0))
+    const endOfDay = new Date(new Date().setHours(23, 59, 59, 999))
+    return await this.leaguesRepository
+      .createQueryBuilder('league')
+      .innerJoin('league.users', 'user')
+      .innerJoin('user.health_activities', 'health_activity')
+      .select('SUM(health_activity.points)', 'totalPoints')
+      .where('league.id = :leagueId', { leagueId })
+      .andWhere('health_activity.start_time >= :startOfDay', { startOfDay })
+      .andWhere('health_activity.start_time <= :endOfDay', { endOfDay })
+      .getRawOne()
+      .then((grandTotal) => grandTotal.totalPoints || 0)
   }
 
   async isOwnedBy(leagueId: string, userId: string) {
@@ -1005,6 +1024,186 @@ export class LeaguesService {
     return count > 0
   }
 
+  // adds a user to a league waitlist
+  async joinLeagueWaitlist(leagueId: string, userId: string) {
+    const user = new User()
+    user.id = userId
+
+    const league = new League()
+    league.id = leagueId
+
+    const waitlistUser = await this.leagueWaitlistUserRepository.findOne({
+      where: {
+        league_id: leagueId,
+        user_id: userId
+      }
+    })
+    if (waitlistUser) {
+      throw new BadRequestException(
+        "You have already joined this league's waitlist"
+      )
+    }
+    if (await this.isParticipant(leagueId, userId)) {
+      throw new BadRequestException('You have already joined this league')
+    }
+
+    let isCompeteToEarn = await this.leaguesRepository.findOne(
+      {
+        id: leagueId,
+        access: LeagueAccess.CompeteToEarn
+      },
+      {
+        relations: ['sport']
+      }
+    )
+    // check if the user has already joined more than 3 leagues
+    if (isCompeteToEarn) {
+      // check if the user has joined the maximum number of c2e leagues with the same sport id,
+      // it should be a maximum of 3
+      const sameSportCount = await this.leaguesRepository
+        .createQueryBuilder('league')
+        .innerJoin('league.users', 'user')
+        .innerJoin('league.sport', 'sport')
+        .where(
+          'user.id = :userId AND sport.id = :sportId AND access = :leagueAccess',
+          {
+            userId,
+            leagueId,
+            sportId: isCompeteToEarn?.sport?.id,
+            leagueAccess: LeagueAccess.CompeteToEarn
+          }
+        )
+        .getCount()
+      if (sameSportCount >= 1) {
+        throw new BadRequestException(
+          'You can only join one sport type of a compete to earn league i.e. 1 x swim, 1 x cycle and 1 run'
+        )
+      }
+
+      let query = this.queryFindAccessibleToUser(userId, {
+        isCte: true,
+        isOrganization: false,
+        isPrivate: false,
+        isPublic: false,
+        isTeam: false
+      })
+
+      query = query.andWhere('leagueUser.id = :userId', { userId })
+      const { entities, raw } = await query.getRawAndEntities()
+      const results = this.applyRawResults(entities, raw)
+      if (results.length >= 3) {
+        throw new BadRequestException(
+          'You can only join a maximum of 3 compete to earn leagues'
+        )
+      }
+    }
+
+    const leagueWaitlistUser = new LeagueWaitlistUser()
+    leagueWaitlistUser.league_id = leagueId
+    leagueWaitlistUser.user_id = userId
+    await this.leagueWaitlistUserRepository.save(leagueWaitlistUser)
+
+    return { success: true, league }
+  }
+
+  // finds league waitlist users with the provided user id
+  async findUserLeagueWaitlists(
+    userId: string,
+    { limit = 10, page = 0 }: PaginationOptionsInterface
+  ) {
+    let where = { user_id: userId }
+    const [results, total] =
+      await this.leagueWaitlistUserRepository.findAndCount({
+        where,
+        take: limit,
+        skip: page * limit
+      })
+    return new Pagination<LeagueWaitlistUser>({
+      results,
+      total
+    })
+  }
+
+  // adds waitlist users to a league
+  async joinLeagueFromWaitlist(leagueId: string, userId: string) {
+    const waitlistUser = await this.leagueWaitlistUserRepository.findOne({
+      where: {
+        league_id: leagueId,
+        user_id: userId
+      }
+    })
+    if (!waitlistUser) {
+      console.error(
+        `Waitlist user with league id ${leagueId} and user id ${userId} not found`
+      )
+      return
+    }
+    const user = new User()
+    user.id = userId
+
+    const league = new League()
+    league.id = leagueId
+
+    const leaderboardEntry = await this.leaguesRepository.manager.transaction(
+      async (manager) => {
+        const repository = manager.getRepository(League)
+        const leaderboardEntryRepository =
+          manager.getRepository(LeaderboardEntry)
+        const invitationRepository = manager.getRepository(LeaguesInvitation)
+        const userRepository = manager.getRepository(User)
+        await repository
+          .createQueryBuilder()
+          .relation(League, 'users')
+          .of(league)
+          .add(user)
+
+        const leaderboardEntry = await this.addLeaderboardEntry(
+          leagueId,
+          userId,
+          leaderboardEntryRepository
+        )
+        await repository.increment({ id: leagueId }, 'participants_total', 1)
+
+        // Update the invitation to accepted
+        await invitationRepository.update(
+          {
+            to_user: {
+              id: userId
+            },
+            league: {
+              id: leagueId
+            }
+          },
+          {
+            accepted: true
+          }
+        )
+
+        // Update the user's total unread invitation count
+        await userRepository.update(
+          {
+            id: userId
+          },
+          {
+            league_invitations_total: await invitationRepository.count({
+              to_user: { id: userId },
+              dismissed: false,
+              accepted: false
+            })
+          }
+        )
+
+        return leaderboardEntry
+      }
+    )
+
+    const event = new LeagueJoinedEvent()
+    event.leagueId = leagueId
+    event.userId = userId
+    await this.eventEmitter.emitAsync(Events.LEAGUE_JOINED, event)
+    return { success: true, league, leaderboardEntry }
+  }
+
   /**
    * Uses a transaction to
    * 1. Join the league
@@ -1574,7 +1773,14 @@ export class LeaguesService {
       return entry as LeaderboardEntry
     })
 
-    const winners = entries.filter((entry) => entry.rank === '1')
+    const winners = entries
+      .filter(
+        (entry) =>
+          entry.rank === '1' || entry.rank === '2' || entry.rank === '3'
+      )
+      .sort((a, b) => {
+        return Number(a.rank) - Number(b.rank)
+      })
     return { winners }
   }
 
@@ -1596,31 +1802,87 @@ export class LeaguesService {
     // and copy the users to it along with their wins
     if (league.repeat && league.active_leaderboard) {
       const { winners } = await this.calculateLeagueWinners(league.id)
+
+      const coreWinners = winners.filter((winner) => winner.rank === '1')
       const leaderboard = await this.leaderboardRepository.save(
         this.leaderboardRepository.create({
           league: league
         })
       )
 
+      const currentEntries = league.active_leaderboard.entries
+
       await this.leaguesRepository.manager.transaction(async (manager) => {
         const repo = manager.getRepository(LeaderboardEntry)
         const leagueRepo = manager.getRepository(League)
         const leaderboardRepo = manager.getRepository(Leaderboard)
         await Promise.all(
-          league.users.map((leagueUser) => {
-            const winner = winners.filter((e) => leagueUser.id === e.user.id)[0]
+          league.users.map(async (leagueUser) => {
+            const winner = winners.find(
+              (e) => leagueUser.id === e.user.id && e.rank === '1'
+            )
             const user = new User()
             user.id = leagueUser.id
-            return repo.save(
-              repo.create({
-                user,
-                leaderboard,
-                leaderboard_id: leaderboard.id,
-                league_id: league.id,
-                user_id: leagueUser.id,
-                wins: winner ? winner.wins + 1 : 0
-              })
-            )
+
+            // check if the league is CompeteToEarn
+            if (league.access === LeagueAccess.CompeteToEarn) {
+              // we check if the user is in the winner which provides top 3
+              const bfitBonus = winners.find(
+                (winner) => leagueUser.id === winner.user.id
+              )
+
+              // we not get they estimate earnings and reward them
+              const entry = currentEntries.find(
+                (entry) => entry.user_id === leagueUser.id
+              )
+
+              const bfit = getBfitEarning(
+                bfitBonus.rank,
+                league.bfitWinnerPot,
+                entry.bfit_estimate
+              )
+
+              let bfitEarnings = new LeagueBfitEarnings()
+              bfitEarnings.user_id = league.id
+              bfitEarnings.league_id = league.id
+              bfitEarnings.bfit_amount = bfit
+              let savedEarnings = await this.leagueBfitEarningsRepository.save(
+                bfitEarnings
+              )
+              let walletTransaction = new WalletTransaction()
+              walletTransaction.source =
+                WalletTransactionSource.LeagueBfitEarnings
+              walletTransaction.earnings_id = savedEarnings.id
+              walletTransaction.league_id = league.id
+              walletTransaction.league_name = league.name
+              walletTransaction.user_id = leagueUser.id
+              walletTransaction.bfit_amount = bfit
+              await this.walletTransactionRepository.save(walletTransaction)
+
+              return repo.save(
+                repo.create({
+                  user,
+                  leaderboard,
+                  leaderboard_id: leaderboard.id,
+                  league_id: league.id,
+                  user_id: leagueUser.id,
+                  wins: winner ? winner.wins + 1 : 0,
+                  bfit_earned: bfit,
+                  bfit_estimate: 0
+                })
+              )
+            } else {
+              return repo.save(
+                repo.create({
+                  user,
+                  leaderboard,
+                  leaderboard_id: leaderboard.id,
+                  league_id: league.id,
+                  user_id: leagueUser.id,
+                  wins: winner ? winner.wins + 1 : 0
+                })
+              )
+            }
           })
         )
 
@@ -1634,29 +1896,84 @@ export class LeaguesService {
         })
       })
 
-      await this.emitWinnerFeedItems(league.id, winners)
+      await this.emitWinnerFeedItems(league.id, coreWinners)
       return {
         name: league.name,
-        winners: winners.length,
+        winners: coreWinners.length,
         users: league.users.length,
         restarted: true
       }
     } else if (league.active_leaderboard) {
       const { winners } = await this.calculateLeagueWinners(league.id)
+      const coreWinners = winners.filter((winner) => winner.rank === '1')
 
       await this.leaguesRepository.manager.transaction(async (manager) => {
         const repo = manager.getRepository(LeaderboardEntry)
         const leagueRepo = manager.getRepository(League)
         const leaderboardRepo = manager.getRepository(Leaderboard)
-        await Promise.all(
-          winners.map((winner) => {
-            return repo.save({
-              ...winner,
-              wins: winner.wins + 1
-            })
-          })
-        )
 
+        if (league.access === LeagueAccess.CompeteToEarn) {
+          const currentEntries = league.active_leaderboard.entries
+          await Promise.all(
+            league.users.map(async (leagueUser) => {
+              const winner = winners.find(
+                (e) => leagueUser.id === e.user.id && e.rank === '1'
+              )
+              const user = new User()
+              user.id = leagueUser.id
+
+              // check if the league is CompeteToEarn
+              if (league.access === LeagueAccess.CompeteToEarn) {
+                // we check if the user is in the winner which provides top 3
+                const bfitBonus = winners.find(
+                  (winner) => leagueUser.id === winner.user.id
+                )
+
+                // we not get they estimate earnings and reward them
+                const entry = currentEntries.find(
+                  (entry) => entry.user_id === leagueUser.id
+                )
+
+                const bfit = getBfitEarning(
+                  bfitBonus.rank,
+                  league.bfitWinnerPot,
+                  entry.bfit_estimate
+                )
+                let bfitEarnings = new LeagueBfitEarnings()
+                bfitEarnings.user_id = league.id
+                bfitEarnings.league_id = league.id
+                bfitEarnings.bfit_amount = bfit
+                let savedEarnings =
+                  await this.leagueBfitEarningsRepository.save(bfitEarnings)
+                let walletTransaction = new WalletTransaction()
+                walletTransaction.source =
+                  WalletTransactionSource.LeagueBfitEarnings
+                walletTransaction.earnings_id = savedEarnings.id
+                walletTransaction.league_id = league.id
+                walletTransaction.league_name = league.name
+                walletTransaction.user_id = leagueUser.id
+                walletTransaction.bfit_amount = bfit
+                await this.walletTransactionRepository.save(walletTransaction)
+
+                return repo.save({
+                  ...entry,
+                  bfit_earned: bfit,
+                  wins: winner ? winner.wins + 1 : 0,
+                  bfit_estimate: 0
+                })
+              }
+            })
+          )
+        } else {
+          await Promise.all(
+            coreWinners.map((winner) => {
+              return repo.save({
+                ...winner,
+                wins: winner.wins + 1
+              })
+            })
+          )
+        }
         await leaderboardRepo.update(league.active_leaderboard.id, {
           completed: true
         })

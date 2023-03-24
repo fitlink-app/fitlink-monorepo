@@ -12,6 +12,7 @@
 	<array>
 		<string>webcredentials:go.fitlinkapp.com</string>
 		<string>applinks:go.fitlinkapp.com</string>
+		<string>applinks:bfitcoin.page.link</string>
 	</array>
 	<key>com.apple.developer.healthkit</key>
 	<true/>

@@ -11,6 +11,8 @@
     "@aws-sdk/client-s3": "^3.8.1",
     "@aws-sdk/client-ses": "^3.9.0",
     "@aws-sdk/client-sqs": "^3.288.0",
+    "@cosmjs/proto-signing": "^0.29.5",
+    "@cosmjs/stargate": "^0.29.5",
     "@nestjs/common": "^7.6.13",
     "@nestjs/config": "^0.6.3",
     "@nestjs/core": "^7.6.13",
@@ -18,6 +20,7 @@
     "@nestjs/jwt": "^8.0.0",
     "@nestjs/passport": "^7.1.5",
     "@nestjs/platform-fastify": "^7.6.13",
+    "@nestjs/schedule": "^2.2.0",
     "@nestjs/swagger": "^4.7.15",
     "@nestjs/typeorm": "^7.1.5",
     "@ssut/nestjs-sqs": "^1.3.0",
@@ -34,6 +37,7 @@
     "geojson": "^0.5.0",
     "global": "^4.4.0",
     "google-auth-library": "^7.6.2",
+    "kujira.js": "Team-Kujira/kujira.js.git#a08da88ca3065fffa9402c9ba554f4cb1ca221b6",
     "node-html-to-image": "^3.2.0",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
@@ -47,10 +51,7 @@
     "sharp": "^0.27.2",
     "typeorm": "0.2.31",
     "typeorm-seeding": "^1.6.1",
-    "uuid": "^8.3.2",
-    "@cosmjs/proto-signing": "^0.29.5",
-    "@cosmjs/stargate": "^0.29.5",
-    "kujira.js": "Team-Kujira/kujira.js.git#a08da88ca3065fffa9402c9ba554f4cb1ca221b6"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@compodoc/compodoc": "^1.1.11",
@@ -60,6 +61,7 @@
     "@nestjs/schematics": "^7.2.7",
     "@nestjs/testing": "^7.6.13",
     "@types/bcrypt": "^3.0.0",
+    "@types/cron": "^2.0.1",
     "@types/faker": "^5.1.7",
     "@types/passport-jwt": "^3.0.5",
     "@types/passport-local": "^1.0.33",
@@ -70,6 +72,7 @@
     "chargebee-typescript": "2.1.0",
     "dotenv": "^10.0.0",
     "fastify-swagger": "^4.3.3",
+    "node-gyp": "latest",
     "serverless-deployment-bucket": "^1.3.0",
     "serverless-domain-manager": "^5.1.0",
     "serverless-iam-roles-per-function": "^3.1.0",
@@ -80,8 +83,7 @@
     "serverless-provisioned-concurrency-autoscaling": "^1.2.0",
     "start-server-webpack-plugin": "2.2.5",
     "supertest": "^6.1.3",
-    "typeorm-uml": "^1.6.2",
-    "node-gyp": "latest",
-    "ts-expect": "^1.3.0"
+    "ts-expect": "^1.3.0",
+    "typeorm-uml": "^1.6.2"
   }
 }

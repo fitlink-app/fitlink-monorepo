@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSFaceIDUsageDescription</key>
-	<string>To authenticate with Touch ID or Face ID, $(PRODUCT_NAME) needs your allowance.</string>
-	<key>MBXAccessToken</key>
-	<string>pk.eyJ1IjoiZml0bGlua2FwcCIsImEiOiJjamZud3NxbmgwY2w1MzNycTVoamtkbXRyIn0.l-zQ5Q756IGsRSQL_94Ntw</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.transistorsoft.fetch</string>
@@ -33,29 +29,11 @@
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.523231434158-0kffb5s0ubo9oqucskdh0c6f1vh3mjt3</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>fitlink-app</string>
+			<string>Bundle ID</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fitlink-app</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>fitlink-app</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.fathomux.Fit-Link</string>
+				<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 			</array>
 		</dict>
 	</array>
@@ -69,6 +47,8 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>MBXAccessToken</key>
+	<string>pk.eyJ1IjoiZml0bGlua2FwcCIsImEiOiJjamZud3NxbmgwY2w1MzNycTVoamtkbXRyIn0.l-zQ5Q756IGsRSQL_94Ntw</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
@@ -82,6 +62,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>$(PRODUCT_NAME) would like to use your camera to change your profile picture.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>To authenticate with Touch ID or Face ID, $(PRODUCT_NAME) needs your allowance.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Read and understand health data.</string>
 	<key>NSHealthUpdateUsageDescription</key>

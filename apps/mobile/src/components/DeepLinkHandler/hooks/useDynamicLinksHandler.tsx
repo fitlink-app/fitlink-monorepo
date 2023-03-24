@@ -1,55 +1,36 @@
 import React, {useEffect} from 'react';
-import dynamicLinks from '@react-native-firebase/dynamic-links';
-import {DeepLinkType} from '@fitlink/api/src/constants/deep-links';
-import {useDispatch, useSelector} from 'react-redux';
-import {memoSelectIsAuthenticated} from 'redux/auth';
-import {getUrlParams} from 'utils/api';
-import {navigationRef} from 'routes/router';
-import {Modal, TeamInvitation} from '@components';
+import {useSelector} from 'react-redux';
+
+import {navigationRef} from '@routes';
 import {useMe, useModal} from '@hooks';
-import {AppDispatch} from 'redux/store';
+import {AuthPromiseProvider} from '@model';
+import {Modal, TeamInvitation} from '@components';
+import {DeepLinkType} from '@fitlink/api/src/constants/deep-links';
+import {Team} from '@fitlink/api/src/modules/teams/entities/team.entity';
+
+import {useAppDispatch} from '../../../redux/store';
+import {selectIsAuthenticated} from '../../../redux/auth';
 import {
   getInvitationData,
   resetTeamInvitation,
   selectTeamInvitation,
-} from 'redux/teamInvitation/teamInvitationSlice';
-import {Team} from '@fitlink/api/src/modules/teams/entities/team.entity';
+} from '../../../redux/teamInvitation/teamInvitationSlice';
+import {getUrlParams} from '../../../utils/api';
 
-export const DeeplinkHandler = () => {
+export const useDynamicLinksHandler = () => {
   const navigation = navigationRef;
   const {openModal, closeModal} = useModal();
-  const dispatch = useDispatch() as AppDispatch;
+  const dispatch = useAppDispatch();
 
-  const isAuthenticated = useSelector(memoSelectIsAuthenticated);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const {invitation, code} = useSelector(selectTeamInvitation);
 
-  const {data: me, refetch: refetchUser} = useMe({enabled: isAuthenticated});
+  const {refetch: refetchUser} = useMe();
 
-  useEffect(() => {
-    dynamicLinks()
-      .getInitialLink()
-      .then(link => {
-        if (link) {
-          handleDynamicLink(link.url, 'background');
-        }
-      });
-  }, []);
+  const handleDynamicLink = async (url: string, isOboarded: boolean) => {
+    const params = getUrlParams(url);
 
-  useEffect(() => {
-    // Create listener
-    const unsubscribe = dynamicLinks().onLink(link => {
-      handleDynamicLink(link.url, 'foreground');
-    });
-    return () => unsubscribe();
-  }, [isAuthenticated, invitation, code, me, openModal]);
-
-  const handleDynamicLink = async (
-    url: string,
-    source: 'background' | 'foreground',
-  ) => {
-    const {type} = getUrlParams(url);
-
-    switch (type) {
+    switch (params.type) {
       case DeepLinkType.TeamInvitation:
         const {code} = getUrlParams(url);
         handleTeamInvitation(code);
@@ -60,11 +41,20 @@ export const DeeplinkHandler = () => {
         break;
 
       case DeepLinkType.LeagueInvitation:
-        handleLeagueInvitation();
+        if (isAuthenticated && isOboarded) {
+          handleLeagueInvitation();
+        }
         break;
 
       case DeepLinkType.EmailVerification:
         handleEmailVerified();
+        break;
+
+      case DeepLinkType.League:
+        if (isAuthenticated && isOboarded) {
+          await AuthPromiseProvider.getInstance().get();
+        }
+        handleLeagueDeepLink(params.id);
         break;
 
       default:
@@ -76,7 +66,36 @@ export const DeeplinkHandler = () => {
     if (invitation && code) {
       showTeamInvitationModal(invitation, code);
     }
-  }, [invitation]);
+  }, [invitation, code]);
+
+  const handleLeagueDeepLink = (id?: string) => {
+    if (id !== undefined) {
+      return navigation.current?.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'HomeNavigator',
+            state: {
+              routes: [{name: 'Leagues', params: {tab: 1}}],
+            },
+          },
+          {name: 'League', params: {id}},
+        ],
+      });
+    }
+
+    navigation.current?.reset({
+      index: 0,
+      routes: [
+        {
+          name: 'HomeNavigator',
+          state: {
+            routes: [{name: 'Leagues', params: {tab: 1}}],
+          },
+        },
+      ],
+    });
+  };
 
   const handleTeamInvitation = async (code: string) => {
     try {
@@ -102,8 +121,6 @@ export const DeeplinkHandler = () => {
   };
 
   const handleLeagueInvitation = () => {
-    if (!isAuthenticated) return;
-
     navigation.current?.navigate('Leagues', {
       tab: 2,
     });
@@ -125,13 +142,12 @@ export const DeeplinkHandler = () => {
   };
 
   const showTeamInvitationModal = async (invitation: Team, code: string) => {
-    if (!isAuthenticated || !me?.onboarded || !code) return;
-
-    const userQuery = await refetchUser();
+    const {data: me} = await refetchUser();
 
     if (
-      !userQuery.data ||
-      userQuery.data.teams?.find(team => team.id === invitation?.id)
+      !me?.onboarded ||
+      !isAuthenticated ||
+      me?.teams?.find(team => team.id === invitation?.id)
     ) {
       console.warn('User already member of team.');
       return;
@@ -181,5 +197,5 @@ export const DeeplinkHandler = () => {
     }, 500);
   };
 
-  return null;
+  return {handleDynamicLink};
 };

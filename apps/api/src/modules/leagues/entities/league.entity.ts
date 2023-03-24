@@ -102,6 +102,22 @@ export class League extends CreatableEntity {
   })
   bfit?: number
 
+  // bfit allocation for this league if it's a compete to earn league
+  @Column({
+    type: 'numeric',
+    default: 0,
+    transformer: new ColumnNumberTransformer()
+  })
+  bfitAllocation?: number
+
+  // total allocation of BFIT ready for the winners of this league
+  @Column({
+    type: 'numeric',
+    default: 0,
+    transformer: new ColumnNumberTransformer()
+  })
+  bfitWinnerPot?: number
+
   @OneToMany(() => LeaguesInvitation, (invitation) => invitation.league)
   invitations: LeaguesInvitation[]
 
@@ -157,7 +173,7 @@ export class League extends CreatableEntity {
 
   rank: number
 }
-
+// TODO(bfit) remove this due to no longer distributed bfit daily
 export class LeagueWithDailyBfit extends League {
   @ApiProperty()
   @Expose()

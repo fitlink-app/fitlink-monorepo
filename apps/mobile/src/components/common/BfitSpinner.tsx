@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   ActivityIndicatorProps,
   StyleProp,
+  StyleSheet,
   View,
   ViewStyle,
 } from 'react-native';
@@ -24,3 +25,19 @@ export const BfitSpinner: FC<BfitSpinnerProps> = ({
     </View>
   );
 };
+
+export const BfitSpinnerShimmer = () => (
+  <BfitSpinner wrapperStyle={styles.shimmer} />
+);
+
+const styles = StyleSheet.create({
+  shimmer: {
+    zIndex: 1,
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+});
