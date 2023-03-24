@@ -19,6 +19,8 @@ export class bfitallocation1679400650037 implements MigrationInterface {
       })
     ])
 
+    //comment out this part because it's failing in the update step
+    /*
     // Calculate the total number of users in all leagues with access set to 'competetoearn'
     const totalUsersCount = await queryRunner.query(`
             WITH total_users AS (
@@ -59,6 +61,7 @@ export class bfitallocation1679400650037 implements MigrationInterface {
         [bfitAllocation, bfitWinnerPot, leagueUser.leagueId]
       )
     }
+    */
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
