@@ -51,15 +51,19 @@ export class TasksService {
 				bfitWinnerPot
 			] = leagueBfitPots(league.participants_total, totalCompeteToEarnLeaguesUsers)
 
-
-			await this.leaguesRepository.update(
+			await this.leaguesRepository.increment(
 				{
 					id: league.id
 				},
+				'bfitAllocation',
+				bfitAllocation
+			)
+			await this.leaguesRepository.increment(
 				{
-					bfitAllocation: bfitAllocation,
-					bfitWinnerPot: bfitWinnerPot
-				}
+					id: league.id
+				},
+				'bfitWinnerPot',
+				bfitWinnerPot
 			)
 		}
 	}
