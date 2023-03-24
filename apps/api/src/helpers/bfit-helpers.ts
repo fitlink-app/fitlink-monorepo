@@ -13,11 +13,11 @@ export function leagueBfitPots(leagueUsers: number, globalUsers: number): [numbe
 
 export function getBfitEarning(rank: string, bfitWinnerPot: number, bfit_estimate: number): number {
 	if (rank === '1') {
-		return (bfitWinnerPot * 0.5) + bfit_estimate;
+		return ((bfitWinnerPot * 0.5) + bfit_estimate) * 1000_000;
 	} else if (rank === '2') {
-		return (bfitWinnerPot * 0.3) + bfit_estimate;
+		return ((bfitWinnerPot * 0.3) + bfit_estimate) * 1000_000;
 	} else if (rank === '3') {
-		return (bfitWinnerPot * 0.2) + bfit_estimate;
+		return ((bfitWinnerPot * 0.2) + bfit_estimate) * 1000_000;
 	}
-	return bfit_estimate;
+	return bfit_estimate * 1000_000;
 }
