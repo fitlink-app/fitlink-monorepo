@@ -79,7 +79,7 @@ import { SQSProducerModule } from './modules/sqs/sqs-producer.module'
 import { ClientIdContextModule } from './modules/client-id/client-id.module'
 import { CronModule } from './modules/cron/cron.module'
 import { LeagueWaitlistUser } from './modules/leagues/entities/league-waitlist-user.entity'
-
+import migrations from './migrations'
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -136,6 +136,7 @@ import { LeagueWaitlistUser } from './modules/leagues/entities/league-waitlist-u
             WalletTransaction,
             LeagueWaitlistUser
           ],
+          migrations: migrations,
           synchronize: false,
           logging: false,
           retryAttempts: 1
