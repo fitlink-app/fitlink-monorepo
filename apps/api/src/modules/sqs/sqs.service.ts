@@ -57,7 +57,7 @@ export class BfitDistributionService {
 
 
 	private async updateLeagueBfit(userId: string, sport: string) {
-		//TODO: Make this check if user exists in the league so we can use find one
+		console.log("fetching league")
 		const [league, leagueErr] = await tryAndCatch(
 			this.leaguesRepository
 				.createQueryBuilder('league')
@@ -71,8 +71,9 @@ export class BfitDistributionService {
 				.leftJoinAndSelect('active_leaderboard.entries', 'entries')
 				.getOne()
 		);
+		console.log("league fetched")
 		if (leagueErr) {
-			console.error(leagueErr);
+			console.error(`updateLeagueBfit, ${leagueErr}`);
 			throw leagueErr;
 		}
 
