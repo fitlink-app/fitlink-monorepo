@@ -1,9 +1,7 @@
 import React from 'react';
-import {Dimensions, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
 import {Skeleton} from '@components';
-
-const {width} = Dimensions.get('screen');
 
 export const HorizontalSliderSkeleton = () => {
   return (
@@ -26,10 +24,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderRadius: 5,
-    marginHorizontal: 20,
+    marginHorizontal: 15,
   },
   titleSkeleton: {
-    height: 16,
+    height: 20,
     width: 170,
   },
   seeAllSkeleton: {
@@ -38,9 +36,9 @@ const styles = StyleSheet.create({
   },
   rewardSkeleton: {
     borderRadius: 20,
-    width: width - 40,
     height: 175,
-    marginHorizontal: 20,
-    marginTop: 23,
+    marginHorizontal: 15,
+    marginTop: 25,
+    marginVertical: 11,
   },
 });

@@ -1,10 +1,9 @@
 import React, {useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
 import styled, {useTheme} from 'styled-components/native';
 import {Platform, ScrollView, View} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useNavigation} from '@react-navigation/native';
 import {StackScreenProps} from '@react-navigation/stack';
-import {RootStackParamList} from 'routes/types';
+
 import {
   ImagePickerDialogResponse,
   useCreateActivity,
@@ -19,37 +18,15 @@ import {
   ImagePicker,
   InputField,
   Label,
-  Navbar,
-  NAVBAR_HEIGHT,
   KeyboardAvoidingView,
 } from '@components';
 import {CreateActivityDto} from '@fitlink/api/src/modules/activities/dto/create-activity.dto';
 import {getErrors} from '@api';
 import {UpdateActivityDto} from '@fitlink/api/src/modules/activities/dto/update-activity.dto';
 import {ImageType} from '@fitlink/api/src/modules/images/images.constants';
+
 import {Image} from '../../../../api/src/modules/images/entities/image.entity';
-
-const FieldSpacer = styled.View({marginTop: 15});
-
-const Row = styled.View({flexDirection: 'row'});
-
-const ButtonContainter = styled.View({
-  marginTop: 40,
-  marginBottom: 20,
-});
-
-const InputFieldLabel = styled(Label).attrs(() => ({
-  appearance: 'accent',
-}))({
-  marginBottom: 10,
-});
-
-const CustomInputField = styled(InputField).attrs(() => ({
-  borderNone: true,
-}))({
-  backgroundColor: 'rgba(172, 172, 172, 0.1)',
-  borderRadius: 10,
-});
+import {RootStackParamList} from 'routes/types';
 
 type ActivityImagesState = {
   image?: Image;
@@ -60,10 +37,12 @@ export const ActivityForm = (
   props: StackScreenProps<RootStackParamList, 'ActivityForm'>,
 ) => {
   const navigation = useNavigation();
-  const insets = useSafeAreaInsets();
   const {colors} = useTheme();
 
-  const {geo, onSubmitCallback, onDelete, action, data} = props.route.params;
+  const {geo, onSubmitCallback, action, data} = props.route.params;
+  navigation.setOptions({
+    headerTitle: action === 'edit' ? 'EDIT ACTIVITY' : 'CREATE ACTIVITY',
+  });
 
   const initialValues: Partial<CreateActivityDto> = {
     name: data?.name || '',
@@ -158,14 +137,17 @@ export const ActivityForm = (
       baseDto.images = (activityImageIds || []).join();
       baseDto.organizer_image = organizerImageId || data?.organizer_image?.id;
 
-      if (baseDto.organizer_url?.length === 0)
+      if (baseDto.organizer_url?.length === 0) {
         baseDto.organizer_url = undefined;
+      }
 
-      if (baseDto.organizer_email?.length === 0)
+      if (baseDto.organizer_email?.length === 0) {
         baseDto.organizer_email = undefined;
+      }
 
-      if (baseDto.organizer_image?.length === 0)
+      if (baseDto.organizer_image?.length === 0) {
         baseDto.organizer_image = undefined;
+      }
 
       const result =
         action === 'create'
@@ -187,7 +169,9 @@ export const ActivityForm = (
   };
 
   const handleDelete = () => {
-    if (!data) return;
+    if (!data) {
+      return;
+    }
     deleteActivity(data.id);
   };
 
@@ -225,10 +209,10 @@ export const ActivityForm = (
       <KeyboardAvoidingView enabled={Platform.OS === 'ios'}>
         <ScrollView
           contentContainerStyle={{
-            paddingTop: NAVBAR_HEIGHT + insets.top + 5,
             paddingHorizontal: 20,
             paddingBottom: 20,
-          }}>
+          }}
+        >
           <View style={{overflow: 'hidden'}}>
             <FieldSpacer>
               <InputFieldLabel>Title</InputFieldLabel>
@@ -292,7 +276,8 @@ export const ActivityForm = (
               <Accordion
                 title={'Organiser Details'}
                 subtitle={'(Optional)'}
-                style={{paddingVertical: 5}}>
+                style={{paddingVertical: 5}}
+              >
                 <>
                   <FieldSpacer>
                     <Row style={{alignItems: 'flex-end'}}>
@@ -408,7 +393,8 @@ export const ActivityForm = (
               <ButtonContainter>
                 <Label
                   style={{textAlign: 'center', color: colors.danger}}
-                  type={'body'}>
+                  type={'body'}
+                >
                   {errorMessage}
                 </Label>
               </ButtonContainter>
@@ -416,17 +402,28 @@ export const ActivityForm = (
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-
-      <Navbar
-        overlay
-        title={action === 'edit' ? 'EDIT ACTIVITY' : 'CREATE ACTIVITY'}
-        titleStyle={{
-          fontSize: 15,
-          letterSpacing: 1,
-          color: colors.accent,
-        }}
-        iconColor={colors.text}
-      />
     </>
   );
 };
+
+const FieldSpacer = styled.View({marginTop: 15});
+
+const Row = styled.View({flexDirection: 'row'});
+
+const ButtonContainter = styled.View({
+  marginTop: 40,
+  marginBottom: 20,
+});
+
+const InputFieldLabel = styled(Label).attrs(() => ({
+  appearance: 'accent',
+}))({
+  marginBottom: 10,
+});
+
+const CustomInputField = styled(InputField).attrs(() => ({
+  borderNone: true,
+}))({
+  backgroundColor: 'rgba(172, 172, 172, 0.1)',
+  borderRadius: 10,
+});

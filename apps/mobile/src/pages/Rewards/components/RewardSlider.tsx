@@ -10,13 +10,17 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import styled from 'styled-components/native';
 
-import {Label, TouchHandler, BfitSpinner} from '@components';
+import {
+  Label,
+  TouchHandler,
+  BfitSpinner,
+  HorizontalSliderSkeleton,
+} from '@components';
 import {RewardPublic} from '@fitlink/api/src/modules/rewards/entities/reward.entity';
 import {getViewBfitValue, heightLize, widthLize} from '@utils';
 
 import {RewardCard} from '.';
 import {FEED_CAROUSEL_CARD_WIDTH} from '../../Feed/constants';
-import {HorizontalSliderSkeleton} from '../../../components/skeleton/HorizontalSliderSkeleton';
 
 interface RewardSliderProps
   extends Omit<

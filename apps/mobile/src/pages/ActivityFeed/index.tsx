@@ -13,12 +13,12 @@ import {
   Modal,
   BfitSpinner,
   getComponentsList,
+  BottomTabNavigationHeader,
 } from '@components';
 import {UserPublic} from '@fitlink/api/src/modules/users/entities/user.entity';
 import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
 
 import {getResultsFromPages} from 'utils/api';
-import theme from '../../theme/themes/fitlink';
 import {Filter} from 'components/feed/FeedFilter/components';
 import {memoSelectFeedPreferences} from 'redux/feedPreferences/feedPreferencesSlice';
 import {FeedItemSkeleton} from './components/FeedItemSkeleton';
@@ -33,21 +33,6 @@ const SImage = styled.Image({
   flex: 1,
   width: 22,
   height: 20,
-  resizeMode: 'contain',
-});
-
-const SHeader = styled.View({
-  flexDirection: 'row',
-  paddingTop: 12,
-  marginBottom: 30,
-  justifyContent: 'center',
-});
-
-const SHeaderTitle = styled.Text({
-  color: theme.colors.accent,
-  fontWeight: 500,
-  fontSize: 15,
-  lineHeight: 17.75,
 });
 
 export const ActivityFeed = () => {
@@ -132,23 +117,32 @@ export const ActivityFeed = () => {
     }
   };
 
-  return (
-    <Wrapper style={{paddingTop: insets.top}}>
-      <SHeader>
-        <SHeaderTitle>FEED</SHeaderTitle>
-        <TouchHandler
-          style={{position: 'absolute', top: 10, right: 20}}
-          onPress={() => {
-            handleFilterPressed();
-          }}
-        >
-          <SImage source={require('../../../assets/images/filter.png')} />
-        </TouchHandler>
-      </SHeader>
+  const SettingsButton = () => {
+    return (
+      <TouchHandler
+        style={{position: 'absolute', right: 20}}
+        onPress={() => {
+          handleFilterPressed();
+        }}
+      >
+        <SImage source={require('../../../assets/images/filter.png')} />
+      </TouchHandler>
+    );
+  };
 
-      {isLoading && getComponentsList(7, FeedItemSkeleton)}
+  return (
+    <Wrapper style={{marginTop: insets.top}}>
+      {isLoading && (
+        <>
+          <BottomTabNavigationHeader buttonRight={<SettingsButton />} />
+          {getComponentsList(7, FeedItemSkeleton)}
+        </>
+      )}
 
       <FlatList
+        ListHeaderComponent={
+          <BottomTabNavigationHeader buttonRight={<SettingsButton />} />
+        }
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         ref={scrollRef}

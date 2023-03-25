@@ -61,14 +61,6 @@ export const Friends = (
 
   return (
     <>
-      <HeaderView>
-        <Navbar
-          containerStyle={{position: 'relative'}}
-          iconColor={colors.accent}
-          title="FRIENDS"
-          titleStyle={{fontSize: 18, color: colors.accent}}
-        />
-      </HeaderView>
       <Wrapper>
         <TabView
           ref={tabViewRef}

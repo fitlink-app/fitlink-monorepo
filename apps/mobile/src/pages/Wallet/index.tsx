@@ -7,11 +7,11 @@ import {
   View,
 } from 'react-native';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-import styled, {useTheme} from 'styled-components/native';
+import styled from 'styled-components/native';
 import {useNavigation} from '@react-navigation/core';
 
-import {Icon, Label, Navbar} from '@components';
-import {useManualQueryRefresh, useMeasureInitialLayout, useModal} from '@hooks';
+import {Icon, Label, BfitSpinner} from '@components';
+import {useManualQueryRefresh, useModal} from '@hooks';
 import {WalletTransaction} from '@fitlink/api/src/modules/wallet-transactions/entities/wallet-transaction.entity';
 
 import theme from '../../theme/themes/fitlink';
@@ -23,7 +23,6 @@ import {
   WalletNotConnectedContent,
 } from './components';
 import {getResultsFromPages} from '../../utils/api';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const NavbarTitle = () => (
   <View style={{flexDirection: 'row'}}>
@@ -39,14 +38,13 @@ const NavbarTitle = () => (
 
 export const Wallet = () => {
   const navigation = useNavigation();
-
-  const {colors} = useTheme();
+  navigation.setOptions({
+    headerTitle: NavbarTitle,
+  });
 
   const [isConnected] = useState<Boolean>(true);
 
   const {openModal} = useModal();
-  const {measureInitialLayout, initialLayout: initialNavbarLayout} =
-    useMeasureInitialLayout();
   const {
     refetch,
     data: transactionsPages,
@@ -94,13 +92,7 @@ export const Wallet = () => {
   return (
     <BottomSheetModalProvider>
       <SFlexed>
-        <Navbar
-          onLayout={measureInitialLayout}
-          containerStyle={{backgroundColor: theme.colors.background}}
-          centerComponent={<NavbarTitle />}
-          iconColor={colors.text}
-        />
-        <View style={{paddingTop: initialNavbarLayout.height + 20}}>
+        <View style={{paddingTop: 20}}>
           <FlatList
             onEndReached={fetchNextOnEndReached}
             refreshControl={

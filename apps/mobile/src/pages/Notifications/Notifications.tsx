@@ -4,14 +4,13 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
 import {useNavigation} from '@react-navigation/core';
 
-import {Icon, Label, Navbar, NAVBAR_HEIGHT} from '@components';
+import {Icon, Label, NAVBAR_HEIGHT, BfitSpinner} from '@components';
 import {useMe, useNotifications} from '@hooks';
 import {queryClient, QueryKeys} from '@query';
 import {Notification as NotificationClass} from '@fitlink/api/src/modules/notifications/entities/notification.entity';
 
 import {getResultsFromPages} from 'utils/api';
 import {Notification} from './components';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -25,6 +24,17 @@ export const Notifications = () => {
   const insets = useSafeAreaInsets();
   const {colors} = useTheme();
   const navigation = useNavigation();
+  navigation.setOptions({
+    headerRight: () => (
+      <Icon
+        size={22}
+        style={{marginRight: 18}}
+        fill="white"
+        name="double-check"
+        onPress={() => setNotificationsSeenAll()}
+      />
+    ),
+  });
 
   const [isManuallyRefetching, setIsManuallyRefetching] = useState(false);
 
@@ -83,7 +93,8 @@ export const Notifications = () => {
           <Label
             type="body"
             appearance={'accentSecondary'}
-            style={{textAlign: 'center'}}>
+            style={{textAlign: 'center'}}
+          >
             You don't have any notifications yet.
           </Label>
         )}
@@ -93,25 +104,6 @@ export const Notifications = () => {
 
   return (
     <Wrapper>
-      <Navbar
-        iconColor={'white'}
-        title="NOTIFICATIONS"
-        titleStyle={{
-          fontSize: 16,
-          letterSpacing: 1,
-          color: colors.accent,
-        }}
-        rightComponent={
-          <Icon
-            size={22}
-            style={{padding: 5, alignItems: 'center', justifyContent: 'center'}}
-            fill="white"
-            name="double-check"
-            onPress={() => setNotificationsSeenAll()}
-          />
-        }
-      />
-
       <FlatList
         {...{renderItem, ListFooterComponent, ListEmptyComponent}}
         data={data}
@@ -119,7 +111,6 @@ export const Notifications = () => {
           minHeight:
             Dimensions.get('window').height - NAVBAR_HEIGHT - insets.top - 20,
           paddingBottom: insets.bottom + 20,
-          marginTop: insets.top + NAVBAR_HEIGHT,
         }}
         onEndReached={() => fetchNextPage()}
         onEndReachedThreshold={0.25}

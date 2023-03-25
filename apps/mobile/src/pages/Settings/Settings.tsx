@@ -1,6 +1,11 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {Keyboard, Linking, Platform, ScrollView, View} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {
+  Keyboard,
+  Linking,
+  Platform,
+  ScrollView,
+  View,
+} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import styled from 'styled-components/native';
 import {useNavigation} from '@react-navigation/native';
@@ -12,8 +17,6 @@ import {
   Checkbox,
   Label,
   Modal,
-  Navbar,
-  NAVBAR_HEIGHT,
   TouchHandler,
 } from '@components';
 import {
@@ -100,7 +103,6 @@ type UserGoalPreferencesString = {
 };
 
 export const Settings = () => {
-  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const dispatch = useDispatch() as AppDispatch;
 
@@ -270,6 +272,19 @@ export const Settings = () => {
     navigation.goBack();
   };
 
+  useEffect(() => {
+    navigation.getParent()?.setOptions({
+      headerRight: () =>
+        didSettingsChange && (
+          <TouchHandler onPress={handleOnSavePressed} style={{marginRight: 20}}>
+            <Label bold appearance={'accent'}>
+              Save
+            </Label>
+          </TouchHandler>
+        ),
+    });
+  });
+
   const teamName = () => {
     if (user?.teams) {
       const filterList = user.teams.filter(team => team.user_count > 0);
@@ -305,25 +320,8 @@ export const Settings = () => {
 
   return (
     <Wrapper>
-      <Navbar
-        rightComponent={
-          didSettingsChange ? (
-            <TouchHandler onPress={handleOnSavePressed}>
-              <Label bold appearance={'accent'}>
-                Save
-              </Label>
-            </TouchHandler>
-          ) : undefined
-        }
-        iconColor={'white'}
-        title="SETTINGS"
-        titleStyle={{fontSize: 15, color: '#00E9D7', letterSpacing: 1}}
-        overlay
-      />
       <ScrollView
         contentContainerStyle={{
-          marginTop: NAVBAR_HEIGHT + insets.top,
-          paddingBottom: NAVBAR_HEIGHT + insets.top + insets.bottom + 20,
           paddingHorizontal: 20,
         }}
       >

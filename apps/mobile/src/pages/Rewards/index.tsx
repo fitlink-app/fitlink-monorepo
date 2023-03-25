@@ -5,7 +5,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useScrollToTop} from '@react-navigation/native';
 import {useNavigation} from '@react-navigation/core';
 
-import {Label, PlotCard, BfitSpinner} from '@components';
+import {Label, PlotCard, BfitSpinner, BottomTabNavigationHeader} from '@components';
 import {useMe, useRewards} from '@hooks';
 import {SCREEN_CONTAINER_SPACE} from '@constants';
 import {getViewBfitValue, widthLize} from '@utils';
@@ -121,8 +121,9 @@ export const Rewards = () => {
             refreshing={isRefreshing}
             onRefresh={handleRefresh}
           />
-        }>
-        <PageTitle>REWARDS</PageTitle>
+        }
+      >
+        <BottomTabNavigationHeader></BottomTabNavigationHeader>
         <PlotCard.BFIT
           onPress={() => navigation.navigate('Wallet')}
           isLoading={isLoadingUser}

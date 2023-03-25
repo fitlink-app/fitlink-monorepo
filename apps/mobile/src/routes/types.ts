@@ -53,3 +53,11 @@ export type RootStackParamList = {
   ChangePinCodeScreen: undefined;
   EnableBiometryPinCodeScreen: undefined;
 };
+
+export type BottomTabParamList = {
+  Feed: undefined;
+  ActivityFeed: undefined;
+  Leagues: undefined;
+  Rewards: undefined;
+  Discover: undefined;
+};

@@ -13,7 +13,7 @@ import {Route} from 'react-native-tab-view';
 import styled, {useTheme} from 'styled-components/native';
 
 import {SCREEN_CONTAINER_SPACE} from '@constants';
-import {Label, PlotCard, TabView} from '@components';
+import {BottomTabNavigationHeader, Label, PlotCard, TabView} from '@components';
 import {useCteLeagues, useMe} from '@hooks';
 import {widthLize} from '@utils';
 
@@ -147,7 +147,7 @@ export const Leagues = () => {
           />
         }
       >
-        <PageTitle>Leagues</PageTitle>
+        <BottomTabNavigationHeader></BottomTabNavigationHeader>
         <PlotCard.BFIT
           onPress={() => navigation.navigate('Wallet')}
           wrapperStyle={{

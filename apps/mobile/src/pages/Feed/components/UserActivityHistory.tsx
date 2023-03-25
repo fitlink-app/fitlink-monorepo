@@ -5,7 +5,7 @@ import {useNavigation} from '@react-navigation/core';
 import {BlurView} from '@react-native-community/blur';
 import styled from 'styled-components/native';
 
-import {TouchHandler, Card, Label} from '@components';
+import {TouchHandler, Card, Label, HorizontalSliderSkeleton} from '@components';
 import {FeedItem as FeedItemType} from '@fitlink/api/src/modules/feed-items/entities/feed-item.entity';
 import {widthLize} from '@utils';
 import {useFeed} from '@hooks';
@@ -14,7 +14,6 @@ import {memoSelectFeedPreferences} from '../../../redux/feedPreferences/feedPref
 import moment from 'moment';
 import {FEED_CARD_HEIGHT, FEED_CAROUSEL_CARD_WIDTH} from '../constants';
 import {getResultsFromPages} from '../../../utils/api';
-import {HorizontalSliderSkeleton} from '../../../components/skeleton/HorizontalSliderSkeleton';
 
 interface ActivityHistoryProps {
   containerStyle?: StyleProp<ViewStyle>;
