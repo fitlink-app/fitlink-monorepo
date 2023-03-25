@@ -1478,7 +1478,7 @@ export class LeaguesService {
       .where('league.id = :leagueId AND leaderboard.id = entryLeaderboard.id', {
         leagueId
       })
-      .orderBy('entry.bfit_earned', 'DESC')
+      .orderBy('entry.bfit_estimate', 'DESC')
       .addOrderBy('entry.points', 'DESC')
       .addOrderBy('user.name', 'ASC')
       .take(options.limit)
