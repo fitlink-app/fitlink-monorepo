@@ -5,8 +5,6 @@ import {navigationRef} from '@routes';
 import {useMe, useModal} from '@hooks';
 import {AuthPromiseProvider} from '@model';
 import {Modal, TeamInvitation} from '@components';
-import React, {useContext, useEffect} from 'react';
-import dynamicLinks from '@react-native-firebase/dynamic-links';
 import {DeepLinkType} from '@fitlink/api/src/constants/deep-links';
 import {Team} from '@fitlink/api/src/modules/teams/entities/team.entity';
 
@@ -18,13 +16,13 @@ import {
   selectTeamInvitation,
 } from '../../../redux/teamInvitation/teamInvitationSlice';
 import {getUrlParams} from '../../../utils/api';
+import {useDefaultOkSnackbar} from '../../snackbar';
 
 export const useDynamicLinksHandler = () => {
   const navigation = navigationRef;
   const {openModal, closeModal} = useModal();
   const dispatch = useAppDispatch();
   const showOkSnackbar = useDefaultOkSnackbar();
-  const dispatch = useDispatch() as AppDispatch;
 
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const {invitation, code} = useSelector(selectTeamInvitation);
