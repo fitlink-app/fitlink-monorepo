@@ -1024,6 +1024,17 @@ export class LeaguesService {
     return count > 0
   }
 
+  async isOnWaitlist(leagueId: string, userId: string) {
+    const result = await this.leagueWaitlistUserRepository.findOne({
+      where: {
+        league_id: leagueId,
+        user_id: userId
+      }
+    })
+
+    return { waitlist: !!result }
+  }
+
   // adds a user to a league waitlist
   async joinLeagueWaitlist(leagueId: string, userId: string) {
     const user = new User()

@@ -160,7 +160,8 @@ export const Welcome = () => {
               <InvitationLogoContainer
                 style={{
                   top: insets.top + 40,
-                }}>
+                }}
+              >
                 <Logo />
               </InvitationLogoContainer>
               <TeamInvitation
@@ -191,26 +192,6 @@ export const Welcome = () => {
               logo={mail_icon}
               onPress={handleOnSignUpPressed}
             />
-            {Platform.OS === 'ios' && (
-              <>
-                <SpacedButton
-                  disabled={isGoogleLoading}
-                  loading={isGoogleLoading}
-                  text={'Continue with Google'}
-                  textStyle={{marginLeft: 10}}
-                  logo={google_icon}
-                  onPress={handleOnGooglePressed}
-                />
-                <SpacedButton
-                  disabled={isAppleLoading}
-                  loading={isAppleLoading}
-                  text={'Continue with Apple ID'}
-                  textStyle={{marginLeft: 10}}
-                  logo={apple_icon}
-                  onPress={handleOnApplePressed}
-                />
-              </>
-            )}
             <SpacedButton
               onLayout={measureButtonLayout}
               disabled={true}
@@ -240,6 +221,30 @@ export const Welcome = () => {
     </Wrapper>
   );
 };
+
+// TODO: use when back supports CLIENT_ID
+/*
+{Platform.OS === 'ios' && (
+  <>
+    <SpacedButton
+      disabled={isGoogleLoading}
+      loading={isGoogleLoading}
+      text={'Continue with Google'}
+      textStyle={{marginLeft: 10}}
+      logo={google_icon}
+      onPress={handleOnGooglePressed}
+    />
+    <SpacedButton
+      disabled={isAppleLoading}
+      loading={isAppleLoading}
+      text={'Continue with Apple ID'}
+      textStyle={{marginLeft: 10}}
+      logo={apple_icon}
+      onPress={handleOnApplePressed}
+    />
+  </>
+)}
+ */
 
 const styles = StyleSheet.create({
   loadingWrapper: {
