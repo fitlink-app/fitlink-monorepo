@@ -770,4 +770,14 @@ export class LeaguesController {
     )
     return leagues
   }
+
+  @Get('/leagues/:leagueId/onwaitlist')
+  @ApiTags('leagues')
+  @ApiResponse({ status: 200 })
+  async onWaitlist(
+    @Param('leagueId') leagueId: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    return this.leaguesService.onWaitlist(leagueId, authUser.id)
+  }
 }
