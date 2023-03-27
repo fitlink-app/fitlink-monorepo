@@ -778,6 +778,6 @@ export class LeaguesController {
     @Param('leagueId') leagueId: string,
     @User() authUser: AuthenticatedUser
   ) {
-    return this.leaguesService.onWaitlist(leagueId, authUser.id)
+    return this.leaguesService.isOnWaitlist(leagueId, authUser.id)
   }
 }
