@@ -54,28 +54,28 @@ const App = () => {
     return (
       <SafeAreaProvider>
         <SnackbarProvider>
-        <ThemeProvider>
-          <AppBackground>
-            <Provider store={store}>
-              <PersistGate persistor={persistor}>
-                <EnterPinCodeProvider>
-                  <NavigationProvider>
-                    <LifeCycleEvents />
-                    <Transition>
-                      <ModalProvider>
-                        <QueryPersistor>
-                          <DeeplinkHandler />
-                          <DefaultErrorSnackbarHandler />
-                          <Router />
-                        </QueryPersistor>
-                      </ModalProvider>
-                    </Transition>
-                  </NavigationProvider>
-                </EnterPinCodeProvider>
-              </PersistGate>
-            </Provider>
-          </AppBackground>
-        </ThemeProvider>
+          <ThemeProvider>
+            <AppBackground>
+              <Provider store={store}>
+                <PersistGate persistor={persistor}>
+                  <EnterPinCodeProvider>
+                    <NavigationProvider>
+                      <LifeCycleEvents />
+                      <Transition>
+                        <ModalProvider>
+                          <QueryPersistor>
+                            <DeeplinkHandler />
+                            <DefaultErrorSnackbarHandler />
+                            <Router />
+                          </QueryPersistor>
+                        </ModalProvider>
+                      </Transition>
+                    </NavigationProvider>
+                  </EnterPinCodeProvider>
+                </PersistGate>
+              </Provider>
+            </AppBackground>
+          </ThemeProvider>
         </SnackbarProvider>
       </SafeAreaProvider>
     );
