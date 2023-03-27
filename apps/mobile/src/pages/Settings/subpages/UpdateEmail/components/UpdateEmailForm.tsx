@@ -1,10 +1,10 @@
-import React from 'react';
-import {Button, FormError, InputField, Modal} from '@components';
-import {useForm, useMe, useModal} from '@hooks';
-import styled from 'styled-components/native';
-import {useUpdateEmail} from '@hooks';
 import {getErrors} from '@api';
+import {Button, FormError, InputField} from '@components';
+import {useForm, useMe, useUpdateEmail} from '@hooks';
 import {useNavigation} from '@react-navigation/native';
+import {useDefaultOkSnackbar} from 'components/snackbar';
+import React from 'react';
+import styled from 'styled-components/native';
 
 const Wrapper = styled.View({
   width: '100%',
@@ -24,7 +24,6 @@ export interface UpdateEmailValues {
 
 export const UpdateEmailForm = () => {
   const navigation = useNavigation();
-  const {openModal, closeModal} = useModal();
 
   const {data: userData} = useMe({refetchOnMount: false});
   const {mutateAsync} = useUpdateEmail();
@@ -40,6 +39,8 @@ export const UpdateEmailForm = () => {
     isSubmitting,
   } = useForm(initialValues);
 
+  const showOkSnackbar = useDefaultOkSnackbar();
+
   const onSubmit = async () => {
     try {
       await mutateAsync({email: values.email});
@@ -47,27 +48,8 @@ export const UpdateEmailForm = () => {
       const requestErrors = getErrors(e);
       return requestErrors;
     }
-
-    openModal(
-      id => (
-        <Modal
-          title={'E-mail Changed'}
-          description={'A confirmation email has been sent to you'}
-          buttons={[
-            {
-              text: 'Ok',
-              onPress: () => {
-                closeModal(id);
-                navigation.goBack();
-              },
-            },
-          ]}
-        />
-      ),
-      () => {
-        navigation.goBack();
-      },
-    );
+    showOkSnackbar('E-mail Changed. A confirmation email has been sent to you');
+    navigation.goBack();
 
     return undefined;
   };
