@@ -431,11 +431,6 @@ export const Settings = () => {
           />
         </CategoryCard>
 
-        <CategoryCard>
-          <CategoryLabel>Wallet</CategoryLabel>
-          <SettingsButton label="Kujira (coming soon)" />
-        </CategoryCard>
-
         {/* Linked Trackers */}
         <CategoryCard>
           <CategoryLabel>Trackers</CategoryLabel>

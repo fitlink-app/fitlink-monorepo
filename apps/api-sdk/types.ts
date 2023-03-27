@@ -280,6 +280,8 @@ export type ReadResource =
   | '/providers/fitbit/auth'
   | '/app/config'
   | '/auth/reset-password'
+  | '/me/leagues/waitlists'
+  | '/leagues/:leagueId/onwaitlist'
 
 export type UploadResource = '/images'
 

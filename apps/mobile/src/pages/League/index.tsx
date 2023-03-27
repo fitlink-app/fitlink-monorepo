@@ -10,6 +10,7 @@ import {useLeague, useLeagueMembers, useLeagueMembersMe, useMe} from '@hooks';
 import {RootStackParamList} from 'routes/types';
 import {Leaderboard} from './components';
 import {getResultsFromPages} from '../../utils/api';
+import {useOnWaitList} from './hooks/useInWaitList';
 
 const HEADER_HEIGHT = 300;
 
@@ -59,6 +60,8 @@ export const League = () => {
     activeLeague?.participating,
   );
 
+  const {refetch: refetchIsOnWaitList} = useOnWaitList(id);
+
   if (Platform.OS === 'android') {
     scrollValue.setOffset(-HEADER_HEIGHT);
   }
@@ -73,6 +76,7 @@ export const League = () => {
     refetchLeague();
     refetchMembers();
     refetchMemberMe();
+    refetchIsOnWaitList();
   };
 
   if (!activeLeague) {

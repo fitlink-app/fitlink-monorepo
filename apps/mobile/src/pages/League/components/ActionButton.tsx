@@ -11,8 +11,12 @@ type ActionButtonProps = {
   bfitValue?: number;
   isClaiming?: boolean;
   isClaimed?: boolean;
+  isJoining?: boolean;
+  isOnWaitList?: boolean;
+  isLoadingOnWaitList?: boolean;
 };
 
+// TODO: rework so that it doesn't accept boolean props. it should work more like a state machine
 export const ActionButton = ({
   isMember,
   isCteLeague,
@@ -21,16 +25,26 @@ export const ActionButton = ({
   bfitValue,
   isClaimed,
   isClaiming,
+  isJoining,
+  isOnWaitList,
+  isLoadingOnWaitList,
 }: ActionButtonProps): JSX.Element | null => {
   if (isMember && !isCteLeague) {
     return null;
   }
+
+  if (!isMember && isLoadingOnWaitList) {
+    return <BfitButton disabled isLoading text="" variant="primary-outlined" />;
+  }
+
   if (!isMember) {
     return (
       <BfitButton
+        isLoading={isJoining}
         onPress={handleOnJoinPressed}
-        text={'JOIN LEAGUE'}
-        variant="primary-outlined"
+        disabled={isJoining || isOnWaitList}
+        text={isOnWaitList ? 'ON WAITLIST' : 'JOIN LEAGUE'}
+        variant={isOnWaitList ? 'secondary' : 'primary-outlined'}
       />
     );
   }
