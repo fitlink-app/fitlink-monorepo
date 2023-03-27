@@ -197,7 +197,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
               handleClaimBfitPressed={handleClaimBfitPressed}
               bfitValue={bFitToClaim}
               isJoining={isJoining}
-              isClaiming={isClaiming || (isLoadingMembersMe && isMember)}
+              isClaiming={isClaiming}
               isClaimed={isClaimed}
               isLoadingOnWaitList={isLoadingOnWaitList}
             />
