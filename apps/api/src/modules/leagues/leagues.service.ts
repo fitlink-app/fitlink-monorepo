@@ -1074,7 +1074,28 @@ export class LeaguesService {
           }
         )
         .getCount()
-      if (sameSportCount >= 1) {
+
+      const waitlistSameSportCount = await this.leagueWaitlistUserRepository
+        .createQueryBuilder('waitlistUser')
+        .innerJoin(
+          'League',
+          'league',
+          'league.id = CAST(waitlistUser.league_id as uuid)'
+        )
+        .innerJoin('league.sport', 'sport')
+        .where(
+          'waitlistUser.user_id = :userId AND sport.id = :sportId AND league.access = :leagueAccess',
+          {
+            userId,
+            sportId: isCompeteToEarn?.sport?.id,
+            leagueAccess: LeagueAccess.CompeteToEarn
+          }
+        )
+        .getCount()
+
+      const totalSameSportCount = sameSportCount + waitlistSameSportCount
+
+      if (totalSameSportCount >= 1) {
         throw new BadRequestException(
           'You can only join one sport type of a compete to earn league i.e. 1 x swim, 1 x cycle and 1 run'
         )
@@ -1091,7 +1112,24 @@ export class LeaguesService {
       query = query.andWhere('leagueUser.id = :userId', { userId })
       const { entities, raw } = await query.getRawAndEntities()
       const results = this.applyRawResults(entities, raw)
-      if (results.length >= 3) {
+
+      const waitlistCompeteToEarnLeagues =
+        await this.leagueWaitlistUserRepository
+          .createQueryBuilder('lwu')
+          .innerJoin(
+            'League',
+            'league',
+            'league.id = CAST(lwu.league_id as uuid)'
+          )
+          .where('lwu.user_id = :userId', { userId })
+          .andWhere('league.access = :access', {
+            access: LeagueAccess.CompeteToEarn
+          })
+          .getCount()
+      const totalJoinedCompeteToEarnLeagues =
+        results.length + waitlistCompeteToEarnLeagues
+
+      if (totalJoinedCompeteToEarnLeagues >= 3) {
         throw new BadRequestException(
           'You can only join a maximum of 3 compete to earn leagues'
         )
@@ -1122,6 +1160,25 @@ export class LeaguesService {
       results,
       total
     })
+  }
+
+  async leaveLeagueWaitlist(leagueId: string, userId: string) {
+    const waitlistUser = await this.leagueWaitlistUserRepository.findOne({
+      where: {
+        league_id: leagueId,
+        user_id: userId
+      }
+    })
+    if (!waitlistUser) {
+      throw new NotFoundException(
+        "You are not present in this league's waitlist"
+      )
+    }
+    const deleted = await this.leagueWaitlistUserRepository.delete({
+      league_id: leagueId,
+      user_id: userId
+    })
+    return deleted
   }
 
   // adds waitlist users to a league
