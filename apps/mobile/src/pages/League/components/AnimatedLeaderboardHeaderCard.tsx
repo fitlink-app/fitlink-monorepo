@@ -28,6 +28,8 @@ import {useLeaderboardCountback} from '../hooks/useLeaderboardCountback';
 import {MaxedOutBanner} from './MaxedOutBanner';
 import {OnlyOneTypeBanner} from './OnlyOneTypeBanner';
 import {TryTomorrowBanner} from './TryTomorrowBanner';
+import {useDefaultOkSnackbar} from '../../../components/snackbar';
+import {useOnWaitList} from '../hooks/useInWaitList';
 
 interface IAnimatedLeaderboardHeaderCardProps {
   imageSource: ImageSourcePropType;
@@ -68,6 +70,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     const [showAltCurrency, setShowAltCurrency] = useState(false);
 
     const leaderboardLabelText = 'LEADERBOARD';
+    console.log('membership', membership);
     const isMember = membership !== 'none';
     const bFitToClaim = getPositiveValueOrZero(
       getViewBfitValue(bFitToClaimRaw),
@@ -80,13 +83,19 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
       ? convertBfitToUsd(availableTodayBfit)
       : availableTodayBfit;
 
-    const {mutateAsync: joinLeague} = useJoinLeague();
+    const {
+      mutateAsync: joinLeague,
+      isLoading: isJoining,
+      isSuccess: isJoined,
+    } = useJoinLeague();
     const {mutateAsync: leaveLeague} = useLeaveLeague();
     const {
       mutateAsync: claimBfit,
       isLoading: isClaiming,
       isSuccess: isClaimed,
     } = useClaimLeagueBfit();
+
+    const enqueueOkSnackbar = useDefaultOkSnackbar();
 
     const {isLoading: isLoadingMembersMe} = useLeagueMembersMe(
       leagueId,
@@ -108,6 +117,9 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
       repeat,
     });
 
+    const {data: isOnWaitList, isLoading: isLoadingOnWaitList} =
+      useOnWaitList(leagueId);
+
     const openMaxedOutModal = () => {
       openModal(() => <MaxedOutBanner />);
     };
@@ -123,7 +135,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
         } else if (errorMessage === c2eLeagueTypeErrorMsg) {
           openModal(() => <OnlyOneTypeBanner errorMessage={errorMessage} />);
         } else {
-          console.error('handleOnJoinPressed', errorMessage);
+          enqueueOkSnackbar(errorMessage);
         }
       }
     };
@@ -179,12 +191,15 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
             </Label>
             <ActionButton
               isMember={isMember}
+              isOnWaitList={isJoined || isOnWaitList?.waitlist}
               isCteLeague={isCteLeague}
               handleOnJoinPressed={handleOnJoinPressed}
               handleClaimBfitPressed={handleClaimBfitPressed}
               bfitValue={bFitToClaim}
-              isClaiming={isClaiming || isLoadingMembersMe}
+              isJoining={isJoining}
+              isClaiming={isClaiming}
               isClaimed={isClaimed}
+              isLoadingOnWaitList={isLoadingOnWaitList}
             />
           </View>
         </AnimatedHeaderCard>

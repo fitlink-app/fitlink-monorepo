@@ -16,11 +16,13 @@ import {
   selectTeamInvitation,
 } from '../../../redux/teamInvitation/teamInvitationSlice';
 import {getUrlParams} from '../../../utils/api';
+import {useDefaultOkSnackbar} from '../../snackbar';
 
 export const useDynamicLinksHandler = () => {
   const navigation = navigationRef;
   const {openModal, closeModal} = useModal();
   const dispatch = useAppDispatch();
+  const showOkSnackbar = useDefaultOkSnackbar();
 
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const {invitation, code} = useSelector(selectTeamInvitation);
@@ -106,18 +108,7 @@ export const useDynamicLinksHandler = () => {
   };
 
   const handlePasswordReset = async () => {
-    openModal(id => (
-      <Modal
-        title={'Password Reset'}
-        description={'Your password has been reset successfully!'}
-        buttons={[
-          {
-            text: 'Ok',
-            onPress: () => closeModal(id),
-          },
-        ]}
-      />
-    ));
+    showOkSnackbar('Your password has been reset successfully!');
   };
 
   const handleLeagueInvitation = () => {
@@ -127,18 +118,7 @@ export const useDynamicLinksHandler = () => {
   };
 
   const handleEmailVerified = async () => {
-    openModal(id => (
-      <Modal
-        title={'Email Verified'}
-        description={'Your email address has been verified!'}
-        buttons={[
-          {
-            text: 'Ok',
-            onPress: () => closeModal(id),
-          },
-        ]}
-      />
-    ));
+    showOkSnackbar('Your email address has been verified!');
   };
 
   const showTeamInvitationModal = async (invitation: Team, code: string) => {
@@ -168,20 +148,7 @@ export const useDynamicLinksHandler = () => {
 
                   if (success) {
                     setTimeout(() => {
-                      openModal(id => {
-                        return (
-                          <Modal
-                            title={'Joined Team'}
-                            description={`You have joined ${invitation.name}`}
-                            buttons={[
-                              {
-                                text: 'Ok',
-                                onPress: () => closeModal(id),
-                              },
-                            ]}
-                          />
-                        );
-                      });
+                      showOkSnackbar(`You have joined ${invitation.name}`);
                     }, 250);
                   }
                 }}

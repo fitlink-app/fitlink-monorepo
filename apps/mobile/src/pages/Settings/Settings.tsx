@@ -67,6 +67,7 @@ import {
   SettingsInput,
   BiometrySettingsButton,
 } from './components';
+import {useDefaultOkSnackbar} from 'components/snackbar';
 
 const Wrapper = styled.View({flex: 1});
 
@@ -103,6 +104,7 @@ export const Settings = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const dispatch = useDispatch() as AppDispatch;
+  const showOkSnackbar = useDefaultOkSnackbar();
 
   const {openModal, closeModal} = useModal();
   const {openImagePicker} = useImagePicker();
@@ -144,23 +146,13 @@ export const Settings = () => {
 
   const [isInitialized, setInitialized] = useState(false);
 
-  const withSuccessModal = async (linkCallback: () => Promise<unknown>) => {
+  const withSuccessSnackbar = async (linkCallback: () => Promise<unknown>) => {
     try {
       await linkCallback();
     } catch (e) {
       console.error('FUCK', e);
     }
-    openModal(id => (
-      <Modal
-        title="Linked Successfully"
-        buttons={[
-          {
-            text: 'OK',
-            onPress: () => closeModal(id),
-          },
-        ]}
-      />
-    ));
+    showOkSnackbar('Linked Successfully');
   };
 
   useEffect(() => {
@@ -287,7 +279,7 @@ export const Settings = () => {
     openModal(modalId => (
       <ConnectGoogleFitBanner
         connect={() =>
-          withSuccessModal(async () => {
+          withSuccessSnackbar(async () => {
             try {
               await linkGoogleFit(() => {
                 return GoogleFitWrapper.authenticate();
@@ -362,21 +354,7 @@ export const Settings = () => {
                             type: 'danger',
                             onPress: () => {
                               closeModal(id, () => {
-                                openModal(confirmationModalId => {
-                                  return (
-                                    <Modal
-                                      title={'Logged Out'}
-                                      description={'You have been logged out.'}
-                                      buttons={[
-                                        {
-                                          text: 'Ok',
-                                          onPress: () =>
-                                            closeModal(confirmationModalId),
-                                        },
-                                      ]}
-                                    />
-                                  );
-                                });
+                                showOkSnackbar('You have been logged out.');
                               });
 
                               dispatch(logout());
@@ -453,11 +431,6 @@ export const Settings = () => {
           />
         </CategoryCard>
 
-        <CategoryCard>
-          <CategoryLabel>Wallet</CategoryLabel>
-          <SettingsButton label="Kujira (coming soon)" />
-        </CategoryCard>
-
         {/* Linked Trackers */}
         <CategoryCard>
           <CategoryLabel>Trackers</CategoryLabel>
@@ -479,7 +452,7 @@ export const Settings = () => {
             <SettingsHealthActivityButton
               label={'Apple Health'}
               onLink={() =>
-                withSuccessModal(async () => {
+                withSuccessSnackbar(async () => {
                   await linkAppleHealth(() =>
                     AppleHealthKitWrapper.authenticate(),
                   );
@@ -494,7 +467,7 @@ export const Settings = () => {
 
           <SettingsHealthActivityButton
             label={'Strava'}
-            onLink={() => withSuccessModal(linkStrava)}
+            onLink={() => withSuccessSnackbar(linkStrava)}
             onUnlink={unlinkStrava}
             isLoading={isStravaLinking || isStravaUnlinking}
             disabled={isStravaLinking || isStravaUnlinking}
@@ -503,7 +476,7 @@ export const Settings = () => {
 
           <SettingsHealthActivityButton
             label={'Fitbit'}
-            onLink={() => withSuccessModal(linkFitbit)}
+            onLink={() => withSuccessSnackbar(linkFitbit)}
             onUnlink={unlinkFitbit}
             isLoading={isFitbitLinking || isFitbitUnlinking}
             disabled={isFitbitLinking || isFitbitUnlinking}
@@ -685,21 +658,7 @@ export const Settings = () => {
                         }
 
                         setTimeout(() => {
-                          openModal(confirmationModalId => {
-                            return (
-                              <Modal
-                                title={'Account Deleted'}
-                                description={'Your account has been deleted!'}
-                                buttons={[
-                                  {
-                                    text: 'Ok',
-                                    onPress: () =>
-                                      closeModal(confirmationModalId),
-                                  },
-                                ]}
-                              />
-                            );
-                          });
+                          showOkSnackbar('Your account has been deleted!');
                         }, 250);
                       }}
                     />

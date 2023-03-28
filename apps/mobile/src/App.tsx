@@ -20,6 +20,8 @@ import {withQueryClient} from '@query';
 import {useCodePush, useIntercomNotifications} from '@hooks';
 import Router, {NavigationProvider} from '@routes';
 
+import {SnackbarProvider} from 'components/snackbar/SnackbarProvider';
+import {DefaultErrorSnackbarHandler} from 'components/snackbar/DefaultErrorSnackbarHandler';
 import ThemeProvider from './theme/ThemeProvider';
 import {QueryPersistor} from 'query/QueryPersistor';
 import {ModalProvider, Transition} from './contexts';
@@ -51,27 +53,30 @@ const App = () => {
   if (isUpToDate || isError) {
     return (
       <SafeAreaProvider>
-        <ThemeProvider>
-          <AppBackground>
-            <Provider store={store}>
-              <PersistGate persistor={persistor}>
-                <EnterPinCodeProvider>
-                  <NavigationProvider>
-                    <LifeCycleEvents />
-                    <Transition>
-                      <ModalProvider>
-                        <QueryPersistor>
-                          <DeeplinkHandler />
-                          <Router />
-                        </QueryPersistor>
-                      </ModalProvider>
-                    </Transition>
-                  </NavigationProvider>
-                </EnterPinCodeProvider>
-              </PersistGate>
-            </Provider>
-          </AppBackground>
-        </ThemeProvider>
+        <SnackbarProvider>
+          <ThemeProvider>
+            <AppBackground>
+              <Provider store={store}>
+                <PersistGate persistor={persistor}>
+                  <EnterPinCodeProvider>
+                    <NavigationProvider>
+                      <LifeCycleEvents />
+                      <Transition>
+                        <ModalProvider>
+                          <QueryPersistor>
+                            <DeeplinkHandler />
+                            <DefaultErrorSnackbarHandler />
+                            <Router />
+                          </QueryPersistor>
+                        </ModalProvider>
+                      </Transition>
+                    </NavigationProvider>
+                  </EnterPinCodeProvider>
+                </PersistGate>
+              </Provider>
+            </AppBackground>
+          </ThemeProvider>
+        </SnackbarProvider>
       </SafeAreaProvider>
     );
   }

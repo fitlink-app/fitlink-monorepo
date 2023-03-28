@@ -18,7 +18,6 @@ import useMeasureInitialLayout from '../../../hooks/useMeasureInitialLayout';
 
 const mail_icon = require('../../../../assets/images/icon/mail.png');
 const google_icon = require('../../../../assets/images/icon/google.png');
-const kujira_icon = require('../../../../assets/images/icon/logo_kujira.png');
 const apple_icon = require('../../../../assets/images/icon/apple.png');
 
 const Wrapper = styled.View({flex: 1, alignItems: 'center'});
@@ -87,15 +86,10 @@ export const Welcome = () => {
 
   const [isGoogleLoading, setGoogleLoading] = useState(false);
   const [isAppleLoading, setAppleLoading] = useState(false);
-  const [isMetaMaskLoading, setIsMetaMaskLoading] = useState(false);
 
   const {
     initialLayout: headerLayout,
     measureInitialLayout: measureHeaderLayout,
-  } = useMeasureInitialLayout();
-  const {
-    initialLayout: buttonLayout,
-    measureInitialLayout: measureButtonLayout,
   } = useMeasureInitialLayout();
 
   const handleOnSignUpPressed = () => {
@@ -138,15 +132,6 @@ export const Welcome = () => {
     }
   };
 
-  const handleOnMetaMaskPressed = async () => {
-    try {
-      setIsMetaMaskLoading(true);
-      setIsMetaMaskLoading(false);
-    } catch (e) {
-      setIsMetaMaskLoading(false);
-    }
-  };
-
   return (
     <Wrapper style={{paddingBottom: insets.bottom}}>
       <GradientUnderlay />
@@ -160,7 +145,8 @@ export const Welcome = () => {
               <InvitationLogoContainer
                 style={{
                   top: insets.top + 40,
-                }}>
+                }}
+              >
                 <Logo />
               </InvitationLogoContainer>
               <TeamInvitation
@@ -191,35 +177,6 @@ export const Welcome = () => {
               logo={mail_icon}
               onPress={handleOnSignUpPressed}
             />
-            {Platform.OS === 'ios' && (
-              <>
-                <SpacedButton
-                  disabled={isGoogleLoading}
-                  loading={isGoogleLoading}
-                  text={'Continue with Google'}
-                  textStyle={{marginLeft: 10}}
-                  logo={google_icon}
-                  onPress={handleOnGooglePressed}
-                />
-                <SpacedButton
-                  disabled={isAppleLoading}
-                  loading={isAppleLoading}
-                  text={'Continue with Apple ID'}
-                  textStyle={{marginLeft: 10}}
-                  logo={apple_icon}
-                  onPress={handleOnApplePressed}
-                />
-              </>
-            )}
-            <SpacedButton
-              onLayout={measureButtonLayout}
-              disabled={true}
-              loading={isMetaMaskLoading}
-              text={'Continue with Kujira (coming soon)'}
-              textStyle={{marginLeft: 10, width: buttonLayout.width - 50}}
-              logo={kujira_icon}
-              onPress={handleOnMetaMaskPressed}
-            />
             <LoginButtonLabel type={'body'}>
               Do you have an account?
             </LoginButtonLabel>
@@ -240,6 +197,30 @@ export const Welcome = () => {
     </Wrapper>
   );
 };
+
+// TODO: use when back supports CLIENT_ID
+/*
+{Platform.OS === 'ios' && (
+  <>
+    <SpacedButton
+      disabled={isGoogleLoading}
+      loading={isGoogleLoading}
+      text={'Continue with Google'}
+      textStyle={{marginLeft: 10}}
+      logo={google_icon}
+      onPress={handleOnGooglePressed}
+    />
+    <SpacedButton
+      disabled={isAppleLoading}
+      loading={isAppleLoading}
+      text={'Continue with Apple ID'}
+      textStyle={{marginLeft: 10}}
+      logo={apple_icon}
+      onPress={handleOnApplePressed}
+    />
+  </>
+)}
+ */
 
 const styles = StyleSheet.create({
   loadingWrapper: {
