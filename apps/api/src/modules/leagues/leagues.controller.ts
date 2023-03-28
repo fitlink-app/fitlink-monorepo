@@ -663,7 +663,7 @@ export class LeaguesController {
     return this.leaguesService.leaveLeague(id, authUser.id)
   }
 
-  @Delete('/leagues/:leagueId/waitlists/leave')
+  @Post('/leagues/:leagueId/waitlists/leave')
   @SuccessResponse()
   @HttpCode(204)
   async leaveLeagueWaitlist(
