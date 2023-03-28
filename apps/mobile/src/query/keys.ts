@@ -32,4 +32,6 @@ export enum QueryKeys {
   UserFeed = 'users/feed',
   BfitClaims = '/leagues/bfit/claims',
   WalletTransactions = 'wallet-transactions',
+  Waitlist = '/me/leagues/waitlists',
+  OnWaitlist = '/leagues/:leagueId/onwaitlist',
 }

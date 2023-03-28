@@ -18,7 +18,6 @@ import useMeasureInitialLayout from '../../../hooks/useMeasureInitialLayout';
 
 const mail_icon = require('../../../../assets/images/icon/mail.png');
 const google_icon = require('../../../../assets/images/icon/google.png');
-const kujira_icon = require('../../../../assets/images/icon/logo_kujira.png');
 const apple_icon = require('../../../../assets/images/icon/apple.png');
 
 const Wrapper = styled.View({flex: 1, alignItems: 'center'});
@@ -87,15 +86,10 @@ export const Welcome = () => {
 
   const [isGoogleLoading, setGoogleLoading] = useState(false);
   const [isAppleLoading, setAppleLoading] = useState(false);
-  const [isMetaMaskLoading, setIsMetaMaskLoading] = useState(false);
 
   const {
     initialLayout: headerLayout,
     measureInitialLayout: measureHeaderLayout,
-  } = useMeasureInitialLayout();
-  const {
-    initialLayout: buttonLayout,
-    measureInitialLayout: measureButtonLayout,
   } = useMeasureInitialLayout();
 
   const handleOnSignUpPressed = () => {
@@ -135,15 +129,6 @@ export const Welcome = () => {
     } catch (e) {
       console.error('handleOnApplePressed', e);
       setAppleLoading(false);
-    }
-  };
-
-  const handleOnMetaMaskPressed = async () => {
-    try {
-      setIsMetaMaskLoading(true);
-      setIsMetaMaskLoading(false);
-    } catch (e) {
-      setIsMetaMaskLoading(false);
     }
   };
 
@@ -191,15 +176,6 @@ export const Welcome = () => {
               textStyle={{marginLeft: 10}}
               logo={mail_icon}
               onPress={handleOnSignUpPressed}
-            />
-            <SpacedButton
-              onLayout={measureButtonLayout}
-              disabled={true}
-              loading={isMetaMaskLoading}
-              text={'Continue with Kujira (coming soon)'}
-              textStyle={{marginLeft: 10, width: buttonLayout.width - 50}}
-              logo={kujira_icon}
-              onPress={handleOnMetaMaskPressed}
             />
             <LoginButtonLabel type={'body'}>
               Do you have an account?

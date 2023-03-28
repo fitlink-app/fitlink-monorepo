@@ -285,8 +285,6 @@ export class LeaguesController {
     )
   }
 
-
-
   @Iam(Roles.OrganisationAdmin, Roles.TeamAdmin)
   @ApiTags('leagues')
   @ApiResponse({ type: LeaguePublicPagination, status: 200 })
@@ -665,6 +663,16 @@ export class LeaguesController {
     return this.leaguesService.leaveLeague(id, authUser.id)
   }
 
+  @Post('/leagues/:leagueId/waitlists/leave')
+  @SuccessResponse()
+  @HttpCode(204)
+  async leaveLeagueWaitlist(
+    @Param('leagueId') id: string,
+    @User() authUser: AuthenticatedUser
+  ) {
+    return this.leaguesService.leaveLeagueWaitlist(id, authUser.id)
+  }
+
   /**
    * Team admin can get a single league within the team
    * @param teamId
@@ -735,9 +743,11 @@ export class LeaguesController {
   @Iam(Roles.SuperAdmin)
   @Get('/winner/:leagueId')
   async calcWinner(@Param('leagueId') leagueId: string) {
-    const { winners } = await this.leaguesService.calculateLeagueWinners(
-      leagueId
-    ).then((winners) => ({ winners: winners.winners.filter((w) => w.rank === '1') }))
+    const { winners } = await this.leaguesService
+      .calculateLeagueWinners(leagueId)
+      .then((winners) => ({
+        winners: winners.winners.filter((w) => w.rank === '1')
+      }))
     await this.leaguesService.emitWinnerFeedItems(leagueId, winners)
     return { winners }
   }
