@@ -1,5 +1,5 @@
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-import React, {FC} from 'react';
+import React, {FC, useMemo} from 'react';
 import {Dimensions, ImageSourcePropType, StyleSheet, View} from 'react-native';
 import Animated from 'react-native-reanimated';
 
@@ -96,9 +96,17 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
       isOnWaitList: isOnWaitList?.waitlist ?? false,
     });
 
+    /* const {startDate, resetDate} = useMemo(
+      () => ({
+        resetDate: new Date(Date.now() + 1000 * 60 * 60 * 24 + 1000),
+        startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
+      }),
+      [],
+    ); */
+
     const countback = useLeaderboardCountback({
-      resetDate,
-      startDate,
+      resetDate: new Date(resetDate),
+      startDate: new Date(startDate),
       repeat,
     });
 
@@ -144,13 +152,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
             imageSource,
             members: memberCount,
             title,
-            animatedValue:
-              isCteLeague && countback && countback.daysRemaining > 0
-                ? {
-                    p1: countback.daysRemaining,
-                    p2: countback.daysTotal,
-                  }
-                : undefined,
+            countback: isCteLeague ? countback : undefined,
           }}
           descriptionProps={{
             description,

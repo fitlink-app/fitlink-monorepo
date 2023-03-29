@@ -15,6 +15,7 @@ import theme from '../../../../theme/themes/fitlink';
 import {ImageCardBlurSection} from '../../ImageCard';
 import styled from 'styled-components/native';
 import LinearGradient from 'react-native-linear-gradient';
+import {Countback} from 'pages/League/hooks/useLeaderboardCountback';
 
 const HEADER_HORIZONTAL_PADDING = 20;
 const PROGRESS_CIRCLE_SIZE = 68;
@@ -27,7 +28,7 @@ export interface IHeaderCardImageContainerProps {
   members: number;
   title: string;
   value?: string;
-  animatedValue?: {p1: number; p2: number};
+  countback?: Countback | null;
   onValuePress?: () => unknown;
   progress?: number;
   isExpanded: Animated.DerivedValue<boolean>;
@@ -40,7 +41,7 @@ export const LeagueHeaderCardImageContainer: FC<IHeaderCardImageContainerProps> 
     blurSectionStyle,
     members,
     title,
-    animatedValue,
+    countback,
     animatedContainerStyle,
     value,
     progress,
@@ -50,7 +51,7 @@ export const LeagueHeaderCardImageContainer: FC<IHeaderCardImageContainerProps> 
 
     const titleWidth =
       layout.width - (HEADER_HORIZONTAL_PADDING * 3 + PROGRESS_CIRCLE_SIZE);
-    const showValue = animatedValue !== undefined || value !== undefined;
+    const showValue = countback !== undefined || value !== undefined;
     const shouldTruncTitle = isExpanded.value && progress !== undefined;
 
     return (
@@ -83,14 +84,15 @@ export const LeagueHeaderCardImageContainer: FC<IHeaderCardImageContainerProps> 
         {showValue && (
           <Animated.View
             style={[
-              animatedValue === undefined ? styles.valueContainer : styles.v,
+              countback === undefined ? styles.valueContainer : styles.v,
               animatedContainerStyle,
             ]}
           >
             {Boolean(value) && <Label style={styles.value}>{value}</Label>}
-            {animatedValue !== undefined && (
+            {countback && !!countback.countdownString && (
               <DaysToResetProgressCircle
-                daysToReset={Math.round(animatedValue.p1)}
+                counbackString={countback.countdownString}
+                label={countback.countbackType}
                 size={PROGRESS_CIRCLE_SIZE}
                 daysPercentage={progress ?? 0}
               />

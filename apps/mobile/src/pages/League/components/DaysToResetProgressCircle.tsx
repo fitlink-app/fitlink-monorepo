@@ -8,13 +8,15 @@ import theme from '../../../theme/themes/fitlink';
 
 interface DaysToResetProgressCircleProps {
   daysPercentage: number;
-  daysToReset: number;
+  counbackString: string;
+  label: string;
   size: number;
 }
 
 export const DaysToResetProgressCircle = ({
   daysPercentage,
-  daysToReset,
+  counbackString,
+  label,
   size,
 }: DaysToResetProgressCircleProps) => (
   <ProgressCircle
@@ -24,8 +26,8 @@ export const DaysToResetProgressCircle = ({
     progress={daysPercentage}
     backgroundColor="#171717"
   >
-    <STitle>DAYS</STitle>
-    <SBigText>{daysToReset}</SBigText>
+    <STitle>{label}</STitle>
+    <SBigText>{counbackString}</SBigText>
   </ProgressCircle>
 );
 
@@ -38,8 +40,8 @@ const STitle = styled.Text({
 });
 
 const SBigText = styled.Text({
-  fontSize: 22,
-  lineHeight: 26,
+  fontSize: 20,
+  lineHeight: 24,
   fontWeight: 500,
   fontFamily: 'Roboto',
   color: theme.colors.accent,

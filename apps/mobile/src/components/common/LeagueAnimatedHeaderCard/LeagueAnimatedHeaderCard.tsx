@@ -29,12 +29,7 @@ interface IAnimatedHeaderCardProps {
   headerProps: IAnimatedHeaderCardNavbarProps;
   imageContainerProps: Pick<
     IHeaderCardImageContainerProps,
-    | 'imageSource'
-    | 'title'
-    | 'members'
-    | 'animatedValue'
-    | 'value'
-    | 'onValuePress'
+    'imageSource' | 'title' | 'members' | 'value' | 'onValuePress' | 'countback'
   >;
   descriptionProps: Pick<
     IHeaderCardDescriptionProps,
@@ -58,10 +53,7 @@ export const LeagueAnimatedHeaderCard: FC<
 
   const [containerHeight, setContainerHeight] = useState(0);
 
-  const progress = imageContainerProps.animatedValue?.p1
-    ? (imageContainerProps.animatedValue?.p1 ?? 0) /
-      imageContainerProps.animatedValue.p2
-    : 0;
+  const progress = imageContainerProps.countback?.progress || 0;
 
   const {
     blurSectionStyle,
