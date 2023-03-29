@@ -3,10 +3,6 @@ import React, {FC} from 'react';
 import {Dimensions, ImageSourcePropType, StyleSheet, View} from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import {getErrors} from '@api';
-import {Label} from '@components';
-import {c2eLeagueTypeErrorMsg, c2eLimitReachedErrorMsg} from '@constants';
-import {ResponseError} from '@fitlink/api-sdk/types';
 import {
   useJoinLeague,
   useLeagueMembersMe,
@@ -19,18 +15,11 @@ import {
 import {ResponseError} from '@fitlink/api-sdk/types';
 import {getErrors} from '@api';
 import {c2eLeagueTypeErrorMsg, c2eLimitReachedErrorMsg} from '@constants';
-import {
-  convertBfitToUsd,
-  getPositiveValueOrZero,
-  getViewBfitValue,
-} from '@utils';
-import {AnimatedHeaderCard, Label} from '@components';
-
-import {useClaimLeagueBfit} from '@hooks';
+import {getPositiveValueOrZero, getViewBfitValue} from '@utils';
+import {Label} from '@components';
 
 import {LeagueAnimatedHeaderCard} from 'components/common/LeagueAnimatedHeaderCard';
 import {useDefaultOkSnackbar} from '../../../components/snackbar';
-import {useOnWaitList} from '../hooks/useInWaitList';
 import {useLeaderboardCountback} from '../hooks/useLeaderboardCountback';
 import {useLeagueMenuModal} from '../hooks/useLeagueMenuModal';
 import {ActionButton} from './ActionButton';
@@ -84,11 +73,8 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
 
     const {mutateAsync: joinLeague, isLoading: isJoining} = useJoinLeague();
     const {mutateAsync: leaveLeague} = useLeaveLeague();
-    const {
-      mutateAsync: claimBfit,
-      isLoading: isClaiming,
-      isSuccess: isClaimed,
-    } = useClaimLeagueBfit();
+    const {mutateAsync: claimBfit, isLoading: isClaiming} =
+      useClaimLeagueBfit();
     const {mutateAsync: leaveWaitList} = useLeaveWaitList();
 
     const enqueueOkSnackbar = useDefaultOkSnackbar();

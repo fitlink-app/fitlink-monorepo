@@ -59,7 +59,7 @@ const getVariantStyles = (variant: BFitButtonVariant): VariantStyles => {
     case 'secondary':
       return {
         touchable: {
-          paddingVertical: 12,
+          paddingVertical: 8,
           backgroundColor: theme.colors.text,
         },
         text: {
@@ -116,7 +116,8 @@ export const BfitButton = ({
   return (
     <TouchableOpacity
       {...rest}
-      style={[buttonStyles.baseTouchable, variantStyle.touchable, style]}>
+      style={[buttonStyles.baseTouchable, variantStyle.touchable, style]}
+    >
       {(LeadingIcon || isLoading) && (
         <View style={{marginRight: 8}}>
           <IconRenderController />
