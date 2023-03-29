@@ -60,12 +60,9 @@ export const useWeeklyEarnings = () => {
 
   useEffect(() => {
     if (currentEarnings && prevEarnings) {
-      const prevWeekEarnings = prevEarnings.breakdown
-        .slice(0, DAYS_IN_WEEK)
-        .map(extractPointsAmount);
-      const curWeekEarnings = currentEarnings.breakdown
-        .slice(DAYS_IN_WEEK)
-        .map(extractPointsAmount);
+      const prevWeekEarnings = prevEarnings.breakdown.map(extractPointsAmount);
+      const curWeekEarnings =
+        currentEarnings.breakdown.map(extractPointsAmount);
 
       const prevWeekSum = getWeekSumEarnings(prevWeekEarnings);
       const curWeekSum = getWeekSumEarnings(curWeekEarnings);
