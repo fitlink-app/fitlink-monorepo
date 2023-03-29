@@ -5,14 +5,13 @@ import Animated, {
 } from 'react-native-reanimated';
 
 // Note: blur collapses when image expands
-const COLLAPSED_BLUR_HEIGHT = 132;
+const COLLAPSED_BLUR_HEIGHT = 76;
 const COLLAPSED_IMAGE_HEIGHT = 210; // + 6 border
-const EXPANDED_IMAGE_HEIGHT = 354; // 348 + 6 border
+const EXPANDED_IMAGE_HEIGHT = 256; // 348 + 6 border
 
 export const useHeaderAnimatedStyles = (
   scrollAnimatedValue: Animated.SharedValue<number>,
   initialDescriptionHeight: number,
-  progress: number,
   firstScrollAnchor: number = 146,
   secondScrollAnchor: number = 221,
 ) => {

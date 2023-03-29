@@ -14,10 +14,10 @@ import {
   useModal,
 } from '@hooks';
 
-import {AnimatedHeaderCard} from '@components';
 import {useClaimLeagueBfit} from '@hooks';
 import {getPositiveValueOrZero, getViewBfitValue} from '@utils';
 
+import {LeagueAnimatedHeaderCard} from 'components/common/LeagueAnimatedHeaderCard';
 import {useDefaultOkSnackbar} from '../../../components/snackbar';
 import {useOnWaitList} from '../hooks/useInWaitList';
 import {useLeaderboardCountback} from '../hooks/useLeaderboardCountback';
@@ -82,10 +82,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
 
     const enqueueOkSnackbar = useDefaultOkSnackbar();
 
-    const {isLoading: isLoadingMembersMe} = useLeagueMembersMe(
-      leagueId,
-      isMember,
-    );
+    useLeagueMembersMe(leagueId, isMember);
 
     const {openModal} = useModal();
 
@@ -138,17 +135,16 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
 
     return (
       <BottomSheetModalProvider>
-        <AnimatedHeaderCard
+        <LeagueAnimatedHeaderCard
           headerProps={{
             title: 'LEAGUE',
             onNavbarRightPress: handleOnMenuPressed,
             isNavbarRightVisible: true,
           }}
-          isLeague
           imageContainerProps={{
             imageSource,
-            p1: `${memberCount} ${memberCount === 1 ? 'Member' : 'Members'}`,
-            p2: title,
+            members: memberCount,
+            title,
             animatedValue:
               isCteLeague && countback && countback.daysRemaining > 0
                 ? {
@@ -184,7 +180,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
               bfitTotal={bfitTotal}
             />
           </View>
-        </AnimatedHeaderCard>
+        </LeagueAnimatedHeaderCard>
       </BottomSheetModalProvider>
     );
   };

@@ -19,7 +19,8 @@ export const DaysToResetProgressCircle = ({
 }: DaysToResetProgressCircleProps) => (
   <ProgressCircle
     size={size}
-    backgroundStrokeWidth={1}
+    backgroundStrokeWidth={3}
+    strokeWidth={3}
     progress={daysPercentage}
     backgroundColor="#171717"
   >
