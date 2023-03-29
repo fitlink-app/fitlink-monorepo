@@ -1,37 +1,40 @@
-import {useEffect, useState} from 'react';
-import {getTimeRemaining} from '@utils';
+import {useEffect, useMemo, useState} from 'react';
+import {getTimeDifference, getTimeRemaining} from '@utils';
 
 interface Props {
-  date: Date;
+  resetDate: Date;
+  startDate: Date;
   repeat: boolean;
 }
 
+interface Result {
+  daysRemaining: number;
+  daysTotal: number;
+}
+
 export const useLeaderboardCountback = ({
-  date,
+  resetDate,
+  startDate,
   repeat,
-}: Props): string | null => {
-  const [timeRemaining, setTimeRemaining] = useState<string>('');
+}: Props): Result | null => {
+  const [daysRemaining, setDaysRemaining] = useState<number>(-1);
 
   useEffect(() => {
-    const getTimeRemainingString = (date: Date): string | null => {
+    const getDaysRemaining = (date: Date): number | null => {
       const countdownTime = getTimeRemaining(date);
 
       /** If date is reached, return null and clear the interval */
       if (countdownTime === 0) {
-        return repeat ? 'resets in 1 day' : 'ended';
+        return repeat ? 1 : null;
       }
-      const daysLeft = countdownTime.d || 1; // leaderboards update tasks run every 12 hour so we can't be more accurate with this
-
-      let displayString = `${daysLeft} day${daysLeft === 1 ? '' : 's'}`;
-
-      return (repeat ? 'resets in ' : 'ends in ') + displayString;
+      return countdownTime.d || 1; // leaderboards update tasks run every 12 hour so we can't be more accurate with this
     };
 
     const updateTimeRemaining = (interval?: NodeJS.Timeout) => {
-      const timeRemaining = getTimeRemainingString(date);
+      const timeRemaining = getDaysRemaining(resetDate);
 
       timeRemaining
-        ? setTimeRemaining(timeRemaining)
+        ? setDaysRemaining(timeRemaining)
         : interval && clearInterval(interval);
     };
 
@@ -41,11 +44,22 @@ export const useLeaderboardCountback = ({
     }, 1000 * 30);
 
     return () => clearInterval(interval);
-  }, [date, repeat]);
+  }, [resetDate, repeat]);
 
-  if (!date) {
+  const daysTotal = useMemo(() => {
+    const timeDifference = getTimeDifference(startDate, resetDate);
+    if (timeDifference === 0) {
+      return -1;
+    }
+    return timeDifference.d || 1;
+  }, [resetDate, startDate]);
+
+  if (!resetDate) {
     return null;
   }
 
-  return timeRemaining;
+  return {
+    daysTotal,
+    daysRemaining,
+  };
 };
