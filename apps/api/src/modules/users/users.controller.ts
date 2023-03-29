@@ -458,4 +458,14 @@ export class UsersController {
     const result = await this.usersService.processMondayMorningReminder()
     return result
   }
+
+  @Get('/me/points')
+  @ApiTags('me')
+  getUserPointsDateRange(
+    @Query('startDate') startDate: Date,
+    @Query('endDate') endDate: Date,
+    @AuthUser() user: AuthenticatedUser
+  ) {
+    return this.usersService.getUsersPointsForDateRange(user.id, startDate, endDate)
+  }
 }

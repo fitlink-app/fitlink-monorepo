@@ -18,11 +18,12 @@ import { UserActiveMinutesIncrementedListener } from './listeners/UserActiveMinu
 import { NotificationsModule } from '../notifications/notifications.module'
 import { GoalsEntriesModule } from '../goals-entries/goals-entries.module'
 import { RefreshToken } from '../auth/entities/auth.entity'
+import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 
 @Module({
   imports: [
     CommonModule,
-    TypeOrmModule.forFeature([User, AuthProvider, RefreshToken]),
+    TypeOrmModule.forFeature([User, AuthProvider, RefreshToken, HealthActivity]),
     ConfigModule,
     forwardRef(() => FeedItemsModule),
     HttpModule,

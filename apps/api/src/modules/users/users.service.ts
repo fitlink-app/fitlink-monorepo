@@ -1072,4 +1072,34 @@ export class UsersService {
       return true
     })
   }
+
+  async getUsersPointsForDateRange(userId: string, startDate: Date, endDate: Date): Promise<{
+    total: number;
+    breakdown: {
+      points: number,
+      date: Date
+    }[]
+  }> {
+    const result = await this.userRepository
+      .createQueryBuilder('user')
+      .innerJoin('user.health_activities', 'healthActivity')
+      .where('user.id = :userId', { userId })
+      .andWhere('healthActivity.start_time >= :startDate', { startDate })
+      .andWhere('healthActivity.start_time <= :endDate', { endDate })
+      .select('DATE(healthActivity.start_time)', 'start_time')
+      .addSelect('SUM(healthActivity.points)', 'points')
+      .groupBy('DATE(healthActivity.start_time)')
+      .getRawMany();
+
+
+    return result.reduce((acc, curr) => {
+      acc.total += Number(curr.points);
+      acc.breakdown.push({
+        points: Number(curr.points),
+        date: curr.start_time
+      });
+      return acc;
+    }, { total: 0, breakdown: [] })
+
+  }
 }
