@@ -20,20 +20,16 @@ import {
   IHeaderCardDescriptionProps,
   IHeaderCardImageContainerProps,
 } from './components';
+import {LeagueHeaderCardImageContainer} from './components/LeagueHeaderCardImageContainer';
 
 interface IAnimatedHeaderCardProps {
   containerStyles?: StyleProp<ViewStyle>;
   onHeightLayout?: (height: number) => unknown;
   headerProps: IAnimatedHeaderCardNavbarProps;
+  isLeague?: boolean;
   imageContainerProps: Pick<
     IHeaderCardImageContainerProps,
-    | 'imageSource'
-    | 'p1'
-    | 'p2'
-    | 'p3'
-    | 'animatedValue'
-    | 'onValuePress'
-    | 'value'
+    'imageSource' | 'p1' | 'p2' | 'p3' | 'animatedValue' | 'value'
   >;
   descriptionProps: Pick<
     IHeaderCardDescriptionProps,
@@ -51,6 +47,7 @@ export const AnimatedHeaderCard: FC<
   imageContainerProps,
   descriptionProps,
   sharedContentOffset,
+  isLeague = false,
   children,
 }) => {
   const {measureInitialLayout, initialLayout} = useMeasureInitialLayout();
@@ -58,8 +55,8 @@ export const AnimatedHeaderCard: FC<
   const [containerHeight, setContainerHeight] = useState(0);
 
   const progress = imageContainerProps.animatedValue?.p1
-    ? (imageContainerProps.animatedValue?.p2 ?? 0) /
-      imageContainerProps.animatedValue.p1
+    ? (imageContainerProps.animatedValue?.p1 ?? 0) /
+      imageContainerProps.animatedValue.p2
     : 0;
 
   const {
@@ -73,7 +70,7 @@ export const AnimatedHeaderCard: FC<
   } = useHeaderAnimatedStyles(
     sharedContentOffset,
     initialLayout.height,
-    progress,
+    isLeague,
   );
 
   const onAnimatedContainerLayout = (e: LayoutChangeEvent) => {
@@ -82,6 +79,10 @@ export const AnimatedHeaderCard: FC<
       setContainerHeight(e.nativeEvent.layout.height);
     }
   };
+
+  const HeaderCardImageComponent = isLeague
+    ? LeagueHeaderCardImageContainer
+    : HeaderCardImageContainer;
 
   return (
     <Animated.View
@@ -92,7 +93,7 @@ export const AnimatedHeaderCard: FC<
         style={[styles.container, containerStyles]}
       >
         <HeaderCardNavbar {...headerProps} />
-        <HeaderCardImageContainer
+        <HeaderCardImageComponent
           {...imageContainerProps}
           progress={progress}
           isExpanded={isExpanded}

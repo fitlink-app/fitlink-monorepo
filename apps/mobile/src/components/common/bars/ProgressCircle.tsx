@@ -1,6 +1,6 @@
-import React, {useRef, useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Animated, StyleSheet, View} from 'react-native';
-import {Svg, Circle, G} from 'react-native-svg';
+import {Circle, G, Svg} from 'react-native-svg';
 import styled, {useTheme} from 'styled-components/native';
 
 import {animateProgress, createBloomEffect} from './progressMethods';
@@ -14,6 +14,7 @@ export interface ProgressCircleProps {
   bloomRadius?: number;
   bloomIntensity?: number;
   children?: React.ReactNode;
+  backgroundColor?: string;
 }
 
 export const ProgressCircle = (props: ProgressCircleProps) => {
@@ -24,11 +25,14 @@ export const ProgressCircle = (props: ProgressCircleProps) => {
     bloomIntensity = 0,
     backgroundStrokeColor,
     children,
+    backgroundColor,
   } = props;
 
   let {progress} = props;
 
-  if (!isFinite(progress)) progress = 0;
+  if (!isFinite(progress)) {
+    progress = 0;
+  }
 
   const theme = useTheme();
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -79,7 +83,11 @@ export const ProgressCircle = (props: ProgressCircleProps) => {
   return (
     <View>
       <Animated.View
-        style={createBloomEffect(bloomIntensity, bloomRadius, bloomAnim)}
+        style={
+          bloomIntensity && bloomRadius && bloomAnim
+            ? createBloomEffect(bloomIntensity, bloomRadius, bloomAnim)
+            : null
+        }
       >
         <Svg height={size + strokeWidth} width={size + strokeWidth}>
           <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
@@ -95,7 +103,7 @@ export const ProgressCircle = (props: ProgressCircleProps) => {
             <AnimatedCircle
               strokeLinecap={'round'}
               stroke={strokeColorAnimated}
-              fill="none"
+              fill={backgroundColor ?? 'none'}
               cy={size / 2}
               cx={size / 2}
               r={radius}

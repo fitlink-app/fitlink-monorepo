@@ -6,13 +6,14 @@ import Animated, {
 
 // Note: blur collapses when image expands
 const COLLAPSED_BLUR_HEIGHT = 132;
+const LEAGUE_COLLAPSED_BLUR_HEIGHT = 76;
 const COLLAPSED_IMAGE_HEIGHT = 210; // + 6 border
 const EXPANDED_IMAGE_HEIGHT = 354; // 348 + 6 border
 
 export const useHeaderAnimatedStyles = (
   scrollAnimatedValue: Animated.SharedValue<number>,
   initialDescriptionHeight: number,
-  progress: number,
+  isLeague: boolean = false,
   firstScrollAnchor: number = 146,
   secondScrollAnchor: number = 221,
 ) => {
@@ -21,8 +22,8 @@ export const useHeaderAnimatedStyles = (
       scrollAnimatedValue.value,
       [-Number.MAX_SAFE_INTEGER, 0, firstScrollAnchor, Number.MAX_SAFE_INTEGER],
       [
-        COLLAPSED_BLUR_HEIGHT,
-        COLLAPSED_BLUR_HEIGHT,
+        isLeague ? LEAGUE_COLLAPSED_BLUR_HEIGHT : COLLAPSED_BLUR_HEIGHT,
+        isLeague ? LEAGUE_COLLAPSED_BLUR_HEIGHT : COLLAPSED_BLUR_HEIGHT,
         COLLAPSED_IMAGE_HEIGHT + 2,
         COLLAPSED_IMAGE_HEIGHT + 2,
       ], // 204 + 2 (border)

@@ -1,41 +1,38 @@
-import React, {FC, useState} from 'react';
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import React, {FC} from 'react';
 import {Dimensions, ImageSourcePropType, StyleSheet, View} from 'react-native';
 import Animated from 'react-native-reanimated';
-import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
+import {getErrors} from '@api';
 import {Label} from '@components';
+import {c2eLeagueTypeErrorMsg, c2eLimitReachedErrorMsg} from '@constants';
+import {ResponseError} from '@fitlink/api-sdk/types';
 import {
   useJoinLeague,
   useLeagueMembersMe,
   useLeaveLeague,
   useModal,
 } from '@hooks';
-import {ResponseError} from '@fitlink/api-sdk/types';
-import {getErrors} from '@api';
-import {c2eLeagueTypeErrorMsg, c2eLimitReachedErrorMsg} from '@constants';
 
-import {
-  convertBfitToUsd,
-  getPositiveValueOrZero,
-  getViewBfitValue,
-} from '@utils';
-import {useClaimLeagueBfit} from '@hooks';
 import {AnimatedHeaderCard} from '@components';
+import {useClaimLeagueBfit} from '@hooks';
+import {getPositiveValueOrZero, getViewBfitValue} from '@utils';
 
-import {ActionButton} from './ActionButton';
-import {useLeagueMenuModal} from '../hooks/useLeagueMenuModal';
+import {useDefaultOkSnackbar} from '../../../components/snackbar';
+import {useOnWaitList} from '../hooks/useInWaitList';
 import {useLeaderboardCountback} from '../hooks/useLeaderboardCountback';
+import {useLeagueMenuModal} from '../hooks/useLeagueMenuModal';
+import {ActionButton} from './ActionButton';
 import {MaxedOutBanner} from './MaxedOutBanner';
 import {OnlyOneTypeBanner} from './OnlyOneTypeBanner';
 import {TryTomorrowBanner} from './TryTomorrowBanner';
-import {useDefaultOkSnackbar} from '../../../components/snackbar';
-import {useOnWaitList} from '../hooks/useInWaitList';
 
 interface IAnimatedLeaderboardHeaderCardProps {
   imageSource: ImageSourcePropType;
   memberCount: number;
   title: string;
   resetDate: Date;
+  startDate: Date;
   repeat: boolean;
   description: string;
   onHeightMeasure?: (height: number) => void;
@@ -46,6 +43,7 @@ interface IAnimatedLeaderboardHeaderCardProps {
   dailyBfit?: number;
   distributedTodayBfit?: number;
   isCteLeague?: boolean;
+  bfitTotal?: number;
   sharedContentOffset: Animated.SharedValue<number>;
 }
 
@@ -58,30 +56,20 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     imageSource,
     memberCount,
     bFitToClaimRaw,
-    dailyBfit,
-    distributedTodayBfit,
     title,
+    startDate,
     resetDate,
     repeat,
     description,
     onHeightMeasure: onHeightLayout,
     sharedContentOffset,
+    bfitTotal,
   }) => {
-    const [showAltCurrency, setShowAltCurrency] = useState(false);
-
     const leaderboardLabelText = 'LEADERBOARD';
-    console.log('membership', membership);
     const isMember = membership !== 'none';
     const bFitToClaim = getPositiveValueOrZero(
       getViewBfitValue(bFitToClaimRaw),
     );
-    const dailyCurrencyDisplayValue = showAltCurrency
-      ? convertBfitToUsd(dailyBfit ?? 0)
-      : dailyBfit ?? 0;
-    const availableTodayBfit = (dailyBfit ?? 0) - (distributedTodayBfit ?? 0);
-    const availableTodayCurrency = showAltCurrency
-      ? convertBfitToUsd(availableTodayBfit)
-      : availableTodayBfit;
 
     const {
       mutateAsync: joinLeague,
@@ -89,11 +77,8 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
       isSuccess: isJoined,
     } = useJoinLeague();
     const {mutateAsync: leaveLeague} = useLeaveLeague();
-    const {
-      mutateAsync: claimBfit,
-      isLoading: isClaiming,
-      isSuccess: isClaimed,
-    } = useClaimLeagueBfit();
+    const {mutateAsync: claimBfit, isLoading: isClaiming} =
+      useClaimLeagueBfit();
 
     const enqueueOkSnackbar = useDefaultOkSnackbar();
 
@@ -113,7 +98,8 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     });
 
     const countback = useLeaderboardCountback({
-      date: resetDate,
+      resetDate,
+      startDate,
       repeat,
     });
 
@@ -150,10 +136,6 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
       }
     };
 
-    const swapRewardCurrency = () => {
-      setShowAltCurrency(prev => !prev);
-    };
-
     return (
       <BottomSheetModalProvider>
         <AnimatedHeaderCard
@@ -162,18 +144,18 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
             onNavbarRightPress: handleOnMenuPressed,
             isNavbarRightVisible: true,
           }}
+          isLeague
           imageContainerProps={{
             imageSource,
-            p1: `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`,
+            p1: `${memberCount} ${memberCount === 1 ? 'Member' : 'Members'}`,
             p2: title,
-            p3: countback,
-            animatedValue: isCteLeague
-              ? {
-                  p1: dailyCurrencyDisplayValue,
-                  p2: availableTodayCurrency,
-                }
-              : undefined,
-            onValuePress: isCteLeague ? swapRewardCurrency : undefined,
+            animatedValue:
+              isCteLeague && countback && countback.daysRemaining > 0
+                ? {
+                    p1: countback.daysRemaining,
+                    p2: countback.daysTotal,
+                  }
+                : undefined,
           }}
           descriptionProps={{
             description,
@@ -198,8 +180,8 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
               bfitValue={bFitToClaim}
               isJoining={isJoining}
               isClaiming={isClaiming}
-              isClaimed={isClaimed}
               isLoadingOnWaitList={isLoadingOnWaitList}
+              bfitTotal={bfitTotal}
             />
           </View>
         </AnimatedHeaderCard>
