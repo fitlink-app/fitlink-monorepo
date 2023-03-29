@@ -16,7 +16,6 @@ export function getTimeDifference(
   const from = new Date(fromDate);
   const to = new Date(toDate);
   let diff = to.getTime() - from.getTime();
-
   if (diff <= 0) {
     return 0;
   }
@@ -97,6 +96,19 @@ export function formatDateWithoutOffset(
       },
     },
   });
+}
+
+export function durationToMinutesCountdown(duration: Duration) {
+  let result = '';
+
+  function addToResult(amount?: string) {
+    result += (result.length ? ':' : '') + amount;
+  }
+
+  addToResult(duration.hours?.toString().padStart(2, '0'));
+  addToResult(duration.minutes?.toString().padStart(2, '0'));
+
+  return result;
 }
 
 export function durationToCountDown(duration: Duration) {
