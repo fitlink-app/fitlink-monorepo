@@ -121,9 +121,10 @@ export const Rewards = () => {
             refreshing={isRefreshing}
             onRefresh={handleRefresh}
           />
-        }>
+        }
+      >
         <PageTitle>REWARDS</PageTitle>
-        <PlotCard.BFIT
+        <PlotCard.Points
           onPress={() => navigation.navigate('Wallet')}
           isLoading={isLoadingUser}
           wrapperStyle={{

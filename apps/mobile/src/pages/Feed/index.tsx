@@ -150,7 +150,7 @@ export const Feed = () => {
             <ProfileHeader user={user} />
           </HeaderContainer>
           <StatContainer>
-            <PlotCard.BFIT onPress={navigateToWallet} />
+            <PlotCard.Points onPress={navigateToWallet} />
           </StatContainer>
           <CompeteLeagues
             containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}

@@ -11,7 +11,6 @@ import {
 
 import {Skeleton, WeeklyEarningsGraph} from '@components';
 import {useWeeklyEarnings} from '@hooks';
-import {convertBfitToUsd} from '@utils';
 
 interface PlotCardProps {
   title: string;
@@ -105,7 +104,7 @@ interface BFITCardWrapperProps
     | 'totalAmount'
   > {}
 
-const BFITInner = (props: BFITCardWrapperProps) => {
+const PointsBase = (props: BFITCardWrapperProps) => {
   const {weeklyEarnings, percentsGrowth, currentWeekEarningsSum} =
     useWeeklyEarnings();
 
@@ -122,9 +121,9 @@ const BFITInner = (props: BFITCardWrapperProps) => {
     <PlotCard
       {...props}
       percentsGrowth={percentsGrowth}
-      title="TOTAL BFIT"
+      title="TOTAL POINTS"
       totalAmount={currentWeekEarningsSum}
-      subtitle={`$${convertBfitToUsd(currentWeekEarningsSum)}`}
+      subtitle="THIS WEEK"
       totalNumberOfDigits={5}
       Plot={<Plot />}
     />
@@ -156,4 +155,4 @@ const Calories = ({totalAmountAlt, ...rest}: CaloriesCardWrapperProps) => {
   );
 };
 
-export default {BFIT: React.memo(BFITInner), Calories};
+export default {Points: React.memo(PointsBase), Calories};
