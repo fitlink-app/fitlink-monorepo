@@ -1,5 +1,10 @@
 import React, {FC} from 'react';
-import {StyleSheet} from 'react-native';
+import {
+  ImageSourcePropType,
+  StyleProp,
+  StyleSheet,
+  ViewStyle,
+} from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import {Label} from '@components';
@@ -8,18 +13,33 @@ import {useMeasureLayout} from '@hooks';
 import {DaysToResetProgressCircle} from 'pages/League/components/DaysToResetProgressCircle';
 import theme from '../../../../theme/themes/fitlink';
 import {ImageCardBlurSection} from '../../ImageCard';
-import {IHeaderCardImageContainerProps} from './HeaderCardImageContainer';
+import styled from 'styled-components/native';
+import LinearGradient from 'react-native-linear-gradient';
 
-const HEADER_HORIZONTAL_PADDING = 36;
-const PROGRESS_CIRCLE_SIZE = 86;
+const HEADER_HORIZONTAL_PADDING = 20;
+const PROGRESS_CIRCLE_SIZE = 68;
+
+export interface IHeaderCardImageContainerProps {
+  imageBackgroundStyle: StyleProp<ViewStyle>;
+  imageSource: ImageSourcePropType;
+  blurSectionStyle?: StyleProp<ViewStyle>;
+  animatedContainerStyle?: StyleProp<ViewStyle>;
+  members: number;
+  title: string;
+  value?: string;
+  animatedValue?: {p1: number; p2: number};
+  onValuePress?: () => unknown;
+  progress?: number;
+  isExpanded: Animated.DerivedValue<boolean>;
+}
 
 export const LeagueHeaderCardImageContainer: FC<IHeaderCardImageContainerProps> =
   ({
     imageBackgroundStyle,
     imageSource,
     blurSectionStyle,
-    p1,
-    p2,
+    members,
+    title,
     animatedValue,
     animatedContainerStyle,
     value,
@@ -39,15 +59,14 @@ export const LeagueHeaderCardImageContainer: FC<IHeaderCardImageContainerProps> 
         style={[styles.container, imageBackgroundStyle]}
       >
         <Animated.Image style={styles.image} source={imageSource} />
+        <ImageOverlay />
         <Animated.View style={[blurSectionStyle, styles.blurContainer]}>
           <ImageCardBlurSection style={styles.imageBlur} type="footer">
-            <Label
-              numberOfLines={1}
-              style={styles.p1}
-              appearance="accent"
-              bold={true}
-            >
-              {p1}
+            <Label numberOfLines={1} style={styles.p1} appearance="accent">
+              {members}
+              <Label numberOfLines={1} style={styles.p1} appearance="primary">
+                {members === 1 ? ' Member' : ' Members'}
+              </Label>
             </Label>
             <AnimatedLabel
               numberOfLines={1}
@@ -57,7 +76,7 @@ export const LeagueHeaderCardImageContainer: FC<IHeaderCardImageContainerProps> 
               ]}
               type="title"
             >
-              {p2}
+              {title}
             </AnimatedLabel>
           </ImageCardBlurSection>
         </Animated.View>
@@ -84,6 +103,14 @@ export const LeagueHeaderCardImageContainer: FC<IHeaderCardImageContainerProps> 
 
 const AnimatedLabel = Animated.createAnimatedComponent(Label);
 
+const ImageOverlay = styled(LinearGradient).attrs(() => ({
+  colors: ['#0000009e', '#00000000'],
+}))({
+  ...StyleSheet.absoluteFillObject,
+  height: 112,
+  // opacity: 0.9,
+});
+
 const styles = StyleSheet.create({
   container: {
     width: '100%',
@@ -107,7 +134,6 @@ const styles = StyleSheet.create({
   },
   p1: {
     fontSize: 14,
-    letterSpacing: 1,
   },
   p2: {
     fontSize: 24,
@@ -125,8 +151,8 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
   },
   v: {
-    right: 20,
-    bottom: 0,
+    right: 36,
+    bottom: 16,
     position: 'absolute',
   },
   valueContainer: {

@@ -13,13 +13,15 @@ import {useMeasureInitialLayout} from '@hooks';
 import {useHeaderAnimatedStyles} from './hooks';
 import {
   HeaderCardDescription,
-  HeaderCardImageContainer,
   HeaderCardNavbar,
   HeaderCardProgressBar,
   IAnimatedHeaderCardNavbarProps,
   IHeaderCardDescriptionProps,
-  IHeaderCardImageContainerProps,
 } from './components';
+import {
+  IHeaderCardImageContainerProps,
+  LeagueHeaderCardImageContainer,
+} from './components/LeagueHeaderCardImageContainer';
 
 interface IAnimatedHeaderCardProps {
   containerStyles?: StyleProp<ViewStyle>;
@@ -28,12 +30,11 @@ interface IAnimatedHeaderCardProps {
   imageContainerProps: Pick<
     IHeaderCardImageContainerProps,
     | 'imageSource'
-    | 'p1'
-    | 'p2'
-    | 'p3'
+    | 'title'
+    | 'members'
     | 'animatedValue'
-    | 'onValuePress'
     | 'value'
+    | 'onValuePress'
   >;
   descriptionProps: Pick<
     IHeaderCardDescriptionProps,
@@ -42,7 +43,7 @@ interface IAnimatedHeaderCardProps {
   sharedContentOffset: Animated.SharedValue<number>;
 }
 
-export const AnimatedHeaderCard: FC<
+export const LeagueAnimatedHeaderCard: FC<
   PropsWithChildren<IAnimatedHeaderCardProps>
 > = ({
   containerStyles,
@@ -58,8 +59,8 @@ export const AnimatedHeaderCard: FC<
   const [containerHeight, setContainerHeight] = useState(0);
 
   const progress = imageContainerProps.animatedValue?.p1
-    ? (imageContainerProps.animatedValue?.p2 ?? 0) /
-      imageContainerProps.animatedValue.p1
+    ? (imageContainerProps.animatedValue?.p1 ?? 0) /
+      imageContainerProps.animatedValue.p2
     : 0;
 
   const {
@@ -70,11 +71,7 @@ export const AnimatedHeaderCard: FC<
     expandedCardProgressOpacity,
     shrunkCardProgressOpacity,
     isExpanded,
-  } = useHeaderAnimatedStyles(
-    sharedContentOffset,
-    initialLayout.height,
-    progress,
-  );
+  } = useHeaderAnimatedStyles(sharedContentOffset, initialLayout.height);
 
   const onAnimatedContainerLayout = (e: LayoutChangeEvent) => {
     if (sharedContentOffset.value === 0 && !containerHeight) {
@@ -92,7 +89,7 @@ export const AnimatedHeaderCard: FC<
         style={[styles.container, containerStyles]}
       >
         <HeaderCardNavbar {...headerProps} />
-        <HeaderCardImageContainer
+        <LeagueHeaderCardImageContainer
           {...imageContainerProps}
           progress={progress}
           isExpanded={isExpanded}
@@ -133,4 +130,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AnimatedHeaderCard;
+export default LeagueAnimatedHeaderCard;
