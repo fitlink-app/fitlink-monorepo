@@ -1,7 +1,6 @@
 import React from 'react';
 
-import {BfitButton, Icon} from '@components';
-import theme from '../../../theme/themes/fitlink';
+import {BfitButton} from '@components';
 
 type ActionButtonProps = {
   isMember: boolean;
@@ -10,10 +9,10 @@ type ActionButtonProps = {
   handleClaimBfitPressed?: () => Promise<void>;
   bfitValue?: number;
   isClaiming?: boolean;
-  isClaimed?: boolean;
   isJoining?: boolean;
   isOnWaitList?: boolean;
   isLoadingOnWaitList?: boolean;
+  bfitTotal?: number;
 };
 
 // TODO: rework so that it doesn't accept boolean props. it should work more like a state machine
@@ -23,11 +22,11 @@ export const ActionButton = ({
   handleOnJoinPressed,
   handleClaimBfitPressed,
   bfitValue,
-  isClaimed,
   isClaiming,
   isJoining,
   isOnWaitList,
   isLoadingOnWaitList,
+  bfitTotal,
 }: ActionButtonProps): JSX.Element | null => {
   if (isMember && !isCteLeague) {
     return null;
@@ -49,20 +48,21 @@ export const ActionButton = ({
     );
   }
 
-  const stableClaimText = isClaimed ? 'CLAIMED' : `CLAIM ${bfitValue} BFIT`;
-
-  const ClaimedIcon = () => (
-    <Icon name={'check'} size={14} color={theme.colors.background} />
-  );
-
-  return (
-    <BfitButton
-      disabled={isClaiming}
-      onPress={handleClaimBfitPressed}
-      isLoading={isClaiming}
-      text={isClaiming ? 'CLAIMING' : stableClaimText}
-      variant={isClaimed ? 'primary' : 'primary-outlined'}
-      LeadingIcon={isClaimed ? ClaimedIcon : undefined}
-    />
-  );
+  if (bfitValue && bfitValue > 0) {
+    return (
+      <BfitButton
+        disabled={isClaiming}
+        onPress={handleClaimBfitPressed}
+        isLoading={isClaiming}
+        text={isClaiming ? 'CLAIMING' : `CLAIM ${bfitValue} BFIT`}
+        variant={'primary-outlined'}
+      />
+    );
+  }
+  if (bfitTotal && bfitTotal > 0) {
+    return (
+      <BfitButton disabled text={`~${bfitTotal} BFIT`} variant={'secondary'} />
+    );
+  }
+  return null;
 };
