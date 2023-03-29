@@ -11,10 +11,12 @@ import {Dialog, DialogButton} from 'components/modal';
 
 type UseLeagueMenuModalProps = {
   isPublic: boolean;
+  isOnWaitList: boolean;
   membership: 'none' | 'member' | 'owner';
   isCteLeague: boolean;
   leagueId: string;
   leaveLeague: (id: string) => void;
+  leaveWaitList: (id: string) => void;
 };
 
 type NavigationType = StackNavigationProp<RootStackParamList, 'League'>;
@@ -25,6 +27,8 @@ export const useLeagueMenuModal = ({
   isPublic,
   isCteLeague,
   leaveLeague,
+  isOnWaitList,
+  leaveWaitList,
 }: UseLeagueMenuModalProps) => {
   const navigation = useNavigation<NavigationType>();
 
@@ -76,6 +80,13 @@ export const useLeagueMenuModal = ({
         onPress: withClose(handleOnLeavePressed, id),
       });
     }
+    if (isOnWaitList) {
+      result.push({
+        text: 'Leave Waiting List',
+        type: 'danger',
+        onPress: withClose(handleOnLeaveWaitListPressed, id),
+      });
+    }
     return result;
   };
 
@@ -105,6 +116,10 @@ export const useLeagueMenuModal = ({
 
   const handleOnLeavePressed = () => {
     leaveLeague(leagueId);
+  };
+
+  const handleOnLeaveWaitListPressed = () => {
+    leaveWaitList(leagueId);
   };
 
   const handleOnReportCheatingPress = () => {

@@ -5,12 +5,17 @@ import {RouteProp, useRoute} from '@react-navigation/native';
 
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {Navbar} from '@components';
-import {useLeague, useLeagueMembers, useLeagueMembersMe, useMe} from '@hooks';
+import {
+  useLeague,
+  useLeagueMembers,
+  useLeagueMembersMe,
+  useMe,
+  useOnWaitList,
+} from '@hooks';
 
 import {RootStackParamList} from 'routes/types';
 import {Leaderboard} from './components';
 import {getResultsFromPages} from '../../utils/api';
-import {useOnWaitList} from './hooks/useInWaitList';
 
 const HEADER_HEIGHT = 300;
 

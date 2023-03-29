@@ -3,24 +3,24 @@ import {Dimensions, ImageSourcePropType, StyleSheet, View} from 'react-native';
 import Animated from 'react-native-reanimated';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
-import {Label} from '@components';
 import {
   useJoinLeague,
   useLeagueMembersMe,
   useLeaveLeague,
   useModal,
+  useClaimLeagueBfit,
+  useOnWaitList,
+  useLeaveWaitList,
 } from '@hooks';
 import {ResponseError} from '@fitlink/api-sdk/types';
 import {getErrors} from '@api';
 import {c2eLeagueTypeErrorMsg, c2eLimitReachedErrorMsg} from '@constants';
-
 import {
   convertBfitToUsd,
   getPositiveValueOrZero,
   getViewBfitValue,
 } from '@utils';
-import {useClaimLeagueBfit} from '@hooks';
-import {AnimatedHeaderCard} from '@components';
+import {AnimatedHeaderCard, Label} from '@components';
 
 import {ActionButton} from './ActionButton';
 import {useLeagueMenuModal} from '../hooks/useLeagueMenuModal';
@@ -29,7 +29,6 @@ import {MaxedOutBanner} from './MaxedOutBanner';
 import {OnlyOneTypeBanner} from './OnlyOneTypeBanner';
 import {TryTomorrowBanner} from './TryTomorrowBanner';
 import {useDefaultOkSnackbar} from '../../../components/snackbar';
-import {useOnWaitList} from '../hooks/useInWaitList';
 
 interface IAnimatedLeaderboardHeaderCardProps {
   imageSource: ImageSourcePropType;
@@ -70,7 +69,6 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     const [showAltCurrency, setShowAltCurrency] = useState(false);
 
     const leaderboardLabelText = 'LEADERBOARD';
-    console.log('membership', membership);
     const isMember = membership !== 'none';
     const bFitToClaim = getPositiveValueOrZero(
       getViewBfitValue(bFitToClaimRaw),
@@ -83,17 +81,14 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
       ? convertBfitToUsd(availableTodayBfit)
       : availableTodayBfit;
 
-    const {
-      mutateAsync: joinLeague,
-      isLoading: isJoining,
-      isSuccess: isJoined,
-    } = useJoinLeague();
+    const {mutateAsync: joinLeague, isLoading: isJoining} = useJoinLeague();
     const {mutateAsync: leaveLeague} = useLeaveLeague();
     const {
       mutateAsync: claimBfit,
       isLoading: isClaiming,
       isSuccess: isClaimed,
     } = useClaimLeagueBfit();
+    const {mutateAsync: leaveWaitList} = useLeaveWaitList();
 
     const enqueueOkSnackbar = useDefaultOkSnackbar();
 
@@ -104,21 +99,23 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
 
     const {openModal} = useModal();
 
+    const {data: isOnWaitList, isLoading: isLoadingOnWaitList} =
+      useOnWaitList(leagueId);
+
     const handleOnMenuPressed = useLeagueMenuModal({
       membership,
       isPublic,
       isCteLeague,
       leagueId,
       leaveLeague,
+      leaveWaitList,
+      isOnWaitList: isOnWaitList?.waitlist ?? false,
     });
 
     const countback = useLeaderboardCountback({
       date: resetDate,
       repeat,
     });
-
-    const {data: isOnWaitList, isLoading: isLoadingOnWaitList} =
-      useOnWaitList(leagueId);
 
     const openMaxedOutModal = () => {
       openModal(() => <MaxedOutBanner />);
@@ -191,7 +188,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
             </Label>
             <ActionButton
               isMember={isMember}
-              isOnWaitList={isJoined || isOnWaitList?.waitlist}
+              isOnWaitList={isOnWaitList?.waitlist}
               isCteLeague={isCteLeague}
               handleOnJoinPressed={handleOnJoinPressed}
               handleClaimBfitPressed={handleClaimBfitPressed}

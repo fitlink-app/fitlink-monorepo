@@ -15,3 +15,5 @@ export * from './useInviteToLeague';
 export * from './useCteLeagues';
 export * from './useLeagueMembersMe';
 export * from './useClaimLeagueBfit';
+export * from './useOnWaitList';
+export * from './useLeaveWaitList';
