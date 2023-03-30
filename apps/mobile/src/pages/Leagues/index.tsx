@@ -148,7 +148,7 @@ export const Leagues = () => {
         }
       >
         <PageTitle>Leagues</PageTitle>
-        <PlotCard.BFIT
+        <PlotCard.Points
           onPress={() => navigation.navigate('Wallet')}
           wrapperStyle={{
             marginHorizontal: widthLize(20),

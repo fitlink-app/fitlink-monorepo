@@ -11,7 +11,6 @@ export const DefaultErrorSnackbarHandler = () => {
   const {showSnackbar, removeSnackbar} = useContext(SnackbarContext);
   useEffect(() => {
     return AxiosErrorEventHandler.addListener((error: AxiosError) => {
-      console.log('snackbarError', error);
       if (isErrorHandledByDefault(error)) {
         showSnackbar({
           timeout: 6000,

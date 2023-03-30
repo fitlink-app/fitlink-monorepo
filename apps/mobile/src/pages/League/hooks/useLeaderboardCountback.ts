@@ -1,38 +1,82 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {getTimeRemaining} from '@utils';
 
 interface Props {
-  date: Date;
+  resetDate?: Date;
+  startDate: Date;
   repeat: boolean;
 }
 
+export enum CountbackType {
+  DAYS = 'DAYS',
+  HOURS = 'HOURS',
+  MINUTES = 'MINUTES',
+}
+
+export interface Countback {
+  progress: number;
+  countdownString: string;
+  countbackType: CountbackType;
+}
+
 export const useLeaderboardCountback = ({
-  date,
+  resetDate,
+  startDate,
   repeat,
-}: Props): string | null => {
-  const [timeRemaining, setTimeRemaining] = useState<string>('');
+}: Props): Countback | null => {
+  const [progress, setProgress] = useState<number>(0);
+  const [countdownString, setCountdownString] = useState<string>('');
+  const [countbackType, setCountbackType] = useState<CountbackType>(
+    CountbackType.DAYS,
+  );
+
+  const total = useMemo(
+    () => (resetDate ? resetDate.getTime() - startDate.getTime() : 0),
+    [resetDate, startDate],
+  );
 
   useEffect(() => {
-    const getTimeRemainingString = (date: Date): string | null => {
+    const getDaysRemaining = (
+      date: Date,
+    ): {countdownString: string; type: CountbackType} | null => {
       const countdownTime = getTimeRemaining(date);
-
       /** If date is reached, return null and clear the interval */
       if (countdownTime === 0) {
-        return repeat ? 'resets in 1 day' : 'ended';
+        return null;
       }
-      const daysLeft = countdownTime.d || 1; // leaderboards update tasks run every 12 hour so we can't be more accurate with this
-
-      let displayString = `${daysLeft} day${daysLeft === 1 ? '' : 's'}`;
-
-      return (repeat ? 'resets in ' : 'ends in ') + displayString;
+      if (countdownTime.d === 0) {
+        if (countdownTime.h === 0) {
+          return {
+            countdownString: String(countdownTime.m),
+            type: CountbackType.MINUTES,
+          };
+        }
+        return {
+          countdownString: String(countdownTime.h),
+          type: CountbackType.HOURS,
+        };
+      }
+      return {
+        countdownString: String(countdownTime.d),
+        type: CountbackType.DAYS,
+      };
     };
 
     const updateTimeRemaining = (interval?: NodeJS.Timeout) => {
-      const timeRemaining = getTimeRemainingString(date);
-
-      timeRemaining
-        ? setTimeRemaining(timeRemaining)
-        : interval && clearInterval(interval);
+      if (!resetDate) {
+        return;
+      }
+      const timeRemaining = getDaysRemaining(resetDate);
+      if (timeRemaining === null) {
+        setProgress(0);
+        setCountdownString('');
+        interval && clearInterval(interval);
+        return;
+      }
+      setProgress((resetDate.getTime() - Date.now()) / total);
+      setCountdownString(timeRemaining.countdownString);
+      setCountbackType(timeRemaining.type);
+      return;
     };
 
     updateTimeRemaining();
@@ -41,11 +85,15 @@ export const useLeaderboardCountback = ({
     }, 1000 * 30);
 
     return () => clearInterval(interval);
-  }, [date, repeat]);
+  }, [resetDate, repeat, total]);
 
-  if (!date) {
+  if (!resetDate) {
     return null;
   }
 
-  return timeRemaining;
+  return {
+    countbackType,
+    countdownString,
+    progress,
+  };
 };

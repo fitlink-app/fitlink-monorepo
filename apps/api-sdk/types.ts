@@ -282,6 +282,7 @@ export type ReadResource =
   | '/auth/reset-password'
   | '/me/leagues/waitlists'
   | '/leagues/:leagueId/onwaitlist'
+  | '/me/points'
 
 export type UploadResource = '/images'
 

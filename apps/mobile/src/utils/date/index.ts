@@ -8,12 +8,14 @@ type CountdownTime = {
   s: number;
 };
 
-/** Return the time remaining to date. Returns 0 if date is reached */
-export function getTimeRemaining(toDate: Date): CountdownTime | 0 {
-  const now = new Date(Date.now());
-  const then = new Date(toDate);
-  let diff = then.getTime() - now.getTime();
-
+/** Return the time difference between dates. Returns 0 if date is reached */
+export function getTimeDifference(
+  fromDate: Date,
+  toDate: Date,
+): CountdownTime | 0 {
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
+  let diff = to.getTime() - from.getTime();
   if (diff <= 0) {
     return 0;
   }
@@ -32,14 +34,19 @@ export function getTimeRemaining(toDate: Date): CountdownTime | 0 {
   const s = Math.floor(diff / 1000);
   diff -= s * 1000;
 
-  const timeLeft = {
+  const timeDifference = {
     d,
     h,
     m,
     s,
   };
 
-  return timeLeft;
+  return timeDifference;
+}
+
+/** Return the time remaining to date. Returns 0 if date is reached */
+export function getTimeRemaining(toDate: Date): CountdownTime | 0 {
+  return getTimeDifference(new Date(Date.now()), toDate);
 }
 
 export function formatDistanceShortLocale(token: string, count: any) {
@@ -70,10 +77,6 @@ export function formatDistanceShortLocale(token: string, count: any) {
 export function formatDateWithoutOffset(
   date: Date | number,
   baseDate: Date | number,
-  options?: {
-    locale?: Locale;
-    weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-  },
 ) {
   const localOffsetInMs = new Date().getTimezoneOffset() * 60 * 1000;
   const offsetedDate = new Date(date.valueOf() + localOffsetInMs);
@@ -93,6 +96,19 @@ export function formatDateWithoutOffset(
       },
     },
   });
+}
+
+export function durationToMinutesCountdown(duration: Duration) {
+  let result = '';
+
+  function addToResult(amount?: string) {
+    result += (result.length ? ':' : '') + amount;
+  }
+
+  addToResult(duration.hours?.toString().padStart(2, '0'));
+  addToResult(duration.minutes?.toString().padStart(2, '0'));
+
+  return result;
 }
 
 export function durationToCountDown(duration: Duration) {
