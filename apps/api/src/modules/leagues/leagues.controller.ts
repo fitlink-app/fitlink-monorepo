@@ -118,6 +118,24 @@ export class LeaguesController {
     )
   }
 
+  // this endpoint is only for resetting leagues that failed to reset
+  @Post('/leagues/process/pending-ending')
+  async resetFailedLeagues(@User() authUser: AuthenticatedUser) {
+    if (!authUser.isSuperAdmin()) {
+      throw new ForbiddenException('Forbidden')
+    }
+
+    const [pending, ending] = await Promise.all([
+      this.leaguesService.processPendingLeagues(),
+      this.leaguesService.processLeaguesEnding()
+    ])
+
+    return {
+      pending,
+      ending
+    }
+  }
+
   /**
    * 1. Owner of the league can update the league (but cannot set to public)
    * 2. Superadmin can update any league

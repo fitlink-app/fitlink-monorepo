@@ -1878,7 +1878,9 @@ export class LeaguesService {
         })
       )
 
-      const currentEntries = league.active_leaderboard.entries
+      const currentEntries = await this.leaderboardEntryRepository.find({
+        leaderboard: { id: league.active_leaderboard.id }
+      })
 
       await this.leaguesRepository.manager.transaction(async (manager) => {
         const repo = manager.getRepository(LeaderboardEntry)
@@ -1960,7 +1962,7 @@ export class LeaguesService {
 
         await leagueRepo.update(league.id, {
           active_leaderboard: leaderboard,
-          ends_at: addDays(new Date(), league.duration)
+          ends_at: addDays(new Date(league.ends_at), league.duration)
         })
       })
 
