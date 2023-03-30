@@ -1866,124 +1866,27 @@ export class LeaguesService {
   }
 
   async resetLeague(league: League) {
-    // If the league repeats, create a new leaderboard
-    // and copy the users to it along with their wins
-    if (league.repeat && league.active_leaderboard) {
-      const { winners } = await this.calculateLeagueWinners(league.id)
+    try {
+      // If the league repeats, create a new leaderboard
+      // and copy the users to it along with their wins
+      if (league.repeat && league.active_leaderboard) {
+        const { winners } = await this.calculateLeagueWinners(league.id)
 
-      const coreWinners = winners.filter((winner) => winner.rank === '1')
-      const leaderboard = await this.leaderboardRepository.save(
-        this.leaderboardRepository.create({
-          league: league
-        })
-      )
-
-      const currentEntries = await this.leaderboardEntryRepository.find({
-        leaderboard: { id: league.active_leaderboard.id }
-      })
-
-      await this.leaguesRepository.manager.transaction(async (manager) => {
-        const repo = manager.getRepository(LeaderboardEntry)
-        const leagueRepo = manager.getRepository(League)
-        const leaderboardRepo = manager.getRepository(Leaderboard)
-        await Promise.all(
-          league.users.map(async (leagueUser) => {
-            const winner = winners.find(
-              (e) => leagueUser.id === e.user.id && e.rank === '1'
-            )
-            const user = new User()
-            user.id = leagueUser.id
-
-            // check if the league is CompeteToEarn
-            if (league.access === LeagueAccess.CompeteToEarn) {
-              // we check if the user is in the winner which provides top 3
-              const bfitBonus = winners.find(
-                (winner) => leagueUser.id === winner.user.id
-              )
-
-              // we not get they estimate earnings and reward them
-              const entry = currentEntries.find(
-                (entry) => entry.user_id === leagueUser.id
-              )
-
-              const bfit = getBfitEarning(
-                bfitBonus.rank,
-                league.bfitWinnerPot,
-                entry.bfit_estimate
-              )
-
-              let bfitEarnings = new LeagueBfitEarnings()
-              bfitEarnings.user_id = league.id
-              bfitEarnings.league_id = league.id
-              bfitEarnings.bfit_amount = bfit
-              let savedEarnings = await this.leagueBfitEarningsRepository.save(
-                bfitEarnings
-              )
-              let walletTransaction = new WalletTransaction()
-              walletTransaction.source =
-                WalletTransactionSource.LeagueBfitEarnings
-              walletTransaction.earnings_id = savedEarnings.id
-              walletTransaction.league_id = league.id
-              walletTransaction.league_name = league.name
-              walletTransaction.user_id = leagueUser.id
-              walletTransaction.bfit_amount = bfit
-              await this.walletTransactionRepository.save(walletTransaction)
-
-              return repo.save(
-                repo.create({
-                  user,
-                  leaderboard,
-                  leaderboard_id: leaderboard.id,
-                  league_id: league.id,
-                  user_id: leagueUser.id,
-                  wins: winner ? winner.wins + 1 : 0,
-                  bfit_earned: bfit,
-                  bfit_estimate: 0
-                })
-              )
-            } else {
-              return repo.save(
-                repo.create({
-                  user,
-                  leaderboard,
-                  leaderboard_id: leaderboard.id,
-                  league_id: league.id,
-                  user_id: leagueUser.id,
-                  wins: winner ? winner.wins + 1 : 0
-                })
-              )
-            }
+        const coreWinners = winners.filter((winner) => winner.rank === '1')
+        const leaderboard = await this.leaderboardRepository.save(
+          this.leaderboardRepository.create({
+            league: league
           })
         )
 
-        await leaderboardRepo.update(league.active_leaderboard.id, {
-          completed: true
+        const currentEntries = await this.leaderboardEntryRepository.find({
+          leaderboard: { id: league.active_leaderboard.id }
         })
 
-        await leagueRepo.update(league.id, {
-          active_leaderboard: leaderboard,
-          ends_at: addDays(new Date(league.ends_at), league.duration)
-        })
-      })
-
-      await this.emitWinnerFeedItems(league.id, coreWinners)
-      return {
-        name: league.name,
-        winners: coreWinners.length,
-        users: league.users.length,
-        restarted: true
-      }
-    } else if (league.active_leaderboard) {
-      const { winners } = await this.calculateLeagueWinners(league.id)
-      const coreWinners = winners.filter((winner) => winner.rank === '1')
-
-      await this.leaguesRepository.manager.transaction(async (manager) => {
-        const repo = manager.getRepository(LeaderboardEntry)
-        const leagueRepo = manager.getRepository(League)
-        const leaderboardRepo = manager.getRepository(Leaderboard)
-
-        if (league.access === LeagueAccess.CompeteToEarn) {
-          const currentEntries = league.active_leaderboard.entries
+        await this.leaguesRepository.manager.transaction(async (manager) => {
+          const repo = manager.getRepository(LeaderboardEntry)
+          const leagueRepo = manager.getRepository(League)
+          const leaderboardRepo = manager.getRepository(Leaderboard)
           await Promise.all(
             league.users.map(async (leagueUser) => {
               const winner = winners.find(
@@ -2009,6 +1912,7 @@ export class LeaguesService {
                   league.bfitWinnerPot,
                   entry.bfit_estimate
                 )
+
                 let bfitEarnings = new LeagueBfitEarnings()
                 bfitEarnings.user_id = league.id
                 bfitEarnings.league_id = league.id
@@ -2025,44 +1929,144 @@ export class LeaguesService {
                 walletTransaction.bfit_amount = bfit
                 await this.walletTransactionRepository.save(walletTransaction)
 
-                return repo.save({
-                  ...entry,
-                  bfit_earned: bfit,
-                  wins: winner ? winner.wins + 1 : 0,
-                  bfit_estimate: 0
-                })
+                return repo.save(
+                  repo.create({
+                    user,
+                    leaderboard,
+                    leaderboard_id: leaderboard.id,
+                    league_id: league.id,
+                    user_id: leagueUser.id,
+                    wins: winner ? winner.wins + 1 : 0,
+                    bfit_earned: bfit,
+                    bfit_estimate: 0
+                  })
+                )
+              } else {
+                return repo.save(
+                  repo.create({
+                    user,
+                    leaderboard,
+                    leaderboard_id: leaderboard.id,
+                    league_id: league.id,
+                    user_id: leagueUser.id,
+                    wins: winner ? winner.wins + 1 : 0
+                  })
+                )
               }
             })
           )
-        } else {
-          await Promise.all(
-            coreWinners.map((winner) => {
-              return repo.save({
-                ...winner,
-                wins: winner.wins + 1
-              })
-            })
-          )
+
+          await leaderboardRepo.update(league.active_leaderboard.id, {
+            completed: true
+          })
+
+          await leagueRepo.update(league.id, {
+            active_leaderboard: leaderboard,
+            ends_at: addDays(new Date(league.ends_at), league.duration)
+          })
+        })
+
+        await this.emitWinnerFeedItems(league.id, coreWinners)
+        return {
+          name: league.name,
+          winners: coreWinners.length,
+          users: league.users.length,
+          restarted: true
         }
-        await leaderboardRepo.update(league.active_leaderboard.id, {
-          completed: true
+      } else if (league.active_leaderboard) {
+        const { winners } = await this.calculateLeagueWinners(league.id)
+        const coreWinners = winners.filter((winner) => winner.rank === '1')
+
+        await this.leaguesRepository.manager.transaction(async (manager) => {
+          const repo = manager.getRepository(LeaderboardEntry)
+          const leagueRepo = manager.getRepository(League)
+          const leaderboardRepo = manager.getRepository(Leaderboard)
+
+          if (league.access === LeagueAccess.CompeteToEarn) {
+            const currentEntries = league.active_leaderboard.entries
+            await Promise.all(
+              league.users.map(async (leagueUser) => {
+                const winner = winners.find(
+                  (e) => leagueUser.id === e.user.id && e.rank === '1'
+                )
+                const user = new User()
+                user.id = leagueUser.id
+
+                // check if the league is CompeteToEarn
+                if (league.access === LeagueAccess.CompeteToEarn) {
+                  // we check if the user is in the winner which provides top 3
+                  const bfitBonus = winners.find(
+                    (winner) => leagueUser.id === winner.user.id
+                  )
+
+                  // we not get they estimate earnings and reward them
+                  const entry = currentEntries.find(
+                    (entry) => entry.user_id === leagueUser.id
+                  )
+
+                  const bfit = getBfitEarning(
+                    bfitBonus.rank,
+                    league.bfitWinnerPot,
+                    entry.bfit_estimate
+                  )
+                  let bfitEarnings = new LeagueBfitEarnings()
+                  bfitEarnings.user_id = league.id
+                  bfitEarnings.league_id = league.id
+                  bfitEarnings.bfit_amount = bfit
+                  let savedEarnings =
+                    await this.leagueBfitEarningsRepository.save(bfitEarnings)
+                  let walletTransaction = new WalletTransaction()
+                  walletTransaction.source =
+                    WalletTransactionSource.LeagueBfitEarnings
+                  walletTransaction.earnings_id = savedEarnings.id
+                  walletTransaction.league_id = league.id
+                  walletTransaction.league_name = league.name
+                  walletTransaction.user_id = leagueUser.id
+                  walletTransaction.bfit_amount = bfit
+                  await this.walletTransactionRepository.save(walletTransaction)
+
+                  return repo.save({
+                    ...entry,
+                    bfit_earned: bfit,
+                    wins: winner ? winner.wins + 1 : 0,
+                    bfit_estimate: 0
+                  })
+                }
+              })
+            )
+          } else {
+            await Promise.all(
+              coreWinners.map((winner) => {
+                return repo.save({
+                  ...winner,
+                  wins: winner.wins + 1
+                })
+              })
+            )
+          }
+          await leaderboardRepo.update(league.active_leaderboard.id, {
+            completed: true
+          })
+
+          await leagueRepo.update(league.id, {
+            active_leaderboard: null
+          })
         })
 
-        await leagueRepo.update(league.id, {
-          active_leaderboard: null
-        })
-      })
-
-      await this.emitWinnerFeedItems(league.id, winners)
-      return {
-        name: league.name,
-        winners: winners.length,
-        users: league.users.length,
-        restarted: false
+        await this.emitWinnerFeedItems(league.id, winners)
+        return {
+          name: league.name,
+          winners: winners.length,
+          users: league.users.length,
+          restarted: false
+        }
       }
-    }
 
-    return false
+      return false
+    } catch (error) {
+      console.error(error)
+      throw new Error(error)
+    }
   }
 
   /**
