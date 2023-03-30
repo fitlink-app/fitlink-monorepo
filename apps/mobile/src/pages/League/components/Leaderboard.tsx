@@ -22,6 +22,7 @@ import {
   LeaderboardItemSkeleton,
   LeaderboardHeaderCardSkeleton,
   getComponentsList,
+  ErrorContent,
 } from '@components';
 
 import AnimatedLeaderboardHeaderCard from './AnimatedLeaderboardHeaderCard';
@@ -36,7 +37,7 @@ export interface LeaderboardProps
   userId: string;
   bFitToClaimRaw?: number;
   onRefresh: () => void;
-  activeLeague: LeaguePublic;
+  activeLeague?: LeaguePublic;
   isMembersLoading: boolean;
   isLeagueLoading: boolean;
 }
@@ -63,8 +64,8 @@ export const Leaderboard = ({
   const sharedContentOffset = useSharedValue(0);
 
   const isBfit = activeLeague?.access === LeagueAccess.CompeteToEarn;
-  const membership = activeLeague.participating
-    ? activeLeague.is_owner
+  const membership = activeLeague?.participating
+    ? activeLeague?.is_owner
       ? 'owner'
       : 'member'
     : 'none';
@@ -89,24 +90,27 @@ export const Leaderboard = ({
     },
   });
 
+  if (!isLeagueLoading && !activeLeague) {
+    return <ErrorContent onRefresh={onRefresh} />;
+  }
+
   return (
     <>
       {(isLeagueLoading || headerHeight === 0) && (
         <LeaderboardHeaderCardSkeleton />
       )}
-      {(!isLeagueLoading || headerHeight !== 0) && (
+      {(!isLeagueLoading || headerHeight !== 0) && activeLeague && (
         <AnimatedLeaderboardHeaderCard
           leagueId={activeLeague.id}
           membership={membership}
           memberCount={activeLeague.participants_total}
           resetDate={activeLeague.ends_at}
           startDate={activeLeague.starts_at}
-          repeat={activeLeague.repeat}
           title={activeLeague.name}
           description={activeLeague.description}
           imageSource={{uri: activeLeague?.image.url_640x360}}
           sharedContentOffset={sharedContentOffset}
-          bfitTotal={getViewBfitValue(activeLeague.bfit)}
+          bfitTotal={Math.trunc(getViewBfitValue(activeLeague.bfit))}
           bFitToClaimRaw={bFitToClaimRaw}
           dailyBfit={activeLeague.daily_bfit}
           distributedTodayBfit={activeLeague.bfit_distributed_today}

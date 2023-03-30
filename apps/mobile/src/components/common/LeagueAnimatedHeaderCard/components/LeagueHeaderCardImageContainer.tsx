@@ -89,7 +89,7 @@ export const LeagueHeaderCardImageContainer: FC<IHeaderCardImageContainerProps> 
             ]}
           >
             {Boolean(value) && <Label style={styles.value}>{value}</Label>}
-            {countback && !!countback.countdownString && (
+            {countback && (
               <DaysToResetProgressCircle
                 counbackString={countback.countdownString}
                 label={countback.countbackType}

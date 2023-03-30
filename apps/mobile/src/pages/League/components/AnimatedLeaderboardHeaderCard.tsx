@@ -1,5 +1,5 @@
+import React, {FC} from 'react';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-import React, {FC, useMemo} from 'react';
 import {Dimensions, ImageSourcePropType, StyleSheet, View} from 'react-native';
 import Animated from 'react-native-reanimated';
 
@@ -33,7 +33,6 @@ interface IAnimatedLeaderboardHeaderCardProps {
   title: string;
   resetDate: Date;
   startDate: Date;
-  repeat: boolean;
   description: string;
   onHeightMeasure?: (height: number) => void;
   membership: 'none' | 'member' | 'owner';
@@ -59,7 +58,6 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     title,
     startDate,
     resetDate,
-    repeat,
     description,
     onHeightMeasure: onHeightLayout,
     sharedContentOffset,
@@ -96,18 +94,9 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
       isOnWaitList: isOnWaitList?.waitlist ?? false,
     });
 
-    /* const {startDate, resetDate} = useMemo(
-      () => ({
-        resetDate: new Date(Date.now() + 1000 * 60 * 60 * 24 + 1000),
-        startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
-      }),
-      [],
-    ); */
-
     const countback = useLeaderboardCountback({
       resetDate: new Date(resetDate),
       startDate: new Date(startDate),
-      repeat,
     });
 
     const openMaxedOutModal = () => {
@@ -179,6 +168,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
               isClaiming={isClaiming}
               isLoadingOnWaitList={isLoadingOnWaitList}
               bfitTotal={bfitTotal}
+              isExpired={new Date(resetDate).getTime() - Date.now() <= 0}
             />
           </View>
         </LeagueAnimatedHeaderCard>

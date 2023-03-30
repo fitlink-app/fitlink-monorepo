@@ -13,6 +13,7 @@ type ActionButtonProps = {
   isOnWaitList?: boolean;
   isLoadingOnWaitList?: boolean;
   bfitTotal?: number;
+  isExpired: boolean;
 };
 
 // TODO: rework so that it doesn't accept boolean props. it should work more like a state machine
@@ -27,6 +28,7 @@ export const ActionButton = ({
   isOnWaitList,
   isLoadingOnWaitList,
   bfitTotal,
+  isExpired,
 }: ActionButtonProps): JSX.Element | null => {
   if (isMember && !isCteLeague) {
     return null;
@@ -48,7 +50,7 @@ export const ActionButton = ({
     );
   }
 
-  if (bfitValue && bfitValue > 0) {
+  if (bfitValue !== undefined) {
     return (
       <BfitButton
         disabled={isClaiming}
@@ -59,10 +61,12 @@ export const ActionButton = ({
       />
     );
   }
-  if (bfitTotal && bfitTotal > 0) {
+
+  if (bfitTotal !== undefined && !isExpired) {
     return (
       <BfitButton disabled text={`~${bfitTotal} BFIT`} variant={'secondary'} />
     );
   }
+
   return null;
 };

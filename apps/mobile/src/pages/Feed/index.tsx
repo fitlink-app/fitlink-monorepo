@@ -9,7 +9,7 @@ import {
 } from '@react-navigation/native';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
-import {Modal, PlotCard, ProfileHeader} from '@components';
+import {Modal, PlotCard, ProfileHeader, C2ELeagues} from '@components';
 import {
   useGoals,
   useMe,
@@ -28,7 +28,6 @@ import {
   SettingsButton,
   UserActivityHistory,
   RoutesClasses,
-  CompeteLeagues,
 } from './components';
 import {getResultsFromPages} from 'utils/api';
 import {RewardSlider} from '../Rewards/components';
@@ -152,7 +151,8 @@ export const Feed = () => {
           <StatContainer>
             <PlotCard.Points onPress={navigateToWallet} />
           </StatContainer>
-          <CompeteLeagues
+          <C2ELeagues
+            isParticipating
             containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}}
           />
           <RewardSlider

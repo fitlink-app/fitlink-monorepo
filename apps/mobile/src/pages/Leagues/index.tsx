@@ -13,12 +13,10 @@ import {Route} from 'react-native-tab-view';
 import styled, {useTheme} from 'styled-components/native';
 
 import {SCREEN_CONTAINER_SPACE} from '@constants';
-import {Label, PlotCard, TabView} from '@components';
+import {Label, PlotCard, TabView, C2ELeagues} from '@components';
 import {useCteLeagues, useMe} from '@hooks';
 import {widthLize} from '@utils';
 
-import {CteLeagueSlider} from 'components/league/CteLeagueSlider';
-import {getResultsFromPages} from 'utils/api';
 import {RootStackParamList} from '@routes';
 import {ExploreLeagues, Invitations, MyLeagues} from './tabs';
 import {IRefreshableTabHandle} from './tabs/types';
@@ -94,13 +92,7 @@ export const Leagues = () => {
     }
   };
 
-  const {
-    data: c2eLeaguesData,
-    isFetchedAfterMount,
-    refetch: refetchC2ELeagues,
-    fetchNextPage,
-  } = useCteLeagues();
-  const c2eLeagues = getResultsFromPages(c2eLeaguesData);
+  const {isFetchedAfterMount, refetch: refetchC2ELeagues} = useCteLeagues();
 
   const closeTip = () => {
     if (me?.email) {
@@ -159,15 +151,7 @@ export const Leagues = () => {
           onClose={closeTip}
           isOpen={userPreferences?.showLeaguesTipBanner ?? false}
         />
-        <CteLeagueSlider
-          key="leagues-c2e-slider"
-          leagues={c2eLeagues}
-          onCardPress={(id, league) =>
-            navigation.navigate('League', {id, league})
-          }
-          onEndReached={fetchNextPage}
-          style={{marginBottom: SCREEN_CONTAINER_SPACE}}
-        />
+        <C2ELeagues containerStyle={{marginBottom: SCREEN_CONTAINER_SPACE}} />
         <TabView
           key="leagues-tabs"
           ref={tabViewRef}

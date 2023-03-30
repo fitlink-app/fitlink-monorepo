@@ -1,16 +1,15 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {getTimeRemaining} from '@utils';
 
 interface Props {
   resetDate?: Date;
   startDate: Date;
-  repeat: boolean;
 }
 
 export enum CountbackType {
   DAYS = 'DAYS',
   HOURS = 'HOURS',
-  MINUTES = 'MINUTES',
+  MINUTES = 'MIN',
 }
 
 export interface Countback {
@@ -22,17 +21,11 @@ export interface Countback {
 export const useLeaderboardCountback = ({
   resetDate,
   startDate,
-  repeat,
 }: Props): Countback | null => {
   const [progress, setProgress] = useState<number>(0);
   const [countdownString, setCountdownString] = useState<string>('');
   const [countbackType, setCountbackType] = useState<CountbackType>(
     CountbackType.DAYS,
-  );
-
-  const total = useMemo(
-    () => (resetDate ? resetDate.getTime() - startDate.getTime() : 0),
-    [resetDate, startDate],
   );
 
   useEffect(() => {
@@ -69,10 +62,12 @@ export const useLeaderboardCountback = ({
       const timeRemaining = getDaysRemaining(resetDate);
       if (timeRemaining === null) {
         setProgress(0);
-        setCountdownString('');
+        setCountdownString('0');
+        setCountbackType(CountbackType.MINUTES);
         interval && clearInterval(interval);
         return;
       }
+      const total = resetDate ? resetDate.getTime() - startDate.getTime() : 0;
       setProgress((resetDate.getTime() - Date.now()) / total);
       setCountdownString(timeRemaining.countdownString);
       setCountbackType(timeRemaining.type);
@@ -85,7 +80,7 @@ export const useLeaderboardCountback = ({
     }, 1000 * 30);
 
     return () => clearInterval(interval);
-  }, [resetDate, repeat, total]);
+  }, []);
 
   if (!resetDate) {
     return null;

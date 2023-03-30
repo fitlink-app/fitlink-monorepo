@@ -5,18 +5,22 @@ import {useNavigation} from '@react-navigation/core';
 import {useCteLeagues} from '@hooks';
 import {CteLeagueSkeleton} from '@components';
 
-import {CteLeagueSlider} from 'components/league/CteLeagueSlider';
 import {getResultsFromPages} from 'utils/api';
+import {C2ELeaguesSlider} from './C2ELeaguesSlider';
 
 interface CompeteLeaguesProps {
   containerStyle?: StyleProp<ViewStyle>;
+  isParticipating?: boolean;
 }
 
-export const CompeteLeagues: FC<CompeteLeaguesProps> = ({containerStyle}) => {
+export const C2ELeagues: FC<CompeteLeaguesProps> = ({
+  containerStyle,
+  isParticipating = false,
+}) => {
   const navigation = useNavigation();
 
   let {data, fetchNextPage, isLoading} = useCteLeagues({
-    isParticipating: true,
+    isParticipating,
   });
   const myC2ELeagues = getResultsFromPages(data);
 
@@ -29,7 +33,7 @@ export const CompeteLeagues: FC<CompeteLeaguesProps> = ({containerStyle}) => {
   }
   return (
     <View style={containerStyle}>
-      <CteLeagueSlider
+      <C2ELeaguesSlider
         leagues={myC2ELeagues}
         onCardPress={(id, league) =>
           navigation.navigate('League', {id, league})
