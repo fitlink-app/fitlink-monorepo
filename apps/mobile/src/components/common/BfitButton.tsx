@@ -38,7 +38,7 @@ const getVariantStyles = (variant: BFitButtonVariant): VariantStyles => {
       return {
         touchable: {
           backgroundColor: theme.colors.accent,
-          paddingVertical: 12,
+          paddingVertical: 8,
         },
         text: {
           color: theme.colors.background,
@@ -48,7 +48,7 @@ const getVariantStyles = (variant: BFitButtonVariant): VariantStyles => {
       return {
         touchable: {
           borderWidth: 2,
-          paddingVertical: 10,
+          paddingVertical: 6,
           borderColor: theme.colors.accent,
           backgroundColor: 'transparent',
         },
@@ -59,7 +59,7 @@ const getVariantStyles = (variant: BFitButtonVariant): VariantStyles => {
     case 'secondary':
       return {
         touchable: {
-          paddingVertical: 12,
+          paddingVertical: 8,
           backgroundColor: theme.colors.text,
         },
         text: {
@@ -116,7 +116,8 @@ export const BfitButton = ({
   return (
     <TouchableOpacity
       {...rest}
-      style={[buttonStyles.baseTouchable, variantStyle.touchable, style]}>
+      style={[buttonStyles.baseTouchable, variantStyle.touchable, style]}
+    >
       {(LeadingIcon || isLoading) && (
         <View style={{marginRight: 8}}>
           <IconRenderController />
@@ -131,7 +132,7 @@ export const BfitButton = ({
 
 const buttonStyles = StyleSheet.create({
   baseTouchable: {
-    paddingHorizontal: 30,
+    paddingHorizontal: 12,
     borderRadius: 30,
     alignSelf: 'flex-start',
     flexDirection: 'row',
@@ -140,7 +141,7 @@ const buttonStyles = StyleSheet.create({
     fontFamily: 'Roboto',
     fontWeight: '500',
     fontSize: 14,
-    lineHeight: 16,
+    lineHeight: 20,
     flexShrink: 1,
     alignSelf: 'center',
   },

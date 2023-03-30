@@ -18,7 +18,7 @@ type CteLeagueSliderProps = {
   onEndReached: () => void;
 };
 
-export const CteLeagueSlider = ({
+export const C2ELeaguesSlider = ({
   onCardPress,
   leagues,
   style,

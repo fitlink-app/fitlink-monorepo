@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   image: {
     position: 'relative',
     width: '100%',
-    height: 352,
+    height: 256,
   },
   line: {
     position: 'relative',

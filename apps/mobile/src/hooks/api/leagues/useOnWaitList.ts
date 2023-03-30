@@ -2,7 +2,7 @@ import api from '@api';
 import {QueryKeys} from '@query';
 import {useQuery, UseQueryOptions} from 'react-query';
 
-type OnWaitListResponse = {waitlist: boolean};
+export type OnWaitListResponse = {waitlist: boolean};
 
 export function useOnWaitList(
   leagueId: string,

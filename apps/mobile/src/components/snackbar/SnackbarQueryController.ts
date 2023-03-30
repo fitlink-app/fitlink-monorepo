@@ -76,7 +76,6 @@ export class SnackbarQueryController {
   }
 
   public show(model: SnackbarQueryModel, withDuplicate = false) {
-    console.log('showSnackbar');
     if (withDuplicate) {
       this.unshiftSnackbar(model);
       this.showSnackbarFromQuery();
@@ -86,7 +85,6 @@ export class SnackbarQueryController {
       this.currentSnackbar &&
       isSameSnackbar(model.snackbar, this.currentSnackbar.snackbar)
     ) {
-      console.log('showSnackbarDuplicate');
       if (this.timer) {
         clearTimeout(this.timer);
       }
