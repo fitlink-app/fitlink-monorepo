@@ -41,6 +41,7 @@ import { Provider } from '../providers/entities/provider.entity';
 import { Image } from '../images/entities/image.entity';
 import { Notification } from '../notifications/entities/notification.entity';
 import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity';
+import { createTenantRepositoryProviders } from './tenant-service.decorator';
 
 export const TENANT_CONNECTION = 'TENANT_CONNECTION';
 
@@ -111,14 +112,14 @@ const TenantFactory = {
 	}
 }
 
-
 @Module({
 	imports: [TypeOrmModule.forFeature([Tenant])],
-	exports: [TenantService, TENANT_CONNECTION],
 	providers: [
 		TenantFactory,
 		TenantService,
+		...createTenantRepositoryProviders()
 	],
+	exports: [TenantService, TENANT_CONNECTION, ...createTenantRepositoryProviders()],
 })
 export class TenantModule implements NestModule {
 	configure(consumer: MiddlewareConsumer) {

@@ -61,7 +61,7 @@ import { HealthActivity } from '../health-activities/entities/health-activity.en
 import { LeagueWaitlistUser } from './entities/league-waitlist-user.entity'
 import { getBfitEarning } from '../../helpers/bfit-helpers'
 import { TENANT_CONNECTION } from '../tenant/tenant.module'
-import { Tenant } from '../tenant/tenant-service.decorator'
+import { InjectTenantRepository, Tenant } from '../tenant/tenant-service.decorator'
 
 type LeagueOptions = {
   teamId?: string
@@ -82,7 +82,7 @@ type PublicPageLeague = {
 @Tenant()
 export class LeaguesService {
 
-  private leaguesRepository: Repository<League>;
+  // private leaguesRepository: Repository<League>;
   private leaderboardRepository: Repository<Leaderboard>;
   private leaderboardEntryRepository: Repository<LeaderboardEntry>;
   private leagueBfitClaimRepository: Repository<LeagueBfitClaim>;
@@ -98,9 +98,11 @@ export class LeaguesService {
     private leaderboardEntriesService: LeaderboardEntriesService,
     private commonService: CommonService,
     private eventEmitter: EventEmitter2,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
+    @InjectTenantRepository(League)
+    private leaguesRepository: Repository<League>
   ) {
-    this.leaguesRepository = this.connection.getRepository(League)
+    // this.leaguesRepository = this.connection.getRepository(League)
     this.leaderboardRepository = this.connection.getRepository(Leaderboard);
     this.leaderboardEntryRepository = this.connection.getRepository(LeaderboardEntry);
     this.leagueBfitClaimRepository = this.connection.getRepository(LeagueBfitClaim);
