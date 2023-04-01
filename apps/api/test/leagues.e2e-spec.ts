@@ -538,7 +538,7 @@ describe('Leagues', () => {
     const get = await app.inject({
       method: 'GET',
       url: '/me/leagues',
-      headers: auth2,
+      headers: authHeaders,
       query: { page: '0', limit: '100' }
     })
 
