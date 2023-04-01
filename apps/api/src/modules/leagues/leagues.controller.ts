@@ -808,4 +808,33 @@ export class LeaguesController {
   ) {
     return this.leaguesService.isOnWaitlist(leagueId, authUser.id)
   }
+
+
+  @Post('/leagues/waitlist')
+  async joinFromWaitlist(
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+        throw new ForbiddenException(
+          'You do not have permission to call this function'
+        )
+    }
+
+    return this.leaguesService.handleJoinLeagueFromWaitlist()
+  }
+
+
+  @Post('/leagues/update-bfit-allocation')
+  async updateBfitAllocation(
+    @User() authUser: AuthenticatedUser
+  ) {
+    if (!authUser.isSuperAdmin()) {
+      throw new ForbiddenException(
+        'You do not have permission to call this function'
+      )
+    }
+
+    return this.leaguesService.leagueBfitCalculationUpdate()
+  }
+
 }

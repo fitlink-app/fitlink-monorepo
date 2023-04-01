@@ -10,6 +10,7 @@ import {
   Brackets,
   FindOneOptions,
   getManager,
+  IsNull,
   LessThan,
   MoreThan,
   Not,
@@ -56,7 +57,8 @@ import { GasPrice, SigningStargateClient, coins } from '@cosmjs/stargate'
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
 import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 import { LeagueWaitlistUser } from './entities/league-waitlist-user.entity'
-import { getBfitEarning } from '../../helpers/bfit-helpers'
+import { getBfitEarning, leagueBfitPots } from '../../helpers/bfit-helpers'
+import { tryAndCatch } from '../../helpers/tryAndCatch'
 
 type LeagueOptions = {
   teamId?: string
@@ -1192,6 +1194,75 @@ export class LeaguesService {
     return deleted
   }
 
+  async leagueBfitCalculationUpdate() {
+    const [leagues, leagueErr] = await tryAndCatch(
+      this.leaguesRepository.find({
+        where: {
+          active_leaderboard: Not(IsNull()),
+          access: LeagueAccess.CompeteToEarn
+        },
+        relations: ['active_leaderboard', 'users']
+      })
+    )
+
+    if (leagueErr) {
+      console.error(leagueErr)
+      return
+    }
+
+    let totalCompeteToEarnLeaguesUsers: number = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .leftJoin('league.users', 'user')
+      .where('league.access = :access', {
+        access: LeagueAccess.CompeteToEarn
+      })
+      .select('COUNT(user.id)', 'totalUsers')
+      .getRawOne()
+      .then((res) => parseInt(res.totalUsers, 10))
+
+    for (const league of leagues) {
+      const [bfitAllocation, bfitWinnerPot] = leagueBfitPots(
+        league.participants_total,
+        totalCompeteToEarnLeaguesUsers
+      )
+
+      await this.leaguesRepository.increment(
+        {
+          id: league.id
+        },
+        'bfitAllocation',
+        bfitAllocation
+      )
+      await this.leaguesRepository.increment(
+        {
+          id: league.id
+        },
+        'bfitWinnerPot',
+        bfitWinnerPot
+      )
+    }
+    return { success: true }
+  }
+
+  async handleJoinLeagueFromWaitlist() {
+    console.info('Adding users to leagues from waitlist')
+    const waitlistUsers = await this.leagueWaitlistUserRepository.find()
+    if (waitlistUsers.length) {
+      const result = await Promise.all(
+        waitlistUsers.map((waitlistUser: LeagueWaitlistUser) => {
+          return this.joinLeagueFromWaitlist(
+            waitlistUser.league_id,
+            waitlistUser.user_id
+          )
+        })
+      )
+
+      await this.leagueWaitlistUserRepository.delete({});
+
+      return result;
+    }
+  }
+
   // adds waitlist users to a league
   async joinLeagueFromWaitlist(leagueId: string, userId: string) {
     const waitlistUser = await this.leagueWaitlistUserRepository.findOne({
@@ -1232,34 +1303,40 @@ export class LeaguesService {
         )
         await repository.increment({ id: leagueId }, 'participants_total', 1)
 
-        // Update the invitation to accepted
-        await invitationRepository.update(
-          {
-            to_user: {
+        try {
+          // Update the invitation to accepted
+          await invitationRepository.update(
+            {
+              to_user: {
+                id: userId
+              },
+              league: {
+                id: leagueId
+              }
+            },
+            {
+              accepted: true
+            }
+          )
+          // Update the user's total unread invitation count
+          await userRepository.update(
+            {
               id: userId
             },
-            league: {
-              id: leagueId
+            {
+              league_invitations_total: await invitationRepository.count({
+                to_user: { id: userId },
+                dismissed: false,
+                accepted: false
+              })
             }
-          },
-          {
-            accepted: true
-          }
-        )
+          )
+        } catch (e) {
+          console.error(e);
+        }
 
-        // Update the user's total unread invitation count
-        await userRepository.update(
-          {
-            id: userId
-          },
-          {
-            league_invitations_total: await invitationRepository.count({
-              to_user: { id: userId },
-              dismissed: false,
-              accepted: false
-            })
-          }
-        )
+
+
 
         return leaderboardEntry
       }
