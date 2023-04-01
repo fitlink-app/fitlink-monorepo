@@ -551,24 +551,24 @@ describe('Leagues', () => {
     expect(
       get.json().results.filter((e) => e.league_id === league.id).length
     ).toEqual(1)
-    // expect(post.json().leaderboardEntry.id).toBeDefined()
-    // expect(get.json().results[0].rank).toBe(1)
-    // expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
-    //   1
-    // )
-    // expect(get.json().results.filter((e) => e.participating).length).toEqual(
-    //   get.json().results.length
-    // )
-    //
-    // // Check participants count
-    // const count = await app.inject({
-    //   method: 'GET',
-    //   url: `/leagues/${league.id}`,
-    //   headers: authHeaders
-    // })
-    //
-    // expect(count.json().participants_total).toEqual(1)
-    // expect(count.json().participating).toEqual(true)
+    expect(post.json().leaderboardEntry.id).toBeDefined()
+    expect(get.json().results[0].rank).toBe(1)
+    expect(get.json().results.filter((e) => e.id === league.id).length).toEqual(
+      1
+    )
+    expect(get.json().results.filter((e) => e.participating).length).toEqual(
+      get.json().results.length
+    )
+
+    // Check participants count
+    const count = await app.inject({
+      method: 'GET',
+      url: `/leagues/${league.id}`,
+      headers: authHeaders
+    })
+
+    expect(count.json().participants_total).toEqual(1)
+    expect(count.json().participating).toEqual(true)
   })
 
   it('POST /leagues/:leagueId/leave 200 A user can leave any public league', async () => {
@@ -580,8 +580,8 @@ describe('Leagues', () => {
       headers: authHeaders
     })
 
-    const leaguesService = app.get(LeaguesService)
-    await leaguesService.joinLeagueFromWaitlist(league.id, user1)
+    // const leaguesService = app.get(LeaguesService)
+    // await leaguesService.joinLeagueFromWaitlist(league.id, user1)
 
     const get1 = await app.inject({
       method: 'GET',
@@ -833,10 +833,10 @@ describe('Leagues', () => {
     await joinLeague(authHeaders2)
     await joinLeague(authHeaders3)
 
-    const leaguesService = app.get(LeaguesService)
-    await leaguesService.joinLeagueFromWaitlist(league.id, user1)
-    await leaguesService.joinLeagueFromWaitlist(league.id, user2)
-    await leaguesService.joinLeagueFromWaitlist(league.id, user3)
+    // const leaguesService = app.get(LeaguesService)
+    // await leaguesService.joinLeagueFromWaitlist(league.id, user1)
+    // await leaguesService.joinLeagueFromWaitlist(league.id, user2)
+    // await leaguesService.joinLeagueFromWaitlist(league.id, user3)
 
     // Apply leaderboard points manually
     const repo = app.get(Connection).getRepository(LeaderboardEntry)
@@ -1149,8 +1149,8 @@ describe('Leagues', () => {
       headers: authHeaders
     })
 
-    const leaguesService = app.get(LeaguesService)
-    await leaguesService.joinLeagueFromWaitlist(league.id, user1)
+    // const leaguesService = app.get(LeaguesService)
+    // await leaguesService.joinLeagueFromWaitlist(league.id, user1)
 
     const feedItem = await getConnection()
       .getRepository(FeedItem)

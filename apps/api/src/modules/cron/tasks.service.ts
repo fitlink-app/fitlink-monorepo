@@ -75,23 +75,23 @@ export class TasksService {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async handleJoinLeagueFromWaitlist() {
-    this.logger.debug('Adding users to leagues from waitlist')
-    const waitlistUsers = await this.leagueWaitlistUserRepository.find({})
-    if (waitlistUsers.length) {
-      const result = await Promise.all(
-        waitlistUsers.map((waitlistUser: LeagueWaitlistUser) => {
-          return this.leaguesService.joinLeagueFromWaitlist(
-            waitlistUser.league_id,
-            waitlistUser.user_id
-          )
-        })
-      )
+  // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  // async handleJoinLeagueFromWaitlist() {
+  //   this.logger.debug('Adding users to leagues from waitlist')
+  //   const waitlistUsers = await this.leagueWaitlistUserRepository.find({})
+  //   if (waitlistUsers.length) {
+  //     const result = await Promise.all(
+  //       waitlistUsers.map((waitlistUser: LeagueWaitlistUser) => {
+  //         return this.leaguesService.joinLeagueFromWaitlist(
+  //           waitlistUser.league_id,
+  //           waitlistUser.user_id
+  //         )
+  //       })
+  //     )
 
-      await this.leagueWaitlistUserRepository.delete({});
+  //     await this.leagueWaitlistUserRepository.delete({});
 
-      return result;
-    }
-  }
+  //     return result;
+  //   }
+  // }
 }
