@@ -537,12 +537,9 @@ describe('Leagues', () => {
 
     const get = await app.inject({
       method: 'GET',
-      url: '/me/leagues/waitlists',
-      headers: authHeaders,
-      query: {
-        page: '0',
-        limit: '100'
-      }
+      url: '/me/leagues',
+      headers: auth2,
+      query: { page: '0', limit: '100' }
     })
 
     expect(post.statusCode).toEqual(201)
