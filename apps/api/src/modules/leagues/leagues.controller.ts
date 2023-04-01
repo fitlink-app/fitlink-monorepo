@@ -617,7 +617,7 @@ export class LeaguesController {
     @User() authUser: AuthenticatedUser
   ) {
     const invitation = await this.leaguesInvitationsService.verifyToken(token)
-    return this.leaguesService.joinLeagueWaitlist(
+    return this.leaguesService.joinLeague(
       invitation.league.id,
       authUser.id
     )
@@ -655,7 +655,7 @@ export class LeaguesController {
       )
     }
 
-    const result = await this.leaguesService.joinLeagueWaitlist(
+    const result = await this.leaguesService.joinLeague(
       leagueId,
       authUser.id
     )

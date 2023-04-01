@@ -1247,6 +1247,7 @@ export class LeaguesService {
   async handleJoinLeagueFromWaitlist() {
     console.info('Adding users to leagues from waitlist')
     const waitlistUsers = await this.leagueWaitlistUserRepository.find()
+    console.info('Adding users to leagues from waitlist', waitlistUsers.length)
     if (waitlistUsers.length) {
       const result = await Promise.all(
         waitlistUsers.map((waitlistUser: LeagueWaitlistUser) => {
@@ -1270,84 +1271,61 @@ export class LeaguesService {
         league_id: leagueId,
         user_id: userId
       }
-    })
+    });
+
     if (!waitlistUser) {
       console.error(
         `Waitlist user with league id ${leagueId} and user id ${userId} not found`
-      )
-      return
+      );
+      return;
     }
-    const user = new User()
-    user.id = userId
-
-    const league = new League()
-    league.id = leagueId
 
     const leaderboardEntry = await this.leaguesRepository.manager.transaction(
       async (manager) => {
-        const repository = manager.getRepository(League)
-        const leaderboardEntryRepository =
-          manager.getRepository(LeaderboardEntry)
-        const invitationRepository = manager.getRepository(LeaguesInvitation)
-        const userRepository = manager.getRepository(User)
-        await repository
-          .createQueryBuilder()
-          .relation(League, 'users')
-          .of(league)
-          .add(user)
+        const repository = manager.getRepository(League);
+        const leaderboardEntryRepository = manager.getRepository(LeaderboardEntry);
+        const invitationRepository = manager.getRepository(LeaguesInvitation);
+        const userRepository = manager.getRepository(User);
 
-        const leaderboardEntry = await this.addLeaderboardEntry(
-          leagueId,
-          userId,
-          leaderboardEntryRepository
-        )
-        await repository.increment({ id: leagueId }, 'participants_total', 1)
-
-        try {
-          // Update the invitation to accepted
-          await invitationRepository.update(
-            {
-              to_user: {
-                id: userId
-              },
-              league: {
-                id: leagueId
-              }
-            },
-            {
-              accepted: true
-            }
+        // Add user to the league, create a leaderboard entry, increment participants_total, and update the invitation in a single query
+        const [_, leaderboardEntry] = await Promise.all([
+          manager.query(`
+          WITH ins AS (
+            INSERT INTO league_users ("leagueId", "userId")
+            VALUES ($1, $2)
+          ), upd AS (
+            UPDATE leagues SET participants_total = participants_total + 1 WHERE id = $1
+          ), inv AS (
+            UPDATE leagues_invitation
+            SET accepted = true
+            WHERE "to_userId" = $2 AND "leagueId" = $1
           )
-          // Update the user's total unread invitation count
-          await userRepository.update(
-            {
-              id: userId
-            },
-            {
-              league_invitations_total: await invitationRepository.count({
-                to_user: { id: userId },
-                dismissed: false,
-                accepted: false
-              })
-            }
-          )
-        } catch (e) {
-          console.error(e);
-        }
+          SELECT 1
+        `, [leagueId, userId]),
+          this.addLeaderboardEntry(leagueId, userId, leaderboardEntryRepository)
+        ]);
 
+        // Update the user's total unread invitation count
+        const unreadInvitations = await invitationRepository.count({
+          to_user: { id: userId },
+          dismissed: false,
+          accepted: false
+        });
 
+        await userRepository.update({ id: userId }, { league_invitations_total: unreadInvitations });
 
-
-        return leaderboardEntry
+        return leaderboardEntry;
       }
-    )
+    );
 
-    const event = new LeagueJoinedEvent()
-    event.leagueId = leagueId
-    event.userId = userId
-    await this.eventEmitter.emitAsync(Events.LEAGUE_JOINED, event)
-    return { success: true, league, leaderboardEntry }
+    const event = new LeagueJoinedEvent();
+    event.leagueId = leagueId;
+    event.userId = userId;
+    await this.eventEmitter.emitAsync(Events.LEAGUE_JOINED, event);
+    const league = await this.findOne(leagueId);
+    return { success: true, league, leaderboardEntry };
   }
+
 
   /**
    * Uses a transaction to
