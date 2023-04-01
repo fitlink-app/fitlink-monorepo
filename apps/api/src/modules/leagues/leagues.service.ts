@@ -1199,7 +1199,7 @@ export class LeaguesService {
     if (waitlistUsers.length) {
       const result = await Promise.all(
         waitlistUsers.map((waitlistUser: LeagueWaitlistUser) => {
-          return this.leaguesService.joinLeagueFromWaitlist(
+          return this.joinLeagueFromWaitlist(
             waitlistUser.league_id,
             waitlistUser.user_id
           )
