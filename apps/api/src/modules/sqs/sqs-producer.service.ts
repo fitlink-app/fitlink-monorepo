@@ -23,7 +23,6 @@ export class SQSDistributionSenderService {
 			},
 			groupId: groupId,
 		}
-		console.info(`Sending SQS message to queue: ${JSON.stringify(message)}`);
 		this.sqsService.send(QUEUE_NAME, message)
 	}
 
