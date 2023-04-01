@@ -10,6 +10,7 @@ import {
   Brackets,
   FindOneOptions,
   getManager,
+  IsNull,
   LessThan,
   MoreThan,
   Not,
@@ -56,7 +57,8 @@ import { GasPrice, SigningStargateClient, coins } from '@cosmjs/stargate'
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
 import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 import { LeagueWaitlistUser } from './entities/league-waitlist-user.entity'
-import { getBfitEarning } from '../../helpers/bfit-helpers'
+import { getBfitEarning, leagueBfitPots } from '../../helpers/bfit-helpers'
+import { tryAndCatch } from '../../helpers/tryAndCatch'
 
 type LeagueOptions = {
   teamId?: string
@@ -1192,6 +1194,55 @@ export class LeaguesService {
     return deleted
   }
 
+  async leagueBfitCalculationUpdate() {
+    const [leagues, leagueErr] = await tryAndCatch(
+      this.leaguesRepository.find({
+        where: {
+          active_leaderboard: Not(IsNull()),
+          access: LeagueAccess.CompeteToEarn
+        },
+        relations: ['active_leaderboard', 'users']
+      })
+    )
+
+    if (leagueErr) {
+      console.error(leagueErr)
+      return
+    }
+
+    let totalCompeteToEarnLeaguesUsers: number = await this.leaguesRepository
+      .createQueryBuilder('league')
+      .leftJoin('league.users', 'user')
+      .where('league.access = :access', {
+        access: LeagueAccess.CompeteToEarn
+      })
+      .select('COUNT(user.id)', 'totalUsers')
+      .getRawOne()
+      .then((res) => parseInt(res.totalUsers, 10))
+
+    for (const league of leagues) {
+      const [bfitAllocation, bfitWinnerPot] = leagueBfitPots(
+        league.participants_total,
+        totalCompeteToEarnLeaguesUsers
+      )
+
+      await this.leaguesRepository.increment(
+        {
+          id: league.id
+        },
+        'bfitAllocation',
+        bfitAllocation
+      )
+      await this.leaguesRepository.increment(
+        {
+          id: league.id
+        },
+        'bfitWinnerPot',
+        bfitWinnerPot
+      )
+    }
+    return { success: true }
+  }
 
   async handleJoinLeagueFromWaitlist() {
     console.info('Adding users to leagues from waitlist')
