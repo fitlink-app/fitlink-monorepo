@@ -80,15 +80,18 @@ export class TasksService {
     this.logger.debug('Adding users to leagues from waitlist')
     const waitlistUsers = await this.leagueWaitlistUserRepository.find({})
     if (waitlistUsers.length) {
-      await Promise.all(
+      const result = await Promise.all(
         waitlistUsers.map((waitlistUser: LeagueWaitlistUser) => {
-          this.leaguesService.joinLeagueFromWaitlist(
+          return this.leaguesService.joinLeagueFromWaitlist(
             waitlistUser.league_id,
             waitlistUser.user_id
           )
         })
       )
+
+      await this.leagueWaitlistUserRepository.delete({});
+
+      return result;
     }
-    await this.leagueWaitlistUserRepository.delete({})
   }
 }

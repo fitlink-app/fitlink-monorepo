@@ -1192,6 +1192,26 @@ export class LeaguesService {
     return deleted
   }
 
+
+  async handleJoinLeagueFromWaitlist() {
+    console.info('Adding users to leagues from waitlist')
+    const waitlistUsers = await this.leagueWaitlistUserRepository.find()
+    if (waitlistUsers.length) {
+      const result = await Promise.all(
+        waitlistUsers.map((waitlistUser: LeagueWaitlistUser) => {
+          return this.leaguesService.joinLeagueFromWaitlist(
+            waitlistUser.league_id,
+            waitlistUser.user_id
+          )
+        })
+      )
+
+      await this.leagueWaitlistUserRepository.delete({});
+
+      return result;
+    }
+  }
+
   // adds waitlist users to a league
   async joinLeagueFromWaitlist(leagueId: string, userId: string) {
     const waitlistUser = await this.leagueWaitlistUserRepository.findOne({
@@ -1232,34 +1252,40 @@ export class LeaguesService {
         )
         await repository.increment({ id: leagueId }, 'participants_total', 1)
 
-        // Update the invitation to accepted
-        await invitationRepository.update(
-          {
-            to_user: {
+        try {
+          // Update the invitation to accepted
+          await invitationRepository.update(
+            {
+              to_user: {
+                id: userId
+              },
+              league: {
+                id: leagueId
+              }
+            },
+            {
+              accepted: true
+            }
+          )
+          // Update the user's total unread invitation count
+          await userRepository.update(
+            {
               id: userId
             },
-            league: {
-              id: leagueId
+            {
+              league_invitations_total: await invitationRepository.count({
+                to_user: { id: userId },
+                dismissed: false,
+                accepted: false
+              })
             }
-          },
-          {
-            accepted: true
-          }
-        )
+          )
+        } catch (e) {
+          console.error(e);
+        }
 
-        // Update the user's total unread invitation count
-        await userRepository.update(
-          {
-            id: userId
-          },
-          {
-            league_invitations_total: await invitationRepository.count({
-              to_user: { id: userId },
-              dismissed: false,
-              accepted: false
-            })
-          }
-        )
+
+
 
         return leaderboardEntry
       }
