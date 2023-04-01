@@ -79,6 +79,8 @@ import { SQSProducerModule } from './modules/sqs/sqs-producer.module'
 import { ClientIdContextModule } from './modules/client-id/client-id.module'
 import { CronModule } from './modules/cron/cron.module'
 import { LeagueWaitlistUser } from './modules/leagues/entities/league-waitlist-user.entity'
+import { TenantModule } from './modules/tenant/tenant.module'
+import { Tenant } from './modules/tenant/tenant.entity'
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -133,7 +135,8 @@ import { LeagueWaitlistUser } from './modules/leagues/entities/league-waitlist-u
             LeagueBfitClaim,
             LeagueBfitEarnings,
             WalletTransaction,
-            LeagueWaitlistUser
+            LeagueWaitlistUser,
+            Tenant
           ],
           synchronize: false,
           logging: false,
@@ -173,6 +176,7 @@ import { LeagueWaitlistUser } from './modules/leagues/entities/league-waitlist-u
     SQSProducerModule,
     BfitDistributionModule,
     ClientIdContextModule,
+    TenantModule,
     CronModule
   ],
   providers: [

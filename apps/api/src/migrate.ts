@@ -37,6 +37,8 @@ import { Notification } from './modules/notifications/entities/notification.enti
 import { LeagueBfitClaim } from './modules/leagues/entities/bfit-claim.entity'
 import { LeagueBfitEarnings } from './modules/leagues/entities/bfit-earnings.entity'
 import { LeagueWaitlistUser } from './modules/leagues/entities/league-waitlist-user.entity'
+import { Tenant } from './modules/tenant/tenant-service.decorator'
+import { WalletTransaction } from './modules/wallet-transactions/entities/wallet-transaction.entity'
 
 export async function migrate() {
   const connection = await createConnection({
@@ -83,7 +85,9 @@ export async function migrate() {
       Notification,
       LeagueBfitClaim,
       LeagueBfitEarnings,
-      LeagueWaitlistUser
+      LeagueWaitlistUser,
+      Tenant,
+      WalletTransaction,
     ]
   })
 

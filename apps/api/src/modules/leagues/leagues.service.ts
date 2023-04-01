@@ -1,13 +1,16 @@
 import {
   BadRequestException,
   HttpService,
+  Inject,
   Injectable,
-  NotFoundException
+  NotFoundException,
+  Scope
 } from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
   Brackets,
+  Connection,
   FindOneOptions,
   getManager,
   LessThan,
@@ -57,6 +60,8 @@ import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
 import { HealthActivity } from '../health-activities/entities/health-activity.entity'
 import { LeagueWaitlistUser } from './entities/league-waitlist-user.entity'
 import { getBfitEarning } from '../../helpers/bfit-helpers'
+import { TENANT_CONNECTION } from '../tenant/tenant.module'
+import { Tenant } from '../tenant/tenant-service.decorator'
 
 type LeagueOptions = {
   teamId?: string
@@ -74,47 +79,39 @@ type PublicPageLeague = {
   duration: number
 }
 
-@Injectable()
+@Tenant()
 export class LeaguesService {
+
+  private leaguesRepository: Repository<League>;
+  private leaderboardRepository: Repository<Leaderboard>;
+  private leaderboardEntryRepository: Repository<LeaderboardEntry>;
+  private leagueBfitClaimRepository: Repository<LeagueBfitClaim>;
+  private LeagueBfitEarningsRepository: Repository<LeagueBfitEarnings>;
+  private teamRepository: Repository<Team>;
+  private organisationRepository: Repository<Organisation>;
+  private userRepository: Repository<User>;
+  private leagueWaitlistUserRepository: Repository<LeagueWaitlistUser>;
+  private leagueBfitEarningsRepository: Repository<LeagueBfitEarnings>;
+  private walletTransactionRepository: Repository<WalletTransaction>;
   constructor(
-    @InjectRepository(League)
-    private leaguesRepository: Repository<League>,
-
-    @InjectRepository(Leaderboard)
-    private leaderboardRepository: Repository<Leaderboard>,
-
-    @InjectRepository(LeaderboardEntry)
-    private leaderboardEntryRepository: Repository<LeaderboardEntry>,
-
-    @InjectRepository(LeagueBfitClaim)
-    private leagueBfitClaimRepository: Repository<LeagueBfitClaim>,
-
-    @InjectRepository(LeagueBfitEarnings)
-    private LeagueBfitEarningsRepository: Repository<LeagueBfitEarnings>,
-
-    @InjectRepository(Team)
-    private teamRepository: Repository<Team>,
-
-    @InjectRepository(Organisation)
-    private organisationRepository: Repository<Organisation>,
-
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
-
-    @InjectRepository(LeagueWaitlistUser)
-    private leagueWaitlistUserRepository: Repository<LeagueWaitlistUser>,
-
-    @InjectRepository(LeagueBfitEarnings)
-    private leagueBfitEarningsRepository: Repository<LeagueBfitEarnings>,
-
-    @InjectRepository(WalletTransaction)
-    private walletTransactionRepository: Repository<WalletTransaction>,
-
+    @Inject(TENANT_CONNECTION) private readonly connection: Connection,
     private leaderboardEntriesService: LeaderboardEntriesService,
     private commonService: CommonService,
     private eventEmitter: EventEmitter2,
     private notificationsService: NotificationsService
-  ) {}
+  ) {
+    this.leaguesRepository = this.connection.getRepository(League)
+    this.leaderboardRepository = this.connection.getRepository(Leaderboard);
+    this.leaderboardEntryRepository = this.connection.getRepository(LeaderboardEntry);
+    this.leagueBfitClaimRepository = this.connection.getRepository(LeagueBfitClaim);
+    this.LeagueBfitEarningsRepository = this.connection.getRepository(LeagueBfitEarnings);
+    this.teamRepository = this.connection.getRepository(Team);
+    this.organisationRepository = this.connection.getRepository(Organisation);
+    this.userRepository = this.connection.getRepository(User);
+    this.leagueWaitlistUserRepository = this.connection.getRepository(LeagueWaitlistUser);
+    this.leagueBfitEarningsRepository = this.connection.getRepository(LeagueBfitEarnings);
+    this.walletTransactionRepository = this.connection.getRepository(WalletTransaction);
+  }
 
   async create(
     createLeagueDto: CreateLeagueDto,
@@ -2231,5 +2228,10 @@ export class LeaguesService {
     })
     const sig = await client.signAndBroadcast(account.address, [mesg], 'auto')
     return sig.transactionHash
+  }
+
+
+  removeInactiveUsers() {
+
   }
 }

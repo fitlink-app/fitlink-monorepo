@@ -27,6 +27,7 @@ import { SqsModule } from '@ssut/nestjs-sqs'
 import { QUEUE_NAME } from '../sqs/sqs.constant'
 import { SQSProducerModule } from '../sqs/sqs-producer.module'
 import { LeagueWaitlistUser } from '../leagues/entities/league-waitlist-user.entity'
+import { TenantModule } from '../tenant/tenant.module'
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { LeagueWaitlistUser } from '../leagues/entities/league-waitlist-user.ent
     HttpModule,
     CommonModule,
     NotificationsModule,
+    TenantModule,
     SqsModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

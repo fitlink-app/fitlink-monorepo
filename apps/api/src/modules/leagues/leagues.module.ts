@@ -31,9 +31,11 @@ import { FeedItem } from '../feed-items/entities/feed-item.entity'
 import { Provider } from '../providers/entities/provider.entity'
 import { Image } from '../images/entities/image.entity'
 import { LeagueWaitlistUser } from './entities/league-waitlist-user.entity'
+import { TenantModule } from '../tenant/tenant.module'
 
 @Module({
   imports: [
+    TenantModule,
     GoalsEntriesModule,
     TypeOrmModule.forFeature([
       League,

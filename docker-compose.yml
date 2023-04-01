@@ -17,6 +17,24 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./docker/uuid.sql:/docker-entrypoint-initdb.d/uuid.sqlbas
+
+
+  postgres-bfit:
+    container_name: postgres-bfit
+    image: postgis/postgis
+    networks:
+      - webnet
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_DB: ${DB_DATABASE_NAME}
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      # Use the standard port for dev
+      - 5434:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data2
+      - ./docker/uuid.sql:/docker-entrypoint-initdb.d/uuid.sqlbas
   postgres-jest:
     container_name: postgres-jest
     image: postgis/postgis

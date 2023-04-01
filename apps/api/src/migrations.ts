@@ -103,6 +103,7 @@ import { addedLeagueWaitlistUserEntity1679511914515 } from '../database/migratio
 import { bfitEstimate1679611820522 } from '../database/migrations/1679611820522-bfit_estimate'
 import { bitAllocationRetry1679693629245 } from '../database/migrations/1679693629245-bit-change-retry'
 import { bitEstimateRetry1679698544661 } from '../database/migrations/1679698544661-bit-estimate-retry'
+import { Tenant1680289861735 } from '../database/migrations/1680289861735-tenant'
 
 export default [
   InitializeSchema1614887523112,
@@ -204,5 +205,6 @@ export default [
   addedLeagueWaitlistUserEntity1679511914515,
   bfitEstimate1679611820522,
   bitAllocationRetry1679693629245,
-  bitEstimateRetry1679698544661
+  bitEstimateRetry1679698544661,
+  Tenant1680289861735,
 ]

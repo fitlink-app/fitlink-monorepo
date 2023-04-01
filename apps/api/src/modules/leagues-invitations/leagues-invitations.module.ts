@@ -20,6 +20,7 @@ import { LeagueBfitClaim } from '../leagues/entities/bfit-claim.entity'
 import { LeagueBfitEarnings } from '../leagues/entities/bfit-earnings.entity'
 import { WalletTransaction } from '../wallet-transactions/entities/wallet-transaction.entity'
 import { LeagueWaitlistUser } from '../leagues/entities/league-waitlist-user.entity'
+import { TenantModule } from '../tenant/tenant.module'
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { LeagueWaitlistUser } from '../leagues/entities/league-waitlist-user.ent
       LeagueWaitlistUser
     ]),
     NotificationsModule,
+    TenantModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
