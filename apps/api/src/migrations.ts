@@ -104,7 +104,7 @@ import { bfitEstimate1679611820522 } from '../database/migrations/1679611820522-
 import { bitAllocationRetry1679693629245 } from '../database/migrations/1679693629245-bit-change-retry'
 import { bitEstimateRetry1679698544661 } from '../database/migrations/1679698544661-bit-estimate-retry'
 import { leagueBfitEstimate1680465130163 } from '../database/migrations/1680465130163-league-bfit-estimate'
-
+import { leagueEntryPositions1680558643755 } from '../database/migrations/1680558643755-league-entry-positions'
 export default [
   InitializeSchema1614887523112,
   InitializeSchema1615794470267,
@@ -206,5 +206,6 @@ export default [
   bfitEstimate1679611820522,
   bitAllocationRetry1679693629245,
   bitEstimateRetry1679698544661,
-  leagueBfitEstimate1680465130163
+  leagueBfitEstimate1680465130163,
+  leagueEntryPositions1680558643755
 ]
