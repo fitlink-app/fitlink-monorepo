@@ -91,5 +91,20 @@ export class LeaderboardEntry extends CreatableEntity {
   })
   wins: number
 
+  @Column({
+    default: 0
+  })
+  secondPlace: number
+
+  @Column({
+    default: 0
+  })
+  thirdPlace: number
+
+  @Column({
+    default: 0
+  })
+  lastLeaguePosition: number
+
   rank?: string
 }
