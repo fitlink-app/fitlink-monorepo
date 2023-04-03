@@ -108,7 +108,14 @@ export class League extends CreatableEntity {
     default: 0,
     transformer: new ColumnNumberTransformer()
   })
-  bfitAllocation?: number
+  bfitAllocation?: number;
+
+  @Column({
+    type: 'numeric',
+    default: 0,
+    transformer: new ColumnNumberTransformer()
+  })
+  bfitAllocationEstimate?: number
 
   // total allocation of BFIT ready for the winners of this league
   @Column({

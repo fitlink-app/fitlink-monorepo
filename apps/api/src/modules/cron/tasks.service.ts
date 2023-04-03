@@ -8,6 +8,7 @@ import { LeagueWaitlistUser } from '../leagues/entities/league-waitlist-user.ent
 import { tryAndCatch } from '../../helpers/tryAndCatch'
 import { LeaguesService } from '../leagues/leagues.service'
 import { leagueBfitPots } from '../../helpers/bfit-helpers'
+import { daysLeft } from '../../helpers/days-left'
 
 let leaguesAllocationSeeded = false
 @Injectable()
@@ -58,20 +59,17 @@ export class TasksService {
         totalCompeteToEarnLeaguesUsers
       )
 
-      await this.leaguesRepository.increment(
+      const remainingDays = daysLeft(league.ends_at);
+
+      await this.leaguesRepository.update(
         {
-          id: league.id
+        id: league.id,
         },
-        'bfitAllocation',
-        bfitAllocation
-      )
-      await this.leaguesRepository.increment(
         {
-          id: league.id
-        },
-        'bfitWinnerPot',
-        bfitWinnerPot
-      )
+          bfitAllocationEstimate: league.bfitAllocation + bfitAllocation + (remainingDays * bfitAllocation),
+          bfitAllocation: league.bfitAllocation + bfitAllocation,
+          bfitWinnerPot: league.bfitWinnerPot + bfitWinnerPot,
+        })
     }
   }
 
