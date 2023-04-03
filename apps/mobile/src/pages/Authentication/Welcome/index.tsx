@@ -15,6 +15,7 @@ import {Background, GradientUnderlay, WelcomeHeader} from './components';
 import {selectTeamInvitation} from 'redux/teamInvitation/teamInvitationSlice';
 import theme from '../../../theme/themes/fitlink';
 import useMeasureInitialLayout from '../../../hooks/useMeasureInitialLayout';
+import analytics from '@react-native-firebase/analytics';
 
 const mail_icon = require('../../../../assets/images/icon/mail.png');
 const google_icon = require('../../../../assets/images/icon/google.png');
@@ -185,7 +186,18 @@ export const Welcome = () => {
                 <SpacedButton
                   text={'LOGIN'}
                   type={'accent'}
-                  onPress={handleOnLoginPressed}
+                  onPress={async () => {
+                    try {
+                      await analytics().logEvent('basket', {
+                        id: 3745092,
+                        item: 'mens grey t-shirt',
+                        description: ['round neck', 'long sleeved'],
+                        size: 'L',
+                      });
+                    } catch (e) {
+                      console.log(e);
+                    }
+                  }}
                 />
               </LoginButton>
             </LoginButtonContainer>

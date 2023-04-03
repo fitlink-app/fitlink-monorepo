@@ -6,6 +6,7 @@ import {shareDynamicLink} from '@utils';
 import {useLeague, useModal} from '@hooks';
 import {RootStackParamList} from '@routes';
 import {DeepLinkType} from '@fitlink/api/src/constants/deep-links';
+import analytics from '@react-native-firebase/analytics';
 
 import {Dialog, DialogButton} from 'components/modal';
 
@@ -84,7 +85,14 @@ export const useLeagueMenuModal = ({
       result.push({
         text: 'Leave Waiting List',
         type: 'danger',
-        onPress: withClose(handleOnLeaveWaitListPressed, id),
+        onPress: withClose(() => {
+          await analytics().logEvent('basket', {
+            id: 3745092,
+            item: 'mens grey t-shirt',
+            description: ['round neck', 'long sleeved'],
+            size: 'L',
+          })
+        }, id),
       });
     }
     return result;
