@@ -2054,7 +2054,9 @@ export class LeaguesService {
           const leaderboardRepo = manager.getRepository(Leaderboard)
 
           if (league.access === LeagueAccess.CompeteToEarn) {
-            const currentEntries = league.active_leaderboard.entries
+            const currentEntries = await this.leaderboardEntryRepository.find({
+              leaderboard: { id: league.active_leaderboard.id }
+            })
             await Promise.all(
               league.users.map(async (leagueUser) => {
                 const winner = winners.find(
@@ -2151,7 +2153,6 @@ export class LeaguesService {
     const leagues = await this.leaguesRepository
       .createQueryBuilder('league')
       .leftJoinAndSelect('league.active_leaderboard', 'active_leaderboard')
-      .leftJoinAndSelect('active_leaderboard.entries', 'entries')
       .leftJoinAndSelect('league.users', 'users')
       .where('league.ends_at <= :date', { date: new Date() })
       .andWhere('active_leaderboard.completed = false')
