@@ -513,6 +513,7 @@ export class LeaguesController {
   async getLeagueMembers(
     @Param('leagueId') leagueId: string,
     @Pagination() pagination: PaginationQuery,
+    @Query('orderBy') orderBy: string,
     @User() authUser: AuthenticatedUser
   ) {
     if (!authUser.isSuperAdmin()) {
@@ -535,7 +536,7 @@ export class LeaguesController {
       }
     }
 
-    return this.leaguesService.getLeaderboardMembers(leagueId, pagination)
+    return this.leaguesService.getLeaderboardMembers(leagueId, pagination, orderBy?.split(','))
   }
 
   /**

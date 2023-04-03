@@ -1589,9 +1589,10 @@ export class LeaguesService {
    */
   async getLeaderboardMembers(
     leagueId: string,
-    options: PaginationOptionsInterface
+    options: PaginationOptionsInterface,
+    orderBy?: string[]
   ): Promise<Pagination<LeaderboardEntry & { user: UserPublic }>> {
-    const query = this.leaderboardEntryRepository
+    let query = this.leaderboardEntryRepository
       .createQueryBuilder('entry')
       .innerJoin('entry.leaderboard', 'entryLeaderboard')
       .innerJoin('entryLeaderboard.league', 'league')
@@ -1600,12 +1601,24 @@ export class LeaguesService {
       .leftJoinAndSelect('user.avatar', 'avatar')
       .where('league.id = :leagueId AND leaderboard.id = entryLeaderboard.id', {
         leagueId
+      });
+
+    if (orderBy?.length) {
+      orderBy.forEach((order, index) => {
+        const [field, direction] = order.split(':') as [string, "ASC" | "DESC"]
+        if (index === 0) {
+          query = query.orderBy(`entry.${field}`, direction ? direction.toUpperCase() as "ASC" | "DESC" : 'DESC')
+        } else {
+          query = query.addOrderBy(`entry.${field}`, direction ? direction.toUpperCase() as "ASC" | "DESC" : 'DESC')
+        }
       })
-      .orderBy('entry.bfit_estimate', 'DESC')
-      .addOrderBy('entry.points', 'DESC')
-      .addOrderBy('user.name', 'ASC')
-      .take(options.limit)
-      .skip(options.page * options.limit)
+    } else {
+      query = query.orderBy('entry.bfit_estimate', 'DESC')
+        .addOrderBy('entry.points', 'DESC')
+        .addOrderBy('user.name', 'ASC');
+    }
+
+    query = query.take(options.limit).skip(options.page * options.limit)
 
     const [results, total] = await query.getManyAndCount()
 
@@ -1937,19 +1950,21 @@ export class LeaguesService {
         const currentEntries = await this.leaderboardEntryRepository.find({
           leaderboard: { id: league.active_leaderboard.id }
         })
-
         await this.leaguesRepository.manager.transaction(async (manager) => {
           const repo = manager.getRepository(LeaderboardEntry)
           const leagueRepo = manager.getRepository(League)
           const leaderboardRepo = manager.getRepository(Leaderboard)
+
           await Promise.all(
-            league.users.map(async (leagueUser) => {
+            league.users.map(async (leagueUser: User | UserPublic) => {
               const winner = winners.find(
                 (e) => leagueUser.id === e.user.id && e.rank === '1'
               )
               const user = new User()
               user.id = leagueUser.id
-
+              const entry = currentEntries.find(
+                (entry) => entry.user_id === leagueUser.id
+              )
               // check if the league is CompeteToEarn
               if (league.access === LeagueAccess.CompeteToEarn) {
                 // we check if the user is in the winner which provides top 3
@@ -1957,10 +1972,7 @@ export class LeaguesService {
                   (winner) => leagueUser.id === winner.user.id
                 )
 
-                // we not get they estimate earnings and reward them
-                const entry = currentEntries.find(
-                  (entry) => entry.user_id === leagueUser.id
-                )
+
 
                 const bfit = getBfitEarning(
                   bfitBonus.rank,
@@ -1991,12 +2003,16 @@ export class LeaguesService {
                     leaderboard_id: leaderboard.id,
                     league_id: league.id,
                     user_id: leagueUser.id,
-                    wins: winner ? winner.wins + 1 : 0,
+                    wins: winner ? entry.wins + 1 : entry.wins,
+                    secondPlace: entry.rank === '2' ? entry.secondPlace + 1 : 0,
+                    thirdPlace: entry.rank === '3' ? entry.secondPlace + 1 : 0,
+                    lastLeaguePosition: Number(entry.rank),
                     bfit_earned: bfit,
-                    bfit_estimate: 0
+                    bfit_estimate: 0,
                   })
                 )
               } else {
+                // we not get they estimate earnings and reward them
                 return repo.save(
                   repo.create({
                     user,
@@ -2004,7 +2020,7 @@ export class LeaguesService {
                     leaderboard_id: leaderboard.id,
                     league_id: league.id,
                     user_id: leagueUser.id,
-                    wins: winner ? winner.wins + 1 : 0
+                    wins: winner ? entry.wins + 1 : entry.wins,
                   })
                 )
               }
@@ -2038,7 +2054,9 @@ export class LeaguesService {
           const leaderboardRepo = manager.getRepository(Leaderboard)
 
           if (league.access === LeagueAccess.CompeteToEarn) {
-            const currentEntries = league.active_leaderboard.entries
+            const currentEntries = await this.leaderboardEntryRepository.find({
+              leaderboard: { id: league.active_leaderboard.id }
+            })
             await Promise.all(
               league.users.map(async (leagueUser) => {
                 const winner = winners.find(
@@ -2083,7 +2101,10 @@ export class LeaguesService {
                   return repo.save({
                     ...entry,
                     bfit_earned: bfit,
-                    wins: winner ? winner.wins + 1 : 0,
+                    wins: winner ? entry.wins + 1 : entry.wins,
+                    secondPlace: entry.rank === '2' ? entry.secondPlace + 1 : 0,
+                    thirdPlace: entry.rank === '3' ? entry.secondPlace + 1 : 0,
+                    lastLeaguePosition: Number(entry.rank),
                     bfit_estimate: 0
                   })
                 }
