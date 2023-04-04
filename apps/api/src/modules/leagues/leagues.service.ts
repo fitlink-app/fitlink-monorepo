@@ -1973,25 +1973,42 @@ export class LeaguesService {
           const leaderboardRepo = manager.getRepository(Leaderboard)
 
           await Promise.all(
-            league.users.map(async (leagueUser: User | UserPublic) => {
+            league.users.map(async (leagueUser: User | UserPublic, index) => {
               this.logger.log(`Copying user ${leagueUser.id} to new leaderboard`)
               const winner = winners.find(
-                (e) => leagueUser.id === e.user.id && e.rank === '1'
+                (e) => leagueUser.id === e.user.id && e?.rank === '1'
               )
               const user = new User()
               user.id = leagueUser.id
               const entry = currentEntries.find(
                 (entry) => entry.user_id === leagueUser.id
               )
+
+              if (!entry) {
+                this.logger.log(`Entry not found for user ${leagueUser.id}`)
+                // something seriously wrong here so just going to add them to the league entry for the next time
+
+
+                return repo.save(
+                  repo.create({
+                    user,
+                    leaderboard,
+                    leaderboard_id: leaderboard.id,
+                    league_id: league.id,
+                    user_id: leagueUser.id,
+                    wins: 0,
+                    secondPlace: 0,
+                    thirdPlace: 0,
+                    lastLeaguePosition: index,
+                    bfit_earned: 0,
+                    bfit_estimate: 0,
+                  })
+                )
+              }
+
               // check if the league is CompeteToEarn
               if (league.access === LeagueAccess.CompeteToEarn) {
                 this.logger.log(`League ${league.id} is CompeteToEarn`)
-                // we check if the user is in the winner which provides top 3
-                const bfitBonus = winners.find(
-                  (winner) => leagueUser.id === winner.user.id
-                )
-
-
 
                 const bfit = getBfitEarning(
                   entry.rank,
@@ -2094,14 +2111,16 @@ export class LeaguesService {
                 if (league.access === LeagueAccess.CompeteToEarn) {
                   this.logger.log(`League ${league.id} is CompeteToEarn`)
                   // we check if the user is in the winner which provides top 3
-                  const bfitBonus = winners.find(
-                    (winner) => leagueUser.id === winner.user.id
-                  )
 
                   // we not get they estimate earnings and reward them
                   const entry = currentEntries.find(
                     (entry) => entry.user_id === leagueUser.id
                   )
+
+                  if (!entry) {
+                    this.logger.log(`Entry not found for user ${leagueUser.id} in league ${league.id}`)
+                    return Promise.resolve();
+                  }
 
                   const bfit = getBfitEarning(
                     entry.rank,
