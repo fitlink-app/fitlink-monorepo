@@ -159,7 +159,6 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
             </Label>
             <ActionButton
               isMember={isMember}
-              isOnWaitList={isOnWaitList?.waitlist}
               isCteLeague={isCteLeague}
               handleOnJoinPressed={handleOnJoinPressed}
               handleClaimBfitPressed={handleClaimBfitPressed}
