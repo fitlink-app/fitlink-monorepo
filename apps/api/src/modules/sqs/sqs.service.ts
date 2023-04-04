@@ -110,13 +110,14 @@ export class BfitDistributionService {
 				continue;
 			}
 			bfitEstimatePromises.push(
-				this.leaderboardEntriesRepository.increment(
+				this.leaderboardEntriesRepository.update(
 					{
 						leaderboard: { id: league.active_leaderboard.id },
 						user: { id: userId }
 					},
-					'bfit_estimate',
-					bfitEstimate
+					{
+						bfit_estimate: bfitEstimate
+					}
 				)
 			)
 		}
