@@ -1576,9 +1576,14 @@ export class LeaguesService {
       })
 
       // Delete feed items for league
-      await entityManager.getRepository(FeedItem).delete({
-        league: { id: league.id }
-      })
+      try {
+        await entityManager.getRepository(FeedItem).delete({
+          league: { id: league.id }
+        })
+
+      } catch (e) {
+        this.logger.error(e);
+      }
 
       // Delete league invitations for league
       await entityManager.getRepository(LeaguesInvitation).delete({
