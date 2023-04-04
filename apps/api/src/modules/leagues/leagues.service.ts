@@ -2,6 +2,7 @@ import {
   BadRequestException,
   HttpService,
   Injectable,
+  Logger,
   NotFoundException
 } from '@nestjs/common'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
@@ -78,6 +79,7 @@ type PublicPageLeague = {
 
 @Injectable()
 export class LeaguesService {
+  private readonly logger = new Logger(LeaguesService.name);
   constructor(
     @InjectRepository(League)
     private leaguesRepository: Repository<League>,
@@ -717,6 +719,11 @@ export class LeaguesService {
     const result = await this.leaguesRepository.findOne(id, {
       relations: ['active_leaderboard']
     })
+    this.logger.debug(`Found league ${result}`)
+
+    if (!result.active_leaderboard) {
+      this.logger.debug(`No active leaderboard found for league ${id}`)
+    }
     if (!result) {
       throw new NotFoundException(`League with ID ${id} not found`)
     }
@@ -731,6 +738,7 @@ export class LeaguesService {
         })
         .select('COUNT(user.id)', 'totalUsers')
         .getRawOne()
+      this.logger.log(totalCompeteToEarnLeaguesUsers)
 
       totalCompeteToEarnLeaguesUsers = totalCompeteToEarnLeaguesUsers.totalUsers
 
@@ -745,6 +753,7 @@ export class LeaguesService {
       leagueObject.bfit_distributed_today = Math.round(
         todaysBfitDistribution.total / 1000000
       )
+      this.logger.log(todaysBfitDistribution)
       return leagueObject
     }
     return result
@@ -1934,10 +1943,12 @@ export class LeaguesService {
   }
 
   async resetLeague(league: League) {
+    this.logger.log(`Resetting league ${league.id}`)
     try {
       // If the league repeats, create a new leaderboard
       // and copy the users to it along with their wins
       if (league.repeat && league.active_leaderboard) {
+        this.logger.log(`League ${league.id} repeats, creating new leaderboard`)
         const { winners } = await this.calculateLeagueWinners(league.id)
 
         const coreWinners = winners.filter((winner) => winner.rank === '1')
@@ -1957,6 +1968,7 @@ export class LeaguesService {
 
           await Promise.all(
             league.users.map(async (leagueUser: User | UserPublic) => {
+              this.logger.log(`Copying user ${leagueUser.id} to new leaderboard`)
               const winner = winners.find(
                 (e) => leagueUser.id === e.user.id && e.rank === '1'
               )
@@ -1967,6 +1979,7 @@ export class LeaguesService {
               )
               // check if the league is CompeteToEarn
               if (league.access === LeagueAccess.CompeteToEarn) {
+                this.logger.log(`League ${league.id} is CompeteToEarn`)
                 // we check if the user is in the winner which provides top 3
                 const bfitBonus = winners.find(
                   (winner) => leagueUser.id === winner.user.id
@@ -1979,6 +1992,7 @@ export class LeaguesService {
                   league.bfitWinnerPot,
                   entry.bfit_estimate
                 )
+                this.logger.log(bfit)
 
                 let bfitEarnings = new LeagueBfitEarnings()
                 bfitEarnings.user_id = league.id
@@ -2012,6 +2026,7 @@ export class LeaguesService {
                   })
                 )
               } else {
+                this.logger.log(`League ${league.id} is not CompeteToEarn`)
                 // we not get they estimate earnings and reward them
                 return repo.save(
                   repo.create({
@@ -2026,7 +2041,7 @@ export class LeaguesService {
               }
             })
           )
-
+          this.logger.log(`Marking leaderboard ${league.active_leaderboard.id} as completed`)
           await leaderboardRepo.update(league.active_leaderboard.id, {
             completed: true
           })
@@ -2038,6 +2053,7 @@ export class LeaguesService {
         })
 
         await this.emitWinnerFeedItems(league.id, coreWinners)
+        this.logger.log(`League ${league.id} reset`)
         return {
           name: league.name,
           winners: coreWinners.length,
@@ -2045,6 +2061,7 @@ export class LeaguesService {
           restarted: true
         }
       } else if (league.active_leaderboard) {
+        this.logger.log(`League ${league.id} does not repeat, marking leaderboard as completed`)
         const { winners } = await this.calculateLeagueWinners(league.id)
         const coreWinners = winners.filter((winner) => winner.rank === '1')
 
@@ -2054,11 +2071,13 @@ export class LeaguesService {
           const leaderboardRepo = manager.getRepository(Leaderboard)
 
           if (league.access === LeagueAccess.CompeteToEarn) {
+            this.logger.log(`League ${league.id} is CompeteToEarn`)
             const currentEntries = await this.leaderboardEntryRepository.find({
               leaderboard: { id: league.active_leaderboard.id }
             })
             await Promise.all(
               league.users.map(async (leagueUser) => {
+                this.logger.log(`updating user ${leagueUser.id}`)
                 const winner = winners.find(
                   (e) => leagueUser.id === e.user.id && e.rank === '1'
                 )
@@ -2067,6 +2086,7 @@ export class LeaguesService {
 
                 // check if the league is CompeteToEarn
                 if (league.access === LeagueAccess.CompeteToEarn) {
+                  this.logger.log(`League ${league.id} is CompeteToEarn`)
                   // we check if the user is in the winner which provides top 3
                   const bfitBonus = winners.find(
                     (winner) => leagueUser.id === winner.user.id
@@ -2097,7 +2117,7 @@ export class LeaguesService {
                   walletTransaction.user_id = leagueUser.id
                   walletTransaction.bfit_amount = bfit
                   await this.walletTransactionRepository.save(walletTransaction)
-
+                  this.logger.log(`updating user ${leagueUser.id} with bfit ${bfit}`)
                   return repo.save({
                     ...entry,
                     bfit_earned: bfit,
@@ -2149,6 +2169,7 @@ export class LeaguesService {
    * Process leagues that are due to be ended / restarted
    */
   async processPendingLeagues() {
+    this.logger.log('Processing pending leagues');
     const started = new Date()
     const leagues = await this.leaguesRepository
       .createQueryBuilder('league')
@@ -2158,10 +2179,12 @@ export class LeaguesService {
       .andWhere('active_leaderboard.completed = false')
       .limit(100)
       .getMany()
+    this.logger.log(`Found ${leagues.length} leagues to process`);
 
     const results = await Promise.all(
       leagues.map((league) => this.resetLeague(league))
     )
+    this.logger.log(`Processed ${results.length} leagues`);
     const totalLeagues = results.map((e) => e !== false).length
     const leaguesRestarted = results.map((e) => e && e.restarted).length
     const leaguesEnded = results.map((e) => e && !e.restarted).length
@@ -2169,6 +2192,7 @@ export class LeaguesService {
       leagues_processed: totalLeagues,
       leagues_restarted: leaguesRestarted
     }
+    this.logger.log(result);
 
     await this.commonService.notifySlackJobs(
       'Leagues ended / restarted',
@@ -2193,6 +2217,7 @@ export class LeaguesService {
    * ending.
    */
   async processLeaguesEnding() {
+    this.logger.log('Processing leagues ending');
     const started = new Date()
     const leagues = await this.leaguesRepository
       .createQueryBuilder('league')
@@ -2207,10 +2232,12 @@ export class LeaguesService {
       )
       .andWhere('active_leaderboard.completed = false')
       .limit(100)
-      .getMany()
+      .getMany();
+    this.logger.log(`Found ${leagues.length} leagues ending`);
 
     const messages = await Promise.all(
       leagues.map(async (league) => {
+        this.logger.log(`Sending notification to ${league.users.length} users`);
         return this.notificationsService.sendAction(
           league.users as User[],
           NotificationAction.LeagueEnding,
@@ -2238,7 +2265,7 @@ export class LeaguesService {
       },
       differenceInMilliseconds(new Date(), started)
     )
-
+    this.logger.log('Leagues ending reminder sent');
     return {
       total: leagues.length,
       messages

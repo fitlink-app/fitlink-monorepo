@@ -21,6 +21,12 @@ import { bgMagenta, bold } from 'chalk'
 import { UploadGuardV2 } from './guards/upload-v2.guard'
 import { GlobalExceptionsFilter } from './filters/global-exception-filter'
 import { StripPasswordInterceptor } from './interceptors/strip-password.interceptor'
+import {
+  utilities as nestWinstonModuleUtilities,
+  WinstonModule,
+} from 'nest-winston';
+import * as winston from 'winston';
+import CloudWatchTransport from 'winston-cloudwatch';
 
 declare const module: any
 
@@ -79,6 +85,37 @@ async function bootstrap() {
   app.useGlobalGuards(new IamGuard(app.get(Reflector)))
 
   const configService = app.get(ConfigService)
+
+
+  if (configService.get('CLOUDWATCH_GROUP_NAME')) {
+    app.useLogger(
+      WinstonModule.createLogger({
+        format: winston.format.uncolorize(),
+        transports: [
+          new winston.transports.Console({
+            format: winston.format.combine(
+              winston.format.timestamp(),
+              winston.format.ms(),
+              nestWinstonModuleUtilities.format.nestLike(),
+            ),
+          }),
+          new CloudWatchTransport({
+            name: 'Cloudwatch Logs',
+            logGroupName: configService.get('CLOUDWATCH_GROUP_NAME'),
+            logStreamName: configService.get('CLOUDWATCH_STREAM_NAME'),
+            awsAccessKeyId: configService.get('AWS_ACCESS_KEY'),
+            awsSecretKey: configService.get('AWS_KEY_SECRET'),
+            awsRegion: configService.get('CLOUDWATCH_AWS_REGION'),
+            messageFormatter: function (item) {
+              return (
+                item.level + ': ' + item.message + ' ' + JSON.stringify(item.meta)
+              );
+            },
+          }),
+        ],
+      }),
+    );
+  }
 
   await app.listen(process.env.PORT || 3000, '0.0.0.0')
 

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { IsNull, Not, Repository } from "typeorm";
 import { League } from "../leagues/entities/league.entity";
@@ -16,6 +16,8 @@ import { HealthActivityDto } from "../health-activities/dto/create-health-activi
 @Injectable()
 export class BfitDistributionService {
 
+	private readonly logger = new Logger(BfitDistributionService.name);
+
 	constructor(
 		@InjectRepository(League)
 		private leaguesRepository: Repository<League>,
@@ -27,6 +29,7 @@ export class BfitDistributionService {
 
 	@SqsMessageHandler(QUEUE_NAME, false)
 	handleMessage(message: AWS.SQS.Message) {
+		this.logger.log(`Received message: ${message.Body}`);
 		const { type, userId, ...additionalInfo } = JSON.parse(message.Body) as {
 			type: SQSTypes,
 			sport?: Sport;
@@ -39,6 +42,7 @@ export class BfitDistributionService {
 		} else if (type === SQSTypes.sport) {
 			return this.updateLeagueBfit(userId, additionalInfo.sport.name_key)
 		} else if (type === SQSTypes.points) {
+			this.logger.log(`Received points message: ${message.Body}`);
 			this.healthActivityService.create(
 				additionalInfo.activity,
 				userId,
@@ -52,6 +56,7 @@ export class BfitDistributionService {
 
 
 	private async updateLeagueBfit(userId: string, sport: string) {
+		this.logger.log(`Updating league bfit for user ${userId} and sport ${sport}`);
 		const [league, leagueErr] = await tryAndCatch(
 			this.leaguesRepository
 				.createQueryBuilder('league')
@@ -66,10 +71,12 @@ export class BfitDistributionService {
 				.getOne()
 		);
 		if (leagueErr) {
+			this.logger.error(`Error getting league for user ${userId} and sport ${sport} - likely no compete to earn league for this sport for this user`);
 			throw leagueErr;
 		}
 
 		if (!league.active_leaderboard.entries) {
+			this.logger.log(`No entries found for league ${league.id}`);
 			throw new Error(`No entries found for league ${league.id}`);
 		}
 
@@ -84,17 +91,22 @@ export class BfitDistributionService {
 			totalPoints.totalPoints,
 			10
 		)
+		this.logger.log(`Total league points: ${totalLeaguePoints}`);
 
 		const bfitEstimatePromises = [];
 		// we want to double check this users that triggered the recount has earned points
 		let hasUserEntry = false;
 		for (const entry of league.active_leaderboard.entries) {
+			this.logger.log(`Updating entry ${entry.id} for user ${entry.user_id} with points ${entry.points}`);
 			if (entry.user_id === userId) {
 				hasUserEntry = true;
 			}
 
 			const bfitEstimate = (league.bfitAllocation * (entry.points / totalLeaguePoints)) * 1000_000;
+
+			this.logger.log(`Updating entry ${entry.id} for user ${entry.user_id} with bfit estimate ${bfitEstimate}`);
 			if (bfitEstimate === 0 && entry.bfit_estimate === 0) {
+				this.logger.log(`Skipping entry ${entry.id} for user ${entry.user_id} with bfit estimate ${bfitEstimate}`);
 				continue;
 			}
 			bfitEstimatePromises.push(
@@ -111,9 +123,9 @@ export class BfitDistributionService {
 
 		if (!hasUserEntry) {
 			/// we need to see why and what we can do here if this happens
-			console.error(`User ${userId} does not have an entry in the league ${league.id}`);
+			this.logger.error(`User ${userId} does not have an entry in the league ${league.id}`);
 		}
-
+		this.logger.log(`Updating bfit estimates for league ${league.id}`);
 		return await Promise.all(bfitEstimatePromises);
 	}
 }

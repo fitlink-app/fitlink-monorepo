@@ -2,6 +2,7 @@ import {
   BadRequestException,
   HttpService,
   Injectable,
+  Logger,
   NotFoundException
 } from '@nestjs/common'
 import {
@@ -30,6 +31,7 @@ import { ClientIdType } from '../../../client-id/client-id.constant'
 
 @Injectable()
 export class StravaService {
+  private readonly logger = new Logger(StravaService.name);
   constructor(
     private httpService: HttpService,
     private configService: ConfigService,
@@ -38,12 +40,15 @@ export class StravaService {
   ) {}
 
   async processStravaData(stravaEventData: StravaEventData, client_id: ClientIdType) {
+    this.logger.log(`Received strava event: ${JSON.stringify(stravaEventData)}`);
     if (stravaEventData.object_type === 'activity') {
       switch (stravaEventData.aspect_type) {
         case 'create': {
+          this.logger.log(`Received strava activity create event: ${JSON.stringify(stravaEventData)}`);
           const provider = await this.providersService.getUserByOwnerId(
             stravaEventData.owner_id.toString()
           )
+          this.logger.log(`Received strava activity create event: ${JSON.stringify(provider)}`);
           if (!provider) {
             throw new NotFoundException(
               'User with the provided owner_id not found'
@@ -56,7 +61,10 @@ export class StravaService {
               client_id
             )
           )
-          resultErr && console.error(resultErr)
+          if (resultErr) {
+            this.logger.error(resultErr)
+            throw new BadRequestException(resultErr.message)
+          }
 
           const normalizedActivity = this.createNormalizedHealthActivity(result)
           const healthActivitySaveResult =
