@@ -1966,6 +1966,7 @@ export class LeaguesService {
         const currentEntries = await this.leaderboardEntryRepository.find({
           leaderboard: { id: league.active_leaderboard.id }
         })
+
         await this.leaguesRepository.manager.transaction(async (manager) => {
           const repo = manager.getRepository(LeaderboardEntry)
           const leagueRepo = manager.getRepository(League)
@@ -1993,7 +1994,7 @@ export class LeaguesService {
 
 
                 const bfit = getBfitEarning(
-                  bfitBonus.rank,
+                  entry.rank,
                   league.bfitWinnerPot,
                   entry.bfit_estimate
                 )
@@ -2103,7 +2104,7 @@ export class LeaguesService {
                   )
 
                   const bfit = getBfitEarning(
-                    bfitBonus.rank,
+                    entry.rank,
                     league.bfitWinnerPot,
                     entry.bfit_estimate
                   )
