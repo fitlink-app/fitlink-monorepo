@@ -94,7 +94,7 @@ export class BfitDistributionService {
 			}
 
 			const bfitEstimate = (league.bfitAllocation * (entry.points / totalLeaguePoints)) * 1000_000;
-			if (bfitEstimate === 0) {
+			if (bfitEstimate === 0 && entry.bfit_estimate === 0) {
 				continue;
 			}
 			bfitEstimatePromises.push(
