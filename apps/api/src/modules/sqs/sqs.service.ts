@@ -126,7 +126,15 @@ export class BfitDistributionService {
 			/// we need to see why and what we can do here if this happens
 			this.logger.error(`User ${userId} does not have an entry in the league ${league.id}`);
 		}
-		this.logger.log(`Updating bfit estimates for league ${league.id}`);
-		return await Promise.all(bfitEstimatePromises);
+		try {
+			this.logger.log(`Updating bfit estimates for league ${league.id}`);
+			const result = await Promise.all(bfitEstimatePromises);
+			this.logger.log(result, `Updated bfit estimates for league ${league.id}`);
+			return result;
+		} catch (e) {
+			this.logger.error(e, `FAILED bfit estimates for league ${league.id}`);
+			throw e;
+		}
+
 	}
 }

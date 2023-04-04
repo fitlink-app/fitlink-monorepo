@@ -26,7 +26,7 @@ import {
   WinstonModule,
 } from 'nest-winston';
 import * as winston from 'winston';
-import CloudWatchTransport from 'winston-cloudwatch';
+import * as WinstonCloudWatch from 'winston-cloudwatch';
 
 declare const module: any
 
@@ -99,12 +99,12 @@ async function bootstrap() {
               nestWinstonModuleUtilities.format.nestLike(),
             ),
           }),
-          new CloudWatchTransport({
+          new WinstonCloudWatch({
             name: 'Cloudwatch Logs',
             logGroupName: configService.get('CLOUDWATCH_GROUP_NAME'),
             logStreamName: configService.get('CLOUDWATCH_STREAM_NAME'),
-            awsAccessKeyId: configService.get('AWS_ACCESS_KEY'),
-            awsSecretKey: configService.get('AWS_KEY_SECRET'),
+            awsAccessKeyId: configService.get('CLOUDWATCH_AWS_ACCESS_KEY'),
+            awsSecretKey: configService.get('CLOUDWATCH_AWS_KEY_SECRET'),
             awsRegion: configService.get('CLOUDWATCH_AWS_REGION'),
             messageFormatter: function (item) {
               return (
