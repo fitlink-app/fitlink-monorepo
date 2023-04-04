@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
+  Logger,
   NotFoundException,
   Param,
   Post,
@@ -54,6 +55,7 @@ import { FilterCompeteToEarnDto } from './dto/filter-compete-to-earn.dto'
 @ApiBaseResponses()
 @Controller()
 export class LeaguesController {
+  private readonly logger = new Logger(LeaguesController.name);
   constructor(
     private readonly leaguesService: LeaguesService,
     private readonly leaguesInvitationsService: LeaguesInvitationsService,
@@ -121,7 +123,9 @@ export class LeaguesController {
   // this endpoint is only for resetting leagues that failed to reset
   @Post('/leagues/process/pending-ending')
   async resetFailedLeagues(@User() authUser: AuthenticatedUser) {
+    this.logger.log('resetFailedLeagues')
     if (!authUser.isSuperAdmin()) {
+      this.logger.log(`resetFailedLeagues: Forbidden for non-superadmin user ${authUser.id}`)
       throw new ForbiddenException('Forbidden')
     }
 

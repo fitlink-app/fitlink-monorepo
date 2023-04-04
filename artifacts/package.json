@@ -62,6 +62,10 @@
     "sharp": "^0.27.2",
     "typeorm": "0.2.31",
     "typeorm-seeding": "^1.6.1",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "winston": "^3.8.2",
+    "winston-cloudwatch": "^6.1.1",
+    "nest-winston": "^1.9.1",
+    "@aws-sdk/client-cloudwatch-logs": "^3.303.0"
   }
 }

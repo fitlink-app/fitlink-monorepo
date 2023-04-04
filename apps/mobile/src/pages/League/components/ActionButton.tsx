@@ -10,7 +10,6 @@ type ActionButtonProps = {
   bfitValue?: number;
   isClaiming?: boolean;
   isJoining?: boolean;
-  isOnWaitList?: boolean;
   isLoadingOnWaitList?: boolean;
   bfitTotal?: number;
   isExpired: boolean;
@@ -25,7 +24,6 @@ export const ActionButton = ({
   bfitValue,
   isClaiming,
   isJoining,
-  isOnWaitList,
   isLoadingOnWaitList,
   bfitTotal,
   isExpired,
@@ -43,9 +41,9 @@ export const ActionButton = ({
       <BfitButton
         isLoading={isJoining}
         onPress={handleOnJoinPressed}
-        disabled={isJoining || isOnWaitList}
-        text={isOnWaitList ? 'ON WAITLIST' : 'JOIN LEAGUE'}
-        variant={isOnWaitList ? 'secondary' : 'primary-outlined'}
+        disabled={isJoining}
+        text="JOIN LEAGUE"
+        variant="primary-outlined"
       />
     );
   }

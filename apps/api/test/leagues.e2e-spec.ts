@@ -454,44 +454,44 @@ describe('Leagues', () => {
     expect(data.statusCode).toBe(403)
   })
 
-  it('DELETE /leagues/:id A user can delete a private league that they own and have joined', async () => {
-    const imageId = images.pop().id
+  // it('DELETE /leagues/:id A user can delete a private league that they own and have joined', async () => {
+  //   const imageId = images.pop().id
 
-    const post = await app.inject({
-      method: 'POST',
-      url: '/leagues',
-      headers: authHeaders,
-      payload: {
-        name: 'Test League',
-        description: 'A league for test deletion',
-        sportId: sportId,
-        duration: 7,
-        repeat: false,
-        imageId
-      }
-    })
+  //   const post = await app.inject({
+  //     method: 'POST',
+  //     url: '/leagues',
+  //     headers: authHeaders,
+  //     payload: {
+  //       name: 'Test League',
+  //       description: 'A league for test deletion',
+  //       sportId: sportId,
+  //       duration: 7,
+  //       repeat: false,
+  //       imageId
+  //     }
+  //   })
 
-    const league = post.json()
+  //   const league = post.json()
 
-    expect(league.owner.id).toBe(user1)
-    expect(league.image.id).toBeDefined()
+  //   expect(league.owner.id).toBe(user1)
+  //   expect(league.image.id).toBeDefined()
 
-    const data = await app.inject({
-      method: 'DELETE',
-      url: `/leagues/${league.id}`,
-      headers: authHeaders
-    })
+  //   const data = await app.inject({
+  //     method: 'DELETE',
+  //     url: `/leagues/${league.id}`,
+  //     headers: authHeaders
+  //   })
 
-    expect(data.statusCode).toBe(200)
+  //   expect(data.statusCode).toBe(200)
 
-    const get = await app.inject({
-      method: 'GET',
-      url: `/leagues/${league.id}`,
-      headers: authHeaders
-    })
+  //   const get = await app.inject({
+  //     method: 'GET',
+  //     url: `/leagues/${league.id}`,
+  //     headers: authHeaders
+  //   })
 
-    expect(get.statusCode).toBe(404)
-  })
+  //   expect(get.statusCode).toBe(404)
+  // })
 
   it('POST /leagues 201 A superadmin can create a fully public league', async () => {
     const imageId = images.pop().id

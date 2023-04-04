@@ -110,7 +110,9 @@ export const Leaderboard = ({
           description={activeLeague.description}
           imageSource={{uri: activeLeague?.image.url_640x360}}
           sharedContentOffset={sharedContentOffset}
-          bfitTotal={Math.trunc(getViewBfitValue(activeLeague.bfit))}
+          bfitTotal={Math.trunc(
+            getViewBfitValue(activeLeague.bfitAllocationEstimate),
+          )}
           bFitToClaimRaw={bFitToClaimRaw}
           dailyBfit={activeLeague.daily_bfit}
           distributedTodayBfit={activeLeague.bfit_distributed_today}
