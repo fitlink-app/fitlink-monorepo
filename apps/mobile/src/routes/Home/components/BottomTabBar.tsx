@@ -2,11 +2,11 @@ import React from 'react';
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
 import styled from 'styled-components/native';
 import {View, Pressable, Platform} from 'react-native';
-import {Label} from '@components';
-import {widthLize} from '@utils';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-export const BOTTOM_TAB_BAR_HEIGHT = 79;
+import {Label} from '@components';
+import theme from '@theme';
+
+export const BOTTOM_TAB_BAR_HEIGHT = 72;
 
 const Wrapper = styled.View(() => ({
   width: '100%',
@@ -15,11 +15,9 @@ const Wrapper = styled.View(() => ({
 
 const Container = styled.View(({theme}) => ({
   alignSelf: 'center',
-  width: widthLize(358),
   height: '100%',
-  backgroundColor: theme.colors.navbar,
+  backgroundColor: theme.colors.background,
   flexDirection: 'row',
-  borderRadius: 24,
 }));
 
 const Button = styled(Pressable)({
@@ -105,15 +103,14 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
           accessibilityLabel={options.tabBarAccessibilityLabel}
           testID={options.tabBarTestID}
           onPress={onPress}
-          onLongPress={onLongPress}>
+          onLongPress={onLongPress}
+        >
           {renderIcon(isFocused)}
         </Button>
       );
     });
   }
 
-  const insets = useSafeAreaInsets();
-  const bottomOffset = insets.bottom === 0 ? 10 : insets.bottom;
   const focusedOptions = descriptors[state.routes[state.index].key].options;
 
   if (focusedOptions.tabBarVisible === false) {
@@ -123,14 +120,17 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
   return (
     <View
       style={{
-        backgroundColor: 'transparent',
+        backgroundColor: theme.colors.accent,
         overflow: Platform.OS === 'ios' ? 'visible' : 'hidden',
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: bottomOffset,
+        bottom: 0,
         zIndex: 2,
-      }}>
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.card,
+      }}
+    >
       <Wrapper>
         <Container>{renderButtons()}</Container>
       </Wrapper>

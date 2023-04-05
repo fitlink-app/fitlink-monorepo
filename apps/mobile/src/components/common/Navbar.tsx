@@ -1,4 +1,3 @@
-import {TouchHandler} from '@components';
 import {useNavigation} from '@react-navigation/core';
 import React from 'react';
 import {
@@ -11,6 +10,9 @@ import {
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import styled, {useTheme} from 'styled-components/native';
+
+import {TouchHandler} from '@components';
+
 import {Icon} from './Icon';
 import {Label, LabelProps} from './Label';
 
@@ -168,7 +170,8 @@ export const Navbar = ({
           textAlign: 'center',
           opacity: animatedTitleOpacity,
         }}
-        {...titleProps}>
+        {...titleProps}
+      >
         {title}
       </AnimatedLabel>
     );
@@ -182,7 +185,8 @@ export const Navbar = ({
           paddingTop: insets.top,
         },
         containerStyle,
-      ]}>
+      ]}
+    >
       <Background style={{...overlayStyle, opacity: fixedHeaderOpacity}} />
       <ContentContainer>
         <LeftContent>
