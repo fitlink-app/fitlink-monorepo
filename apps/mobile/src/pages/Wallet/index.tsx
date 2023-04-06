@@ -10,7 +10,7 @@ import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import styled, {useTheme} from 'styled-components/native';
 import {useNavigation} from '@react-navigation/core';
 
-import {Icon, Label, Navbar} from '@components';
+import {Icon, Label, Navbar, BfitSpinner} from '@components';
 import {useManualQueryRefresh, useMeasureInitialLayout, useModal} from '@hooks';
 import {WalletTransaction} from '@fitlink/api/src/modules/wallet-transactions/entities/wallet-transaction.entity';
 
@@ -23,7 +23,6 @@ import {
   WalletNotConnectedContent,
 } from './components';
 import {getResultsFromPages} from '../../utils/api';
-import {BfitSpinner} from '../../components/common/BfitSpinner';
 
 const NavbarTitle = () => (
   <View style={{flexDirection: 'row'}}>
@@ -99,6 +98,7 @@ export const Wallet = () => {
           containerStyle={{backgroundColor: theme.colors.background}}
           centerComponent={<NavbarTitle />}
           iconColor={colors.text}
+          leftComponent={<></>}
         />
         <View style={{paddingTop: initialNavbarLayout.height + 20}}>
           <FlatList

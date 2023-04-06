@@ -2,7 +2,6 @@ import React from 'react';
 import {
   StyleProp,
   StyleSheet,
-  TouchableOpacity,
   View,
   ViewStyle,
   Text,
@@ -18,7 +17,6 @@ interface PlotCardProps {
   totalAmount: number;
   isLoading?: boolean;
   percentsGrowth: number;
-  onPress?: () => unknown;
   Plot: React.ReactElement;
   totalNumberOfDigits: number;
   wrapperStyle?: StyleProp<ViewStyle>;
@@ -27,7 +25,6 @@ interface PlotCardProps {
 const PlotCard = ({
   Plot,
   title,
-  onPress,
   subtitle,
   isLoading,
   totalAmount,
@@ -36,7 +33,7 @@ const PlotCard = ({
 }: PlotCardProps): JSX.Element => {
   const gain = `${percentsGrowth} %`;
   return (
-    <TouchableOpacity onPress={onPress} style={wrapperStyle}>
+    <View style={wrapperStyle}>
       {isLoading ? (
         <Skeleton>
           <View style={styles.wrapper} />
@@ -54,7 +51,7 @@ const PlotCard = ({
           </View>
         </View>
       )}
-    </TouchableOpacity>
+    </View>
   );
 };
 

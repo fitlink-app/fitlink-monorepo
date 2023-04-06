@@ -141,7 +141,6 @@ export const Leagues = () => {
       >
         <PageTitle>Leagues</PageTitle>
         <PlotCard.Points
-          onPress={() => navigation.navigate('Wallet')}
           wrapperStyle={{
             marginHorizontal: widthLize(20),
             marginBottom: SCREEN_CONTAINER_SPACE,
