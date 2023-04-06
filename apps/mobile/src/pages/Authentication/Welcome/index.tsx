@@ -186,20 +186,7 @@ export const Welcome = () => {
                 <SpacedButton
                   text={'LOGIN'}
                   type={'accent'}
-                  onPress={async () => {
-                    try {
-                      await analytics().logEvent(
-                        'league_invite_deeplink_pressed',
-                        {
-                          league_id: '3745092',
-                          inviter_user_id: '3745092',
-                          newcomer_user_id: '3745092',
-                        },
-                      );
-                    } catch (e) {
-                      console.log(e);
-                    }
-                  }}
+                  onPress={handleOnLoginPressed}
                 />
               </LoginButton>
             </LoginButtonContainer>

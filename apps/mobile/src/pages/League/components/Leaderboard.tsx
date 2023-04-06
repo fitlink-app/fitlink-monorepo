@@ -116,6 +116,7 @@ export const Leaderboard = ({
           distributedTodayBfit={activeLeague.bfit_distributed_today}
           onHeightMeasure={setHeaderHeight}
           isCteLeague={isBfit}
+          userId={userId}
           isPublic={
             activeLeague.access === LeagueAccess.Public ||
             activeLeague.access === LeagueAccess.CompeteToEarn
