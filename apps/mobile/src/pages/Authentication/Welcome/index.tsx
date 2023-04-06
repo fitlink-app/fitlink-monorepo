@@ -188,12 +188,14 @@ export const Welcome = () => {
                   type={'accent'}
                   onPress={async () => {
                     try {
-                      await analytics().logEvent('basket', {
-                        id: 3745092,
-                        item: 'mens grey t-shirt',
-                        description: ['round neck', 'long sleeved'],
-                        size: 'L',
-                      });
+                      await analytics().logEvent(
+                        'league_invite_deeplink_pressed',
+                        {
+                          league_id: '3745092',
+                          inviter_user_id: '3745092',
+                          newcomer_user_id: '3745092',
+                        },
+                      );
                     } catch (e) {
                       console.log(e);
                     }
