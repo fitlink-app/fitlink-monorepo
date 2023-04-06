@@ -48,7 +48,7 @@ export const LeagueList = ({
   const renderItem = ({item}: {item: LeaguePublic}) => {
     return (
       <LeagueCard
-        bfitValue={item.daily_bfit}
+        bfitValue={item.bfitAllocationEstimate}
         name={item.name}
         imageSource={{uri: item.image?.url}}
         memberCount={item.participants_total}

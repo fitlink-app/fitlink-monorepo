@@ -1,7 +1,13 @@
 import React, {FC} from 'react';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-import {Dimensions, ImageSourcePropType, StyleSheet, View} from 'react-native';
+import {
+  ImageSourcePropType,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Animated from 'react-native-reanimated';
+import styled from 'styled-components/native';
 
 import {
   useJoinLeague,
@@ -16,7 +22,8 @@ import {ResponseError} from '@fitlink/api-sdk/types';
 import {getErrors} from '@api';
 import {c2eLeagueTypeErrorMsg, c2eLimitReachedErrorMsg} from '@constants';
 import {getPositiveValueOrZero, getViewBfitValue} from '@utils';
-import {Label} from '@components';
+import {SortDescIcon} from '@components';
+import theme from '@theme';
 
 import {LeagueAnimatedHeaderCard} from 'components/common/LeagueAnimatedHeaderCard';
 import {useDefaultOkSnackbar} from '../../../components/snackbar';
@@ -44,6 +51,7 @@ interface IAnimatedLeaderboardHeaderCardProps {
   isCteLeague?: boolean;
   bfitTotal?: number;
   sharedContentOffset: Animated.SharedValue<number>;
+  onFilterMembersPress: () => void;
 }
 
 export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardProps> =
@@ -62,6 +70,7 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
     onHeightMeasure: onHeightLayout,
     sharedContentOffset,
     bfitTotal,
+    onFilterMembersPress,
   }) => {
     const leaderboardLabelText = 'LEADERBOARD';
     const isMember = membership !== 'none';
@@ -150,13 +159,12 @@ export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardPro
           sharedContentOffset={sharedContentOffset}
         >
           <View style={styles.subheader}>
-            <Label
-              style={{
-                fontSize: calculateFontSize(18, leaderboardLabelText.length),
-              }}
-            >
-              {leaderboardLabelText}
-            </Label>
+            <View style={{flexDirection: 'row'}}>
+              <SHeaderTitle>{leaderboardLabelText}</SHeaderTitle>
+              <TouchableOpacity onPress={onFilterMembersPress}>
+                <SortDescIcon color={theme.colors.accent} />
+              </TouchableOpacity>
+            </View>
             <ActionButton
               isMember={isMember}
               isCteLeague={isCteLeague}
@@ -187,9 +195,14 @@ const styles = StyleSheet.create({
   },
 });
 
-// 3 - experimental number to get half-screen label size, may be changed with change of text in it
-export function calculateFontSize(paddingSize: number, textSize: number) {
-  return (Dimensions.get('window').width - paddingSize * 2) / (textSize + 3);
-}
+const SHeaderTitle = styled.Text({
+  fontSize: 20,
+  lineHeight: 24,
+  fontWeight: 500,
+  fontFamily: 'Roboto',
+  color: theme.colors.text,
+  textTransform: 'uppercase',
+  marginRight: 8,
+});
 
 export default AnimatedLeaderboardHeaderCard;

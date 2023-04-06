@@ -11,25 +11,33 @@ export const LEAGUE_MEMBERS_RESULTS_PER_PAGE = 25;
 const fetchLeagueMembers = ({
   pageParam = 0,
   leagueId,
+  orderBy = '',
 }: {
   pageParam?: number | undefined;
   leagueId: string;
+  orderBy?: string;
 }) =>
   api.list<LeaderboardEntry>(`/leagues/${leagueId}/members`, {
     page: pageParam,
     limit: LEAGUE_MEMBERS_RESULTS_PER_PAGE,
+    query: {
+      orderBy,
+    },
   });
 
-export function useLeagueMembers(
-  leagueId: string,
+type HookProps = {
+  leagueId: string;
   options?: Omit<
     UseInfiniteQueryOptions<ListResponse<LeaderboardEntry>, Error>,
     'getNextPageParam'
-  >,
-) {
+  >;
+  orderBy?: string;
+};
+
+export function useLeagueMembers({leagueId, orderBy, options}: HookProps) {
   return useInfiniteQuery<ListResponse<LeaderboardEntry>, Error>(
-    [QueryKeys.LeagueMembers, leagueId],
-    ({pageParam}) => fetchLeagueMembers({pageParam, leagueId}),
+    [QueryKeys.LeagueMembers, leagueId, orderBy],
+    ({pageParam}) => fetchLeagueMembers({orderBy, pageParam, leagueId}),
     {
       ...options,
       getNextPageParam: getNextPageParam(LEAGUE_MEMBERS_RESULTS_PER_PAGE),

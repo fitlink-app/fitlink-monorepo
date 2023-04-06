@@ -40,6 +40,7 @@ export interface LeaderboardProps
   activeLeague?: LeaguePublic;
   isMembersLoading: boolean;
   isLeagueLoading: boolean;
+  onFilterMembersPress: () => void;
 }
 
 export const Leaderboard = ({
@@ -51,6 +52,7 @@ export const Leaderboard = ({
   activeLeague,
   isMembersLoading,
   isLeagueLoading,
+  onFilterMembersPress,
   ...listProps
 }: LeaderboardProps) => {
   const {colors} = useTheme();
@@ -110,9 +112,7 @@ export const Leaderboard = ({
           description={activeLeague.description}
           imageSource={{uri: activeLeague?.image.url_640x360}}
           sharedContentOffset={sharedContentOffset}
-          bfitTotal={Math.trunc(
-            getViewBfitValue(activeLeague.bfitAllocationEstimate),
-          )}
+          bfitTotal={activeLeague.bfitAllocationEstimate}
           bFitToClaimRaw={bFitToClaimRaw}
           dailyBfit={activeLeague.daily_bfit}
           distributedTodayBfit={activeLeague.bfit_distributed_today}
@@ -122,10 +122,11 @@ export const Leaderboard = ({
             activeLeague.access === LeagueAccess.Public ||
             activeLeague.access === LeagueAccess.CompeteToEarn
           }
+          onFilterMembersPress={onFilterMembersPress}
         />
       )}
       {isMembersLoading && (
-        <View style={{marginTop: 20}}>
+        <View style={{marginTop: headerHeight || 20}}>
           {getComponentsList(5, LeaderboardItemSkeleton)}
         </View>
       )}

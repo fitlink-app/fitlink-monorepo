@@ -88,6 +88,7 @@
     "react-native-code-push": "^7.0.3",
     "react-native-config": "^1.4.4",
     "react-native-device-info": "^10.3.0",
+    "react-native-draggable-flatlist": "3.1.0",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-get-random-values": "^1.8.0",
