@@ -85,7 +85,7 @@ export const useLeagueMenuModal = ({
       result.push({
         text: 'Leave Waiting List',
         type: 'danger',
-        onPress: withClose(() => {
+        onPress: withClose(async () => {
           await analytics().logEvent('basket', {
             id: 3745092,
             item: 'mens grey t-shirt',
