@@ -2044,7 +2044,7 @@ export class LeaguesService {
                     user_id: leagueUser.id,
                     wins: winner ? entry.wins + 1 : entry.wins,
                     secondPlace: entry.rank === '2' ? entry.secondPlace + 1 : 0,
-                    thirdPlace: entry.rank === '3' ? entry.secondPlace + 1 : 0,
+                    thirdPlace: entry.rank === '3' ? entry.thirdPlace + 1 : 0,
                     lastLeaguePosition: Number(entry.rank),
                     bfit_earned: bfit,
                     bfit_estimate: 0,
@@ -2150,7 +2150,7 @@ export class LeaguesService {
                     bfit_earned: bfit,
                     wins: winner ? entry.wins + 1 : entry.wins,
                     secondPlace: entry.rank === '2' ? entry.secondPlace + 1 : 0,
-                    thirdPlace: entry.rank === '3' ? entry.secondPlace + 1 : 0,
+                    thirdPlace: entry.rank === '3' ? entry.thirdPlace + 1 : 0,
                     lastLeaguePosition: Number(entry.rank),
                     bfit_estimate: 0
                   })
