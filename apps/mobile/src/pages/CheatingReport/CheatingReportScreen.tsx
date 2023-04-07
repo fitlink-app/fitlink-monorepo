@@ -24,8 +24,11 @@ export const CheatingReportScreen = () => {
     data: leagueMembersData,
     fetchNextPage,
     refetch,
-  } = useLeagueMembers(leagueId, {
-    enabled: false,
+  } = useLeagueMembers({
+    leagueId,
+    options: {
+      enabled: false,
+    },
   });
   const leagueMembers = getResultsFromPages(leagueMembersData);
 

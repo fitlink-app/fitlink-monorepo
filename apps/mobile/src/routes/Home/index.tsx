@@ -1,9 +1,13 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import styled, {useTheme} from 'styled-components/native';
-import {BottomTabBar} from './components';
-import {ActivityFeed, Discover, Feed, Leagues, Rewards} from 'pages';
+
 import {useMe} from '@hooks';
+import theme from '@theme';
+
+import {BottomTabBar} from './components';
+import {ActivityFeed, Discover, Feed, Leagues, Rewards, Wallet} from 'pages';
+import WalletIcon from '../../components/icons/WalletIcon';
 
 const HomeIcon = require('../../../assets/images/icon/navigator-icons/home.png');
 const ActivityIcon = require('../../../assets/images/icon/navigator-icons/users.png');
@@ -19,10 +23,12 @@ const IconImage = styled.Image({
 });
 
 const renderTabIcon = (focused: boolean, name: string) => {
-  const tintColor = focused ? '#fff' : '#000';
+  const tintColor = focused ? theme.colors.accent : theme.colors.text;
   switch (name) {
     case 'home':
       return <IconImage style={{tintColor}} source={HomeIcon} />;
+    case 'wallet':
+      return <WalletIcon color={tintColor} />;
     case 'activityfeed':
       return <IconImage style={{tintColor}} source={ActivityIcon} />;
     case 'leagues':
@@ -50,6 +56,14 @@ export const HomeNavigator = () => {
         component={Feed}
         options={{
           tabBarIcon: ({focused}) => renderTabIcon(focused, 'home'),
+        }}
+      />
+
+      <Tab.Screen
+        name="Wallet"
+        component={Wallet}
+        options={{
+          tabBarIcon: ({focused}) => renderTabIcon(focused, 'wallet'),
         }}
       />
 

@@ -13,7 +13,7 @@ import {
 } from '@hooks';
 
 import {RootStackParamList} from 'routes/types';
-import {Leaderboard} from './components';
+import {FilterMemberBottomSheet, Leaderboard} from './components';
 import {getResultsFromPages} from '../../utils/api';
 
 export const ITEM_HEIGHT = 82;
@@ -23,6 +23,8 @@ const Wrapper = styled.View({flex: 1});
 export const League = () => {
   const {id} = useRoute<RouteProp<RootStackParamList, 'League'>>().params;
 
+  const [orderMembersBy, setOrderMembersBy] = useState('points');
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [areInteractionsDone, setInteractionsDone] = useState(false);
 
   const {data: user} = useMe({
@@ -51,7 +53,7 @@ export const League = () => {
     isFetchedAfterMount: areMembersFetchedAfterMount,
     isLoading: isMembersLoading,
     data: membersPages,
-  } = useLeagueMembers(id);
+  } = useLeagueMembers({leagueId: id, orderBy: orderMembersBy});
 
   const members = getResultsFromPages(membersPages);
 
@@ -94,8 +96,16 @@ export const League = () => {
           onEndReached={() => {
             fetchMoreMembers();
           }}
+          onFilterMembersPress={() => setIsFilterSheetOpen(true)}
         />
       </Wrapper>
+      <FilterMemberBottomSheet
+        isOpen={isFilterSheetOpen}
+        onApply={values => {
+          setOrderMembersBy(values.join(','));
+          setIsFilterSheetOpen(false);
+        }}
+      />
     </BottomSheetModalProvider>
   );
 };

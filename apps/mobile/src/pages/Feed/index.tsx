@@ -116,11 +116,6 @@ export const Feed = () => {
     FCMTokenService.saveCurrentToken();
   }, []);
 
-  const navigateToWallet = useCallback(
-    () => navigation.navigate('Wallet'),
-    [navigation],
-  );
-
   if (!user) {
     return null;
   }
@@ -149,7 +144,7 @@ export const Feed = () => {
             <ProfileHeader user={user} />
           </HeaderContainer>
           <StatContainer>
-            <PlotCard.Points onPress={navigateToWallet} />
+            <PlotCard.Points />
           </StatContainer>
           <C2ELeagues
             isParticipating

@@ -10,9 +10,9 @@ const Wrapper = styled.View({
 
 const Box = styled.View(({theme: {colors}}) => ({
   borderRadius: 4,
-  borderWidth: 1,
-  width: 18,
-  height: 18,
+  borderWidth: 2,
+  width: 20,
+  height: 20,
   alignItems: 'center',
   justifyContent: 'center',
 }));
@@ -35,7 +35,8 @@ export const Checkbox = (props: CheckboxProps) => {
           style={{
             borderColor: checked ? colors.accent : colors.accentSecondary,
             backgroundColor: checked ? colors.accent : undefined,
-          }}>
+          }}
+        >
           {checked && (
             <Icon name={'check'} color={colors.chartUnfilled} size={12} />
           )}
