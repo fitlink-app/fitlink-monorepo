@@ -2187,7 +2187,7 @@ export class LeaguesService {
 
       return false
     } catch (error) {
-      console.error(error)
+      this.logger.error(error)
       throw new Error(error)
     }
   }
