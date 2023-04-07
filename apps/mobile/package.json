@@ -16,9 +16,9 @@
     "android:codepushDebug": "react-native run-android --variant=codepushDebug --appIdSuffix=codepush",
     "android:stagingDebug": "react-native run-android --variant=stagingDebug --appIdSuffix=staging",
     "android:stagingRelease": "react-native run-android --variant=stagingRelease --appIdSuffix=staging",
-    "ios:dev": "arch -x86_64 react-native run-ios --configuration Development --scheme Fitlink.dev",
+    "ios:dev": "react-native run-ios --configuration Development --scheme Fitlink.dev",
     "ios:codepush": "react-native run-ios --configuration Production --scheme Fitlink.codepush",
-    "ios": "arch -x86_64 react-native run-ios --configuration Production --scheme Fitlink"
+    "ios": "react-native run-ios --configuration Production --scheme Fitlink"
   },
   "peerDependencies": {
     "@fitlink/common": "*"

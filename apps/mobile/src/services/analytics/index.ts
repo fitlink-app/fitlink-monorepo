@@ -13,17 +13,20 @@ export class AnalyticsService {
     leagueId,
     inviterUserId,
   }: InviteDeeplinkEvent) {
-    const inviterUser = await api.get<User>(`/users/${inviterUserId}`);
-    console.log(inviterUser);
-    const league = await api.get<LeaguePublic>(`/leagues/${leagueId}`);
-    const newcomerUser = await api.get<User>('/me');
-    await analytics().logEvent('league_invite_deeplink_pressed', {
-      league_id: leagueId,
-      league_name: league.name,
-      inviter_user_id: inviterUserId,
-      inviter_user_name: inviterUser.name,
-      newcomer_user_id: newcomerUser.id,
-      newcomer_user_email: newcomerUser.email,
-    });
+    try {
+      const inviterUser = await api.get<User>(`/users/${inviterUserId}`);
+      const league = await api.get<LeaguePublic>(`/leagues/${leagueId}`);
+      const newcomerUser = await api.get<User>('/me');
+      await analytics().logEvent('league_invite_deeplink_pressed', {
+        league_id: leagueId,
+        league_name: league.name,
+        inviter_user_id: inviterUserId,
+        inviter_user_name: inviterUser.name,
+        newcomer_user_id: newcomerUser.id,
+        newcomer_user_email: newcomerUser.email,
+      });
+    } catch (e) {
+      console.log('sendInviteDeeplinkError', e);
+    }
   }
 }

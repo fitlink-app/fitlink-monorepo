@@ -17,8 +17,6 @@ import {
 } from '../../../redux/teamInvitation/teamInvitationSlice';
 import {getUrlParams} from '../../../utils/api';
 import {useDefaultOkSnackbar} from '../../snackbar';
-import api from '@api';
-import {User} from '@react-native-google-signin/google-signin';
 import {AnalyticsService} from 'services/analytics';
 
 export const useDynamicLinksHandler = () => {

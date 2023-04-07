@@ -6,7 +6,6 @@ import {shareDynamicLink} from '@utils';
 import {useLeague, useModal} from '@hooks';
 import {RootStackParamList} from '@routes';
 import {DeepLinkType} from '@fitlink/api/src/constants/deep-links';
-import analytics from '@react-native-firebase/analytics';
 
 import {Dialog, DialogButton} from 'components/modal';
 
@@ -48,7 +47,7 @@ export const useLeagueMenuModal = ({
 
   const getButtons = (id: string) => {
     const result: DialogButton[] = [];
-    if (true) {
+    if (membership === 'member') {
       result.push({
         text: 'Share League',
         type: 'default',

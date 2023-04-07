@@ -17,12 +17,12 @@ import themes from '../../theme/themes';
 
 export const EnterPinCodeProvider: FC = ({children}) => {
   const dispatch = useAppDispatch();
+  useRevokeAccessOnIdle();
   const isClientSideAccessGranted = useAppSelector(
     selectIsClientSideAccessGranted,
   );
-  const hasPinCode = useAppSelector(selectClientSideAccessGrantedAt)!!;
 
-  useRevokeAccessOnIdle();
+  const hasPinCode = useAppSelector(selectClientSideAccessGrantedAt)!!;
 
   const completeClientAuth = () => {
     dispatch(grantClientSideAccess());
