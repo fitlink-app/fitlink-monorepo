@@ -15,6 +15,7 @@ import {Background, GradientUnderlay, WelcomeHeader} from './components';
 import {selectTeamInvitation} from 'redux/teamInvitation/teamInvitationSlice';
 import theme from '../../../theme/themes/fitlink';
 import useMeasureInitialLayout from '../../../hooks/useMeasureInitialLayout';
+import analytics from '@react-native-firebase/analytics';
 
 const mail_icon = require('../../../../assets/images/icon/mail.png');
 const google_icon = require('../../../../assets/images/icon/google.png');
