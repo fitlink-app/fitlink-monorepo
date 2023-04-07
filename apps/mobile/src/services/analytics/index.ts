@@ -25,6 +25,7 @@ export class AnalyticsService {
         newcomer_user_id: newcomerUser.id,
         newcomer_user_email: newcomerUser.email,
       });
+      console.log('sendInviteDeeplinkEvent');
     } catch (e) {
       console.log('sendInviteDeeplinkError', e);
     }

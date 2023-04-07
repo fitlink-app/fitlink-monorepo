@@ -26,6 +26,8 @@
   "workspaces": {
     "nohoist": [
       "@react-native-community/**",
+      "@react-native-firebase/**",
+      "react-native-health",
       "react-native",
       "react-native/**",
       "react-native-svg",
