@@ -1988,22 +1988,24 @@ export class LeaguesService {
                 this.logger.log(`Entry not found for user ${leagueUser.id}`)
                 // something seriously wrong here so just going to add them to the league entry for the next time
 
+                return Promise.resolve(false);
 
-                return repo.save(
-                  repo.create({
-                    user,
-                    leaderboard,
-                    leaderboard_id: leaderboard.id,
-                    league_id: league.id,
-                    user_id: leagueUser.id,
-                    wins: 0,
-                    secondPlace: 0,
-                    thirdPlace: 0,
-                    lastLeaguePosition: index,
-                    bfit_earned: 0,
-                    bfit_estimate: 0,
-                  })
-                )
+
+                // return repo.save(
+                //   repo.create({
+                //     user,
+                //     leaderboard,
+                //     leaderboard_id: leaderboard.id,
+                //     league_id: league.id,
+                //     user_id: leagueUser.id,
+                //     wins: 0,
+                //     secondPlace: 0,
+                //     thirdPlace: 0,
+                //     lastLeaguePosition: index,
+                //     bfit_earned: 0,
+                //     bfit_estimate: 0,
+                //   })
+                // )
               }
 
               // check if the league is CompeteToEarn
