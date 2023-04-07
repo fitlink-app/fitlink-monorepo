@@ -1964,8 +1964,10 @@ export class LeaguesService {
         )
 
         const currentEntries = await this.leaderboardEntryRepository.find({
-          leaderboard: { id: league.active_leaderboard.id }
+          where: { leaderboard: { id: league.active_leaderboard.id } },
+          order: { bfit_estimate: 'DESC' },
         })
+
 
         await this.leaguesRepository.manager.transaction(async (manager) => {
           const repo = manager.getRepository(LeaderboardEntry)
@@ -1980,32 +1982,34 @@ export class LeaguesService {
               )
               const user = new User()
               user.id = leagueUser.id
-              const entry = currentEntries.find(
+              const entryIndex = currentEntries.findIndex(
                 (entry) => entry.user_id === leagueUser.id
               )
+
+              const entry = currentEntries[entryIndex];
 
               if (!entry) {
                 this.logger.log(`Entry not found for user ${leagueUser.id}`)
                 // something seriously wrong here so just going to add them to the league entry for the next time
 
-                return Promise.resolve(false);
+                // return Promise.resolve(false);
 
 
-                // return repo.save(
-                //   repo.create({
-                //     user,
-                //     leaderboard,
-                //     leaderboard_id: leaderboard.id,
-                //     league_id: league.id,
-                //     user_id: leagueUser.id,
-                //     wins: 0,
-                //     secondPlace: 0,
-                //     thirdPlace: 0,
-                //     lastLeaguePosition: index,
-                //     bfit_earned: 0,
-                //     bfit_estimate: 0,
-                //   })
-                // )
+                return repo.save(
+                  repo.create({
+                    user,
+                    leaderboard,
+                    leaderboard_id: leaderboard.id,
+                    league_id: league.id,
+                    user_id: leagueUser.id,
+                    wins: 0,
+                    secondPlace: 0,
+                    thirdPlace: 0,
+                    lastLeaguePosition: index,
+                    bfit_earned: 0,
+                    bfit_estimate: 0,
+                  })
+                )
               }
 
               // check if the league is CompeteToEarn
@@ -2034,7 +2038,10 @@ export class LeaguesService {
                 walletTransaction.user_id = leagueUser.id
                 walletTransaction.bfit_amount = bfit
                 await this.walletTransactionRepository.save(walletTransaction)
-
+                this.logger.log(`updating user ${leagueUser.id} with bfit ${bfit}`)
+                const parseRank = parseInt(entry.rank);
+                const lastPosition = isNaN(parseRank) ? entryIndex : parseRank;
+                this.logger.log(`${user.id} has a rank of ${entry.rank}. Parsed as ${parseRank}`);
                 return repo.save(
                   repo.create({
                     user,
@@ -2045,7 +2052,7 @@ export class LeaguesService {
                     wins: winner ? entry.wins + 1 : entry.wins,
                     secondPlace: entry.rank === '2' ? entry.secondPlace + 1 : 0,
                     thirdPlace: entry.rank === '3' ? entry.thirdPlace + 1 : 0,
-                    lastLeaguePosition: Number(entry.rank),
+                    lastLeaguePosition: lastPosition,
                     bfit_earned: bfit,
                     bfit_estimate: 0,
                   })
@@ -2098,7 +2105,8 @@ export class LeaguesService {
           if (league.access === LeagueAccess.CompeteToEarn) {
             this.logger.log(`League ${league.id} is CompeteToEarn`)
             const currentEntries = await this.leaderboardEntryRepository.find({
-              leaderboard: { id: league.active_leaderboard.id }
+              where: { leaderboard: { id: league.active_leaderboard.id } },
+              order: { bfit_estimate: 'DESC' }
             })
             await Promise.all(
               league.users.map(async (leagueUser) => {
@@ -2115,10 +2123,10 @@ export class LeaguesService {
                   // we check if the user is in the winner which provides top 3
 
                   // we not get they estimate earnings and reward them
-                  const entry = currentEntries.find(
+                  const entryIndex = currentEntries.findIndex(
                     (entry) => entry.user_id === leagueUser.id
                   )
-
+                  const entry = currentEntries[entryIndex];
                   if (!entry) {
                     this.logger.log(`Entry not found for user ${leagueUser.id} in league ${league.id}`)
                     return Promise.resolve();
@@ -2145,13 +2153,16 @@ export class LeaguesService {
                   walletTransaction.bfit_amount = bfit
                   await this.walletTransactionRepository.save(walletTransaction)
                   this.logger.log(`updating user ${leagueUser.id} with bfit ${bfit}`)
+                  const parseRank = parseInt(entry.rank);
+                  const lastPosition = isNaN(parseRank) ? entryIndex : parseRank;
+                  this.logger.log(`${user.id} has a rank of ${entry.rank}. Parsed as ${parseRank}`);
                   return repo.save({
                     ...entry,
                     bfit_earned: bfit,
                     wins: winner ? entry.wins + 1 : entry.wins,
                     secondPlace: entry.rank === '2' ? entry.secondPlace + 1 : 0,
                     thirdPlace: entry.rank === '3' ? entry.thirdPlace + 1 : 0,
-                    lastLeaguePosition: Number(entry.rank),
+                    lastLeaguePosition: lastPosition,
                     bfit_estimate: 0
                   })
                 }
