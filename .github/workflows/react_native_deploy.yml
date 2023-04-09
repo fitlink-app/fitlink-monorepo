@@ -51,8 +51,8 @@ jobs:
         BRANCH_NAME="${GITHUB_REF#refs/heads/}"
         if [[ "$BRANCH_NAME" == "main" ]]; then
           yarn ios
-        elif [[ "$BRANCH_NAME" == "dev" ]]; then
-          yarn ios:codepush
+        elif [[ "$BRANCH_NAME" == "develop" ]]; then
+          yarn ios:dev
         else
           yarn ios:dev
         fi
@@ -93,7 +93,7 @@ jobs:
         BRANCH_NAME="${GITHUB_REF#refs/heads/}"
         if [[ "$BRANCH_NAME" == "main" ]]; then
           yarn android:prdRelease
-        elif [[ "$BRANCH_NAME" == "dev" ]]; then
+        elif [[ "$BRANCH_NAME" == "develop" ]]; then
           yarn android:codepushDebug
         else
           yarn android:devRelease
