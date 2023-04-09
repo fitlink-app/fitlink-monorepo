@@ -1,0 +1,102 @@
+name: React Native Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+      - 'feature/*'
+
+jobs:d
+  deploy-ios:
+    runs-on: macos-latest
+    if: github.event_name == 'push'
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        path: apps/mobile
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16
+
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: apps/mobile/node_modules
+        key: ${{ runner.os }}-node-modules-${{ hashFiles('apps/mobile/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-node-modules-
+
+    - name: Install dependencies
+      run: |
+        cd apps/mobile
+        yarn install
+
+    - name: Update AppCenter-Config.plist with AppSecret
+      run: |
+        cd apps/mobile/ios
+        plutil -replace AppSecret -string "${{ secrets.APP_CENTER_SECRET }}" AppCenter-Config.plist
+
+    - name: Deploy to CodePush
+      run: |
+        cd apps/mobile
+        BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+        if [[ "$BRANCH_NAME" == "main" ]]; then
+          yarn ios
+        elif [[ "$BRANCH_NAME" == "dev" ]]; then
+          yarn ios:codepush
+        else
+          yarn ios:dev
+        fi
+      env:
+        APP_CENTER_TOKEN: ${{ secrets.APP_CENTER_TOKEN }}
+
+  deploy-android:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        path: apps/mobile
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16
+
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: apps/mobile/node_modules
+        key: ${{ runner.os }}-node-modules-${{ hashFiles('apps/mobile/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-node-modules-
+
+    - name: Install dependencies
+      run: |
+        cd apps/mobile
+        yarn install
+
+    - name: Deploy to CodePush
+      run: |
+        cd apps/mobile
+        BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+        if [[ "$BRANCH_NAME" == "main" ]]; then
+          yarn android:prdRelease
+        elif [[ "$BRANCH_NAME" == "dev" ]]; then
+          yarn android:codepushDebug
+        else
+          yarn android:devRelease
+        fi
+      env:
+        APP_CENTER_TOKEN: ${{ secrets.APP_CENTER_TOKEN }}
