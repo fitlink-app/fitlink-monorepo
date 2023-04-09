@@ -11,7 +11,7 @@ on:
       - dev
       - 'feature/*'
 
-jobs:d
+jobs:
   deploy-ios:
     runs-on: macos-latest
     if: github.event_name == 'push'
