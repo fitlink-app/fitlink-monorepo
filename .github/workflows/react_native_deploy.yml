@@ -19,8 +19,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-      with:
-        path: apps/mobile
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
@@ -36,28 +34,26 @@ jobs:
           ${{ runner.os }}-node-modules-
 
     - name: Install dependencies
-      run: |
-        cd apps/mobile
-        yarn install
+      run: yarn install
+      working-directory: apps/mobile
 
     - name: Update AppCenter-Config.plist with AppSecret
-      run: |
-        cd apps/mobile/ios
-        plutil -replace AppSecret -string "${{ secrets.APP_CENTER_SECRET }}" AppCenter-Config.plist
+      run: plutil -replace AppSecret -string "${{ secrets.APP_CENTER_SECRET }}" AppCenter-Config.plist
+      working-directory: apps/mobile/ios
 
     - name: Deploy to CodePush
       run: |
-        cd apps/mobile
         BRANCH_NAME="${GITHUB_REF#refs/heads/}"
         if [[ "$BRANCH_NAME" == "main" ]]; then
           yarn ios
         elif [[ "$BRANCH_NAME" == "develop" ]]; then
-          yarn ios:dev
+          yarn ios:codepush
         else
           yarn ios:dev
         fi
       env:
         APP_CENTER_TOKEN: ${{ secrets.APP_CENTER_TOKEN }}
+      working-directory: apps/mobile
 
   deploy-android:
     runs-on: ubuntu-latest
@@ -66,8 +62,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-      with:
-        path: apps/mobile
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
@@ -83,13 +77,11 @@ jobs:
           ${{ runner.os }}-node-modules-
 
     - name: Install dependencies
-      run: |
-        cd apps/mobile
-        yarn install
+      run: yarn install
+      working-directory: apps/mobile
 
     - name: Deploy to CodePush
       run: |
-        cd apps/mobile
         BRANCH_NAME="${GITHUB_REF#refs/heads/}"
         if [[ "$BRANCH_NAME" == "main" ]]; then
           yarn android:prdRelease
@@ -100,3 +92,4 @@ jobs:
         fi
       env:
         APP_CENTER_TOKEN: ${{ secrets.APP_CENTER_TOKEN }}
+      working-directory: apps/mobile
