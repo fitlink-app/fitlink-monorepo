@@ -2406,15 +2406,15 @@ export class LeaguesService {
 
     const totalLeaguePoints = await this.totalLeaguePoints(leagueId);
 
-    const userEntry = await this.leaderboardEntryRepository.findOne(league.active_leaderboard.id, { where: { user_id: userId } });
+    const entry = league.active_leaderboard.entries.find((e) => e.user.id === userId)
 
     return {
       totalLeaguePoints,
-      userPoints: userEntry.points,
+      userPoints: entry?.points,
       leagueAllocation: league.bfitAllocation,
       leagueEntriesLength: league.active_leaderboard.entries,
-      userBfitEstimate: (league.bfitAllocation * (userEntry.points / totalLeaguePoints)) * 1000_000,
-      userBfitEstimateNoMultiply: league.bfitAllocation * (userEntry.points / totalLeaguePoints)
+      userBfitEstimate: (league.bfitAllocation * (entry?.points / totalLeaguePoints)) * 1000_000,
+      userBfitEstimateNoMultiply: league.bfitAllocation * (entry?.points / totalLeaguePoints)
     }
   }
 }
