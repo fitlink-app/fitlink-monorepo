@@ -80,6 +80,9 @@ export class BfitDistributionService {
 			throw new Error(`No entries found for league ${league.id}`);
 		}
 
+		this.logger.log(`total entries for league ${league.id}: ${league.active_leaderboard.entries.length}`);
+
+
 		const totalPoints = await this.leaderboardEntriesRepository
 			.createQueryBuilder('leaderboard_entry')
 			.select('SUM(leaderboard_entry.points)', 'totalPoints')

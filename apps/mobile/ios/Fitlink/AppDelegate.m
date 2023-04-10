@@ -7,9 +7,6 @@
 #import <AppCenterReactNative.h>
 #import <AppCenterReactNativeAnalytics.h>
 #import <AppCenterReactNativeCrashes.h>
-#import <AppCenterReactNative.h>
-#import <AppCenterReactNativeAnalytics.h>
-#import <AppCenterReactNativeCrashes.h>
 #import <CodePush/CodePush.h>
 #import <IntercomModule.h>
 #import <UserNotifications/UserNotifications.h>
@@ -44,11 +41,11 @@ static void InitializeFlipper(UIApplication *application) {
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   [FIRApp configure];
-  
+
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
 #endif
-  
+
   [GMSPlacesClient provideAPIKey:@"AIzaSyDN5mQ0ZcEmfLxUF-b4cfdUbppBG9dAaFA"];
   [GMSServices provideAPIKey:@"AIzaSyDN5mQ0ZcEmfLxUF-b4cfdUbppBG9dAaFA"];
 
@@ -68,22 +65,22 @@ static void InitializeFlipper(UIApplication *application) {
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
-  
+
   [RNBootSplash initWithStoryboard:@"BootSplash" rootView:rootView];
-  
+
   [AppCenterReactNative register];
   [AppCenterReactNativeAnalytics registerWithInitiallyEnabled:true];
   [AppCenterReactNativeCrashes registerWithAutomaticProcessing];
   [IntercomModule initialize:@"ios_sdk-e9cecd16c2a508c21a63fd21d3b20a1fb7ada2cb" withAppId:@"jhnnkwbj"];
-  
+
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
       [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert + UNAuthorizationOptionSound)
                             completionHandler:^(BOOL granted, NSError *_Nullable error) {
                             }];
       [[UIApplication sharedApplication] registerForRemoteNotifications];
-  
+
   [[TSBackgroundFetch sharedInstance] didFinishLaunching];
-  
+
   return YES;
 }
 

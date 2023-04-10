@@ -469,6 +469,27 @@ export class LeaguesController {
     }
   }
 
+
+  @Get('/leagues/:leagueId/totalPoints')
+  @ApiTags('leagues')
+  async leagueTotalPoints(
+    @Param('leagueId') leagueId: string,
+  ) {
+    const points = await this.leaguesService.totalLeaguePoints(leagueId)
+    return {
+      points
+    }
+  }
+
+  @Get('/leagues/:leagueId/debug/:userId')
+  @ApiTags('leagues')
+  async userBfitDebug(
+    @Param('leagueId') leagueId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.leaguesService.userEstimateBfitDebug(leagueId, userId)
+  }
+
   /**
    * Get a list of users that be invited to the league
    *
