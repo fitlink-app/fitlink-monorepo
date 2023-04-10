@@ -2406,7 +2406,7 @@ export class LeaguesService {
 
     const totalLeaguePoints = await this.totalLeaguePoints(leagueId);
 
-    const entry = league.active_leaderboard.entries.find((e) => e.user.id === userId)
+    const entry = league.active_leaderboard.entries.find((e) => e.user_id === userId)
 
     return {
       totalLeaguePoints,
