@@ -107,17 +107,13 @@ export class BfitDistributionService {
 
 			const bfitEstimate = (league.bfitAllocation * (entry.points / totalLeaguePoints)) * 1000_000;
 
-			this.logger.log(`Updating entry ${entry.id} for user ${entry.user_id} with bfit estimate ${bfitEstimate}`);
+			this.logger.log(`Updating entry ${entry.id} in league ${league.id} for user ${entry.user_id} with bfit estimate ${bfitEstimate}`);
 			if (bfitEstimate === 0 && entry.bfit_estimate === 0) {
 				this.logger.log(`Skipping entry ${entry.id} for user ${entry.user_id} with bfit estimate ${bfitEstimate}`);
 				continue;
 			}
 			bfitEstimatePromises.push(
-				this.leaderboardEntriesRepository.update(
-					{
-						leaderboard: { id: league.active_leaderboard.id },
-						user: { id: userId }
-					},
+				this.leaderboardEntriesRepository.update(entry.id,
 					{
 						bfit_estimate: bfitEstimate
 					}
