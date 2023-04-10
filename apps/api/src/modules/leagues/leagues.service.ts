@@ -2373,4 +2373,48 @@ export class LeaguesService {
     const sig = await client.signAndBroadcast(account.address, [mesg], 'auto')
     return sig.transactionHash
   }
+
+  async totalLeaguePoints(leagueId: string) {
+    const totalPoints = await this.leaderboardEntryRepository
+      .createQueryBuilder('leaderboard_entry')
+      .select('SUM(leaderboard_entry.points)', 'totalPoints')
+      .where('leaderboard_entry.league_id = :leagueId', {
+        leagueId: leagueId
+      })
+      .getRawOne()
+    const totalLeaguePoints = parseInt(
+      totalPoints.totalPoints,
+      10
+    )
+
+    return totalLeaguePoints;
+  }
+
+
+  async userEstimateBfitDebug(leagueId: string, userId: string) {
+    const [league, leagueErr] = await tryAndCatch(
+      this.leaguesRepository
+        .createQueryBuilder('league')
+        .leftJoin('league.users', 'user')
+        .where('league.id = :leagueId', { leagueId: leagueId })
+        .andWhere('league.active_leaderboard IS NOT NULL')
+        .andWhere('user.id = :userId', { userId })
+        .leftJoinAndSelect('league.active_leaderboard', 'active_leaderboard')
+        .leftJoinAndSelect('active_leaderboard.entries', 'entries')
+        .getOne()
+    );
+
+    const totalLeaguePoints = await this.totalLeaguePoints(leagueId);
+
+    const userEntry = await this.leaderboardEntryRepository.findOne(league.active_leaderboard.id, { where: { user_id: userId } });
+
+    return {
+      totalLeaguePoints,
+      userPoints: userEntry.points,
+      leagueAllocation: league.bfitAllocation,
+      leagueEntriesLength: league.active_leaderboard.entries,
+      userBfitEstimate: (league.bfitAllocation * (userEntry.points / totalLeaguePoints)) * 1000_000,
+      userBfitEstimateNoMultiply: league.bfitAllocation * (userEntry.points / totalLeaguePoints)
+    }
+  }
 }
