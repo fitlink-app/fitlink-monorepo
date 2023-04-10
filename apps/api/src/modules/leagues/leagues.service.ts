@@ -2411,10 +2411,10 @@ export class LeaguesService {
     return {
       totalLeaguePoints,
       userPoints: entry?.points,
-      leagueAllocation: league.bfitAllocation,
-      leagueEntriesLength: league.active_leaderboard.entries,
-      userBfitEstimate: (league.bfitAllocation * (entry?.points / totalLeaguePoints)) * 1000_000,
-      userBfitEstimateNoMultiply: league.bfitAllocation * (entry?.points / totalLeaguePoints)
+      leagueAllocation: league?.bfitAllocation,
+      leagueEntriesLength: league?.active_leaderboard?.entries?.length,
+      userBfitEstimate: (league?.bfitAllocation * (entry?.points / totalLeaguePoints)) * 1000_000,
+      userBfitEstimateNoMultiply: league?.bfitAllocation * (entry?.points / totalLeaguePoints)
     }
   }
 }
