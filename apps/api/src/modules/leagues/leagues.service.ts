@@ -230,8 +230,7 @@ export class LeaguesService {
         'The provided league is not a compete to ear league'
       )
     }
-    const claimableBfit =
-      leaderboardEntry.bfit_earned - leaderboardEntry.bfit_claimed
+    const claimableBfit = leaderboardEntry.bfit_earned;
     if (claimableBfit < claimLeagueBfitDto.amount) {
       throw new BadRequestException(
         `You have not earned enough bfit in this league to claim ${
@@ -2008,6 +2007,7 @@ export class LeaguesService {
                     lastLeaguePosition: index,
                     bfit_earned: 0,
                     bfit_estimate: 0,
+                    bfit_claimed: entry?.bfit_claimed || 0,
                   })
                 )
               }
@@ -2053,8 +2053,9 @@ export class LeaguesService {
                     secondPlace: entry.rank === '2' ? entry.secondPlace + 1 : 0,
                     thirdPlace: entry.rank === '3' ? entry.thirdPlace + 1 : 0,
                     lastLeaguePosition: lastPosition,
-                    bfit_earned: bfit,
+                    bfit_earned: (entry.bfit_earned ?? 0) + bfit,
                     bfit_estimate: 0,
+                    bfit_claimed: entry?.bfit_claimed || 0,
                   })
                 )
               } else {
@@ -2158,7 +2159,7 @@ export class LeaguesService {
                   this.logger.log(`${user.id} has a rank of ${entry.rank}. Parsed as ${parseRank}`);
                   return repo.save({
                     ...entry,
-                    bfit_earned: bfit,
+                    bfit_earned: (entry.bfit_earned ?? 0) + bfit,
                     wins: winner ? entry.wins + 1 : entry.wins,
                     secondPlace: entry.rank === '2' ? entry.secondPlace + 1 : 0,
                     thirdPlace: entry.rank === '3' ? entry.thirdPlace + 1 : 0,
