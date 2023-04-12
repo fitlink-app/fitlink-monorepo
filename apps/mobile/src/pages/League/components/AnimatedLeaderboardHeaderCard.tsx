@@ -50,93 +50,94 @@ interface IAnimatedLeaderboardHeaderCardProps {
   distributedTodayBfit?: number;
   isCteLeague?: boolean;
   bfitTotal?: number;
+  userId: string;
   sharedContentOffset: Animated.SharedValue<number>;
   onFilterMembersPress: () => void;
 }
 
-export const AnimatedLeaderboardHeaderCard: FC<IAnimatedLeaderboardHeaderCardProps> =
-  ({
-    leagueId,
+export const AnimatedLeaderboardHeaderCard: FC<
+  IAnimatedLeaderboardHeaderCardProps
+> = ({
+  leagueId,
+  membership,
+  isPublic,
+  isCteLeague = false,
+  imageSource,
+  memberCount,
+  bFitToClaimRaw,
+  title,
+  startDate,
+  resetDate,
+  description,
+  onHeightMeasure: onHeightLayout,
+  sharedContentOffset,
+  userId,
+  bfitTotal,
+  onFilterMembersPress,
+}) => {
+  const leaderboardLabelText = 'LEADERBOARD';
+  const isMember = membership !== 'none';
+  const bFitToClaim = getPositiveValueOrZero(getViewBfitValue(bFitToClaimRaw));
+
+  const {mutateAsync: joinLeague, isLoading: isJoining} = useJoinLeague();
+  const {mutateAsync: leaveLeague} = useLeaveLeague();
+  const {mutateAsync: claimBfit, isLoading: isClaiming} = useClaimLeagueBfit();
+  const {mutateAsync: leaveWaitList} = useLeaveWaitList();
+
+  const enqueueOkSnackbar = useDefaultOkSnackbar();
+
+  useLeagueMembersMe(leagueId, isMember);
+
+  const {openModal} = useModal();
+
+  const {data: isOnWaitList, isLoading: isLoadingOnWaitList} =
+    useOnWaitList(leagueId);
+
+  const handleOnMenuPressed = useLeagueMenuModal({
     membership,
     isPublic,
-    isCteLeague = false,
-    imageSource,
-    memberCount,
-    bFitToClaimRaw,
-    title,
-    startDate,
-    resetDate,
-    description,
-    onHeightMeasure: onHeightLayout,
-    sharedContentOffset,
-    bfitTotal,
-    onFilterMembersPress,
-  }) => {
-    const leaderboardLabelText = 'LEADERBOARD';
-    const isMember = membership !== 'none';
-    const bFitToClaim = getPositiveValueOrZero(
-      getViewBfitValue(bFitToClaimRaw),
-    );
+    isCteLeague,
+    leagueId,
+    leaveLeague,
+    leaveWaitList,
+    isOnWaitList: isOnWaitList?.waitlist ?? false,
+    userId,
+  });
 
-    const {mutateAsync: joinLeague, isLoading: isJoining} = useJoinLeague();
-    const {mutateAsync: leaveLeague} = useLeaveLeague();
-    const {mutateAsync: claimBfit, isLoading: isClaiming} =
-      useClaimLeagueBfit();
-    const {mutateAsync: leaveWaitList} = useLeaveWaitList();
+  const countback = useLeaderboardCountback({
+    resetDate: new Date(resetDate),
+    startDate: new Date(startDate),
+  });
 
-    const enqueueOkSnackbar = useDefaultOkSnackbar();
+  const openMaxedOutModal = () => {
+    openModal(() => <MaxedOutBanner />);
+  };
 
-    useLeagueMembersMe(leagueId, isMember);
-
-    const {openModal} = useModal();
-
-    const {data: isOnWaitList, isLoading: isLoadingOnWaitList} =
-      useOnWaitList(leagueId);
-
-    const handleOnMenuPressed = useLeagueMenuModal({
-      membership,
-      isPublic,
-      isCteLeague,
-      leagueId,
-      leaveLeague,
-      leaveWaitList,
-      isOnWaitList: isOnWaitList?.waitlist ?? false,
-    });
-
-    const countback = useLeaderboardCountback({
-      resetDate: new Date(resetDate),
-      startDate: new Date(startDate),
-    });
-
-    const openMaxedOutModal = () => {
-      openModal(() => <MaxedOutBanner />);
-    };
-
-    const handleOnJoinPressed = async () => {
-      try {
-        await joinLeague(leagueId);
-      } catch (e) {
-        const resError = e as ResponseError;
-        const errorMessage = getErrors(resError).message;
-        if (errorMessage === c2eLimitReachedErrorMsg) {
-          openMaxedOutModal();
-        } else if (errorMessage === c2eLeagueTypeErrorMsg) {
-          openModal(() => <OnlyOneTypeBanner errorMessage={errorMessage} />);
-        } else {
-          enqueueOkSnackbar(errorMessage);
-        }
+  const handleOnJoinPressed = async () => {
+    try {
+      await joinLeague(leagueId);
+    } catch (e) {
+      const resError = e as ResponseError;
+      const errorMessage = getErrors(resError).message;
+      if (errorMessage === c2eLimitReachedErrorMsg) {
+        openMaxedOutModal();
+      } else if (errorMessage === c2eLeagueTypeErrorMsg) {
+        openModal(() => <OnlyOneTypeBanner errorMessage={errorMessage} />);
+      } else {
+        enqueueOkSnackbar(errorMessage);
       }
-    };
+    }
+  };
 
-    const handleClaimBfitPressed = async () => {
-      const canClaim = bFitToClaimRaw !== undefined && bFitToClaim !== 0;
+  const handleClaimBfitPressed = async () => {
+    const canClaim = bFitToClaimRaw !== undefined && bFitToClaim !== 0;
 
-      if (bFitToClaim === 0) {
-        openModal(() => <TryTomorrowBanner />);
-      } else if (canClaim && leagueId) {
-        await claimBfit({id: leagueId, dto: {amount: bFitToClaimRaw}});
-      }
-    };
+    if (bFitToClaim === 0) {
+      openModal(() => <TryTomorrowBanner />);
+    } else if (canClaim && leagueId) {
+      await claimBfit({id: leagueId, dto: {amount: bFitToClaimRaw}});
+    }
+  };
 
     return (
       <BottomSheetModalProvider>

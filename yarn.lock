@@ -6810,7 +6810,12 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/netinfo/-/netinfo-9.3.7.tgz#92407f679f00bae005c785a9284e61d63e292b34"
   integrity sha512-+taWmE5WpBp0uS6kf+bouCx/sn89G9EpR4s2M/ReLvctVIFL2Qh8WnWfBxqK9qwgmFha/uqjSr2Gq03OOtiDcw==
 
-"@react-native-firebase/app@^17.3.0":
+"@react-native-firebase/analytics@17.3.0":
+  version "17.3.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/analytics/-/analytics-17.3.0.tgz#0bad29cd6efcc6a6fd405edda55f0815d16f2609"
+  integrity sha512-Sl93q+dEz/V9eSYHc/uXa2T0rSQM44zecGSE6u441IWuC5AjmZ+wMhtv/nuPS9RB1MKsuwQusDdq3vyoXJSmKg==
+
+"@react-native-firebase/app@17.3.0":
   version "17.3.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-17.3.0.tgz#f89b120dbf4bd9812028785a7d0485f1091bbb53"
   integrity sha512-anQ4ITkoLgyAgRc8mX6Le2kc6nSNQEs4IWSYehxQU2hTNePqQdCq6XI2KgSo2sSgU3ZoS5YAEJgDFOBNB1U/lA==
@@ -6819,7 +6824,7 @@
     opencollective-postinstall "^2.0.1"
     superstruct "^0.6.2"
 
-"@react-native-firebase/crashlytics@^17.3.0":
+"@react-native-firebase/crashlytics@17.3.0":
   version "17.3.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/crashlytics/-/crashlytics-17.3.0.tgz#da21ff6834d9afabad48eab5d4e575ab924a3d8d"
   integrity sha512-Vzdzj++uxwhiPK6qYdHeqXDAObqk+0snNcF25eyBB158fXMB13qm6eDFC/dN6DziQdmAKTdLE8pBPpbxR2YxcA==
@@ -6827,14 +6832,14 @@
     "@expo/config-plugins" "^5.0.4"
     stacktrace-js "^2.0.0"
 
-"@react-native-firebase/dynamic-links@^17.3.0":
+"@react-native-firebase/dynamic-links@17.3.0":
   version "17.3.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/dynamic-links/-/dynamic-links-17.3.0.tgz#c1920f050838f19a6e3c6fe40aef5ca61249bbd7"
   integrity sha512-0vEI0Ah7nwTIBgGxdyJvWBqOmFcTzVw3lbGEIzxNm863nPcWN/GJodgHEyhHpGs1ipDhYfqnr6moPixnbnrYMQ==
   dependencies:
     "@expo/config-plugins" "^5.0.4"
 
-"@react-native-firebase/messaging@^17.3.0":
+"@react-native-firebase/messaging@17.3.0":
   version "17.3.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-17.3.0.tgz#fe5345d417e9c5971b31ced87cd0b2158083dc37"
   integrity sha512-A1NNrU5KrztJLym5p+VNIbU3pLOSHW9DpJdXyIBR/n/5nZBLL/zLsMoDs8dvfaeyBPiWuvVQbloOKfd5mTvmOw==
@@ -23617,6 +23622,11 @@ react-native-device-info@^10.3.0:
   resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-10.3.0.tgz#6bab64d84d3415dd00cc446c73ec5e2e61fddbe7"
   integrity sha512-/ziZN1sA1REbJTv5mQZ4tXggcTvSbct+u5kCaze8BmN//lbxcTvWsU6NQd4IihLt89VkbX+14IGc9sVApSxd/w==
 
+react-native-draggable-flatlist@3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-draggable-flatlist/-/react-native-draggable-flatlist-3.1.0.tgz#c18b429aaa5d333f792c84e38740da32eaf96bf4"
+  integrity sha512-o6TzR9/Uk8jW+j9Mdi6f9v5Vb9lkbYEnlCNmTYnYNa4DKxC3Ldm51py0Rq2vcTaynBnnUaZR6wWVvuZFiKDtdQ==
+
 react-native-fs@^2.20.0:
   version "2.20.0"
   resolved "https://registry.yarnpkg.com/react-native-fs/-/react-native-fs-2.20.0.tgz#05a9362b473bfc0910772c0acbb73a78dbc810f6"
@@ -23654,7 +23664,7 @@ react-native-google-fit@^0.19.0:
   version "3.2.0"
   resolved "https://codeload.github.com/krakz999/react-native-google-places/tar.gz/06cf98d9c987e055f9a7c347f62868f6d3bee239"
 
-react-native-health@^1.10.0:
+react-native-health@1.10.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/react-native-health/-/react-native-health-1.10.0.tgz#c9621d95f006f5ab0a9ea3f17d2233eadf170d9c"
   integrity sha512-qfrxiErQ8x9P7f7VAOHpiafxpmQw5bYFWAXScu2Wu/Aj/xwB1eSOCVRmmVZqSFQ35+KYuMee/qOqkkLnQx3rGQ==

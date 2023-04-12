@@ -6,6 +6,7 @@ import {shareDynamicLink} from '@utils';
 import {useLeague, useModal} from '@hooks';
 import {RootStackParamList} from '@routes';
 import {DeepLinkType} from '@fitlink/api/src/constants/deep-links';
+import analytics from '@react-native-firebase/analytics';
 
 import {Dialog, DialogButton} from 'components/modal';
 
@@ -17,6 +18,7 @@ type UseLeagueMenuModalProps = {
   leagueId: string;
   leaveLeague: (id: string) => void;
   leaveWaitList: (id: string) => void;
+  userId: string;
 };
 
 type NavigationType = StackNavigationProp<RootStackParamList, 'League'>;
@@ -29,6 +31,7 @@ export const useLeagueMenuModal = ({
   leaveLeague,
   isOnWaitList,
   leaveWaitList,
+  userId,
 }: UseLeagueMenuModalProps) => {
   const navigation = useNavigation<NavigationType>();
 
@@ -45,7 +48,7 @@ export const useLeagueMenuModal = ({
 
   const getButtons = (id: string) => {
     const result: DialogButton[] = [];
-    if (membership === 'member') {
+    if (true) {
       result.push({
         text: 'Share League',
         type: 'default',
@@ -131,7 +134,7 @@ export const useLeagueMenuModal = ({
       await shareDynamicLink(
         'Think you can beat me?\nProve it, plus get paid in a compete-to-earn league. Join for free; let’s go!',
         {
-          link: `https://bfitcoin.com?type=${DeepLinkType.League}&id=${leagueId}`,
+          link: `https://bfitcoin.com?type=${DeepLinkType.League}&id=${leagueId}&inviter=${userId}`,
         },
       );
     } catch (e) {

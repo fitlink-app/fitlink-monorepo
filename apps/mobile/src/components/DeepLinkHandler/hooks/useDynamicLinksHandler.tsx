@@ -17,6 +17,7 @@ import {
 } from '../../../redux/teamInvitation/teamInvitationSlice';
 import {getUrlParams} from '../../../utils/api';
 import {useDefaultOkSnackbar} from '../../snackbar';
+import {AnalyticsService} from 'services/analytics';
 
 export const useDynamicLinksHandler = () => {
   const navigation = navigationRef;
@@ -56,7 +57,7 @@ export const useDynamicLinksHandler = () => {
         if (isAuthenticated && isOboarded) {
           await AuthPromiseProvider.getInstance().get();
         }
-        handleLeagueDeepLink(params.id);
+        handleLeagueDeepLink(params.id, params.inviter);
         break;
 
       default:
@@ -70,8 +71,9 @@ export const useDynamicLinksHandler = () => {
     }
   }, [invitation, code]);
 
-  const handleLeagueDeepLink = (id?: string) => {
+  const handleLeagueDeepLink = (id?: string, inviterUserId?: string) => {
     if (id !== undefined) {
+      AnalyticsService.sendInviteDeeplinkEvent({leagueId: id, inviterUserId});
       return navigation.current?.reset({
         index: 0,
         routes: [

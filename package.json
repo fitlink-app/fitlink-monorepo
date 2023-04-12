@@ -58,6 +58,7 @@
     "firebase:migration:check:users": "cross-env MIGRATION=firebase ts-node ./apps/api/database/firebase/check-users.ts",
     "ssl:generate": "openssl genrsa -out root.key 4096 && openssl req -x509 -new -nodes -key root.key -sha256 -days 1024 -out root.crt",
     "test:timezones": "ts-node ./apps/common/date/test.ts",
+    "move-analytics": "mv node_modules/@react-native-firebase/analytics apps/mobile/node_modules/@react-native-firebase",
     "postinstall": "patch-package"
   },
   "workspaces": {
