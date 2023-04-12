@@ -71,9 +71,7 @@ export const League = () => {
     refetchIsOnWaitList();
   };
 
-  const bFitToClaimRaw = memberMe
-    ? memberMe.bfit_earned - memberMe.bfit_claimed
-    : 0;
+  const bFitToClaimRaw = memberMe ? memberMe.bfit_earned : 0;
 
   const isRefreshing =
     (isFetchingLeague && isLeagueFetchedAfterMount) ||
