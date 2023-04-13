@@ -308,7 +308,7 @@ export class Api {
    */
   async put<T>(
     url: ReadResource,
-    params: UpdateResourceParams<T>,
+    params?: UpdateResourceParams<T>,
     config?: MethodConfig
   ) {
     const payload = params ? params.payload : {}

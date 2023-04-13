@@ -40,6 +40,9 @@ jobs:
     - name: Update AppCenter-Config.plist with AppSecret
       run: plutil -replace AppSecret -string "${{ secrets.APP_CENTER_SECRET }}" AppCenter-Config.plist
       working-directory: apps/mobile/ios
+    - name: Update Pods
+      run: pod install
+      working-directory: apps/mobile/ios
 
     - name: Deploy to CodePush
       run: |
