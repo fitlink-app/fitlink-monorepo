@@ -97,7 +97,7 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
 
       return (
         <Button
-          style={{margin: 5}}
+          style={{marginHorizontal: 5, marginTop: 5, marginBottom: Platform.OS === 'ios' ? 20 : 5}}
           key={index}
           accessibilityRole="button"
           accessibilityLabel={options.tabBarAccessibilityLabel}
