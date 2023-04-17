@@ -173,7 +173,7 @@ android {
           resValue "string", "build_config_package", "app.bfitcoin"
           resValue 'string', "CODE_PUSH_APK_BUILD_TIME", String.format("\"%d\"", System.currentTimeMillis())
           versionCode code
-          versionName "3.0.9"
+          versionName "3.0.10"
         }
     }
     else {
@@ -274,20 +274,20 @@ dependencies {
 
   implementation project(':react-native-config')
 
-  implementation platform('com.google.firebase:firebase-bom:31.2.1')
+  implementation platform('com.google.firebase:firebase-bom:31.3.0')
 
-  implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+  implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
   implementation project(path: ":@react-native-firebase_messaging")
 
-  implementation 'com.google.firebase:firebase-messaging:20.2.+'
+  implementation 'com.google.firebase:firebase-messaging:23.1.2'
 
   implementation 'androidx.multidex:multidex:2.0.1'
 
   implementation(project(":react-native-google-signin"))
 
   // https://github.com/oblador/react-native-keychain/issues/553
-  implementation ("androidx.appcompat:appcompat:1.3.1") {
+  implementation ("androidx.appcompat:appcompat:1.6.1") {
     version {
       strictly '1.3.1'
     }
