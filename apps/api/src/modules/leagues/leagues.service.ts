@@ -253,14 +253,15 @@ export class LeaguesService {
         createdClaim = await leagueBfitClaimRepo.save(leagueBfitClaim)
 
         // update claimed bfit in this user's leaderboard entry
-        await leaderboardEntryRepo.increment(
+        await leaderboardEntryRepo.update(
           {
             leaderboard: { id: league.active_leaderboard.id },
             user: { id: userId }
           },
-
-          'bfit_claimed',
-          claimLeagueBfitDto.amount
+          {
+            bfit_claimed: leaderboardEntry.bfit_claimed + claimLeagueBfitDto.amount,
+            bfit_earned: leaderboardEntry.bfit_earned - claimLeagueBfitDto.amount
+          }
         )
 
         // update user bfit balance
