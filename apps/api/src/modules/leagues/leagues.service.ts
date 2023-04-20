@@ -295,7 +295,9 @@ export class LeaguesService {
         await walletTransactionRepo.save(walletTransaction)
       }
     )
-    return [createdClaim, updatedLeaderboard]
+    this.logger.log(`Claimed ${claimLeagueBfitDto.amount} bfit for user ${userId} in league ${leagueId}`);
+    this.logger.log(updatedLeaderboard);
+    return updatedLeaderboard
   }
 
   async incrementUserBfit(email: string, amount: number) {

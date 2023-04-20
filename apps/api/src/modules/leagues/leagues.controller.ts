@@ -267,8 +267,6 @@ export class LeaguesController {
    * @returns
    */
   @Post('/leagues/:leagueId/claim')
-  @ApiTags('leagues')
-  @ApiResponse({ type: League, status: 201 })
   claimBFIT(
     @Body() claimLeagueBfitDto: ClaimLeagueBfitDto,
     @User() authUser: AuthenticatedUser,
