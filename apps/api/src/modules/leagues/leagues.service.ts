@@ -15,7 +15,8 @@ import {
   LessThan,
   MoreThan,
   Not,
-  Repository
+  Repository,
+  UpdateResult
 } from 'typeorm'
 import { Pagination, PaginationOptionsInterface } from '../../helpers/paginate'
 import { QueueableEventPayload } from '../../models/queueable.model'
@@ -239,6 +240,7 @@ export class LeaguesService {
       )
     }
     let createdClaim: LeagueBfitClaim
+    let updatedLeaderboard: UpdateResult
     await this.leagueBfitClaimRepository.manager.transaction(
       async (manager) => {
         const leagueBfitClaimRepo = manager.getRepository(LeagueBfitClaim)
@@ -250,10 +252,10 @@ export class LeaguesService {
         leagueBfitClaim.league_id = leagueId
         leagueBfitClaim.user_id = userId
         leagueBfitClaim.bfit_amount = claimLeagueBfitDto.amount
-        createdClaim = await leagueBfitClaimRepo.save(leagueBfitClaim)
+        const createdClaim = await leagueBfitClaimRepo.save(leagueBfitClaim)
 
         // update claimed bfit in this user's leaderboard entry
-        await leaderboardEntryRepo.update(
+        updatedLeaderboard = await leaderboardEntryRepo.update(
           {
             leaderboard: { id: league.active_leaderboard.id },
             user: { id: userId }
@@ -263,6 +265,7 @@ export class LeaguesService {
             bfit_earned: leaderboardEntry.bfit_earned - claimLeagueBfitDto.amount
           }
         )
+
 
         // update user bfit balance
         await userRepo.increment(
@@ -292,7 +295,7 @@ export class LeaguesService {
         await walletTransactionRepo.save(walletTransaction)
       }
     )
-    return createdClaim
+    return [createdClaim, updatedLeaderboard]
   }
 
   async incrementUserBfit(email: string, amount: number) {
