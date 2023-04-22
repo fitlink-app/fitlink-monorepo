@@ -1,5 +1,5 @@
 #import "AppDelegate.h"
-
+#import "RCTAppleHealthKit.h"
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
@@ -50,6 +50,7 @@ static void InitializeFlipper(UIApplication *application) {
   [GMSServices provideAPIKey:@"AIzaSyDN5mQ0ZcEmfLxUF-b4cfdUbppBG9dAaFA"];
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+  [[RCTAppleHealthKit new] initializeBackgroundObservers:bridge];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"Fitlink"
                                             initialProperties:nil];
