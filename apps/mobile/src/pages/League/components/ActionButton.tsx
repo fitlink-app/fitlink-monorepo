@@ -48,19 +48,17 @@ export const ActionButton = ({
     );
   }
 
-  if (bfitTotal !== undefined && !isExpired) {
+  if (bfitTotal !== undefined && !isExpired && bfitValue == 0 ) {
     return (
       <BfitButton 
-        disabled={isClaiming}
-        onPress={handleClaimBfitPressed}  
-        text={isClaiming ? 'CLAIMING' : `CLAIM ${bfitTotal} BFIT`}
-        isLoading={isClaiming}
-        variant={'primary-outlined'} 
+        disabled 
+        text={`~${bfitTotal} BFIT`} 
+        variant={'secondary'} 
       />
     );
   }
 
-  if (bfitValue !== undefined) {
+  if (bfitValue !== undefined && bfitValue > 0) {
     return (
       <BfitButton
         disabled={isClaiming}
