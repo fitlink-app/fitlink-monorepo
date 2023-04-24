@@ -280,7 +280,7 @@ export class LeaguesService {
         const transactionHash = await this.sendBfitClaimTransaction(
           leagueId,
           userId,
-          claimLeagueBfitDto.amount
+          claimLeagueBfitDto.amount / 1000_000
         )
 
         let walletTransaction = new WalletTransaction()
@@ -289,8 +289,7 @@ export class LeaguesService {
         walletTransaction.league_id = league.id
         walletTransaction.league_name = league.name
         walletTransaction.user_id = userId
-        walletTransaction.bfit_amount = claimLeagueBfitDto.amount
-        walletTransaction.bfit_amount = claimLeagueBfitDto.amount
+        walletTransaction.bfit_amount = claimLeagueBfitDto.amount / 1000_000
         walletTransaction.transaction_id = transactionHash
         await walletTransactionRepo.save(walletTransaction)
       }
@@ -2042,7 +2041,7 @@ export class LeaguesService {
                 walletTransaction.league_id = league.id
                 walletTransaction.league_name = league.name
                 walletTransaction.user_id = leagueUser.id
-                walletTransaction.bfit_amount = bfit
+                walletTransaction.bfit_amount = bfit / 1000_000
                 await this.walletTransactionRepository.save(walletTransaction)
                 this.logger.log(`updating user ${leagueUser.id} with bfit ${bfit}`)
                 const parseRank = parseInt(entry.rank);
@@ -2157,7 +2156,7 @@ export class LeaguesService {
                   walletTransaction.league_id = league.id
                   walletTransaction.league_name = league.name
                   walletTransaction.user_id = leagueUser.id
-                  walletTransaction.bfit_amount = bfit
+                  walletTransaction.bfit_amount = bfit / 1000_000
                   await this.walletTransactionRepository.save(walletTransaction)
                   this.logger.log(`updating user ${leagueUser.id} with bfit ${bfit}`)
                   const parseRank = parseInt(entry.rank);
