@@ -148,7 +148,7 @@ export class BfitDistributionService {
 					walletTransaction.league_id = league.id
 					walletTransaction.league_name = league.name
 					walletTransaction.user_id = userId
-					walletTransaction.bfit_amount = bfit
+					walletTransaction.bfit_amount = bfit / 1000_000
 					incrementEntryPromises.push(
 						this.walletTransactionRepository.save(walletTransaction)
 					)
@@ -272,7 +272,7 @@ export class BfitDistributionService {
 					walletTransaction.league_id = league.id
 					walletTransaction.league_name = league.name
 					walletTransaction.user_id = userId
-					walletTransaction.bfit_amount = bfit
+					walletTransaction.bfit_amount = bfit / 1000_000
 					incrementEntryPromises.push(
 						this.walletTransactionRepository.save(walletTransaction)
 					)
