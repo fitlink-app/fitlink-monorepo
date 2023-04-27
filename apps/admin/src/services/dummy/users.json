@@ -1,6 +1,7 @@
 {
   "results": [
     {
+      "id": 1,
       "avatar": "https://randomuser.me/api/portraits/men/75.jpg",
       "initials": "DO",
       "date_joined": "2021-03-01T07:22:48.220Z",
@@ -12,9 +13,12 @@
       "total_leagues": 4,
       "created_leagues": 2,
       "rewards": 2,
-      "last_session": "2021-06-01T11:20:48.220Z"
+      "last_session": "2021-06-01T11:20:48.220Z",
+      "location": "Chicago",
+      "teams": "Marketing & Comms"
     },
     {
+      "id": 2,
       "avatar": "https://randomuser.me/api/portraits/men/51.jpg",
       "initials": "DC",
       "date_joined": "2021-03-01T07:22:48.220Z",
@@ -26,9 +30,12 @@
       "total_leagues": 2,
       "created_leagues": 0,
       "rewards": 3,
-      "last_session": "2021-06-01T11:20:48.220Z"
+      "last_session": "2021-06-01T11:20:48.220Z",
+      "location": "New York City",
+      "teams": "Customer Support"
     },
     {
+      "id": 3,
       "avatar": "https://randomuser.me/api/portraits/women/21.jpg",
       "initials": "ME",
       "date_joined": "2021-03-01T07:22:48.220Z",
@@ -40,9 +47,12 @@
       "total_leagues": 1,
       "created_leagues": 0,
       "rewards": 1,
-      "last_session": "2021-06-01T11:20:48.220Z"
+      "last_session": "2021-06-01T11:20:48.220Z",
+      "location": "Dubai",
+      "teams": "Customer Support"
     },
     {
+      "id": 4,
       "avatar": "https://randomuser.me/api/portraits/women/11.jpg",
       "initials": "HP",
       "date_joined": "2021-03-01T07:22:48.220Z",
@@ -54,9 +64,12 @@
       "total_leagues": 3,
       "created_leagues": 1,
       "rewards": 4,
-      "last_session": "2021-06-01T11:20:48.220Z"
+      "last_session": "2021-06-01T11:20:48.220Z",
+      "location": "London",
+      "teams": "Engineering"
     },
     {
+      "id": 5,
       "avatar": "https://randomuser.me/api/portraits/men/66.jpg",
       "initials": "HC",
       "date_joined": "2021-03-01T07:22:48.220Z",
@@ -68,9 +81,12 @@
       "total_leagues": 3,
       "created_leagues": 0,
       "rewards": 1,
-      "last_session": "2021-06-01T11:20:48.220Z"
+      "last_session": "2021-06-01T11:20:48.220Z",
+      "location": "Paris",
+      "teams": "Sales"
     },
     {
+      "id": 6,
       "avatar": "https://randomuser.me/api/portraits/men/12.jpg",
       "initials": "KW",
       "date_joined": "2021-03-01T07:22:48.220Z",
@@ -82,9 +98,12 @@
       "total_leagues": 1,
       "created_leagues": 0,
       "rewards": 3,
-      "last_session": "2021-06-01T11:20:48.220Z"
+      "last_session": "2021-06-01T11:20:48.220Z",
+      "location": "London",
+      "teams": "Marketing & Comms"
     },
     {
+      "id": 7,
       "avatar": "https://randomuser.me/api/portraits/women/66.jpg",
       "initials": "LB",
       "date_joined": "2021-03-01T07:22:48.220Z",
@@ -96,9 +115,12 @@
       "total_leagues": 1,
       "created_leagues": 0,
       "rewards": 2,
-      "last_session": "2021-06-01T11:20:48.220Z"
+      "last_session": "2021-06-01T11:20:48.220Z",
+      "location": "London",
+      "teams": "Sales"
     },
     {
+      "id": 8,
       "avatar": "https://randomuser.me/api/portraits/men/14.jpg",
       "initials": "KW",
       "date_joined": "2021-03-01T07:22:48.220Z",
@@ -110,9 +132,12 @@
       "total_leagues": 2,
       "created_leagues": 0,
       "rewards": 1,
-      "last_session": "2021-06-01T11:20:48.220Z"
+      "last_session": "2021-06-01T11:20:48.220Z",
+      "location": "New York City",
+      "teams": "Engineering"
     },
     {
+      "id": 9,
       "avatar": "https://randomuser.me/api/portraits/men/19.jpg",
       "initials": "AH",
       "date_joined": "2021-03-01T07:22:48.220Z",
@@ -124,9 +149,12 @@
       "total_leagues": 3,
       "created_leagues": 0,
       "rewards": 2,
-      "last_session": "2021-06-01T11:20:48.220Z"
+      "last_session": "2021-06-01T11:20:48.220Z",
+      "location": "New York City",
+      "teams": "Marketing & Comms"
     },
     {
+      "id": 10,
       "avatar": "https://randomuser.me/api/portraits/women/14.jpg",
       "initials": "FH",
       "date_joined": "2021-03-01T07:22:48.220Z",
@@ -138,9 +166,12 @@
       "total_leagues": 1,
       "created_leagues": 0,
       "rewards": 0,
-      "last_session": "2021-06-01T11:20:48.220Z"
+      "last_session": "2021-06-01T11:20:48.220Z",
+      "location": "New York City",
+      "teams": "Engineering"
     },
     {
+      "id": 11,
       "avatar": "https://randomuser.me/api/portraits/women/37.jpg",
       "initials": "SR",
       "date_joined": "2021-03-01T07:22:48.220Z",
@@ -152,7 +183,9 @@
       "total_leagues": 1,
       "created_leagues": 0,
       "rewards": 0,
-      "last_session": "2021-06-01T11:20:48.220Z"
+      "last_session": "2021-06-01T11:20:48.220Z",
+      "location": "Dubai",
+      "teams": "Engineering"
     }
   ],
   "total": 11,

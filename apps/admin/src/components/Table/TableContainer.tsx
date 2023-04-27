@@ -13,11 +13,16 @@ export type TableContainerProps = {
     total: number
     page_total: number
   }>
+  searchTerm?: string
 }
 
 const noop = () => {}
 
-export function TableContainer({ columns, fetch }: TableContainerProps) {
+export function TableContainer({
+  columns,
+  fetch,
+  searchTerm
+}: TableContainerProps) {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(0)
@@ -30,8 +35,22 @@ export function TableContainer({ columns, fetch }: TableContainerProps) {
     limit: 10
   })
 
-  const memoizedColumns = useMemo(() => columns, [])
-  const memoizedData = useMemo(() => data, [data])
+  const memoizedColumns = useMemo(() => columns, [columns])
+  const memoizedData = useMemo(() => {
+    let filteredData = data
+
+    if (searchTerm) {
+      const regex = new RegExp(searchTerm, 'i')
+
+      filteredData = data.filter((item) => {
+        return Object.values(item).some((value) => {
+          return regex.test(value as string)
+        })
+      })
+    }
+
+    return filteredData
+  }, [data, searchTerm])
 
   const fetchData = useCallback(() => {
     ;(async function () {

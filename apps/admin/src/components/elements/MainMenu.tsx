@@ -11,6 +11,7 @@ import IconSignOut from '../icons/IconSignOut'
 import IconYoga from '../icons/IconYoga'
 import IconNews from '../icons/IconNews'
 import IconEvents from '../icons/IconEvents'
+import IconBenefits from '../icons/IconBenefits'
 
 export default function MainMenu() {
   const router = useRouter()
@@ -34,6 +35,12 @@ export default function MainMenu() {
         label="Rewards"
         current={current.startsWith('/demo/rewards')}
         icon={<IconRewards />}
+      />
+      <MenuItem
+        to="/demo/benefits"
+        label="Benefits"
+        current={current.startsWith('/demo/benefits')}
+        icon={<IconBenefits />}
       />
       <MenuItem
         to="/demo/leagues"

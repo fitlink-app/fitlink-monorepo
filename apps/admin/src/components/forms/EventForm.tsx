@@ -8,6 +8,7 @@ import Event from '../elements/Event'
 import IconImage from '../icons/IconImage'
 import DateInput from '../elements/DateInput'
 import { add, addYears } from 'date-fns'
+const leaguesJson = require('../../services/dummy/leagues.json')
 
 export type EventFormProps = {
   current?: {
@@ -22,6 +23,7 @@ export type EventFormProps = {
     lng?: number
     locationAddress?: string
     imageGallery?: any[]
+    showOrganizer?: boolean
     organizerName?: string
     organizerEmail?: string
     organizerTelephone?: string
@@ -79,6 +81,11 @@ const repeats = [
   }
 ]
 
+const leagues = leaguesJson.results.map((league: any) => ({
+  label: league.name,
+  value: league.name
+}))
+
 export default function EventForm({ current }: EventFormProps) {
   const [image, setImage] = useState(current?.image || '')
   const [videoUrl, setVideoUrl] = useState(current?.videoUrl || '')
@@ -99,6 +106,7 @@ export default function EventForm({ current }: EventFormProps) {
   const [imageGallery, setImageGallery] = useState<any[]>(
     current?.imageGallery || []
   )
+  const [showOrganizer, setShowOrganizer] = useState(current?.showOrganizer)
   const [organizerName, setOrganizerName] = useState(
     current?.organizerName || ''
   )
@@ -116,6 +124,8 @@ export default function EventForm({ current }: EventFormProps) {
   const [endDate, setEndDate] = useState(
     current?.endDate ? new Date(current.endDate) : add(new Date(), { days: 1 })
   )
+  const [connectLeague, setConnectLeague] = useState(false)
+  const [league, setLeague] = useState('')
 
   const previewImage = (e) => {
     setImage(URL.createObjectURL(e.target.files[0]))
@@ -215,49 +225,65 @@ export default function EventForm({ current }: EventFormProps) {
         onChange={(v) => setRepeat(v.value)}
       />
 
-      <LocationSelect
-        lng={lng}
-        lat={lat}
-        label="Select location"
-        onChange={(lng, lat) => {
-          setLng(lng)
-          setLat(lat)
-        }}
-      />
+      {type !== 'virtual' && (
+        <>
+          <LocationSelect
+            lng={lng}
+            lat={lat}
+            label="Select location"
+            onChange={(lng, lat) => {
+              setLng(lng)
+              setLat(lat)
+            }}
+          />
 
-      <Input
-        value={locationAddress}
-        onChange={(v) => setLocationAddress(v)}
-        name="locationAddress"
-        placeholder="Location Address"
-        label="Location Address"
-      />
+          <Input
+            value={locationAddress}
+            onChange={(v) => setLocationAddress(v)}
+            name="locationAddress"
+            placeholder="Location Address"
+            label="Location Address"
+          />
+        </>
+      )}
 
       <ImageStack label="Image Gallery" files={imageGallery} />
 
-      <Input
-        value={organizerName}
-        onChange={(v) => setOrganizerName(v)}
-        name="organizerName"
-        placeholder="Organisers name"
-        label="Organisers name"
+      <Checkbox
+        label="Show Organizer"
+        name="showOrganizer"
+        checked={showOrganizer}
+        showSwitch={true}
+        onChange={(v) => setShowOrganizer(v)}
       />
 
-      <Input
-        value={organizerEmail}
-        onChange={(v) => setOrganizerEmail(v)}
-        name="organizerEmail"
-        placeholder="hello@organiser.com"
-        label="Organisers email"
-      />
+      {showOrganizer && (
+        <>
+          <Input
+            value={organizerName}
+            onChange={(v) => setOrganizerName(v)}
+            name="organizerName"
+            placeholder="Organisers name"
+            label="Organisers name"
+          />
 
-      <Input
-        value={organizerTelephone}
-        onChange={(v) => setOrganizerTelephone(v)}
-        name="organizerTelephone"
-        placeholder="(000) 0000 0000"
-        label="Organisers telephone number"
-      />
+          <Input
+            value={organizerEmail}
+            onChange={(v) => setOrganizerEmail(v)}
+            name="organizerEmail"
+            placeholder="hello@organiser.com"
+            label="Organisers email"
+          />
+
+          <Input
+            value={organizerTelephone}
+            onChange={(v) => setOrganizerTelephone(v)}
+            name="organizerTelephone"
+            placeholder="(000) 0000 0000"
+            label="Organisers telephone number"
+          />
+        </>
+      )}
 
       <Input
         value={moreInfoUrl}
@@ -267,13 +293,34 @@ export default function EventForm({ current }: EventFormProps) {
         label="More Info URL"
       />
 
+      {type !== 'virtual' && (
+        <Checkbox
+          label="Show on map"
+          name="showOnMap"
+          checked={showOnMap}
+          showSwitch={true}
+          onChange={(v) => setShowOnMap(v)}
+        />
+      )}
+
       <Checkbox
-        label="Show on map"
-        name="showOnMap"
-        checked={showOnMap}
+        label="Connect league"
+        name="connectLeague"
+        checked={connectLeague}
         showSwitch={true}
-        onChange={(v) => setShowOnMap(v)}
+        onChange={(v) => setConnectLeague(v)}
       />
+
+      {connectLeague && (
+        <Select
+          id="league"
+          defaultValue={leagues[leagues.findIndex((x) => x.value === league)]}
+          isSearchable={false}
+          options={leagues}
+          label="League"
+          onChange={(v) => setLeague(v.value)}
+        />
+      )}
 
       <div className="text-right mt-2">
         <button className="button">

@@ -4,15 +4,18 @@
   background: $white;
   border-radius: 0.5rem;
   box-shadow: 0 5px 8px 0 $grey-200;
-  
-  .drawer &, .invoices & {
+
+  .drawer &,
+  .invoices & {
     box-shadow: none;
 
-    th:first-child, td:first-child {
+    th:first-child,
+    td:first-child {
       padding-left: 0;
     }
 
-    th:last-child, td:last-child {
+    th:last-child,
+    td:last-child {
       padding-right: 0;
     }
   }
@@ -24,6 +27,9 @@
       border-bottom: 2px solid $grey-80;
       font-size: 0.875rem;
       font-weight: 400;
+      line-height: 1.14285714;
+      user-select: none;
+      vertical-align: 'middle';
 
       &:first-child {
         padding-left: 1rem;
@@ -43,16 +49,15 @@
       padding: 0.5rem 0.5rem;
       border-bottom: 1px solid $grey-80;
       transition: border-color 0.15s;
-      
+
       &:first-child {
         padding-left: 1rem;
       }
-  
+
       &:last-child {
         padding-right: 1rem;
       }
     }
-
 
     tr:not(:last-child) {
       &:hover {
@@ -84,7 +89,8 @@
       font-size: 0.875rem;
     }
 
-    input, select {
+    input,
+    select {
       height: 2.375rem;
       padding-top: 0;
       padding-bottom: 0;
@@ -106,7 +112,7 @@
       width: 1.625rem;
       height: 1.625rem;
       text-align: center;
-      
+
       &:hover:not([disabled]) {
         color: $grey;
         border: $white;
@@ -125,18 +131,18 @@
         margin: 0 auto;
       }
     }
-    
   }
 
-  .bua, .avatar {
+  .bua,
+  .avatar {
     width: 2.5rem;
     height: 2.5rem;
     display: block;
     border-radius: 50%;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.1);
-    
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+
     img {
       display: block;
       width: 100%;
@@ -158,7 +164,7 @@
       color: $white;
     }
   }
-  
+
   .bua {
     img {
       filter: blur(3px);
@@ -182,62 +188,107 @@
 
   .map-preview {
     max-width: 200px;
-    
+
     img {
       display: block;
       width: 100%;
       height: auto;
       border-radius: 1rem;
-      box-shadow: 0 5px 10px 0 rgba(0,0,0,0.1);
+      box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.1);
     }
   }
 
   tr:nth-child(1n) {
-    .bua { span { background: rgba(#864A76, 0.5); } }
+    .bua {
+      span {
+        background: rgba(#864a76, 0.5);
+      }
+    }
   }
 
   tr:nth-child(2n) {
-    .bua { span { background: rgba(#7E69A8, 0.5); } }
+    .bua {
+      span {
+        background: rgba(#7e69a8, 0.5);
+      }
+    }
   }
 
   tr:nth-child(3n) {
-    .bua { span { background: rgba(#5A8BD1, 0.5); } }
+    .bua {
+      span {
+        background: rgba(#5a8bd1, 0.5);
+      }
+    }
   }
 
   tr:nth-child(4n) {
-    .bua { span { background: rgba(#00AEE8, 0.5); } }
+    .bua {
+      span {
+        background: rgba(#00aee8, 0.5);
+      }
+    }
   }
 
   tr:nth-child(5n) {
-    .bua { span { background: rgba(#00CDE9, 0.5); } }
+    .bua {
+      span {
+        background: rgba(#00cde9, 0.5);
+      }
+    }
   }
 
   tr:nth-child(6n) {
-    .bua { span { background: rgba(#00E9D7, 0.5); } }
+    .bua {
+      span {
+        background: rgba(#00e9d7, 0.5);
+      }
+    }
   }
 
   tr:nth-child(7n) {
-    .bua { span { background: rgba(#4EF0C2, 0.5); } }
+    .bua {
+      span {
+        background: rgba(#4ef0c2, 0.5);
+      }
+    }
   }
 
   tr:nth-child(8n) {
-    .bua { span { background: rgba(#7CF5AB, 0.5); } }
+    .bua {
+      span {
+        background: rgba(#7cf5ab, 0.5);
+      }
+    }
   }
 
   tr:nth-child(9n) {
-    .bua { span { background: rgba(#A6F893, 0.5); } }
+    .bua {
+      span {
+        background: rgba(#a6f893, 0.5);
+      }
+    }
   }
 
   tr:nth-child(10n) {
-    .bua { span { background: rgba(#D0FA7F, 0.5); } }
+    .bua {
+      span {
+        background: rgba(#d0fa7f, 0.5);
+      }
+    }
   }
 
   tr:nth-child(11n) {
-    .bua { span { background: rgba(#F9F871, 0.5); } }
+    .bua {
+      span {
+        background: rgba(#f9f871, 0.5);
+      }
+    }
   }
 }
 
-.drawer, .invoices {
+.drawer,
+.invoices {
   .pagination {
     padding-left: 0;
     padding-right: 0;

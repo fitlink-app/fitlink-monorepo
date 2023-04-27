@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react'
-import { useTable, usePagination, Column } from 'react-table'
+import React, { useEffect, useState } from 'react'
+import { useTable, usePagination, Column, useSortBy } from 'react-table'
 import IconArrowLeft from '../icons/IconArrowLeft'
 import IconArrowLeftDouble from '../icons/IconArrowLeftDouble'
 import IconArrowRight from '../icons/IconArrowRight'
 import IconArrowRightDouble from '../icons/IconArrowRightDouble'
+import IconArrowUp from '../icons/IconArrowUp'
+import IconArrowDown from '../icons/IconArrowDown'
 
 export type TableProps = {
   columns: Column<any>[]
@@ -55,6 +57,7 @@ export function Table({
       manualPagination: true,
       pageCount: controlledPageCount
     },
+    useSortBy,
     usePagination
   )
 
@@ -75,15 +78,29 @@ export function Table({
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps()}>
+                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
                   {column.render('Header')}
-                  <span>
-                    {column.isSorted
-                      ? column.isSortedDesc
-                        ? ' 🔽'
-                        : ' 🔼'
-                      : ''}
-                  </span>
+
+                  {!column.disableSortBy && (
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: 16,
+                        height: 16,
+                        marginLeft: 4,
+                        verticalAlign: 'top'
+                      }}>
+                      {column.isSorted ? (
+                        column.isSortedDesc ? (
+                          <IconArrowDown />
+                        ) : (
+                          <IconArrowUp />
+                        )
+                      ) : (
+                        ''
+                      )}
+                    </span>
+                  )}
                 </th>
               ))}
             </tr>

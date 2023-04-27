@@ -49,7 +49,7 @@ export default function UserStats({
           setUserMsg(e)
           setResponse('')
         }}
-        placeholder="Send this user a push notification of praise or encourangement"
+        placeholder="Send this user a push notification of praise or encouragement"
       />
       {response && <p className="color-dark">{response}</p>}
       <div className="text-right mb-3">

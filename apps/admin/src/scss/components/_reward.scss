@@ -9,7 +9,7 @@
   //width: 25rem;
   max-width: 100%;
   cursor: pointer;
-  
+
   .card__bottom {
     h3 {
       margin: 0 auto 0 0;
@@ -34,7 +34,7 @@
     font-size: 0.875rem;
     font-weight: 700;
     text-align: right;
-    
+
     small {
       display: block;
       font-weight: 400;
@@ -74,5 +74,9 @@
     font-size: 0.75rem;
     text-align: center;
     display: block;
+  }
+
+  a {
+    color: inherit;
   }
 }

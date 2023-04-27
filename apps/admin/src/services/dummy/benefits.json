@@ -1,0 +1,24 @@
+{
+  "results": [
+    {
+      "image": "/temp/photo-1541167760496-1628856ab772.jpeg",
+      "brand": "Monmouth Coffee",
+      "shortTitle": "Free hot drink",
+      "title": "Enjoy a free coffee on us",
+      "created": "2021-05-21T11:05:00.220Z",
+      "url": "",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    },
+    {
+      "image": "/temp/proxima-lunar-white-device-3qt.png",
+      "brand": "Fitbit",
+      "shortTitle": "Fitbit Inspire 2™",
+      "title": "Earn yourself a new tracker",
+      "created": "2021-05-21T11:05:00.220Z",
+      "url": "https://www.fitbit.com/global/us/products/trackers/inspire2?sku=418BKBK",
+      "description": "This easy-to-use fitness tracker packs 24/7 heart rate, Active Zone Minutes and more. And with a free 1-year Fitbit Premium™ trial for new Premium users, get personalized guidance, exclusive insights and sleep tools to make a healthier you happen."
+    }
+  ],
+  "total": 2,
+  "page_total": 1
+}

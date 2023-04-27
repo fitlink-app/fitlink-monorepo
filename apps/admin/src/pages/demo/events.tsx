@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Event from '../../components/elements/Event'
 import Select from '../../components/elements/Select'
 import SortOrder from '../../components/elements/SortOrder'
@@ -7,6 +7,8 @@ import Drawer from '../../components/elements/Drawer'
 import EventForm from '../../components/forms/EventForm'
 import { AnimatePresence } from 'framer-motion'
 import IconPlus from '../../components/icons/IconPlus'
+import Input from '../../components/elements/Input'
+import Checkbox from '../../components/elements/Checkbox'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const events = require('../../services/dummy/events.json')
 const teamUsers = require('../../services/dummy/team-users.json')
@@ -148,10 +150,70 @@ const getAttendeesList = (amount: any) => {
 }
 
 export const AttendeesList = ({ attendees = 1 }: { attendees: any }) => {
-  const users = getAttendeesList(parseInt(attendees))
+  const users = useMemo(
+    () => getAttendeesList(parseInt(attendees)),
+    [attendees]
+  )
+
+  const [userMsg, setUserMsg] = useState('')
+  const [response, setResponse] = useState('')
+
+  const [email, setEmail] = useState(true)
+  const [notification, setNotification] = useState(true)
+
+  const sendMessage = () => {
+    console.log(userMsg)
+    // send message
+    setResponse('Your message has been sent')
+    setUserMsg('')
+  }
 
   return (
     <>
+      <Input
+        label="Send the attendees a message"
+        name="message"
+        value={userMsg}
+        type="textarea"
+        onChange={(e) => {
+          setUserMsg(e)
+          setResponse('')
+        }}
+        placeholder="Send the attendees a message of praise or encouragement"
+      />
+
+      <div style={{ display: 'flex' }}>
+        <Checkbox
+          label="Email"
+          name="email"
+          checked={email}
+          showSwitch={false}
+          onChange={(v) => setEmail(v)}
+          style={{ marginTop: -20, marginRight: 20 }}
+        />
+
+        <Checkbox
+          label="Push notification"
+          name="notification"
+          checked={notification}
+          showSwitch={false}
+          onChange={(v) => setNotification(v)}
+          style={{ marginTop: -20 }}
+        />
+      </div>
+
+      {response && <p className="color-dark">{response}</p>}
+      <div className="text-right mb-3">
+        <button
+          onClick={sendMessage}
+          className="button"
+          disabled={!email && !notification}>
+          Send
+        </button>
+      </div>
+
+      <br />
+
       <h4 className="light mb-3">Attendees</h4>
 
       {users.map((user, index) => (

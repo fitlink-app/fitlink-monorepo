@@ -1,4 +1,6 @@
-input:not([type="checkbox"]):not([type="file"]), textarea, select {
+input:not([type='checkbox']):not([type='file']),
+textarea,
+select {
   border: 1px solid #ccc;
   border-radius: 0.5rem;
   padding: 0.6875rem 0.5rem;
@@ -9,14 +11,17 @@ input:not([type="checkbox"]):not([type="file"]), textarea, select {
   margin: 0.5rem 0;
   resize: none;
 
-  &:focus, &:active {
+  &:focus,
+  &:active {
     outline: none;
     border-color: $primary;
-    box-shadow: 0 0 0 3px rgba($primary, 0.25), 0 10px 10px 0 rgba($primary, 0.1);
+    box-shadow: 0 0 0 3px rgba($primary, 0.25),
+      0 10px 10px 0 rgba($primary, 0.1);
   }
 }
 
-input:not([type="checkbox"]):not([type="file"]), select {
+input:not([type='checkbox']):not([type='file']),
+select {
   height: 2.75rem;
 }
 
@@ -28,12 +33,13 @@ textarea {
   /* z-index: 20;
   position: relative; */
   text-align: left;
-  
+
   input {
     height: auto !important;
     margin: 0 !important;
 
-    &:focus, &:active {
+    &:focus,
+    &:active {
       outline: none;
       border: 0;
       box-shadow: none !important;
@@ -52,14 +58,28 @@ select[multiple] {
 .input-block {
   position: relative;
 
-  input:not([type="checkbox"]):not([type="file"]), textarea, label, select {
+  &.noLabel {
+    label {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+  }
+
+  input:not([type='checkbox']):not([type='file']),
+  textarea,
+  label,
+  select {
     display: block;
     width: 100%;
   }
 
   &--inline {
     display: inline-block;
-    input:not([type="checkbox"]):not([type="file"]), textarea, label, select, .react-select {
+    input:not([type='checkbox']):not([type='file']),
+    textarea,
+    label,
+    select,
+    .react-select {
       display: inline-block;
       vertical-align: middle;
       width: auto;
@@ -71,9 +91,13 @@ select[multiple] {
   }
 
   &--error {
-    input:not([type="checkbox"]):not([type="file"]), textarea, label, select {
+    input:not([type='checkbox']):not([type='file']),
+    textarea,
+    label,
+    select {
       border-color: $red;
-      &:focus, &:active {
+      &:focus,
+      &:active {
         box-shadow: 0 0 0 3px rgba($red, 0.25);
       }
     }
@@ -86,20 +110,22 @@ select[multiple] {
     }
   }
 
-  input[type="checkbox"] {
+  input[type='checkbox'] {
     width: 0px;
     height: 0px;
     position: absolute;
     z-index: 1;
     opacity: 0;
   }
-  
-  input[type="checkbox"] + label {
+
+  input[type='checkbox'] + label {
     padding-left: 1.5rem;
     position: relative;
+    min-height: 1.125rem;
+    min-width: 1.125rem;
 
     &:before {
-      content: "";
+      content: '';
       display: block;
       position: absolute;
       left: 0;
@@ -111,11 +137,12 @@ select[multiple] {
     }
   }
 
-  input[type="checkbox"]:checked + label {
+  input[type='checkbox']:checked + label {
     &:before {
       border-color: $primary;
       color: $primary;
-      box-shadow: 0 0 0 3px rgba($primary, 0.25), 0 10px 10px 0 rgba($primary, 0.1);
+      box-shadow: 0 0 0 3px rgba($primary, 0.25),
+        0 10px 10px 0 rgba($primary, 0.1);
       background-image: url(../../img/check-solid.svg);
       background-size: 10px 10px;
       background-position: center center;
@@ -124,14 +151,14 @@ select[multiple] {
   }
 
   &--error {
-    input[type="checkbox"] + label {
+    input[type='checkbox'] + label {
       &:before {
         border: 1px solid $red;
       }
     }
   }
 
-  input[type="checkbox"].toggle-switch + label {
+  input[type='checkbox'].toggle-switch + label {
     padding-left: 3.5rem;
 
     @media screen and (min-width: $medium) {
@@ -154,7 +181,7 @@ select[multiple] {
     }
 
     &:after {
-      content: "";
+      content: '';
       display: block;
       position: absolute;
       left: 2px;
@@ -163,7 +190,7 @@ select[multiple] {
       border-radius: 50%;
       background: $white;
       transition: all 0.1s;
-      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
       top: calc(-0.35rem + 2px);
 
       @media screen and (min-width: $medium) {
@@ -173,15 +200,14 @@ select[multiple] {
   }
 
   &--error {
-    input[type="checkbox"].toggle-switch + label {
-
+    input[type='checkbox'].toggle-switch + label {
       &:before {
         box-shadow: 0 0 0 3px rgba($red, 0.25), 0px 0px 0px 1px $red;
       }
     }
   }
 
-  input[type="checkbox"].toggle-switch:checked + label {
+  input[type='checkbox'].toggle-switch:checked + label {
     &:before {
       background-color: $primary;
       color: $primary;
@@ -223,7 +249,8 @@ select[multiple] {
   display: inline-block;
   cursor: pointer;
 
-  &:active, &:focus {
+  &:active,
+  &:focus {
     color: $primary;
   }
 }
@@ -236,7 +263,8 @@ select[multiple] {
     border: 0;
     color: $darkGrey;
   }
-  .react-datepicker-popper[data-placement^="top"] .react-datepicker__triangle::before {
+  .react-datepicker-popper[data-placement^='top']
+    .react-datepicker__triangle::before {
     border-top-color: #fff;
   }
   .react-datepicker__header {
@@ -257,8 +285,10 @@ select[multiple] {
       padding-bottom: 0;
     }
   }
-  
-  .react-datepicker__current-month, .react-datepicker-time__header, .react-datepicker-year-header {
+
+  .react-datepicker__current-month,
+  .react-datepicker-time__header,
+  .react-datepicker-year-header {
     color: $darkGrey;
     font-weight: 700;
   }
@@ -267,30 +297,60 @@ select[multiple] {
     font-weight: 400;
   }
 
-  .react-datepicker__day--keyboard-selected, .react-datepicker__month-text--keyboard-selected, .react-datepicker__quarter-text--keyboard-selected, .react-datepicker__year-text--keyboard-selected {
+  .react-datepicker__day--keyboard-selected,
+  .react-datepicker__month-text--keyboard-selected,
+  .react-datepicker__quarter-text--keyboard-selected,
+  .react-datepicker__year-text--keyboard-selected {
     background-color: $primary;
   }
 
-  .react-datepicker__day--keyboard-selected:hover, .react-datepicker__month-text--keyboard-selected:hover, .react-datepicker__quarter-text--keyboard-selected:hover, .react-datepicker__year-text--keyboard-selected:hover, .react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item--selected:hover {
+  .react-datepicker__day--keyboard-selected:hover,
+  .react-datepicker__month-text--keyboard-selected:hover,
+  .react-datepicker__quarter-text--keyboard-selected:hover,
+  .react-datepicker__year-text--keyboard-selected:hover,
+  .react-datepicker__time-container
+    .react-datepicker__time
+    .react-datepicker__time-box
+    ul.react-datepicker__time-list
+    li.react-datepicker__time-list-item--selected:hover {
     background-color: $dark;
   }
 
-  .react-datepicker__day--selected, .react-datepicker__day--in-selecting-range, .react-datepicker__day--in-range, .react-datepicker__month-text--selected, .react-datepicker__month-text--in-selecting-range, .react-datepicker__month-text--in-range, .react-datepicker__quarter-text--selected, .react-datepicker__quarter-text--in-selecting-range, .react-datepicker__quarter-text--in-range, .react-datepicker__year-text--selected, .react-datepicker__year-text--in-selecting-range, .react-datepicker__year-text--in-range {
+  .react-datepicker__day--selected,
+  .react-datepicker__day--in-selecting-range,
+  .react-datepicker__day--in-range,
+  .react-datepicker__month-text--selected,
+  .react-datepicker__month-text--in-selecting-range,
+  .react-datepicker__month-text--in-range,
+  .react-datepicker__quarter-text--selected,
+  .react-datepicker__quarter-text--in-selecting-range,
+  .react-datepicker__quarter-text--in-range,
+  .react-datepicker__year-text--selected,
+  .react-datepicker__year-text--in-selecting-range,
+  .react-datepicker__year-text--in-range {
     background-color: $primary;
     font-weight: 700;
     box-shadow: 0 0 0 3px rgba($primary, 0.25);
   }
-  
+
   .react-datepicker__time-container {
     border-color: $grey-300;
   }
-  
-  .react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item {
+
+  .react-datepicker__time-container
+    .react-datepicker__time
+    .react-datepicker__time-box
+    ul.react-datepicker__time-list
+    li.react-datepicker__time-list-item {
     height: auto;
     padding: 8px 10px;
   }
-  
-  .react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item--selected {
+
+  .react-datepicker__time-container
+    .react-datepicker__time
+    .react-datepicker__time-box
+    ul.react-datepicker__time-list
+    li.react-datepicker__time-list-item--selected {
     background-color: $primary;
     font-weight: 700;
     box-shadow: 0 0 0 3px rgba($primary, 0.25);

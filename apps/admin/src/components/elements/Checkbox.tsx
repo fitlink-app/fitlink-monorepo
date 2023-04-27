@@ -2,12 +2,14 @@ import { useState } from 'react'
 import clsx from 'clsx'
 
 export type CheckboxProps = {
-  label: string
+  label?: string
   name: string
   checked?: boolean
   showSwitch?: boolean
-  onChange?: (e:any) => void
+  onChange?: (e: any) => void
   error?: string
+  style?: any
+  className?: string
 }
 
 export default function Checkbox({
@@ -16,40 +18,34 @@ export default function Checkbox({
   checked = false,
   onChange,
   showSwitch = true,
-  error = ''
+  error = '',
+  className,
+  ...props
 }: CheckboxProps) {
-  const [internal, setInternal] = useState(checked)
-
-  const blockClasses = clsx({
-    'input-block': true,
-    'input-block--error': error !== ''
-  })
+  const blockClasses = clsx(
+    {
+      'input-block': true,
+      'input-block--error': error !== ''
+    },
+    className
+  )
 
   const classes = clsx({
     'toggle-switch': showSwitch
   })
 
-  const handleChange = () => {
-    onChange(!internal)
-    setInternal(!internal)
-  }
-
   return (
-    <div className={blockClasses}>
+    <div className={blockClasses} {...props}>
       <input
         type="checkbox"
         name={name}
         id={name}
-        checked={internal}
+        checked={checked}
         className={classes}
-        onChange={ () => handleChange() }
-        />
-      <label
-        htmlFor={name}
-        >
-        {label}
-      </label>
-      { error !== '' && <span>{error}</span> }
+        onChange={(event) => onChange(event.target.checked)}
+      />
+      <label htmlFor={name}>{label}</label>
+      {error !== '' && <span>{error}</span>}
     </div>
   )
 }
