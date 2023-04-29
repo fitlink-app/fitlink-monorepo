@@ -6,9 +6,9 @@
       "description": "Join this weekly steps league to see if you can get all the steps!",
       "members": 35,
       "duration": 7,
-      "resetDate": "2021-06-30T07:22:48.220Z",
-      "startDate": "2021-06-02T07:22:48.220Z",
-      "created": "2021-06-02T07:22:48.220Z",
+      "resetDate": "2023-06-30T07:22:48.220Z",
+      "startDate": "2023-06-02T07:22:48.220Z",
+      "created": "2023-06-02T07:22:48.220Z",
       "sport": "steps",
       "repeats": true
     },
@@ -18,9 +18,9 @@
       "description": "Who can put in the most miles in a month!",
       "members": 11,
       "duration": 28,
-      "resetDate": "2021-06-30T07:22:48.220Z",
-      "startDate": "2021-06-02T07:22:48.220Z",
-      "created": "2021-06-02T07:22:48.220Z",
+      "resetDate": "2023-06-30T07:22:48.220Z",
+      "startDate": "2023-06-02T07:22:48.220Z",
+      "created": "2023-06-02T07:22:48.220Z",
       "sport": "ride",
       "repeats": true
     }
