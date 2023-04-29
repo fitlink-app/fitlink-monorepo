@@ -30,20 +30,20 @@ const invoices = {
     {
       id: 'fitlink-202106-87',
       status: 'paid',
-      amount: 21.88,
-      due_date: '2021-06-01T00:00:00.220Z'
+      amount: 2103.88,
+      due_date: '2023-03-01T00:00:00.220Z'
     },
     {
       id: 'fitlink-202105-87',
       status: 'paid',
-      amount: 20.00,
-      due_date: '2021-05-01T00:00:00.220Z'
+      amount: 2004.00,
+      due_date: '2023-02-01T00:00:00.220Z'
     },
     {
       id: 'fitlink-202105-87',
       status: 'paid',
-      amount: 15.94,
-      due_date: '2021-04-01T00:00:00.220Z'
+      amount: 1502.94,
+      due_date: '2023-01-01T00:00:00.220Z'
     }
   ],
   total: 3,
@@ -86,28 +86,28 @@ export default function page() {
                 </small>
               </p>
               <h2 className="h1 light mb-0 ml-a unbilled-amount">
-                £34.89
+                $2127.50
               </h2>
             </div>
             <table className="static-table static-table--invoice">
               <tbody>
                 <tr>
                   <td>Active users</td>
-                  <td>11</td>
-                  <td className="text-right">$2.00</td>
-                  <td className="text-right pr-1">£22</td>
+                  <td>4255</td>
+                  <td className="text-right">$1.00</td>
+                  <td className="text-right pr-1">4255</td>
                 </tr>
                 <tr>
                   <td>User discount</td>
-                  <td>0.55%</td>
+                  <td>0.50%</td>
                   <td className="text-right"></td>
-                  <td className="text-right pr-1">-£0.12</td>
+                  <td className="text-right pr-1">-$0.50</td>
                 </tr>
                 <tr>
                   <td>Ecologi, Tree planting reward</td>
-                  <td>100</td>
+                  <td>1000</td>
                   <td className="text-right">$0.18</td>
-                  <td className="text-right pr-1">($18.00) £13.01</td>
+                  <td className="text-right pr-1">($180.00) £130.01</td>
                 </tr>
               </tbody>
             </table>

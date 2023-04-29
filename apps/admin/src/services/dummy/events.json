@@ -1,44 +1,44 @@
 {
   "results": [
     {
-      "image": "https://storage.googleapis.com/download/storage/v1/b/fitlink-rn.appspot.com/o/league_images%2FKra3fH32cOYO7aDmm3vN%2Fimage_original.jpg?generation=1614415164288687&alt=media",
-      "videoUrl": "https://www.youtube.com/watch?v=iagXuIwB_FA",
-      "title": "Minima veniam animi modi",
-      "shortDescription": "Lorem ipsum dolor sit, amet consectetur elit.",
-      "type": "meetup",
-      "startDate": "2022-09-01T05:00:00.220Z",
-      "endDate": "2022-09-01T13:00:00.220Z",
-      "locationAddress": "High Lodge, Thetford Forest, Brandon IP27 0AF, UK (Lat: 52.43445140000001; Lng: 0.6632408999999999)",
+      "image": "https://i3.ytimg.com/vi/F-2d2vYsHSI/maxresdefault.jpg",
+      "videoUrl": "https://www.youtube.com/watch?v=F-2d2vYsHSI",
+      "title": "Guided Breathwork Meditation",
+      "shortDescription": "30 Minute Free Conscious Breathwork Session. Bring awareness to the breath to go beyond what you normally understand of the world. Learn how your own breath.",
+      "type": "virtual",
+      "startDate": "2023-09-01T05:00:00.220Z",
+      "endDate": "2023-09-01T13:00:00.220Z",
+      "locationAddress": "",
       "imageGallery": [
         {
-          "url": "https://d3642p7out83uo.cloudfront.net/e5616f6a-d3bd-4d10-80e0-5e646d0c7de5-standard.jpg"
+          "url": ""
         }
       ],
-      "showOrganizer": true,
-      "organizerName": "Fitlink",
-      "organizerEmail": "hello@fitlinkapp.com",
-      "moreInfoUrl": "fitlinkapp.com",
-      "showOnMap": true,
+      "showOrganizer": false,
+      "organizerName": "",
+      "organizerEmail": "",
+      "moreInfoUrl": "",
+      "showOnMap": false,
       "members": 10
     },
     {
-      "image": "/temp/photo-1541625602330-2277a4c46182.jpeg",
-      "videoUrl": "https://www.youtube.com/watch?v=iagXuIwB_FA",
-      "title": "Ipsum dolor sit amet consectetur",
-      "shortDescription": "Autem tempora doloremque nihil saepe necessitatibus.",
-      "type": "virtual",
-      "startDate": "2022-09-05T05:00:00.220Z",
-      "endDate": "2022-10-05T13:00:00.220Z",
-      "locationAddress": "High Lodge, Thetford Forest, Brandon IP27 0AF, UK (Lat: 52.43445140000001; Lng: 0.6632408999999999)",
+      "image": "https://media.licdn.com/dms/image/D4E22AQF4hvRImIaMzw/feedshare-shrink_800/0/1682604275290?e=1685577600&v=beta&t=Ku8go79wXWjs9rsk3VFy_M_fgpkOKnkvb6uQrvOY94A",
+      "videoUrl": "",
+      "title": "Yoga Flow",
+      "shortDescription": "Lululemon sponsored beautiful Yoga Flow class with Catie Pauley for our Dublin employees, and provided yoga mats to be used for future classes.",
+      "type": "class",
+      "startDate": "2023-09-05T05:00:00.220Z",
+      "endDate": "2023-10-05T13:00:00.220Z",
+      "locationAddress": "LinkedIn Ireland, Wilton Pl, Dublin, Ireland (Lat: 53.334170; Lng: -6.248320)",
       "imageGallery": [
         {
-          "url": "https://d3642p7out83uo.cloudfront.net/e5616f6a-d3bd-4d10-80e0-5e646d0c7de5-standard.jpg"
+          "url": "https://content.linkedin.com/content/dam/me/2806_045D_Small.jpg.original.jpg"
         }
       ],
       "showOrganizer": true,
-      "organizerName": "Fitlink",
-      "organizerEmail": "hello@fitlinkapp.com",
-      "moreInfoUrl": "fitlinkapp.com",
+      "organizerName": "Catie Pauley",
+      "organizerEmail": "info@yogadublin.com",
+      "moreInfoUrl": "https://www.yogadublin.com/team/catie-pauley",
       "showOnMap": false,
       "members": 59
     }
