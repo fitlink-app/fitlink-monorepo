@@ -79,28 +79,30 @@ export function Table({
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
                 <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                  {column.render('Header')}
+                  <div className="react-table__th-center">
+                    {column.render('Header')}
 
-                  {!column.disableSortBy && (
-                    <span
-                      style={{
-                        display: 'inline-block',
-                        width: 16,
-                        height: 16,
-                        marginLeft: 4,
-                        verticalAlign: 'top'
-                      }}>
-                      {column.isSorted ? (
-                        column.isSortedDesc ? (
-                          <IconArrowDown />
+                    {!column.disableSortBy && (
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          width: 16,
+                          height: 16,
+                          marginLeft: 4,
+                          verticalAlign: 'top'
+                        }}>
+                        {column.isSorted ? (
+                          column.isSortedDesc ? (
+                            <IconArrowDown />
+                          ) : (
+                            <IconArrowUp />
+                          )
                         ) : (
-                          <IconArrowUp />
-                        )
-                      ) : (
-                        ''
-                      )}
-                    </span>
-                  )}
+                          ''
+                        )}
+                      </span>
+                    )}
+                  </div>
                 </th>
               ))}
             </tr>
