@@ -13,6 +13,18 @@
       "repeats": true
     },
     {
+      "image": "https://media.licdn.com/dms/image/D4E22AQF4hvRImIaMzw/feedshare-shrink_800/0/1682604275290?e=1685577600&v=beta&t=Ku8go79wXWjs9rsk3VFy_M_fgpkOKnkvb6uQrvOY94A",
+      "name": "Yoga Flow",
+      "description": "Yoga Flow class with Catie Pauley for our Dublin employees.",
+      "members": 59,
+      "duration": 1,
+      "resetDate": "2023-06-30T07:22:48.220Z",
+      "startDate": "2023-09-05T08:00:00.220Z",
+      "created": "2023-09-05T20:00:00.220Z",
+      "sport": "yoga",
+      "repeats": false
+    },
+    {
       "image": "/temp/photo-1541625602330-2277a4c46182.jpeg",
       "name": "Monthly Cycle Challenge",
       "description": "Who can put in the most miles in a month!",
@@ -25,6 +37,6 @@
       "repeats": true
     }
   ],
-  "total": 2,
+  "total": 3,
   "page_total": 1
 }
