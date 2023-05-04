@@ -68,6 +68,8 @@
 	<string>Read and understand health data.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Share workout data with Fitlink.</string>
+	<key>NSHealthClinicalHealthRecordsShareUsageDescription</key>
+	<string>Read and understand clinical health data.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Your location will be used to find nearby activities.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
