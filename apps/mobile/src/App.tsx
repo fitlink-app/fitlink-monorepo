@@ -3,7 +3,7 @@ import React, {useEffect} from 'react';
 import Config from 'react-native-config';
 import {persistor, store} from 'redux/store';
 import codePush from 'react-native-code-push';
-import {Platform, UIManager} from 'react-native';
+import {Platform, UIManager , LogBox} from 'react-native';
 import RNBootSplash from 'react-native-bootsplash';
 import {PersistGate} from 'redux-persist/integration/react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -25,6 +25,12 @@ import {DefaultErrorSnackbarHandler} from 'components/snackbar/DefaultErrorSnack
 import ThemeProvider from './theme/ThemeProvider';
 import {QueryPersistor} from 'query/QueryPersistor';
 import {ModalProvider, Transition} from './contexts';
+
+LogBox.ignoreLogs([
+  `to contain units`,
+  'Require cycle:',
+  'No health activities found',
+])
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
