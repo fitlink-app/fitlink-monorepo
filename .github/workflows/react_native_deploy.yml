@@ -86,7 +86,7 @@ jobs:
     - name: Update appcenter-config.json with AppSecret
       run: |
         cd apps/mobile/android/app/src/main/assets
-        jq --arg appSecret "${{ secrets.APP_CENTER_SECRET }}" '.AppSecret = $appSecret' appcenter-config.json > appcenter-config.tmp
+        jq --arg appSecret "${{ secrets.APP_CENTER_SECRET }}" '.app_secret = $appSecret' appcenter-config.json > appcenter-config.tmp
         mv appcenter-config.tmp appcenter-config.json
 
     - name: Deploy to CodePush
