@@ -18713,6 +18713,11 @@ jetifier@^1.6.2:
   resolved "https://registry.yarnpkg.com/jetifier/-/jetifier-1.6.8.tgz#e88068697875cbda98c32472902c4d3756247798"
   integrity sha512-3Zi16h6L5tXDRQJTb221cnRoVG9/9OvreLdLU2/ZjRv/GILL+2Cemt0IKvkowwkDpvouAU1DQPOJ7qaiHeIdrw==
 
+jetifier@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/jetifier/-/jetifier-2.0.0.tgz#699391367ca1fe7bc4da5f8bf691eb117758e4cb"
+  integrity sha512-J4Au9KuT74te+PCCCHKgAjyLlEa+2VyIAEPNCdE5aNkAJ6FAJcAqcdzEkSnzNksIa9NkGmC4tPiClk2e7tCJuQ==
+
 jimp@^0.16.1:
   version "0.16.1"
   resolved "https://registry.yarnpkg.com/jimp/-/jimp-0.16.1.tgz#192f851a30e5ca11112a3d0aa53137659a78ca7a"
@@ -23617,6 +23622,11 @@ react-native-device-info@^10.3.0:
   resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-10.3.0.tgz#6bab64d84d3415dd00cc446c73ec5e2e61fddbe7"
   integrity sha512-/ziZN1sA1REbJTv5mQZ4tXggcTvSbct+u5kCaze8BmN//lbxcTvWsU6NQd4IihLt89VkbX+14IGc9sVApSxd/w==
 
+react-native-draggable-flatlist@3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-draggable-flatlist/-/react-native-draggable-flatlist-3.1.0.tgz#c18b429aaa5d333f792c84e38740da32eaf96bf4"
+  integrity sha512-o6TzR9/Uk8jW+j9Mdi6f9v5Vb9lkbYEnlCNmTYnYNa4DKxC3Ldm51py0Rq2vcTaynBnnUaZR6wWVvuZFiKDtdQ==
+
 react-native-fs@^2.20.0:
   version "2.20.0"
   resolved "https://registry.yarnpkg.com/react-native-fs/-/react-native-fs-2.20.0.tgz#05a9362b473bfc0910772c0acbb73a78dbc810f6"
@@ -23654,7 +23664,7 @@ react-native-google-fit@^0.19.0:
   version "3.2.0"
   resolved "https://codeload.github.com/krakz999/react-native-google-places/tar.gz/06cf98d9c987e055f9a7c347f62868f6d3bee239"
 
-react-native-health@^1.10.0:
+react-native-health@1.10.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/react-native-health/-/react-native-health-1.10.0.tgz#c9621d95f006f5ab0a9ea3f17d2233eadf170d9c"
   integrity sha512-qfrxiErQ8x9P7f7VAOHpiafxpmQw5bYFWAXScu2Wu/Aj/xwB1eSOCVRmmVZqSFQ35+KYuMee/qOqkkLnQx3rGQ==

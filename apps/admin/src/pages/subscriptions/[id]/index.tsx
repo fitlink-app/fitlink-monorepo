@@ -258,6 +258,18 @@ export default function SubscriptionsBillingPage() {
         },
         close: () => {
           paymentSources.refetch()
+        },
+        success: () => {
+          if (
+            // @ts-ignore
+            typeof window.rewardful === 'function' &&
+            chargebeeSubscription?.data?.customer?.email
+          ) {
+            // @ts-ignore
+            window.rewardful('convert', {
+              email: chargebeeSubscription.data.customer.email
+            })
+          }
         }
       })
     }
