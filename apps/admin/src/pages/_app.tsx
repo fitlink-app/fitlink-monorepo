@@ -65,7 +65,7 @@ function App({ Component, pageProps }: AppProps) {
             companyId: team.id,
             name: team.name,
             userCount: team.user_count,
-            createdAt: (team.created_at as any) as string
+            createdAt: team.created_at as any as string
           }
         }
 
@@ -93,6 +93,16 @@ function GoogleAnalytics() {
         `
         }}
       />
+      <script
+        dangerouslySetInnerHTML={{
+          __html:
+            "(function(w,r){w._rwq=r;w[r]=w[r]||function(){(w[r].q=w[r].q||[]).push(arguments)}})(window,'rewardful');"
+        }}
+      />
+      <script
+        async
+        src="https://r.wdfl.co/rw.js"
+        data-rewardful="c4b0aa"></script>
     </Head>
   )
 }
