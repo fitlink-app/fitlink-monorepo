@@ -35,12 +35,10 @@ const SignupPage = () => {
   const router = useRouter()
 
   const words = [
-    'people',
-    'business',
-    'building',
-    'team',
-    'school',
-    'transport'
+    'Individuals',
+    'Businesses',
+    'Schools',
+    'Teams'
   ]
 
   const { handleSubmit, register, control, watch, setValue } = useForm({
@@ -114,7 +112,7 @@ const SignupPage = () => {
   }
 
   return (
-    <Signup title="Sign up">
+    <Signup title="Empower Your Team: Start Your Free Trial with Fitlink for Teams Today">
       <div className="img-overlay" />
       <div className="primary" />
       <div className="flex">
@@ -122,7 +120,7 @@ const SignupPage = () => {
           <div className="intro-content">
             <Logo />
             <h1>
-              Healthy
+              Empowering
               <div className="color-primary">
                 <Typewriter
                   loop
@@ -136,18 +134,18 @@ const SignupPage = () => {
               </div>
             </h1>
             <h2>
-              No demos, quotes, upfront payment or hassley sales. Just instant
-              access, try before you buy and happy healthy days.
+              Experience hassle-free onboarding with no demos, quotes, or upfront payments. Just instant access to a healthier, happier future with Fitlink for Teams.
             </h2>
+            <p>Start your 30-day free trial and enjoy:</p>
             <ul>
-              <li>30 day free trial</li>
-              <li>Dashboard with team insights and analytics</li>
-              <li>Custom team leagues</li>
-              <li>Create your own rewards</li>
-              <li>Access to sponsored rewards</li>
-              <li>Team based activities</li>
-              <li>Custom branded website</li>
+              <li>Insightful Dashboard with Team Analytics</li>
+              <li>Custom Team Leagues for Engaging Competition</li>
+              <li>Ability to Create Your Own Rewards</li>
+              <li>Access to Sponsored Rewards for Extra Motivation</li>
+              <li>Team-Based Activities for Cohesion and Fun</li>
+              <li>Custom-Branded Website for a Personalised Touch</li>
             </ul>
+            <p>Begin your journey towards a healthier team today.</p>
             <p>
               <a
                 className="link"
