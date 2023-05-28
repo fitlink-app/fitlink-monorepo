@@ -145,7 +145,7 @@ export class Subscription extends CreatableEntity {
   @Column({
     type: 'enum',
     enum: SubscriptionType,
-    default: SubscriptionType.Trial14day
+    default: SubscriptionType.Trial30day
   })
   type: string
 
