@@ -1,3 +1,8 @@
+declare global {
+  interface Window {
+    tdconv: any;
+  }
+}
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useRef, useState, useContext } from 'react'
 import Card from '../../../components/elements/Card'
