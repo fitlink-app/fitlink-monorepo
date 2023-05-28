@@ -40,7 +40,7 @@ import useCurrencyConversion, {
 import toast from 'react-hot-toast'
 import { SubscriptionType } from '@fitlink/api/src/modules/subscriptions/subscriptions.constants'
 
-const PER_UNIT_PRICE = 5 // 5.00 GBP
+const PER_UNIT_PRICE = 1 // 1.00 GBP
 
 export default function SubscriptionsBillingPage() {
   const [drawContent, setDrawContent] = useState<
