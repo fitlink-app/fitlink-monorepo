@@ -138,7 +138,7 @@ export class BfitDistributionService {
 					let bfitEarnings = new LeagueBfitEarnings()
 					bfitEarnings.user_id = userId
 					bfitEarnings.league_id = league.id
-					bfitEarnings.bfit_amount = bfit / 1000_000
+					bfitEarnings.bfit_amount = bfit
 					let savedEarnings = await this.leagueBfitEarningsRepository.save(
 						bfitEarnings
 					)
@@ -262,7 +262,7 @@ export class BfitDistributionService {
 					let bfitEarnings = new LeagueBfitEarnings()
 					bfitEarnings.user_id = userId
 					bfitEarnings.league_id = league.id
-					bfitEarnings.bfit_amount = bfit / 1000_000
+					bfitEarnings.bfit_amount = bfit
 					let savedEarnings = await this.leagueBfitEarningsRepository.save(
 						bfitEarnings
 					)
