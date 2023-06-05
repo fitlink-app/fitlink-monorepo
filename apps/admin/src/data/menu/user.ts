@@ -1,11 +1,6 @@
 export default function MenuUser() {
   return [
     {
-      label: 'Settings',
-      link: '/settings/profile',
-      icon: 'IconGear'
-    },
-    {
       label: 'Knowledge Base',
       link: '/knowledge-base',
       icon: 'IconInfo'
@@ -19,6 +14,12 @@ export default function MenuUser() {
       label: 'Help Center',
       link: '/help-centre',
       icon: 'IconInfo'
+    },
+    { hr: true },
+    {
+      label: 'Settings',
+      link: '/settings/profile',
+      icon: 'IconGear'
     },
     { hr: true },
     {
