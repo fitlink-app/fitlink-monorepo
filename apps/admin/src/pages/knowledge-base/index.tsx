@@ -30,7 +30,7 @@ export default function page() {
             resp.data[i].excerpt.yoast = str
           }
           setPosts(resp.data)
-          setPages(parseInt(resp.headers['x-wp-totalpages'], 10))
+          setPages(parseInt(resp.headers['x-wp-totalpages'], 9))
           setLoading(false)
         })
     } catch (error) {
@@ -53,7 +53,7 @@ export default function page() {
   return (
     <Dashboard title="Knowledge base">
       <div className="flex ai-c mb-2">
-        <h1 className="light mb-0 mr-2">Knowledge base</h1>
+        <h1 className="light mb-0 mr-2">Knowledge Base</h1>
         <button
           className="button alt small mt-1"
           type="button"
