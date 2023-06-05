@@ -59,12 +59,13 @@ export const ActionButton = ({
   }
 
   if (bfitValue !== undefined && bfitValue > 0) {
+    const displayValue = bfitValue / 1000000;
     return (
       <BfitButton
         disabled={isClaiming}
         onPress={handleClaimBfitPressed}
         isLoading={isClaiming}
-        text={isClaiming ? 'CLAIMING' : `CLAIM ${bfitValue} BFIT`}
+        text={isClaiming ? 'CLAIMING' : `CLAIM ${displayValue} BFIT`}
         variant={'primary-outlined'}
       />
     );
