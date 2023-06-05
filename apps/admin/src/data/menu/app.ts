@@ -60,8 +60,8 @@ export default function MenuApp(primary: Primary) {
       icon: 'IconMobile'
     },
     {
-      label: 'Help Center',
-      link: 'https://support.fitlinkapp.com/en/',
+      label: 'Help Centre',
+      link: '/help-centre',
       icon: 'IconInfo'
     },
     { hr: true },
