@@ -6,13 +6,18 @@ export default function MenuUser() {
       icon: 'IconGear'
     },
     {
+      label: 'Knowledge Base',
+      link: '/knowledge-base',
+      icon: 'IconInfo'
+    },
+    {
       label: 'App Store',
       link: '/app-store',
       icon: 'IconMobile'
     },
     {
       label: 'Help Center',
-      link: 'https://support.fitlinkapp.com/en/collections/3158686-fitlink-app',
+      link: '/help-centre',
       icon: 'IconInfo'
     },
     { hr: true },
