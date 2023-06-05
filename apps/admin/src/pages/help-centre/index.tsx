@@ -9,7 +9,8 @@ export default function page() {
     <Dashboard title="Help Centre">
       <div className="flex ai-c mb-2">
         <h1 className="light mb-0 mr-2">Help Centre</h1>
-          <div className="row">
+          <div className="">
+            <br />
             <iframe
               src="https://www.chatbase.co/chatbot-iframe/rjhhmaF2LZeVMARWE3WJC"
               width="100%"
