@@ -19,7 +19,7 @@ export default function page() {
     try {
       await axios
         .get(
-          `https://blog.fitlinkapp.com/wp-json/wp/v2/posts?_embed&&page=${page}`
+          `https://blog.fitlinkapp.com/wp-json/wp/v2/posts?_embed&categories=30&page=${page}`
         )
         .then((resp) => {
           for (let i = 0; i < resp.data.length; i++) {
