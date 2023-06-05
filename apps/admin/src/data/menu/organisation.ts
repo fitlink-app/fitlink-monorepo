@@ -41,11 +41,6 @@ export function MenuOrganisationComplex(primary: Primary) {
     },
     { hr: true },
     {
-      label: 'Subscriptions',
-      link: '/subscriptions',
-      icon: 'IconCreditCard'
-    },
-    {
       label: 'Knowledge Base',
       link: '/knowledge-base',
       icon: 'IconInfo'
@@ -59,6 +54,33 @@ export function MenuOrganisationComplex(primary: Primary) {
       label: 'Help Center',
       link: '/help-centre',
       icon: 'IconInfo'
+    },
+    { hr: true },
+    {
+      label: 'Subscriptions',
+      link: '/subscriptions',
+      icon: 'IconCreditCard'
+    },
+    {
+      label: 'Billing',
+      link: `/subscriptions/${primary.subscription}`,
+      icon: 'IconCreditCard',
+      id: '_billing'
+    },
+    {
+      label: 'Settings',
+      link: '/settings',
+      icon: 'IconGear',
+      subMenu: [
+        {
+          label: 'Manage Page',
+          link: '/settings/page'
+        },
+        {
+          label: 'My Profile',
+          link: '/settings/profile'
+        }
+      ]
     },
     { hr: true },
     {
