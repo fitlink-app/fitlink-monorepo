@@ -46,13 +46,18 @@ export function MenuOrganisationComplex(primary: Primary) {
       icon: 'IconCreditCard'
     },
     {
+      label: 'Knowledge Base',
+      link: '/knowledge-base',
+      icon: 'IconInfo'
+    },
+    {
       label: 'App Store',
       link: '/app-store',
       icon: 'IconMobile'
     },
     {
       label: 'Help Center',
-      link: 'https://support.fitlinkapp.com/en/',
+      link: '/help-centre',
       icon: 'IconInfo'
     },
     { hr: true },
@@ -120,13 +125,18 @@ export function MenuOrganisationSimple(primary: Primary) {
       id: '_billing'
     },
     {
+      label: 'Knowledge Base',
+      link: '/knowledge-base',
+      icon: 'IconInfo'
+    },
+    {
       label: 'App Store',
       link: '/app-store',
       icon: 'IconMobile'
     },
     {
       label: 'Help Center',
-      link: 'https://support.fitlinkapp.com/en/',
+      link: '/help-centre',
       icon: 'IconInfo'
     },
     { hr: true },
