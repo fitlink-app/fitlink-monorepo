@@ -44,13 +44,18 @@ export default function MenuTeam(primary: Primary) {
       ]
     },
     {
+      label: 'Knowledge Base',
+      link: '/knowledge-base',
+      icon: 'IconInfo'
+    },
+    {
       label: 'App Store',
       link: '/app-store',
       icon: 'IconMobile'
     },
     {
       label: 'Help Center',
-      link: 'https://support.fitlinkapp.com/en/',
+      link: '/help-centre',
       icon: 'IconInfo'
     },
     { hr: true },
