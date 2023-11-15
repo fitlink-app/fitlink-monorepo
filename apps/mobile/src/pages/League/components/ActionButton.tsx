@@ -57,7 +57,7 @@ export const ActionButton = ({
       />
     );
   }
-
+  
   if (bfitValue !== undefined && bfitValue > 0) {
     const displayValue = bfitValue / 1000000;
     return (
