@@ -1,8 +1,10 @@
 export enum OrganisationType {
   Company = 'company',
+  Startup = 'startup',
   Government = 'government',
+  Club = 'club',
   School = 'school',
-  Institution = 'institution',
+  University = 'university',
   Other = 'other'
 }
 
