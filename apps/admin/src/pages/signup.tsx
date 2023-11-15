@@ -35,10 +35,12 @@ const SignupPage = () => {
   const router = useRouter()
 
   const words = [
-    'Individuals',
-    'Businesses',
+    'Companies',
+    'Startups',
+    'Governments',
+    'Clubs',
     'Schools',
-    'Teams'
+    'Universities'
   ]
 
   const { handleSubmit, register, control, watch, setValue } = useForm({
