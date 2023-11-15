@@ -35,10 +35,12 @@ const SignupPage = () => {
   const router = useRouter()
 
   const words = [
-    'Individuals',
-    'Businesses',
+    'Companies',
+    'Startups',
+    'Governments',
+    'Clubs',
     'Schools',
-    'Teams'
+    'Universities'
   ]
 
   const { handleSubmit, register, control, watch, setValue } = useForm({
@@ -120,12 +122,12 @@ const SignupPage = () => {
           <div className="intro-content">
             <Logo />
             <h1>
-              Empowering
+              Healthy
               <div className="color-primary">
                 <Typewriter
                   loop
                   cursor
-                  cursorStyle="|"
+                  cursorStyle="..."
                   typeSpeed={70}
                   deleteSpeed={50}
                   delaySpeed={1000}
@@ -133,28 +135,17 @@ const SignupPage = () => {
                 />
               </div>
             </h1>
-            <h2>
-              Experience hassle-free onboarding with no demos, quotes, or upfront payments. Just instant access to a healthier, happier future with Fitlink for Teams.
-            </h2>
-            <p>Start your 30-day free trial and enjoy:</p>
+            <h2>Try before you buy. Hassle-free onboarding. No demos, quotes, or upfront payments. Just instant access to Fitlink for you and your team.</h2>
+            <p>Start your 30-day free trial today:</p>
             <ul>
-              <li>Insightful Dashboard with Team Analytics</li>
-              <li>Custom Team Leagues for Engaging Competition</li>
-              <li>Ability to Create Your Own Rewards</li>
-              <li>Access to Sponsored Rewards for Extra Motivation</li>
-              <li>Team-Based Activities for Cohesion and Fun</li>
-              <li>Custom-Branded Website for a Personalised Touch</li>
+              <li>Dashboard with Team Analytics</li>
+              <li>Create Team Activity Leagues</li>
+              <li>Add Your Own Personalised Rewards</li>
+              <li>List Classes, Routes or Groups</li>
+              <li>Bespoke Website to Promote</li>
+              <li>Knowledge Base With Support</li>
             </ul>
-            <p>Begin your journey towards a healthier team today.</p>
-            <p>
-              <a
-                className="link"
-                href="https://fitlinkteams.com/pricing"
-                target="_blank"
-                rel="noopener noreferrer">
-                View pricing details <IconArrowRight />
-              </a>
-            </p>
+            <p>A healthy future awaits.</p>
           </div>
         </div>
         <div className="content">
