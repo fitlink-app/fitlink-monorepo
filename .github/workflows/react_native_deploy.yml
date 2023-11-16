@@ -12,86 +12,84 @@ on:
       - 'feature/*'
 
 jobs:
-deploy-ios:
-  runs-on: macos-latest
-  if: github.event_name == 'push'
+  deploy-ios:
+    runs-on: macos-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-  steps:
-  - name: Checkout repository
-    uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
 
-  - name: Set up Node.js
-    uses: actions/setup-node@v2
-    with:
-      node-version: 16
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: apps/mobile/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('apps/mobile/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
 
-  - name: Cache dependencies
-    uses: actions/cache@v2
-    with:
-      path: apps/mobile/node_modules
-      key: ${{ runner.os }}-node-modules-${{ hashFiles('apps/mobile/yarn.lock') }}
-      restore-keys: |
-        ${{ runner.os }}-node-modules-
+      - name: Install dependencies
+        run: yarn install
+        working-directory: apps/mobile
 
-  - name: Install dependencies
-    run: yarn install
-    working-directory: apps/mobile
+      - name: Install CocoaPods dependencies
+        run: pod install
+        working-directory: apps/mobile/ios
 
-  - name: Install CocoaPods dependencies
-    run: pod install
-    working-directory: apps/mobile/ios
+      - name: Build IPA
+        run: |
+          xcodebuild -workspace Fitlink.xcworkspace \
+                     -scheme Fitlink \
+                     -sdk iphoneos \
+                     -configuration AppStoreDistribution \
+                     -archivePath $PWD/build/Fitlink.xcarchive \
+                     archive | xcpretty
+          xcodebuild -exportArchive \
+                     -archivePath $PWD/build/Fitlink.xcarchive \
+                     -exportOptionsPlist exportOptions.plist \
+                     -exportPath $PWD/build
+        working-directory: apps/mobile/ios
 
-  - name: Build IPA
-    run: |
-      xcodebuild -workspace Fitlink.xcworkspace \
-                 -scheme Fitlink \
-                 -sdk iphoneos \
-                 -configuration AppStoreDistribution \
-                 -archivePath $PWD/build/Fitlink.xcarchive \
-                 archive | xcpretty
-      xcodebuild -exportArchive \
-                 -archivePath $PWD/build/Fitlink.xcarchive \
-                 -exportOptionsPlist exportOptions.plist \
-                 -exportPath $PWD/build
-    working-directory: apps/mobile/ios
+      - name: Upload IPA to Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-release
+          path: apps/mobile/ios/build/Fitlink.ipa
 
-  - name: Upload IPA to Artifacts
-    uses: actions/upload-artifact@v2
-    with:
-      name: app-release
-      path: apps/mobile/ios/build/Fitlink.ipa
+  deploy-android:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-deploy-android:
-  runs-on: ubuntu-latest
-  if: github.event_name == 'push'
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
 
-  steps:
-  - name: Checkout repository
-    uses: actions/checkout@v2
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: apps/mobile/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('apps/mobile/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
 
-  - name: Set up Node.js
-    uses: actions/setup-node@v2
-    with:
-      node-version: 16
+      - name: Install dependencies
+        run: yarn install
+        working-directory: apps/mobile
 
-  - name: Cache dependencies
-    uses: actions/cache@v2
-    with:
-      path: apps/mobile/node_modules
-      key: ${{ runner.os }}-node-modules-${{ hashFiles('apps/mobile/yarn.lock') }}
-      restore-keys: |
-        ${{ runner.os }}-node-modules-
+      - name: Build Android App Bundle
+        run: ./gradlew bundleRelease
+        working-directory: apps/mobile/android
 
-  - name: Install dependencies
-    run: yarn install
-    working-directory: apps/mobile
-
-  - name: Build Android App Bundle
-    run: ./gradlew bundleRelease
-    working-directory: apps/mobile/android
-
-  - name: Upload AAB to Artifacts
-    uses: actions/upload-artifact@v2
-    with:
-      name: app-release
-      path: apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
+      - name: Upload AAB to Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-release
+          path: apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
