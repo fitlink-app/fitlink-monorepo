@@ -3,8 +3,8 @@
 # Migrate the database
 node migrate.js
 
-# Install the required versions of Chromium etc for Amazon Linux 2
-# Note that the environment variable is required to be set in ELB
-# PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
-sudo amazon-linux-extras install epel -y
-sudo yum install -y chromium
+# Install Chrome and symlink to Chromium (required for AL 2023)
+export BROWSERS_SRC_DIR="/usr/src/browsers" && mkdir -p $BROWSERS_SRC_DIR
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm --output $BROWSERS_SRC_DIR/google-chrome-stable_current_x86_64.rpm
+sudo yum install -y -q $BROWSERS_SRC_DIR/google-chrome-stable_current_x86_64.rpm
+sudo ln -s /usr/bin/google-chrome-stable /usr/bin/chromium
