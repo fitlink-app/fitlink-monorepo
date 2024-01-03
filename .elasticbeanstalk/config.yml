@@ -1,17 +1,17 @@
 branch-defaults:
   develop:
-    environment: fitlink-nest-dev
+    environment: fitlink-nest-dev-env
     group_suffix: null
   main:
-    environment: fitlink-nest-prod
+    environment: fitlink-nest-prod-env
     group_suffix: null
 deploy:
   artifact: artifacts/app.zip
 global:
-  application_name: fitlink-nest-dev
+  application_name: fitlink-nest
   branch: null
   default_ec2_keyname: fitlink-nest-dev-eb
-  default_platform: Node.js 14 running on 64bit Amazon Linux 2
+  default_platform: Node.js 18 running on 64bit Amazon Linux 2023
   default_region: eu-west-2
   include_git_submodules: true
   instance_profile: null
