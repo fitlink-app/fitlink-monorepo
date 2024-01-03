@@ -231,4 +231,4 @@ jobs:
 
       - name: Deploy to Elastic Beanstalk
         run: |
-          eb deploy fitlink-nest-prod --staged
+          eb deploy fitlink-nest-prod-env --staged
