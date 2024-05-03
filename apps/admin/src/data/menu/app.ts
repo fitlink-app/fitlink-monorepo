@@ -61,7 +61,7 @@ export default function MenuApp(primary: Primary) {
     },
     {
       label: 'Help Center',
-      link: 'https://support.fitlinkapp.com/en/',
+      link: 'https://intercom.help/fitlinkapp',
       icon: 'IconInfo'
     },
     { hr: true },
