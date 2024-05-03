@@ -1,3 +1,8 @@
+declare global {
+  interface Window {
+    tdconv: any;
+  }
+}
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useRef, useState, useContext } from 'react'
 import Card from '../../../components/elements/Card'
@@ -35,7 +40,7 @@ import useCurrencyConversion, {
 import toast from 'react-hot-toast'
 import { SubscriptionType } from '@fitlink/api/src/modules/subscriptions/subscriptions.constants'
 
-const PER_UNIT_PRICE = 5 // 5.00 GBP
+const PER_UNIT_PRICE = 1 // 1.00 GBP
 
 export default function SubscriptionsBillingPage() {
   const [drawContent, setDrawContent] = useState<
@@ -237,31 +242,58 @@ export default function SubscriptionsBillingPage() {
 
   const openChargebeeCheckout = ({ id }: Partial<Subscription>) => {
     if (chargeBee && chargeBee.current) {
-      chargeBee.current.openCheckout({
-        hostedPage: async () => {
-          try {
-            const data = await api.get(
-              '/subscriptions/:subscriptionId/chargebee/hosted-page',
-              {
-                subscriptionId: id
-              },
-              {
-                useRole: focusRole,
-                primary
-              }
-            )
+        chargeBee.current.openCheckout({
+            hostedPage: async () => {
+                try {
+                    const data = await api.get(
+                        '/subscriptions/:subscriptionId/chargebee/hosted-page',
+                        {
+                            subscriptionId: id
+                        },
+                        {
+                            useRole: focusRole,
+                            primary
+                        }
+                    )
 
-            return data
-          } catch (error) {
-            console.error(error)
-          }
-        },
-        close: () => {
-          paymentSources.refetch()
-        }
-      })
+                    return data
+                } catch (error) {
+                    console.error(error)
+                }
+            },
+            close: () => {
+                paymentSources.refetch()
+            },
+            success: () => {
+                if (
+                    // @ts-ignore
+                    typeof window.rewardful === 'function' &&
+                    chargebeeSubscription?.data?.customer?.email
+                ) {
+                    // @ts-ignore
+                    window.rewardful('convert', {
+                        email: chargebeeSubscription.data.customer.email
+                    })
+                }
+
+                if (
+                    // @ts-ignore
+                    typeof window.tdconv === 'function'
+                ) {
+                    // @ts-ignore
+                    window.tdconv('init', '2355966', { 'element': 'iframe' });
+                    window.tdconv('track', 'sale', {
+                        'transactionId': id,
+                        'ordervalue': (chargebeeSubscription.data.subscription.plan_unit_price / 100) * chargebeeSubscription.data.subscription.plan_quantity,
+                        'currency':'GBP', 
+                        'event':437044
+                    });
+                }
+            }
+        })
     }
-  }
+}
+
 
   const { convertGbp } = useCurrencyConversion(
     chargebeeSubscription.isSuccess

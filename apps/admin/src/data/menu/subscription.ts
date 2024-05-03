@@ -9,8 +9,7 @@ export default function MenuSubscription(primary: Primary) {
     },
     {
       label: 'Help Center',
-      link:
-        'https://support.fitlinkapp.com/en/collections/3167640-fitlink-billing',
+      link: '/help-centre',
       icon: 'IconInfo'
     },
     { hr: true },

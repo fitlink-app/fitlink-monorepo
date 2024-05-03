@@ -27,6 +27,10 @@ export type LeagueFormProps = {
 
 const durations = [
   {
+    label: '1 day',
+    value: '1'
+  },
+  {
     label: '1 week',
     value: '7'
   },
